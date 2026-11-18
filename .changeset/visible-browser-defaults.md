@@ -1045,3 +1045,6 @@ definite refusals and existing uncertain-delivery reservations (issue #56).
 Recheck the same acknowledged consent after saved connection loading and before
 browser fallback. Preserve definite refusal codes, eligible explicit recovery,
 resolved adapter options and already positive delivery receipts (issue #56).
+Recheck acknowledged chat and person consent after browser session, composer,
+typing and native send-button waits. Refuse before dispatch while preserving
+already-issued positive receipts and uncertain outcomes (issue #56).

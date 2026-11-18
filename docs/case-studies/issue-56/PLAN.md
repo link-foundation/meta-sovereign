@@ -1,3 +1,10 @@
+2026-11-18 current consent during native browser waits:
+
+- [x] Trace session/login, shared queue, composer, typing and send-button waits after transport entry. Reproduce 28 actual-parent failures with five positive/uncertain controls through finite fake sessions.
+- [x] Recheck acknowledged chat/person consent before browser work, after composer focus and after the final native button lookup; preserve already-issued success and uncertainty and close every owned session.
+- [x] Pass 79 focused checks and scoped lint, format, secrets and source/document limits. Preserve actual-parent and initial fixture diagnostics; independently verify the source-bound archive before committing this atomic correction.
+- [ ] Review the exact published-source hosted gate and continue every remaining provider/trigger and issue-wide requirement. Current acceptance stays 88/118, with 30 unfinished; PR57 remains draft/unmerged.
+
 2026-11-18 restored saved-answer disclosure verification:
 
 - [x] Preserve the exact `72dc9552` WebKit shard-7 failure, annotations and valid native screenshot; identify the blind post-reload toggle.

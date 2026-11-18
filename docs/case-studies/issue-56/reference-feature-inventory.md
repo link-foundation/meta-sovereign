@@ -6,6 +6,11 @@ the earlier exact-source reviews, supersedes pending statuses and historical
 counts in the dated progress notes below.
 Every remaining requirement stays in scope for PR57.
 
+QA19/QA20 also include [consent during browser waits](consent-browser-send.md):
+twenty-eight exact-parent failures cover late chat/person opt-outs during session,
+queue, composer, typing and button waits. Full provider-trigger and SDK verification
+remain required; neither criterion is accepted here.
+
 QA19/QA20 also include [consent after connection loading](consent-provider.md):
 fourteen exact-parent failures and 112 focused checks cover current opt-outs
 before adapter entry and browser fallback. Later SDK/browser waits and the full

@@ -251,10 +251,12 @@ const sentInDoubt = (error) =>
   });
 
 /** Click the send button when it is there, otherwise press the key. */
-const pressSend = async (ui, commander) => {
+const pressSend = async (ui, commander, verifyCurrent) => {
   const button = ui.send?.selector
     ? await firstMatch(commander, ui.send.selector)
     : null;
+  // A lookup can wait behind native UI work. Refusal still precedes dispatch.
+  await verifyCurrent?.();
   try {
     if (button) {
       await commander.clickButton({ selector: button, scrollIntoView: true });
@@ -499,6 +501,60 @@ const senderCapabilities = (platforms) => ({
     choiceSources(platforms).filter(({ id }) => platforms[id].documents),
 });
 
+const createBrowserTextSender =
+  ({
+    store,
+    choices,
+    uiFor,
+    inChat,
+    focusComposer,
+    input,
+    typingDelayMs,
+    log,
+    clock,
+  }) =>
+  async (draft = {}) => {
+    const { source, chat, to, text, answer } = draft;
+    if (answer?.strictOptions) {
+      return choices.chooseAnswer(draft);
+    }
+    const body = String(text ?? '');
+    if (!body.trim()) {
+      throw codedError(`${source}: message text is required`, 'bad-draft');
+    }
+    const consent = () =>
+      requireSendConsent(store, {
+        ...draft,
+        contact: draft.contact ?? to,
+      });
+    const ui = requireTextUi(uiFor(source));
+    const target = ui.target({ chat, to });
+    await consent();
+    await inChat(source, target, { text: body }, async (commander) => {
+      const composer = await focusComposer(source, ui, commander);
+      await consent();
+      // A pre-filled chat URL already put the text into the composer.
+      if (!ui.prefill && input === 'fill') {
+        await commander.fillTextArea({
+          selector: composer,
+          text: body,
+          checkEmpty: false,
+          simulateTyping: true,
+        });
+      } else if (!ui.prefill) {
+        await typeLines(commander, body, typingDelayMs);
+      }
+      await pressSend(ui, commander, consent);
+    });
+    log(`[browser:${source}] sent to ${target}`);
+    return {
+      via: 'browser',
+      source,
+      chat: String(target),
+      sentAt: clock().toISOString(),
+    };
+  };
+
 export const createBrowserSender = ({
   openSession = null,
   platforms = WEB_UIS,
@@ -601,40 +657,17 @@ export const createBrowserSender = ({
     },
 
     /** Type and send one message in the network's web UI. */
-    async send(draft = {}) {
-      const { source, chat, to, text, answer } = draft;
-      if (answer?.strictOptions) {
-        return choices.chooseAnswer(draft);
-      }
-      const body = String(text ?? '');
-      if (!body.trim()) {
-        throw codedError(`${source}: message text is required`, 'bad-draft');
-      }
-      const ui = requireTextUi(uiFor(source));
-      const target = ui.target({ chat, to });
-      await inChat(source, target, { text: body }, async (commander) => {
-        const composer = await focusComposer(source, ui, commander);
-        // A pre-filled chat URL already put the text into the composer.
-        if (!ui.prefill && input === 'fill') {
-          await commander.fillTextArea({
-            selector: composer,
-            text: body,
-            checkEmpty: false,
-            simulateTyping: true,
-          });
-        } else if (!ui.prefill) {
-          await typeLines(commander, body, typingDelayMs);
-        }
-        await pressSend(ui, commander);
-      });
-      log(`[browser:${source}] sent to ${target}`);
-      return {
-        via: 'browser',
-        source,
-        chat: String(target),
-        sentAt: clock().toISOString(),
-      };
-    },
+    send: createBrowserTextSender({
+      store,
+      choices,
+      uiFor,
+      inChat,
+      focusComposer,
+      input,
+      typingDelayMs,
+      log,
+      clock,
+    }),
 
     /** Emit the "typing…" status: type a character and erase it. */
     async setTyping({ source, chat, to } = {}) {
