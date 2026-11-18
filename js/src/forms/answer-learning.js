@@ -1,4 +1,7 @@
-import { prepareAnswerPreview } from '../automation/question-store.js';
+import {
+  prepareFormAnswerPreview,
+  checkPrivateFormProfile,
+} from './private-profile.js';
 import { writeAnswerKnowledge } from '../automation/question-knowledge.js';
 import { createAnswerPairLearner } from '../automation/question-learning.js';
 import { createAnswerContractor } from '../automation/question-contraction.js';
@@ -57,7 +60,7 @@ export const learnFormAnswerPairs = (
       throw new Error('Form learning capacity exceeded; no proposals applied.');
     }
     await check();
-    const { context } = await prepareAnswerPreview(
+    const { context } = await prepareFormAnswerPreview(
       store,
       { profileId, approximate: false },
       { maxBytes: 4 * 1024 ** 2 }
@@ -84,6 +87,7 @@ export const learnFormAnswerPairs = (
     try {
       for (const rule of rules) {
         await check();
+        await checkPrivateFormProfile(store, context);
         await store.put(rule);
         written.push(rule.id);
       }

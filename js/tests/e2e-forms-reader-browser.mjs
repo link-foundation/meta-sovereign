@@ -31,6 +31,7 @@ import { verifyFormPrefillUi } from './helpers/e2e-form-prefill.mjs';
 import { verifyFormRadioUi } from './helpers/e2e-form-radio.mjs';
 import { verifyFormCustomUi } from './helpers/e2e-form-custom.mjs';
 import { verifyFormConfiguredResumeUi } from './helpers/e2e-form-configured-resume.mjs';
+import { verifyFormPrivateProfileUi } from './helpers/e2e-form-private-profile.mjs';
 import { verifyFormUploadUi } from './helpers/e2e-form-upload.mjs';
 import { verifyFormChoicesUi } from './helpers/e2e-form-choices.mjs';
 import { verifyFormJournalUi } from './helpers/e2e-form-journal.mjs';
@@ -54,6 +55,16 @@ import { prefillCleanupFixture } from '../../experiments/issue-56/prefill-cleanu
 const fixture = await startFormsFixture();
 fixture.prefillCleanup = prefillCleanupFixture();
 const store = createMemoryStore();
+// Storage decorators preserve descriptors. Only the isolated private-files
+// scenario supplies a directory; every other scenario remains memory-only.
+let privateLogFile;
+Object.defineProperty(store, 'logFile', {
+  enumerable: true,
+  get: () => privateLogFile,
+  set: (value) => {
+    privateLogFile = value;
+  },
+});
 await seedFormAnswers(store);
 await seedFormQuestionnaire(store);
 await seedLinkAnswers(store);
@@ -379,6 +390,7 @@ const verifyGroupOnly = async ({ page }) => {
 
 const verifyCustomOnly = async ({ page, until }) => {
   const contactScenario = [
+    ['PRIVATE_PROFILE', verifyFormPrivateProfileUi],
     ['QUESTIONNAIRE_LEARNING', verifyFormQuestionnaireLearningUi],
     ['QUESTIONNAIRE', verifyFormQuestionnaireUi],
     ['PUBLICATION', verifyAssignmentPublicationUi],
@@ -585,6 +597,7 @@ await app.finish(async () => {
       verifyFormChoicesUi,
       verifyFormUploadUi,
       verifyFormConfiguredResumeUi,
+      verifyFormPrivateProfileUi,
       ...(process.env.FORMS_GROUP === 'forms-reader'
         ? []
         : Object.values(formGroups).flat()),
@@ -627,7 +640,8 @@ if (
   process.env.FORMS_AUTOMATIC_ONLY !== '1' &&
   process.env.FORMS_PREFILL_ONLY !== '1' &&
   process.env.FORMS_PUBLICATION_ONLY !== '1' &&
-  process.env.FORMS_CONFIGURED_RESUME_ONLY !== '1'
+  process.env.FORMS_CONFIGURED_RESUME_ONLY !== '1' &&
+  process.env.FORMS_PRIVATE_PROFILE_ONLY !== '1'
 ) {
   await import('./e2e-forms-watcher-browser.mjs');
 }

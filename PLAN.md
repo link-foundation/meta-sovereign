@@ -1,3 +1,13 @@
+2026-11-18 automatic private Forms profile defaults (QA22 remains unfinished):
+
+- [x] Trace pinned B4/B4a loading and precedence, selected-store CLI/API/UI planning and detached learning.
+- [x] Draft bounded private resume/contacts/override reads, canonical aliases, contact expansion and source-hash freshness; preserve named/inline choices and owner text.
+- [x] Pass the initial 46 focused checks with one worker; add automatic-prefill, unsafe-parent and actual native browser regressions.
+- [x] Reproduce all 11 failures against the actual published parent; pass all 47 focused checks, native UI receipt and reviewed desktop/phone evidence.
+- [x] Pass scoped lint/format/secrets and source/doc limits; preserve source-bound evidence with the unchanged 6.49% duplication gate.
+- [ ] Independently rehash, commit and push the private-profile unit only to the prepared branch.
+- [ ] Review all five exact-source workflows, finish QA21/QA23 audits and every remaining original criterion. Inventory remains 83 verified / 35 unfinished; PR57 stays draft and unmerged.
+
 2026-11-17 runner graceful Stop and weighted browser coverage:
 
 - [x] Reproduce native Stop returning before a finite 3.5-second cleanup; trace successful signal dispatch versus actual screen drainage.

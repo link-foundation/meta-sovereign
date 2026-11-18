@@ -36,7 +36,8 @@ export const captureFormReview = async (page, name) => {
   await page.locator('[data-form-fill]').scrollIntoViewIfNeeded();
   assert(
     await page.evaluate(
-      () => document.documentElement.scrollWidth <= globalThis.innerWidth
+      () =>
+        globalThis.document.documentElement.scrollWidth <= globalThis.innerWidth
     ),
     `${name} review fits phone width`
   );
@@ -51,6 +52,15 @@ export const captureFormField = async (page, id, name, scenario) => {
   if (process.env[`FORMS_${scenario.toUpperCase()}_SCREENSHOTS`] !== '1') {
     return;
   }
+  // Resize handlers may render and restore scroll on the following frame.
+  await page.evaluate(
+    () =>
+      new Promise((resolve) =>
+        globalThis.requestAnimationFrame(() =>
+          globalThis.requestAnimationFrame(resolve)
+        )
+      )
+  );
   await page
     .locator(`[data-form-field="${id}"]`)
     .evaluate((node) => node.scrollIntoView({ block: 'start' }));
@@ -71,10 +81,9 @@ export const applyCurrent = async (page) => {
 export const formControlValues = (page) =>
   page.evaluate(() =>
     Object.fromEntries(
-      [...document.querySelectorAll('input,textarea')].map((node) => [
-        node.name,
-        node.value,
-      ])
+      [...globalThis.document.querySelectorAll('input,textarea')].map(
+        (node) => [node.name, node.value]
+      )
     )
   );
 
@@ -94,7 +103,8 @@ export const captureFormFieldLayouts = async (page, id, scenario) => {
   await page.setViewportSize({ width: 390, height: 844 });
   assert(
     await page.evaluate(
-      () => document.documentElement.scrollWidth <= globalThis.innerWidth
+      () =>
+        globalThis.document.documentElement.scrollWidth <= globalThis.innerWidth
     ),
     `${scenario} review fits phone width`
   );

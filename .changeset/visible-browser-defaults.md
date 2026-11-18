@@ -936,3 +936,8 @@ Bound standalone weighted question matching before tokenization, preserving the
 Recognize hosted regional EC2 Ubuntu archives when preparing browser dependencies, preserving fallback mirrors, metadata and existing CI deadlines (issue #56).
 
 Observe exact runner shutdown after graceful Stop before acknowledging success or switching modes; retain bounded waiting, cancellation, exclusive ownership and truthful unknown/stuck refusals (issue #56 VD02).
+
+Load bounded private resume, contacts and profile overrides automatically beside
+the selected Forms store. Preserve explicit profiles and owner text, reject stale
+source bytes before filling or learning, and contract learned contacts without
+approving answers or submitting forms (issue #56 QA22).

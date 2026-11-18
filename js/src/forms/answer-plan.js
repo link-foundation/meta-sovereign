@@ -1,6 +1,6 @@
 import { planAnswer } from '../automation/question-answers.js';
 import { splitQuestions } from '../automation/question-match.js';
-import { prepareAnswerPreview } from '../automation/question-store.js';
+import { prepareFormAnswerPreview } from './private-profile.js';
 import { withSalaryExchangeEvidence } from '../automation/salary-exchange-policy.js';
 import { validateFormInspection } from './plan-validation.js';
 import { formProfileFields } from './profile-fields.js';
@@ -194,7 +194,7 @@ export const planFormAnswers = async (store, input = {}, modelOptions = {}) => {
     modelOptions.frozen ? currentFormAssignment : rememberFormAssignment
   )(store, inspection);
   const held = assignment?.state === 'needs-repository';
-  const prepared = await prepareAnswerPreview(
+  const prepared = await prepareFormAnswerPreview(
     store,
     {
       ...input,

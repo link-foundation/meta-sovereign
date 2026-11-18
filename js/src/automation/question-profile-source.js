@@ -1,6 +1,6 @@
 // Owner-selected sources produce drafts, never approvals or stored changes.
 import { cvFromLino } from '../cv/model.js';
-import { normalizeAnswerProfile } from './question-profile.js';
+import { normalizeAnswerProfile, renderAnswer } from './question-profile.js';
 import { debugQuestionTurn } from './question-turns.js';
 import { fromLegacyContacts } from './question-profile-legacy.js';
 import { fromProfileText, profileLabelKey } from './question-profile-text.js';
@@ -76,14 +76,15 @@ const validContactUrl = (key, value) => {
   return true;
 };
 
-const collector = () => {
+const collector = (contacts) => {
   const values = new Map();
   const skipped = [];
   const add = (key, raw, evidence) => {
     if (raw === undefined || raw === null || raw === '') {
       return;
     }
-    const text = typeof raw === 'string' ? raw.trim() : '';
+    const text =
+      typeof raw === 'string' ? renderAnswer(raw.trim(), contacts).text : '';
     const value = key === 'birthDate' ? profileBirthDate(text) : text;
     const sources = Array.isArray(evidence) ? evidence : [evidence];
     if (!value || value.length > 2000 || !validValue(key, value)) {
@@ -192,7 +193,9 @@ const sourceInput = (input) => {
 export const extractAnswerProfile = async (store, input = {}) => {
   const profile = normalizeAnswerProfile(input.profile);
   const { text, cvId, format } = sourceInput(input);
-  const { values, skipped, add } = collector();
+  const { values, skipped, add } = collector(
+    normalizeAnswerProfile(input.contactProfile)
+  );
   if (cvId) {
     const link = await store.get(cvId);
     if (!link || link.id !== cvId) {
