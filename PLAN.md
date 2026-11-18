@@ -1,3 +1,11 @@
+2026-11-18 CV watch fixture scheduling:
+
+- [x] Preserve exact 623a144c Windows/Deno job 135175316364. Log lines 17320–17330 show the real 40ms fixture budget expires before the mismatch test's expected result; production correctly refuses the deadline.
+- [x] Reproduce that expectation with one finite 80ms read delay and one passing explicit-clock control. Give the offline fixture a logical verification clock while retaining production monotonic time and all deadline/cancellation bounds.
+- [x] Pass forty relevant focused checks, including the five-read limit, form-open deadline, prior snapshot retention and an explicitly expired readback clock.
+- [x] Preserve both complete hosted job logs and source-bound evidence; pass scoped formatting, lint, secret, source/document-limit and whitespace gates. Production code is unchanged.
+- [ ] Publish the independent fixture correction, require exact-source hosted confirmation and continue all thirty unfinished criteria.
+
 2026-11-18 owner drafts in plain browser sending (QA20 remains unfinished):
 
 - [x] Trace the actual plain sender: unchecked fill can append to and submit native owner text; WhatsApp navigation can prefill before inspection. Compare shared strict-reply ownership checks and pinned draft preservation references.

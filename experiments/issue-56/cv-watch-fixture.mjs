@@ -20,6 +20,14 @@ export const cvWatchAttempt = () => ({
   about: 'Final owner revision',
 });
 export const cvWatchFixture = ({ verification = {} } = {}) => {
+  let verificationTime = 0;
+  const clock = {
+    now: () => verificationTime,
+    wait: async (ms, _value, { signal }) => {
+      signal.throwIfAborted();
+      verificationTime += ms;
+    },
+  };
   const store = createMemoryStore();
   const page = new EventEmitter();
   let receiver;
@@ -59,7 +67,7 @@ export const cvWatchFixture = ({ verification = {} } = {}) => {
     availability: async () => ({ available: true }),
     cvWatch: {
       attach,
-      verification: { pollMs: 1, verificationMs: 40, ...verification },
+      verification: { pollMs: 1, verificationMs: 40, clock, ...verification },
       readExports: async () => {
         reads++;
         await beforeRead?.();
