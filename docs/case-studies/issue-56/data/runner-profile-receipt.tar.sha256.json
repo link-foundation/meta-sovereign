@@ -1,0 +1,33 @@
+{
+  "archive": "runner-profile-receipt.tar.gz",
+  "files": {
+    "js/tests/runner-configuration.test.js": "dda8e56826db997c25b3ecb07294f4a4d34c6bbce50f1ac2ea5b6eb6df799442",
+    "experiments/issue-56/collect-runner-profile-receipt.py": "9ba4a29faa00d3ee62d43af491ccd72f9cf86a29fbc0028e86a1b69cf7fb6a70",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "docs/case-studies/issue-56/runner-profile-receipt.md": "23d8c96a3590edeb31546bcae9a4c8966200970885c40e7eb1a6b7e3508c9f1b",
+    "docs/case-studies/issue-56/runner-remote-verification.md": "e70b41b7c50622f96a28dc2b8a00a2c21c273a8abe5ca1931bf44dea0c60486c",
+    "ci-logs/runner-receipt-current-jobs.json": "ad726444e021f13d043213d7d09f385f58d8d340a6d18f44f67df6f829c95017",
+    "ci-logs/runner-receipt-native-job.json": "d19a3fe7d01ce531b29146e1d6feef2ed3821296b50316a7ff7d04a03422c78e",
+    "ci-logs/runner-receipt-native-linux.log": "d3537f7f84c80ddbf8df20b5de5e84d750780592ba2bde8773d3d0764774e226",
+    "ci-logs/runner-receipt-native-artifact/runner-docker-hosted.log": "54d1cb10c51c59408b7c1bd06c4782fdd29729438c9b5398849a083976bda0be",
+    "ci-logs/runner-receipt-native-artifact/runner-docker-sshd.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/runner-profile-receipt-before.log": "88c486e0a17af81e5ebadfde67b4b8e41965744c25f1842655f291db57dd98ac",
+    "ci-logs/runner-profile-receipt-focused.log": "ce8e223164f419c4cc02711f256234591b4d24e6e256a5e807c6c93debe3c564",
+    "ci-logs/runner-profile-receipt-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/runner-profile-receipt-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/runner-profile-receipt-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/runner-receipt-job-134617834014.log": "f1a6989932c5473f8f1aa64f925b91be35c8adf9e8376586a06712451979ce12",
+    "ci-logs/runner-receipt-job-134617834162.log": "35d52571072c06d1f858bec5b24a7f974a67f3e26255ff0a1f6b0da819c15df4",
+    "ci-logs/runner-receipt-job-134617834174.log": "a9310b0dc8808e1e5888db9c4f9a3d502d1ca3380798a3cd2805dedee29239d1",
+    "ci-logs/runner-receipt-job-134617834187.log": "df7627f7403b53c27d4d38e79826738808389b74289ea4c20409657eb8ddbb08",
+    "ci-logs/runner-receipt-job-134617834221.log": "d2796257989c4e077c3c6917d9f4be1847166883a621503878f144b2ca0918b7",
+    "ci-logs/runner-receipt-job-134617834233.log": "57c0541b6f1f652daf7d383fe20b2cbf06583545ba428757742ed79b2acff0ac",
+    "ci-logs/runner-receipt-job-134617834288.log": "c50502d0572bfe7cb868bde0f05e0cff9b14eb83969d366427acc276c4834577",
+    "ci-logs/runner-receipt-job-134617834311.log": "58aa564f9069dcc892ecc842ffbac385761239755b1d278ad9ac44efe4a540d3",
+    "verified/js/tests/runner-configuration.test.js": "b30eb2dc9b6623a435249dd4238814ceeb54e7c40f90d001fccf02478dc8a4a5",
+    "verified/js/src/server/runner-control.js": "792fb88907af80e383915565d0b0d096ce4775008e5445ace9beb331d49fd399",
+    "verified/experiments/issue-56/runner-docker-hosted.mjs": "2ed561c5ab7fba3e30d885590e222667d21a1f2acf8433c30f2629412aecd51a",
+    "verified/experiments/issue-56/runner-docker-hosted.sh": "cdca8284dd088b46418e2422957dc868286a7842065db0bfa8534cbb852aab44",
+    "metadata.json": "fb32696e355ecb54d8e794cfb93dcd2f2ac2f6926b5385d65752a4d33f7f28a0"
+  }
+}

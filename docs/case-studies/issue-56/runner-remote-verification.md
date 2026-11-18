@@ -28,5 +28,10 @@ daemon or platform/runtime matrix runs locally. The mandatory hosted job retains
 its existing deadline. The repaired `9c42ac80` [Docker proof](https://github.com/link-foundation/meta-sovereign/actions/runs/44247173642/job/134609494750)
 passes with actual SSH, application health, both switches, one owned-container
 restart, retained data, foreign refusal and closed application resources. Its
-complete job log and artifact are preserved. The expanded two-backend proof is pending;
-VD02 stays unchecked and all 32 unfinished requirements remain active.
+complete job log and artifact are preserved. The expanded [two-backend proof](https://github.com/link-foundation/meta-sovereign/actions/runs/44249027554/job/134615648129)
+passes on `13623bf7`, with separate actual SSH/Screen and SSH/Docker receipts,
+ready application health, both switches, retained data and closed resources.
+The same source exposes a stale runtime-test assertion described in
+[the profile receipt investigation](runner-profile-receipt.md). VD02 stays
+unchecked until all exact-source workflows pass; all 32 unfinished requirements
+remain active.

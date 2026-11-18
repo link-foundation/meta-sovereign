@@ -283,12 +283,28 @@ test(
           .filter((target) => target.host)
           .every((target) => target.host === 'local@example.invalid')
       );
-      assert.equal(
-        (await fixture.controller.execute({ action: 'start', mode: 'server' }))
-          .ok,
-        true
+      fixture.backend.calls.length = 0;
+      fixture.backend.targets.length = 0;
+      const restarted = await fixture.controller.execute({
+        action: 'start',
+        mode: 'server',
+      });
+      assert.equal(restarted.ok, true);
+      assert.deepEqual(restarted.states, {
+        local: 'stopped',
+        server: 'running',
+      });
+      const launch = fixture.backend.calls.findIndex(
+        ([mode, action]) => mode === 'server' && action === 'start'
       );
-      assert.equal(fixture.backend.targets.at(-1).host, 'new@example.invalid');
+      assert.notEqual(launch, -1);
+      assert.equal(fixture.backend.targets[launch].host, 'new@example.invalid');
+      assert.ok(
+        fixture.backend.targets
+          .slice(launch)
+          .filter((target) => target.host)
+          .every((target) => target.host === 'new@example.invalid')
+      );
     })
 );
 

@@ -1043,3 +1043,16 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Refresh peer observations before success, retain both actual states and refuse without replaying a mutation. All 46 focused runner checks pass with one worker.
 - [x] Pass scoped formatting, lint, secrets and source/document limits; the unchanged duplication gate passes at 6.49%. Preserve source-bound reproduction and corrected checks.
 - [ ] Publish only to the prepared branch. Verify both actual remote backends and all exact-source workflows before acceptance; all 32 criteria remain required.
+
+2026-11-18 runner profile observation assertion:
+
+- [x] Preserve all eight exact-source runtime failures and reproduce the obsolete last-probe assertion locally. Both actual SSH backends and all packaged desktop jobs pass on 13623bf7.
+- [x] Assert the new remote launch address directly and retain old-address Stop protection plus fresh mutually exclusive states.
+- [ ] Publish focused verification and source-bound evidence, then review fresh exact-source CI before accepting VD02.
+
+2026-11-18 account-specific HH vacancy refusal (HH05 remains unfinished):
+
+- [x] Read pinned refusal wording and exclusion policies. Detect visible vacancy-page evidence while excluding hidden warnings, owner fields and descriptions.
+- [x] Preserve private answers, block unsafe mutation and retain an acknowledged reason across restart until explicit owner clear. Add all four translations.
+- [x] Reproduce actual-parent unit/native failures. Pass 98 focused checks and one native browser scenario with ten ignored and five visible variants.
+- [ ] Complete independent MCP verification, screenshots, scoped static checks and evidence; publish and review exact-source CI. Full deferred-question and later-run policies remain required.
