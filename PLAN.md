@@ -1304,3 +1304,12 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Pass scoped lint/format/secrets/line limits and the unchanged duplication gate; preserve source-bound native/MCP evidence and screenshots with verified archive hashes.
 - [ ] Commit the atomic correction, push the completed local steps only to the prepared branch and review fresh exact-source hosted results.
 - [ ] Investigate the separate WebKit profile-extras row-selection failure using bounded metadata tracing. Continue every one of the 30 unfinished criteria; keep PR57 draft and unmerged.
+
+2026-11-18 birthday history and native chat selection:
+
+- [x] Preserve the complete exact-source hosted failure, screenshot and pointer trace. A passing isolated probe observes reminder-driven row movement; the original runner's exact scheduling remains unproven.
+- [x] Reproduce the lost click using published UI modules with actual stored greeting history held across pointer-down/up. The corrected WebKit path keeps Ann fixed and selects her; the rest of profile extras passes with unchanged deadlines.
+- [x] Wait for initial account/day/contact history before publishing reminders; preserve greeted/tomorrow preferences, conservative failed-read behavior and bounded retries. Keep phase/count tracing off by default.
+- [x] Pass eight focused reminder checks and an independent MCP held-history selection/phone check with zero page exceptions or sends; close owned resources. Preserve initial fixture corrections separately.
+- [ ] Preserve source-bound evidence, pass scoped gates, commit and push this atomic correction. Review fresh exact-source workflows; investigate the new CodeQL and changeset failures on 37bbae0d without weakening checks.
+- [ ] Complete every one of the 30 unfinished criteria. PR57 remains draft and unmerged; passing a focused check does not complete broader parity requirements.

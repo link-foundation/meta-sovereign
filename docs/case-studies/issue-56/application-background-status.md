@@ -33,6 +33,6 @@ After: the same held read preserves the acknowledged control; release restores t
 
 ![Enabled during the held read](https://github.com/link-foundation/meta-sovereign/blob/issue-56-2677debd3a31/docs/screenshots/issue-56-application-background-status/application-limit-wait-background-after.png?raw=true)
 
-The separate profile-extras WebKit row-selection failure remains under investigation. No acceptance criterion is promoted by this correction. PR57 remains draft and unmerged with 88 criteria verified and 30 unfinished. This evidence uses isolated synthetic fixtures and makes no authenticated HH parity claim.
+The separate profile-extras WebKit row-selection failure is documented in [birthday selection](birthday-selection.md), with a deterministic held-history reproduction and correction. No acceptance criterion is promoted by this correction. PR57 remains draft and unmerged with 88 criteria verified and 30 unfinished. This evidence uses isolated synthetic fixtures and makes no authenticated HH parity claim.
 
 The collector preserves exact parent modules, current source, complete native receipts, focused logs, MCP results, the hosted failure and screenshots in `data/application-background-status.tar.gz` with independently verified entry hashes. Review fresh hosted results for the pushed source before treating its CI checks as passing.

@@ -16,6 +16,7 @@ import { requestBody } from './helpers/http-wire.mjs';
 
 import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, fulfil, openChatApp } from './helpers/e2e-chat.mjs';
+import { verifyBirthdayReloadSelection } from './helpers/profile-birthday-selection.mjs';
 
 const ANN = '42';
 const BOB = '43';
@@ -174,7 +175,7 @@ await page.route('**/api/telegram/personal-channel', (route) =>
     },
   })
 );
-await page.route('**/api/telegram/contact-birthdays', (route) =>
+const replyBirthdayContacts = (route) =>
   fulfil(route, {
     ok: true,
     birthdays: [
@@ -183,8 +184,8 @@ await page.route('**/api/telegram/contact-birthdays', (route) =>
       { chat: CAROL, name: 'Carol Sun', ...onDay(1), days: 1 },
       { chat: EVE, name: 'Eve Bell', ...onDay(0), days: 0 },
     ],
-  })
-);
+  });
+await page.route('**/api/telegram/contact-birthdays', replyBirthdayContacts);
 await page.route('**/api/telegram/profile', (route) =>
   fulfil(route, {
     ok: true,
@@ -303,8 +304,10 @@ const birthdaySteps = async () => {
     async () => (await page.locator('.birthdays-block').count()) === 0,
     'sent greeting frees the whole reminder block'
   );
-  await page.reload();
-  await page.locator(`[data-chat="telegram:${ANN}"]`).waitFor();
+  await verifyBirthdayReloadSelection(page, {
+    before: process.env.BIRTHDAY_SELECTION_BEFORE === '1',
+    replyContacts: replyBirthdayContacts,
+  });
   await until(
     async () => (await page.locator('.birthdays-block').count()) === 0,
     'sent wishes stay hidden after reload'
