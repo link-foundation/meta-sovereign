@@ -1,7 +1,8 @@
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
 import { acknowledgedRead, acknowledgedWrite } from './acknowledged-store.js';
 import { hhSearchUrl, jobsBrowserOptions, jobsFailure } from './options.js';
-import { vacancySnapshot } from '../assignments/vacancy.js';
+import { ownedVacancySnapshot } from '../assignments/vacancy.js';
+import { clearRunVacancies } from '../assignments/vacancy-run-context.js';
 import { storedVacancyChoices } from './vacancy-choice-service.js';
 import { storedVacancySkips } from './vacancy-skip-service.js';
 import {
@@ -173,14 +174,15 @@ class VacancyDiscovery {
       !questionHeld
     ) {
       const snapshot = await acknowledgedWrite(this.store, immediate, () =>
-        vacancySnapshot(
-          this.store,
-          this.readVacancy,
-          card.url,
-          options.refresh,
+        ownedVacancySnapshot({
+          store: this.store,
+          readVacancy: this.readVacancy,
+          url: card.url,
+          refresh: options.refresh,
           signal,
-          options
-        )
+          browserOptions: options,
+          owner: this,
+        })
       );
       this.check(owned, signal);
       capturedAt = snapshot.capturedAt;
@@ -415,11 +417,18 @@ class VacancyDiscovery {
 export const createVacancyDiscovery = (options) => {
   const service = new VacancyDiscovery(options);
   return {
-    'discovery-start': (input) => service.enqueue(() => service.start(input)),
-    'discovery-status': (input) => service.status(input),
-    'discovery-stop': (input) => service.enqueue(() => service.stop(input)),
-    'discovery-drain': async () => {
-      await service.current?.work;
+    operations: {
+      'discovery-start': (input) => service.enqueue(() => service.start(input)),
+      'discovery-status': (input) => service.status(input),
+      'discovery-stop': (input) => service.enqueue(() => service.stop(input)),
+      'discovery-drain': async () => {
+        await service.current?.work;
+      },
+    },
+    stop: async () => {
+      service.current?.controller.abort();
+      await service.current?.work.catch(() => {});
+      clearRunVacancies(service.store, service);
     },
   };
 };

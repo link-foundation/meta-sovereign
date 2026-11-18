@@ -138,16 +138,17 @@ const createWorkspaceVacancyService = ({
     ...application,
   });
   const manualLogin = loginControl({ store, openSession, login }, run);
+  const discoveries = createVacancyDiscovery({
+    store,
+    run: discoveryRun(run, applications),
+    readSearch,
+    readVacancy,
+    retryWaiting: applications.retryWaiting,
+    ...discovery,
+  });
   return {
     ...manualLogin.operations,
-    ...createVacancyDiscovery({
-      store,
-      run: discoveryRun(run, applications),
-      readSearch,
-      readVacancy,
-      retryWaiting: applications.retryWaiting,
-      ...discovery,
-    }),
+    ...discoveries.operations,
     ...createResumeListControl({ store, read: readResumes, artifactRoot, run }),
     ...applications.operations,
     ...createVacancyChoiceService({ store, run }),
@@ -201,6 +202,7 @@ const createWorkspaceVacancyService = ({
         await active?.task.catch(() => {});
         await manualLogin.stop();
         await applications.stop();
+        await discoveries.stop();
         await drained;
       }));
     },

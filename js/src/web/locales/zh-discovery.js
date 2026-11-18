@@ -3,6 +3,11 @@ export const zhDiscovery = {
   'discovery.hint':
     '读取有限的搜索页，并保存符合条件的职位完整描述。本次运行固定搜索设置。将可审核链接复制到申请批次前，请先检查保存的结果。',
   'discovery.bounds': '发现范围',
+  'discovery.collectionHint':
+    '关闭后仍读取完整描述用于筛选，并在此工作进程运行期间保留在内存中。发现历史仅保存筛选决定，不保存描述。已有描述保持不变。将结果复制到申请批次时也会复制此设置。',
+  'discovery.collectionMemory':
+    '本次发现已关闭描述保存。重启后无法恢复临时描述；已保存的筛选决定仍然可用。',
+  'discovery.readAt': '描述读取时间：{date}',
   'discovery.maxPages': '最多页数',
   'discovery.maxVacancies': '最多不同职位数',
   'discovery.durationMs': '最长时间（秒）',

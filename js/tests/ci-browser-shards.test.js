@@ -44,7 +44,7 @@ const registeredScenarios = (groups) => {
   });
 };
 
-test('vacancy search, loading and discovery retain all nine scenarios in bounded groups', () => {
+test('vacancy search, loading and discovery retain all ten scenarios in bounded groups', () => {
   const groups = registry.filter((name) =>
     ['vacancies', 'vacancy-loading', 'vacancy-discovery'].includes(name)
   );
@@ -55,6 +55,7 @@ test('vacancy search, loading and discovery retain all nine scenarios in bounded
       'verifyVacancySelection',
       'verifyVacancyDiscovery',
       'verifyFilteredVacancyDiscovery',
+      'verifyMemoryVacancyDiscovery',
       'verifySalaryLadder',
       'verifyVacancyMetadataVariants',
       'verifyVacancySearchUrl',

@@ -771,3 +771,5 @@ Optional persistent collection with full current-run context: [collection eviden
 [Collect selected vacancies before exclusions](discovery-collection.md): exact-parent failures, saved excluded descriptions, native recovery and unchanged application handoff. All 30 unfinished criteria remain required.
 
 [Deno Windows worker startup](ci-worker-startup.md): preserve the failed launch and later successful unchanged path; add opt-in value-free spawn/IPC/stdio checkpoints without extending deadlines. Historical cause remains unresolved.
+
+[Discovery without persistent descriptions](discovery-memory.md): preserve complete filtering context in owned RAM, frozen CLI/Lino/UI settings, legacy signatures, unarmed batch handoff and drained native/MCP recovery. HH03 remains unfinished.

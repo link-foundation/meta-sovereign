@@ -1002,3 +1002,7 @@ batches retain the setting; restart reports the unavailable temporary context.
 Collect complete selected vacancy descriptions before local text and salary
 exclusions during discovery. Preserve responded/owner/retry holds, acknowledged
 cache reuse and existing application eligibility.
+
+Honor disabled persistent collection during discovery while retaining complete
+descriptions in bounded worker memory. Preserve existing saved descriptions,
+legacy receipt signatures and the frozen setting when copying into a batch draft.

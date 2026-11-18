@@ -36,6 +36,12 @@ export const discoveryOptions = (input) => {
   const maxVacancies = input.maxVacancies ?? 100;
   const durationMs = input.durationMs ?? 900000;
   const filters = discoveryFilters(input);
+  if (
+    input.collectVacancies !== undefined &&
+    typeof input.collectVacancies !== 'boolean'
+  ) {
+    fail();
+  }
   validateBounds({
     maxPages,
     maxVacancies,
@@ -51,6 +57,9 @@ export const discoveryOptions = (input) => {
     maxVacancies,
     durationMs,
     refresh: input.refresh === true,
+    ...(input.collectVacancies === undefined
+      ? {}
+      : { collectVacancies: input.collectVacancies }),
     ...salaryLadderSettings(input),
   };
 };

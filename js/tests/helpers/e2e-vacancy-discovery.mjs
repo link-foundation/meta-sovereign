@@ -2,15 +2,96 @@ import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { vacancyBrowserFixture } from '../../../experiments/issue-56/vacancy-browser-fixture.mjs';
+import { runVacancy } from '../../src/assignments/vacancy-run-context.js';
 
-const verifyCollectedVacancies = async (store) => {
+const verifyCollectedVacancies = async (store, memoryOnly) => {
   const cached = await store.query((row) =>
     row.id.startsWith('assignment-vacancy:')
   );
-  assert.deepEqual(cached.map((row) => row.url).sort(), [
-    'https://hh.ru/vacancy/123',
-    'https://hh.ru/vacancy/125',
-  ]);
+  assert.deepEqual(
+    cached.map((row) => row.url).sort(),
+    memoryOnly ? [] : ['https://hh.ru/vacancy/123', 'https://hh.ru/vacancy/125']
+  );
+};
+
+const prepareDiscovery = async ({
+  panel,
+  discovery,
+  start,
+  before,
+  excludedTitle,
+  memoryOnly,
+  shot,
+}) => {
+  await panel.locator('[data-vacancy-field="query"]').fill('Python');
+  if (excludedTitle) {
+    await panel
+      .locator('[data-vacancy-field="excludeText"]')
+      .fill('Python engineer 123');
+  }
+  if (memoryOnly) {
+    await start.waitFor();
+    const collect = discovery.locator(
+      '[data-discovery-field="collectVacancies"]'
+    );
+    if (before) {
+      await start.scrollIntoViewIfNeeded();
+      await shot('before');
+      assert.equal(
+        await collect.count(),
+        1,
+        'Discovery must expose its description-storage setting'
+      );
+      return false;
+    }
+    await collect.uncheck();
+  }
+  if (before) {
+    await panel
+      .locator('[data-vacancy-action="search"]')
+      .scrollIntoViewIfNeeded();
+    await shot('before');
+    assert.equal(
+      await discovery.count(),
+      1,
+      'Finite automatic discovery must be available'
+    );
+    return false;
+  }
+  return true;
+};
+
+const verifyDiscoveryLocales = async (page, discovery, completed) => {
+  for (const locale of ['ru', 'hi', 'zh', 'en']) {
+    await page.evaluate(
+      (locale) =>
+        globalThis.localStorage.setItem('metaSovereignLocale', locale),
+      locale
+    );
+    await page.reload();
+    await completed.waitFor();
+    assert.equal(
+      await page.locator('select[data-locale]').inputValue(),
+      locale
+    );
+    assert(!/\bdiscovery\.[a-z]/u.test(await discovery.innerText()));
+  }
+};
+
+const discoveryShot = (page, screenshots) => async (name) => {
+  if (screenshots) {
+    await mkdir(screenshots, { recursive: true });
+    await page.screenshot({
+      path: join(screenshots, `vacancy-discovery-${name}.png`),
+    });
+  }
+};
+
+const verifyTemporaryDescription = async (discovery, fixture) => {
+  await discovery.locator('[data-discovery-collection="memory"]').waitFor();
+  assert(
+    runVacancy(fixture.runtimeStore, 'https://hh.ru/vacancy/123')?.description
+  );
 };
 
 /** Exercise actual HH pagination and description readers through the shared UI. */
@@ -20,39 +101,28 @@ export const verifyVacancyDiscovery = async (
     before = process.env.DISCOVERY_BEFORE === '1',
     screenshots = process.env.APPLICATION_SCREENSHOTS,
     excludedTitle = false,
+    memoryOnly = false,
   } = {}
 ) => {
   const fixture = await vacancyBrowserFixture(browser);
   const { page, records } = fixture;
-  const shot = async (name) => {
-    if (screenshots) {
-      await mkdir(screenshots, { recursive: true });
-      await page.screenshot({
-        path: join(screenshots, `vacancy-discovery-${name}.png`),
-      });
-    }
-  };
+  const shot = discoveryShot(page, screenshots);
   try {
     await page.goto(`${fixture.base}/#/cv`);
     const panel = page.locator('[data-vacancies]');
     const discovery = panel.locator('[data-vacancy-discovery]');
     const start = discovery.locator('[data-discovery-action="start"]');
-    await panel.locator('[data-vacancy-field="query"]').fill('Python');
-    if (excludedTitle) {
-      await panel
-        .locator('[data-vacancy-field="excludeText"]')
-        .fill('Python engineer 123');
-    }
-    if (before) {
-      await panel
-        .locator('[data-vacancy-action="search"]')
-        .scrollIntoViewIfNeeded();
-      await shot('before');
-      assert.equal(
-        await discovery.count(),
-        1,
-        'Finite automatic discovery must be available'
-      );
+    if (
+      !(await prepareDiscovery({
+        panel,
+        discovery,
+        start,
+        before,
+        excludedTitle,
+        memoryOnly,
+        shot,
+      }))
+    ) {
       return;
     }
     await start.click();
@@ -79,7 +149,10 @@ export const verifyVacancyDiscovery = async (
       'Two search pages and two full selected descriptions'
     );
     assert(records.every((row) => row.closed && row.clicks === 0));
-    await verifyCollectedVacancies(fixture.store);
+    await verifyCollectedVacancies(fixture.store, memoryOnly);
+    if (memoryOnly) {
+      await verifyTemporaryDescription(discovery, fixture);
+    }
     const count = records.length;
     await page.reload();
     await completed.waitFor();
@@ -108,16 +181,16 @@ export const verifyVacancyDiscovery = async (
       count,
       'Copying results only fills the batch draft'
     );
-    for (const locale of ['ru', 'hi', 'zh', 'en']) {
-      await page.evaluate(
-        (locale) =>
-          globalThis.localStorage.setItem('metaSovereignLocale', locale),
-        locale
+    if (memoryOnly) {
+      assert.equal(
+        await panel
+          .locator('[data-application-option="collectVacancies"]')
+          .isChecked(),
+        false,
+        'Batch handoff retains disabled description storage'
       );
-      await page.reload();
-      await completed.waitFor();
-      assert(!/\bdiscovery\.[a-z]/u.test(await discovery.innerText()));
     }
+    await verifyDiscoveryLocales(page, discovery, completed);
     await page.setViewportSize({ width: 390, height: 950 });
     await completed.scrollIntoViewIfNeeded();
     assert(
@@ -134,6 +207,7 @@ export const verifyVacancyDiscovery = async (
         vacancies: 3,
         descriptions: 2,
         excludedTitleCollected: excludedTitle,
+        memoryOnly,
         providerClicks: 0,
         recoveryReplayed: false,
         batchStarted: false,
@@ -163,8 +237,17 @@ export const verifyVacancyDiscovery = async (
     throw error;
   } finally {
     await fixture.close();
+    if (memoryOnly) {
+      assert.equal(
+        runVacancy(fixture.runtimeStore, 'https://hh.ru/vacancy/123'),
+        null
+      );
+    }
   }
 };
 
 export const verifyFilteredVacancyDiscovery = (browser) =>
   verifyVacancyDiscovery(browser, { excludedTitle: true });
+
+export const verifyMemoryVacancyDiscovery = (browser) =>
+  verifyVacancyDiscovery(browser, { memoryOnly: true });

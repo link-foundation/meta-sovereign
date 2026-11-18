@@ -12,7 +12,11 @@ import { vacancyContent } from './vacancy-content.js';
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
 import { ensureLegacyVacancies } from './vacancy-legacy-cache.js';
 import { observedVacancyHistory } from './vacancy-history.js';
-import { runVacancy, forgetRunVacancy } from './vacancy-run-context.js';
+import {
+  runVacancy,
+  forgetRunVacancy,
+  rememberRunVacancy,
+} from './vacancy-run-context.js';
 
 const checkSavedIdentity = (saved, id, url) => {
   if (saved && (saved.version !== 1 || saved.id !== id || saved.url !== url)) {
@@ -30,13 +34,49 @@ export const vacancySnapshot = async (
   refresh,
   signal,
   browserOptions = {}
-) => {
+) =>
+  ownedVacancySnapshot({
+    store,
+    readVacancy,
+    url,
+    refresh,
+    signal,
+    browserOptions,
+    owner: store,
+  });
+
+const prepareCache = async (store, collect) => {
+  if (collect) {
+    await ensureLegacyVacancies(store);
+  }
+};
+const retainSnapshot = async (store, owner, saved, collect) => {
+  if (collect) {
+    await saveAcknowledgedRecord(store, saved);
+    // An explicitly acknowledged collection supersedes an older RAM context.
+    forgetRunVacancy(store, saved.url);
+  } else {
+    rememberRunVacancy(store, owner, saved);
+  }
+};
+
+/** The caller owns temporary context until its worker has drained. */
+export const ownedVacancySnapshot = async ({
+  store,
+  readVacancy,
+  url,
+  refresh,
+  signal,
+  browserOptions,
+  owner,
+}) => {
   signal?.throwIfAborted();
   const temporary = runVacancy(store, url);
   if (temporary && refresh !== true) {
     return temporary;
   }
-  await ensureLegacyVacancies(store);
+  const collect = browserOptions.collectVacancies !== false;
+  await prepareCache(store, collect);
   signal?.throwIfAborted();
   const id = `assignment-vacancy:${await modelFingerprint(url)}`;
   let saved = await store.get(id);
@@ -63,9 +103,7 @@ export const vacancySnapshot = async (
       status: saved?.status ?? 'encountered',
       ...(saved?.appliedAt ? { appliedAt: saved.appliedAt } : {}),
     };
-    await saveAcknowledgedRecord(store, saved);
-    // An explicitly acknowledged collection supersedes an older RAM context.
-    forgetRunVacancy(store, url);
+    await retainSnapshot(store, owner, saved, collect);
   }
   vacancyContent(saved, url);
   return saved;

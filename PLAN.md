@@ -1,3 +1,11 @@
+2026-11-18 discovery without persistent descriptions (HH03 remains unfinished):
+
+- [x] Trace the pinned independent collection flag and the discovery cache write that ignored it; preserve complete filtering context and legacy request signatures.
+- [x] Draft validated CLI, both Lino formats, four-language discovery controls, frozen batch handoff and owned bounded RAM cleanup; preserve saved descriptions and delivery metadata.
+- [x] Reproduce five exact-parent failures with one control and pass 52 focused checks. Verify actual native four-language recovery, no description persistence/replay/submissions, independent MCP checks and fully drained fixtures; inspect before/after screenshots.
+- [x] Independently verify 73 source-bound evidence entries and valid before/after images; scoped lint/format, source/document limits, secrets, whitespace and unchanged 6.50% duplication gates pass.
+- [ ] Publish only to the prepared branch and inspect exact-source CI. The 101-description binary test timeout on 5f63 remains under investigation; all 30 unfinished criteria remain required.
+
 2026-11-18 collect selected vacancies before local exclusions:
 
 - [x] Compare the pinned README and actual selection order: full collection precedes salary and configured-text filters, while previously processed/owner-held cards are not selected.
@@ -1146,3 +1154,9 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Preserve full failed b4cf60bb Windows shard 2 logs and the succeeding unchanged startup path on 9da8b847. Failure lines 13247–13276 reach worker launch but never report initialization; the later run reaches readiness in 5,922 ms. Root cause remains unproven.
 - [x] Add default-off, value-free worker launch/IPC/stdio/exit checkpoints so a recurrence distinguishes process launch from input delivery and output. Preserve two parent contract failures, pass seven Node/eight Deno focused checks and one real Deno CLI lifecycle. The unchanged readiness budget holds; the native trace reaches spawn return, creation, input completion and first output.
 - [ ] Preserve source-bound evidence, publish the diagnostic unit and require exact-source hosted checks. No historical startup fix or acceptance completion is claimed.
+      2026-11-18 discovery without persistent vacancy descriptions (HH03 remains unfinished):
+
+- [x] Trace the pinned independent collection switch and the shared discovery/application paths: discovery always persists selected descriptions, even when collection is disabled in its request.
+- [ ] Draft validated discovery settings, bounded shared RAM context, owner cleanup, CLI/Lino controls, four-language receipts and batch handoff without changing legacy signatures or saved descriptions.
+- [ ] Reproduce against the exact published parent; verify focused regressions and native/MCP before/after recovery, review screenshots and drain owned fixtures.
+- [ ] Preserve source-bound evidence, pass scoped gates, publish only to the prepared branch and review exact-source hosted CI. Every unfinished requirement remains required; PR57 stays draft and unmerged.

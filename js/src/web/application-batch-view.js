@@ -69,7 +69,7 @@ export const ApplicationBatchView = ({ application, supported, t }) => {
         update('urls', eligible.join('\n'));
         application.setOptions((current) => ({
           ...current,
-          ...discoveredSalarySettings(application.discovery),
+          ...discoveredApplicationSettings(application.discovery),
         }));
       },
       frozen: frozen || Boolean(application.intent),
@@ -336,3 +336,16 @@ export const discoveredSalarySettings = (state) => {
       }
     : {};
 };
+
+export const discoveredCollectionSettings = (state) => {
+  const discovery = state?.receipt?.discovery;
+  const value = discovery?.options.collectVacancies;
+  return discovery?.phase === 'completed' && typeof value === 'boolean'
+    ? { collectVacancies: value }
+    : {};
+};
+
+const discoveredApplicationSettings = (state) => ({
+  ...discoveredSalarySettings(state),
+  ...discoveredCollectionSettings(state),
+});

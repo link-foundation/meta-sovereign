@@ -29,6 +29,7 @@ export const VacancyDiscoveryView = ({ state, t }) => {
     maxVacancies: 100,
     durationMs: 900000,
     refresh: false,
+    collectVacancies: true,
     salaryLadder: true,
   });
   const discovery = state.discovery;
@@ -97,6 +98,22 @@ const DiscoveryBounds = ({ frozen, bounds, setBounds, t, api }) =>
     { key: 'bounds', disabled: frozen, className: 'automation-fieldset' },
     [
       el('legend', { key: 'legend' }, t('discovery.bounds')),
+      el('label', { key: 'collect', className: 'row' }, [
+        el('input', {
+          key: 'input',
+          type: 'checkbox',
+          checked: bounds.collectVacancies,
+          'data-discovery-field': 'collectVacancies',
+          onChange: (event) =>
+            setBounds({ ...bounds, collectVacancies: event.target.checked }),
+        }),
+        t('application.collectVacancies'),
+      ]),
+      el(
+        'p',
+        { key: 'collectionHint', className: 'meta' },
+        t('discovery.collectionHint')
+      ),
       ...[
         ['maxPages', 100, bounds.maxPages],
         ['maxVacancies', 1000, bounds.maxVacancies],
@@ -171,6 +188,19 @@ const DiscoveryReceipt = ({ job, t }) =>
       el('p', { key: 'phase' }, t(`discovery.phase.${job.phase}`)),
       el(
         'p',
+        {
+          key: 'collection',
+          'data-discovery-collection':
+            job.options.collectVacancies === false ? 'memory' : 'enabled',
+        },
+        t(
+          job.options.collectVacancies === false
+            ? 'discovery.collectionMemory'
+            : 'application.collectionEnabled'
+        )
+      ),
+      el(
+        'p',
         { key: 'progress' },
         t('discovery.progress', {
           pages: job.pages,
@@ -237,7 +267,12 @@ const DiscoveryReceipt = ({ job, t }) =>
               ? el(
                   'span',
                   { key: 'date', className: 'meta' },
-                  t('vacancySelection.cachedAt', { date: row.capturedAt })
+                  t(
+                    job.options.collectVacancies === false
+                      ? 'discovery.readAt'
+                      : 'vacancySelection.cachedAt',
+                    { date: row.capturedAt }
+                  )
                 )
               : null,
           ]

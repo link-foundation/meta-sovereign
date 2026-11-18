@@ -169,7 +169,9 @@ export const vacancyBrowserFixture = async (
           key,
           JSON.stringify({ off: true, v: version })
         );
-        globalThis.localStorage.setItem('metaSovereignLocale', 'en');
+        if (!globalThis.localStorage.getItem('metaSovereignLocale')) {
+          globalThis.localStorage.setItem('metaSovereignLocale', 'en');
+        }
       },
       { key: TUTORIAL_STORAGE_KEY, version: TUTORIAL_VERSION }
     );

@@ -3,6 +3,11 @@ export const enDiscovery = {
   'discovery.hint':
     'Read a finite search and collect full descriptions for eligible cards. Search settings stay fixed for this run. Review the saved results before copying eligible URLs into an application batch.',
   'discovery.bounds': 'Discovery limits',
+  'discovery.collectionHint':
+    'When off, full descriptions are read for filtering and stay in memory while this worker runs. Discovery history keeps decisions, not descriptions. Existing saved descriptions are kept. Copying results to a batch also copies this setting.',
+  'discovery.collectionMemory':
+    'Description storage: off for this discovery. Restart cannot restore its temporary descriptions; saved decisions remain available.',
+  'discovery.readAt': 'Description read: {date}',
   'discovery.maxPages': 'Maximum pages',
   'discovery.maxVacancies': 'Maximum distinct vacancies',
   'discovery.durationMs': 'Maximum duration (seconds)',

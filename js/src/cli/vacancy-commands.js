@@ -45,6 +45,10 @@ const typedFlag = (args, key, kind) => {
   throw new Error(`--${key} must be a ${kind}`);
 };
 const salaryDiscoveryInput = (args) => ({
+  collectVacancies:
+    args['no-collect-vacancies'] === undefined
+      ? undefined
+      : !typedFlag(args, 'no-collect-vacancies', 'boolean'),
   salaryConfig: args['salary-config']
     ? decodeWire(args['salary-config'])
     : undefined,
