@@ -1,0 +1,20 @@
+[
+  "runner-launch",
+  "runner-session-control",
+  "runner-session-api",
+  "runner-session-controls",
+  "runner-transport-deadline",
+  "runner-health",
+  "runner-profile-editing",
+  "runner-configuration",
+  "runner-feedback",
+  "runner-stop-drain",
+  "runner-screen-stop",
+  "runner-docker",
+  "runner-docker-retention",
+  "runner-exclusive-receipt",
+  "runner-profile-receipt",
+  "desktop-lifecycle",
+  "desktop-appearance",
+  "ui-defaults"
+]
