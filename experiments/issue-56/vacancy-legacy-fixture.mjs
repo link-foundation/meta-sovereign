@@ -39,6 +39,7 @@ export const legacyNotation = (value = legacyVacancy()) =>
     .join('\n')}\n`;
 
 export const withLegacyVacancies = async (work, { driver } = {}) => {
+  const previousCwd = process.cwd();
   const directory = await fs.mkdtemp(
     path.join(os.tmpdir(), 'ms-vacancy-legacy-')
   );
@@ -71,6 +72,7 @@ export const withLegacyVacancies = async (work, { driver } = {}) => {
         fs.writeFile(path.join(legacy, name), text, { mode: 0o600 }),
     });
   } finally {
+    process.chdir(previousCwd);
     for (const { store, service } of opened.reverse()) {
       await service.stop();
       await store.close();

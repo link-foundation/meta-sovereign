@@ -1,3 +1,10 @@
+2026-11-18 exact-source Windows legacy-cache fixture cleanup:
+
+- [x] Preserve all three c4ebc9de Windows failures and map EBUSY to removing the fixture before the caller's outer working-directory restoration.
+- [x] Reproduce both successful/rejected cleanup boundaries against the actual published fixture; restore the caller directory before removal and preserve every existing migration assertion.
+- [x] Pass 17 focused Node checks and 15 each in Deno/Bun with limited concurrency. Preserve full failed-job logs and source-bound evidence.
+- [ ] Publish only to the prepared branch and confirm the next exact-source Windows runs. All 32 unfinished acceptance criteria remain required.
+
 2026-11-18 later employer-link metadata (HH05 remains unfinished):
 
 - [x] Reproduce the exact published-parent loss when a safe employer link appears after the first refusal; preserve original time, attempt count and request identity.
