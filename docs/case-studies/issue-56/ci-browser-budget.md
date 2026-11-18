@@ -34,6 +34,22 @@ The terminal status correctly refuses the abandoned test matrix and cancelled
 browser matrix. A same-SHA failed-job retry was requested after preserving the
 first attempt. Retry results remain separate evidence.
 
+Attempt 2 completes at 16:27:35 UTC on the same SHA. The retried
+[WebKit job](https://github.com/link-foundation/meta-sovereign/actions/runs/44328438761/job/134929001104)
+runs all 38 assigned groups, then fails only `vacancies`. Log lines 1060–1079
+show search/cache passing in 61.321 seconds, selection in 46.543 seconds and
+metadata in 53.212 seconds. Search-URL verification starts with only the remaining
+budget and is terminated at 180.159 seconds. There is no completed assertion
+failure in that group. This second observation supports separating the unchanged
+selection scenario; it does not establish why individual scenarios are slower
+on the hosted runner. The combined group is still a real failure.
+
+macOS Bun now passes. Deno partitions 3/8 and 6/8 again execute zero steps because
+no ARM runner is acquired. Their new annotations repeat the capacity limitation.
+The terminal gate correctly fails the abandoned runtime and failed browser
+matrices. Neither retry nor this evidence accepts VD07. A fresh complete
+source-bound matrix remains required after the partition correction.
+
 The correction retains the 35-minute job and 180-second subprocess deadlines.
 Both mandatory engines run eight disjoint shards instead of four. The complete
 156-entry registry is covered exactly once per engine, with twenty checks in

@@ -54,12 +54,30 @@ for lane in ['webkit-4', 'deno-3', 'deno-6', 'bun']:
     sources += [name, f'ci-logs/b3364503-cancelled-{lane}-job.json']
 sources += [str(path.relative_to(root)) for path in logs.glob('ci-browser-budget-*.log')
             if not path.name.endswith(('-archive.log', '-commit.log', '-push.log'))]
+retry = json.loads(read('b3364503-checks-attempt-2-final.json'))
+assert retry['headSha'] == parent and retry['conclusion'] == 'failure'
+retry_log = read('hosted-b3364503-webkit-4-attempt-2.log')
+assert 'Completed vacancies in 180159ms; exit 1' in retry_log
+assert 'Browser checks failed: vacancies' in retry_log
+for scenario in ['verifyVacancies', 'verifyVacancySelection', 'verifyVacancyMetadataVariants']:
+    assert f'"scenario":"{scenario}","phase":"passed"' in retry_log
+sources += ['ci-logs/hosted-b3364503-webkit-4-attempt-2.log',
+            'ci-logs/b3364503-checks-attempt-2-final.json',
+            'ci-logs/b3364503-checks-run-final.json',
+            'ci-logs/b3364503-pipeline-attempt-2.log',
+            'ci-logs/b3364503-retry-webkit-4-job.json',
+            'ci-logs/b3364503-retry-webkit-4-annotations.json']
+for lane in ['deno-3', 'deno-6']:
+    name = f'ci-logs/b3364503-retry-{lane}-annotations.json'
+    assert any('not acquired' in row['message'] for row in json.loads((root / name).read_text()))
+    sources.append(name)
 entries = {name: (root / name).read_bytes() for name in sorted(set(sources))}
 for name in sources[:5] + ['js/tests/e2e-vacancies-browser.mjs']:
     entries['before/' + name] = subprocess.check_output(
         ['git', 'show', f'{parent}:{name}'], cwd=root)
 entries['metadata.json'] = (json.dumps(dict(
     parent=parent, run=44328438761, attempt=1, job=134889666218,
+    retryAttempt=2, retryJob=134929001104, retryConclusion="failure",
     accepted=False, verified=88, unfinished=30, tests=29,
     browserMatrixHostedOnly=True, deadlinesChanged=False,
     sources={name: hashlib.sha256((root / name).read_bytes()).hexdigest()

@@ -5,7 +5,7 @@
 - [x] Pass 29 focused CI contracts and the workflow policy. The unchanged isolated native WebKit selection passes in 48.949 seconds with no provider clicks/page errors and all resources closed; this does not establish the cause of its longer hosted duration.
 - [x] Pass final scoped format/lint/secrets, source/doc limits and whitespace gates; independently verify all 47 source-bound evidence entries. Full duplication and platform validation remain hosted checks.
 - [x] Derive configuration-evidence browser partitions from the selected Git source; both historical/current layouts and five contradictory-source refusals pass a finite reader without running a browser matrix.
-- [ ] Publish only to the prepared branch and require the exact-source hosted matrix. A same-SHA retry of b3364503 remains active; all thirty unfinished original criteria remain required and PR57 stays draft/unmerged.
+- [ ] Publish only to the prepared branch and require the exact-source hosted matrix. The same-SHA retry of b3364503 fails only the combined vacancy group; two Deno ARM jobs again lack runners; all thirty unfinished original criteria remain required and PR57 stays draft/unmerged.
 
 2026-11-18 preview refusal isolation (HH08 remains unfinished):
 
@@ -1242,4 +1242,4 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Trace the shared sender's acknowledged admission wait: consent is checked before persistence, allowing a later saved opt-out to be missed before the sender starts.
 - [x] Reproduce fourteen actual-parent failures across five shared provider identities; pass all 55 focused checks after a fresh acknowledged consent read, preserving reservation and delivery uncertainty semantics.
 - [x] Verify 55 focused rejection, rollback, isolation and compatibility checks; retain default-off refusal diagnostics, source-bound evidence and the existing release trigger. Scoped formatting, lint, secrets and source/document limits pass; hosted matrices remain required.
-- [ ] Publish only to the prepared branch and inspect exact-source hosted checks. Continue all 30 unfinished criteria and keep PR57 draft/unmerged.
+- [ ] Publish the completed consent, preview and CI corrections only to the prepared branch; inspect exact-source hosted checks. Continue all 30 unfinished criteria and keep PR57 draft/unmerged.
