@@ -29,7 +29,8 @@ characters and exactly 4,393 HTML characters on the observed public page.
 The corrected function also captures both missing metadata fields. No skill
 tags exist on that page; a zero count is retained. These are manual public-source
 observations without login, owner profiles, application clicks or submissions.
-They do not establish authenticated collection or live service recovery.
+They do not establish authenticated collection. A later anonymous service read
+through the actual shared browser wrapper also succeeds, as recorded below.
 
 ## Reproduction and verification
 
@@ -72,9 +73,11 @@ rerun; the final owned fixture has an explicit successful shutdown receipt.
 
 ## Limits and retained investigation
 
-The independent public DOM observation passes, but a separate anonymous native
-service probe refuses navigation before collection. Its captured page renders;
-the cause of the navigation receipt refusal is not established. Earlier probe
+The independent public DOM observation passes. A later rerun of the anonymous
+native service probe also passes: one owned page, zero clicks, exact text/HTML,
+canonical alias reuse, recovered private cache after reopening and identical CLI
+readback. The original navigation refusal remains unexplained; a later success
+does not establish its cause. Earlier probe
 setup failures used an unsupported MCP dynamic import and an incorrect commander
 constructor argument; neither is presented as a production regression. The raw
 logs, generated source and diagnostic screenshot are preserved. A manual probe
@@ -82,10 +85,36 @@ requires an explicit `HH_PUBLIC_SOURCE_URL`; automated checks use synthetic page
 Public-page console errors and the fixture's missing favicon are retained without
 a clean-console claim.
 
+The navigation follow-up first incorrectly assumed the application used the
+library's default managers. That altered probe times out after 30 seconds:
+`networkIdleFor` fails with zero pending requests, because the library requires
+30 quiet seconds inside an already partly consumed 30-second budget. The
+application's `wrapBrowserSession` already disables those managers. This is a
+probe-configuration failure, not an established production defect. The final
+probe calls `openBrowserSession` with an injected owned launcher instead of
+recreating its commander configuration. It confirms a verified exact-URL receipt
+and skips network idleness under the actual application policy. No production
+navigation change is warranted by this evidence.
+
+```sh
+HH_PUBLIC_SOURCE_URL=https://hh.ru/vacancy/139480236 \
+  node --max-old-space-size=384 experiments/issue-56/vacancy-public-browser.mjs
+```
+
+This is an explicitly selected, finite anonymous public read, with every POST
+aborted and every owned resource closed. The page contains a region suggestion
+and cookie banner; neither is dismissed. It proves this observed public page,
+not authenticated application delivery or every HH vacancy. The successful
+wrapper source, failed altered source, bounded readiness diagnostics, original
+refusals and screenshot are preserved in `data/vacancy-public-navigation.tar.gz`
+with its independently checked per-file manifest.
+
+![Actual anonymous service read](../../screenshots/issue-56-vacancy-modern/public-native.png)
+
 Source-bound evidence, raw logs, pinned reference, parent reader and screenshots
 are in `data/vacancy-modern.tar.gz` with its per-file SHA-256 manifest. HH03 remains
-unfinished pending the complete cache/configuration contract audit and live
-service navigation evidence. The inventory stays **88 verified / 30 unfinished**;
+unfinished pending the complete cache/configuration contract audit and remaining
+authenticated behavior. The inventory stays **88 verified / 30 unfinished**;
 PR57 stays draft and unmerged.
 
 The parent Checks run `44279116597` has a cancelled Deno/macOS shard

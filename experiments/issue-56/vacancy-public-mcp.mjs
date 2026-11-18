@@ -19,7 +19,7 @@ const screenshot = path.join(
   'docs/screenshots/issue-56-vacancy-modern/public-native.png'
 );
 const code = `async (page) => {
-  const {makeBrowserCommander} = await import(${JSON.stringify(entry('node_modules/browser-commander/src/index.js'))});
+  const {openBrowserSession} = await import(${JSON.stringify(entry('js/src/cv/browser.js'))});
   const {createBrowserStore,createInMemoryDriver} = await import(${JSON.stringify(entry('js/src/storage/browser-store.js'))});
   const {createVacancyService} = await import(${JSON.stringify(entry('js/src/jobs/service.js'))});
   const {createVacancyCommands} = await import(${JSON.stringify(entry('js/src/cli/vacancy-commands.js'))});
@@ -36,7 +36,7 @@ const code = `async (page) => {
   const records = [], posts = [], errors = [];
   let service, native;
   const url = ${JSON.stringify(sourceUrl)};
-  const openSession = async () => {
+  const openSession = async (options) => {
     const record = {closed:false,clicks:0};records.push(record);
     const context = await browser.newContext();
     const source = await context.newPage();
@@ -52,16 +52,18 @@ const code = `async (page) => {
       }
       return route.continue();
     });
-    const commander=makeBrowserCommander({page:source,enableNetworkTracking:false,enableNavigationManager:false,enableDialogManager:false});
+    // Use the actual application wrapper, including its commander policy.
+    const session=await openBrowserSession({...options,launcher:async()=>({page:source,close:()=>context.close()})});
+    const {commander}=session;
     const navigate=commander.goto.bind(commander);
-    commander.goto=async input=>{try {const value=await navigate(input); console.error(JSON.stringify({event:'public-navigation-observed',navigated:value.navigated,verified:value.verified,status:value.status}));return value;} catch(error) {console.error(JSON.stringify({event:'public-navigation-refused',name:error.name,message:String(error.message).slice(0,1200)}));throw error;}};
+    commander.goto=async input=>{try {const value=await navigate(input); console.error(JSON.stringify({event:'public-navigation-observed',navigated:value.navigated,verified:value.verified,status:value.status,reason:value.reason,readiness:value.readiness}));return value;} catch(error) {console.error(JSON.stringify({event:'public-navigation-refused',name:error.name,message:String(error.message).slice(0,1200)}));throw error;}};
     return {page:source,commander,close:async()=>{
       try {
         native = await source.evaluate(readAssignmentVacancyDocument);
         record.clicks = await source.evaluate(()=>globalThis.collectionClicks);
         await source.screenshot({path:${JSON.stringify(screenshot)},fullPage:false});
       } catch(error) {console.error(JSON.stringify({event:'public-capture-refused',name:error.name,message:String(error.message).slice(0,1200)}));}
-      finally {await commander.destroy();await context.close();record.closed=true;}
+      finally {await session.close();record.closed=true;}
     }};
   };
   const make = () => createVacancyService({store,storeDir:directory,legacyVacancyDirectories:[],openSession});

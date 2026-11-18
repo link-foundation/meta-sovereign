@@ -1,3 +1,10 @@
+2026-11-18 real anonymous vacancy navigation:
+
+- [x] Run the exact previously refused public service probe: the shared cache, byte-equal HTML, canonical reuse, reopen and CLI recovery pass with zero clicks and all browsers closed.
+- [x] Preserve the library-default timeout, then trace the actual application wrapper. Production already disables the network/navigation/dialog managers; the changed probe configuration was incorrect and is not a production defect.
+- [x] Rerun through the actual shared session wrapper: verified exact URL, complete 3,035-character prose and 4,393-character HTML, canonical reuse, recovered store/CLI, one closed browser and zero clicks. Review the valid screenshot and preserve successful/refused evidence; the original intermittent refusal remains unexplained.
+- [ ] Publish the corrected finite probe and independently hashed evidence. No production navigation fix follows from this observation. Continue all 30 unfinished criteria; PR57 remains draft.
+
 2026-11-18 optional persistent vacancy collection (HH03 remains unfinished):
 
 - [x] Read the pinned collection-disabled contract and trace both durable vacancy writes: the shared cache and the application journal. Current forms and chat/assignment planning still need full context in RAM.
