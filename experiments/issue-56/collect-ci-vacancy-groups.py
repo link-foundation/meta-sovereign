@@ -1,31 +1,38 @@
-"""Preserve the exact-source browser registration failure and correction."""
-import json
-import subprocess
-from evidence_bundle import evidence_context, write_entries_archive
+"""Verify exact failed hosted grouping and the unchanged execution contracts."""
+import hashlib
+import runpy
+from pathlib import Path
 
-root, logs, _read = evidence_context(__file__, 'ci-vacancy-groups')
-assert 'fail 1' in (logs / 'ci-vacancy-groups-before.log').read_text()
-assert 'pass 8' in (logs / 'ci-vacancy-groups-after.log').read_text()
-assert 'vacancies combines 5 native scenarios' in (logs / 'ci-d48-contract-failure.log').read_text()
-files = [
-    'js/tests/ci-browser-shards.test.js',
-    'js/tests/e2e-vacancies-browser.mjs',
-    'js/tests/e2e-vacancy-loading-browser.mjs',
-    'js/scripts/browser-checks.json',
-    'ci-logs/ci-d48-contract-failure.log',
-    'ci-logs/ci-vacancy-groups-before.log',
-    'ci-logs/ci-vacancy-groups-after.log',
-    'docs/case-studies/issue-56/ci-vacancy-groups.md',
-    'experiments/issue-56/collect-ci-vacancy-groups.py',
-    'experiments/issue-56/evidence_bundle.py',
-]
-entries = {name: (root / name).read_bytes() for name in files}
-parent = 'd48a617927cf6d33aa332b88485068fcb38401e4'
-for name in files[:3]:
-    entries['before/' + name] = subprocess.check_output(
-        ['git', 'show', parent + ':' + name], cwd=root)
-entries['metadata.json'] = json.dumps(dict(
-    parent=parent, failedRun=44286298815, beforeFailed=1, afterPassed=8,
-    acceptedInventoryRows=[], issueComplete=False,
-), indent=2).encode()
-write_entries_archive(root / 'docs/case-studies/issue-56/data/ci-vacancy-groups.tar.gz', entries)
+root = Path(__file__).resolve().parents[2]
+evidence = runpy.run_path(str(root / 'experiments/issue-56/evidence_bundle.py'))
+_, _, read = evidence['evidence_context'](__file__, 'ci-vacancy-groups')
+assert 'vacancies combines 5 native scenarios' in read('parent')
+hosted = (root / 'ci-logs/checks-44022664526-133837402279.log').read_text()
+assert 'ETIMEDOUT' in hosted and 'Completed vacancies in 180215ms; exit 1' in hosted
+assert '"scenario":"verifyVacancyMetadataVariants","phase":"started"' in hosted
+evidence['verify_evidence'](read, {
+    'focused-final': ['pass 26', 'fail 0', 'skipped 0'],
+    'native-final': ['"resourcesClosed":true', '"providerClicks":0',
+                     '[e2e-vacancy-discovery] OK (chromium)'],
+    'format-check': ['All matched files use Prettier code style!'],
+})
+sources = evidence['changed_sources'](root)
+evidence['bundle'](root, [*sources,
+    *evidence['evidence_logs'](root, 'ci-vacancy-groups'),
+    'ci-logs/checks-44022664526-133837402279.log',
+    'ci-logs/checks-44022664526-133837402279.json',
+    'ci-logs/ci-macos-cleanup-webkit-vacancies.zip',
+    'ci-logs/ci-macos-cleanup-webkit-vacancies.log',
+    'ci-logs/ci-macos-cleanup-webkit-summary.json',
+], 'docs/case-studies/issue-56/data/ci-vacancy-browser-groups.tar.gz', {
+    'acceptance': False, 'parentFailures': 1, 'focusedTests': 26,
+    'nativeScenarios': 2,
+    'pending': 'Exact-head hosted validation and all 40 unchecked criteria',
+    'sourceHashes': {name: hashlib.sha256((root / name).read_bytes()).hexdigest()
+                     for name in sources},
+}, 'no-ci-vacancy-groups-screenshots', before={
+    'package.json': '215b1fee',
+    'js/scripts/browser-checks.json': '215b1fee',
+    'js/tests/e2e-vacancies-browser.mjs': '215b1fee',
+    'js/tests/ci-browser-shards.test.js': '215b1fee',
+})

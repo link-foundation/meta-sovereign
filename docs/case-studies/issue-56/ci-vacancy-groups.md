@@ -26,6 +26,9 @@ scenario between groups; hosted checks must verify the resulting full groups.
 The source-bound [evidence archive](data/ci-vacancy-groups.tar.gz) includes the
 raw hosted failure, actual-parent reproduction, corrected checks, exact old
 and new registrations, and independently hashed manifest. This correction
+uses its own collector; the older vacancy-browser-group collector is preserved.
+An initial filename collision was corrected before publication.
+This correction
 accepts no original inventory row. All 30 unfinished requirements remain
 required and [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57)
 stays draft and unmerged.
