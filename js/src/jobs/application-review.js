@@ -4,6 +4,7 @@ import {
   assignmentText,
 } from '../assignments/validation.js';
 import { readAssignmentVacancyDocument } from '../assignments/vacancy-reader.js';
+import { readLoadedVacancy } from '../assignments/vacancy-loading.js';
 import { vacancySnapshot } from '../assignments/vacancy.js';
 import { proposalMatches } from '../forms/review-apply.js';
 import { reviewSnapshotKey } from '../forms/review-targets.js';
@@ -97,10 +98,11 @@ export class ApplicationReview {
     this.service = service;
   }
   async vacancy(record, signal) {
-    const raw = await record.browser.commander.evaluate({
-      fn: readAssignmentVacancyDocument,
-      args: [],
-    });
+    const raw = await readLoadedVacancy(
+      record.browser,
+      readAssignmentVacancyDocument,
+      { url: record.url, signal, trace: this.service.trace }
+    );
     signal.throwIfAborted();
     if (
       raw.challenge ||

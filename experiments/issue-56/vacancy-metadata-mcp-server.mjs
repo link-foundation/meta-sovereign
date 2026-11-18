@@ -9,7 +9,9 @@ const browser = await chromium.launch({
 });
 let fixture;
 try {
-  fixture = await vacancyMetadataFixture(browser);
+  fixture = await vacancyMetadataFixture(browser, {
+    delayed: process.argv.includes('--delayed'),
+  });
   await fixture.page.context().close();
 } catch (error) {
   await browser.close();
@@ -24,6 +26,7 @@ const stats = () => ({
   ),
   pageErrors: fixture.errors,
   liveProvider: false,
+  delayedReads: fixture.delayedReads(),
 });
 let closing;
 const close = () =>

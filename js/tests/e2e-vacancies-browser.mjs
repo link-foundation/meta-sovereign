@@ -2,11 +2,13 @@ import { runBrowserScenarios } from './helpers/e2e-browser-scenarios.mjs';
 import { verifyVacancies } from './helpers/e2e-vacancies.mjs';
 import { verifyVacancySelection } from './helpers/e2e-vacancy-selection.mjs';
 import { verifyVacancyMetadataVariants } from './helpers/e2e-vacancy-metadata.mjs';
+import { verifyVacancyLoading } from './helpers/e2e-vacancy-loading.mjs';
 import { verifyVacancySearchUrl } from './helpers/e2e-vacancy-search-url.mjs';
 
 await runBrowserScenarios('vacancies', [
   verifyVacancies,
   verifyVacancySelection,
   verifyVacancyMetadataVariants,
+  verifyVacancyLoading,
   verifyVacancySearchUrl,
 ]);

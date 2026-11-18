@@ -1,6 +1,7 @@
 import { readAssignmentPage } from './read-page.js';
 import { assignmentFailure, assignmentVacancyUrl } from './validation.js';
 import { vacancyContent } from './vacancy-content.js';
+import { readLoadedVacancy } from './vacancy-loading.js';
 
 export { assignmentVacancyUrl } from './validation.js';
 
@@ -113,6 +114,12 @@ export const createAssignmentVacancyReader =
       browserOptions: headless === undefined ? {} : { headless },
       kind: 'vacancy',
       read: readAssignmentVacancyDocument,
+      execute: (session, check) =>
+        readLoadedVacancy(session, readAssignmentVacancyDocument, {
+          url,
+          signal,
+          check,
+        }),
       validate: (read) => {
         if (
           assignmentVacancyUrl(read.url) !== url ||

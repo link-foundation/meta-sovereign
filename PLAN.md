@@ -1,3 +1,16 @@
+2026-11-18 delayed native vacancy descriptions (HH03 remains unfinished):
+
+- [x] Trace the pinned full-description wait and both immediate extraction callers; DOMContentLoaded does not establish that the native description has hydrated.
+- [x] Add one bounded, cancellable read shared by collection and application context; refuse changed identity, challenges and ambiguous/malformed content without retrying a provider mutation.
+- [x] Reproduce against the published parent; pass 40 focused checks and the mandatory native scenario, independently verify 64 evidence entries, and preserve desktop/phone MCP recovery with two closed browsers and zero clicks. Publish this unit only to the prepared branch; every unfinished requirement remains required.
+
+2026-11-18 complete execution and desktop interface acceptance audit:
+
+- [x] Map all pinned Execution Modes 1–8 and Desktop UI 1–3, 6–7 to current controller, transport, retained targets, native isolation and shared interface behavior.
+- [x] Independently rehash the 18 original archives and preserve exact-source production comparisons; retain the separate dependency preparation and bot-configuration requirements.
+- [ ] Require all five successful `cd4cd0b5` workflows; bind named tests, both awaited browser engines, both actual SSH lifecycles and all five packaged desktop receipts to preserved logs.
+- [ ] Review the collected evidence before accepting VD02/VD06; publish only to the prepared branch and continue every unfinished issue criterion. PR57 stays draft and unmerged.
+
 2026-11-18 exact-source Windows legacy-cache fixture cleanup:
 
 - [x] Preserve all three c4ebc9de Windows failures and map EBUSY to removing the fixture before the caller's outer working-directory restoration.

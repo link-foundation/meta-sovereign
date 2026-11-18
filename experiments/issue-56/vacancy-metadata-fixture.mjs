@@ -20,7 +20,7 @@ export const vacancyMetadataHtml = (mode = 'gross') => {
     <p data-qa="vacancy-view-work-format">Remote</p>
     <p data-qa="vacancy-additional-work-format">Hybrid by agreement</p>
     <p data-qa="vacancy-creation-time">16 November 2026</p>
-    <div data-qa="vacancy-description">${mode === 'oversized-html' ? `<!--${'x'.repeat(120000)}-->` : ''}${vacancyDescriptionHtml}</div>
+    <div data-qa="vacancy-description" ${mode === 'delayed' ? 'hidden' : ''}>${mode === 'oversized-html' ? `<!--${'x'.repeat(120000)}-->` : ''}${vacancyDescriptionHtml}</div>
     ${mode === 'ambiguous-html' ? '<div data-qa="vacancy-description">Another description</div>' : ''}
     <span data-qa="skills-element"><span data-qa="bloko-tag__text">Python</span></span>
     <span data-qa="bloko-tag__text">SQL</span>
@@ -30,8 +30,12 @@ export const vacancyMetadataHtml = (mode = 'gross') => {
 };
 
 /** All provider HTML is synthetic; the shared server/reader/cache remain real. */
-export const vacancyMetadataFixture = async (browser) => {
-  let mode = 'gross';
+export const vacancyMetadataFixture = async (
+  browser,
+  { delayed = false } = {}
+) => {
+  let mode = delayed ? 'delayed' : 'gross';
+  const delayedReads = [];
   const fixture = await vacancyBrowserFixture(browser, {
     exports: {
       route: async (route) => {
@@ -45,7 +49,39 @@ export const vacancyMetadataFixture = async (browser) => {
         });
         return true;
       },
-      service: () => ({}),
+      service: ({ openSession }) => ({
+        openSession: async (options) => {
+          const session = await openSession(options);
+          const evaluate = session.commander.evaluate.bind(session.commander);
+          let reads = 0;
+          session.commander.evaluate = async (input) => {
+            const value = await evaluate(input);
+            if (
+              mode === 'delayed' &&
+              input.fn.name === 'readAssignmentVacancyDocument'
+            ) {
+              reads++;
+              delayedReads.push({
+                read: reads,
+                description: value.description,
+              });
+              if (reads === 1) {
+                // Hydration begins after the first real DOM read, independently
+                // of navigation stabilisation on different hosted browsers.
+                await session.page.evaluate(() => {
+                  globalThis.setTimeout(() => {
+                    globalThis.document.querySelector(
+                      '[data-qa="vacancy-description"]'
+                    ).hidden = false;
+                  }, 300);
+                });
+              }
+            }
+            return value;
+          };
+          return session;
+        },
+      }),
     },
   });
   return {
@@ -53,5 +89,6 @@ export const vacancyMetadataFixture = async (browser) => {
     metadataMode: (value) => {
       mode = value;
     },
+    delayedReads: () => globalThis.structuredClone(delayedReads),
   };
 };
