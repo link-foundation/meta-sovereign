@@ -64,7 +64,10 @@ test(
         await assert.rejects(
           service[operation]({
             requestId: 'other',
-            url: 'https://hh.ru/vacancy/123',
+            url:
+              operation === 'search'
+                ? 'https://hh.ru/search/vacancy?text=Python'
+                : 'https://hh.ru/vacancy/123',
             browserSlot: 'another',
           }),
           { code: 'jobs-busy' }

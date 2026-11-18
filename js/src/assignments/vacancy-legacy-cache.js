@@ -17,6 +17,18 @@ const failure = () =>
   Object.assign(new Error('Review the private legacy vacancy cache.'), {
     code: 'jobs-vacancy-cache-import',
   });
+const trace = (stage, error) => {
+  if (process.env.MS_JOBS_CACHE_DEBUG === '1') {
+    console.error(
+      '[jobs-vacancy-cache]',
+      JSON.stringify({
+        stage,
+        error: error.name,
+        code: error.code ?? null,
+      })
+    );
+  }
+};
 
 /** A server-side dependency, never a request-selected host path. */
 export const configureLegacyVacancies = (store, directories) => {
@@ -65,6 +77,7 @@ const importRecord = async (store, directory, name, result) => {
     return;
   }
   let source, text, content;
+  let stage = 'read';
   try {
     source = await readPrivateSource(
       directory,
@@ -75,9 +88,12 @@ const importRecord = async (store, directory, name, result) => {
     if (!source) {
       return;
     }
+    stage = 'decode';
     text = new TextDecoder('utf-8', { fatal: true }).decode(source.data);
+    stage = 'parse';
     content = legacyVacancyContent(text, name.slice(0, -5), source.updatedAt);
-  } catch {
+  } catch (error) {
+    trace(stage, error);
     result.invalid.push(name);
     return;
   }
@@ -123,7 +139,10 @@ const migrate = async (store, directories) => {
       if (!stat.isDirectory()) {
         throw failure();
       }
-      handle = await fs.opendir(directory);
+      // macOS /var and Windows short paths can name a canonical ancestor.
+      // Compare contained files and fingerprint originals in that same space.
+      const canonical = await fs.realpath(directory);
+      handle = await fs.opendir(canonical);
       for await (const entry of handle) {
         if (!/^\d{1,20}\.lino$/u.test(entry.name)) {
           continue;
@@ -131,10 +150,11 @@ const migrate = async (store, directories) => {
         if (++files > 10000) {
           throw failure();
         }
-        await importRecord(store, directory, entry.name, result);
+        await importRecord(store, canonical, entry.name, result);
       }
     } catch (error) {
       if (error.code !== 'ENOENT') {
+        trace('directory', error);
         throw failure();
       }
     } finally {

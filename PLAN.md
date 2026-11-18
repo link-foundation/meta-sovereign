@@ -974,3 +974,10 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Draft acknowledged private records, distinct provider evidence, restart enforcement in application/search/discovery/batch admission, revision-bound list/clear through CLI and both Lino formats, and localized owner review controls. Preserve current forms, drafts and uncertain delivery reservations.
 - [x] Reproduce actual-parent failures and add small durability, refusal, race and interface regressions. Verify one isolated native/MCP scenario, capture before/after and close owned fixtures.
 - [ ] Preserve source-bound evidence and review fresh exact-source CI before accepting any full criterion. Deferred-question and complete later-run policies remain required.
+
+2026-11-18 exact-source runtime search/cache failures:
+
+- [x] Preserve the failed runtime jobs for e2acf88a, match SHA/timestamps and separate the independent browser batch timeout. The other four workflows passed.
+- [x] Reproduce three actual-parent failures: the two original search callers use vacancy URLs, and a real ancestor alias prevents legacy import. Preserve the linked-directory refusal control.
+- [x] Supply valid operation-specific fixture URLs and canonicalize validated migration directories without weakening private-source checks; add default-off stage diagnostics. All 45 focused Node and 23 Deno checks pass.
+- [ ] Preserve source-bound evidence, publish only to the prepared branch and review fresh exact-source hosted checks. Resolve the separate batch timeout and all 32 unfinished criteria.

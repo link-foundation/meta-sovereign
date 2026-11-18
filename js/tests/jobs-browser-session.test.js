@@ -42,7 +42,10 @@ for (const operation of [
       const result = service[operation]({
         browserSlot: 'account-two',
         headless: true,
-        url: 'https://hh.ru/vacancy/123',
+        url:
+          operation === 'search'
+            ? 'https://hh.ru/search/vacancy?text=Python'
+            : 'https://hh.ru/vacancy/123',
         requestId: 'shared-profile',
         autoSelectResumeLanguage: false,
       });
