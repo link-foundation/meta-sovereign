@@ -13,7 +13,7 @@ import { expandableReviewField } from './review-custom.js';
 import { attachReviewedResume } from './review-upload.js';
 import { resumeUploadField } from './resume-upload.js';
 import { discloseReviewedOptions } from './review-disclosure.js';
-import { configuredResume } from './configured-resume.js';
+import { availableReviewResume } from './private-resume.js';
 import { createDraftRestorer } from './review-restore.js';
 import { automaticReviewFields } from './automatic-prefill.js';
 import { finalPeriodOverride } from '../automation/question-final-period.js';
@@ -92,7 +92,8 @@ export const createReviewedPrefill = ({
         }
       )
     );
-    const resume = await configuredResume(store);
+    const allowPrivate = !input.file && proposed.fields.some(resumeUploadField);
+    const resume = await availableReviewResume(store, allowPrivate);
     check();
     const targets = await capture(snapshot, proposed.fields, {
       trace: record.browser.trace,

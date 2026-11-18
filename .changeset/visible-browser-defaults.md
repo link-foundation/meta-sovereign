@@ -941,3 +941,7 @@ Load bounded private resume, contacts and profile overrides automatically beside
 the selected Forms store. Preserve explicit profiles and owner text, reject stale
 source bytes before filling or learning, and contract learned contacts without
 approving answers or submitting forms (issue #56 QA22).
+
+Discover the conventional private Forms PDF as a bounded read-only fallback.
+Preserve explicit selections and owner attachments, refuse stale source bytes,
+and verify actual upload receipts without submitting forms (issue #56 QA22).

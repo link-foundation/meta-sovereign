@@ -1,10 +1,18 @@
+2026-11-18 conventional private Forms PDF (QA22 remains unfinished):
+
+- [x] Trace pinned B8 and the existing saved-PDF, reviewed upload and automatic-prefill paths.
+- [x] Load the conventional selected-store PDF as a read-only fallback, with saved/explicit selections taking precedence and frozen source revisions.
+- [x] Reproduce seven published-parent failures with five positive controls; pass 38 focused Node checks, 23 Deno checks and actual native readback with zero submissions. Verify malformed/oversized/unsafe inputs, changed-source refusal, owner preservation and receipt recovery.
+- [x] Pass scoped lint/format/secrets, source/doc limits and the unchanged duplication gate; preserve the source-bound archive for independent hash review.
+- [ ] Preserve source-bound evidence, publish only to the prepared branch and require exact-source hosted checks. Complete every unfinished criterion; PR57 stays draft and unmerged.
+
 2026-11-18 macOS Deno salary-batch fixture admission:
 
 - [x] Preserve the exact 77bd5f71 job log and locate `jobs-busy` at lines 3619–3630, after 1,256 passing checks.
 - [x] Trace the accelerated one-millisecond background poll competing with a manual fixture read; retain the production pre-admission ownership refusal.
 - [x] Draft finite fixture-only admission recovery, deterministic contention and no-repeat coverage for issued/uncertain failures; all 12 focused Node checks pass.
-- [x] Reproduce the exact parent caller with deterministic busy admission; pass all 12 Node/Deno checks and scoped static checks, and independently verify the 27-entry evidence archive.
-- [ ] Commit the fixture repair and publish both atomic commits only to the prepared branch.
+- [x] Reproduce the exact parent caller with deterministic busy admission; pass all 12 Node/Deno checks and scoped static checks, and independently verify the 28-entry evidence archive.
+- [x] Publish the fixture repair and private-profile feature on the prepared branch at `5283e26a`.
 - [ ] Require all five exact-source workflows and continue all 35 unfinished requirements. PR57 stays draft and unmerged.
 
 2026-11-18 automatic private Forms profile defaults (QA22 remains unfinished):
@@ -14,7 +22,7 @@
 - [x] Pass the initial 46 focused checks with one worker; add automatic-prefill, unsafe-parent and actual native browser regressions.
 - [x] Reproduce all 11 failures against the actual published parent; pass all 47 focused checks, native UI receipt and reviewed desktop/phone evidence.
 - [x] Pass scoped lint/format/secrets and source/doc limits; preserve source-bound evidence with the unchanged 6.49% duplication gate.
-- [ ] Independently rehash, commit and push the private-profile unit only to the prepared branch.
+- [x] Independently rehash all 48 entries and publish the private-profile unit at `c3b491e3` (included in `5283e26a`).
 - [ ] Review all five exact-source workflows, finish QA21/QA23 audits and every remaining original criterion. Inventory remains 83 verified / 35 unfinished; PR57 stays draft and unmerged.
 
 2026-11-17 runner graceful Stop and weighted browser coverage:

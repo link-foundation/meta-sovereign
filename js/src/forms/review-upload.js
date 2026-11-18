@@ -2,7 +2,7 @@ import { formFailure as failure } from './options.js';
 import { reviewSnapshotKey } from './review-targets.js';
 import { performReviewedEffect } from './review-effect.js';
 import { currentFormAssignment } from './assignment-store.js';
-import { withConfiguredResume } from './configured-resume.js';
+import { withReviewResume } from './private-resume.js';
 import {
   resumePdf,
   resumeUploadField,
@@ -164,7 +164,7 @@ export const attachReviewedResume = async (options) => {
       'Plan the current page to review this saved PDF.'
     );
   }
-  return withConfiguredResume(store, input.resumeRevision, (file) =>
+  return withReviewResume(store, input.resumeRevision, (file) =>
     attachResume({ ...options, input: { ...input, file } })
   );
 };

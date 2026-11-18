@@ -1,7 +1,8 @@
 // Private reference-compatible defaults belong to the selected store, never cwd.
-import { promises as fs, constants } from 'node:fs';
-import path from 'node:path';
-import { createHash } from 'node:crypto';
+import {
+  privateFormDirectory,
+  readPrivateFormSource,
+} from './private-source.js';
 import { extractAnswerProfile } from '../automation/question-profile-source.js';
 import { normalizeAnswerProfile } from '../automation/question-profile.js';
 import { prepareAnswerPreview } from '../automation/question-store.js';
@@ -28,58 +29,23 @@ const sourceFailure = (name) =>
   );
 
 const readSource = async (directory, name) => {
-  const file = path.join(directory, name);
-  let handle;
+  const source = await readPrivateFormSource(
+    directory,
+    name,
+    MAX_BYTES,
+    sourceFailure
+  );
+  if (!source) {
+    return null;
+  }
   try {
-    const stat = await fs.lstat(file);
-    const parent = await fs.realpath(path.dirname(file));
-    const relative = path.relative(directory, parent);
-    if (
-      !stat.isFile() ||
-      stat.size > MAX_BYTES ||
-      path.isAbsolute(relative) ||
-      relative.split(path.sep).includes('..')
-    ) {
-      throw sourceFailure(name);
-    }
-    handle = await fs.open(
-      file,
-      constants.O_RDONLY | constants.O_NONBLOCK | (constants.O_NOFOLLOW ?? 0)
-    );
-    const opened = await handle.stat();
-    if (!opened.isFile() || opened.size > MAX_BYTES) {
-      throw sourceFailure(name);
-    }
-    const bytes = Buffer.alloc(MAX_BYTES + 1);
-    let length = 0;
-    while (length < bytes.length) {
-      const { bytesRead } = await handle.read(
-        bytes,
-        length,
-        bytes.length - length,
-        null
-      );
-      if (!bytesRead) {
-        break;
-      }
-      length += bytesRead;
-    }
-    if (length > MAX_BYTES) {
-      throw sourceFailure(name);
-    }
-    const data = bytes.subarray(0, length);
-    const text = new TextDecoder('utf-8', { fatal: true }).decode(data);
+    const text = new TextDecoder('utf-8', { fatal: true }).decode(source.data);
     if (text.length > 64000) {
       throw sourceFailure(name);
     }
-    return { text, sha256: createHash('sha256').update(data).digest('hex') };
-  } catch (error) {
-    if (error.code === 'ENOENT') {
-      return null;
-    }
+    return { text, sha256: source.sha256 };
+  } catch {
     throw sourceFailure(name);
-  } finally {
-    await handle?.close();
   }
 };
 
@@ -102,17 +68,9 @@ const canonicalValues = (profile) => {
 };
 
 export const readPrivateFormProfile = async (store) => {
-  if (typeof store?.logFile !== 'string' || !store.logFile) {
+  const directory = await privateFormDirectory(store, sourceFailure);
+  if (!directory) {
     return { profile: {}, files: [] };
-  }
-  let directory;
-  try {
-    directory = await fs.realpath(path.dirname(store.logFile));
-  } catch (error) {
-    if (error.code === 'ENOENT') {
-      return { profile: {}, files: [] };
-    }
-    throw sourceFailure('profile directory');
   }
   const profile = {};
   const files = [];
