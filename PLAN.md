@@ -1373,7 +1373,7 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Give independent feedback, search, saved-refusal and preview-refusal scenarios mandatory registered budgets. Keep collection/preview together, every scenario exactly once, eight shards, twenty entries per shard, both engines and existing 180-second / 35-minute deadlines.
 - [x] Reproduce two registration failures against the actual parent with eight independent controls; all 31 focused CI contracts pass. The isolated WebKit saved-refusal scenario passes in 50,858 ms with all owned browsers closed and no submissions. Full matrices stay hosted; the cause of the earlier long nested operation remains unproven.
 - [ ] Preserve source-bound evidence, commit/push only to the prepared branch and inspect exact-source CI. Continue every original unfinished criterion; PR57 remains draft/unmerged.
-2026-11-18 cold rolling-host imports:
+      2026-11-18 cold rolling-host imports:
 
 - [x] Preserve exact 623a144c Windows/Deno cold-start failures and WebKit artifact DNS failure. Actual native WebKit scenarios pass; the upload fails at line 4031 with ENOTFOUND. Cold startup spends 3,062ms importing serve and 5,023ms preparing 2,166 immutable files before worker startup.
 - [x] Trace three unnecessary consumer paths: pure recovery-format validation imports full archives/codecs; supervisor startup imports the later health probe; healthy proxy startup imports its error codec. Draft deferred consumption while preserving public recovery exports, error responses and stable-worker health checks. Also isolate pure CORS policy and discovery constants after the first graph assertion exposes both additional paths.
