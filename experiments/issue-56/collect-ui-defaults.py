@@ -28,7 +28,7 @@ assert receipt == dict(sharedDefaultsApplied=True, ownerChoicesSurviveReload=Tru
 for name in ['mcp-server', 'before-mcp-server']:
     assert json.loads(read(name).splitlines()[-1]) == dict(
         applicationResourcesClosed=True, liveProvider=False)
-names = changed_sources(root) + evidence_logs(root, 'ui-defaults') + [
+names = changed_sources(root, 'e7fe268f') + evidence_logs(root, 'ui-defaults') + [
     'experiments/issue-56/application_parent_fixture.py',
     'experiments/issue-56/evidence_bundle.py',
     'experiments/issue-56/question-browser-probe.mjs', '.jscpd.json',
