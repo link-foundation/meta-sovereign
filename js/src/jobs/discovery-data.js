@@ -148,6 +148,9 @@ export const discoveryEntry = (raw, options) => {
       browserSlot: options.browserSlot,
       filters: options.filters,
       choiceRevision: raw.choiceRevision,
+      ...(raw.skipRevision === undefined
+        ? {}
+        : { skipRevision: raw.skipRevision }),
       decisions: [raw.decision],
     },
     result,
@@ -171,6 +174,9 @@ export const discoveryEntry = (raw, options) => {
     card: result.cards[0],
     decision: selection.decisions[0],
     choiceRevision: raw.choiceRevision,
+    ...(raw.skipRevision === undefined
+      ? {}
+      : { skipRevision: raw.skipRevision }),
     capturedAt: raw.capturedAt,
     ...(pay ? { pay } : {}),
   };

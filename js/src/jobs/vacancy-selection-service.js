@@ -1,4 +1,5 @@
 import { storedVacancyChoices } from './vacancy-choice-service.js';
+import { storedVacancySkips } from './vacancy-skip-service.js';
 import { storedVacancies } from './technology-service.js';
 import { vacancyChoiceSlot } from './vacancy-choice.js';
 import {
@@ -17,6 +18,7 @@ export const reviewVacancySearch = async (
   const browserSlot = vacancyChoiceSlot(input);
   const filters = vacancySelectionOptions(input);
   const choices = await storedVacancyChoices(store, { browserSlot });
+  const skips = await storedVacancySkips(store, { browserSlot });
   const cached = filters.excludeText.length
     ? (await storedVacancies(store)).entries
     : [];
@@ -25,13 +27,15 @@ export const reviewVacancySearch = async (
       version: 1,
       browserSlot,
       choiceRevision: choices.revision,
+      skipRevision: skips.revision,
       filters,
       decisions: result.cards.map((card) => {
         const decision = vacancySelectionDecision(
           card,
           choices,
           cached,
-          filters
+          filters,
+          skips
         );
         return ['review', 'needs-description'].includes(decision.reason) &&
           retryWaiting({ url: card.url, browserSlot })

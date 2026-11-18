@@ -391,4 +391,20 @@ export const enVacancy = {
   'cvPublish.consent':
     'I reviewed these saved fields and this target. Commit and push only the listed snapshots.',
   'cvPublish.publish': 'Commit and push snapshots',
+  'vacancySkip.title': 'Recorded application refusals',
+  'vacancySkip.hint':
+    'Recorded refusals prevent new applications in this browser workspace. Close the open review before clearing. Clearing does not send or resolve uncertain delivery.',
+  'vacancySkip.reload': 'Reload recorded refusals',
+  'vacancySkip.failed': 'The record was not confirmed. Reload before clearing.',
+  'vacancySkip.empty': 'No recorded refusals.',
+  'vacancySkip.more': 'Show more refusals',
+  'vacancySkip.clear': 'Clear this refusal',
+  'vacancySkip.clear-external_site': 'Clear employer-site refusals',
+  'vacancySkip.clear-resume_not_visible': 'Clear résumé visibility refusals',
+  'vacancySkip.external_site': 'Continue on the employer’s website',
+  'vacancySkip.resume_not_visible':
+    'Your résumé is not visible to this employer',
+  'vacancySkip.observed': 'Last observed {date}; recorded runs: {attempts}',
+  'vacancySkip.externalLink': 'Open the recorded employer link',
+  'vacancySelection.native-skip': 'Recorded provider refusal',
 };

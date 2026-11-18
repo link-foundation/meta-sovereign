@@ -386,4 +386,21 @@ export const hiVacancy = {
   'cvPublish.consent':
     'मैंने सहेजे गए फ़ील्ड और लक्ष्य की समीक्षा की है। केवल सूचीबद्ध स्नैपशॉट कमिट और पुश करें।',
   'cvPublish.publish': 'स्नैपशॉट कमिट और पुश करें',
+  'vacancySkip.title': 'दर्ज आवेदन रुकावटें',
+  'vacancySkip.hint':
+    'दर्ज रुकावटें इस ब्राउज़र कार्यक्षेत्र में नए आवेदन रोकती हैं। हटाने से पहले खुली समीक्षा बंद करें। हटाने से आवेदन नहीं भेजा जाता और अनिश्चित डिलीवरी की पुष्टि नहीं होती।',
+  'vacancySkip.reload': 'दर्ज रुकावटें फिर लोड करें',
+  'vacancySkip.failed':
+    'रिकॉर्ड की पुष्टि नहीं हुई। हटाने से पहले फिर लोड करें।',
+  'vacancySkip.empty': 'कोई दर्ज रुकावट नहीं।',
+  'vacancySkip.more': 'और रुकावटें दिखाएँ',
+  'vacancySkip.clear': 'यह रुकावट हटाएँ',
+  'vacancySkip.clear-external_site': 'नियोक्ता साइट की रुकावटें हटाएँ',
+  'vacancySkip.clear-resume_not_visible': 'रिज़्यूमे दृश्यता की रुकावटें हटाएँ',
+  'vacancySkip.external_site': 'नियोक्ता की वेबसाइट पर जारी रखें',
+  'vacancySkip.resume_not_visible':
+    'इस नियोक्ता को आपका रिज़्यूमे दिखाई नहीं देता',
+  'vacancySkip.observed': 'अंतिम अवलोकन {date}; दर्ज रन: {attempts}',
+  'vacancySkip.externalLink': 'दर्ज नियोक्ता लिंक खोलें',
+  'vacancySelection.native-skip': 'दर्ज प्रदाता रुकावट',
 };

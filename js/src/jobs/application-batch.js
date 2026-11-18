@@ -14,6 +14,7 @@ import {
   readApplicationBatch,
 } from './application-batch-data.js';
 import { storedVacancyChoices } from './vacancy-choice-service.js';
+import { storedVacancySkips } from './vacancy-skip-service.js';
 import { vacancyChoiceSlot } from './vacancy-choice.js';
 import { applicationPreservationPolicy } from './application-run-modes.js';
 import {
@@ -399,8 +400,9 @@ export class ApplicationBatch {
       this.service.store,
       record.options
     );
+    const skips = await storedVacancySkips(this.service.store, record.options);
     signal.throwIfAborted();
-    if (choices.entries.some((row) => row.url === url)) {
+    if ([...choices.entries, ...skips.entries].some((row) => row.url === url)) {
       await this.salary.remove(runtime, url);
       return this.exclude(runtime, url, due, Boolean(salaryUrl));
     }

@@ -968,3 +968,9 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Expose optional fractional days in all four UI languages; reject invalid input locally and retain acknowledged-save, per-automation precedence and silence conditions.
 - [x] Verify focused portable checks, actual native save/reload/reset, independent MCP and inspected desktop/phone screenshots with no provider effects and drained fixtures.
 - [ ] Pass scoped static checks, preserve source-bound evidence, commit and publish only to the prepared branch. Verify all exact-head hosted workflows; the 36 full-scope criteria remain unfinished.
+      2026-11-18 private native skip records (HH05 remains unfinished):
+
+- [x] Trace pinned permanent/temporary skip semantics and the current RAM-only application holds. Current visible warning and external-site observations have no durable reason record or owner clear operation.
+- [x] Draft acknowledged private records, distinct provider evidence, restart enforcement in application/search/discovery/batch admission, revision-bound list/clear through CLI and both Lino formats, and localized owner review controls. Preserve current forms, drafts and uncertain delivery reservations.
+- [x] Reproduce actual-parent failures and add small durability, refusal, race and interface regressions. Verify one isolated native/MCP scenario, capture before/after and close owned fixtures.
+- [ ] Preserve source-bound evidence and review fresh exact-source CI before accepting any full criterion. Deferred-question and complete later-run policies remain required.

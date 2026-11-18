@@ -9,6 +9,7 @@ import { proposalMatches } from '../forms/review-apply.js';
 import { reviewSnapshotKey } from '../forms/review-targets.js';
 import { rememberApplicationLocation } from './application-location.js';
 import { rememberApplicationPopup } from './application-popup.js';
+import { observeVacancySkip } from './vacancy-skip-service.js';
 import { applyApplicationRunPolicy } from './application-run-modes.js';
 import { observeApplicationResume } from './application-resume-preference.js';
 import {
@@ -225,6 +226,7 @@ export class ApplicationReview {
         : null,
     };
     await this.service.save(record);
+    await observeVacancySkip(this.service.store, record);
     await this.service.context.recover(record, signal);
     return applicationView(record);
   }

@@ -400,4 +400,21 @@ export const ruVacancy = {
   'cvPublish.consent':
     'Я проверил сохранённые поля и назначение. Закоммитить и отправить только перечисленные снимки.',
   'cvPublish.publish': 'Закоммитить и отправить снимки',
+  'vacancySkip.title': 'Сохранённые причины пропуска',
+  'vacancySkip.hint':
+    'Сохранённые причины блокируют новые отклики в этом браузере. Перед очисткой закройте просмотр отклика. Очистка не отправляет отклик и не подтверждает доставку.',
+  'vacancySkip.reload': 'Обновить причины пропуска',
+  'vacancySkip.failed':
+    'Сохранение не подтверждено. Обновите список перед очисткой.',
+  'vacancySkip.empty': 'Сохранённых причин нет.',
+  'vacancySkip.more': 'Показать ещё',
+  'vacancySkip.clear': 'Очистить эту причину',
+  'vacancySkip.clear-external_site': 'Очистить переходы на сайт работодателя',
+  'vacancySkip.clear-resume_not_visible':
+    'Очистить ограничения видимости резюме',
+  'vacancySkip.external_site': 'Отклик на сайте работодателя',
+  'vacancySkip.resume_not_visible': 'Работодатель не видит ваше резюме',
+  'vacancySkip.observed': 'Последнее наблюдение: {date}; запусков: {attempts}',
+  'vacancySkip.externalLink': 'Открыть сохранённую ссылку работодателя',
+  'vacancySelection.native-skip': 'Сохранённый отказ площадки',
 };

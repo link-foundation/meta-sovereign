@@ -62,6 +62,8 @@ const vacancyOperations = [
   'collect',
   'stored',
   'choices-stored',
+  'skips-stored',
+  'skip-clear',
   'choice-save',
   'choice-clear',
   'resumes',
@@ -128,6 +130,7 @@ export const createVacancyCommands = ({ openStore, ...options }) =>
                           'title',
                           'state',
                           'revision',
+                          'reason',
                           'note',
                         ].map((key) => [key, args[key]])
                       ),

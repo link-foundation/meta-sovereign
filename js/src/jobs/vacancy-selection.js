@@ -4,6 +4,10 @@ import {
 } from '../assignments/validation.js';
 import { jobsObject, jobsFailure } from './options.js';
 import { vacancyChoiceResult, vacancyChoiceSlot } from './vacancy-choice.js';
+import {
+  vacancySkipReasons,
+  vacancySkipRevision,
+} from './vacancy-skip-data.js';
 
 const fail = () => {
   throw jobsFailure(
@@ -43,7 +47,13 @@ export const vacancySelectionOptions = (input = {}) => {
   return { skipResponded: input.skipResponded ?? true, excludeText: terms };
 };
 
-export const vacancySelectionDecision = (card, choices, cached, filters) => {
+export const vacancySelectionDecision = (
+  card,
+  choices,
+  cached,
+  filters,
+  skips = { entries: [] }
+) => {
   const base = {
     url: assignmentVacancyUrl(card.url),
     term: null,
@@ -56,6 +66,10 @@ export const vacancySelectionDecision = (card, choices, cached, filters) => {
   }
   if (filters.skipResponded && card.responded) {
     return { ...base, reason: 'responded' };
+  }
+  const skipped = skips.entries.find((row) => row.url === base.url);
+  if (skipped) {
+    return { ...base, reason: 'native-skip', skipReason: skipped.reason };
   }
   const description = cached.find((row) => row.url === base.url);
   for (const field of ['title', 'company', 'description']) {
@@ -143,6 +157,10 @@ export const vacancySelectionResult = (raw, result, input) => {
     { version: 1, browserSlot, revision: raw.choiceRevision, entries: [] },
     input
   ).revision;
+  const skipRevision = vacancySkipRevision(
+    raw.skipRevision ?? 'empty',
+    browserSlot
+  );
   const decisions = raw.decisions.map((row, index) => {
     const card = result.cards[index];
     if (
@@ -155,6 +173,7 @@ export const vacancySelectionResult = (raw, result, input) => {
         'configured-text',
         'needs-description',
         'retry-wait',
+        'native-skip',
         'review',
       ].includes(row.reason) ||
       (filters.skipResponded &&
@@ -168,13 +187,27 @@ export const vacancySelectionResult = (raw, result, input) => {
       fail();
     }
     validateMatch(row, card, filters, choiceRevision);
+    if (
+      row.reason === 'native-skip' &&
+      (skipRevision === 'empty' || !vacancySkipReasons.includes(row.skipReason))
+    ) {
+      fail();
+    }
     return {
       url: row.url,
       reason: row.reason,
       term: row.term,
       field: row.field,
       descriptionCapturedAt: row.descriptionCapturedAt,
+      ...(row.reason === 'native-skip' ? { skipReason: row.skipReason } : {}),
     };
   });
-  return { version: 1, browserSlot, choiceRevision, filters, decisions };
+  return {
+    version: 1,
+    browserSlot,
+    choiceRevision,
+    filters,
+    decisions,
+    ...(raw.skipRevision === undefined ? {} : { skipRevision }),
+  };
 };

@@ -38,6 +38,7 @@ import { ApplicationPacing } from './application-pacing.js';
 import { ApplicationChats } from './application-chats.js';
 import { ApplicationLimitRejections } from './application-limit-rejections.js';
 import { watchApplicationFeedback } from './application-feedback.js';
+import { assertVacancyNotSkipped } from './vacancy-skip-service.js';
 import {
   ApplicationResumes,
   dispatchResumeChoice,
@@ -350,6 +351,7 @@ class ApplicationService {
     if (owners.has(this.store)) {
       throw fail('busy');
     }
+    await assertVacancyNotSkipped(this.store, options);
     const restored = await this.restore(options, input);
     options = restored.options;
     if (restored.previous && !input.recover) {

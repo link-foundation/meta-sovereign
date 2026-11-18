@@ -27,6 +27,7 @@ import { createCvPrepareApi } from './cv-prepare-api.js';
 import { createCvTranslationApi } from './cv-translation-api.js';
 import { createCvWorkplaceApi } from './cv-workplace-api.js';
 import { createVacancyChoiceApi } from './vacancy-choice-api.js';
+import { createVacancySkipApi } from './vacancy-skip-api.js';
 import { createApplicationApi } from './application-api.js';
 import { vacancySelectionResult } from '../jobs/vacancy-selection.js';
 import { createDiscoveryApi } from './discovery-api.js';
@@ -104,6 +105,7 @@ export const createVacancyApi = ({ get, report, local, fileUrl }) => ({
   ...createJobLoginApi({ get, report }),
   ...createApplicationApi({ get, report }),
   ...createVacancyChoiceApi({ get, report, local }),
+  ...createVacancySkipApi({ get, report, local }),
   ...createTechnologyApi({ get, report, local }),
   ...createCvTechnologyApi({ get, report, local }),
   ...createCvWatchApi({ get, report, local }),

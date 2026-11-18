@@ -10,6 +10,7 @@ import { jobsFailure } from './options.js';
 import {
   assignmentVacancy,
   assignmentVacancyUrl,
+  assignmentSourceUrl,
 } from '../assignments/validation.js';
 import { validateFormInspection } from '../forms/plan-validation.js';
 import { applicationHoldReasons } from './application-holds.js';
@@ -130,6 +131,12 @@ const page = (value) =>
     optionalChoice(value.error, ['generic-error', 'validation-error']) &&
     (value.resumeNotVisible === undefined ||
       typeof value.resumeNotVisible === 'boolean') &&
+    (value.externalUrl === undefined ||
+      value.externalUrl === null ||
+      (value.external &&
+        !value.challenge &&
+        value.bound &&
+        assignmentSourceUrl(value.externalUrl) === value.externalUrl)) &&
     ['enter', 'submit', 'letterToggle'].every((key) =>
       actionDescriptor(value[key])
     ));

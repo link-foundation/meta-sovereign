@@ -137,6 +137,8 @@ export const VACANCY_HELP = `${APPLICATION_HELP}
   vacancies-collect --url=<hh-vacancy-url> [--refresh=true|false] [--browser-slot=jobs] [--headless=true|false] [--store=<dir>]
   vacancies-stored [--store=<dir>]
   vacancies-choices-stored [--browser-slot=jobs] [--store=<dir>]
+  vacancies-skips-stored [--browser-slot=jobs] [--store=<dir>]
+  vacancies-skip-clear --url=<hh-vacancy-url>|--reason=external_site|resume_not_visible --revision=<observed-revision> [--browser-slot=jobs] [--store=<dir>]
   vacancies-choice-save --url=<hh-vacancy-url> --title=<text> --state=skipped|deferred --revision=<observed-revision> [--note=<private-text>] [--browser-slot=jobs] [--store=<dir>]
   vacancies-choice-clear --url=<hh-vacancy-url> --revision=<observed-revision> [--browser-slot=jobs] [--store=<dir>]
   vacancies-resumes [--resume=<hash>] [--resume-language=ru|en|any] [--browser-slot=jobs] [--headless=true|false] [--store=<dir>]

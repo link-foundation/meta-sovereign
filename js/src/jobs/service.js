@@ -30,6 +30,7 @@ import { createCvPublicationService } from './cv-publication-service.js';
 import { createCvPrepareService } from './cv-prepare-service.js';
 import { createCvTranslationService } from './cv-translation-service.js';
 import { createVacancyChoiceService } from './vacancy-choice-service.js';
+import { createVacancySkipService } from './vacancy-skip-service.js';
 import { vacancySelectionOptions } from './vacancy-selection.js';
 import { reviewVacancySearch } from './vacancy-selection-service.js';
 import { acknowledgedRead, acknowledgedWrite } from './acknowledged-store.js';
@@ -40,6 +41,10 @@ import {
 } from './application-service.js';
 
 const owners = new WeakSet();
+const workspaceOwned = (store, owner) =>
+  owners.has(store) ||
+  (owner !== 'application' && applicationOwned(store)) ||
+  (owner !== 'login' && jobLoginOwned(store));
 const loginControl = ({ store, openSession, login }, run) =>
   createJobLoginService({
     store,
@@ -84,11 +89,7 @@ const createWorkspaceVacancyService = ({
         jobsFailure('stopped', 'Vacancy reading has stopped.')
       );
     }
-    if (
-      owners.has(store) ||
-      (owner !== 'application' && applicationOwned(store)) ||
-      (owner !== 'login' && jobLoginOwned(store))
-    ) {
+    if (workspaceOwned(store, owner)) {
       return Promise.reject(
         jobsFailure('busy', 'Another vacancy read owns this workspace.')
       );
@@ -150,6 +151,7 @@ const createWorkspaceVacancyService = ({
     ...createResumeListControl({ store, read: readResumes, artifactRoot, run }),
     ...applications.operations,
     ...createVacancyChoiceService({ store, run }),
+    ...createVacancySkipService({ store, run }),
     ...createTechnologyService({ store, artifactRoot, run, cvPrepare }),
     ...createCvWatchService({ store, run, ...cvWatch }),
     ...createCvPublicationService({

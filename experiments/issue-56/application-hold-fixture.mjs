@@ -55,4 +55,5 @@ export const verifyUncertainHold = async (t, property, value, state) => {
   await assert.rejects(submitHeldApplication(fixture, receipt), {
     code: 'jobs-application-already-attempted',
   });
+  return { fixture, receipt };
 };

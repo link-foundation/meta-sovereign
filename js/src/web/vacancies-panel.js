@@ -25,6 +25,8 @@ import {
 import { useCvWorkplaceReview } from './cv-workplace-state.js';
 import { CvWorkplaceReview } from './cv-workplace-panel.js';
 import { useVacancyChoices } from './vacancy-choice-state.js';
+import { useVacancySkips } from './vacancy-skip-state.js';
+import { VacancySkips } from './vacancy-skips.js';
 import { VacancyChoices, VacancyChoiceControls } from './vacancy-choices.js';
 import { vacancySelectionOptions } from '../jobs/vacancy-selection.js';
 import { useVacancyDiscovery } from './discovery-state.js';
@@ -174,6 +176,7 @@ export const useVacancies = (api) => {
   const cvSaveWatch = useCvSaveWatch({ api, values, run });
   const cvTranslation = useCvTranslation({ api, values, run });
   const choices = useVacancyChoices({ api, values, run });
+  const skips = useVacancySkips({ api, values, run });
   const search = (page = 0) =>
     run('search', async () => {
       const input = searchInput(values, page);
@@ -204,7 +207,13 @@ export const useVacancies = (api) => {
       return answer;
     });
   const browserValid = /^[a-z0-9][a-z0-9_-]{0,63}$/u.test(values.browserSlot);
-  const valid = browserValid && validSearch(values);
+  const operationBusy = workspaceBusy(
+    busy,
+    resumeExports,
+    cvTranslation,
+    discovering,
+    application
+  );
   return {
     values,
     setValues,
@@ -213,15 +222,7 @@ export const useVacancies = (api) => {
     result,
     selected,
     setSelected,
-    busy:
-      loginBusy(jobLogin) ||
-      workspaceBusy(
-        busy,
-        resumeExports,
-        cvTranslation,
-        discovering,
-        application
-      ),
+    busy: loginBusy(jobLogin) || operationBusy,
     application,
     jobLogin,
     discovery,
@@ -232,9 +233,10 @@ export const useVacancies = (api) => {
     cvSaveWatch,
     cvTranslation,
     choices,
+    skips,
     error,
     loaded,
-    valid,
+    valid: browserValid && validSearch(values),
     browserValid,
     search,
     collect,
@@ -606,6 +608,7 @@ export const VacanciesScreen = ({ state }) => {
         state,
         t,
       }),
+      el(VacancySkips, { key: `skips:${state.values.browserSlot}`, state, t }),
       el('h3', { key: 'stored-title' }, t('vacancy.cached')),
       ...state.stored.map((row) =>
         action(row.id, row.title, () => state.setSelected(row), !idle)

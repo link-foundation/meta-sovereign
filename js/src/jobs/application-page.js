@@ -211,6 +211,34 @@ export const applicationDocument = (target, input) => {
   const visibilityScope = (form) =>
     form ??
     (current.pathname === '/applicant/vacancy_response' ? doc.body : null);
+  const externalDestination = () => {
+    if (!bound) {
+      return null;
+    }
+    const alert = unique(
+      '[data-qa="vacancy-response-link-advertising-cancel"]'
+    )?.closest('[data-qa="magritte-alert"]');
+    const links = alert?.querySelectorAll('a[href]') ?? [];
+    if (links.length > 100) {
+      return null;
+    }
+    const destinations = [...links].filter(visible).flatMap((node) => {
+      try {
+        const value = new URL(node.href, current);
+        value.hash = '';
+        return ['http:', 'https:'].includes(value.protocol) &&
+          !value.username &&
+          !value.password &&
+          value.href.length <= 4000 &&
+          !/(^|\.)hh\.ru$/u.test(value.hostname)
+          ? [value.href]
+          : [];
+      } catch {
+        return [];
+      }
+    });
+    return new Set(destinations).size === 1 ? destinations[0] : null;
+  };
   const formSnapshot = () => {
     const submit = unique(selectors.submit);
     const form = submit?.form ?? submit?.closest('form');
@@ -237,6 +265,7 @@ export const applicationDocument = (target, input) => {
       letters.length === 1 && form?.contains(letters[0]) ? letters[0] : null;
     const html = form?.outerHTML ?? '';
     return {
+      externalUrl: externalDestination(),
       resumeNotVisible: resumeNotVisible(visibilityScope(form)),
       error: applicationError(form),
       enter: describe(selectors.enter),
@@ -301,6 +330,7 @@ export const applicationDocument = (target, input) => {
     };
     const content = metadata.challenge
       ? {
+          externalUrl: null,
           resumeNotVisible: false,
           error: null,
           enter: null,

@@ -3,6 +3,7 @@ import { acknowledgedRead, acknowledgedWrite } from './acknowledged-store.js';
 import { hhSearchUrl, jobsBrowserOptions, jobsFailure } from './options.js';
 import { vacancySnapshot } from '../assignments/vacancy.js';
 import { storedVacancyChoices } from './vacancy-choice-service.js';
+import { storedVacancySkips } from './vacancy-skip-service.js';
 import { vacancySelectionDecision } from './vacancy-selection.js';
 import {
   discoveryKey,
@@ -122,7 +123,14 @@ class VacancyDiscovery {
   async entry(owned, card, signal) {
     const options = owned.record.options;
     let choices = await storedVacancyChoices(this.store, options);
-    let decision = vacancySelectionDecision(card, choices, [], options.filters);
+    let skips = await storedVacancySkips(this.store, options);
+    let decision = vacancySelectionDecision(
+      card,
+      choices,
+      [],
+      options.filters,
+      skips
+    );
     let capturedAt = null;
     const pay = salaryLadderStart(options)
       ? {
@@ -154,11 +162,13 @@ class VacancyDiscovery {
       this.check(owned, signal);
       capturedAt = snapshot.capturedAt;
       choices = await storedVacancyChoices(this.store, options);
+      skips = await storedVacancySkips(this.store, options);
       decision = vacancySelectionDecision(
         card,
         choices,
         [snapshot],
-        options.filters
+        options.filters,
+        skips
       );
     }
     if (
@@ -171,6 +181,7 @@ class VacancyDiscovery {
       card,
       decision,
       choiceRevision: choices.revision,
+      skipRevision: skips.revision,
       capturedAt,
       ...(pay ? { pay } : {}),
     };

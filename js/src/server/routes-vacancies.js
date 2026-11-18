@@ -39,10 +39,12 @@ const failureReply = (error) => {
             'jobs-technology-conflict',
             'jobs-cv-conflict',
             'jobs-choice-conflict',
+            'jobs-skip-conflict',
             'jobs-application-busy',
             'jobs-application-conflict',
             'jobs-application-changed',
             'jobs-application-already-attempted',
+            'jobs-application-skipped',
           ].includes(code)
         ? 409
         : 400);
@@ -84,6 +86,7 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
       'discovery-status',
       'application-queue',
       'choices-stored',
+      'skips-stored',
       'stored',
       'resumes-stored',
       'resume-export-status',
@@ -125,6 +128,7 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
       'application-close',
       'choice-save',
       'choice-clear',
+      'skip-clear',
       'collect',
       'cancel',
       'resumes',

@@ -39,6 +39,9 @@ export const selectionIsCurrent = (state) => {
     state.choices?.ready &&
     result.selection.browserSlot === state.values.browserSlot &&
     result.selection.choiceRevision === state.choices.snapshot?.revision &&
+    (result.selection.skipRevision === undefined ||
+      (state.skips?.ready &&
+        result.selection.skipRevision === state.skips.snapshot?.revision)) &&
     JSON.stringify(result.input) === JSON.stringify(state.values)
   );
 };
@@ -59,6 +62,7 @@ export const VacancySelectionSummary = ({ state, t }) => {
             'responded',
             'configured-text',
             'retry-wait',
+            'native-skip',
           ]),
           deferred: count(['owner-deferred']),
           unread: count(['needs-description']),
