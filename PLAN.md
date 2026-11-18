@@ -3,7 +3,7 @@
 - [x] Trace the actual application review: preview blocks dispatch and application-cache writes, but its skip observer can still create, edit, increment or remove permanent refusal records.
 - [x] Draft a shared preview guard, actual-parent regression loader, durable reopen and both-Lino checks, plus finite native UI verification inside the existing hosted visibility scenario.
 - [x] Reproduce all nine published-parent failures; pass 28 focused controls and three finite native refusals. Independent MCP recovery passes four locales and phone layout; all owned browsers close without provider effects. Preserve the corrected fixture-count assumption and baseline favicon 404.
-- [x] Pass scoped format, lint, secret, source/document-limit and whitespace checks; independently verify 61 source-bound archive entries and all eight inspected images. Full duplication and platform matrices remain hosted checks.
+- [x] Pass scoped format, lint, secret, source/document-limit and whitespace checks; independently verify 62 source-bound archive entries and all eight inspected images. Full duplication and platform matrices remain hosted checks.
 - [ ] Commit the atomic correction, inspect exact-source hosted checks and continue every unfinished criterion. HH08 and the full issue remain unfinished; PR57 stays draft/unmerged.
 
 2026-11-18 full desktop configuration audit (VD07 remains unfinished):
