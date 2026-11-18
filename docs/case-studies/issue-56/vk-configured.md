@@ -1,7 +1,7 @@
 # Configured VK lifetime percentage and friend capacity
 
 The pinned desktop bot exposes `topPercentMutuals` (default 10) in
-[`config.js`](https://github.com/konard/vk-bot-desktop/blob/8fbf3b7c42fd8e995ef137cab9b9653a7dc9b1a1/config.js).
+[`config.js`](https://github.com/konard/vk-bot-desktop/blob/8fbf3b7c42fd8e995ef137cab9b9653a7dc9b1a1/src/bot/config.js).
 Its actual
 [selector](https://github.com/konard/vk-bot-desktop/blob/8fbf3b7c42fd8e995ef137cab9b9653a7dc9b1a1/src/bot/friend-prioritization.js)
 subtracts lifetime accepted requests from the floored configured percentage of

@@ -32,7 +32,8 @@ server = json.loads(read('mcp-server').splitlines()[-1])
 assert server['resourcesClosed'] and not server['liveProvider']
 assert server['syntheticFriendCalls'] == server['messages'] == 0
 assert server['settings']['topPercentMutuals'] == 12.5
-names = set(changed_sources(root)) | set(evidence_logs(root, 'vk-configured'))
+names = set(changed_sources(root, '132c16f69ea61e22cd7d9e2c3fbcead90a329686'))
+names.update(evidence_logs(root, 'vk-configured'))
 names.update('ci-logs/' + name for name in [
     'vk-configured-mcp-code.js',
     'desktop-configuration-reference-friend-prioritization.json',
