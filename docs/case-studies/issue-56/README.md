@@ -1,3 +1,4 @@
+- [Complete desktop configuration mapping](desktop-configuration-criteria-audit.md): all seven pinned storage/configuration clauses and bot fields map to nineteen independently verified evidence units. Exact-source hosted acceptance remains pending; VD07 stays unfinished.
 - [Configured friend percentage and capacity](vk-configured.md): ten exact-parent failures, fifteen focused passes, retained legacy policies and native/MCP four-language recovery support unfinished VD07.
 - [Persistent browser exit and close-wait ownership](browser-closure.md): reproduce premature Close acknowledgement and an unobserved native wait; retain process drainage, failure diagnostics and the unexplained hosted timing limits.
 - [Snapshot diagnostic ownership](ci-snapshot-observers.md): preserve the exact macOS Bun failure and two finite parent regressions; owner-specific cleanup assertions retain unrelated workers and all acknowledgement/workspace checks.

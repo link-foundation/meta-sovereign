@@ -1,10 +1,19 @@
+2026-11-18 full desktop configuration audit (VD07 remains unfinished):
+
+- [x] Map all seven pinned configuration/storage clauses and every bot configuration field to current shared implementation and explicit verification. Preserve ordinary Lino/protected-secret and native owner-pause distinctions.
+- [x] Independently verify nineteen original archives containing 1,137 entries; retain exact b3364503 production comparisons and pinned source blob identities. Integrity is not behavioral acceptance.
+- [x] Draft a separate finite hosted collector requiring all five exact-source workflows, complete selected named tests, both native browser engines, protected Electron authorization and all five packaged-runtime receipts. Preserve the earlier historical collector.
+- [x] Review all 73 changed-source comparisons across 41 files, deduplicating repeated help edits while retaining the complete comparison. Later changes preserve file precedence, owner records, protected credential acquisition, redacted logs and native receipts.
+- [ ] Require successful current-source hosted evidence before accepting VD07. Inventory remains 88 verified / 30 unfinished; every unfinished criterion is still required.
+
 2026-11-18 configurable friend acceptance (VD07 remains unfinished):
 
 - [x] Read pinned selector and caller: topPercentMutuals is configurable and maxFriends is a capacity limit; native code hardcodes ten percent and only offers its separate mutual-threshold interpretation.
 - [x] Draft an additional desktop-configured mode, strict optional percentage, shared file/CLI/API settings and four-language controls. Preserve ranked batches, saved-record shape, ten-percent defaults and the existing mutual-threshold mode.
 - [x] Reproduce ten exact published-parent failures with one legacy control; pass fifteen focused and forty-three combined checks. Native configured and unchanged threshold scenarios pass; independent four-language MCP recovery and all eight inspected images are retained with closed fixtures. One unexplained browser cache warning is preserved without claiming a clean console.
 - [x] Pass scoped formatting, lint, secrets, whitespace and source/document limits; preserve source-bound parent/current evidence and independent image/receipt checks. Full duplication and runtime/browser matrices remain in hosted CI.
-- [ ] Publish only to the prepared branch, inspect exact-source CI and complete the full VD07 contract audit. All 30 unfinished criteria remain required and PR57 stays draft/unmerged.
+- [x] Publish b3364503 only to the prepared branch. Security, links and Pages pass; current runtime/browser and packaged desktop jobs remain in progress. Preserve the pinned configuration link correction in a separate local commit.
+- [ ] Inspect complete exact-source CI and finish the full VD07 contract audit. All 30 unfinished criteria remain required and PR57 stays draft/unmerged.
 
 2026-11-18 WebKit deferred-window and detached-form cleanup investigation:
 
