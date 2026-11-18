@@ -4,9 +4,20 @@ import {
   observedRunnerState,
 } from './runner-session.js';
 import { runRunnerCommand } from './runner-transport.js';
+import { prepareDockerRunner, stopDockerRunner } from './runner-docker.js';
 import { setTimeout as delay } from 'node:timers/promises';
 
 const refused = (code, states) => ({ ok: false, code, states });
+const cancelled = (options) => options.signal?.aborted === true;
+const prepareRunner = async (target, run, options) => {
+  if (
+    target.isolation === 'docker' &&
+    !(await prepareDockerRunner(target, run, options))
+  ) {
+    return false;
+  }
+  return !cancelled(options);
+};
 
 /** The caller owns a cross-process controller lease for each mutation. */
 export const createRunnerControl = ({
@@ -46,14 +57,22 @@ export const createRunnerControl = ({
       return false;
     }
     const target = targets[mode];
-    await run(target, [target.start ?? '$', '--stop', target.session], options);
+    if (target.isolation === 'docker') {
+      await stopDockerRunner(target, run, options);
+    } else {
+      await run(
+        target,
+        [target.start ?? '$', '--stop', target.session],
+        options
+      );
+    }
     const deadline = now() + 10000;
     current[mode] = await observe(mode, options);
     // start-command acknowledges the signal, not the application's cleanup.
     // Keep the controller lease until the exact session disappears or refuses.
     while (
       current[mode] === 'running' &&
-      !options.signal?.aborted &&
+      !cancelled(options) &&
       now() < deadline
     ) {
       trace('stop-wait');
@@ -66,10 +85,7 @@ export const createRunnerControl = ({
     return current[mode] === 'stopped';
   };
   const start = async (mode, current, options) => {
-    if (
-      !['running', 'stopped'].includes(current[mode]) ||
-      options.signal?.aborted
-    ) {
+    if (!['running', 'stopped'].includes(current[mode]) || cancelled(options)) {
       return refused('runner-state-unconfirmed', current);
     }
     const other = mode === 'local' ? 'server' : 'local';
@@ -79,7 +95,7 @@ export const createRunnerControl = ({
     ) {
       return refused('other-runner-stop-unconfirmed', current);
     }
-    if (options.signal?.aborted) {
+    if (cancelled(options)) {
       return refused('runner-state-unconfirmed', current);
     }
     // A stop may also affect this target (e.g. SSH points to this machine).
@@ -87,8 +103,11 @@ export const createRunnerControl = ({
     if (current[mode] === 'running') {
       return { ok: true, states: current };
     }
-    if (current[mode] !== 'stopped' || options.signal?.aborted) {
+    if (current[mode] !== 'stopped' || cancelled(options)) {
       return refused('runner-state-unconfirmed', current);
+    }
+    if (!(await prepareRunner(targets[mode], run, options))) {
+      return refused('runner-state-unconfirmed', await states(options));
     }
     const reply = await run(
       targets[mode],

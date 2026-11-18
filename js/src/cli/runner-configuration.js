@@ -78,7 +78,7 @@ export const runnerOverrideOptions = new Set([
       'isolation',
       'start',
       'node',
-      ...(mode === 'server' ? ['host'] : []),
+      ...(mode === 'server' ? ['host', 'image'] : []),
     ].map((field) => `${mode}-${field}`)
   ),
 ]);

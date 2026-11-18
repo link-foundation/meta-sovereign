@@ -950,3 +950,8 @@ Optional Forms model drafts now use the selected store's conventional private
 Markdown résumé when no stored CV is selected. Explicit CVs retain precedence;
 existing opt-in, knowledge limits, unknown-fact review and source-change guards
 apply through CLI, Lino and the shared Forms controls.
+
+Add an explicit remote Docker runner option with a prepared image and persistent
+application/store mounts. Preserve Dockerless local Screen execution, owned
+container identity, acknowledged state and mutual exclusion. Share configuration
+through CLI, both Lino formats and the saved-profile editor (issue #56 VD02).

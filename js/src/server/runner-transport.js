@@ -1,7 +1,8 @@
 import { execFile } from 'node:child_process';
 import { setTimeout, clearTimeout } from 'node:timers';
 
-const quote = (value) => `'${value.replaceAll("'", "'\\''")}'`;
+export const quoteRunnerArgument = (value) =>
+  `'${value.replaceAll("'", "'\\''")}'`;
 
 /** Keep remote argv out of ssh's command string; send a quoted script on stdin. */
 export const runnerInvocation = (target, argv) =>
@@ -9,7 +10,7 @@ export const runnerInvocation = (target, argv) =>
     ? {
         file: 'ssh',
         args: ['-T', '-o', 'BatchMode=yes', '--', target.host, 'sh -s'],
-        input: `set -eu\nexport LC_ALL=C\ncd ${quote(target.directory)}\nexec ${argv.map(quote).join(' ')}\n`,
+        input: `set -eu\nexport LC_ALL=C\ncd ${quoteRunnerArgument(target.directory)}\nexec ${argv.map(quoteRunnerArgument).join(' ')}\n`,
       }
     : { file: argv[0], args: argv.slice(1), cwd: target.directory };
 

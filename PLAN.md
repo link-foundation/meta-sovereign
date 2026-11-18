@@ -1002,3 +1002,9 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Reproduce three actual-parent failures: the two original search callers use vacancy URLs, and a real ancestor alias prevents legacy import. Preserve the linked-directory refusal control.
 - [x] Supply valid operation-specific fixture URLs and canonicalize validated migration directories without weakening private-source checks; add default-off stage diagnostics. All 45 focused Node and 23 Deno checks pass.
 - [ ] Preserve source-bound evidence, publish only to the prepared branch and review fresh exact-source hosted checks. Resolve the separate batch timeout and all 32 unfinished criteria.
+      2026-11-18 remote Docker runner (VD02 remains unfinished):
+
+- [x] Read the complete pinned remote Screen/Docker contract and current start-command 0.44.0 container launch, mount and cleanup behavior. Keep local execution Dockerless and Screen as both defaults.
+- [x] Draft explicit server image/isolation configuration, owned Docker observations, persistent bind mounts, ID-bound stop/health and exited-container reuse under the existing mutually exclusive controller lease.
+- [x] Reproduce published-parent refusal (one failure and one compatible Screen control); pass 52 focused Node, eight Deno and eight Bun checks, native saved-profile recovery and independent four-language MCP verification. Add a finite real SSH/Docker hosted check without running a daemon locally.
+- [ ] Review exact-source hosted results, preserve evidence and complete the full VD02 contract before accepting it. All 32 unfinished criteria remain required; PR57 stays draft and unmerged.

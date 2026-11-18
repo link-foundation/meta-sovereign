@@ -1,9 +1,12 @@
 import { runnerApiFixture } from './runner-api-fixture.mjs';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { dockerFixture } from './runner-docker-fixture.mjs';
 
 const layered = process.argv.includes('--layered');
+const docker = process.argv.includes('--docker');
 const fixture = await runnerApiFixture({
+  ...(docker ? { backend: dockerFixture() } : {}),
   initial: process.argv.includes('--health') ? { local: 'running' } : {},
   ...(layered
     ? {
@@ -38,8 +41,10 @@ try {
       resourcesClosed: true,
       liveProvider: false,
       ...(layered ? { globalUnchanged } : {}),
-      mutations: fixture.backend.calls.filter(
-        ([, action]) => !['probe', 'health'].includes(action)
+      mutations: fixture.backend.calls.filter((call) =>
+        docker
+          ? call[0] !== 'screen' && call[2] !== 'ls'
+          : !['probe', 'health'].includes(call[1])
       ),
       healthReads: fixture.backend.calls.filter(
         ([, action]) => action === 'health'

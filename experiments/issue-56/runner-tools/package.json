@@ -1,0 +1,8 @@
+{
+  "name": "meta-sovereign-runner-fixture-tools",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "start-command": "0.44.0"
+  }
+}

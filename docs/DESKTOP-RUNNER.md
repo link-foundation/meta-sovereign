@@ -52,17 +52,39 @@ runner_server:
 Directories, CLI entry points and stores must be absolute paths. Server paths
 refer to the SSH host. Omit either target to leave that mode unconfigured.
 The optional `node` and `start` fields select executable names or absolute
-paths; their defaults are `node` and `$`. The optional `isolation` field is
-currently `screen`. Credentials do not belong in this file.
+paths; their defaults are `node` and `$`. Both targets default to `isolation screen`.
+The server also accepts `isolation docker` with an explicit `image`:
+
+```text
+runner_server:
+  host operator@example.org
+  directory /opt/meta-sovereign
+  cli /opt/meta-sovereign/js/bin/meta-sovereign.js
+  store /var/lib/meta-sovereign
+  port 8787
+  isolation docker
+  image your-registry/your-prepared-runtime:your-version
+```
+
+Use an image you have prepared and pulled on that host. It must contain POSIX
+`sh` and the configured Node executable. The application directory, including
+its compatible production dependencies, is mounted at the same absolute path
+inside the container; its CLI must be inside that directory. The private store
+must already exist. A store outside the application directory gets a separate
+read/write mount. Both mounts retain data after Stop and restart. Choose an image
+whose runtime, architecture and native dependencies match those files.
+Credentials do not belong in this file.
 
 Each target currently needs the project's supported Node version, the
-application and its production dependencies, GNU screen and
+application and its production dependencies, its selected isolation backend and
 [`link-foundation/start`](https://github.com/link-foundation/start) already
 installed. The JavaScript distribution of `start-command` also requires Bun (a supported
 Rust installation is an alternative). Install the chosen distribution's
-documented prerequisites on each execution host.
+documented prerequisites on each execution host. Local execution uses GNU screen
+without Docker. A remote Screen target needs GNU screen; a remote Docker target
+needs a working Docker daemon and permission to use it.
 SSH uses existing host-key and key authentication with batch mode;
-it does not accept unknown host keys or request passwords. This screen backend
+it does not accept unknown host keys or request passwords. Each backend
 requires a compatible host. Missing tools, refused SSH and malformed status
 output report `unknown` and prevent a switch. Automatic dependency preparation
 and full independent desktop workflow integration remain under development.
@@ -73,6 +95,15 @@ state is confirmed stopped. A failed or uncertain operation is never retried
 automatically. `running` confirms the named isolated session exists;
 `scope isolated-session` does not establish application readiness, enabled
 provider jobs or message delivery. Check the application's status separately.
+
+Docker observations require the exact configured name and the runner's matching
+ownership label. An unrelated container, paused/created container or ambiguous
+daemon reply reports `unknown` and blocks mutation. Stop and application health
+use the observed container ID. A later explicit Start removes only a positively
+observed owned exited container, without force, then rechecks that its name is
+available before launch. It never removes the mounted application or store.
+No container ports are published by this session controller; application health
+runs inside the container. Configure any separate network access explicitly.
 
 A private durable binding retains both target addresses before process changes.
 If the profile changes while an old target is running or unknown, starts are
@@ -166,7 +197,8 @@ target, and new starts stay blocked until the old targets are confirmed stopped.
 
 For direct CLI control, `--session` and each target's `--local-<field>` or
 `--server-<field>` override `directory`, `cli`, `store`, `port`, `node`, `start`
-and `isolation`; `--server-host` overrides the SSH address. Ports are decimal
+and `isolation`; `--server-host` overrides the SSH address and `--server-image`
+selects the prepared Docker image. Ports are decimal
 integers from 1 to 65535. Other values retain the profile validation above.
 For example:
 

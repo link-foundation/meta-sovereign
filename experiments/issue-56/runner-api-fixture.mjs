@@ -10,7 +10,7 @@ import { writeFileDurable } from '../../js/src/storage/durable.js';
 export const runnerApiFixture = async (options = {}) => {
   const dir = await mkdtemp(join(tmpdir(), 'runner-api-'));
   const localDir = join(dir, 'local');
-  const backend = runnerFixture(options.initial);
+  const backend = options.backend ?? runnerFixture(options.initial);
   let server;
   try {
     await writeFileDurable(

@@ -2,6 +2,7 @@ import { decodeWire, LINO_TEXT } from '../transport/lino.js';
 import { runnerHealthReceipt } from '../transport/runner-health-receipt.js';
 import { setTimeout, clearTimeout } from 'node:timers';
 import { runRunnerCommand } from './runner-transport.js';
+import { dockerRunnerInspection } from './runner-docker.js';
 
 /** Execute the configured application's read-only health command on its host. */
 export const inspectRunnerApplication = async (target, run, options = {}) => {
@@ -14,9 +15,17 @@ export const inspectRunnerApplication = async (target, run, options = {}) => {
     ? globalThis.AbortSignal.any([options.signal, deadline.signal])
     : deadline.signal;
   try {
+    const prefix =
+      target.isolation === 'docker'
+        ? await dockerRunnerInspection(target, run, { ...options, signal })
+        : [];
+    if (!prefix) {
+      return 'unknown';
+    }
     const result = await run(
       target,
       [
+        ...prefix,
         target.node ?? 'node',
         '--',
         target.cli,

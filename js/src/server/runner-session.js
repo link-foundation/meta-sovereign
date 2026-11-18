@@ -1,7 +1,19 @@
+import {
+  dockerRunnerLaunch,
+  dockerRunnerObservation,
+  dockerRunnerProbe,
+} from './runner-docker.js';
+
 /** Live backend observations, never a launch wrapper's optimistic exit status. */
-export const runnerProbe = () => ['screen', '-ls'];
+export const runnerProbe = (target) =>
+  target?.isolation === 'docker'
+    ? dockerRunnerProbe(target)
+    : ['screen', '-ls'];
 
 export const observedRunnerState = (target, result) => {
+  if (target.isolation === 'docker') {
+    return dockerRunnerObservation(target, result).state;
+  }
   if (result.aborted) {
     return 'unknown';
   }
@@ -39,14 +51,7 @@ export const observedRunnerState = (target, result) => {
     : 'stopped';
 };
 
-export const runnerLaunch = (target) => [
-  target.start ?? '$',
-  '--isolated',
-  'screen',
-  '--session',
-  target.session,
-  '--detached',
-  '--',
+const applicationCommand = (target) => [
   target.node ?? 'node',
   '--',
   target.cli,
@@ -57,4 +62,16 @@ export const runnerLaunch = (target) => [
   '--trust=false',
   '--tls=false',
   '--local-ui=true',
+];
+
+export const runnerLaunch = (target) => [
+  target.start ?? '$',
+  '--isolated',
+  target.isolation ?? 'screen',
+  '--session',
+  target.session,
+  '--detached',
+  ...(target.isolation === 'docker'
+    ? dockerRunnerLaunch(target, applicationCommand(target))
+    : ['--', ...applicationCommand(target)]),
 ];

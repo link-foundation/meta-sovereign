@@ -20,6 +20,7 @@ const fields = new Set([
   'isolation',
   'start',
   'node',
+  'image',
 ]);
 const hostValid = (host) =>
   typeof host === 'string' &&
@@ -44,6 +45,32 @@ const addressValid = (target, mode, partial) =>
 const portValid = (value, partial) =>
   (partial && value === undefined) ||
   (Number.isInteger(value) && value >= 1 && value <= 65535);
+const imageValid = (value) =>
+  typeof value === 'string' &&
+  /^[a-zA-Z0-9][a-zA-Z0-9._:/@-]{0,255}$/.test(value) &&
+  !value.includes('://') &&
+  (!value.includes('@') || /@sha256:[a-f0-9]{64}$/.test(value));
+const isolationValid = (target, mode, partial) => {
+  const isolation = target.isolation ?? 'screen';
+  if (
+    !['screen', 'docker'].includes(isolation) ||
+    (mode === 'local' && (isolation === 'docker' || target.image !== undefined))
+  ) {
+    return false;
+  }
+  if (target.image !== undefined && !imageValid(target.image)) {
+    return false;
+  }
+  if (partial || isolation === 'screen') {
+    return true;
+  }
+  const relative = path.posix.relative(target.directory, target.cli);
+  return (
+    target.image !== undefined &&
+    relative !== '..' &&
+    !relative.startsWith('../')
+  );
+};
 const validateTarget = (target, mode, session, partial) => {
   if (
     !record(target) ||
@@ -54,13 +81,13 @@ const validateTarget = (target, mode, session, partial) => {
   ) {
     throw invalid();
   }
-  if (!addressValid(target, mode, partial)) {
+  if (
+    !addressValid(target, mode, partial) ||
+    !isolationValid(target, mode, partial)
+  ) {
     throw invalid();
   }
   const isolation = target.isolation ?? 'screen';
-  if (isolation !== 'screen') {
-    throw invalid();
-  }
   if (partial) {
     return { ...target };
   }

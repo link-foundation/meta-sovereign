@@ -1,12 +1,22 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { dictionaries } from '../../js/src/web/locales/index.js';
+import { formatIndented } from 'lino-objects-codec';
+import { dockerProfile } from './runner-docker-fixture.mjs';
 import {
   TUTORIAL_STORAGE_KEY,
   TUTORIAL_VERSION,
 } from '../../js/src/web/tutorial.js';
 
 const layered = process.argv.includes('--layered');
-const prefix = layered ? 'runner-configuration' : 'runner-profile';
+const docker = process.argv.includes('--docker');
+const prefix = docker
+  ? 'runner-docker'
+  : layered
+    ? 'runner-configuration'
+    : 'runner-profile';
+const dockerDocument = docker
+  ? formatIndented({ id: 'runner', obj: dockerProfile() })
+  : '';
 const { base } = JSON.parse(
   (await readFile(`ci-logs/${prefix}-mcp-server.log`, 'utf8')).split('\n')[0]
 );
@@ -38,7 +48,8 @@ const code = `async (page) => {
     await page.waitForFunction(() => !document.querySelector('[data-runner-profile-document]').disabled);
     const source = await input.inputValue();
     if (${layered} && !/port 8128\\b/.test(source)) throw Error('local precedence missing');
-    const draft = source.replace(/fixture@example.invalid|local@example.invalid|review-[a-z]+@example.invalid/g, 'review-' + language + '@example.invalid');
+    const draft = (${JSON.stringify(dockerDocument)} || source).replace(/fixture@example.invalid|local@example.invalid|review-[a-z]+@example.invalid/g, 'review-' + language + '@example.invalid');
+    if (${docker} && !draft.includes('isolation docker')) throw Error('missing Docker profile');
     if (!draft.includes('review-' + language + '@example.invalid')) throw Error('missing fixture target');
     await input.fill(draft);
     await editor.getByRole('button', { name: words['runner.profileSave'], exact: true }).click();
@@ -50,23 +61,23 @@ const code = `async (page) => {
       if (!await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)) throw Error(language + ': overflow');
       const text = await editor.innerText();
       if (text.includes('runner.') || !text.includes(words['runner.profileSaved'])) throw Error(language + ': untranslated editor');
-      if (!${layered} || (language === 'en' && phone)) await page.screenshot({ path: ${JSON.stringify(layered ? 'docs/screenshots/issue-56-runner-configuration/mcp-' : 'docs/screenshots/issue-56-runner-profile-mcp-')} + language + (phone ? '-phone' : '') + '.png' });
+      if (${docker} ? language === 'en' : !${layered} || (language === 'en' && phone)) await page.screenshot({ path: ${JSON.stringify(docker ? 'docs/screenshots/issue-56-runner-docker/mcp-' : layered ? 'docs/screenshots/issue-56-runner-configuration/mcp-' : 'docs/screenshots/issue-56-runner-profile-mcp-')} + language + (phone ? '-phone' : '') + '.png' });
     }
     await panel.locator('[data-runner-open]').click();
     await editor.waitFor({ state: 'detached' });
-    if (${layered}) {
+    if (${layered || docker}) {
       const previousSaves = saves;
       await page.reload();
       const reloaded = page.locator('[data-runner-settings]');
       await reloaded.locator('[data-runner-open]').click();
       await reloaded.locator('[data-runner-profile-open]').click();
       await page.waitForFunction(() => !document.querySelector('[data-runner-profile-document]').disabled);
-      if (!await reloaded.locator('[data-runner-profile-document]').inputValue().then((value) => value.includes('review-' + language + '@example.invalid') && /port 8128\\b/.test(value))) throw Error('saved local profile lost');
+      if (!await reloaded.locator('[data-runner-profile-document]').inputValue().then((value) => value.includes('review-' + language + '@example.invalid') && (${docker} ? value.includes('isolation docker') && value.includes('registry.example/owner/runtime:26') : /port 8128\\b/.test(value)))) throw Error('saved profile lost');
       if (saves !== previousSaves) throw Error('reload replayed configuration');
     }
     result.push({ language, translated: true, profileAcknowledged: true, desktopAndPhoneFit: true });
   }
   if (errors.length || saves !== 4) throw Error(JSON.stringify({ errors, saves }));
-  return { result, pageErrors: errors.length, saves, localPrecedence: ${layered}, liveProvider: false };
+  return { result, pageErrors: errors.length, saves, localPrecedence: ${layered}, remoteDockerSaved: ${docker}, liveProvider: false };
 }`;
 await writeFile(`ci-logs/${prefix}-mcp-code.js`, code);

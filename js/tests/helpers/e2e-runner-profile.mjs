@@ -4,6 +4,7 @@ import { formatIndented, parseIndented } from 'lino-objects-codec';
 import { runnerApiFixture } from '../../../experiments/issue-56/runner-api-fixture.mjs';
 import { readRunnerProfile } from '../../src/cli/runner-profile.js';
 import { requestRunner } from '../../src/cli/runner-client.js';
+import { dockerFixture } from '../../../experiments/issue-56/runner-docker-fixture.mjs';
 import {
   vkAutomationBrowser,
   captureVkAutomationLayouts,
@@ -53,11 +54,49 @@ const closeEditor = async (panel, editor, page, readCount) => {
   assert.equal(readCount(), closedReads);
 };
 
+const configureServer = (profile, docker) => {
+  profile.server.host = 'reviewed@example.invalid';
+  if (docker) {
+    profile.server.isolation = 'docker';
+    profile.server.image = 'registry.example/owner/runtime:26';
+  }
+};
+const verifySavedProfile = async (profileFile, profile, docker) => {
+  const saved = await readRunnerProfile(profileFile);
+  assert.equal(saved.server.host, profile.server.host);
+  if (docker) {
+    assert.equal(saved.server.isolation, 'docker');
+    assert.equal(saved.server.image, profile.server.image);
+    assert.equal(saved.local.isolation, 'screen');
+  }
+};
+const verifyProbeOnly = (fixture, docker) => {
+  assert.ok(
+    docker
+      ? fixture.backend.calls.every(
+          (argv) => argv[0] === 'screen' || argv[2] === 'ls'
+        )
+      : fixture.backend.calls.every(([, action]) => action === 'probe'),
+    'editing never starts or stops a session'
+  );
+};
+const profileFixture = (layered, docker) =>
+  runnerApiFixture({
+    ...(layered ? { overlay } : {}),
+    backend: docker ? dockerFixture() : undefined,
+  });
+
 export const verifyRunnerProfile = async (
   browser,
-  { screenshots, beforeBundle, layered = false, beforeLayers = false } = {}
+  {
+    screenshots,
+    beforeBundle,
+    layered = false,
+    beforeLayers = false,
+    docker = false,
+  } = {}
 ) => {
-  const fixture = await runnerApiFixture(layered ? { overlay } : {});
+  const fixture = await profileFixture(layered, docker);
   let context;
   try {
     const view = await vkAutomationBrowser(browser, '', fixture.base);
@@ -124,14 +163,11 @@ export const verifyRunnerProfile = async (
         liveProvider: false,
       };
     }
-    profile.server.host = 'reviewed@example.invalid';
+    configureServer(profile, docker);
     await document.fill(formatIndented({ id: 'runner', obj: profile }));
     await save.click();
     await editor.locator('[data-runner-profile-saved]').waitFor();
-    assert.equal(
-      (await readRunnerProfile(profileFile)).server.host,
-      'reviewed@example.invalid'
-    );
+    await verifySavedProfile(profileFile, profile, docker);
     assert.equal(await save.isDisabled(), true);
     await captureVkAutomationLayouts(
       page,
@@ -174,10 +210,7 @@ export const verifyRunnerProfile = async (
     assert.equal(await save.isDisabled(), true);
     await verifyGlobal(layered, fixture);
     await closeEditor(panel, editor, page, () => reads);
-    assert.ok(
-      fixture.backend.calls.every(([, action]) => action === 'probe'),
-      'editing never starts or stops a session'
-    );
+    verifyProbeOnly(fixture, docker);
     assert.deepEqual(errors, []);
     return {
       revisionConflictRetainsDraft: true,
@@ -187,6 +220,7 @@ export const verifyRunnerProfile = async (
       closedEditorDoesNotRead: true,
       desktopAndPhoneFit: true,
       liveProvider: false,
+      ...(docker ? { remoteDockerSaved: true, localDockerless: true } : {}),
     };
   } finally {
     await context?.close();
@@ -196,3 +230,6 @@ export const verifyRunnerProfile = async (
 
 export const verifyLayeredRunnerProfile = (browser, options = {}) =>
   verifyRunnerProfile(browser, { ...options, layered: true });
+
+export const verifyDockerRunnerProfile = (browser, options = {}) =>
+  verifyRunnerProfile(browser, { ...options, docker: true });
