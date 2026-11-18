@@ -11,6 +11,7 @@ import subprocess
 import sys
 from evidence_bundle import write_entries_archive
 from hosted_browser_layout import read_browser_layout
+from desktop_config_incremental_review import check_incremental_review
 from hosted_evidence import (
     read_workflows, read_jobs, source_reader, read_catalog_audit,
     read_literal_tests, read_reference_contracts, browser_group_block,
@@ -57,6 +58,9 @@ assert review['pairs'] == [dict(path=path, archived=old, current=new)
 assert review['reviewedChangedSourcePairs'] == len(pairs)
 assert review['reviewedChangedFiles'] == len({path for path, _, _ in pairs})
 entries[review_path] = (root / review_path).read_bytes()
+assert not ('unchangedSourceReview' in review and 'incrementalSourceReview' in review)
+if 'incrementalSourceReview' in review:
+    check_incremental_review(root, audit, review, entries)
 if 'unchangedSourceReview' in review:
     carried = review['unchangedSourceReview']
     baseline = f"ci-logs/desktop-configuration-criteria-{carried['revision'][:8]}"
@@ -234,6 +238,7 @@ for path in [catalog_path, 'experiments/issue-56/collect-desktop-config-criteria
              'experiments/issue-56/hosted_browser_layout.py',
              'experiments/issue-56/check-hosted-browser-layout.py',
              'experiments/issue-56/rebind-desktop-config-review.py',
+             'experiments/issue-56/desktop_config_incremental_review.py',
              'ci-logs/desktop-configuration-browser-layout.log',
              'experiments/issue-56/hosted_evidence.py',
              'experiments/issue-56/evidence_bundle.py',

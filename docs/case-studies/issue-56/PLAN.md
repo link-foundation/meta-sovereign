@@ -1,3 +1,18 @@
+2026-11-18 current desktop configuration verification:
+
+- [x] Refresh the complete issue and all PR comment types; no new human requirements are present. Keep every original unfinished criterion in scope.
+- [x] Independently rehash all 1,137 selected archive entries at `ef34179a`; inspect the complete two-file, 22-line difference from the original complete source review and its current consumers.
+- [x] Preserve both source reviews and actual Git deltas; refuse seven contradictory review inputs without running a local test matrix.
+- [ ] Require all five successful exact-source workflows, every selected named test and both engines' native configuration/log/default/legacy/token receipts, plus actual Electron and five packaged launches. Investigate any failed job using its preserved complete logs before acceptance.
+- [ ] Publish only verified acceptance evidence and check the resulting commit's CI. Continue all thirty unfinished criteria; PR57 stays draft and unmerged.
+
+2026-11-18 HH application route parity investigation:
+
+- [x] Read the pinned route/configuration/native-test sources and compare actual shared entry paths. The reference can return through the original search before opening the canonical full form, avoiding an Apply shortcut that may submit immediately.
+- [ ] Implement the missing route option across CLI/environment/file, both Lino encodings, frozen single/batch settings and shared localized controls, retaining strict document/Stop/draft guards and legacy signatures.
+- [ ] Reproduce against the exact published parent, verify bounded native before/after routes and independently inspect the UI; preserve source-bound evidence. Complete the remaining cache/insight audit before accepting HH03.
+- [ ] Review exact-source hosted checks and finish all remaining requirements. Current acceptance stays 88/118; all thirty unfinished criteria remain required.
+
 2026-11-18 native browser answer consent:
 
 - [x] Trace choices, text, watched and inactive replies after browser/session/document/arm waits; preserve 44 exact-parent assertion failures and ten independent controls.

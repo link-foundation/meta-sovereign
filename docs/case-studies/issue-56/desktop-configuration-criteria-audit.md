@@ -126,7 +126,38 @@ The final command requires all five complete successful workflow metadata files
 under `ci-logs/hosted-verification-72dc9552-*.json` and their selected full job
 logs under `ci-logs/hosted-72dc9552-*.log`. Pending results still refuse acceptance.
 
-**Pending:** hosted validation for production source `72dc9552`. No criterion is
-accepted by this draft mapping. The inventory remains **88 verified / 30
-unfinished**; VD01 and all other unfinished requirements remain required. PR57
-stays draft and unmerged.
+The later `ef34179a` audit independently rehashes the same 1,137 entries. Compared
+with the original complete review, only two audited production files differ.
+The complete 22-line incremental comparison was read: CLI help documents the
+separate vacancy preview; server construction passes its selected store directly
+to the shared sender. The latter uses that same store for acknowledged consent
+after connection loading, without changing configuration precedence, credential
+handling or log ownership. Both consumers and the existing Stop regressions
+were inspected. The current comparison contains 75 changed-source pairs across
+41 files, including the original review's unchanged pairs.
+
+This is an explicit incremental review, rather than an unchanged-source rebind.
+Its reader verifies the original three baseline files, archive/source membership,
+all archived hashes, both current source hashes and the actual Git comparison.
+Seven finite contradictory-input probes refuse missing sources, altered current
+or archived hashes, a substituted baseline review/revision, altered archive
+integrity and an altered delta hash. No test matrix runs locally. The complete
+[review chain](data/desktop-config-incremental-review.tar.gz) and its
+[manifest](data/desktop-config-incremental-review.tar.sha256.json) preserve both
+reviews and their comparisons separately from hosted behavioral acceptance.
+
+```sh
+python3 -B experiments/issue-56/audit-hosted-criteria.py ef34179a --names-file experiments/issue-56/desktop-configuration-evidence.json --output-prefix desktop-configuration-criteria
+python3 -B experiments/issue-56/extend-desktop-config-review.py ef34179a --reviewed-path js/src/cli/help.js --reviewed-path js/src/server/index.js
+python3 -B experiments/issue-56/check-desktop-config-incremental-review.py
+python3 -B experiments/issue-56/collect-desktop-config-criteria-hosted.py ef34179a ef34179a
+```
+
+The last command still requires five complete successful exact-source workflows,
+the selected named tests and actual browser/native/packaged receipts. It cannot
+accept pending results or establish behavior from source integrity alone.
+
+**Pending:** hosted validation for production source `ef34179a`. No criterion is
+accepted by this mapping yet. The inventory remains **88 verified / 30
+unfinished**; VD01 and every other unfinished requirement remain required.
+PR57 stays draft and unmerged.
