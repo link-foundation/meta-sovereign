@@ -60,6 +60,7 @@ import { openDualStore, wrapSecretStore } from '../storage/index.js';
 import { CURRENT_SCHEMA } from '../storage/migrations/index.js';
 import { createRequestGate } from './request-gate.js';
 import { createRuntimeLifecycle } from './runtime-lifecycle.js';
+import { traceShutdown } from './shutdown-trace.js';
 import { createVkTokenAcquisition } from '../sources/vk-token-acquisition.js';
 import { handleVkToken } from './routes-vk-token.js';
 import { listenFailure } from './listen-error.js';
@@ -562,13 +563,15 @@ const automationContext = (
       const stoppedAutopilots = autopilot.stopAll();
       // Signal every owner before awaiting any held provider operation.
       await Promise.allSettled([
-        stoppedAutopilots,
-        scheduler.stop(),
-        runner.close(),
-        ...ownedVkJobs.map((job) => job.stop()),
+        traceShutdown('autopilots', stoppedAutopilots),
+        traceShutdown('scheduler', scheduler.stop()),
+        traceShutdown('automationRunner', runner.close()),
+        ...ownedVkJobs.map((job, index) =>
+          traceShutdown(`vkJob:${index}`, job.stop())
+        ),
       ]);
-      await questionBrowser.close();
-      await send.close?.();
+      await traceShutdown('questionBrowser', questionBrowser.close());
+      await traceShutdown('browserSender', send.close?.());
     },
   };
 };

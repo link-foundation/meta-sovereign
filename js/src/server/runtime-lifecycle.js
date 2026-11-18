@@ -1,22 +1,25 @@
 import { registerDefaultHandlers } from './handlers-bootstrap.js';
 import { closeTelegramLogins } from './telegram-login-registry.js';
+import { traceShutdown } from './shutdown-trace.js';
 
 const stopAccounts = (ctx, handoff) =>
   Promise.allSettled(
-    [ctx.telegramAccount, ctx.telegramAccounts, ctx.telegramExtras].map(
-      (service) =>
+    ['telegramAccount', 'telegramAccounts', 'telegramExtras'].map((name) =>
+      traceShutdown(
+        name,
         Promise.resolve().then(() =>
-          service?.stop(handoff ? { handoff: true } : undefined)
+          ctx[name]?.stop(handoff ? { handoff: true } : undefined)
         )
+      )
     )
   );
 
 const stopExperienceExport = (ctx) => {
   ctx.cvExperienceClosing = true;
   return Promise.allSettled([
-    ctx.cvExperience?.close(),
-    ctx.cvExperiencePlans?.close(),
-    ctx.cvFormalReports?.close(),
+    traceShutdown('cvExperience', ctx.cvExperience?.close()),
+    traceShutdown('cvExperiencePlans', ctx.cvExperiencePlans?.close()),
+    traceShutdown('cvFormalReports', ctx.cvFormalReports?.close()),
   ]);
 };
 
@@ -53,22 +56,22 @@ export const createRuntimeLifecycle = ({
     ctx.chatIndex.close();
     ctx.knowledge?.close();
     return Promise.allSettled([
-      ctx.replies.close(),
-      ctx.closeAutomations(),
-      ctx.stopJobs(),
-      ctx.marketplaceSessions?.stop(),
-      ctx.publications?.close(),
-      ctx.followBacklinks?.stop(),
-      ctx.followDiscovery?.stop(),
-      ctx.vkCache?.close(),
-      ctx.vkStickers?.close(),
-      ctx.vkToken?.close(),
-      ctx.runnerSessions?.close(),
-      ctx.forms?.stop(),
-      ctx.vacancies?.stop(),
+      traceShutdown('replies', ctx.replies.close()),
+      traceShutdown('automations', ctx.closeAutomations()),
+      traceShutdown('jobs', ctx.stopJobs()),
+      traceShutdown('marketplaceSessions', ctx.marketplaceSessions?.stop()),
+      traceShutdown('publications', ctx.publications?.close()),
+      traceShutdown('followBacklinks', ctx.followBacklinks?.stop()),
+      traceShutdown('followDiscovery', ctx.followDiscovery?.stop()),
+      traceShutdown('vkCache', ctx.vkCache?.close()),
+      traceShutdown('vkStickers', ctx.vkStickers?.close()),
+      traceShutdown('vkToken', ctx.vkToken?.close()),
+      traceShutdown('runnerSessions', ctx.runnerSessions?.close()),
+      traceShutdown('forms', ctx.forms?.stop()),
+      traceShutdown('vacancies', ctx.vacancies?.stop()),
       experienceDone,
-      ctx.answerModel?.stop?.(),
-      closeTelegramLogins(ctx),
+      traceShutdown('answerModel', ctx.answerModel?.stop?.()),
+      traceShutdown('telegramLogins', closeTelegramLogins(ctx)),
     ]);
   };
   return {

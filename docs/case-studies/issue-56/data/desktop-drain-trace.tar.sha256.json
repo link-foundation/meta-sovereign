@@ -1,0 +1,23 @@
+{
+  "archive": "desktop-drain-trace.tar.gz",
+  "files": {
+    "js/src/server/shutdown-trace.js": "8ce22aa825118453de0045f22cfe3e46963b6f1d90289bada6eaf15a770bc959",
+    "js/src/server/runtime-lifecycle.js": "786b26d9becb7bbcc9f758a05831179a328ab90dd26010bece2b5569503a1fa0",
+    "js/src/server/index.js": "48c7a98d6e8d2e627092945a0422c9a04a6c7a844f7268c4b7558110a0c6347e",
+    "js/src/server/background-jobs.js": "42c8998a34f27b54f91a14dff3e71c2f1da44f3bb1613080318402b87c7940de",
+    "js/tests/server-resource-release.test.js": "f3c227b6073c4753627e9c535208153962ec1f2389d92b33000495279e37c149",
+    "js/tests/desktop-lifecycle.test.js": "84ca61c5caa24c9c0578030cfc11fa7386ced6ff418f7a1987a83ab932328879",
+    "js/tests/desktop-packaged-launch.test.js": "745261497c51b5273b6cd65bcaab3cfbe22fba7c21aaa7130e0c4b92c8915a2a",
+    "experiments/issue-56/collect-desktop-drain-trace.py": "2e1fbe7dee059fbd57396332669f367fedb54dff392d6d0d72644005abc1b847",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "docs/case-studies/issue-56/desktop-drain-investigation.md": "2e91282eec1893a4006974bdbe12e6a382c9389a8db4a15b7bed4ebd7ef8c501",
+    "ci-logs/desktop-macos-134599326077.log": "c2d70c832a1b9d6b943f1a73b0c37ab962886899345d7d67832d004257da4420",
+    "ci-logs/desktop-macos-134603908343.log": "baf1b1b0c9b8e27a6370a9c9d956ac5ca27eb3add6495c9fd649ee3bddd8f74e",
+    "ci-logs/desktop-drain-trace-focused.log": "32e9ca0853f7c57d323ffe09f589ebf764a2e78c1a43a86e125cdbc75fcaec5e",
+    "ci-logs/desktop-drain-trace-enabled.log": "030a08327a355fd8658874bee790b39118a12ec72ae4f44bf84fbae4c72ee0a3",
+    "ci-logs/desktop-drain-trace-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/desktop-drain-trace-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/desktop-drain-trace-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "metadata.json": "371f2d5203e563b36bc473d68f734ba74a3542269909e440fe1c62bf6cf1ca05"
+  }
+}
