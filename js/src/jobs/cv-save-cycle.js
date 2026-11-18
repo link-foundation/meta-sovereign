@@ -12,7 +12,10 @@ import {
   confirmedCvWorkplaceIds,
 } from './cv-workplace-created.js';
 
-const systemClock = Object.freeze({ now: Date.now, wait: delay });
+const systemClock = Object.freeze({
+  now: () => globalThis.performance.now(),
+  wait: delay,
+});
 
 /** Read retries only. No save, fill, cancellation click or navigation is issued. */
 export const verifyOwnerCvSave = async ({
@@ -34,9 +37,18 @@ export const verifyOwnerCvSave = async ({
   }
   const deadline = clock.now() + verificationMs;
   let reads = 0;
+  let editorOpen = false;
   let code = 'jobs-cv-form-open';
   const confirm = () => {
+    signal.throwIfAborted();
     check();
+    if (clock.now() >= deadline) {
+      traceCvWatch('verification-expired', { reads, editorOpen });
+      throw jobsFailure(
+        editorOpen ? 'cv-form-open' : 'cv-readback-timeout',
+        'The owner Save was not confirmed before the readback deadline.'
+      );
+    }
     const url = cvWatchUrl(session.page.url());
     const hash = url.pathname.match(/^\/resume\/(?:edit\/)?([^/]+)/u)?.[1];
     if (attempt.kind === 'about' && hash !== attempt.hash) {
@@ -48,12 +60,13 @@ export const verifyOwnerCvSave = async ({
     confirm();
     let readAttempted = false;
     try {
-      if (
+      editorOpen = Boolean(
         await session.commander.evaluate({ fn: readCvEditorDocument, args: [] })
-      ) {
+      );
+      confirm();
+      if (editorOpen) {
         continue;
       }
-      confirm();
       reads++;
       readAttempted = true;
       const exports = await readExports({

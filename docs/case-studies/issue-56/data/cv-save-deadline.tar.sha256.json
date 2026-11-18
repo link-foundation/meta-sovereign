@@ -1,0 +1,29 @@
+{
+  "archive": "cv-save-deadline.tar.gz",
+  "files": {
+    ".changeset/visible-browser-defaults.md": "e47aed63477261e04f5c66db2126f9ea6a1d0b5e0d5fe9a31f8f89dc50a31dd8",
+    "PLAN.md": "bc1a12b02d62f903a1821413e7d886a52785931e875f52bb0c997816ce55a751",
+    "ci-logs/cv-save-deadline-cycle-before.log": "fce8bf2ebb73a3969db91628dc14418324835211d3046cd0614ba5bbb426916a",
+    "ci-logs/cv-save-deadline-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/cv-save-deadline-doc-limits.log": "fe8e4a3173b8a2311abfc17c059f56d2969845bb3985ec710c710eb6687746b5",
+    "ci-logs/cv-save-deadline-focused.log": "d4f5d66e9fe5ef38a510e397fc2f41eac80c59dc20261e8a657ce1290aedc1ff",
+    "ci-logs/cv-save-deadline-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/cv-save-deadline-format.log": "d63ea452df3009c4e4cfeefb0d6c2ec5894259e05460daf8ae76be3589763796",
+    "ci-logs/cv-save-deadline-limits.log": "4abfb76614cf2f80fd044d7ed90b277988c8d399b50fa055ebc96f4c86422d83",
+    "ci-logs/cv-save-deadline-lint.log": "1f1d24e4867fb2e98d0669b74db2e71f6e03bf110bdbf943290d4bfc1017ea81",
+    "ci-logs/cv-save-deadline-matches.log": "0f5b0ad0e0c67e1f8a7186fe87dc24a570f1305911e66f79a1f587078762b25b",
+    "ci-logs/cv-save-deadline-parent-replay.log": "e69acd945641465ffad21b196b13bf7f9b636872a7c7f65051149591bbfdf120",
+    "ci-logs/cv-save-deadline-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/case-studies/issue-56/cv-save-deadline.md": "2616eccff07f982955e5d8d4ff1ea44378c3fb3a4bf1e54d3125d21ed23ebd6c",
+    "experiments/issue-56/collect-cv-save-deadline.py": "50e3afa75c5f2909789908191e778adbc568f67b5d84002392873fd12fe90474",
+    "experiments/issue-56/cv-created-workplace-fixture.mjs": "5b40b2be31e0dab11f4f5800324dc215c56f679dc3034c60ba823ba19d51c723",
+    "experiments/issue-56/cv-save-deadline-before.py": "56d2fc0ec9407e5b931d0fbaae41184817237538c2718608853d420d2f5191fa",
+    "experiments/issue-56/cv-watch-fixture.mjs": "12e511b4df6dadabbf3adcc1bd18fcd64f2ea83e71a26e388fc058a370ca5d61",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "experiments/issue-56/parent_replay.py": "d773a42482c77d569d3c960498f0dcc035a8922481bbdc3ff85241ea528dc4a6",
+    "js/src/jobs/cv-save-cycle.js": "a7d80281678691547eeb362ae89cd0b9c720119d3eb497b4f7a0c5e024d191e2",
+    "js/tests/cv-save-deadline.test.js": "467ae076b1c8445fd2278e873a3e88aa90f27b4932d1507e751f10ebb5bc8ead",
+    "before/js/src/jobs/cv-save-cycle.js": "ed98f5b03bafd6efd08b57df9f0b6c9e94a1216de691d559e6142d42bb617c29",
+    "metadata.json": "0ce8e288e8d8a0350e69541d2de16fb639d031b3085a4ad8a04eddd55e69edaa"
+  }
+}

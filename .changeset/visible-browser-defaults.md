@@ -1076,3 +1076,5 @@ Keep synthetic MCP fixture data separate from trusted inspection callbacks, esca
 Add bounded opt-in worker import resource measurements, with final CPU/memory/loop observations and preserved EOF ownership. Retain startup deadlines while investigating intermittent Windows/Deno readiness failures.
 
 Verify owner-created workplace Saves from a pre-Save inert list baseline and one additional numeric ID, retaining full-field, membership and export proof, prior snapshots and drained Stop. Refuse incomplete or ambiguous identity readback; shared copy/save/detach remains unfinished (HH18).
+
+Reject CV Save readback that finishes at or after its original monotonic verification deadline. Preserve cancellation, drained reads and acknowledged snapshots; a fresh owner Save starts a separate verification cycle (HH18).

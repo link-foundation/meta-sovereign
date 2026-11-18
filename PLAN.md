@@ -1,3 +1,11 @@
+2026-11-18 CV readback deadline:
+
+- [x] Trace the Save verification cycle after every awaited form, export, identity-list and exact-record read. The loop deadline alone can accept a late successful result.
+- [x] Reproduce nine late-result acceptance failures on published 08cf9ee5 with finite logical-clock cases and two independent controls; preserve owner cancellation, prior snapshots, five reads and existing form-open recovery.
+- [x] Refuse work and successful verification after the original monotonic deadline, without issuing provider writes or abandoning in-flight read drainage. All 54 relevant local tests pass with one worker and a 384 MiB heap.
+- [x] Preserve source-bound evidence and complete scoped static checks. Lint retains one existing complexity warning with zero errors; no warnings or deadlines are suppressed.
+- [ ] Commit only this correction and review exact-source hosted CI. Continue all thirty unfinished criteria; PR57 stays draft/unmerged.
+
 2026-11-18 owner-created workplace identity (HH18 and shared copy remain unfinished):
 
 - [x] Read pinned copy/save/deselection and new-form behavior. Trace the current watcher: a final Save can capture a null record ID, but exact saved-record readback requires a numeric identity.
