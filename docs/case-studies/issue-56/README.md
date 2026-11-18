@@ -773,3 +773,5 @@ Optional persistent collection with full current-run context: [collection eviden
 [Deno Windows worker startup](ci-worker-startup.md): preserve the failed launch and later successful unchanged path; add opt-in value-free spawn/IPC/stdio checkpoints without extending deadlines. Historical cause remains unresolved.
 
 [Discovery without persistent descriptions](discovery-memory.md): preserve complete filtering context in owned RAM, frozen CLI/Lino/UI settings, legacy signatures, unarmed batch handoff and drained native/MCP recovery. HH03 remains unfinished.
+
+[Complete-corpus binary layout](corpus-binary-layout.md): preserve the macOS timeout, reduce the same typed corpus graph with published codec options, retain old packets and unchanged limits/deadlines, and verify recovery/sync compatibility. Exact-source hosted checks remain required.

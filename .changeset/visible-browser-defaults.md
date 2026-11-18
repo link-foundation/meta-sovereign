@@ -1006,3 +1006,7 @@ cache reuse and existing application eligibility.
 Honor disabled persistent collection during discovery while retaining complete
 descriptions in bounded worker memory. Preserve existing saved descriptions,
 legacy receipt signatures and the frozen setting when copying into a batch draft.
+
+Reduce complete-corpus binary encoding cost with the published external-reference
+and variable-arity layout, preserving typed values, older packets and finite
+decoder limits across transport, synchronization and recovery dumps.

@@ -11,6 +11,7 @@ import {
 import {
   BinaryLinoCodec,
   BinaryLinoOptions,
+  ArityRange,
   DecodeLimits,
   Parser,
   formatLinks,
@@ -36,7 +37,12 @@ const limits = new DecodeLimits({
   maxStringBytes: MAX_WIRE_BYTES,
   maxDepth: 64,
 });
-const binary = new BinaryLinoCodec(new BinaryLinoOptions(), limits);
+// The published external/variable-arity layout avoids unary code-point graphs
+// and one linked-list cell per character. Readers still accept old packets.
+const binary = new BinaryLinoCodec(
+  new BinaryLinoOptions(true, new ArityRange(2, null)),
+  limits
+);
 const parser = new Parser({ maxInputSize: MAX_WIRE_BYTES, maxDepth: 64 });
 const utf8 = new TextEncoder();
 const textDecoder = new TextDecoder('utf-8', { fatal: true });

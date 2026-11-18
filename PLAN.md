@@ -1,10 +1,20 @@
+2026-11-18 binary complete-corpus latency:
+
+- [x] Preserve exact-source macOS timeout logs (5f63, job 134788617058, lines 5615–5619), retain the original 101-description input and ten-second deadline, and compare fixed phase measurements without private values.
+- [x] Trace the default published codec to unary scalars and doublet-only character chains. Compare all four finite layouts: external variable-arity encoding preserves the typed AST while reducing the actual corpus from 34,544 links/138,180 bytes to 2,204 links/81,311 bytes.
+- [x] Reproduce the graph-size regression against the exact parent while retaining independent interoperability controls. Switch only the shared binary writer's published options, retain all decoder limits and old-packet support, and pass 21 transport/corpus checks including the unchanged 101-row test.
+- [x] Pass 11 recovery/sync checks and the unchanged complete-corpus test after fixed-phase profiling. Verify the finite published 0.31.6 reproduction and report supported options/optimization in links-notation issue 420.
+- [x] Pass scoped lint/format/secrets, source/document limits, whitespace and the unchanged duplication gate; preserve independently rehashed source-bound evidence.
+- [ ] Publish only to the prepared branch, inspect exact-source CI and continue all 30 unfinished criteria; PR57 remains draft/unmerged.
+
 2026-11-18 discovery without persistent descriptions (HH03 remains unfinished):
 
 - [x] Trace the pinned independent collection flag and the discovery cache write that ignored it; preserve complete filtering context and legacy request signatures.
 - [x] Draft validated CLI, both Lino formats, four-language discovery controls, frozen batch handoff and owned bounded RAM cleanup; preserve saved descriptions and delivery metadata.
 - [x] Reproduce five exact-parent failures with one control and pass 52 focused checks. Verify actual native four-language recovery, no description persistence/replay/submissions, independent MCP checks and fully drained fixtures; inspect before/after screenshots.
 - [x] Independently verify 73 source-bound evidence entries and valid before/after images; scoped lint/format, source/document limits, secrets, whitespace and unchanged 6.50% duplication gates pass.
-- [ ] Publish only to the prepared branch and inspect exact-source CI. The 101-description binary test timeout on 5f63 remains under investigation; all 30 unfinished criteria remain required.
+- [x] Publish the discovery correction as 431935dc only to the prepared branch.
+- [ ] Inspect exact-source CI. The binary timeout has a measured codec correction and separate evidence; all 30 unfinished criteria remain required.
 
 2026-11-18 collect selected vacancies before local exclusions:
 
