@@ -34,7 +34,7 @@ test(
     const fixture = runnerFixture({ local: 'running', server: 'running' });
     const run = async (target, argv, options) => {
       const result = await fixture.run(target, argv, options);
-      if (argv[1] === '--stop') {
+      if (argv[0] === 'screen' && argv[1] === '-S') {
         fixture.state.local = 'stopped';
       }
       return result;
@@ -172,7 +172,7 @@ test(
     const fixture = runnerFixture({ server: 'running' });
     const run = async (target, argv, options) => {
       const answer = await fixture.run(target, argv, options);
-      if (argv[1] === '--stop') {
+      if (argv[0] === 'screen' && argv[1] === '-S') {
         abort.abort();
       }
       return answer;

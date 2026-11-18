@@ -133,6 +133,9 @@ try {
       liveProvider: false,
     })
   );
+} catch (error) {
+  console.error('Remote runner proof failed:', error);
+  throw error;
 } finally {
   try {
     assert.equal((await control.act('stop', 'local')).ok, true);

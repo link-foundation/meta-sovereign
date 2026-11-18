@@ -3,6 +3,7 @@ import {
   dockerRunnerObservation,
   dockerRunnerProbe,
 } from './runner-docker.js';
+import { screenRunnerObservation } from './runner-screen.js';
 
 /** Live backend observations, never a launch wrapper's optimistic exit status. */
 export const runnerProbe = (target) =>
@@ -10,46 +11,11 @@ export const runnerProbe = (target) =>
     ? dockerRunnerProbe(target)
     : ['screen', '-ls'];
 
-export const observedRunnerState = (target, result) => {
-  if (target.isolation === 'docker') {
-    return dockerRunnerObservation(target, result).state;
-  }
-  if (result.aborted) {
-    return 'unknown';
-  }
-  const text = String(result.stdout ?? '').trim();
-  if (![0, 1].includes(result.code)) {
-    return 'unknown';
-  }
-  const output = `${text}\n${result.stderr ?? ''}`.trim();
-  if (result.code === 1 && /^No Sockets found in [^\r\n]+\.$/.test(output)) {
-    return 'stopped';
-  }
-  if (
-    result.code !== 0 ||
-    !/^There (?:is a screen|are screens) on:\r?\n/.test(output)
-  ) {
-    return 'unknown';
-  }
-  const lines = output.split(/\r?\n/);
-  const count = lines
-    .at(-1)
-    .trim()
-    .match(/^(\d+) Sockets? in [^\r\n]+\.$/);
-  if (!count) {
-    return 'unknown';
-  }
-  const sessions = lines.slice(1, -1).filter((line) => line.trim());
-  const parsed = sessions.map((line) =>
-    line.trim().match(/^\d+\.([^\s]+)\s+.+\((?:Attached|Detached)\)$/)
-  );
-  if (Number(count[1]) !== parsed.length || parsed.some((line) => !line)) {
-    return 'unknown';
-  }
-  return parsed.some((line) => line[1] === target.session)
-    ? 'running'
-    : 'stopped';
-};
+export const observedRunnerState = (target, result) =>
+  (target.isolation === 'docker'
+    ? dockerRunnerObservation(target, result)
+    : screenRunnerObservation(target, result)
+  ).state;
 
 const applicationCommand = (target) => [
   target.node ?? 'node',

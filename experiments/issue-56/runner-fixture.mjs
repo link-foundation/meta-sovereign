@@ -34,6 +34,8 @@ export const screenResult = (state, session = 'meta-sovereign-test') => {
       };
 };
 
+const isScreenStop = (argv) => argv[0] === 'screen' && argv[1] === '-S';
+
 export const runnerFixture = (
   initial = {},
   { stopFails = [], launchState = 'running', launchCode = 0 } = {}
@@ -45,11 +47,11 @@ export const runnerFixture = (
   const run = async (target, argv, { signal } = {}) => {
     const mode = target.host ? 'server' : 'local';
     const action =
-      argv[0] === 'screen'
+      argv[0] === 'screen' && argv[1] === '-ls'
         ? 'probe'
         : argv.includes('health')
           ? 'health'
-          : argv[1] === '--stop'
+          : argv[1] === '--stop' || isScreenStop(argv)
             ? 'stop'
             : 'start';
     calls.push([mode, action]);

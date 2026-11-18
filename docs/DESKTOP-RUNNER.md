@@ -105,6 +105,11 @@ available before launch. It never removes the mounted application or store.
 No container ports are published by this session controller; application health
 runs inside the container. Configure any separate network access explicitly.
 
+Screen Stop sends Ctrl+C to the exact freshly observed `PID.session` identity,
+then waits for its disappearance. Duplicate names report `unknown`. Stop does
+not depend on start-command's historical session record, which can refer to a
+different backend after switching between Docker and Screen on the same host.
+
 A private durable binding retains both target addresses before process changes.
 If the profile changes while an old target is running or unknown, starts are
 refused with `runner-profile-change-blocked`. Status and stop continue to use

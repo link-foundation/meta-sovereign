@@ -1008,3 +1008,10 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Draft explicit server image/isolation configuration, owned Docker observations, persistent bind mounts, ID-bound stop/health and exited-container reuse under the existing mutually exclusive controller lease.
 - [x] Reproduce published-parent refusal (one failure and one compatible Screen control); pass 52 focused Node, eight Deno and eight Bun checks, native saved-profile recovery and independent four-language MCP verification. Add a finite real SSH/Docker hosted check without running a daemon locally.
 - [ ] Review exact-source hosted results, preserve evidence and complete the full VD02 contract before accepting it. All 32 unfinished criteria remain required; PR57 stays draft and unmerged.
+
+2026-11-18 hosted runner backend collision:
+
+- [x] Preserve exact 802c6168 failed jobs and artifact. The workflow cache contract rejects the new Node setup; same-host Screen Stop resolves an old Docker record through start-command.
+- [x] Reproduce two failures and two compatible controls against published 802c6168. Stop uses a fresh exact Screen ID, duplicate names refuse, and hosted failures print the original error before cleanup.
+- [x] Pass 43 focused controller, drain, Docker, inspection and workflow-cache tests with one worker.
+- [ ] Finish scoped static checks, preserve source-bound evidence and publish this correction. Review actual SSH/Docker lifecycle and all exact-head workflows; all 32 criteria remain required.

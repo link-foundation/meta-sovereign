@@ -135,10 +135,15 @@ test(
     let stopping = false;
     let probes = 0;
     const run = async (target, args, options) => {
-      if (args[1] === '--stop') {
+      if (args[0] === 'screen' && args[1] === '-S') {
         stopping = true;
       }
-      if (stopping && args[0] === 'screen' && ++probes === 2) {
+      if (
+        stopping &&
+        args[0] === 'screen' &&
+        args[1] === '-ls' &&
+        ++probes === 2
+      ) {
         reached.resolve();
         await finish.promise;
         fixture.state.local = 'stopped';

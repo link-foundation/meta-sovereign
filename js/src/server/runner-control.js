@@ -5,6 +5,7 @@ import {
 } from './runner-session.js';
 import { runRunnerCommand } from './runner-transport.js';
 import { prepareDockerRunner, stopDockerRunner } from './runner-docker.js';
+import { stopScreenRunner } from './runner-screen.js';
 import { setTimeout as delay } from 'node:timers/promises';
 
 const refused = (code, states) => ({ ok: false, code, states });
@@ -60,11 +61,7 @@ export const createRunnerControl = ({
     if (target.isolation === 'docker') {
       await stopDockerRunner(target, run, options);
     } else {
-      await run(
-        target,
-        [target.start ?? '$', '--stop', target.session],
-        options
-      );
+      await stopScreenRunner(target, run, options);
     }
     const deadline = now() + 10000;
     current[mode] = await observe(mode, options);
