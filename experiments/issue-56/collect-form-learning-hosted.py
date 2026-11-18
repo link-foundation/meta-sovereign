@@ -8,7 +8,7 @@ import tarfile
 from evidence_bundle import write_entries_archive
 from hosted_evidence import (
     read_workflows, read_jobs, source_reader, read_catalog_audit,
-    read_literal_tests, read_reference_contracts,
+    read_literal_tests, read_reference_contracts, read_detached_learning,
 )
 
 root = Path(__file__).resolve().parents[2]
@@ -19,7 +19,8 @@ runs = read_workflows(root, sha, slug, entries)
 source = source_reader(root, sha, entries)
 registration = json.loads(source('js/scripts/browser-checks.json'))
 selected = {'node': ('Checks and release', 'Test (node on ubuntu-26.04)')}
-for group in ['forms-reader', 'forms-learning']:
+groups = ['forms-reader', 'forms-learning', 'forms-watchers']
+for group in groups:
     shard = registration.index(group) % 4 + 1
     for engine in ['chromium', 'webkit']:
         selected[f'{engine}-{shard}'] = ('Checks and release',
@@ -31,19 +32,21 @@ read_catalog_audit(root, sha, 'form-learning-criteria', catalog, source, entries
 tests = read_literal_tests([
     'forms-learning', 'forms-learning-document', 'forms-monitor-document',
     'forms-monitor', 'forms-watchers', 'forms-watch-store', 'forms-local-channel',
-    'forms-review-sessions',
+    'forms-review-sessions', 'forms-private-profile',
 ], source, raw['node'])
 
 for path in ['js/tests/e2e-forms-reader-browser.mjs',
              'js/tests/e2e-forms-watcher-browser.mjs',
              'js/tests/helpers/e2e-form-learning.mjs',
              'js/tests/helpers/e2e-form-learning-gestures.mjs',
+             'js/src/forms/private-profile.js',
+             'js/src/automation/question-profile-source.js',
              'examples/forms-detached-review.mjs']:
     source(path)
 runner = source('js/scripts/run-browser-checks.mjs')
 assert 'timeout: 180_000' in runner
 receipts = {}
-for group in ['forms-reader', 'forms-learning']:
+for group in groups:
     shard = registration.index(group) % 4 + 1
     for engine in ['chromium', 'webkit']:
         lines = raw[f'{engine}-{shard}']
@@ -54,44 +57,18 @@ for group in ['forms-reader', 'forms-learning']:
         start = max(n for n, line in enumerate(lines[:end], 1)
                     if f'Browser check: {group}' in line)
         block = lines[start - 1:end]
-        assert any(f'[e2e-forms-reader] OK ({engine})' in line for line in block)
+        if group != 'forms-watchers':
+            assert any(f'[e2e-forms-reader] OK ({engine})' in line for line in block)
         assert not any('SKIP:' in line for line in block)
         if group == 'forms-learning':
             assert any('[forms-scenario] verifyFormLearningUi started' in line for line in block)
             assert any(re.search(r'\[forms-scenario\] verifyFormLearningUi \d+\s*$', line)
                        for line in block)
-        if group == 'forms-reader' and engine == 'chromium':
-            # gh log lines prefix each physical JSON line with job, step and UTC time.
-            bodies = [re.sub(r'^.*?\d{4}-\d\d-\d\dT[\d:.]+Z ', '', line)
-                      for line in block]
-            text = '\n'.join(bodies)
-            found = []
-            for match in re.finditer(r'(?m)^\{\s*$', text):
-                try:
-                    value, _ = json.JSONDecoder().raw_decode(text[match.start():])
-                except json.JSONDecodeError:
-                    continue
-                if value.get('initiatingCliExited') is True:
-                    found.append(value)
-            assert len(found) == 1
-            receipt = found[0]
-            assert receipt['ok'] and receipt['submits'] == 1
-            before = receipt['beforeSubmit']
-            assert before['answerLearning']['tracked'] == 2
-            assert before['answerLearning']['saved'] == 0
-            stable = receipt['stableBeforeSend']['answerLearning']
-            assert stable['saved'] == 1 and stable['last']['kind'] == 'stable-owner-edit'
-            assert receipt['reusedWatcher']['watcher']['pid'] == before['watcher']['pid']
-            assert receipt['history']['answerLearning']['saved'] == 2
-            assert receipt['history']['answerLearning']['failed'] == 0
-            assert receipt['stopped']['state'] == 'stopped'
-            assert receipt['savedHistory']['source'] == 'saved-checkpoints'
-            assert len(receipt['rules']) == 2
-            assert all(not answer['approved'] and answer['count'] == 1
-                       for rule in receipt['rules'] for answer in rule['answers'])
-            assert '"token":' not in json.dumps(receipt)
-            entries['receipts/detached-learning.json'] = (json.dumps(receipt, indent=2) + '\n').encode()
+        if group == 'forms-watchers':
+            receipt = read_detached_learning('\n'.join(block))
+            entries[f'receipts/detached-learning-{engine}.json'] = (json.dumps(receipt, indent=2) + '\n').encode()
         receipts[f'{engine}/{group}'] = dict(startLine=start, completedLine=end,
+                                            runtime='chromium-cdp' if group == 'forms-watchers' else engine,
                                             liveProvider=False)
 
 with tarfile.open(root / 'docs/case-studies/issue-56/data/forms-answer-learning.tar.gz') as tar:

@@ -105,6 +105,7 @@ for (const [message, expected] of [
           'forms-learning',
           'forms-answers',
           'forms-assignment',
+          'forms-watchers',
         ];
     const scripts = path.join(cwd, 'js/scripts');
     const helpers = path.join(cwd, 'js/tests/helpers');
@@ -136,7 +137,7 @@ for (const [message, expected] of [
     );
     writeFileSync(
       path.join(cwd, 'fixture.mjs'),
-      `console.log('group:' + process.env.FORMS_GROUP);\nconsole.log(${JSON.stringify(message)});\n`
+      `console.log('group:' + process.env.FORMS_GROUP);\nif (process.env.FORMS_GROUP === 'forms-reader') process.exit(0);\nconsole.log(${JSON.stringify(message)});\n`
     );
     // The CI runner is a Node entry point even when this contract runs on Deno/Bun.
     const result = spawnSync(
@@ -161,9 +162,17 @@ for (const [message, expected] of [
       for (const group of checks.slice(1)) {
         assert.match(
           readFileSync(path.join(cwd, `artifacts/${group}.log`), 'utf8'),
-          new RegExp(`group:${group}`)
+          new RegExp(`group:${group === 'forms-watchers' ? '' : group}`)
         );
       }
+      assert.match(
+        readFileSync(path.join(cwd, 'artifacts/forms-watchers.log'), 'utf8'),
+        /all checks passed/u
+      );
+      assert.doesNotMatch(
+        readFileSync(path.join(cwd, 'artifacts/forms-reader.log'), 'utf8'),
+        /all checks passed/u
+      );
     }
   });
 }
@@ -304,11 +313,15 @@ test('inbox history and form inspection run in both mandatory browser lanes', ()
   assert.match(scripts['test:e2e:forms-reader'], /e2e-forms-reader-browser/);
   assert.match(scripts['test:e2e:forms-reader:webkit'], /E2E_BROWSER=webkit/);
   assert.match(scripts['test:e2e:forms-watchers'], /e2e-forms-watcher-browser/);
-  const reader = readFileSync(
-    path.join(root, 'js/tests/e2e-forms-reader-browser.mjs'),
+  assert.ok(checks.includes('forms-watchers'));
+  const watcher = readFileSync(
+    path.join(root, 'js/tests/e2e-forms-watcher-browser.mjs'),
     'utf8'
   );
-  assert.match(reader, /await import\('\.\/e2e-forms-watcher-browser\.mjs'\)/);
+  assert.match(
+    watcher,
+    /await import\('\.\.\/\.\.\/examples\/forms-detached-review\.mjs'\)/
+  );
   const salaryOptions = readFileSync(
     path.join(root, 'js/tests/helpers/e2e-form-salary-options.mjs'),
     'utf8'

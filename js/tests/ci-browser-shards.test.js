@@ -18,6 +18,11 @@ const source = (file) =>
   readFileSync(new URL(`../scripts/${file}`, import.meta.url));
 const registry = JSON.parse(source('browser-checks.json'));
 
+test('detached form learning has an independent mandatory browser entry', () => {
+  assert.equal(registry.filter((name) => name === 'forms-watchers').length, 1);
+  assert.ok(registry.includes('forms-reader'));
+});
+
 const registeredScenarios = (groups) => {
   const root = new URL('../../', import.meta.url);
   const { scripts } = JSON.parse(readFileSync(new URL('package.json', root)));

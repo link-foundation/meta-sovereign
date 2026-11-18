@@ -626,31 +626,3 @@ await app.finish(async () => {
     await fixture.close();
   }
 });
-
-// CDP watchers use Chromium; the shared form reader is checked in both engines.
-if (
-  !formGroups[process.env.FORMS_GROUP] &&
-  process.env.E2E_BROWSER !== 'webkit' &&
-  process.env.FORMS_LEARNING_ONLY !== '1' &&
-  process.env.FORMS_POST_LEARNING_ONLY !== '1' &&
-  process.env.FORMS_CAPACITY_ONLY !== '1' &&
-  process.env.FORMS_MODEL_ONLY !== '1' &&
-  process.env.FORMS_LINKS_ONLY !== '1' &&
-  process.env.FORMS_TIMEZONE_ONLY !== '1' &&
-  process.env.FORMS_SUBJECTS_ONLY !== '1' &&
-  process.env.FORMS_PAY_ONLY !== '1' &&
-  process.env.FORMS_SALARY_OPTIONS_ONLY !== '1' &&
-  process.env.FORMS_MATCHING_ONLY !== '1' &&
-  process.env.FORMS_QUESTIONNAIRE_ONLY !== '1' &&
-  process.env.FORMS_QUESTIONNAIRE_LEARNING_ONLY !== '1' &&
-  process.env.FORMS_CAPTCHA_ONLY !== '1' &&
-  process.env.FORMS_AUTOMATIC_ONLY !== '1' &&
-  process.env.FORMS_PREFILL_ONLY !== '1' &&
-  process.env.FORMS_PUBLICATION_ONLY !== '1' &&
-  process.env.FORMS_CONFIGURED_RESUME_ONLY !== '1' &&
-  process.env.FORMS_PRIVATE_PROFILE_ONLY !== '1' &&
-  process.env.FORMS_PRIVATE_RESUME_ONLY !== '1' &&
-  process.env.FORMS_PRIVATE_MODEL_ONLY !== '1'
-) {
-  await import('./e2e-forms-watcher-browser.mjs');
-}

@@ -3,9 +3,10 @@
 - [x] Trace B7: conventional résumé contacts were parsed, but optional model context omitted the full résumé. Preserve opt-in, explicit CV precedence and existing knowledge limits.
 - [x] Reproduce seven actual-parent failures with one positive control; verify 30 focused Node/Deno checks and native changed-source refusal, frozen readback and owner/unknown preservation with zero submissions.
 - [x] Inspect before/after/phone screenshots; preserve source-bound evidence and require exact-source hosted verification before QA22 acceptance.
-- [ ] Publish the atomic model correction after scoped static checks and independent archive verification.
+- [x] Commit the atomic model correction as `75be32cc` after scoped static checks and independent verification of all 46 evidence entries; publication and hosted verification remain required.
 - [x] Preserve successful Chromium hosted reader logs and trace missing detached proof to an import after the fixture's process exit.
-- [ ] Register a separate mandatory full-minute watcher check with its own unchanged deadline; reproduce the missing registration, verify focused contracts and require actual hosted learning receipts before QA23 acceptance.
+- [x] Register a separate mandatory full-minute watcher check with its own unchanged deadline; reproduce the missing registration, pass 27 focused Node/Deno contracts and verify 60,764 ms of actual unchanged native ownership. Independently verify all 35 evidence entries.
+- [ ] Publish the watcher correction and require actual hosted learning receipts before QA23 acceptance.
 - [ ] Continue all 35 unfinished requirements; PR57 remains draft and unmerged.
 
 2026-11-18 conventional private Forms PDF (QA22 remains unfinished):

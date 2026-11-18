@@ -1,5 +1,7 @@
 - [Weighted preview browser assertion](ci-weighted-preview-selector.md): the exact hosted strict-mode failure and finite native reproduction retain match inspection while verifying the main wording, reviewed candidates and saved action. Production behavior and all original acceptance criteria remain unchanged.
 
+- [Detached Forms CI execution](ci-forms-watchers.md): trace an unreachable post-exit import, retain failing registration and run the full-minute example in its own mandatory browser group; QA23 remains unfinished.
+
 - [Private résumé model context](forms-private-model.md): exact-parent failures, 30 focused checks per runtime, native readback and inspected desktop/phone evidence; full QA22 and hosted verification remain required.
 - [Observed graceful runner shutdown](runner-stop-drain.md): native GNU screen/start-command evidence reproduces an early Stop refusal; six parent regressions and 22 focused passes verify bounded observation, exclusive ownership and truthful cancellation/unknown handling. Wider desktop and SSH acceptance remain required.
 - [Native transient link retries](ci-transient-retry.md): four stable-checker failures reproduce the upstream retry defect; six corrected native controls, four pacing controls and eleven real source rechecks pass while permanent failures remain strict. Exact-source hosted acceptance remains required.

@@ -8,6 +8,39 @@ import base64
 import tarfile
 
 
+def read_detached_learning(text):
+    """Require the actual two-page, full-minute CLI/watcher semantic receipt."""
+    text = '\n'.join(re.sub(r'^.*?\d{4}-\d\d-\d\dT[\d:.]+Z ', '', line)
+                     for line in text.splitlines())
+    found = []
+    for match in re.finditer(r'(?m)^\{\s*$', text):
+        try:
+            value, _ = json.JSONDecoder().raw_decode(text[match.start():])
+        except json.JSONDecodeError:
+            continue
+        if value.get('initiatingCliExited') is True:
+            found.append(value)
+    assert len(found) == 1
+    receipt = found[0]
+    assert receipt['ok'] and receipt['submits'] == 1
+    assert receipt['unchangedEditMs'] >= 60_000
+    before = receipt['beforeSubmit']
+    assert before['answerLearning']['tracked'] == 2
+    assert before['answerLearning']['saved'] == 0
+    stable = receipt['stableBeforeSend']['answerLearning']
+    assert stable['saved'] == 1 and stable['last']['kind'] == 'stable-owner-edit'
+    assert receipt['reusedWatcher']['watcher']['pid'] == before['watcher']['pid']
+    assert receipt['history']['answerLearning']['saved'] == 2
+    assert receipt['history']['answerLearning']['failed'] == 0
+    assert receipt['stopped']['state'] == 'stopped'
+    assert receipt['savedHistory']['source'] == 'saved-checkpoints'
+    assert len(receipt['rules']) == 2
+    assert all(len(rule['answers']) == 1 and not rule['answers'][0]['approved']
+               and rule['answers'][0]['count'] == 1 for rule in receipt['rules'])
+    assert '"token":' not in json.dumps(receipt)
+    return receipt
+
+
 def read_workflows(root, sha, slug, entries):
     runs = {}
     for path in sorted((root / 'ci-logs').glob(f'hosted-verification-{slug}-*.json')):

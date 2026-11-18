@@ -53,6 +53,8 @@ const startCli = (args, directory, filename = 'cli.log') => {
 };
 
 const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-watch-cli-'));
+const screenshotDirectory = process.env.E2E_ARTIFACT_DIR || 'docs/screenshots';
+await fs.mkdir(screenshotDirectory, { recursive: true });
 const fixture = await startFormsFixture();
 const profileDir = path.join(
   directory,
@@ -94,11 +96,12 @@ try {
   await browser.page.waitForURL('**/learning?page=2');
   cli.send('plan form-1');
   assert.equal((await cli.next()).mode, 'answer-plan');
+  const ownerEditStarted = Date.now();
   await browser.page
     .locator('textarea')
     .fill('I can discuss a start date after the final interview.');
   await browser.page.screenshot({
-    path: 'docs/screenshots/issue-56-forms-watcher-before.png',
+    path: path.join(screenshotDirectory, 'issue-56-forms-watcher-before.png'),
   });
   cli.send('quit');
   cli.child.stdin.end();
@@ -121,6 +124,8 @@ try {
     750
   );
   assert.equal(stable.answerLearning.last.kind, 'stable-owner-edit');
+  const unchangedEditMs = Date.now() - ownerEditStarted;
+  assert(unchangedEditMs >= 60_000, 'the real unchanged minute elapsed');
   assert.equal(fixture.submits, 0);
   cli = startCli(
     ['forms-review', `--url=${url}`, `--store=${directory}`, '--headless'],
@@ -153,7 +158,7 @@ try {
     'two detached actual-answer proposals'
   );
   await browser.page.screenshot({
-    path: 'docs/screenshots/issue-56-forms-watcher-after.png',
+    path: path.join(screenshotDirectory, 'issue-56-forms-watcher-after.png'),
   });
   const history = await manageFormWatcher({
     directory,
@@ -198,6 +203,7 @@ try {
       {
         ok: true,
         initiatingCliExited: true,
+        unchangedEditMs,
         beforeSubmit: status,
         stableBeforeSend: stable,
         reusedWatcher: reattached.session,

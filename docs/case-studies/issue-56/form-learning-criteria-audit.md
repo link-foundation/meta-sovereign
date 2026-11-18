@@ -66,12 +66,15 @@ gesture, stable-edit and later-page completion assertions in both browser
 engines. Its older completion marker has no JSON semantic envelope, so the
 assertion source is retained and reviewed separately.
 
-The mandatory Chromium reader group also runs
+A separate mandatory watcher group runs
 [`examples/forms-detached-review.mjs`](../../../examples/forms-detached-review.mjs):
-two planned pages, zero submissions before Send, a full unchanged production
+Chromium CDP is used in either hosted lane. It verifies two planned pages,
+zero submissions before Send, a full unchanged production
 minute after CLI exit, the same reused worker, two unapproved proposals with
-count one after one owner Send, saved history and confirmed Stop. Its actual
-structured receipt and successful group completion are required. Every owned
+count one after one owner Send, saved history and confirmed Stop. Each lane's actual
+structured receipt and successful group completion are required. The previous
+reader import followed a fixture method that exits, so it never ran in CI;
+[the coverage correction](ci-forms-watchers.md) retains that evidence. Every owned
 fixture process and browser is drained by the example's final cleanup.
 
 These are native isolated form fixtures, matching the pinned reference's own
