@@ -45,8 +45,8 @@ contain only lifecycle state and read counts, without vacancy text or URLs.
   DOM extraction. This avoids relying on navigation timing. Production reads
   observe an empty description and then the complete visible text and exact
   private HTML. One search and one collection browser close, with zero provider
-  clicks and no page errors. This scenario is awaited by the existing mandatory
-  Chromium/WebKit vacancies group.
+  clicks and no page errors. This scenario is awaited by an independently
+  registered mandatory Chromium/WebKit vacancy-loading group.
 - Independent Playwright MCP verification collects the delayed description,
   reloads its acknowledged cache and checks desktop/phone recovery. Its two
   fixture browsers close with zero provider clicks. The fixture server and MCP

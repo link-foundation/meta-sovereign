@@ -971,3 +971,7 @@ Share validated theme, skin and language defaults across global/local Lino
 startup files, explicit CLI options and a read-only Lino endpoint. Retain browser
 choices, apply fresh connection defaults and expose an explicit appearance reset
 in all four languages (issue #56 VD06/VD07).
+
+Wait for delayed native vacancy titles and descriptions before collection or
+application review, with finite cancellation and unchanged cache protection.
+Keep delayed-loading coverage in an independently registered browser group.

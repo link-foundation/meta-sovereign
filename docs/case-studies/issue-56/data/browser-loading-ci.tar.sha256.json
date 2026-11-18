@@ -1,0 +1,26 @@
+{
+  "archive": "browser-loading-ci.tar.gz",
+  "files": {
+    "js/tests/e2e-vacancies-browser.mjs": "66748dc117e854ae87bcb167074840293b5b5ec546b41fd791a71e1d10176445",
+    "js/tests/e2e-vacancy-loading-browser.mjs": "f3dac70d9672a945e76b589f6985cca935cfb2416ca0dd9f2b9aff11158ccd70",
+    "js/tests/ci-browser-shards.test.js": "99693558e70bbdd976dce9f23a0115cf89e83d218884ce3a43d4e4c6728f98ef",
+    "js/scripts/browser-checks.json": "e3e3abdab6740f63878dc2f4320cd7ecf387f66311030f6ff7b7cc047f7524e6",
+    "js/scripts/browser-check-shards.mjs": "fa8eda7b26c92bc80726ff47225a567a214397f1b2d4f98a447a0044977ecfc9",
+    "js/scripts/validate-changeset.mjs": "46c4be5a704ba6bf98d49fe800edd02714b96bca172861249607f1b23df682e1",
+    "package.json": "9c87c6a862b94217c7169e8987bbdb3bee1c4ebac069dfe919aa17c6e75cba92",
+    ".changeset/visible-browser-defaults.md": "a33ceb93baeab692249162f6198b70702de6dadc33611932c0afe300580f0b24",
+    "docs/case-studies/issue-56/browser-loading-ci.md": "bb950564256eecaac92235ef61c02122e91f665c5888d859271b24514aec0f83",
+    "experiments/issue-56/collect-browser-loading-ci.py": "4e97ab2aeca0bdc811ef9896aee0d45ca85c3805514bb172d9e3b7c3e669991b",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "ci-logs/browser-partition-before.log": "2ec483594970b9a0000360e1e0987f79c9e5c47cfe2505751d261e0e31f99cad",
+    "ci-logs/browser-partition-after.log": "863e8a34bc36df2251dec870b7afcf9db1f8746df0234825d51eb9fe778bd7f1",
+    "ci-logs/changeset-count-before.log": "6cfc3b61f11d71f17c4f1da28f65d5ba6948130cdd03b53560f38d5dfd576b40",
+    "ci-logs/changeset-count-worktree.log": "20829169cf8c25dafdd6c3566477f6957c35029c3ee6bdb79af4b14bb85ae194",
+    "ci-logs/browser-partition-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/browser-partition-format.log": "f5ae432c6fbd2a546d8bd502dfc1aa20580082c50e3013f6f406f37849f8e36d",
+    "ci-logs/workflow-contracts-134661799617.log": "003ac44882d7486aba9697bf5cbc022118e01d99f01bb92a3c1289a799d1bcdd",
+    "ci-logs/changesets-134661799666.log": "4f92d4834c454ed60d30d5a80d72175028b847a35c7075d9bd988039672be04d",
+    "ci-logs/pipeline-status-134663605548.log": "070fc0a8b6063ea9e614c09cd9e8af4567b913e678341e8f90b6e5f6002f374f",
+    "ci-logs/checks-3ff4d3e2.json": "6dc4923405c3f7a201b61f6a5354754d3a8553fd8114a09ecc6ddbc89e5e46d6"
+  }
+}

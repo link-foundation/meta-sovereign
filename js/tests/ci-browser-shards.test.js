@@ -44,9 +44,9 @@ const registeredScenarios = (groups) => {
   });
 };
 
-test('vacancy search and discovery retain all six scenarios in bounded groups', () => {
+test('vacancy search, loading and discovery retain all seven scenarios in bounded groups', () => {
   const groups = registry.filter((name) =>
-    ['vacancies', 'vacancy-discovery'].includes(name)
+    ['vacancies', 'vacancy-loading', 'vacancy-discovery'].includes(name)
   );
   assert.deepEqual(
     registeredScenarios(groups).sort(),
@@ -57,9 +57,14 @@ test('vacancy search and discovery retain all six scenarios in bounded groups', 
       'verifySalaryLadder',
       'verifyVacancyMetadataVariants',
       'verifyVacancySearchUrl',
+      'verifyVacancyLoading',
     ].sort()
   );
-  assert.deepEqual(groups, ['vacancies', 'vacancy-discovery']);
+  assert.deepEqual(groups, [
+    'vacancies',
+    'vacancy-loading',
+    'vacancy-discovery',
+  ]);
 });
 
 test('native application scenarios remain registered once in bounded groups', () => {
