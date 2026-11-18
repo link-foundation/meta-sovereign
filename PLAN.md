@@ -1,3 +1,10 @@
+2026-11-18 legacy private vacancy cache migration (HH03 remains unfinished):
+
+- [x] Verify pinned A12 and the original migration: copy old repository-local records automatically, preserve complete content/originals and never replace current app records.
+- [x] Draft one sequential migration shared by collection, cached reads and analysis; preserve exact bounded Lino in private storage, validate vacancy identities and keep explicit stores isolated from global defaults.
+- [x] Reproduce 12 actual-parent failures with one compatibility control; pass all 32 focused Node/Deno checks, including restart, causal deletion, refused saves, concurrent replacement and CLI/text-binary API recovery. Scoped static checks pass.
+- [ ] Preserve source-bound evidence, commit the atomic unit and review exact-source hosted checks. Continue all unfinished criteria; PR57 stays draft and unmerged.
+
 2026-11-18 Forms PDF discovery after saved selection deletion:
 
 - [x] Match exact `1f0c7287` browser failures in Chromium and WebKit to the raw fixture's retained causal deletion record; preserve both complete job logs.

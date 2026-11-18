@@ -3,6 +3,7 @@ import { jobBrowserDependencies } from './browser-dependencies.js';
 import { createJobLoginService, jobLoginOwned } from './login-service.js';
 import { createAssignmentVacancyReader } from '../assignments/vacancy-reader.js';
 import { vacancySnapshot } from '../assignments/vacancy.js';
+import { configureLegacyVacancies } from '../assignments/vacancy-legacy-cache.js';
 import {
   collectionOptions,
   hhSearchUrl,
@@ -48,8 +49,10 @@ const loginControl = ({ store, openSession, login }, run) =>
   });
 
 /** Finite owned work. Stop drains the issued browser before releasing ownership. */
-export const createVacancyService = (options) =>
-  createWorkspaceVacancyService(jobBrowserDependencies(options));
+export const createVacancyService = (options) => {
+  configureLegacyVacancies(options.store, options.legacyVacancyDirectories);
+  return createWorkspaceVacancyService(jobBrowserDependencies(options));
+};
 
 const createWorkspaceVacancyService = ({
   store,

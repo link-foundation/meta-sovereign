@@ -10,6 +10,7 @@ import {
 } from './vacancy-association.js';
 import { vacancyContent } from './vacancy-content.js';
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
+import { ensureLegacyVacancies } from './vacancy-legacy-cache.js';
 
 export const vacancySnapshot = async (
   store,
@@ -19,6 +20,8 @@ export const vacancySnapshot = async (
   signal,
   browserOptions = {}
 ) => {
+  await ensureLegacyVacancies(store);
+  signal?.throwIfAborted();
   const id = `assignment-vacancy:${await modelFingerprint(url)}`;
   let saved = await store.get(id);
   if (saved && (saved.version !== 1 || saved.id !== id || saved.url !== url)) {

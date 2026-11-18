@@ -1,6 +1,7 @@
 import { browserName } from '../browser/policy.js';
 import { modelFingerprint } from '../automation/answer-model-context.js';
 import { vacancyContent } from '../assignments/vacancy-content.js';
+import { ensureLegacyVacancies } from '../assignments/vacancy-legacy-cache.js';
 import { verifiedTechnologyCv } from './technology-cv.js';
 import { createCvTechnologyService } from './cv-technology-service.js';
 import { createCvWorkplaceReviewService } from './cv-workplace-review-service.js';
@@ -16,6 +17,7 @@ import { confirmedTechnologyAnalysis } from './technology-result.js';
 import { acknowledgedWrite, acknowledgedRead } from './acknowledged-store.js';
 
 export const storedVacancies = async (store) => {
+  const migration = await ensureLegacyVacancies(store);
   const rows = await store.query(
     (row) => row.id?.startsWith('assignment-vacancy:') && row.version === 1
   );
@@ -34,7 +36,7 @@ export const storedVacancies = async (store) => {
     }
     entries.push({ id: row.id, ...content });
   }
-  return { entries };
+  return { entries, ...migration };
 };
 
 const storedAnalysis = async (store, input) => {
