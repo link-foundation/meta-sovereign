@@ -1,3 +1,11 @@
+2026-11-18 browser deadline and hosted capacity investigation:
+
+- [x] Preserve exact b3364503 Checks attempt 1, all four cancellation annotations and the complete WebKit shard-4 log. Three ARM jobs never acquired runners; the WebKit job exhausted 35 minutes and its combined vacancy group separately exhausted 180 seconds.
+- [x] Retain both existing deadlines and every native scenario. Draft eight disjoint mandatory shards per engine and give vacancy selection its own registered entry; reproduce both missing-contract assertions against the actual published source.
+- [x] Pass 29 focused CI contracts and the workflow policy. The unchanged isolated native WebKit selection passes in 48.949 seconds with no provider clicks/page errors and all resources closed; this does not establish the cause of its longer hosted duration.
+- [x] Pass final scoped format/lint/secrets, source/doc limits and whitespace gates; independently verify all 47 source-bound evidence entries. Full duplication and platform validation remain hosted checks.
+- [ ] Publish only to the prepared branch and require the exact-source hosted matrix. A same-SHA retry of b3364503 remains active; all thirty unfinished original criteria remain required and PR57 stays draft/unmerged.
+
 2026-11-18 preview refusal isolation (HH08 remains unfinished):
 
 - [x] Trace the actual application review: preview blocks dispatch and application-cache writes, but its skip observer can still create, edit, increment or remove permanent refusal records.

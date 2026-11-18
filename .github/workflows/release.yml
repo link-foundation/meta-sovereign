@@ -645,7 +645,7 @@ jobs:
     concurrency:
       group: check-${{ github.workflow }}-${{ github.ref }}-e2e-browser-${{ strategy.job-index || 0 }}
       cancel-in-progress: true
-    name: Browser e2e (${{ matrix.browser }}, shard ${{ matrix.shard }}/4)
+    name: Browser e2e (${{ matrix.browser }}, shard ${{ matrix.shard }}/8)
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 35
     needs:
@@ -665,7 +665,7 @@ jobs:
       fail-fast: false
       matrix:
         browser: [chromium, webkit]
-        shard: [1, 2, 3, 4]
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
         include:
           - browser: chromium
             runner: ubuntu-26.04
@@ -674,7 +674,7 @@ jobs:
     env:
       RUN_BROWSER_E2E: '1'
       E2E_BROWSER: ${{ matrix.browser }}
-      E2E_SHARD: ${{ matrix.shard }}/4
+      E2E_SHARD: ${{ matrix.shard }}/8
       E2E_ENGINES: ${{ matrix.browser }}
       E2E_SAFARI: '0'
       E2E_ARTIFACT_DIR: artifacts/browser

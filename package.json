@@ -533,6 +533,7 @@
     "test:e2e:job-application-limit-restore": "node js/tests/e2e-job-application-limit-restore-browser.mjs",
     "test:e2e:vacancies": "node js/tests/e2e-vacancies-browser.mjs",
     "test:e2e:vacancies:webkit": "E2E_BROWSER=webkit node js/tests/e2e-vacancies-browser.mjs",
+    "test:e2e:vacancy-selection": "node js/tests/e2e-vacancy-selection-browser.mjs",
     "test:e2e:deferred-questions": "node js/tests/e2e-deferred-questions-browser.mjs",
     "test:e2e:vacancy-loading": "node js/tests/e2e-vacancy-loading-browser.mjs",
     "test:e2e:vacancy-loading:webkit": "E2E_BROWSER=webkit node js/tests/e2e-vacancy-loading-browser.mjs",

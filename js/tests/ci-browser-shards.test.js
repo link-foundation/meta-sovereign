@@ -51,9 +51,14 @@ const registeredScenarios = (groups) => {
   });
 };
 
-test('vacancy search, loading and discovery retain all ten scenarios in bounded groups', () => {
+test('vacancy selection has its own budget while retaining all ten scenarios', () => {
   const groups = registry.filter((name) =>
-    ['vacancies', 'vacancy-loading', 'vacancy-discovery'].includes(name)
+    [
+      'vacancies',
+      'vacancy-loading',
+      'vacancy-discovery',
+      'vacancy-selection',
+    ].includes(name)
   );
   assert.deepEqual(
     registeredScenarios(groups).sort(),
@@ -74,6 +79,10 @@ test('vacancy search, loading and discovery retain all ten scenarios in bounded 
     'vacancies',
     'vacancy-loading',
     'vacancy-discovery',
+    'vacancy-selection',
+  ]);
+  assert.deepEqual(registeredScenarios(['vacancy-selection']), [
+    'verifyVacancySelection',
   ]);
 });
 
@@ -152,10 +161,10 @@ test('both mandatory browser engines retain each registered check once within un
     )
   ).jobs['e2e-browser'];
   assert.deepEqual(job.strategy.matrix.browser, ['chromium', 'webkit']);
-  assert.deepEqual(job.strategy.matrix.shard, [1, 2, 3, 4]);
+  assert.deepEqual(job.strategy.matrix.shard, [1, 2, 3, 4, 5, 6, 7, 8]);
   assert.equal(job.strategy['fail-fast'], false);
   assert.equal(job['timeout-minutes'], 35);
-  assert.equal(job.env.E2E_SHARD, '${{ matrix.shard }}/4');
+  assert.equal(job.env.E2E_SHARD, '${{ matrix.shard }}/8');
   assert.match(
     job.steps.find(({ name }) => name === 'Preserve browser diagnostics').with
       .name,
@@ -172,8 +181,11 @@ test('both mandatory browser engines retain each registered check once within un
       )
     );
     const assigned = job.strategy.matrix.shard.flatMap((index) =>
-      partitionBrowserChecks(registry, `${index}/4`)
+      partitionBrowserChecks(registry, `${index}/8`)
     );
+    for (const index of job.strategy.matrix.shard) {
+      assert.ok(partitionBrowserChecks(registry, `${index}/8`).length <= 20);
+    }
     assert.equal(new Set(assigned).size, registry.length);
     assert.deepEqual(assigned.sort(), [...registry].sort());
   }
