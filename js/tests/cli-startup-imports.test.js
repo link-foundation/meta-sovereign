@@ -70,12 +70,18 @@ test(
         name === 'server/index.js' ||
         name === 'cli/commands.js' ||
         name === 'cli/cv-commands.js' ||
-        name === 'cli/forms-commands.js'
+        name === 'cli/forms-commands.js' ||
+        name === 'server/runner-health.js' ||
+        name === 'server/wire.js' ||
+        name === 'transport/lino.js' ||
+        name === 'storage/recovery-dump.js' ||
+        name === 'storage/backup-archive.js' ||
+        name === 'web/discover.js'
     );
     assert.deepEqual(
       unrelated,
       [],
-      'serve imported unrelated command/provider code'
+      'serve imported command, health, error or archive consumers before use'
     );
   }
 );

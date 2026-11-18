@@ -1,4 +1,4 @@
-import { recoveryFormats } from '../storage/recovery-dump.js';
+import { recoveryFormats } from '../storage/recovery-formats.js';
 import { validateUiDefaults } from '../configuration/ui-defaults.js';
 
 const interfaceOptions = (args) => {

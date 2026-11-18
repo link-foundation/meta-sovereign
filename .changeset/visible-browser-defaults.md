@@ -1082,3 +1082,8 @@ Reject CV Save readback that finishes at or after its original monotonic verific
 Preserve existing and changed owner drafts before plain browser input and Send,
 avoid WhatsApp URL prefill, and keep multiline fill from issuing Enter mid-message.
 Use native rich-composer typing when textarea-only fill cannot verify emptiness (QA20).
+
+Keep stable rolling-host startup independent of recovery streams, browser
+discovery, route error codecs and worker health probes until those consumers are
+used. Preserve public exports, synchronous route CORS, native proxy bytes,
+authenticated health and complete immutable release verification.

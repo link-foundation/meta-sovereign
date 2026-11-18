@@ -1,4 +1,4 @@
-import { RECOVERY_FORMATS, recoveryFormats } from './recovery-dump.js';
+import { RECOVERY_FORMATS, recoveryFormats } from './recovery-formats.js';
 
 export const RECOVERY_SETTINGS_ID = 'config:recovery';
 export const MAX_RECOVERY_HOURS = Math.floor(0x7fffffff / 3_600_000);

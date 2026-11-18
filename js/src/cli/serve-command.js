@@ -3,7 +3,7 @@ import { defaultStoreDir } from '../storage/app-directory.js';
 import { serveOptions } from './server-options.js';
 import { createServerLog, installCrashLogging } from '../server/log.js';
 import { foundOnPort } from '../server/hosted-ui.js';
-import { DEFAULT_PORTS } from '../web/discover.js';
+import { DEFAULT_PORTS } from '../web/discovery-constants.js';
 import { maybeOpenHostedApp } from './browser-open.js';
 import { setupLocalCertificate } from './trust-commands.js';
 import {

@@ -3,7 +3,6 @@ import { setTimeout as sleep } from 'node:timers/promises';
 import { spawnWorker } from './worker-client.js';
 import { setTimeout, clearTimeout } from 'node:timers';
 import { hostedUiUrl, localUiEnabled } from './hosted-ui.js';
-import { probeRunnerWorker } from './runner-health.js';
 
 export class RollingSupervisor {
   constructor({
@@ -113,6 +112,10 @@ export class RollingSupervisor {
       worker &&
       !worker.client.exited &&
       this.current === worker;
+    if (!stable()) {
+      return { state: 'unknown' };
+    }
+    const { probeRunnerWorker } = await import('./runner-health.js');
     if (!stable()) {
       return { state: 'unknown' };
     }

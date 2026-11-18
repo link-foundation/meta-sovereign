@@ -23,9 +23,11 @@ import {
   isRecordLine,
 } from './backup-archive.js';
 import { writeStreamDurable } from './durable.js';
+import { RECOVERY_FORMATS, recoveryFormats } from './recovery-formats.js';
+
+export { RECOVERY_FORMATS, recoveryFormats } from './recovery-formats.js';
 
 export const MAX_DUMP_RECORD_BYTES = 4 * 1024 * 1024;
-export const RECOVERY_FORMATS = Object.freeze(['text', 'binary']);
 const MAGIC = {
   text: Buffer.from('MSDUMP1T\n'),
   binary: Buffer.from('MSDUMP1B\n'),
@@ -33,20 +35,6 @@ const MAGIC = {
 const HEADER_BYTES = MAGIC.text.length;
 const invalid = (message = 'the recovery dump is damaged or incomplete') =>
   archiveError('BACKUP_INVALID', message);
-
-export const recoveryFormats = (value = RECOVERY_FORMATS) => {
-  if (value === 'none') {
-    return [];
-  }
-  const list = Array.isArray(value) ? value : String(value).split(',');
-  if (!list.every((format) => RECOVERY_FORMATS.includes(format))) {
-    throw archiveError(
-      'BACKUP_FORMAT',
-      'recovery formats must be text, binary, or text,binary'
-    );
-  }
-  return [...new Set(list)];
-};
 
 export const isRecoveryFile = (name) =>
   /^recovery-.*\.lino(\.bin)?$/.test(name);
