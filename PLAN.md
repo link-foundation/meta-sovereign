@@ -1,3 +1,11 @@
+2026-11-18 complete private vacancy corpus reads (HH03 remains unfinished):
+
+- [x] Compare the pinned cache's complete enumeration with server/offline reads and technology analysis; trace silent loss after the newest 100 descriptions.
+- [x] Remove truncation across shared reads and retain explicit analysis byte/mention limits; draft restart, CLI, both Lino formats, exclusion reuse, complete statistics and older corruption regressions.
+- [x] Reproduce seven exact-parent failures with one budget control; pass 37 focused checks. Independent MCP before/after recovery shows 100/101 entries across four locales, fitting desktop/phone views and zero provider opens or mutations; drain both fixtures.
+- [x] Preserve independently checked source-bound evidence and screenshots; scoped lint/format, source/document limits and whitespace checks pass.
+- [ ] Publish only to the prepared branch, review exact-source hosted checks and continue all unfinished requirements. PR57 stays draft and unmerged.
+
 2026-11-18 confirmed applications in the private vacancy cache (HH03 remains unfinished):
 
 - [x] Read the pinned insight/cache contract; confirmed applications currently leave no status in shared cached descriptions.

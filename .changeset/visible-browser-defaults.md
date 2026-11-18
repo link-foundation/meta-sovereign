@@ -988,3 +988,5 @@ failure-only response diagnostics without changing delivery guards or deadlines.
 Retain provider-confirmed application status in shared private vacancy snapshots,
 including acknowledged recovery, legacy migration and refreshes, and display the
 saved confirmation in all four languages without replaying delivery.
+
+Return the complete saved vacancy corpus through shared cache controls and technology analysis, preserving explicit byte/mention budgets and older exclusion context.

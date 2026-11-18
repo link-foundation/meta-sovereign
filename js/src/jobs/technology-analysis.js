@@ -88,7 +88,7 @@ export const analyzeTechnologies = async ({
   resume,
   signal,
 }) => {
-  if (!Array.isArray(vacancies) || vacancies.length > 100) {
+  if (!Array.isArray(vacancies)) {
     throw technologyFailure('limit');
   }
   const cv = sanitizedResumeCv(raw).cv;

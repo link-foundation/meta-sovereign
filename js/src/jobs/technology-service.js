@@ -22,9 +22,9 @@ export const storedVacancies = async (store) => {
     (row) => row.id?.startsWith('assignment-vacancy:') && row.version === 1
   );
   const entries = [];
-  for (const row of rows
-    .sort((a, b) => String(b.capturedAt).localeCompare(String(a.capturedAt)))
-    .slice(0, 100)) {
+  for (const row of rows.sort((a, b) =>
+    String(b.capturedAt).localeCompare(String(a.capturedAt))
+  )) {
     const content = vacancyContent(row);
     if (
       row.id !== `assignment-vacancy:${await modelFingerprint(content.url)}`

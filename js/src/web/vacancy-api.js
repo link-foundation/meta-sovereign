@@ -145,7 +145,9 @@ export const createVacancyApi = ({ get, report, local, fileUrl }) => ({
           await local()
         ).query((row) => row.id?.startsWith('assignment-vacancy:'))
       )
-        .slice(0, 100)
+        .sort((a, b) =>
+          String(b.capturedAt).localeCompare(String(a.capturedAt))
+        )
         .map((row) => ({ id: row.id, ...vacancyContent(row) })),
     },
   vacancyResumeExport: async (input) => {

@@ -24,7 +24,6 @@ const boundedAnalysis = (analysis) => {
     !analysis ||
     JSON.stringify(analysis).length > 12 * 1024 * 1024 ||
     !Array.isArray(analysis.vacancies) ||
-    analysis.vacancies.length > 100 ||
     !Array.isArray(analysis.evidence) ||
     analysis.evidence.length > 5000 ||
     !Array.isArray(analysis.statistics) ||
