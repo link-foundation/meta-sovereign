@@ -6,6 +6,11 @@ the earlier exact-source reviews, supersedes pending statuses and historical
 counts in the dated progress notes below.
 Every remaining requirement stays in scope for PR57.
 
+QA19/QA20 also include [provider preparation consent](consent-sdk.md):
+48 exact-parent assertion failures and 259 focused passes cover actual adapter
+waits, frozen recipients and positive/partial receipts. Third-party internal queues
+and the full provider-trigger audit remain required; neither criterion is accepted.
+
 QA19/QA20 also include [current native-answer consent](consent-browser-answer.md):
 44 exact-parent failures and 151 focused passes cover five dispatch paths, frozen
 recipient scope and Stop during acknowledged settings reads. Full provider-trigger

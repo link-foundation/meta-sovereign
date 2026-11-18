@@ -148,6 +148,9 @@ const otherSendError = (error) => {
 
 /** Telegram's error as a composer-friendly `{ code, retryAfter? }` error. */
 export const sendError = (error) =>
+  (['opted-out', 'safety-settings-unavailable'].includes(error?.code)
+    ? error
+    : null) ??
   (error?.code === 'send-unknown'
     ? Object.assign(missingMessageReceipt(), {
         ...(error.duplicate ? { duplicate: true } : {}),
@@ -296,6 +299,11 @@ const partRequest = (Api, { text, formatting, preview, ...fields }) => {
       });
 };
 
+const sendLibraryPart = async ({ beforeIssue, client, peer, ...fields }) => {
+  await beforeIssue?.();
+  return libraryMessageReceipt(await sendThroughLibrary(client, peer, fields));
+};
+
 // One part through messages.SendMessage, with our random_id. `onResult`
 // sees Telegram's raw answer: it carries the update counter (pts) that
 // the catch-up tracks, and GramJS does not pass RPC answers to the
@@ -313,10 +321,14 @@ const sendPart = async ({
   when,
   preview = null,
   onResult,
+  beforeIssue,
 }) => {
   const formatting = apiEntities(Api, entities);
   if (!Api?.messages?.SendMessage || typeof client.invoke !== 'function') {
-    const message = await sendThroughLibrary(client, peer, {
+    return sendLibraryPart({
+      beforeIssue,
+      client,
+      peer,
       text,
       formatting,
       replyTo,
@@ -324,7 +336,6 @@ const sendPart = async ({
       when,
       preview,
     });
-    return libraryMessageReceipt(message);
   }
   const request = partRequest(Api, {
     text,
@@ -336,6 +347,7 @@ const sendPart = async ({
     ...whenFields(when),
     ...replyHeader(Api, replyTo, replyQuote, topic),
   });
+  await beforeIssue?.();
   try {
     const result = await client.invoke(request);
     try {
@@ -400,6 +412,7 @@ export const sendText = async ({
   preview = null,
   onResult,
   log,
+  beforeIssue,
 }) => {
   const parts = formattedParts(text, maxLength, format);
   recordSend(log, {
@@ -432,6 +445,7 @@ export const sendText = async ({
       },
       preview: previewOfPart(preview, index),
       onResult,
+      beforeIssue,
     }).catch((error) => {
       // A later refusal cannot make already accepted parts unsent. Stop here
       // and require inspection of the chat before any whole-draft resend.

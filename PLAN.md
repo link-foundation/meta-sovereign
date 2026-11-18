@@ -1,9 +1,16 @@
+2026-11-18 consent at provider SDK boundaries:
+
+- [x] Trace awaited VK limiter/retry, Telegram connection/peer and multipart boundaries, mail thread/JMAP discovery and SMTP DATA preparation. Draft optional composed dispatch guards and freeze the original API draft identity.
+- [x] Draft finite actual-adapter cases with acknowledged chat/person refusals, unreadable settings, issued positive receipts, separate scopes and partial Telegram sends; all provider effects are offline or owned loopback SMTP.
+- [x] Reproduce 48 exact published-parent assertion failures with 25 independent controls; pass all 259 focused checks. Review source changes and unchanged duplication/static gates; preserve source-bound evidence before committing. Keep issued partial/unknown outcomes and existing deadlines.
+- [ ] Commit/push the atomic correction, review exact-source hosted CI and continue all thirty unfinished original criteria, including the unresolved Windows/Deno cold import delay. PR57 remains draft/unmerged.
+
 2026-11-18 unchanged duplication gate:
 
 - [x] Preserve exact fa1e21c7 lint job and timestamps: 55,721 duplicated / 856,624 scanned lines is 6.504720857692524%, above the unchanged 6.5% limit despite rounded display.
 - [x] Share consent fixture barriers, outcomes, scoped opt-outs and refusal assertions; keep every scenario, receipt and cleanup assertion. All 151 focused checks pass; actual-parent runs still fail 44 and 28 assertions respectively.
 - [x] Verify scoped static checks and preserve independently hashed evidence.
-- [ ] Commit/push this atomic correction and inspect exact-source hosted gates. Windows/Deno startup and all thirty original unfinished criteria remain required.
+- [x] Publish the atomic fixture correction as dfd3213b; the exact-source lint gate passes without changing its 6.5% limit. Windows/Deno startup and all thirty original unfinished criteria remain required; full hosted gates are still pending.
 
 2026-11-18 native browser answer consent:
 

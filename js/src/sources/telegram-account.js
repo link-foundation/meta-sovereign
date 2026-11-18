@@ -846,8 +846,7 @@ const sentLink = (
   return Object.keys(raw).length > 0 ? { ...known, raw } : known;
 };
 
-// Send as the user: exactly once (random_id), formatted, long text in
-// parts; returns the network's links for what was sent.
+// User sends retain random_id, formatting, ordered parts and network links.
 const postAsUser = async (
   env,
   creds,
@@ -865,14 +864,14 @@ const postAsUser = async (
     allowPaidStars,
     preview = null,
     effect,
+    beforeIssue,
   }
 ) => {
   const { Api, helpers } = await env.importer().catch(() => ({}));
   const first = await env.connection.open(creds);
   const maxLength = await messageLengthMax(first.client, Api);
-  // Configuration may finish after recovery replaced its connection.
+  // Recovery may replace the connection while configuration loads.
   const { client: own } = await env.connection.open(creds);
-  // Sent as another identity (R-Y141).
   const client = await withSendAs(env, own, sendAs, allowPaidStars).catch(
     (error) => {
       throw sendError(error);
@@ -904,6 +903,7 @@ const postAsUser = async (
         effect,
         preview,
         onResult: (result) => env.catchUp?.observeResult(result),
+        beforeIssue,
       })
     );
   } catch (error) {
@@ -994,7 +994,6 @@ const createMessaging = (env) => {
   const post = async (draft = {}, options = {}) => {
     const creds = await readTelegramCredentials(store);
     if (creds?.kind !== 'user') {
-      // A stored bot token, else the environment's one (as before).
       const token = creds?.token ?? options.token;
       return botLive.post(draft, token ? { ...options, token } : options);
     }
@@ -1008,6 +1007,7 @@ const createMessaging = (env) => {
       text,
       clientId: draft.clientId,
       ...draftOptions(draft),
+      beforeIssue: options.beforeIssue,
     });
   };
 

@@ -685,9 +685,15 @@ test('createDefaultSender: adapter first, browser on failure', async () => {
     text: 'hi',
   });
   assert.equal(viaApi.via, 'api');
-  assert.deepEqual(posted, [
-    [{ chat: '42', to: 'anna', text: 'hi' }, { token: 't' }],
-  ]);
+  assert.deepEqual(
+    posted.map(([content, { beforeIssue: _guard, ...options }]) => [
+      content,
+      options,
+    ]),
+    [[{ chat: '42', to: 'anna', text: 'hi' }, { token: 't' }]]
+  );
+  assert.equal(typeof posted[0][1].beforeIssue, 'function');
+  await posted[0][1].beforeIssue();
   const viaBrowser = await send({
     source: 'vk',
     chat: '5',

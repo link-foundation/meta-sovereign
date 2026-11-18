@@ -262,8 +262,9 @@ export const createWhatsAppCloudLive = ({
       'WhatsApp phone number id'
     );
 
-  const sendMessages = (body, options = {}) =>
-    requestJson(
+  const sendMessages = async (body, options = {}) => {
+    await options.beforeIssue?.();
+    return requestJson(
       fetchImpl,
       `${baseUrl}/${resolvedPhone(options.phoneNumberId)}/messages`,
       {
@@ -272,6 +273,7 @@ export const createWhatsAppCloudLive = ({
         body: { messaging_product: 'whatsapp', ...body },
       }
     );
+  };
 
   return {
     async setTyping({ messageId } = {}, options = {}) {

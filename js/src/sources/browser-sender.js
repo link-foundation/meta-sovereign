@@ -52,7 +52,10 @@ import {
 import { resolveBrowserChoiceDocument } from './browser-choice-document.js';
 import { createBrowserChatScans } from './browser-chat-scan.js';
 import { createBrowserTextActions } from './browser-text-reply.js';
-import { createBrowserSendConsent } from './browser-send-consent.js';
+import {
+  createBrowserSendConsent,
+  sendConsentOptions,
+} from './browser-send-consent.js';
 import { toBrowserMessageLink } from './browser-message.js';
 import {
   isSendConsentRefusal,
@@ -862,7 +865,9 @@ export const createDefaultSender = ({
         await requireSendConsent(store, draft);
         return createAdapterSender({
           getSource,
-          options: { [draft.source]: resolved },
+          options: {
+            [draft.source]: sendConsentOptions(store, draft, resolved),
+          },
         })(draft);
       }
     : null;
@@ -903,7 +908,8 @@ export const createDefaultSender = ({
     },
     log,
   });
-  const send = (draft) => {
+  const send = (input) => {
+    const draft = { ...input };
     if (draft.answer?.strictOptions) {
       refuseAutomatedWeb(draft);
       const chooser = browserFor();

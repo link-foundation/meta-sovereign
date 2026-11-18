@@ -1,3 +1,4 @@
+- [Consent at provider SDK boundaries](consent-sdk.md): 48 actual-parent regressions and 259 focused passes cover late preparation, frozen API recipients and retained positive/partial receipts. Full QA19/QA20 remain required.
 - [Consent fixture duplication](ci-consent-duplication.md): exact hosted threshold failure, shared finite fixture helpers, retained 151 focused passes and unchanged 44/28 parent regressions. No threshold or scenario is removed.
 - [Consent for native browser answers](consent-browser-answer.md): 44 actual-parent regressions and 151 focused passes cover choices, text and inactive watched replies, frozen scope and Stop during settings reads. Full QA19/QA20 remain required.
 - [Consent during browser waits](consent-browser-send.md): finite login, queued-send, typing and native button races refuse newly withdrawn chat/person consent; issued receipts remain truthful. Full QA19/QA20 remain required.

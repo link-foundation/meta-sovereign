@@ -796,16 +796,22 @@ export const createVkLive = ({
     );
     return unwrapVk(payload);
   };
-  const call = async (method, params = {}, overrideToken = null) => {
+  const call = async (
+    method,
+    params = {},
+    overrideToken = null,
+    beforeIssue
+  ) => {
     const accessToken = resolveOption(
       overrideToken ?? token,
       'VK_ACCESS_TOKEN',
       'VK access token'
     );
     // Error 6: wait and repeat; error 14 (captcha) is thrown as it is.
-    return withTooManyBackoff(() => once(method, params, accessToken), {
-      sleep,
-    });
+    return withTooManyBackoff(
+      () => once(method, params, accessToken, {}, beforeIssue),
+      { sleep }
+    );
   };
 
   return {
@@ -865,7 +871,8 @@ export const createVkLive = ({
                 (typeof content === 'object' ? content.clientId : undefined)
             ),
         },
-        options.token
+        options.token,
+        options.beforeIssue
       );
     },
     /**

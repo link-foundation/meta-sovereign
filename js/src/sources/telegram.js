@@ -606,12 +606,14 @@ export const createTelegramBotLive = ({
       }
       return [...chats.values()];
     },
-    async post(content, { token: tokenOverride = null } = {}) {
+    async post(content, { token: tokenOverride = null, beforeIssue } = {}) {
       const chat = content?.chat ?? content?.chatId ?? content?.to;
       if (!chat) {
         throw new Error('telegram live.post requires a chat/chatId target');
       }
-      const result = await call(...sendRequest(content, chat), tokenOverride);
+      const request = sendRequest(content, chat);
+      await beforeIssue?.();
+      const result = await call(...request, tokenOverride);
       return telegramReceipt(result, chat);
     },
     /**

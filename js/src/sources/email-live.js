@@ -377,6 +377,9 @@ const checkJmap = (raw) => {
 const jmapEmailCall = async (ctx, session, methodCalls, options = {}) => {
   requireFetch(ctx.fetchImpl, 'jmap');
   const run = options.send ? sendCall : call;
+  if (options.send) {
+    await options.beforeIssue?.();
+  }
   return checkJmap(
     await run(ctx.fetchImpl, session.apiUrl, {
       method: 'POST',
@@ -932,6 +935,7 @@ export const createEmailLive = (config = {}) => {
       (EMAIL_PULLERS[ctx.protocol] ?? pullEmailViaTransport)(ctx, options),
     post: async (content, options = {}) => {
       const prepared = requireRecipient(await withThread(content, options));
+      await options.beforeIssue?.();
       if (EMAIL_POSTERS[ctx.protocol]) {
         return EMAIL_POSTERS[ctx.protocol](ctx, prepared, options);
       }

@@ -9,3 +9,14 @@ export const createBrowserSendConsent = (store, draft) => {
   };
   return () => requireSendConsent(store, identity);
 };
+
+export const sendConsentOptions = (store, draft, options) => {
+  const verifyConsent = createBrowserSendConsent(store, draft);
+  return {
+    ...options,
+    beforeIssue: async () => {
+      await options.beforeIssue?.();
+      await verifyConsent();
+    },
+  };
+};

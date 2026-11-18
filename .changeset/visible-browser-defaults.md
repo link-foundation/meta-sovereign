@@ -1052,3 +1052,8 @@ already-issued positive receipts and uncertain outcomes (issue #56).
 Bind browser consent to the original recipient and recheck it around native answer
 arming for choices, text and inactive watched replies. Preserve Stop during
 settings reads, read-only inspection and already-issued receipts (QA19, QA20).
+
+Recheck acknowledged consent after provider SDK preparation: VK limiter/retry,
+Telegram connection/peer resolution and every text part, mail thread/JMAP discovery
+and SMTP recipient/DATA readiness. Keep the original API recipient, composed
+dispatch hooks, positive receipts and partial-send uncertainty (QA19, QA20).
