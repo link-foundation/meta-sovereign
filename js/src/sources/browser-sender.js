@@ -52,6 +52,7 @@ import {
 import { resolveBrowserChoiceDocument } from './browser-choice-document.js';
 import { createBrowserChatScans } from './browser-chat-scan.js';
 import { createBrowserTextActions } from './browser-text-reply.js';
+import { createBrowserSendConsent } from './browser-send-consent.js';
 import { toBrowserMessageLink } from './browser-message.js';
 import {
   isSendConsentRefusal,
@@ -522,11 +523,7 @@ const createBrowserTextSender =
     if (!body.trim()) {
       throw codedError(`${source}: message text is required`, 'bad-draft');
     }
-    const consent = () =>
-      requireSendConsent(store, {
-        ...draft,
-        contact: draft.contact ?? to,
-      });
+    const consent = createBrowserSendConsent(store, draft);
     const ui = requireTextUi(uiFor(source));
     const target = ui.target({ chat, to });
     await consent();
@@ -619,6 +616,7 @@ export const createBrowserSender = ({
     clock,
   });
   const choices = createBrowserChoiceActions({
+    store,
     inChat,
     queue: (source, work) => pool.queue(source, work),
     uiFor,
@@ -627,6 +625,7 @@ export const createBrowserSender = ({
   });
   const scans = createBrowserChatScans({ uiFor, inList, inChat, inExisting });
   const texts = createBrowserTextActions({
+    store,
     uiFor,
     inChat,
     receiptMs: choiceReceiptMs,

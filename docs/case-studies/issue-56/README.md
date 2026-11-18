@@ -1,3 +1,4 @@
+- [Consent for native browser answers](consent-browser-answer.md): 44 actual-parent regressions and 151 focused passes cover choices, text and inactive watched replies, frozen scope and Stop during settings reads. Full QA19/QA20 remain required.
 - [Consent during browser waits](consent-browser-send.md): finite login, queued-send, typing and native button races refuse newly withdrawn chat/person consent; issued receipts remain truthful. Full QA19/QA20 remain required.
 - [Restored saved-answer disclosure](ci-question-reload-disclosure.md): preserve the exact hosted WebKit failure and reproduce the hidden saved-question lookup on the published entry; the existing conditional opening helper passes the finite persistence probe with no production UI change.
 - [Consent after connection loading](consent-provider.md): fourteen actual-parent failures and 112 focused passes protect adapter entry and browser fallback after consent changes; full QA19/QA20 remain required.

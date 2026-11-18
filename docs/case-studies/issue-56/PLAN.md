@@ -1,3 +1,11 @@
+2026-11-18 native browser answer consent:
+
+- [x] Trace choices, text, watched and inactive replies after browser/session/document/arm waits; preserve 44 exact-parent assertion failures and ten independent controls.
+- [x] Bind original consent identity and use the existing pre/post-arm dispatch guards. Recheck Stop/document ownership after acknowledged settings reads and preserve issued receipts and read-only inspection.
+- [x] Pass 151 focused checks with finite owned fixtures; complete scoped static checks and independently hash source-bound evidence before committing this atomic correction.
+- [ ] Investigate exact 79addf4d Windows/Deno rolling startup: full job log lines 13394 and 15663–15687 show readiness expires while the server import remains unfinished. Preserve deadlines, identify the cause and add a finite regression. Full runtime/browser checks stay hosted.
+- [ ] Inspect exact published-source CI and finish all thirty original criteria. Current acceptance remains 88/118; PR57 stays draft and unmerged.
+
 2026-11-18 current consent during native browser waits:
 
 - [x] Trace session/login, shared queue, composer, typing and send-button waits after transport entry. Reproduce 28 actual-parent failures with five positive/uncertain controls through finite fake sessions.

@@ -20,6 +20,14 @@ const failure = () =>
     fallback: false,
   });
 
+const requireWatchOpen = (closed, changed) => {
+  if (closed || changed) {
+    throw Object.assign(failure(), {
+      historyReason: closed ? 'cancelled' : 'document-changed',
+    });
+  }
+};
+
 const openWatchCapture = async (options, page, events, invalidate) => {
   try {
     return options.onHistoryWindow
@@ -52,6 +60,33 @@ const releaseWatch = async ({
   }
 };
 
+const readInactiveWatchHistory = (context, options = {}) => {
+  const { ui, run, document, target, onHistoryWindow, capture, verifyCurrent } =
+    context;
+  normalizeChatScanOptions(options);
+  if (!ui.historyScan) {
+    throw Object.assign(new Error('Conversation history is unavailable.'), {
+      code: 'unsupported-action',
+      fallback: false,
+    });
+  }
+  return run(() =>
+    withInactiveBrowserView(document, async (inactive, token) =>
+      scanBrowserConversation(document, ui, target, {
+        ...(onHistoryWindow ? { onHistoryWindow: capture.writeWindow } : {}),
+        ...options,
+        inactiveToken: token,
+        verifyRestore: inactive,
+        verifyCurrent: async () => {
+          await options.verifyCurrent?.();
+          await verifyCurrent();
+          await inactive();
+        },
+      })
+    )
+  );
+};
+
 /** A single owned document. Later reads/writes never reopen or navigate a chat. */
 export const openBrowserAnswerWatch = async ({
   commander,
@@ -63,6 +98,7 @@ export const openBrowserAnswerWatch = async ({
   pollMs,
   released,
   onHistoryWindow,
+  verifyConsent,
 }) => {
   if (!ui.documents || !page?.on || !page?.off) {
     throw failure();
@@ -92,11 +128,7 @@ export const openBrowserAnswerWatch = async ({
   const pending = new Set();
   const verifyCurrent = async (verify) => {
     await verify?.();
-    if (closed || changed) {
-      throw Object.assign(failure(), {
-        historyReason: closed ? 'cancelled' : 'document-changed',
-      });
-    }
+    requireWatchOpen(closed, changed);
     await capture?.flush();
   };
   const run = (work) => {
@@ -117,6 +149,15 @@ export const openBrowserAnswerWatch = async ({
     );
     return result;
   };
+  const dispatchOptions = (verify) => ({
+    receiptMs,
+    pollMs,
+    verifyCurrent: async () => {
+      await verifyCurrent(verify);
+      await verifyConsent?.();
+      requireWatchOpen(closed, changed);
+    },
+  });
   return {
     read: (options) =>
       run(() => readBrowserAnswerChoices(document, ui, target, options)),
@@ -128,32 +169,19 @@ export const openBrowserAnswerWatch = async ({
           })
         )
       ),
-    readInactiveHistory: (options = {}) => {
-      normalizeChatScanOptions(options);
-      if (!ui.historyScan) {
-        throw Object.assign(new Error('Conversation history is unavailable.'), {
-          code: 'unsupported-action',
-          fallback: false,
-        });
-      }
-      return run(() =>
-        withInactiveBrowserView(document, async (inactive, token) =>
-          scanBrowserConversation(document, ui, target, {
-            ...(onHistoryWindow
-              ? { onHistoryWindow: capture.writeWindow }
-              : {}),
-            ...options,
-            inactiveToken: token,
-            verifyRestore: inactive,
-            verifyCurrent: async () => {
-              await options.verifyCurrent?.();
-              await verifyCurrent();
-              await inactive();
-            },
-          })
-        )
-      );
-    },
+    readInactiveHistory: (options) =>
+      readInactiveWatchHistory(
+        {
+          ui,
+          run,
+          document,
+          target,
+          onHistoryWindow,
+          capture,
+          verifyCurrent,
+        },
+        options
+      ),
     prefill: (expected, text, verify) =>
       run(async () => {
         await verifyCurrent(verify);
@@ -162,32 +190,34 @@ export const openBrowserAnswerWatch = async ({
     select: (draft, verify, recent) =>
       run(async () => {
         await verifyCurrent(verify);
-        return selectBrowserAnswer(document, ui, draft, target, {
-          receiptMs,
-          pollMs,
-          recent,
-          verifyCurrent: () => verifyCurrent(verify),
-        });
+        const options = { ...dispatchOptions(verify), recent };
+        return selectBrowserAnswer(document, ui, draft, target, options);
       }),
     replyText: (expected, text, verify) => {
       const frozen = checkedTextReply(ui, target, expected, text);
       return run(async () => {
         await verifyCurrent(verify);
-        return sendBrowserTextReply(document, ui, target, frozen, text, {
-          receiptMs,
-          pollMs,
-          verifyCurrent: () => verifyCurrent(verify),
-        });
+        return sendBrowserTextReply(
+          document,
+          ui,
+          target,
+          frozen,
+          text,
+          dispatchOptions(verify)
+        );
       });
     },
     replyTextInactive: (expected, text, verify) => {
       const frozen = checkedTextReply(ui, target, expected, text);
       return run(() =>
-        sendInactiveBrowserTextReply(document, ui, target, frozen, text, {
-          receiptMs,
-          pollMs,
-          verifyCurrent: () => verifyCurrent(verify),
-        })
+        sendInactiveBrowserTextReply(
+          document,
+          ui,
+          target,
+          frozen,
+          text,
+          dispatchOptions(verify)
+        )
       );
     },
     close() {

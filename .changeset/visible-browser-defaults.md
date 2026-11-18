@@ -1048,3 +1048,7 @@ resolved adapter options and already positive delivery receipts (issue #56).
 Recheck acknowledged chat and person consent after browser session, composer,
 typing and native send-button waits. Refuse before dispatch while preserving
 already-issued positive receipts and uncertain outcomes (issue #56).
+
+Bind browser consent to the original recipient and recheck it around native answer
+arming for choices, text and inactive watched replies. Preserve Stop during
+settings reads, read-only inspection and already-issued receipts (QA19, QA20).

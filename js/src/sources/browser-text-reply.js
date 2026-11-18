@@ -4,6 +4,7 @@ import { checkedBrowserPendingTurn } from './browser-pending-turn.js';
 import { browserChoiceSpec, dispatchBrowserReply } from './browser-choices.js';
 import { resolveBrowserChoiceDocument } from './browser-choice-document.js';
 import { withInactiveBrowserView } from './browser-inactive-view.js';
+import { createBrowserSendConsent } from './browser-send-consent.js';
 
 const failure = (code) =>
   Object.assign(
@@ -129,6 +130,7 @@ export const sendInactiveBrowserTextReply = async (
 
 /** Queue explicit frozen replies, cancel pending admission and drain dispatches. */
 export const createBrowserTextActions = ({
+  store,
   uiFor,
   inChat,
   receiptMs,
@@ -144,13 +146,33 @@ export const createBrowserTextActions = ({
       }
       await Promise.allSettled([...pending.keys()]);
     },
-    async replyText({ source, chat, to, browserUrl, expected, text } = {}) {
+    async replyText({
+      source,
+      chat,
+      to,
+      contact,
+      browserUrl,
+      expected,
+      text,
+    } = {}) {
       if (closed) {
         throw failure('answer-text-unavailable');
       }
       const ui = uiFor(source);
       const target = ui.target({ chat, to });
       const frozen = checkedTextReply(ui, target, expected, text);
+      const consent = createBrowserSendConsent(store, {
+        source,
+        chat,
+        to,
+        contact,
+      });
+      const verifyCurrent = async () => {
+        await consent();
+        if (closed) {
+          throw failure('answer-text-unavailable');
+        }
+      };
       const controller = new AbortController();
       const result = inChat(
         source,
@@ -166,7 +188,7 @@ export const createBrowserTextActions = ({
             target,
             frozen,
             text,
-            { receiptMs, pollMs }
+            { receiptMs, pollMs, verifyCurrent }
           );
         }
       );

@@ -1,4 +1,5 @@
 import { randomBytes } from 'node:crypto';
+import { createBrowserSendConsent } from './browser-send-consent.js';
 import { browserMessageState } from './browser-message-state.js';
 import { browserAnswerRecent } from './browser-answer-context.js';
 import {
@@ -427,6 +428,7 @@ export const dispatchBrowserReply = async (
 };
 
 export const createBrowserChoiceActions = ({
+  store,
   inChat,
   queue,
   uiFor,
@@ -453,6 +455,7 @@ export const createBrowserChoiceActions = ({
       source,
       chat,
       to,
+      contact,
       browserUrl,
       onHistoryWindow,
     } = {}) {
@@ -476,6 +479,12 @@ export const createBrowserChoiceActions = ({
             receiptMs,
             pollMs,
             onHistoryWindow,
+            verifyConsent: createBrowserSendConsent(store, {
+              source,
+              chat,
+              to,
+              contact,
+            }),
             queue: (work) => queue(source, work),
             released: () => {
               watches.delete(source);
@@ -501,6 +510,13 @@ export const createBrowserChoiceActions = ({
     },
     /** Strict choices bypass API/plain-text sending and require a receipt. */
     async chooseAnswer(draft) {
+      const consent = createBrowserSendConsent(store, draft);
+      const verifyCurrent = async () => {
+        await consent();
+        if (closed) {
+          throw failure('question-watch-unavailable');
+        }
+      };
       const ui = uiFor(draft.source);
       browserChoiceSpec(ui);
       const target = ui.target({
@@ -520,6 +536,7 @@ export const createBrowserChoiceActions = ({
             {
               receiptMs,
               pollMs,
+              verifyCurrent,
             }
           )
       );
