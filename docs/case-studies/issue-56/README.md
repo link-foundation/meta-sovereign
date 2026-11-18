@@ -797,3 +797,5 @@ Optional persistent collection with full current-run context: [collection eviden
 [First-use managed browser preparation](browser-preparation.md): installed-version CLI preparation, shared cancellable owners, explicit browser selection preservation and CI-only cold-cache headed proof. VD01 and all other unfinished criteria remain required.
 
 - [Native application search route](application-search-route.md): frozen CLI/Lino/UI search-return navigation, original filters, document/draft/Stop guards and schema preservation, with actual-parent and bounded native/MCP evidence. HH03 remains unfinished.
+
+- [Application status during pointer presses](application-background-status.md): reproduce an automatic poll disabling a pressed action on the actual parent, preserve acknowledged admission, and verify one Restore and one Read through native/MCP browsers. Full acceptance and fresh hosted checks remain required.

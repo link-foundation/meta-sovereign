@@ -117,7 +117,7 @@ export class ApplicationSession {
     });
     return receipt;
   }
-  async recover() {
+  async recover({ background = false } = {}) {
     if (this.state.busy || this.blockedStorage) {
       throw failure();
     }
@@ -126,7 +126,13 @@ export class ApplicationSession {
       return;
     }
     const sequence = ++this.sequence;
-    this.publish({ known: false, missing: false, error: null });
+    // An automatic read must not disable a pressed, acknowledged action between
+    // pointer-down and click. The next action increments sequence, so this read
+    // cannot replace its receipt; server revision/native guards still check it.
+    // Manual recovery and previously unknown state retain their blocking rules.
+    if (!background) {
+      this.publish({ known: false, missing: false, error: null });
+    }
     try {
       const raw = await this.api.vacancyApplicationStatus(input);
       if (sequence === this.sequence) {

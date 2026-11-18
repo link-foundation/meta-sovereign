@@ -3,6 +3,8 @@ import { changeApplicationHoldFixture } from '../../../experiments/issue-56/appl
 import { applicationLimitBrowser } from './application-limit-browser.mjs';
 import { nativeApplicationForm } from './application-native-request.mjs';
 import { verifyApplicationLimitRefreshGuards } from './e2e-application-limit-guards.mjs';
+import { restoreApplicationDuringStatusRead } from './application-background-browser.mjs';
+import { routePublishedWebBundle } from '../../../experiments/issue-56/published-web-bundle.mjs';
 
 export const verifyNativeApplicationLimitWait = async (
   browser,
@@ -10,6 +12,7 @@ export const verifyNativeApplicationLimitWait = async (
     screenshots = process.env.E2E_ARTIFACT_DIR,
     before = false,
     restore = false,
+    backgroundBefore = false,
   } = {}
 ) => {
   const { fixture, clock, controls, panel, action, shot } =
@@ -19,6 +22,12 @@ export const verifyNativeApplicationLimitWait = async (
       restore ? 'application-limit-restore' : 'application-limit-wait'
     );
   try {
+    if (backgroundBefore) {
+      await routePublishedWebBundle(controls.page, 'ef34179a', [
+        'js/src/web/application-state.js',
+        'js/src/web/application-session.js',
+      ]);
+    }
     await controls.select();
     await action('start').click();
     await panel.locator('[data-application-state="ready"]').waitFor();
@@ -103,9 +112,12 @@ export const verifyNativeApplicationLimitWait = async (
     await controls.page.setViewportSize({ width: 1180, height: 950 });
     await panel.locator('[data-application-draft] summary').click();
     await shot('after');
-    if (!restore) {
-      await controls.confirmed('restore');
-    }
+    const background = !restore
+      ? await restoreApplicationDuringStatusRead(controls, {
+          before: backgroundBefore,
+          screenshot: shot,
+        })
+      : null;
     if (restore) {
       assert.equal(
         await owned
@@ -116,7 +128,7 @@ export const verifyNativeApplicationLimitWait = async (
     }
     assert.equal(
       await owned.locator('#experience').inputValue(),
-      'Later native owner answer while waiting.'
+      backgroundBefore ? '' : 'Later native owner answer while waiting.'
     );
     assert.equal(await owned.evaluate(() => globalThis.applicationAttempts), 0);
     await controls.close(owned);
@@ -125,8 +137,9 @@ export const verifyNativeApplicationLimitWait = async (
       guardedRefreshes: 1,
       refusedNativeChanges,
       laterOwnerEditSaved: true,
-      restorationSeparatelyConfirmed: !restore,
+      restorationSeparatelyConfirmed: !restore && !backgroundBefore,
       restorationConfirmedWithWait: restore,
+      ...background,
       locales: 4,
       errors: fixture.errors,
     };

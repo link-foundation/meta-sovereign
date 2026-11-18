@@ -1294,3 +1294,13 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Reproduce fourteen actual-parent failures across five shared provider identities; pass all 55 focused checks after a fresh acknowledged consent read, preserving reservation and delivery uncertainty semantics.
 - [x] Verify 55 focused rejection, rollback, isolation and compatibility checks; retain default-off refusal diagnostics, source-bound evidence and the existing release trigger. Scoped formatting, lint, secrets and source/document limits pass; hosted matrices remain required.
 - [ ] Publish the completed consent, preview and CI corrections only to the prepared branch; inspect exact-source hosted checks. Continue all 30 unfinished criteria and keep PR57 draft/unmerged.
+
+2026-11-18 automatic application status and native pointer admission:
+
+- [x] Preserve exact-source WebKit limit-restore failure, screenshot and line-numbered timeout; distinguish an isolated passing rerun from a proven hosted scheduling cause.
+- [x] Reproduce a pending automatic status response between native pointer-down/up on the exact parent: disabled Restore, zero requests and empty fresh native answer.
+- [x] Retain acknowledged state only for pending automatic reads; preserve manual/unknown admission blocks, current read failure invalidation, newer-action sequence exclusion and server guards.
+- [x] Pass seven focused regressions and 39 related checks; verify one native WebKit Restore and one independent MCP Read without a lost click or submission. Drain all owned resources.
+- [x] Pass scoped lint/format/secrets/line limits and the unchanged duplication gate; preserve source-bound native/MCP evidence and screenshots with verified archive hashes.
+- [ ] Commit the atomic correction, push the completed local steps only to the prepared branch and review fresh exact-source hosted results.
+- [ ] Investigate the separate WebKit profile-extras row-selection failure using bounded metadata tracing. Continue every one of the 30 unfinished criteria; keep PR57 draft and unmerged.

@@ -55,7 +55,7 @@ export const useApplication = ({ api, values, selected, run }) => {
       if (!pending && !session.state.busy) {
         pending = true;
         try {
-          await session.recover();
+          await session.recover({ background: true });
           await session.refreshQueue({ browserSlot: values.browserSlot });
         } catch {
           // Status recovery stays read only; a lost response cannot restart work.
