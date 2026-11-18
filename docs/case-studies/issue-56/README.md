@@ -2,6 +2,8 @@
 
 - [Detached Forms CI execution](ci-forms-watchers.md): trace an unreachable post-exit import, retain failing registration and run the full-minute example in its own mandatory browser group; QA23 remains unfinished.
 
+- [Shared form-prefill mapping](form-prefill-criteria-audit.md): reconcile all relevant pinned external-form requirements, retain 21 source-bound archive comparisons and require 148 named checks plus native private-source and full hosted verification before QA22 acceptance.
+
 - [Private résumé model context](forms-private-model.md): exact-parent failures, 30 focused checks per runtime, native readback and inspected desktop/phone evidence; full QA22 and hosted verification remain required.
 - [Observed graceful runner shutdown](runner-stop-drain.md): native GNU screen/start-command evidence reproduces an early Stop refusal; six parent regressions and 22 focused passes verify bounded observation, exclusive ownership and truthful cancellation/unknown handling. Wider desktop and SSH acceptance remain required.
 - [Native transient link retries](ci-transient-retry.md): four stable-checker failures reproduce the upstream retry defect; six corrected native controls, four pacing controls and eleven real source rechecks pass while permanent failures remain strict. Exact-source hosted acceptance remains required.

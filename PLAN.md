@@ -1,3 +1,10 @@
+2026-11-18 full shared-prefill acceptance mapping (QA22):
+
+- [x] Map pinned B1/B4–B11/B13/B15/B25–B27 to current shared planning, writing, contact/PDF/model discovery, challenge waiting, time zones and salary guidance.
+- [x] Independently verify 915 entries across 21 original archives and retain source comparisons without treating integrity as acceptance.
+- [ ] Require all 148 named checks, both native reader/answer/learning groups, private-source semantic receipts and all five successful exact-source workflows; review before QA22 acceptance.
+- [ ] Publish only to the prepared branch and continue every unfinished requirement. PR57 stays draft and unmerged.
+
 2026-11-18 private résumé model context and detached-learning gate:
 
 - [x] Trace B7: conventional résumé contacts were parsed, but optional model context omitted the full résumé. Preserve opt-in, explicit CV precedence and existing knowledge limits.

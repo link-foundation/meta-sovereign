@@ -1,0 +1,23 @@
+[
+  "forms-answer-plan",
+  "forms-reviewed-prefill",
+  "forms-reviewed-radios",
+  "forms-reviewed-custom",
+  "forms-reviewed-choices",
+  "forms-reviewed-upload",
+  "forms-configured-resume",
+  "forms-automatic-prefill",
+  "forms-automatic-controls",
+  "forms-captcha",
+  "forms-model-drafts",
+  "forms-plain-drafts",
+  "forms-link-answers",
+  "resume-profile-import",
+  "forms-timezone",
+  "forms-subjects",
+  "forms-pay-guidance",
+  "salary-option-contract",
+  "forms-private-profile",
+  "forms-private-resume",
+  "forms-private-model"
+]

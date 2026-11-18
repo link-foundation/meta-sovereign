@@ -9,6 +9,7 @@ from evidence_bundle import write_entries_archive
 from hosted_evidence import (
     read_workflows, read_jobs, source_reader, read_catalog_audit,
     read_literal_tests, read_reference_contracts, read_detached_learning,
+    browser_group_block,
 )
 
 root = Path(__file__).resolve().parents[2]
@@ -50,16 +51,9 @@ for group in groups:
     shard = registration.index(group) % 4 + 1
     for engine in ['chromium', 'webkit']:
         lines = raw[f'{engine}-{shard}']
-        ends = [n for n, line in enumerate(lines, 1)
-                if re.search(rf'Completed {group} in \d+ms; exit 0\s*$', line)]
-        assert len(ends) == 1, (group, engine, ends)
-        end = ends[0]
-        start = max(n for n, line in enumerate(lines[:end], 1)
-                    if f'Browser check: {group}' in line)
-        block = lines[start - 1:end]
+        start, end, block = browser_group_block(lines, group)
         if group != 'forms-watchers':
             assert any(f'[e2e-forms-reader] OK ({engine})' in line for line in block)
-        assert not any('SKIP:' in line for line in block)
         if group == 'forms-learning':
             assert any('[forms-scenario] verifyFormLearningUi started' in line for line in block)
             assert any(re.search(r'\[forms-scenario\] verifyFormLearningUi \d+\s*$', line)

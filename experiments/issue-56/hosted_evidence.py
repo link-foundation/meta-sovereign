@@ -77,6 +77,19 @@ def read_jobs(root, runs, slug, jobs, entries):
     return raw, receipts
 
 
+def browser_group_block(lines, group):
+    """Bound assertions and receipts to one successful mandatory browser group."""
+    ends = [n for n, line in enumerate(lines, 1)
+            if re.search(rf'Completed {re.escape(group)} in \d+ms; exit 0\s*$', line)]
+    assert len(ends) == 1, (group, ends)
+    end = ends[0]
+    start = max(n for n, line in enumerate(lines[:end], 1)
+                if f'Browser check: {group}' in line)
+    block = lines[start - 1:end]
+    assert not any('SKIP:' in line for line in block), group
+    return start, end, block
+
+
 def source_reader(root, sha, entries):
     def read(name):
         content = subprocess.check_output(['git', 'show', f'{sha}:{name}'], cwd=root)
@@ -103,15 +116,18 @@ def read_catalog_audit(root, sha, prefix, catalog, source, entries):
     return audit
 
 
-def read_literal_tests(stems, source, lines, call='test'):
+def read_literal_tests(stems, source, lines, call='test', parameterized=None):
     assert call in ['test', 'it']
     literal = re.compile(r'''\b''' + call + r'''\(\s*((?:'(?:\\.|[^'\\])*')|(?:"(?:\\.|[^"\\])*"))\s*,''')
     tests = {}
     for stem in sorted(stems):
         path = f'js/tests/{stem}.test.js'
         content = source(path)
-        assert not re.search(r'\b' + call + r'\(\s*`', content), f'expand dynamic names: {path}'
+        templates = re.findall(r'\b' + call + r'\(\s*`([^`]+)`', content)
+        expanded = (parameterized or {}).get(stem, {})
+        assert set(templates) == set(expanded), f'expand dynamic names: {path}'
         names = [ast.literal_eval(match.group(1)) for match in literal.finditer(content)]
+        names += [name for template in templates for name in expanded[template]]
         assert names and len(names) == len(set(names)), path
         tests[path] = {}
         for name in names:
