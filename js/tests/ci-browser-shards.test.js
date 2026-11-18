@@ -44,7 +44,7 @@ const registeredScenarios = (groups) => {
   });
 };
 
-test('vacancy search and discovery retain all five scenarios in bounded groups', () => {
+test('vacancy search and discovery retain all six scenarios in bounded groups', () => {
   const groups = registry.filter((name) =>
     ['vacancies', 'vacancy-discovery'].includes(name)
   );
@@ -56,6 +56,7 @@ test('vacancy search and discovery retain all five scenarios in bounded groups',
       'verifyVacancyDiscovery',
       'verifySalaryLadder',
       'verifyVacancyMetadataVariants',
+      'verifyVacancySearchUrl',
     ].sort()
   );
   assert.deepEqual(groups, ['vacancies', 'vacancy-discovery']);

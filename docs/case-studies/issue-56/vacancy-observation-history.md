@@ -45,8 +45,8 @@ cache-write diagnostic while replacing the bundle, and an explicitly refused
 JSON-representation probe; these are not reported as a clean console. The
 separate native scenario reports zero page exceptions.
 
-| Previous display | Refreshed display |
-| --- | --- |
+| Previous display                                                              | Refreshed display                                                                  |
+| ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
 | ![Only latest capture](../../screenshots/issue-56-vacancy-history/before.png) | ![First and last collection](../../screenshots/issue-56-vacancy-history/after.png) |
 
 ![Phone readback](../../screenshots/issue-56-vacancy-history/phone.png)

@@ -45,8 +45,8 @@ fixture owns and closes its separate browser/server. No provider is contacted.
 No full suite or browser matrix runs locally. The exact-source failed-job
 rerun is separate hosted evidence and cannot validate these unpublished edits.
 
-| Parent's finite pointer miss | Corrected native opening |
-| --- | --- |
+| Parent's finite pointer miss                                        | Corrected native opening                                                                 |
+| ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
 | ![Collapsed](../../screenshots/issue-56-ci-follow-links/before.png) | ![Open with owner filter retained](../../screenshots/issue-56-ci-follow-links/after.png) |
 
 The [checked archive](data/ci-follow-links-opening.tar.gz) retains the complete
