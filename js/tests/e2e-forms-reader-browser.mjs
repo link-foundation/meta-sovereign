@@ -391,6 +391,15 @@ const verifyGroupOnly = async ({ page }) => {
 };
 
 const verifyCustomOnly = async ({ page, until }) => {
+  if (process.env.FORMS_RESUME_RECOVERY_ONLY === '1') {
+    await page.locator('[data-form-slot]').fill('application-2');
+    await runFormChecks([
+      verifyFormConfiguredResumeUi,
+      verifyFormPrivateResumeUi,
+      verifyFormPrivateModelUi,
+    ]);
+    return true;
+  }
   const contactScenario = [
     ['PRIVATE_PROFILE', verifyFormPrivateProfileUi],
     ['PRIVATE_RESUME', verifyFormPrivateResumeUi],

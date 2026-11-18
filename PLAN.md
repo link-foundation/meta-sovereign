@@ -1,3 +1,10 @@
+2026-11-18 Forms PDF discovery after saved selection deletion:
+
+- [x] Match exact `1f0c7287` browser failures in Chromium and WebKit to the raw fixture's retained causal deletion record; preserve both complete job logs.
+- [x] Compare the raw saved-selection record before and after private PDF discovery, preserving detection of any accidental write; add a focused native sequence for saved/delete/private-PDF/private-model recovery.
+- [x] Reproduce the published-parent assertion, then verify corrected native PDF/model readback, unchanged saved state, closed reviews and zero submissions. Scoped lint/format pass; preserve source-bound evidence.
+- [ ] Publish only to the prepared branch and require exact-source hosted validation. QA22 and every unfinished requirement remain open; PR57 stays draft and unmerged.
+
 2026-11-18 private vacancy description HTML (HH03 remains unfinished):
 
 - [x] Trace pinned A10/A12 and the original vacancy insight reader: both browser extraction and cache projection omit the employer description HTML.

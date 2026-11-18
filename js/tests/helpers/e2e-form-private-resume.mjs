@@ -1,6 +1,7 @@
 import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { isDeepStrictEqual } from 'node:util';
 import { assert } from './e2e-chat.mjs';
 import {
   openFormPlan,
@@ -33,6 +34,7 @@ export const verifyFormPrivateResumeUi = async ({
   const directory = await mkdtemp(path.join(tmpdir(), 'forms-private-pdf-ui-'));
   const file = path.join(directory, 'resume/resume.pdf');
   const original = store.logFile;
+  const savedSelection = await store.get('form-resume:default');
   const submissions = fixture.submits;
   let owner;
   store.logFile = path.join(directory, 'data.lino');
@@ -117,7 +119,7 @@ export const verifyFormPrivateResumeUi = async ({
       'owner attachment and submission remain untouched'
     );
     assert(
-      (await store.get('form-resume:default')) === null,
+      isDeepStrictEqual(await store.get('form-resume:default'), savedSelection),
       'discovery never writes a saved PDF selection'
     );
     await closeFormReview(page, until, 'private PDF review closes');
@@ -129,6 +131,7 @@ export const verifyFormPrivateResumeUi = async ({
         sha256: actual.sha256,
         ownerFileRetained: true,
         nativeReceipts: 1,
+        savedSelectionUnchanged: true,
         submissions: fixture.submits - submissions,
         closed: owner.closed,
       })

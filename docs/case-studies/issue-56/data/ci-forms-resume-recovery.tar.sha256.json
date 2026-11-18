@@ -1,0 +1,29 @@
+{
+  "archive": "ci-forms-resume-recovery.tar.gz",
+  "files": {
+    "ci-logs/hosted-verification-1f0c7287-checks.json": "74ce6e1c3ead3574f77979f811799eb4dd2bda4408eef7ebd4cd4c25f15f09c5",
+    "ci-logs/hosted-1f0c7287-chromium-4.log": "221d64d9c96ee4ba25543b1f974a4cefc7994bbb67444461d599069548ab949d",
+    "ci-logs/hosted-1f0c7287-webkit-4.log": "0bcccb1de6e2b92803e4892437cbd19210e4b0c325855b88d831ba95ecedb1b5",
+    "ci-logs/forms-resume-recovery-before.log": "3721f73720276580353c59be4e9a40c08c9846414f0d74efc86f4008e20a62af",
+    "ci-logs/forms-resume-recovery-parent.log": "2066c17b4b6a8cb412f70e29e256a33a3f9cc8341a4fa16088758e2e1c84eac2",
+    "ci-logs/forms-resume-recovery-after.log": "6738aeeec58bdf200ec043d36241f5a4a2974f24fcfe80481c2227611fc9c73e",
+    "ci-logs/forms-resume-recovery-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/forms-resume-recovery-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/forms-resume-recovery-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/forms-resume-recovery-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "js/tests/helpers/e2e-form-private-resume.mjs": "7dc4574f49b719b9ff18be85f78f3be59f8f7eb267ff199446e12924fd55c63e",
+    "js/tests/helpers/e2e-form-configured-resume.mjs": "037f5c2c6cee80841f2236c19823c8862c8ca400f13be3ee0511dc9702375e26",
+    "js/tests/helpers/e2e-form-private-model.mjs": "9089fdf5f3285c34777e0a18a7434a634eab90abebaba5d591f579ae9068780b",
+    "js/tests/e2e-forms-reader-browser.mjs": "8aaea390f311957870becd2e6ca8c919cd63ea169cf4953c5339f58ac4b56b72",
+    "js/src/storage/causal-writes.js": "e557d4ea1ed5e6cf98214ec6cb8fddb3f378c5e9b259694e2de3fa17e4b60017",
+    "js/src/storage/sync-deletions.js": "fde19a517bb849c5bf4cb064cc0eb42d2a9576f777cb781a7e589c8f28a93349",
+    "js/src/forms/configured-resume.js": "e81688e5088110e7f5aeedb8289484f37d887d3356b4e8a605672e35a0d1ba2a",
+    "js/src/forms/private-resume.js": "ae6104825ef2f77240ddc2272e13604f2a132dba8739981a429648b82ff07470",
+    "experiments/issue-56/forms-resume-recovery-before.py": "ea18df22ab2675f967613d4cfa883d2c1acc8cdfdd76ca8ebbf6ec5fa9add09e",
+    "experiments/issue-56/collect-forms-resume-recovery.py": "d1f5ec1979e9250fb815cc512bf2c08332949a59a5b87fcb61c9557ebc8287de",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "docs/case-studies/issue-56/ci-forms-resume-recovery.md": "d5c75c52a7bf1b2817489766151568ae178d0ce8bcbd3f19d6dafe7815634599",
+    "before/js/tests/helpers/e2e-form-private-resume.mjs": "466c268ea45fda42cc67fffc0bdddc21aefdf08a1ecbf993f4ebebea10de5577",
+    "metadata.json": "868e6952eca85c195098e78382948d945f209486d1fa90535fd7b779385e3e7f"
+  }
+}
