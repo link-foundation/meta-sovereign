@@ -18,14 +18,14 @@ export const serveNativeMcpFixture = async (
     fixture = await createFixture(browser);
     await initialize(fixture);
     await fixture.page.context().close();
-    control = createServer((_req, res) => {
+    control = createServer(async (_req, res) => {
       res.setHeader('content-type', 'application/json');
       res.end(
         JSON.stringify({
           opens: fixture.records.length,
           closed: fixture.records.every((row) => row.closed),
           clicks: fixture.records.reduce((n, row) => n + (row.clicks ?? 0), 0),
-          ...details(),
+          ...(await details()),
           errors: fixture.errors,
           liveProvider: false,
         })

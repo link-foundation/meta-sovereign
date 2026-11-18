@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { salaryTierFloor } from '../jobs/salary-ladder.js';
 import { ApplicationAnswerReceipt } from './application-answer-settings.js';
+import { ApplicationCollectionReceipt } from './application-collection-view.js';
 import {
   ApplicationChatControls,
   ApplicationChatReceipt,
@@ -225,6 +226,11 @@ const BatchReceipt = ({ batch, state, t, check }) =>
           maximum: batch.maxApplications || batch.total,
         })
       ),
+      el(ApplicationCollectionReceipt, {
+        key: 'collection',
+        receipt: batch.settings,
+        t,
+      }),
       batch.currentUrl
         ? el(
             'p',

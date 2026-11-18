@@ -1,4 +1,11 @@
 export const hiApplication = {
+  'application.collectVacancies': 'एकत्र किए गए पदों के विवरण सहेजें',
+  'application.collectionHint':
+    'बंद होने पर विवरण इस रन की मेमोरी में रहते हैं और आवेदन जर्नल में नहीं लिखे जाते। रीस्टार्ट के बाद वे वापस नहीं मिलेंगे। पहले सहेजे गए विवरण बने रहते हैं।',
+  'application.collectionEnabled': 'पद संग्रह: चालू',
+  'application.collectionMemory':
+    'पद संग्रह: बंद। मौजूदा विवरण वर्कर रुकने तक मेमोरी में रहते हैं; रीस्टार्ट के बाद वापस नहीं मिलेंगे।',
+  'application.collectionPreview': 'पूर्वावलोकन: पद कैश में लिखना निलंबित है।',
   'application.state.vacancy-unavailable':
     'HH के अनुसार यह रिक्ति आपके खाते के लिए उपलब्ध नहीं है। समीक्षा बंद करें; पहुँच बदलने के बाद ही दर्ज अस्वीकृति हटाएँ।',
   'application.hold.vacancy-unavailable':

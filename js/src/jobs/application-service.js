@@ -41,6 +41,7 @@ import { ApplicationChats } from './application-chats.js';
 import { ApplicationLimitRejections } from './application-limit-rejections.js';
 import { watchApplicationFeedback } from './application-feedback.js';
 import { assertVacancyNotSkipped } from './vacancy-skip-service.js';
+import { clearRunVacancies } from '../assignments/vacancy-run-context.js';
 import {
   ApplicationResumes,
   dispatchResumeChoice,
@@ -475,6 +476,7 @@ class ApplicationService {
     await this.limitWait.drain();
     await this.close();
     this.modes.clear();
+    clearRunVacancies(this.store, this);
     this.deferrals.clear();
     this.holds.clear();
     this.retries.clear();

@@ -61,6 +61,8 @@ const identity = (raw, input) =>
   text(raw.revision, 100) &&
   raw.revision.length > 0;
 const supervised = (raw) =>
+  (raw.collectVacancies === undefined ||
+    typeof raw.collectVacancies === 'boolean') &&
   (raw.autoAnswerViewedVacancy === undefined ||
     typeof raw.autoAnswerViewedVacancy === 'boolean') &&
   (raw.supervised === undefined || typeof raw.supervised === 'boolean') &&
@@ -178,6 +180,9 @@ const validateLimitWait = (raw) => {
 
 const validReceiptContext = (raw, input) =>
   identity(raw, input) &&
+  (input.collectVacancies === undefined ||
+    (typeof input.collectVacancies === 'boolean' &&
+      raw.collectVacancies === input.collectVacancies)) &&
   state(raw) &&
   page(raw.page) &&
   validApplicationAnswerContext(raw) &&

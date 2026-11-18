@@ -186,12 +186,24 @@ test(
         'job-application-interval': '2',
         'review-delay-ms': '0',
         'no-auto-select-resume-language': true,
+        'no-collect-vacancies': true,
         confirm: 'none',
       },
       (line) => output.push(decodeWire(line))
     );
     assert.equal(result, 0);
     assert.equal(output.at(-1).batch.delivered, 1);
+    assert.equal(output.at(-1).batch.settings.collectVacancies, false);
+    const rows = await f.store.query();
+    assert.equal(
+      rows.some((row) => row.id.startsWith('assignment-vacancy:')),
+      false
+    );
+    const journal = rows.find((row) =>
+      row.id.startsWith('secret:jobs-application:')
+    );
+    assert.equal(journal.options.collectVacancies, false);
+    assert.equal(journal.vacancy, null);
     assert.equal(f.state.opened, 1);
     assert.equal(f.state.closed, 1);
     await writeFile(file, 'x'.repeat(128001));

@@ -12,6 +12,16 @@ import { vacancyContent } from './vacancy-content.js';
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
 import { ensureLegacyVacancies } from './vacancy-legacy-cache.js';
 import { observedVacancyHistory } from './vacancy-history.js';
+import { runVacancy, forgetRunVacancy } from './vacancy-run-context.js';
+
+const checkSavedIdentity = (saved, id, url) => {
+  if (saved && (saved.version !== 1 || saved.id !== id || saved.url !== url)) {
+    throw assignmentFailure(
+      'vacancy-invalid',
+      'The saved vacancy snapshot is invalid.'
+    );
+  }
+};
 
 export const vacancySnapshot = async (
   store,
@@ -21,16 +31,16 @@ export const vacancySnapshot = async (
   signal,
   browserOptions = {}
 ) => {
+  signal?.throwIfAborted();
+  const temporary = runVacancy(store, url);
+  if (temporary && refresh !== true) {
+    return temporary;
+  }
   await ensureLegacyVacancies(store);
   signal?.throwIfAborted();
   const id = `assignment-vacancy:${await modelFingerprint(url)}`;
   let saved = await store.get(id);
-  if (saved && (saved.version !== 1 || saved.id !== id || saved.url !== url)) {
-    throw assignmentFailure(
-      'vacancy-invalid',
-      'The saved vacancy snapshot is invalid.'
-    );
-  }
+  checkSavedIdentity(saved, id, url);
   if (!saved || refresh === true) {
     if (saved) {
       vacancyContent(saved, url);
@@ -54,6 +64,8 @@ export const vacancySnapshot = async (
       ...(saved?.appliedAt ? { appliedAt: saved.appliedAt } : {}),
     };
     await saveAcknowledgedRecord(store, saved);
+    // An explicitly acknowledged collection supersedes an older RAM context.
+    forgetRunVacancy(store, url);
   }
   vacancyContent(saved, url);
   return saved;

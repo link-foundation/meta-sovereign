@@ -1,3 +1,11 @@
+2026-11-18 optional persistent vacancy collection (HH03 remains unfinished):
+
+- [x] Read the pinned collection-disabled contract and trace both durable vacancy writes: the shared cache and the application journal. Current forms and chat/assignment planning still need full context in RAM.
+- [x] Draft validated CLI, both Lino formats, frozen batch settings and four-language controls; preserve legacy signatures and truthful restart limits.
+- [x] Add a bounded run context shared with chat/assignment planning, omit disabled descriptions from durable journals and preserve acknowledged RAM context on refused saves. Keep existing caches and confirmed-application metadata unchanged.
+- [x] Reproduce the published-parent failures, pass focused regression checks and native/MCP before/after recovery with closed fixtures and reviewed screenshots.
+- [ ] Preserve source-bound evidence, pass scoped gates, commit/push only to the prepared branch and inspect exact-source CI. All 30 unfinished criteria remain required; PR57 stays draft and unmerged.
+
 2026-11-18 macOS Deno cold-run budget:
 
 - [x] Preserve exact-parent shard logs and annotations; confirm the ten-minute job limit, 3m03s setup and 6m59s execution with no failed assertions.

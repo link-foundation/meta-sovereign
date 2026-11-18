@@ -43,6 +43,7 @@ const validateApplicationFlags = (input) => {
       'supervised',
       'autoSelectResumeLanguage',
       'autoAnswerViewedVacancy',
+      'collectVacancies',
     ].some(
       (name) => input[name] !== undefined && typeof input[name] !== 'boolean'
     ) ||
@@ -68,6 +69,10 @@ const feedbackSettings = (input) =>
   input.autoAnswerViewedVacancy === undefined
     ? {}
     : { autoAnswerViewedVacancy: input.autoAnswerViewedVacancy };
+const collectionSettings = (input) =>
+  input.collectVacancies === undefined
+    ? {}
+    : { collectVacancies: input.collectVacancies };
 const formSettings = (input, url) => {
   if (input.formUrl === undefined) {
     return {};
@@ -99,6 +104,7 @@ export const applicationSettings = (input, { legacy = false } = {}) => {
     ...(input.supervised === true ? { supervised: true } : {}),
     ...languageSettings(input, legacy),
     ...feedbackSettings(input),
+    ...collectionSettings(input),
     ...(input.confirmations === undefined
       ? {}
       : { confirmations: applicationConfirmations(input.confirmations) }),
@@ -206,6 +212,7 @@ export const applicationView = (record) => {
     continuation: continuationView(record),
     autoSelectResumeLanguage: record.options.autoSelectResumeLanguage === true,
     autoAnswerViewedVacancy: record.options.autoAnswerViewedVacancy !== false,
+    collectVacancies: record.options.collectVacancies !== false,
     applicationLimit: record.applicationLimit ?? null,
     limitWait: record.limitWait ?? null,
     dailyRejection: dailyRejectionView(record),

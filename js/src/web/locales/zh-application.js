@@ -1,4 +1,11 @@
 export const zhApplication = {
+  'application.collectVacancies': '保存已收集的职位描述',
+  'application.collectionHint':
+    '关闭后，描述仅保留在本次运行的内存中，不会写入申请日志。重启后无法恢复。之前保存的描述将保留。',
+  'application.collectionEnabled': '职位收集：已启用',
+  'application.collectionMemory':
+    '职位收集：已关闭。当前描述仅保留在内存中，直到工作进程停止；重启后无法恢复。',
+  'application.collectionPreview': '预览：已暂停写入职位缓存。',
   'application.state.vacancy-unavailable':
     'HH 提示此职位对您的账号不可用。请关闭审核，仅在访问权限更改后清除此拒绝记录。',
   'application.hold.vacancy-unavailable': '此职位对该账号不可用',

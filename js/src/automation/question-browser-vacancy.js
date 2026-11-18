@@ -35,7 +35,7 @@ const tellsCurrency = (text, config) =>
   salaryCurrencies(text, config).length > 0 ||
   unknownSalaryCurrency(text, config);
 
-// The complete page remains in the existing vacancy cache. Only currency clues
+// The complete page remains in the vacancy cache or current run. Only currency clues
 // are needed here when its description exceeds the answer environment's bound.
 const vacancyEnvironment = (snapshot, config) => {
   let description = tellsCurrency(snapshot.title, config)
@@ -54,7 +54,7 @@ const vacancyEnvironment = (snapshot, config) => {
     ].join(' ');
   }
   return {
-    pay: snapshot.salary,
+    pay: snapshot.salary ?? '',
     description,
     evidence: `browser-vacancy:${snapshot.url}`,
   };

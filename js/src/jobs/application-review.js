@@ -6,6 +6,7 @@ import {
 import { readAssignmentVacancyDocument } from '../assignments/vacancy-reader.js';
 import { readLoadedVacancy } from '../assignments/vacancy-loading.js';
 import { vacancySnapshot } from '../assignments/vacancy.js';
+import { rememberRunVacancy } from '../assignments/vacancy-run-context.js';
 import { observeVacancyApplication } from '../assignments/vacancy-application.js';
 import { proposalMatches } from '../forms/review-apply.js';
 import { reviewSnapshotKey } from '../forms/review-targets.js';
@@ -122,19 +123,23 @@ export class ApplicationReview {
           : assignmentText(raw.salary ?? '', 1000, 'vacancy salary', true),
       url: record.url,
     };
-    if (!record.options.testMode && vacancy.salary !== null) {
-      await vacancySnapshot(
-        this.service.store,
-        async () => ({
-          ...raw,
-          ...vacancy,
-          salary: vacancy.salary ?? '',
-          capturedAt: new Date().toISOString(),
-        }),
-        record.url,
-        true,
-        signal
-      );
+    if (vacancy.salary !== null || record.options.collectVacancies === false) {
+      const snapshot = {
+        ...raw,
+        ...vacancy,
+        capturedAt: new Date().toISOString(),
+      };
+      if (record.options.collectVacancies === false) {
+        rememberRunVacancy(this.service.store, this.service, snapshot);
+      } else if (!record.options.testMode) {
+        await vacancySnapshot(
+          this.service.store,
+          async () => snapshot,
+          record.url,
+          true,
+          signal
+        );
+      }
     }
     record.vacancy = vacancy;
     this.service.trace({
@@ -182,7 +187,11 @@ export class ApplicationReview {
     }
   }
   async cachedVacancy(record, signal) {
-    if (record.options.testMode || record.vacancy.salary === null) {
+    if (
+      record.options.testMode ||
+      record.options.collectVacancies === false ||
+      record.vacancy.salary === null
+    ) {
       return;
     }
     const cached = await vacancySnapshot(

@@ -765,3 +765,5 @@ owner drafts and zero sends; complete salary acceptance remains required.
 Current public HH employment/publication extraction and guarded synthetic recovery: [metadata evidence](vacancy-modern.md). HH03 remains unfinished.
 
 [Cold-run Deno budget](ci-deno-macos-budget.md) preserves the exact ten-minute cancellation and complete eight-way macOS partitions; full hosted timing remains required.
+
+Optional persistent collection with full current-run context: [collection evidence](application-collection.md). HH03 remains unfinished; 88 verified / 30 unfinished.

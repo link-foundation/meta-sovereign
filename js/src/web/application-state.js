@@ -9,6 +9,7 @@ export const useApplication = ({ api, values, selected, run }) => {
     coverLetter: '',
     autoSelectResumeLanguage: true,
     autoAnswerViewedVacancy: true,
+    collectVacancies: true,
     autoExact: false,
     testMode: false,
     supervised: false,

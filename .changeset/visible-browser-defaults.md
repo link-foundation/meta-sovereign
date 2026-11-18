@@ -992,3 +992,9 @@ saved confirmation in all four languages without replaying delivery.
 Return the complete saved vacancy corpus through shared cache controls and technology analysis, preserving explicit byte/mention budgets and older exclusion context.
 
 Retain current HH employment and semantic publication metadata, with conflicting-refresh preservation and bounded native regressions. Correct translated cache and analysis wording to describe the complete saved corpus (issue #56 HH03).
+
+Allow vacancy collection to be disabled per application run through CLI, both
+Lino formats and four-language controls. Keep complete vacancy context in bounded
+RAM for forms, chats and assignments, omit it from durable application journals
+and preserve existing saved descriptions and their delivery metadata. Frozen
+batches retain the setting; restart reports the unavailable temporary context.

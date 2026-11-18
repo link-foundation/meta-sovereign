@@ -5,6 +5,7 @@ import { FormInspectionReport } from './forms-view.js';
 import { applicationMayRestart } from './application-session.js';
 import { ApplicationQueueView } from './application-queue-view.js';
 import { ApplicationBatchView } from './application-batch-view.js';
+import { ApplicationCollectionReceipt } from './application-collection-view.js';
 import { ApplicationResumeView } from './application-resume-view.js';
 import { ApplicationLetterSettings } from './application-letter-settings.js';
 import {
@@ -64,6 +65,17 @@ const Settings = ({ application, disabled, t }) => {
   return el('fieldset', { className: 'automation-fieldset', disabled }, [
     el('legend', { key: 'legend' }, t('application.settings')),
     el(ApplicationAnswerSettings, { key: 'answers', application, disabled }),
+    check(
+      'collectVacancies',
+      t('application.collectVacancies'),
+      options.collectVacancies !== false,
+      (value) => update('collectVacancies', value)
+    ),
+    el(
+      'p',
+      { key: 'collection-hint', className: 'meta' },
+      t('application.collectionHint')
+    ),
     check(
       'autoAnswerViewedVacancy',
       t('application.autoAnswerViewedVacancy'),
@@ -154,6 +166,7 @@ const FeedbackReceipt = ({ receipt, t }) =>
 const Receipt = ({ receipt, t }) =>
   el('div', { className: 'col' }, [
     el(FeedbackReceipt, { key: 'feedback', receipt, t }),
+    el(ApplicationCollectionReceipt, { key: 'collection', receipt, t }),
     el(ApplicationSalaryReceipt, { key: 'salary', receipt }),
     el(
       'p',

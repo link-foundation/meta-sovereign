@@ -3,6 +3,11 @@ import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
 import { assignmentFailure } from './validation.js';
 import { vacancyContent } from './vacancy-content.js';
 
+const persistentDelivery = (record) =>
+  !record.options.testMode &&
+  record.options.collectVacancies !== false &&
+  record.state === 'delivered' &&
+  record.delivery === 'provider-confirmed';
 /** Inside the application writer, after its delivery journal is acknowledged. */
 export const observeVacancyApplication = async (
   store,
@@ -11,9 +16,7 @@ export const observeVacancyApplication = async (
 ) => {
   const page = record.page;
   if (
-    record.options.testMode ||
-    record.state !== 'delivered' ||
-    record.delivery !== 'provider-confirmed' ||
+    !persistentDelivery(record) ||
     !page?.bound ||
     !page.delivered ||
     page.challenge ||

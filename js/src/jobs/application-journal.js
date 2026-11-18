@@ -56,6 +56,9 @@ export const readApplicationJournal = (row, key) => {
     throw fail('journal');
   }
   if (row.vacancy) {
+    if (options.collectVacancies === false) {
+      throw fail('journal');
+    }
     if (row.vacancy.url !== row.url) {
       throw fail('journal');
     }
@@ -81,6 +84,7 @@ export const readApplicationJournal = (row, key) => {
 export const saveApplicationJournal = async (store, record) => {
   const next = globalThis.structuredClone({
     ...snapshot(record),
+    ...(record.options.collectVacancies === false ? { vacancy: null } : {}),
     revision: globalThis.crypto.randomUUID(),
     id: record.id,
     version: 1,
@@ -88,7 +92,12 @@ export const saveApplicationJournal = async (store, record) => {
   try {
     await saveAcknowledgedRecord(store, next);
     record.revision = next.revision;
-    record.acknowledged = globalThis.structuredClone(next);
+    // Rollback needs the acknowledged live context; it must never reach disk
+    // when collection is disabled, including during a later failed save.
+    record.acknowledged = globalThis.structuredClone({
+      ...next,
+      vacancy: record.vacancy ?? null,
+    });
   } catch (error) {
     // A pre-dispatch refusal must not expose unacknowledged intent. Once dispatch
     // was reserved, that acknowledged reservation remains unknown across failure.

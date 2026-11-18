@@ -179,6 +179,7 @@ export const vacancyBrowserFixture = async (
       records,
       errors,
       store,
+      runtimeStore: server.store,
       mode: (value) => {
         mode = value;
       },

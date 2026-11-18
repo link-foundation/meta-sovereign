@@ -1,4 +1,12 @@
 export const enApplication = {
+  'application.collectVacancies': 'Keep collected vacancy descriptions',
+  'application.collectionHint':
+    'When off, descriptions stay in memory for this run and are omitted from the application journal. They cannot be recovered after restart. Existing saved descriptions are kept.',
+  'application.collectionEnabled': 'Vacancy collection: enabled',
+  'application.collectionMemory':
+    'Vacancy collection: off. Current descriptions stay in memory until the worker stops; restart cannot restore them.',
+  'application.collectionPreview':
+    'Preview: vacancy cache writes are suspended.',
   'application.state.vacancy-unavailable':
     'HH says this vacancy is unavailable to your account. Close the review; clear its recorded refusal only after access changes.',
   'application.hold.vacancy-unavailable': 'vacancy unavailable to this account',

@@ -151,6 +151,9 @@ export const readApplicationBatch = (raw, key) => {
 };
 const settingsView = (options) => ({
   ...applicationChatSettings(options, options.browserSlot),
+  ...(options.review.collectVacancies === undefined
+    ? {}
+    : { collectVacancies: options.review.collectVacancies }),
   ...(options.review.autoAnswerViewedVacancy === undefined
     ? {}
     : { autoAnswerViewedVacancy: options.review.autoAnswerViewedVacancy }),
@@ -248,7 +251,9 @@ const validatePublicBatch = (row, input) => {
 };
 const matchesPublicIdentity = (row, input) =>
   (input?.requestId === undefined || input.requestId === row.requestId) &&
-  (input?.browserSlot === undefined || input.browserSlot === row.browserSlot);
+  (input?.browserSlot === undefined || input.browserSlot === row.browserSlot) &&
+  (input?.collectVacancies === undefined ||
+    input.collectVacancies === row.settings?.collectVacancies);
 export const applicationBatchResult = (raw, input) => {
   if (!raw || raw.ok !== true || raw.mode !== 'hh-application-batch') {
     throw fail('batch-recovery');

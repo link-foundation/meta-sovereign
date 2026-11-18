@@ -51,6 +51,10 @@ const commandInput = async (args, configuration) => {
     headless: boolean(args, 'headless'),
     autoExact: boolean(args, 'auto-exact'),
     testMode: boolean(args, 'test-mode'),
+    collectVacancies:
+      args['no-collect-vacancies'] === undefined
+        ? undefined
+        : !boolean(args, 'no-collect-vacancies'),
     supervised: boolean(args, 'supervised'),
     confirmations:
       args.confirm === undefined
