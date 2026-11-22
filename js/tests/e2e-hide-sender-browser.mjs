@@ -128,10 +128,19 @@ await page.addInitScript(() => {
   globalThis.localStorage.setItem('metaSovereignLocale', 'en');
   globalThis.localStorage.setItem('metaSovereignReadReceipts', 'off');
   globalThis.localStorage.setItem('metaSovereignTheme', 'dark');
+  globalThis.localStorage.setItem('metaSovereignNotifySound', 'off');
   globalThis.localStorage.setItem(
     'metaSovereignOperatorScope',
     JSON.stringify({ private: true, group: true })
   );
+  globalThis.senderTestNotifications = [];
+  globalThis.Notification = class {
+    static permission = 'granted';
+    constructor(_title, { body }) {
+      globalThis.senderTestNotifications.push(body);
+    }
+    close() {}
+  };
 });
 
 const blocks = [];
@@ -375,6 +384,42 @@ const restoreTelegram = async () => {
       animations: 'disabled',
     });
   }
+  const visibleNotice = 'Notification from a visible sender';
+  const hiddenNotice = 'Notification from the hidden sender';
+  const timestamp = new Date().toISOString();
+  await store.put(
+    message({ ...dm(ADA), id: 6, body: hiddenNotice, timestamp })
+  );
+  await store.put(
+    message({
+      ...group,
+      id: 6,
+      sender: MAX,
+      body: visibleNotice,
+      timestamp,
+    })
+  );
+  await until(
+    () =>
+      page.evaluate(
+        (body) =>
+          globalThis.senderTestNotifications.some((notice) =>
+            notice.includes(body)
+          ),
+        visibleNotice
+      ),
+    'foreground Settings receives a visible message notification'
+  );
+  assert(
+    !(await page.evaluate(
+      (body) =>
+        globalThis.senderTestNotifications.some((notice) =>
+          notice.includes(body)
+        ),
+      hiddenNotice
+    )),
+    'foreground Settings does not notify for a hidden sender'
+  );
   await telegramRule
     .getByRole('button', { name: 'Show messages from Ada Novak' })
     .click();
