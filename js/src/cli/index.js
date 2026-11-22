@@ -102,7 +102,7 @@ Commands:
                 repeat serve after updating: the current worker serves while its replacement prepares
                 https is served on the same port (for Safari); --tls=false or MS_TLS=off turns it off
   serve-cloud   --store=<dir> [--port=<n>] [--listen=127.0.0.1|0.0.0.0]
-                run a browser workspace behind an HTTPS proxy (see docs/SAAS.md)
+                run a browser workspace behind an HTTPS proxy (see docs/CLOUD-WORKSPACES.md)
 ${TRUST_HELP}
 ${CONTACTS_HELP}
   sources
