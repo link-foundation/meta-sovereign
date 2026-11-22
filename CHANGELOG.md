@@ -1,5 +1,11 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 1.3.0
+
+### Minor Changes
+
+- 797cf74: Hide a sender's messages across supported Chat and Operator conversations, including Telegram groups and channels. Choose whether to hide when blocking someone in a Telegram private chat, or hide directly from a message. Restore visibility in Settings under Hidden senders.
+
 ## 1.2.0
 
 ### Minor Changes
