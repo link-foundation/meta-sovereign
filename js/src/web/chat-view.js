@@ -517,6 +517,19 @@ export const messageRuns = (messages) => {
   return runs;
 };
 
+const useStreamMessages = (state) => {
+  // History windows can change without removing a message from the chat.
+  const view = `${state.current?.key ?? ''}:${state.history?.view ?? 0}`;
+  const leaving = useLeaving(state.messages, view);
+  const shown = state.visibility?.show(leaving) ?? leaving;
+  const shownById = new Map(shown.map((m) => [m.id, m]));
+  const msgById = {
+    get: (id) => shownById.get(id) ?? state.replyTargets?.get(id),
+    hideUnresolved: state.replyTargets?.hideUnresolved,
+  };
+  return { shown, msgById };
+};
+
 const Stream = ({ state, api, actions }) => {
   const { onAction, menuFor, selection } = actions;
   const follow = useFollow(state, api);
@@ -539,18 +552,10 @@ const Stream = ({ state, api, actions }) => {
     toEnd: follow.toEnd,
     notify: () => state.notify?.({ kind: 'date-failed' }),
   });
-  // What leaves the chat goes like in Telegram (./chat-leaving.js).
-  // A window opened anew (a jump to a date) is not messages leaving.
-  const view = `${state.current?.key ?? ''}:${state.history?.view ?? 0}`;
-  const shown = useLeaving(state.messages, view);
-  // Reply lookups: what is shown, then the originals fetched for it.
-  const shownById = new Map(shown.map((m) => [m.id, m]));
+  const { shown, msgById } = useStreamMessages(state);
   // An album is one row (./chat-album.js).
   const messages = groupAlbums(shown);
   const empty = messages.length === 0 && state.drafts.drafts.length === 0;
-  const msgById = {
-    get: (id) => shownById.get(id) ?? state.replyTargets?.get(id),
-  };
   const runs = messageRuns(messages);
   const breaks = dayBreaks(messages);
   const order = messages.filter((m) => !m.service).map((m) => m.id);
@@ -639,6 +644,7 @@ const Stream = ({ state, api, actions }) => {
                 api,
                 chat: state.current,
                 history: state.history,
+                hidden: state.filteredMessages > 0,
               })
             : null,
           el('div', { key: 'end', ref: follow.end }),
@@ -1153,6 +1159,7 @@ const ChatTop = ({ state, api, onBack, saved, forumView, call, actions }) => {
     current: state.current,
     messages: state.messages,
     reach: state.history?.reach,
+    visibility: state.visibility,
   });
   return [
     el(

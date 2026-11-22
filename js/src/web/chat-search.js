@@ -47,16 +47,39 @@ const CLOSED = Object.freeze({
 const telegramOf = (api, current) =>
   current?.source === 'telegram' && typeof api?.telegramSearch === 'function';
 
+const telegramMatches = (answer, chat, visibility) => {
+  const ids = answer?.ids ?? [];
+  const results = visibility
+    ? visibility.show(answer?.messages ?? []).map((message) => message.id)
+    : ids.map((id) => linkIdOf(chat, id));
+  return {
+    results,
+    count: visibility
+      ? results.length
+      : Number(answer?.count ?? ids.length) || 0,
+    more: Boolean(answer?.more),
+    last: ids.at(-1) ?? 0,
+  };
+};
+
 /**
  * The bar's state and moves: `{ ...state, show, close, setQuery, older,
  * newer }`. `reach(id)` loads older pages until message `id` is held.
  */
-export const useChatSearch = ({ api, current, messages, reach }) => {
+export const useChatSearch = ({
+  api,
+  current,
+  messages,
+  reach,
+  visibility,
+}) => {
   const [find, setFind] = useState(CLOSED);
   const latest = useRef(find);
   latest.current = find;
   const asked = useRef(0);
   const key = current?.key ?? null;
+  const filtered =
+    visibility?.has('telegram') && current?.source === 'telegram';
   useEffect(() => setFind(CLOSED), [key]);
 
   const go = async (results, at) => {
@@ -76,14 +99,9 @@ export const useChatSearch = ({ api, current, messages, reach }) => {
       chat: String(current.chat),
       q: query,
       ...(offsetId ? { offsetId } : {}),
+      ...(filtered ? { links: true } : {}),
     });
-    const ids = answer?.ids ?? [];
-    return {
-      results: ids.map((id) => linkIdOf(current.chat, id)),
-      count: Number(answer?.count ?? ids.length) || 0,
-      more: Boolean(answer?.more),
-      last: ids.at(-1) ?? 0,
-    };
+    return telegramMatches(answer, current.chat, filtered ? visibility : null);
   };
 
   const run = async (query) => {
@@ -92,7 +110,7 @@ export const useChatSearch = ({ api, current, messages, reach }) => {
       setFind((f) => ({ ...f, results: [], at: -1, count: 0, loading: false }));
       return;
     }
-    setFind((f) => ({ ...f, loading: true }));
+    setFind((f) => ({ ...f, loading: true, visibility }));
     const found = await ask(query).catch(() => null);
     if (ticket !== asked.current) {
       return;
@@ -116,12 +134,15 @@ export const useChatSearch = ({ api, current, messages, reach }) => {
       return undefined;
     }
     const timer = globalThis.setTimeout(() => run(find.query), WAIT_MS);
-    return () => globalThis.clearTimeout(timer);
-  }, [find.open, find.query, key]);
+    return () => {
+      globalThis.clearTimeout(timer);
+      asked.current += 1;
+    };
+  }, [find.open, find.query, key, visibility]);
 
   const older = async () => {
     const f = latest.current;
-    if (f.loading || f.at < 0) {
+    if (f.loading || f.visibility !== visibility) {
       return;
     }
     if (f.at + 1 < f.results.length) {
@@ -133,13 +154,22 @@ export const useChatSearch = ({ api, current, messages, reach }) => {
       return;
     }
     setFind({ ...f, loading: true });
+    const ticket = asked.current;
     const page = await ask(f.query, f.last).catch(() => null);
+    if (ticket !== asked.current) {
+      return;
+    }
+    if (!page) {
+      setFind((now) => ({ ...now, loading: false }));
+      return;
+    }
     const results = [...f.results, ...(page?.results ?? [])];
     const at = page?.results?.length ? f.at + 1 : f.at;
     setFind((now) => ({
       ...now,
       results,
       at,
+      count: filtered ? results.length : now.count,
       more: Boolean(page?.more),
       last: page?.last ?? now.last,
       loading: false,
@@ -149,7 +179,7 @@ export const useChatSearch = ({ api, current, messages, reach }) => {
 
   const newer = () => {
     const f = latest.current;
-    if (f.at > 0) {
+    if (f.at > 0 && f.visibility === visibility) {
       setFind({ ...f, at: f.at - 1 });
       go(f.results, f.at - 1);
     }
@@ -161,6 +191,9 @@ export const useChatSearch = ({ api, current, messages, reach }) => {
 
   return {
     ...find,
+    ...(find.open && find.query.trim() && find.visibility !== visibility
+      ? { loading: true, results: [], count: 0, at: -1, more: false }
+      : {}),
     show: () => setFind((f) => (f.open ? f : { ...CLOSED, open: true })),
     close: () => {
       asked.current += 1;
@@ -250,7 +283,7 @@ export const SearchBar = ({ find }) => {
     return null;
   }
   const canOlder =
-    find.at >= 0 && (find.at + 1 < find.results.length || find.more);
+    !find.loading && (find.at + 1 < find.results.length || find.more);
   return el('div', { className: 'chat-find', role: 'search' }, [
     el(Icon, { key: 'i', name: 'search', size: 16 }),
     el('input', {

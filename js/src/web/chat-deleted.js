@@ -229,7 +229,12 @@ export const DeletedBar = ({ state, api }) => {
   const t = useT();
   const [open, setOpen] = useState(false);
   const key = state.current?.key ?? null;
-  const { messages, reload } = useDeleted(api, key, state.messages?.length);
+  const { messages: loaded, reload } = useDeleted(
+    api,
+    key,
+    state.messages?.length
+  );
+  const messages = state.visibility?.show(loaded) ?? loaded;
   useEffect(() => setOpen(false), [key]);
   if (!hasDeletedApi(api) || (messages.length === 0 && !open)) {
     return null;

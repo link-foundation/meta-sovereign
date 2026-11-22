@@ -210,29 +210,37 @@ export const MessageVersionsDialog = ({ api, message, close }) => {
     ]
   );
 };
-export const useMessageVersions = (api, chatKey) => {
+export const useMessageVersions = (api, chatKey, visibility) => {
   const [message, setMessage] = useState(null);
   useEffect(() => setMessage(null), [api, chatKey]);
+  const hidden = visibility?.hides(message);
+  useEffect(() => {
+    if (hidden) {
+      setMessage(null);
+    }
+  }, [hidden]);
   return {
     open: setMessage,
-    dialog: message
-      ? el(MessageVersionsDialog, {
-          key: message.id,
-          api,
-          message,
-          close: () => setMessage(null),
-        })
-      : null,
+    dialog:
+      message && !hidden
+        ? el(MessageVersionsDialog, {
+            key: message.id,
+            api,
+            message,
+            close: () => setMessage(null),
+          })
+        : null,
   };
 };
-const EditedList = ({ api, chatKey, close }) => {
+const EditedList = ({ api, chatKey, close, visibility }) => {
   const t = useT();
   const [state, more] = usePages(
     (before) => api.editedMessages(chatKey, { before }),
     chatKey,
     'messages'
   );
-  const versions = useMessageVersions(api, chatKey);
+  const versions = useMessageVersions(api, chatKey, visibility);
+  const shown = visibility?.show(state.items) ?? state.items;
   if (versions.dialog) {
     return versions.dialog;
   }
@@ -243,7 +251,14 @@ const EditedList = ({ api, chatKey, close }) => {
       state.loading && !state.items.length
         ? el(PageLoading, { key: 'l' })
         : null,
-      ...state.items.map((message) =>
+      !state.loading && !state.next && state.items.length > 0 && !shown.length
+        ? el(
+            'p',
+            { key: 'empty', className: 'meta' },
+            t('chat.visibility.empty')
+          )
+        : null,
+      ...shown.map((message) =>
         el(
           'button',
           {
@@ -317,6 +332,7 @@ export const EditedBar = ({ api, state }) => {
               key,
               api,
               chatKey: key,
+              visibility: state.visibility,
               close: () => setOpen(false),
             })
           : null,

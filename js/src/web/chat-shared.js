@@ -18,6 +18,7 @@ import { parseMessageParts } from './message-parts.js';
 import { mediaLabel } from './chat-message.js';
 import { networkMessageId } from './chat-model.js';
 import { useEdited } from './chat-edit.js';
+import { useMessageVisibility } from './message-visibility-prefs.js';
 import { ProfileFrame } from './chat-person-extras.js';
 import { CollectibleRows } from './chat-collectible.js';
 import {
@@ -256,6 +257,8 @@ const useMoreAtEnd = (end, list) => {
 const SharedList = ({ api, chat, kind, count, onBack, onGo }) => {
   const t = useT();
   const list = useSharedList(api, chat, kind);
+  const visibility = useMessageVisibility();
+  const shown = visibility.show(list.items);
   const end = useRef(null);
   useMoreAtEnd(end, list);
   const Item = GRID.has(kind) ? GridItem : RowItem;
@@ -285,10 +288,17 @@ const SharedList = ({ api, chat, kind, count, onBack, onGo }) => {
           key: 'l',
           className: GRID.has(kind) ? 'shared-grid' : 'shared-items',
         },
-        list.items.map((message) =>
+        shown.map((message) =>
           el(Item, { key: message.id, api, chat, message, onGo })
         )
       ),
+      !list.loading && !list.more && list.items.length > 0 && shown.length === 0
+        ? el(
+            'p',
+            { key: 'empty', className: 'meta' },
+            t('chat.visibility.empty')
+          )
+        : null,
       list.loading ? el(Spinner, { key: 'wait' }) : null,
       el('div', { key: 'end', ref: end, className: 'shared-end' }),
     ]

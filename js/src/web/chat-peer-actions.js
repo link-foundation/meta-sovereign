@@ -10,6 +10,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocaleContext, useT } from './i18n.js';
 import { useEsc } from './chat-invite.js';
+import { telegramAuthor } from './message-visibility.js';
+import { setSenderHidden } from './message-visibility-prefs.js';
+import { activeAccount } from './telegram-account-scope.js';
 
 const el = React.createElement;
 
@@ -72,7 +75,16 @@ const Shell = ({ name, title, error, children, buttons, onClose, t }) => {
   );
 };
 
-const Confirm = ({ name, body, label, danger, busy, onYes, ...rest }) =>
+const Confirm = ({
+  name,
+  body,
+  label,
+  danger,
+  busy,
+  onYes,
+  children,
+  ...rest
+}) =>
   el(
     Shell,
     {
@@ -93,7 +105,7 @@ const Confirm = ({ name, body, label, danger, busy, onYes, ...rest }) =>
         ),
       ],
     },
-    el('p', { key: 'p' }, body)
+    [el('p', { key: 'p' }, body), children]
   );
 
 const AddDialog = ({ person, busy, error, onYes, onClose, t }) => {
@@ -243,7 +255,8 @@ const nameOf = (chat) => {
 };
 
 const useChanges = (api, chat, info) => {
-  const key = String(chat.chat);
+  const peer = String(chat.chat);
+  const key = `${activeAccount()}:${peer}`;
   const [state, setState] = useState(
     known.get(key) ?? {
       blocked: Boolean(info?.blocked),
@@ -268,16 +281,24 @@ const useChanges = (api, chat, info) => {
       setDialog(name);
     },
     close: () => setDialog(null),
-    block: (on) =>
-      run(() => api.telegramPeerBlock({ chat: key, block: on }), {
-        blocked: on,
-      }),
+    block: async (on, hideAuthor) => {
+      const slot = activeAccount();
+      const answer = await call.run(() =>
+        api.telegramPeerBlock({ chat: peer, block: on })
+      );
+      if (answer?.ok) {
+        if (on && hideAuthor) {
+          setSenderHidden(hideAuthor, true, slot);
+        }
+        apply({ blocked: on });
+      }
+    },
     contact: (body, add) =>
-      run(() => api.telegramPeerContact({ chat: key, add, ...body }), {
+      run(() => api.telegramPeerContact({ chat: peer, add, ...body }), {
         contact: add,
       }),
     spam: () =>
-      run(() => api.telegramPeerReportSpam({ chat: key }), {
+      run(() => api.telegramPeerReportSpam({ chat: peer }), {
         blocked: state.blocked,
       }),
   };
@@ -295,21 +316,44 @@ const Button = ({ action, label, onClick }) =>
     label
   );
 
+const BlockDialog = ({ chat, change, t, ...shared }) => {
+  const [hide, setHide] = useState(false);
+  const author = telegramAuthor(chat);
+  return el(
+    Confirm,
+    {
+      ...shared,
+      t,
+      name: 'block',
+      title: t('chat.peer.blockTitle'),
+      body: t('chat.peer.blockBody', { name: chat.name ?? '' }),
+      label: t('chat.peer.block'),
+      danger: true,
+      onYes: () => change.block(true, hide ? author : null),
+    },
+    author
+      ? el('label', { className: 'peer-share' }, [
+          el('input', {
+            key: 'hide',
+            type: 'checkbox',
+            checked: hide,
+            disabled: shared.busy,
+            'data-action': 'block-hide-messages',
+            onChange: (event) => setHide(event.target.checked),
+          }),
+          ` ${t('chat.visibility.blockChoice')}`,
+        ])
+      : null
+  );
+};
+
 const Dialogs = ({ api, chat, change, t }) => {
   const { dialog, call, close } = change;
   const shared = { busy: call.busy, error: call.code, onClose: close, t };
   const name = chat.name ?? '';
   switch (dialog) {
     case 'block':
-      return el(Confirm, {
-        ...shared,
-        name: 'block',
-        title: t('chat.peer.blockTitle'),
-        body: t('chat.peer.blockBody', { name }),
-        label: t('chat.peer.block'),
-        danger: true,
-        onYes: () => change.block(true),
-      });
+      return el(BlockDialog, { ...shared, chat, change });
     case 'delete':
       return el(Confirm, {
         ...shared,

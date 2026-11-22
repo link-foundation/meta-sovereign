@@ -4,6 +4,7 @@
 // (https://github.com/telegramdesktop/tdesktop) for terminology
 // consistency on common UI verbs.
 
+import { ruVisibility } from './hidden-senders.js';
 import { ruChat } from './ru-chat.js';
 import { ruChatMore } from './ru-chat-more.js';
 import { ruChatAccount } from './ru-chat-account.js';
@@ -29,6 +30,7 @@ export const ru = {
   'panels.chats': 'Ширина списка чатов',
   'panels.details': 'Ширина сведений',
   ...ruChat,
+  ...ruVisibility,
   ...ruChatMore,
   ...ruChatAccount,
   ...ruFolders,

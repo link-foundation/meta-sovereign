@@ -256,8 +256,19 @@ const ListFooter = ({ t, list, may, onAsk, onHide }) => [
   ),
 ];
 
-const ListDialog = ({ api, chat, topic, list, may, onGo, onClose, onHide }) => {
+const ListDialog = ({
+  api,
+  chat,
+  topic,
+  list,
+  may,
+  onGo,
+  onClose,
+  onHide,
+  visibility,
+}) => {
   const t = useT();
+  const shown = visibility?.show(list.messages) ?? list.messages;
   const [asking, setAsking] = useState(false);
   const [doing, setDoing] = useState({ busy: false, failed: false });
   const unpin = async (message) => {
@@ -295,7 +306,14 @@ const ListDialog = ({ api, chat, topic, list, may, onGo, onClose, onHide }) => {
       name: 'pinned-list',
     },
     [
-      ...list.messages.map((message) =>
+      !shown.length && list.messages.length > 0 && !list.next
+        ? el(
+            'p',
+            { key: 'empty', className: 'meta' },
+            t('chat.visibility.empty')
+          )
+        : null,
+      ...shown.map((message) =>
         el(Item, {
           key: message.id,
           message,
@@ -420,6 +438,7 @@ export const PinnedBar = ({ state, api, onOpen }) => {
           chat: current,
           topic,
           list,
+          visibility: state.visibility,
           may,
           onGo: (id) => {
             setOpen(false);
