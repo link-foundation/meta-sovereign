@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { browserOf } from './helpers/e2e-chat.mjs';
+import { watchChatPages } from './helpers/e2e-page-errors.mjs';
 import {
   startWorkspaceFixture,
   WORKSPACE_BRAND,
@@ -50,11 +51,19 @@ try {
   };
   const first = await browser.newContext(options);
   const second = await browser.newContext(options);
+  const observe = {
+    errors,
+    engine,
+    base: app.origin,
+    trace:
+      process.env.CI_BROWSER_DEBUG === '1'
+        ? (event) => console.log(`[e2e-cloud-workspace] ${event}`)
+        : undefined,
+  };
+  watchChatPages(first, observe);
+  watchChatPages(second, observe);
   const page = await first.newPage();
   const secondPage = await second.newPage();
-  for (const tab of [page, secondPage]) {
-    tab.on('pageerror', (error) => errors.push(error.message));
-  }
   const foreignRequests = [];
   page.on('request', (request) => {
     if (new URL(request.url()).origin !== app.origin) {
@@ -94,6 +103,7 @@ try {
   await signIn(secondPage, app.ownerKey);
   await secondPage.getByRole('button', { name: 'Sign out' }).waitFor();
   assert.equal(await linkId(secondPage), 'fixture:cross-browser');
+  await page.bringToFront();
   const persisted = await page.evaluate(async () =>
     typeof globalThis.indexedDB.databases === 'function'
       ? (await globalThis.indexedDB.databases()).map(({ name }) => name)
@@ -117,7 +127,9 @@ try {
     0
   );
   await screenshot(page, 'connections');
-  await page.getByRole('button', { name: 'Sign out' }).click();
+  const signOut = page.getByRole('button', { name: 'Sign out' });
+  await signOut.waitFor();
+  await signOut.press('Enter');
   await page.getByLabel('Workspace access key').waitFor();
   assert.equal(
     await page.evaluate(async () => (await fetch('/links')).status),
