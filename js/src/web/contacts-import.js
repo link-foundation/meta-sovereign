@@ -9,6 +9,9 @@ import { decodeVcard } from '../sources/vcard.js';
 const el = React.createElement;
 const MAX_FILE_BYTES = 10 * 1024 * 1024;
 
+const readingKey = (workspace) =>
+  workspace ? 'cloud.contactsReading' : 'contacts.import.reading';
+
 const Preview = ({ preview, busy, apply, cancel, t }) =>
   el('div', { className: 'col', 'data-contacts-preview': true }, [
     el(
@@ -193,6 +196,7 @@ const useContactImport = (api, onImported, t) => {
 
 export const ContactsImport = ({ api, onImported }) => {
   const t = useT();
+  const workspace = workspaceName();
   const { file, sources, state, preview, selected, apply, cancel } =
     useContactImport(api, onImported, t);
   return el(
@@ -203,7 +207,11 @@ export const ContactsImport = ({ api, onImported }) => {
     },
     [
       el('h3', { key: 'title' }, t('contacts.import.title')),
-      el('p', { key: 'hint', className: 'meta' }, t('contacts.import.hint')),
+      el(
+        'p',
+        { key: 'hint', className: 'meta' },
+        t(workspace ? 'cloud.contactsImportHint' : 'contacts.import.hint')
+      ),
       sources?.ok === false
         ? el(
             'p',
@@ -212,7 +220,7 @@ export const ContactsImport = ({ api, onImported }) => {
           )
         : null,
       el('div', { key: 'sources', className: 'row' }, [
-        workspaceName()
+        workspace
           ? null
           : el(
               'button',
@@ -253,7 +261,7 @@ export const ContactsImport = ({ api, onImported }) => {
             t(
               state.preview
                 ? 'contacts.import.importing'
-                : 'contacts.import.reading'
+                : readingKey(workspace)
             )
           )
         : null,

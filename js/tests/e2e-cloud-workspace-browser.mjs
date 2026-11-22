@@ -65,6 +65,12 @@ try {
   await page.goto(`${app.origin}/?server=http://127.0.0.1:1`);
   assert.equal(new URL(page.url()).pathname, '/_cloud/sign-in');
   await page.getByRole('heading', { name: WORKSPACE_BRAND }).waitFor();
+  assert.equal(
+    await page
+      .locator('.cloud-logo')
+      .evaluate((img) => img.decode().then(() => img.naturalWidth)),
+    24
+  );
   await screenshot(page, 'sign-in');
   await signIn(page, 'invalid');
   await page.getByRole('alert').waitFor();
@@ -99,6 +105,9 @@ try {
   await page.locator('main[data-view="operator"]').waitFor();
   await page.locator('button[data-view="connections"]').click();
   await page.locator('article[data-provider-id="telegram"]').waitFor();
+  await page
+    .getByText('Choose a service to connect an account or upload an archive.')
+    .waitFor();
   assert.equal(
     await page.locator('[data-action="marketplace-open"]').count(),
     0

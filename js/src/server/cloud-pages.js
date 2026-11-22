@@ -115,6 +115,8 @@ ${
 }
 #app[hidden] { display: none; }
 .topbar form { margin: 0; flex: 0 0 auto; }
+.lock-screen { flex-direction: column; gap: .75rem; }
+.lock-screen form { margin: 0; }
 ${hasLogo ? '.topbar h1::before { content: ""; width: 1.25em; height: 1.25em; display: inline-block; vertical-align: middle; margin-inline-end: .4em; background: url("/_cloud/logo.png") center / contain no-repeat; }' : ''}
 .cloud-login {
   font: 1rem system-ui, sans-serif;
@@ -143,7 +145,16 @@ ${hasLogo ? '.topbar h1::before { content: ""; width: 1.25em; height: 1.25em; di
   border-radius: .375rem;
   padding: .65rem .75rem;
 }
-.cloud-login-card button { cursor: pointer; }
+.cloud-login-card button {
+  background: color-mix(in srgb, var(--workspace-accent) 52%, #000);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+.cloud-login-card :is(input, button):focus-visible {
+  outline: 2px solid CanvasText;
+  outline-offset: 2px;
+}
 .cloud-login-error { margin: 0; }
 `;
 

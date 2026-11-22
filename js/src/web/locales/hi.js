@@ -37,6 +37,11 @@ export const hi = {
   ...hiGithub,
   appName: 'meta-sovereign',
   'cloud.signOut': 'साइन आउट करें',
+  'cloud.connectionsIntro':
+    'खाता कनेक्ट करने या संग्रह अपलोड करने के लिए कोई सेवा चुनें।',
+  'cloud.contactsImportHint':
+    'संपर्कों की समीक्षा और आयात के लिए vCard फ़ाइल अपलोड करें।',
+  'cloud.contactsReading': 'vCard फ़ाइल पढ़ी जा रही है…',
   'cloud.unreachable':
     'कार्यस्थान सर्वर उपलब्ध नहीं है। अपना कनेक्शन जाँचें और फिर कोशिश करें।',
   'cloud.browserProvider':

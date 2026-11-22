@@ -9,6 +9,10 @@ import { startServer } from '../../src/server/index.js';
 import { makeLocalCertificate } from '../../src/server/local-tls.js';
 
 export const WORKSPACE_BRAND = 'Northwind Workspace';
+const logo = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAcklEQVR4nGNgQAJsBa3/qYEZ0AG1DMZpEU0toJXhcEsGzIJf//+DMSEDCKkbeAsIWUIVC/AZQDULcBlClTjAZwnVIhmXJVRNRdgsoXoyRbeEJvmA2ARAtgWkJGOKcjLNLaBZHFDFAmph2lsw9OtkWjdbAKgq6kV6Ss9GAAAAAElFTkSuQmCC',
+  'base64'
+);
 
 export const startWorkspaceFixture = async () => {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'ms-cloud-browser-'));
@@ -46,7 +50,7 @@ export const startWorkspaceFixture = async () => {
         host,
         ownerKey,
         storeKey,
-        brand: { name: WORKSPACE_BRAND, accent: '#067085', logo: null },
+        brand: { name: WORKSPACE_BRAND, accent: '#067085', logo },
       },
       storeDir: dir,
       secretPassphrase: storeKey,

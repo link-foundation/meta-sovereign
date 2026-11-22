@@ -51,6 +51,17 @@ globalThis.__msApi = api;
 
 const el = React.createElement;
 
+const WorkspaceSignOut = ({ t }) =>
+  el(
+    'form',
+    { action: '/_cloud/sign-out', method: 'post' },
+    el(
+      'button',
+      { className: 'header-btn', type: 'submit' },
+      t('cloud.signOut')
+    )
+  );
+
 const useOnlineMode = () => {
   const [online, setOnline] = useState(null);
   useEffect(() => {
@@ -199,17 +210,7 @@ const App = () => {
           el(ModeBadge, { key: 'mode', online }),
           el(TutorialButton, { key: 'tutorial', onOpen: openTutorial }),
           el(LanguageSwitcher, { key: 'lang' }),
-          workspace
-            ? el(
-                'form',
-                { key: 'sign-out', action: '/_cloud/sign-out', method: 'post' },
-                el(
-                  'button',
-                  { className: 'header-btn', type: 'submit' },
-                  t('cloud.signOut')
-                )
-              )
-            : null,
+          workspace ? el(WorkspaceSignOut, { key: 'sign-out', t }) : null,
           el(
             'button',
             {
@@ -290,8 +291,15 @@ const Root = () => {
   const localeApi = useLocale();
   const lock = useLocalLock(api);
   useEffect(watchWorkspaceSession, []);
+  const signOut = workspaceName()
+    ? el(WorkspaceSignOut, { t: localeApi.t })
+    : null;
   return lock.phase === 'locked'
-    ? el(LocaleContext.Provider, { value: localeApi }, el(LockScreen, { api }))
+    ? el(
+        LocaleContext.Provider,
+        { value: localeApi },
+        el(LockScreen, { api, extraAction: signOut })
+      )
     : lock.phase === 'loading'
       ? el(
           LocaleContext.Provider,

@@ -36,6 +36,11 @@ export const ru = {
   ...ruGithub,
   appName: 'meta-sovereign',
   'cloud.signOut': 'Выйти',
+  'cloud.connectionsIntro':
+    'Выберите сервис, чтобы подключить аккаунт или загрузить архив.',
+  'cloud.contactsImportHint':
+    'Загрузите файл vCard для предварительного просмотра и импорта контактов.',
+  'cloud.contactsReading': 'Читаем файл vCard…',
   'cloud.unreachable':
     'Сервер рабочего пространства недоступен. Проверьте подключение и повторите попытку.',
   'cloud.browserProvider':

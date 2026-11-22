@@ -36,6 +36,11 @@ export const en = {
   ...enGithub,
   appName: 'meta-sovereign',
   'cloud.signOut': 'Sign out',
+  'cloud.connectionsIntro':
+    'Choose a service to connect an account or upload an archive.',
+  'cloud.contactsImportHint':
+    'Upload a vCard file to preview and import contacts.',
+  'cloud.contactsReading': 'Reading vCard file…',
   'cloud.unreachable':
     'The workspace server is unavailable. Check your connection and try again.',
   'cloud.browserProvider':

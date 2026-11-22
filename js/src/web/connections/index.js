@@ -1021,6 +1021,7 @@ const useAutoImportStatus = () => {
 
 export const ConnectionsList = ({ status, onOpen, initialAutoImport }) => {
   const t = useT();
+  const workspace = workspaceName();
   const [loaded, reload] = useAutoImportStatus();
   const autoImport = loaded ?? initialAutoImport ?? null;
   const ids = byPopularity(Object.keys(providerCatalogue));
@@ -1033,11 +1034,15 @@ export const ConnectionsList = ({ status, onOpen, initialAutoImport }) => {
     [
       el('header', { key: 'h', className: 'connections-list-header' }, [
         el('h2', { key: 'title' }, t('connections.title')),
-        el('p', { key: 'intro', className: 'meta' }, t('connections.intro')),
+        el(
+          'p',
+          { key: 'intro', className: 'meta' },
+          t(workspace ? 'cloud.connectionsIntro' : 'connections.intro')
+        ),
       ]),
       // Shown while the status loads (so it never pops in late) and
       // hidden only once the server says browser import is unavailable.
-      workspaceName() || autoImport?.available === false
+      workspace || autoImport?.available === false
         ? null
         : el(BrowserSignIns, {
             key: 'sign-ins',

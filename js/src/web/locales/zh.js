@@ -36,6 +36,9 @@ export const zh = {
   ...zhGithub,
   appName: 'meta-sovereign',
   'cloud.signOut': '退出登录',
+  'cloud.connectionsIntro': '选择要连接账号或上传归档文件的服务。',
+  'cloud.contactsImportHint': '上传 vCard 文件以预览并导入联系人。',
+  'cloud.contactsReading': '正在读取 vCard 文件…',
   'cloud.unreachable': '工作区服务器暂时无法访问。请检查连接后重试。',
   'cloud.browserProvider':
     '您可以在此上传导出的归档文件。通过浏览器实时登录需要在您的设备上运行应用。',
