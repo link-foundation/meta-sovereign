@@ -84,6 +84,7 @@ import { useConversationSettings } from './conversation-prefs.js';
 import { useLocaleContext } from './i18n.js';
 import { mergeSuggestions } from '../replies/reply-cache.js';
 import { pendingChatPreviews } from './chat-pending-preview.js';
+import { useMessageVisibility } from './message-visibility-prefs.js';
 
 export { shownAutopilot } from './autopilot-hook.js';
 
@@ -92,13 +93,17 @@ const TYPING_EVERY_MS = 4000;
 // The chat's pinned message: the one Telegram names, unless a newer one
 // held was pinned since or it was unpinned; else the newest held that is
 // marked pinned.
-const pinnedOf = (messages, pinnedId, known) => {
+const pinnedOf = (messages, pinnedId, known, visibility) => {
   const named = pinnedId
     ? (messages.find((m) => m.id === pinnedId) ?? known.get(pinnedId))
     : null;
   const newest =
     messages.findLast?.((m) => m.raw?.pinned && !m.deleted) ?? null;
-  const usable = named && !named.deleted && named.raw?.pinned !== false;
+  const usable =
+    named &&
+    !named.deleted &&
+    named.raw?.pinned !== false &&
+    !visibility.hides(named);
   if (!usable) {
     return newest;
   }
@@ -987,9 +992,12 @@ const shownFilter = (filter, folders) => {
   return { filter: isFolderFilter(filter) ? 'all' : filter, folder: null };
 };
 
-const useChatList = (links, target, query, folders = []) => {
+const useChatList = (links, target, query, folders, visibility) => {
   const summarize = useMemo(() => createChatSummarizer(), []);
-  const directory = useMemo(() => summarize(links ?? []), [links, summarize]);
+  const directory = useMemo(
+    () => summarize(links ?? [], { visibility }),
+    [links, summarize, visibility]
+  );
   const all = useMemo(() => {
     const list = directory;
     if (
@@ -1189,6 +1197,36 @@ const usePendingChatList = (chats, pending, sort) =>
     [chats, pending, sort]
   );
 
+const useVisibleHistory = (
+  api,
+  links,
+  current,
+  pending,
+  { window, topic, visibility }
+) => {
+  const { messages: loaded, links: known } = useShownMessages(
+    api,
+    links,
+    current,
+    window,
+    pending,
+    topic
+  );
+  const messages = useMemo(() => visibility.show(loaded), [loaded, visibility]);
+  const info = useChatInfo(api, current);
+  const pinnedId = pinnedLinkId(info, current);
+  const targets = useReplyTargets(api, messages, known, window, [pinnedId]);
+  return {
+    messages,
+    info,
+    filteredMessages: loaded.length - messages.length,
+    pinned: pinnedOf(messages, pinnedId, targets, visibility),
+    hiddenPinnedId: visibility.hides(targets.get(pinnedId)) ? pinnedId : null,
+    replyTargets: visibility.lookup(targets),
+    names: senderNames([...targets.values(), ...messages]),
+  };
+};
+
 export const useChatState = (
   api,
   {
@@ -1210,7 +1248,8 @@ export const useChatState = (
   const hashTarget = useHashChat(hashView);
   const target = followHash ? hashTarget : null;
   const folders = useTelegramFolders(api, telegram);
-  const list = useChatList(links, target, query, folders);
+  const visibility = useMessageVisibility();
+  const list = useChatList(links, target, query, folders, visibility);
   const folderTools = useFolderTools(api, folders, list.all);
   // New chats in shared folders the user joined (R-Y211).
   const folderUpdates = useChatlistUpdates(api, folders);
@@ -1244,7 +1283,14 @@ export const useChatState = (
     followHash: followHash && hashView === 'chat',
   });
   // The first look is the list as loaded, not the opened chat alone.
-  useNotifications({ chats: links ? all : [], current, show, t, api });
+  useNotifications({
+    chats: links ? all : [],
+    current,
+    show,
+    t,
+    api,
+    visibility,
+  });
   const composer = useComposer({
     api,
     current,
@@ -1253,26 +1299,22 @@ export const useChatState = (
     typing: useTypingOut(api, current),
     cloud: cloudDraft(links ?? [], current?.key),
     topic: forum.topic,
+    visibility,
   });
-  const { messages, links: known } = useShownMessages(
+  const { names, ...timeline } = useVisibleHistory(
     api,
     links,
     current,
-    history.window,
     composer.pending,
-    forum.topic
+    { window: history.window, topic: forum.topic, visibility }
   );
-  const info = useChatInfo(api, current);
-  const replyTargets = useReplyTargets(api, messages, known, history.window, [
-    pinnedLinkId(info, current),
-  ]);
   const { seen, unreadAfter } = useReading(
     api,
     viewed,
     links,
     readMax,
     autoRead,
-    messages
+    timeline.messages
   );
 
   const typingNow = useTypingIn(api, current, { tick, pollMs, links });
@@ -1317,24 +1359,20 @@ export const useChatState = (
     history,
     current,
     forum,
-    info,
+    ...timeline,
     // Who waits to join, as Telegram last said (R-Y161).
     joinRequests: requestsLinkOf(links, current),
     // The chat's voice chat, live (R-Y188).
     groupCall: callLinkOf(links, current),
     // A private call, live (R-Y196).
     privateCall: privateCallLinkOf(links),
-    pinned: pinnedOf(messages, pinnedLinkId(info, current), replyTargets),
     ...opening,
-    messages,
-    replyTargets,
-    unreadLine: firstUnreadId(messages, unreadAfter),
+    visibility,
+    unreadLine: firstUnreadId(timeline.messages, unreadAfter),
     seen,
-    typing: typingStatus(typingNow, {
-      names: senderNames([...replyTargets.values(), ...messages]),
-    }),
+    typing: typingStatus(typingNow, { names }),
     composer,
-    suggester: useSuggester(api, current, messages, links, composer),
+    suggester: useSuggester(api, current, timeline.messages, links, composer),
     menu: useAutomationMenu({ api, current, confirm, t, after, drafts, show }),
     drafts,
     autopilot: useAutopilot({

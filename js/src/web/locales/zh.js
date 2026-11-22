@@ -5,6 +5,7 @@
 // `navigator.language` values (`zh`, `zh-CN`, `zh-Hans`, `zh-Hans-CN`,
 // `zh-Hant-TW`, …) resolve to this dictionary via prefix matching.
 
+import { zhVisibility } from './hidden-senders.js';
 import { zhChat } from './zh-chat.js';
 import { zhChatMore } from './zh-chat-more.js';
 import { zhChatAccount } from './zh-chat-account.js';
@@ -29,6 +30,7 @@ export const zh = {
   'panels.chats': '调整聊天列表宽度',
   'panels.details': '调整详情宽度',
   ...zhChat,
+  ...zhVisibility,
   ...zhChatMore,
   ...zhChatAccount,
   ...zhFolders,

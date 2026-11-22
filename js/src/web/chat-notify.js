@@ -13,6 +13,7 @@ import { useEffect, useRef, useState } from 'react';
 import { chatPreview } from './chat-list.js';
 import { SOUND_KEY, playNotifySound, soundOf } from './notify-sound.js';
 import { activeAccount } from './telegram-account-scope.js';
+import { senderHiddenFor } from './message-visibility-prefs.js';
 import {
   ACCOUNT_MESSAGE,
   accountNotification,
@@ -175,7 +176,15 @@ const accountName = async (api, t, slot) => {
 // notification names the account; a click shows that account and the chat.
 const notifyOther = async (api, t, event) => {
   globalThis.dispatchEvent?.(new globalThis.Event(ACCOUNT_MESSAGE));
-  if (event.muted || !readPref(NOTIFY_KEY, true) || !notifyAllowed()) {
+  if (
+    event.muted ||
+    senderHiddenFor(
+      { source: 'telegram', sender: event.authorId },
+      event.account
+    ) ||
+    !readPref(NOTIFY_KEY, true) ||
+    !notifyAllowed()
+  ) {
     return;
   }
   const name = await accountName(api, t, event.account);
@@ -238,8 +247,16 @@ const useOtherAccounts = (api, t) => {
  * Shows a notification for each chat with news. `show({ source, chat })`
  * opens a chat; `current` is the open one.
  */
-export const useNotifications = ({ chats, current, show, t, api }) => {
+export const useNotifications = ({
+  chats,
+  current,
+  show,
+  t,
+  api,
+  visibility,
+}) => {
   const seen = useRef(null);
+  const lastVisibility = useRef(visibility);
   const latest = useRef(show);
   latest.current = show;
   useTitleCount(chats, readPref(TITLE_COUNT_KEY, true));
@@ -251,11 +268,16 @@ export const useNotifications = ({ chats, current, show, t, api }) => {
     }
     const open = looking() ? current?.key : null;
     const rules = getNotifyRules();
-    const found = freshChats(seen.current, chats, {
-      open,
-      allow: (chat) => shouldNotify(chat, rules),
-    });
+    const found = freshChats(
+      lastVisibility.current === visibility ? seen.current : null,
+      chats,
+      {
+        open,
+        allow: (chat) => shouldNotify(chat, rules),
+      }
+    );
     seen.current = found.seen;
+    lastVisibility.current = visibility;
     if (!readPref(NOTIFY_KEY, true) || !notifyAllowed()) {
       return;
     }
@@ -284,5 +306,5 @@ export const useNotifications = ({ chats, current, show, t, api }) => {
         // A browser that shows notifications only from a service worker.
       }
     }
-  }, [chats, current?.key]);
+  }, [chats, current?.key, visibility]);
 };

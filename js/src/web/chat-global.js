@@ -41,7 +41,7 @@ const joined = (before, got) => {
  * messages, count, more, loading, loadMore }`; nothing while `enabled` is
  * false.
  */
-export const useGlobalSearch = (api, query, enabled) => {
+export const useGlobalSearch = (api, query, enabled, visibility) => {
   const [found, setFound] = useState(EMPTY);
   const ticket = useRef(0);
   const latest = useRef(found);
@@ -99,7 +99,14 @@ export const useGlobalSearch = (api, query, enabled) => {
     }));
   };
 
-  return { ...found, on, loadMore };
+  const messages = visibility?.show(found.messages) ?? found.messages;
+  return {
+    ...found,
+    messages,
+    count: visibility?.has('telegram') ? messages.length : found.count,
+    on,
+    loadMore,
+  };
 };
 
 /** `text` with each place `query` is in it marked, as Telegram marks it. */
@@ -257,7 +264,7 @@ const MoreRow = ({ search }) => {
     );
     watch.observe(node);
     return () => watch.disconnect();
-  }, [search.more, search.messages.length]);
+  }, [search.more, search.cursor]);
   return search.loading || search.more
     ? el(
         'p',

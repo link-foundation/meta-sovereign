@@ -62,6 +62,7 @@ export const NOTICE = {
   'link-copied': 'chat.notice.linkCopied',
   'image-copied': 'chat.notice.imageCopied',
   'music-saved': 'chat.music.saved',
+  'sender-hidden': 'chat.visibility.applied',
   'date-failed': 'chat.days.failed',
   bot: 'chat.bot.toast',
   'bot-unsupported': 'chat.bot.unsupported',
@@ -369,7 +370,12 @@ export const Sidebar = ({ state, api }) => {
   const pins = usePinnedOrder({ state, api });
   const listMenu = useChatListMenu({ state, api, pins });
   useListLoading(list, state);
-  const global = useGlobalSearch(api, state.query, globalOn(state));
+  const global = useGlobalSearch(
+    api,
+    state.query,
+    globalOn(state),
+    state.visibility
+  );
   const focus = useSearchFocus();
   const [showStories] = useStoriesEnabled();
   const stories = useStories(api, globalOn(state) && showStories);

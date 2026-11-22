@@ -6,7 +6,7 @@ import { OlderRow } from './chat-follow.js';
 import { BusinessIntro } from './chat-business-profile.js';
 
 const el = React.createElement;
-export const EmptyConversation = ({ api, chat, history }) => {
+export const EmptyConversation = ({ api, chat, history, hidden }) => {
   const t = useT();
   const pending = Boolean(
     history?.initialLoading ||
@@ -20,11 +20,21 @@ export const EmptyConversation = ({ api, chat, history }) => {
       { key: 'icon', className: 'chat-empty-icon', 'aria-hidden': 'true' },
       el(Icon, { name: 'chat', size: 24 })
     ),
-    el('h3', { key: 'title', className: 'chat-empty-title' }, t('chat.empty')),
+    el(
+      'h3',
+      { key: 'title', className: 'chat-empty-title' },
+      t(hidden ? 'chat.visibility.empty' : 'chat.empty')
+    ),
     el(
       'p',
       { key: 'hint', className: 'chat-empty-hint' },
-      t(chat?.personal ? 'chat.emptyHint' : 'chat.emptyWaiting')
+      t(
+        hidden
+          ? 'chat.visibility.emptyHint'
+          : chat?.personal
+            ? 'chat.emptyHint'
+            : 'chat.emptyWaiting'
+      )
     ),
   ]);
   return el(
@@ -35,6 +45,8 @@ export const EmptyConversation = ({ api, chat, history }) => {
     },
     pending
       ? el(OlderRow, { history })
-      : el(BusinessIntro, { api, chat, fallback })
+      : hidden
+        ? fallback
+        : el(BusinessIntro, { api, chat, fallback })
   );
 };

@@ -5,6 +5,7 @@
 // stay in their source form because they are proper nouns / API
 // brand identifiers.
 
+import { enVisibility } from './hidden-senders.js';
 import { enChat } from './en-chat.js';
 import { enChatMore } from './en-chat-more.js';
 import { enChatAccount } from './en-chat-account.js';
@@ -29,6 +30,7 @@ export const en = {
   'panels.chats': 'Resize chat list',
   'panels.details': 'Resize details',
   ...enChat,
+  ...enVisibility,
   ...enChatMore,
   ...enChatAccount,
   ...enFolders,

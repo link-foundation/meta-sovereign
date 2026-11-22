@@ -47,6 +47,7 @@ import { PROXY_ID } from '../sources/telegram-proxy.js';
 import { createChatIndex } from './chat-index.js';
 import { createConversationKnowledge } from './conversation-knowledge.js';
 import { createReplyService } from '../replies/reply-service.js';
+import { messageAuthor } from '../web/message-visibility.js';
 
 const FRESH_MS = 2 * 60_000;
 
@@ -182,12 +183,14 @@ const createMessageWatch = ({ home, now, entries }) => {
   const announce = async (slot, store, link) => {
     const read = await store.get(`read:telegram:${link.chat}`);
     const body = String(link.body ?? '');
+    const author = messageAuthor(link);
     const event = {
       account: slot,
       id: link.id,
       chat: String(link.chat),
       chatName: link.chatName ?? link.senderName ?? null,
       sender: link.senderName ?? null,
+      ...(author ? { authorId: author.id } : {}),
       body: body.length > 200 ? `${body.slice(0, 200)}...` : body,
       at: link.timestamp ?? null,
       muted: Number(read?.muteUntil ?? 0) * 1000 > now(),

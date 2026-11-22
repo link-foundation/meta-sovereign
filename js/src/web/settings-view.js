@@ -29,6 +29,7 @@ import { useReadReceipts, useShareTyping } from './privacy-prefs.js';
 import { ConversationSettings } from './settings-conversation.js';
 import { BirthdaySettings } from './settings-birthdays.js';
 import { FeedbackSettings } from './settings-feedback.js';
+import { HiddenSenderSettings } from './settings-hidden-senders.js';
 import {
   NOTIFY_KEY,
   NOTIFY_PREVIEW_KEY,
@@ -332,6 +333,7 @@ export const SettingsView = () => {
     el(FoldersSettings, { key: 'folders', api }),
     el(TranslateSettings, { key: 'translate' }),
     el(PrivacySettings, { key: 'privacy' }),
+    el(HiddenSenderSettings, { key: 'hidden-senders' }),
     el(NotificationSettings, { key: 'notify' }),
     el(TelegramNotifySettings, { key: 'notify-telegram', api }),
     el(SoundSettings, { key: 'sounds', api }),

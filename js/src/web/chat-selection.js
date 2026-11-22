@@ -198,12 +198,13 @@ const gameItems = (message) => (hasGameScores(message) ? ['gameScores'] : []);
 
 // The end of the menu: forward, delete, report, Block user in the Replies
 // chat (R-Y217), who read it, Select and the read time.
-const tailItems = (message, chat, info) => [
+const tailItems = (message, chat, info, hideSender) => [
   'forward',
   'delete',
   canReport(message, chat) && 'report',
   canBlockFromReplies(message, chat) && 'blockSender',
   ...whoItems(message, chat, info),
+  hideSender && 'hideSender',
   'select',
   // "Read at 14:05", a line, not an action (R-Y189).
   hasReadTime(message, chat, info) && 'readTime',
@@ -222,6 +223,7 @@ const singleItems = ({
   target,
   now,
   gifs,
+  hideSender,
 }) => {
   const sent = !message.pending;
   if (!sent) {
@@ -246,7 +248,7 @@ const singleItems = ({
     linkItem({ message, chat, info, target }),
     hasTranslation(message) && 'translate',
     hasSummary(message) && 'summarize',
-    ...tailItems(message, chat, info),
+    ...tailItems(message, chat, info, hideSender),
   ];
 };
 
@@ -298,6 +300,7 @@ export const menuItems = ({
   order = [],
   now = Date.now(),
   gifs = null,
+  hideSender = false,
 }) => {
   if ((selection?.ids?.length ?? 0) > 0) {
     return selectedItems(message, selection, order);
@@ -311,6 +314,7 @@ export const menuItems = ({
     target,
     now,
     gifs,
+    hideSender,
   }).filter((key) => key && !(locked && LEAVES.has(key)));
 };
 
