@@ -196,7 +196,10 @@ test('accepts an edit Telegram already has without posting or editing again', as
     edited: true,
     link: null,
   });
-  assert.equal((await f.actions().continueMessage(draft)).edited, true);
+  assert.deepEqual(await f.actions().continueMessage(draft), {
+    edited: true,
+    link: null,
+  });
   assert.equal(f.edits.length, 1);
 });
 

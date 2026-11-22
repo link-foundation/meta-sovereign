@@ -162,7 +162,7 @@ const receiptId = (draft) => {
 };
 
 const editedResult = async (store, linkId) => {
-  const link = await store.get(linkId).catch(() => null);
+  const link = linkId ? await store.get(linkId).catch(() => null) : null;
   return { edited: true, link: link?.deleted ? null : link };
 };
 
@@ -270,7 +270,9 @@ export const createMessageContinuation = (env, { credentials, apply }) => {
       () => editedResult(store, linkId),
       () => ({ edited: true, link: null })
     );
-    await mark('edited', linkId).catch(() => {
+    // A result without an edit update must not put an old copy back in Chat.
+    const link = updated.link?.body === request.message ? updated.link : null;
+    await mark('edited', link ? linkId : null).catch(() => {
       env.log?.({ level: 'warn', event: 'telegram_continuation_store_failed' });
     });
     await clearSentDraft(env, plan, draft, cloudDraft).catch(() => {
@@ -279,9 +281,6 @@ export const createMessageContinuation = (env, { credentials, apply }) => {
         event: 'telegram_continuation_draft_failed',
       });
     });
-    // A result without an edit update must not put an old copy back in Chat.
-    return updated.link?.body === request.message
-      ? updated
-      : { edited: true, link: null };
+    return { edited: true, link };
   };
 };
