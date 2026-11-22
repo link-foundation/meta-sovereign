@@ -93,7 +93,7 @@ assert_status 404 "$second_port" "$second_host" /links/fixture:compose -H "Cooki
 
 # The workspace can receive requests from the ingress, but cannot open a
 # connection to private addresses or to a service in its own namespace.
-compose "$first" exec -T web node --input-type=module -e '
+compose "$first" exec -T web node --input-type=module - <<'JS'
   import net from "node:net";
   for (const host of ["127.0.0.1", "169.254.169.254"]) {
     await new Promise((resolve, reject) => {
@@ -109,7 +109,7 @@ compose "$first" exec -T web node --input-type=module -e '
       });
     });
   }
-'
+JS
 
 compose "$first" restart web
 health "$first_port" "$first_host"
