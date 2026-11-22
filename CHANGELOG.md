@@ -1,5 +1,11 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 1.4.0
+
+### Minor Changes
+
+- c152b75: Add a hosted workspace mode with browser sign-in, isolated deployments, and configurable branding.
+
 ## 1.3.0
 
 ### Minor Changes
