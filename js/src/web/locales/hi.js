@@ -25,7 +25,8 @@ export const hi = {
   ...hiConversation,
 
   'nav.calls': 'कॉल',
-  'panels.hint': 'चौड़ाई बदलने के लिए खींचें। रीसेट के लिए डबल क्लिक या Enter दबाएँ।',
+  'panels.hint':
+    'चौड़ाई बदलने के लिए खींचें। रीसेट के लिए डबल क्लिक या Enter दबाएँ।',
   'panels.navigation': 'नेविगेशन की चौड़ाई बदलें',
   'panels.chats': 'चैट सूची की चौड़ाई बदलें',
   'panels.details': 'विवरण की चौड़ाई बदलें',
@@ -38,7 +39,8 @@ export const hi = {
   ...hiGithub,
   appName: 'meta-sovereign',
   'cloud.signOut': 'साइन आउट करें',
-  'cloud.connectionsIntro': 'खाता कनेक्ट करने या संग्रह अपलोड करने के लिए कोई सेवा चुनें।',
+  'cloud.connectionsIntro':
+    'खाता कनेक्ट करने या संग्रह अपलोड करने के लिए कोई सेवा चुनें।',
   'cloud.contactsImportHint':
     'संपर्कों की समीक्षा और आयात के लिए vCard फ़ाइल अपलोड करें।',
   'cloud.contactsReading': 'vCard फ़ाइल पढ़ी जा रही है…',
@@ -52,7 +54,8 @@ export const hi = {
     'सहेजे गए सीवी स्नैपशॉट की तुलना करें। लाइव सीवी पढ़ना और अपडेट करना आपके डिवाइस पर चलता है।',
   'cloud.marketplaces':
     'सहेजी गई मार्केटप्लेस प्रोफ़ाइल देखें। साइन इन किए गए ब्राउज़र से प्रोफ़ाइल आपके डिवाइस पर ली जाती है।',
-  'cloud.tourPick': 'API से कनेक्ट करने या संग्रह आयात करने के लिए कोई सेवा चुनें।',
+  'cloud.tourPick':
+    'API से कनेक्ट करने या संग्रह आयात करने के लिए कोई सेवा चुनें।',
   'cloud.tourSetupTitle': 'कनेक्ट करें या संग्रह आयात करें',
   'cloud.tourSetup':
     'अपनी सेवा के निर्देशों का पालन करें। जहाँ यह सुविधा उपलब्ध है, क्रेडेंशियल दर्ज करें या संग्रह अपलोड करें।',
@@ -74,7 +77,8 @@ export const hi = {
     'डिफ़ॉल्ट रूप से बंद। कनेक्शन टूटने पर वर्तमान पेज बना रहता है, लोडिंग फिर होती है और कतार के संदेश अपने आप भेजे जाते हैं।',
   'header.telegramOffline':
     'Telegram कुछ समय से उपलब्ध नहीं है; कोशिश जारी है। Telegram कनेक्शन खोलें',
-  'header.telegramSignIn': 'Telegram ने यह सत्र समाप्त कर दिया; फिर से साइन इन करें',
+  'header.telegramSignIn':
+    'Telegram ने यह सत्र समाप्त कर दिया; फिर से साइन इन करें',
   'webMode.title': 'केवल ब्राउज़र मोड',
   'webMode.body':
     'ऐप लोकल सर्वर से जुड़ा नहीं है, इसलिए यह इस ब्राउज़र में सहेजे गए डेटा के साथ काम करता है। मेल और मैसेंजर से इम्पोर्ट, शेड्यूल किए गए ऑटोमेशन, डिवाइसों के बीच सिंक, CV सिंक और ग्रीटिंग्स लोकल सर्वर चलने पर चालू होते हैं। Node.js 26.12.1 या नए के साथ इसे शुरू करें:',
@@ -166,7 +170,8 @@ export const hi = {
     'सर्वर पर ब्राउज़र सुविधा उपलब्ध नहीं है। वहाँ browser-commander और Playwright इंस्टॉल करके फिर कोशिश करें।',
   'marketplace.serverRequired':
     'साइन इन और प्रोफ़ाइल सहेजने के लिए अपडेट किए गए लोकल सर्वर से जुड़ें।',
-  'marketplace.failed': 'कार्य पूरा नहीं हो सका। सत्र की विंडो जाँचकर फिर कोशिश करें।',
+  'marketplace.failed':
+    'कार्य पूरा नहीं हो सका। सत्र की विंडो जाँचकर फिर कोशिश करें।',
   'operator.loading': 'अपठित बातचीत लोड हो रही हैं…',
   'operator.checking': 'Telegram से अपठित स्थिति जाँची जा रही है…',
   'operator.title': 'ऑपरेटर',
@@ -202,7 +207,8 @@ export const hi = {
     '{created} नए, {updated} अपडेट, {skipped} अपरिवर्तित या छोड़े गए।',
   'contacts.import.apply': '{count} संपर्क आयात करें',
   'contacts.import.cancel': 'रद्द करें',
-  'contacts.import.reading': 'संपर्क पढ़े जा रहे हैं… macOS अनुमति माँग सकता है।',
+  'contacts.import.reading':
+    'संपर्क पढ़े जा रहे हैं… macOS अनुमति माँग सकता है।',
   'contacts.import.importing': 'संपर्क सहेजे जा रहे हैं…',
   'contacts.import.done': '{count} संपर्क आयात किए गए।',
   'contacts.refresh': 'संपर्क रीफ़्रेश करें',
@@ -235,8 +241,10 @@ export const hi = {
   'broadcast.title': 'प्रसारण',
   'broadcast.placeholder': 'चुने गए सभी नेटवर्क के लिए संदेश',
   'outreach.title': 'पहुँच',
-  'outreach.hint': 'सामूहिक-व्यक्तिगत पहुँच। पूर्वावलोकन हमेशा; क़तार वास्तव में भेजती है।',
-  'outreach.queryPlaceholder': 'श्रोता क्वेरी, जैसे network:telegram AND chat:vip',
+  'outreach.hint':
+    'सामूहिक-व्यक्तिगत पहुँच। पूर्वावलोकन हमेशा; क़तार वास्तव में भेजती है।',
+  'outreach.queryPlaceholder':
+    'श्रोता क्वेरी, जैसे network:telegram AND chat:vip',
   'outreach.bodyPlaceholder':
     'मुख्य पाठ। हर प्राप्तकर्ता के लिए वैयक्तिक करने हेतु {name}, {networks}, {chats} का उपयोग करें।',
   'profile.title': 'प्रोफ़ाइल',
@@ -302,12 +310,14 @@ export const hi = {
   'guide.openConnections': '{target} खोलें',
   'guide.openConnectionsTarget': 'कनेक्शन → {label}',
   'guide.openConnectionsRoot': 'कनेक्शन',
-  'guide.probeDisabled': '{label} जाँच सक्षम करने के लिए कनेक्शन में क्रेडेंशियल दर्ज करें।',
+  'guide.probeDisabled':
+    '{label} जाँच सक्षम करने के लिए कनेक्शन में क्रेडेंशियल दर्ज करें।',
   'guide.useThisServer': 'इस सर्वर का उपयोग करें',
   'guide.fallbackTitle': 'यहाँ अभी कुछ नहीं है।',
   'guide.filesLabel': 'फ़ाइलें: {hint}',
   'guide.envVarLabel': 'पर्यावरण चर: {name}',
-  'guide.localServer.title': 'इस प्रदाता को अनलॉक करने के लिए लोकल सर्वर शुरू करें',
+  'guide.localServer.title':
+    'इस प्रदाता को अनलॉक करने के लिए लोकल सर्वर शुरू करें',
   'guide.localServer.body':
     'समान-मूल लोकल सर्वर प्रदाता अनुरोध को प्रॉक्सी करता है और ब्राउज़र के CORS नियम को बायपास करता है। अपना उपलब्ध रनटाइम चुनें।',
   'guide.localServer.rust': 'Rust (अनुशंसित)',
@@ -396,7 +406,8 @@ export const hi = {
   'autoImport.capture': 'यह चैट सहेजें',
   'autoImport.finish': 'समाप्त',
   'autoImport.state.launching': 'ब्राउज़र खुल रहा है…',
-  'autoImport.state.waiting': 'ब्राउज़र खुला है। आपके एक्सपोर्ट की प्रतीक्षा है…',
+  'autoImport.state.waiting':
+    'ब्राउज़र खुला है। आपके एक्सपोर्ट की प्रतीक्षा है…',
   'autoImport.state.importing': 'आयात हो रहा है…',
   'autoImport.state.done': 'समाप्त।',
   'autoImport.state.stopped': 'लंबे विराम के बाद रोका गया।',
@@ -410,7 +421,8 @@ export const hi = {
   'outreach.confirmSend': 'इन लोगों को अभी {count} संदेश भेजें?',
   'greetings.confirmSend': 'अभी {count} अभिवादन भेजें?',
   'cv.confirmApply': 'जॉब प्लेटफ़ॉर्म पर आपके CV में अभी {count} बदलाव लिखें?',
-  'profile.savedLocally': 'इस डिवाइस पर सहेजा गया। दूसरी सेवाओं पर कुछ नहीं बदला।',
+  'profile.savedLocally':
+    'इस डिवाइस पर सहेजा गया। दूसरी सेवाओं पर कुछ नहीं बदला।',
   'profile.publishTitle': 'दूसरी सेवाओं पर अपडेट करें',
   'profile.publishHint':
     'सहेजने से आपकी प्रोफ़ाइल और CV यहीं रहते हैं। उन्हें दूसरी सेवाओं पर बदलने के लिए नेटवर्क चुनें और बदलावों की पुष्टि करें।',
@@ -432,8 +444,10 @@ export const hi = {
   'settings.notify.preview': 'भेजने वाला और पाठ दिखाएँ',
   'settings.notify.count': 'पेज के शीर्षक में अपठित संख्या',
   'settings.notify.granted': 'यह ब्राउज़र इस पेज की सूचनाएँ दिखाता है।',
-  'settings.notify.default': 'जब आप सूचनाएँ चालू करेंगे, ब्राउज़र अनुमति माँगेगा।',
-  'settings.notify.denied': 'ब्राउज़र की सेटिंग में इस पेज की सूचनाएँ अवरुद्ध हैं।',
+  'settings.notify.default':
+    'जब आप सूचनाएँ चालू करेंगे, ब्राउज़र अनुमति माँगेगा।',
+  'settings.notify.denied':
+    'ब्राउज़र की सेटिंग में इस पेज की सूचनाएँ अवरुद्ध हैं।',
   'settings.notify.unsupported': 'यह ब्राउज़र सूचनाएँ नहीं दिखा सकता।',
   // Telegram notification settings (R-Y157).
   'settings.notifyTg.title': 'Telegram सूचनाएँ',
@@ -518,8 +532,10 @@ export const hi = {
   'telegramLogin.working': 'काम जारी…',
   'telegramLogin.connected': 'साइन इन हो गया',
   'telegramLogin.you': 'आपका खाता',
-  'telegramLogin.codeSent': 'Telegram ने आपके ऐप में एक कोड भेजा है। उसे नीचे दर्ज करें।',
-  'telegramLogin.twoFactor': 'आपके खाते में 2FA पासवर्ड है। पूरा करने के लिए उसे दर्ज करें।',
+  'telegramLogin.codeSent':
+    'Telegram ने आपके ऐप में एक कोड भेजा है। उसे नीचे दर्ज करें।',
+  'telegramLogin.twoFactor':
+    'आपके खाते में 2FA पासवर्ड है। पूरा करने के लिए उसे दर्ज करें।',
   // Sign in by QR code (R-Y203)
   'telegramLogin.byQr': 'QR कोड से लॉग इन करें',
   'telegramLogin.byPhone': 'फ़ोन नंबर से लॉग इन करें',
@@ -527,8 +543,10 @@ export const hi = {
   'telegramLogin.qrAlt': 'Telegram में लॉग इन करने का QR कोड',
   'telegramLogin.qrTitle': 'QR कोड से Telegram में लॉग इन करें',
   'telegramLogin.qrStep1': 'अपने फ़ोन पर Telegram खोलें',
-  'telegramLogin.qrStep2': 'सेटिंग > डिवाइस > डेस्कटॉप डिवाइस लिंक करें पर जाएँ',
-  'telegramLogin.qrStep3': 'लॉगिन की पुष्टि के लिए अपने फ़ोन को इस स्क्रीन की ओर करें',
+  'telegramLogin.qrStep2':
+    'सेटिंग > डिवाइस > डेस्कटॉप डिवाइस लिंक करें पर जाएँ',
+  'telegramLogin.qrStep3':
+    'लॉगिन की पुष्टि के लिए अपने फ़ोन को इस स्क्रीन की ओर करें',
   'telegramLogin.qrWaiting': 'आपके कोड स्कैन करने की प्रतीक्षा है…',
   // BEGIN setup-steps (issue #25 R-N8) — auto-generated
   'connections.email.setup.step1.title': 'Email क्रेडेंशियल तैयार करें',
@@ -743,7 +761,8 @@ export const hi = {
   'whatsapp.web.opening': 'विंडो खुल रही है…',
   'whatsapp.web.waiting':
     'WhatsApp Web की विंडो खुली है। फ़ोन पर: WhatsApp > लिंक्ड डिवाइस > डिवाइस लिंक करें, और QR कोड खुद स्कैन करें।',
-  'whatsapp.web.signedIn': 'WhatsApp Web में साइन इन हो गया ({when} को पुष्टि हुई)।',
+  'whatsapp.web.signedIn':
+    'WhatsApp Web में साइन इन हो गया ({when} को पुष्टि हुई)।',
   'whatsapp.web.closed':
     'साइन इन नहीं है। विंडो यहीं, आपके सामने खुलेगी और कोड केवल आप स्कैन करते हैं।',
   'whatsapp.web.failed': 'WhatsApp Web नहीं खुल सका: {error}',
@@ -786,7 +805,8 @@ export const hi = {
   'connections.linkedin.errorHints.401':
     'OAuth2 एक्सेस टोकन अस्वीकृत। auth code प्रवाह दोबारा चलाएँ।',
   'connections.habr-career.label': 'career.habr.com',
-  'connections.habr-career.archive.title': 'career.habr.com आवेदन JSON आयात करें',
+  'connections.habr-career.archive.title':
+    'career.habr.com आवेदन JSON आयात करें',
   'connections.habr-career.archive.hint':
     'career.habr.com पर अपना खाता खोलें, "Отклики на вакансии" पर जाएँ और JSON में निर्यात क्रिया का उपयोग करें। फ़ाइल सहेजें और SPA में लोड करें।',
   'connections.habr-career.archive.fileHint': 'applications.json',
@@ -842,7 +862,8 @@ export const hi = {
   'connections.upwork.errorHints.429':
     'Upwork ने रेट-लिमिट लगाया। बैक ऑफ़ करें; API ToS के अनुसार एडाप्टर 24 घंटे तक परिणाम कैश रखता है।',
   'connections.peopleperhour.label': 'PeoplePerHour',
-  'connections.peopleperhour.archive.title': 'PeoplePerHour डेटा निर्यात आयात करें',
+  'connections.peopleperhour.archive.title':
+    'PeoplePerHour डेटा निर्यात आयात करें',
   'connections.peopleperhour.archive.hint':
     'PeoplePerHour खाता-स्तरीय निर्यात GDPR डेटा-विषय एक्सेस अनुरोध बंडल (Settings → Privacy → Request my data) और Earnings CSV (Reports → Earnings → Export) के माध्यम से देता है। परिणामी JSON या CSV को यहाँ डालें और स्रोत "peopleperhour" चुनें।',
   'connections.peopleperhour.archive.fileHint':
@@ -871,11 +892,13 @@ export const hi = {
   'connections.superjob.errorHints.401':
     'SuperJob ने App ID अस्वीकृत किया। आवेदक कैबिनेट में फिर से जाँचें।',
   'connections.naukri.label': 'naukri.com',
-  'connections.naukri.archive.title': 'Naukri रिक्रूटर इनबॉक्स निर्यात आयात करें',
+  'connections.naukri.archive.title':
+    'Naukri रिक्रूटर इनबॉक्स निर्यात आयात करें',
   'connections.naukri.archive.hint':
     'naukri.com -> "Recruiter messages" खोलें, ब्राउज़र निर्यात का उपयोग करें (या नेटवर्क टैब से लौटा JSON सहेजें) और फ़ाइल यहाँ लोड करें।',
   'connections.naukri.archive.fileHint': 'inbox.json',
-  'connections.naukri.session.title': 'स्थानीय ब्राउज़र सत्र में एक बार साइन इन करें',
+  'connections.naukri.session.title':
+    'स्थानीय ब्राउज़र सत्र में एक बार साइन इन करें',
   'connections.naukri.session.hint':
     'स्थानीय सर्वर शुरू करें, CV स्क्रीन खोलें और एक रीड चलाएँ। ब्राउज़र naukri.com खोलता है; वहाँ एक बार साइन इन करें और प्रोफ़ाइल निर्देशिका आगे के रन के लिए सत्र रखती है।',
   'connections.vietnamworks.label': 'vietnamworks.com',
@@ -893,7 +916,8 @@ export const hi = {
   'connections.topcv.archive.hint':
     'topcv.vn -> "Tin nhắn" खोलें, पृष्ठ द्वारा लोड किया गया JSON सहेजें और उसे यहाँ आयात करें।',
   'connections.topcv.archive.fileHint': 'messages.json',
-  'connections.topcv.session.title': 'स्थानीय ब्राउज़र सत्र में एक बार साइन इन करें',
+  'connections.topcv.session.title':
+    'स्थानीय ब्राउज़र सत्र में एक बार साइन इन करें',
   'connections.topcv.session.hint':
     'स्थानीय सर्वर शुरू करें, CV स्क्रीन खोलें और एक रीड चलाएँ। ब्राउज़र topcv.vn खोलता है; वहाँ एक बार साइन इन करें और प्रोफ़ाइल निर्देशिका आगे के रन के लिए सत्र रखती है।',
   'tutorial.button': 'ट्यूटोरियल',
@@ -955,7 +979,8 @@ export const hi = {
   'cv.field': 'फ़ील्ड',
   'cv.values': 'मान',
   'cv.missing': 'यहाँ अनुपस्थित',
-  'cv.noConflicts': 'कोई टकराव नहीं: पढ़ी गई फ़ील्ड पर सभी प्लेटफ़ॉर्म सहमत हैं।',
+  'cv.noConflicts':
+    'कोई टकराव नहीं: पढ़ी गई फ़ील्ड पर सभी प्लेटफ़ॉर्म सहमत हैं।',
   'cv.syncTitle': 'सिंक योजना',
   'cv.dryRun': 'ड्राई रन — किसी भी प्लेटफ़ॉर्म पर कुछ नहीं लिखा गया।',
   'cv.applied': 'लागू — सूचीबद्ध प्लेटफ़ॉर्म अपडेट कर दिए गए।',
@@ -988,7 +1013,8 @@ export const hi = {
     'संपादित करने, पूर्वावलोकन करने या चलाने के लिए कोई ऑटोमेशन चुनें, या नया बनाएँ।',
   'automations.preset': 'पहले से तैयार',
   'automations.off': 'बंद',
-  'automations.presets.reengage-dormant.name': '90 दिनों से चुप संपर्कों को नमस्ते कहें',
+  'automations.presets.reengage-dormant.name':
+    '90 दिनों से चुप संपर्कों को नमस्ते कहें',
   'automations.presets.reengage-dormant.description':
     'जिन निजी चैट में 90 दिनों से कोई संदेश नहीं है, उन्हें नमस्ते भेजा जाता है और पूछा जाता है कि क्या उन्हें या उनके दोस्तों को ऑटोमेशन में मदद चाहिए।',
   'automations.presets.job-search.name': 'खुली नौकरियों के बारे में पूछें',
@@ -1187,14 +1213,17 @@ export const hi = {
     'पता नहीं कि यह भेजा गया या नहीं — दोबारा कोशिश से पहले चैट देखें',
   'error.code.unsupported': 'यहाँ समर्थित नहीं है',
   'error.code.unsupported-chat': 'इस चैट में समर्थित नहीं है',
-  'error.code.captcha': 'नेटवर्क कैप्चा माँग रहा है — पहले आधिकारिक ऐप में उसे पूरा करें',
+  'error.code.captcha':
+    'नेटवर्क कैप्चा माँग रहा है — पहले आधिकारिक ऐप में उसे पूरा करें',
   'error.code.LOW_DISK': 'डिस्क लगभग भरी है — कुछ सहेजा नहीं गया',
-  'error.code.STORE_WRITE_FAILED': 'स्टोर डिस्क पर नहीं लिख सका — कुछ सहेजा नहीं गया',
+  'error.code.STORE_WRITE_FAILED':
+    'स्टोर डिस्क पर नहीं लिख सका — कुछ सहेजा नहीं गया',
   'error.code.STORE_FULL': 'डिस्क भरी है — कुछ सहेजा नहीं गया',
   'error.code.STORE_LOCKED': 'स्टोर किसी दूसरी चल रही प्रति ने लॉक कर रखा है',
   'error.code.outbox-unavailable':
     'भेजने का लॉग उपलब्ध नहीं है, इसलिए कुछ नहीं भेजा गया',
-  'error.code.send-in-doubt': 'पिछला संदेश शायद जा चुका है — उसे दोहराया नहीं गया',
+  'error.code.send-in-doubt':
+    'पिछला संदेश शायद जा चुका है — उसे दोहराया नहीं गया',
   'error.code.timeout': 'अनुरोध का समय समाप्त हो गया',
   'error.code.network': 'स्थानीय सर्वर से कोई उत्तर नहीं',
 };
