@@ -1,8 +1,8 @@
 # meta-sovereign (languages: en • [zh](README.zh.md) • [hi](README.hi.md) • [ru](README.ru.md))
 
-**One inbox, one contact book and one set of automations for every network you speak through — running on your own machine.**
+**One inbox, one contact book and one set of automations for every network you speak through, on your own machine or in a hosted workspace.**
 
-meta-sovereign represents **a person or an organisation online**. Connect Telegram, VK, WhatsApp, Facebook and Instagram, X, LinkedIn, email, GitHub, Upwork, PeoplePerHour and job boards (career.habr.com, hh.ru, superjob.ru and more), and work every conversation from one app. Local-first and open source: your messages, contacts and keys stay in a store you own, with encrypted backups and no cloud in between.
+meta-sovereign represents **a person or an organisation online**. Connect Telegram, VK, WhatsApp, Facebook and Instagram, X, LinkedIn, email, GitHub, Upwork, PeoplePerHour and job boards (career.habr.com, hh.ru, superjob.ru and more), and work every conversation from one app. Local-first and open source, with encrypted backups and a store you control.
 
 ### Built for
 
@@ -33,6 +33,10 @@ Without a server the hosted app runs in **browser-only mode**: contacts, pattern
 ## Desktop app
 
 Download the installer for your system from <https://link-foundation.github.io/meta-sovereign/download/>, or from [GitHub releases](https://github.com/link-foundation/meta-sovereign/releases): Linux (AppImage, deb, tar.gz), macOS (dmg, zip) and Windows (installer, portable), each for x64 and arm64. The desktop app bundles the server, so every feature works without starting one yourself. First-launch steps for unsigned builds, checksums and update notes are in [`docs/USER-GUIDE.md` §4](docs/USER-GUIDE.md#4-install-the-desktop-or-mobile-app).
+
+## Host a workspace
+
+Deploy `serve-cloud` behind HTTPS to give a user browser access to a personal workspace. Each workspace has its own sign-in, persistent storage and provider jobs. Set its display name, accent color and logo from configuration. [Deployment guide](docs/CLOUD-WORKSPACES.md)
 
 ## Run a local server (recommended for sync)
 
