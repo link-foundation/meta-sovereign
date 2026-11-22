@@ -23,5 +23,6 @@
 
 - `node --test --test-concurrency=1 js/tests/cloud-workspace.test.js` covers configuration validation, HTTP access, Origin and Host checks, session isolation, cache policy and revocation of event and WebSocket streams.
 - `RUN_BROWSER_E2E=1 E2E_BROWSER=chromium npm run test:e2e:cloud-workspace` opens a TLS-proxied workspace in two browser contexts and checks branding, sign-in, navigation, data across reloads and sessions, browser storage and logout. GitHub CI runs this test in Chromium and WebKit.
+- `RUN_BROWSER_E2E=1 CADDY_BIN=/path/to/caddy node experiments/cloud-workspace-caddy.mjs` opens a workspace through Caddy. It signs in, previews and applies a vCard upload, and confirms the imported contact survives a browser reload. The fixture generates a temporary certificate and data directory.
 - `bash docker/test-cloud-workspace.sh` starts two independent Compose projects from empty volumes, checks their session and data separation, checks private-network egress, and verifies that data persists and sessions expire on restart. The Linux container job runs the same smoke test.
 - See [GitHub checks](https://github.com/link-foundation/meta-sovereign/pull/74/checks) for the broader repository matrix. The fixtures use synthetic data and independent storage.

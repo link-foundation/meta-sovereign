@@ -241,6 +241,57 @@ const upgrade = (app, cookie, origin = app.cloud.origin) =>
   });
 
 test(
+  'hosted contacts import supports vCards from the browser',
+  requiresNode,
+  async () => {
+    const app = await openWorkspace('contacts.example');
+    try {
+      const cookie = session(await app.login());
+      const root = '/api/contacts/import';
+      const post = (route, body) =>
+        app.request(`${root}/${route}`, {
+          method: 'POST',
+          headers: {
+            cookie,
+            origin: app.cloud.origin,
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify(body),
+        });
+      const contacts = async () =>
+        JSON.parse(
+          (await app.request('/api/contacts', { headers: { cookie } })).body
+        );
+      const sources = JSON.parse(
+        (await app.request(root, { headers: { cookie } })).body
+      );
+      assert.equal(sources.vcard, true);
+      assert.equal(sources.system.available, false);
+      const system = await post('preview', { source: 'system' });
+      assert.equal(JSON.parse(system.body).code, 'local-device-only');
+      const preview = await post('preview', {
+        source: 'vcard',
+        text: 'BEGIN:VCARD\nVERSION:3.0\nUID:hosted-contact\nFN:Hosted Contact\nEMAIL:contact@example.test\nEND:VCARD',
+      });
+      assert.equal(preview.status, 200);
+      const { source, digest, confirm, sample } = JSON.parse(preview.body);
+      assert.equal(sample[0].name, 'Hosted Contact');
+      assert.deepEqual(await contacts(), []);
+      const applied = await post('apply', {
+        source,
+        digest,
+        confirmToken: confirm.token,
+      });
+      assert.equal(applied.status, 200);
+      assert.equal(JSON.parse(applied.body).imported, 1);
+      assert.equal((await contacts())[0].name, 'Hosted Contact');
+    } finally {
+      await app.close();
+    }
+  }
+);
+
+test(
   'workspace sessions, links and live channels are isolated and revocable',
   requiresNode,
   async () => {
