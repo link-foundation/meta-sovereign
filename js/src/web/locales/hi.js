@@ -432,6 +432,11 @@ export const hi = {
     '{networks} पर अपनी प्रोफ़ाइल अपडेट करें? वहाँ लोग बदलाव देखेंगे।',
   'profile.confirmPublish.resume':
     '{networks} पर अपना CV अपडेट करें? वहाँ नियोक्ता बदलाव देखेंगे।',
+  'settings.sending.title': 'संदेश भेजना',
+  'settings.sending.continueLast':
+    'सार्वजनिक चैट में मेरे पिछले संदेश में जोड़ें',
+  'settings.sending.continueHint':
+    'सार्वजनिक Telegram समूहों और चैनलों में अगली बात अपने पिछले टेक्स्ट संदेश में जोड़ें, जब तक वह चैट का सबसे नया संदेश हो।',
   'settings.privacy.title': 'गोपनीयता',
   'settings.shareTyping': 'दूसरों को दिखाएँ कि मैं टाइप कर रहा हूँ',
   'settings.shareTypingHint':

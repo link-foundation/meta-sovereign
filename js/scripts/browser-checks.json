@@ -8,6 +8,7 @@
   "attach",
   "progress",
   "send-extras",
+  "continuation",
   "folders",
   "passcode",
   "service-messages",

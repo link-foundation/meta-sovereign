@@ -433,6 +433,10 @@ export const en = {
     'Update your profile on {networks}? People there will see the change.',
   'profile.confirmPublish.resume':
     'Update your CV on {networks}? Employers there will see the change.',
+  'settings.sending.title': 'Sending messages',
+  'settings.sending.continueLast': 'Continue my last message in public chats',
+  'settings.sending.continueHint':
+    'In public Telegram groups and channels, add a follow-up to your last text message while it is still the newest.',
   'settings.privacy.title': 'Privacy',
   'settings.shareTyping': 'Show others when I am typing',
   'settings.shareTypingHint':
