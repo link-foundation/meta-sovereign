@@ -1,5 +1,11 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 1.5.0
+
+### Minor Changes
+
+- 6ee8d49: R-Z37 adds an opt-in setting to continue your latest text message in public Telegram chats. Chat and Operator use Telegram’s normal edited message state and send a separate post when the newest message cannot be continued.
+
 ## 1.4.0
 
 ### Minor Changes
