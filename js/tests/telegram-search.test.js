@@ -120,10 +120,11 @@ test('no words or no chat: Telegram is not asked (R-Y98)', async () => {
 
 test('the route checks the chat and the words (R-Y98)', async () => {
   const calls = [];
+  const { actions } = setup(() => list([message(30, 'a plan')]));
   const account = {
     searchChat: async (body) => {
       calls.push(body);
-      return { ok: true, ids: [], count: 0, more: false };
+      return actions.searchChat(body);
     },
   };
   const post = async (body) => {
@@ -150,6 +151,15 @@ test('the route checks the chat and the words (R-Y98)', async () => {
   const ok = await post({ chat: '-1001', q: 'plan', offsetId: 9 });
   assert.equal(ok.status, 200);
   assert.deepEqual(calls, [{ chat: '-1001', q: 'plan', offsetId: 9 }]);
+  assert.equal(ok.payload.messages, undefined);
+  const withAuthors = await post({
+    chat: '42',
+    q: 'plan',
+    links: true,
+  });
+  assert.equal(withAuthors.status, 200);
+  assert.deepEqual(withAuthors.payload.ids, [30]);
+  assert.equal(withAuthors.payload.messages[0].sender, '42');
 });
 
 test('a chat off Telegram: what the page holds, newest first (R-Y98)', () => {
