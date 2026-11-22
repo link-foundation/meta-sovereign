@@ -1221,6 +1221,7 @@ const useVisibleHistory = (
     info,
     filteredMessages: loaded.length - messages.length,
     pinned: pinnedOf(messages, pinnedId, targets, visibility),
+    hiddenPinnedId: visibility.hides(targets.get(pinnedId)) ? pinnedId : null,
     replyTargets: visibility.lookup(targets),
     names: senderNames([...targets.values(), ...messages]),
   };

@@ -69,21 +69,29 @@ const useHidden = (chat, topic, pinnedId) => {
   return [Boolean(pinnedId) && stored === String(pinnedId), hide];
 };
 
+const EMPTY_LIST = Object.freeze({
+  messages: [],
+  count: 0,
+  next: null,
+  busy: false,
+  failed: false,
+});
+
 const usePinnedList = (api, chat, topic, token) => {
-  const [state, setState] = useState({
-    messages: [],
-    count: 0,
-    next: null,
-    busy: false,
-    failed: false,
-  });
+  const [state, setState] = useState(EMPTY_LIST);
   const wanted =
     chat?.source === 'telegram' &&
     token &&
     typeof api?.telegramPinnedList === 'function';
+  const key = wanted ? JSON.stringify([chat.key, topic, token]) : null;
   const load = useCallback(
     (offsetId) => {
-      setState((s) => ({ ...s, busy: true, failed: false }));
+      setState((s) => ({
+        ...(s.key === key ? s : EMPTY_LIST),
+        key,
+        busy: true,
+        failed: false,
+      }));
       return api
         .telegramPinnedList({
           chat: String(chat.chat),
@@ -92,9 +100,13 @@ const usePinnedList = (api, chat, topic, token) => {
         })
         .catch(() => null)
         .then((answer) =>
-          setState((s) =>
-            answer?.ok
+          setState((s) => {
+            if (s.key !== key) {
+              return s;
+            }
+            return answer?.ok
               ? {
+                  key,
                   messages: mergePinned(
                     offsetId ? s.messages : [],
                     answer.messages ?? []
@@ -104,11 +116,11 @@ const usePinnedList = (api, chat, topic, token) => {
                   busy: false,
                   failed: false,
                 }
-              : { ...s, busy: false, failed: true }
-          )
+              : { ...s, busy: false, failed: true };
+          })
         );
     },
-    [api, chat?.chat, topic]
+    [api, chat?.chat, topic, key]
   );
   useEffect(() => {
     if (wanted) {
@@ -116,7 +128,7 @@ const usePinnedList = (api, chat, topic, token) => {
     }
   }, [wanted, load, token]);
   return {
-    ...state,
+    ...(state.key === key ? state : EMPTY_LIST),
     more: () => load(state.next),
     removed: (id) =>
       setState((s) => ({
@@ -380,6 +392,39 @@ const BarButton = ({ pinned, onOpen }) => {
   );
 };
 
+const BarAction = ({ pinned, list, may, current, info, onList, onHide }) => {
+  const t = useT();
+  if (list.count > 1 || !pinned) {
+    return el(
+      'button',
+      {
+        type: 'button',
+        className: 'icon-btn chat-pinned-side',
+        'data-action': 'pinned-list-open',
+        'aria-label': t('chat.pinnedList.title', { count: list.count }),
+        title: t('chat.pinnedList.title', { count: list.count }),
+        onClick: onList,
+      },
+      el(Icon, { name: 'menu', size: 18 })
+    );
+  }
+  const asked = info?.kind !== undefined || current?.personal;
+  return !may && asked
+    ? el(
+        'button',
+        {
+          type: 'button',
+          className: 'icon-btn chat-pinned-side',
+          'data-action': 'pinned-hide-bar',
+          'aria-label': t('chat.pinnedList.hide'),
+          title: t('chat.pinnedList.hide'),
+          onClick: onHide,
+        },
+        el(Icon, { name: 'close', size: 18 })
+      )
+    : null;
+};
+
 /**
  * The chat's pinned message above the stream, as in Telegram: an accent
  * bar, "Pinned message" and one line of it; a click goes to it. With more
@@ -387,50 +432,29 @@ const BarButton = ({ pinned, onOpen }) => {
  * bar. `onOpen(id)` goes to a message.
  */
 export const PinnedBar = ({ state, api, onOpen }) => {
-  const t = useT();
-  const { pinned, current, info } = state;
+  const { pinned: cached, hiddenPinnedId, current, info, visibility } = state;
   const topic = state.forum?.topic ?? null;
-  const [hidden, hide] = useHidden(current, topic, pinned?.id);
-  const list = usePinnedList(api, current, topic, pinned?.id);
+  const token = cached?.id ?? hiddenPinnedId;
+  const list = usePinnedList(api, current, topic, token);
+  const pinned = cached ?? list.messages.find((m) => !visibility?.hides(m));
+  const [hidden, hide] = useHidden(current, topic, pinned?.id ?? token);
   const [open, setOpen] = useState(false);
-  if (!pinned || hidden) {
+  if ((!pinned && !list.next) || hidden) {
     return null;
   }
   const may = mayUnpin(current, info);
-  const several = list.count > 1;
-  const asked = info?.kind !== undefined || current?.personal;
   return el('div', { className: 'chat-pinned-wrap' }, [
-    el(BarButton, { key: 'bar', pinned, onOpen }),
-    several
-      ? el(
-          'button',
-          {
-            key: 'list',
-            type: 'button',
-            className: 'icon-btn chat-pinned-side',
-            'data-action': 'pinned-list-open',
-            'aria-label': t('chat.pinnedList.title', { count: list.count }),
-            title: t('chat.pinnedList.title', { count: list.count }),
-            onClick: () => setOpen(true),
-          },
-          el(Icon, { name: 'menu', size: 18 })
-        )
-      : null,
-    !several && !may && asked
-      ? el(
-          'button',
-          {
-            key: 'hide',
-            type: 'button',
-            className: 'icon-btn chat-pinned-side',
-            'data-action': 'pinned-hide-bar',
-            'aria-label': t('chat.pinnedList.hide'),
-            title: t('chat.pinnedList.hide'),
-            onClick: hide,
-          },
-          el(Icon, { name: 'close', size: 18 })
-        )
-      : null,
+    pinned ? el(BarButton, { key: 'bar', pinned, onOpen }) : null,
+    el(BarAction, {
+      key: 'action',
+      pinned,
+      list,
+      may,
+      current,
+      info,
+      onList: () => setOpen(true),
+      onHide: hide,
+    }),
     open
       ? el(ListDialog, {
           key: 'dlg',
@@ -438,7 +462,7 @@ export const PinnedBar = ({ state, api, onOpen }) => {
           chat: current,
           topic,
           list,
-          visibility: state.visibility,
+          visibility,
           may,
           onGo: (id) => {
             setOpen(false);

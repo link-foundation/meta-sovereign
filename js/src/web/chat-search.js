@@ -199,7 +199,7 @@ export const useChatSearch = ({
       asked.current += 1;
       setFind(CLOSED);
     },
-    setQuery: (query) => setFind((f) => ({ ...f, query })),
+    setQuery: (query) => setFind({ ...CLOSED, open: true, query }),
     older,
     newer,
   };

@@ -64,6 +64,13 @@ const hidden = message({
   sender: ADA,
   body: 'The meeting is postponed. I will share a new time.',
 });
+const oldPin = message({
+  ...group,
+  id: 1,
+  sender: MAX,
+  body: 'I have the design review penciled in for this week.',
+  raw: { id: 1, pinned: true },
+});
 const shown = message({
   ...group,
   id: 3,
@@ -87,12 +94,7 @@ const channelPost = message({
 for (const link of [
   message(dm(ADA)),
   message(dm(MAX)),
-  message({
-    ...group,
-    id: 1,
-    sender: MAX,
-    body: 'I have the design review penciled in for this week.',
-  }),
+  { ...oldPin, raw: { id: 1 } },
   hidden,
   shown,
   channelPost,
@@ -162,6 +164,16 @@ await page.route('**/api/telegram/peer-block', (route) => {
       : { ok: true, blocked: request.block }
   );
 });
+await page.route('**/api/telegram/chat-info*', (route) => {
+  const chat = new URL(route.request().url()).searchParams.get('chat');
+  return fulfil(
+    route,
+    chat === GROUP ? { chat, kind: 'group', pinned: 2 } : { chat }
+  );
+});
+await page.route('**/api/telegram/pinned-list', (route) =>
+  fulfil(route, { ok: true, messages: [hidden, oldPin], count: 2, next: null })
+);
 await page.route('**/api/telegram/search', (route) => {
   const body = route.request().postDataJSON();
   const messages = body.offsetId ? [shown] : [hidden];
@@ -276,6 +288,7 @@ const verifyGroup = async () => {
     'the matching group message is absent'
   );
   await messageRow(shown.id).getByText('Quoted message hidden').waitFor();
+  await page.locator('.chat-pinned-bar').getByText(oldPin.body).waitFor();
   if (process.env.HIDE_SENDER_SCREENSHOT_TIMELINE) {
     await page.screenshot({
       path: process.env.HIDE_SENDER_SCREENSHOT_TIMELINE,
@@ -291,6 +304,13 @@ const verifyGroup = async () => {
       ),
     'a hidden-only remote page'
   );
+  const find = page.locator('.chat-find-input');
+  await find.clear();
+  assert(
+    await page.locator('[data-action="find-older"]').isDisabled(),
+    'clearing the query clears its hidden-page cursor'
+  );
+  await find.fill('meeting');
   await page.locator('[data-action="find-older"]').click();
   await until(
     async () =>
@@ -372,7 +392,14 @@ const verifyOtherChats = async () => {
 };
 
 const restoreTelegram = async () => {
-  await page.goto(`${base}/#/settings`);
+  // Switching off Operator closes its subscription. Wait for the Settings
+  // watcher's new connection before sending messages to that watcher.
+  await Promise.all([
+    page.waitForResponse(
+      (response) => response.url() === `${base}/api/events` && response.ok()
+    ),
+    page.goto(`${base}/#/settings`),
+  ]);
   await page.getByRole('heading', { name: 'Hidden senders' }).waitFor();
   const telegramRule = page
     .getByRole('listitem')
