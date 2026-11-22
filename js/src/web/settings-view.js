@@ -30,6 +30,7 @@ import { ConversationSettings } from './settings-conversation.js';
 import { BirthdaySettings } from './settings-birthdays.js';
 import { FeedbackSettings } from './settings-feedback.js';
 import { HiddenSenderSettings } from './settings-hidden-senders.js';
+import { useContinueLast } from './continuation-pref.js';
 import {
   NOTIFY_KEY,
   NOTIFY_PREVIEW_KEY,
@@ -295,6 +296,30 @@ export const NotificationSettings = () => {
   );
 };
 
+const SendingSettings = () => {
+  const t = useT();
+  const [on, setOn] = useContinueLast();
+  return el(
+    'section',
+    { className: 'card', 'aria-labelledby': 'sending-title' },
+    [
+      el('h3', { key: 'h', id: 'sending-title' }, t('settings.sending.title')),
+      el(Check, {
+        key: 'on',
+        action: 'continue-last-message',
+        checked: on,
+        onChange: setOn,
+        label: t('settings.sending.continueLast'),
+      }),
+      el(
+        'p',
+        { key: 'hint', className: 'meta' },
+        t('settings.sending.continueHint')
+      ),
+    ]
+  );
+};
+
 export const SettingsView = () => {
   const t = useT();
   const appearance = useAppearance();
@@ -326,6 +351,7 @@ export const SettingsView = () => {
     el(BirthdaySettings, { key: 'birthdays' }),
     workspaceName() ? null : el(ConnectionSettings, { key: 'connection' }),
     el(OperatorSettings, { key: 'operator' }),
+    el(SendingSettings, { key: 'sending' }),
     el(ConversationSettings, { key: 'conversation', api }),
     el(FeedbackSettings, { key: 'feedback', api }),
     el(ChatBackgroundSettings, { key: 'background', api }),

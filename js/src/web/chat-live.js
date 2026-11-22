@@ -44,6 +44,7 @@ import { traceClient } from './client-log.js';
 import { READ_RECOVERED_EVENT } from './read-retry.js';
 import { OutboxContext } from './outbox-context.js';
 import { activeAccount } from './telegram-account-scope.js';
+import { readContinueLast } from './continuation-pref.js';
 
 /** Shared directory: reopening a view shows its last good snapshot immediately. */
 export const useLiveLinks = (api, tick) => {
@@ -103,6 +104,7 @@ const sendResult = async (api, item) => {
       chat: item.chat,
       text: item.text,
       clientId: item.clientId,
+      ...(item.continueLast ? { continueLast: true } : {}),
       ...(item.replyTo ? { replyTo: item.replyTo } : {}),
       ...(item.replyQuote ? { replyQuote: item.replyQuote } : {}),
       ...(item.topic ? { topic: item.topic } : {}),
@@ -518,7 +520,12 @@ export const useComposer = ({
       at: new Date().toISOString(),
       status: 'queued',
       attempts: 0,
-      ...outFields({ replyTo: replyId, replyQuote: quote, topic }),
+      ...outFields({
+        replyTo: replyId,
+        replyQuote: quote,
+        topic,
+        continueLast: current.source === 'telegram' && readContinueLast(),
+      }),
       ...outFields({ silent, scheduleDate, effect }),
       ...sendAsField(current.chat),
       ...preview,

@@ -68,6 +68,8 @@
     "test:e2e:schedule": "node js/tests/e2e-schedule-browser.mjs",
     "test:e2e:send-extras": "node js/tests/e2e-send-extras-browser.mjs",
     "test:e2e:send-extras:webkit": "E2E_BROWSER=webkit node js/tests/e2e-send-extras-browser.mjs",
+    "test:e2e:continuation": "node js/tests/e2e-continuation-browser.mjs",
+    "test:e2e:continuation:webkit": "E2E_BROWSER=webkit node js/tests/e2e-continuation-browser.mjs",
     "test:e2e:folders": "node js/tests/e2e-folders-browser.mjs",
     "test:e2e:passcode": "node js/tests/e2e-passcode-browser.mjs",
     "test:e2e:passcode:webkit": "E2E_BROWSER=webkit node js/tests/e2e-passcode-browser.mjs",

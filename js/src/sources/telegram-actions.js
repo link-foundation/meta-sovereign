@@ -31,6 +31,7 @@
  */
 
 import { updatesOfResult, entitiesOf } from './telegram-catchup.js';
+import { createMessageContinuation } from './telegram-continuation.js';
 import { apiEntities, parseFormatted } from './telegram-format.js';
 import { previewMedia, randomIdOf } from './telegram-send.js';
 import { withSendAs } from './telegram-send-as-client.js';
@@ -531,6 +532,10 @@ const chatActions = (env, context) => {
     context
   );
   return {
+    continueMessage: createMessageContinuation(env, {
+      credentials: context.tools.credentials,
+      apply: context.apply,
+    }),
     ...createPollActions(env, context),
     ...createDialogActions(env, context),
     ...createChatSearch(env, context),

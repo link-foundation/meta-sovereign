@@ -45,6 +45,7 @@ import { createLiveSubset } from './live-subset.js';
 import { bodyFailure, json, readBody } from './util.js';
 import { confirmed } from './confirmations.js';
 import { previewFields } from '../sources/telegram-link-preview.js';
+import { CHANNEL } from '../sources/telegram-usernames.js';
 import {
   AUTOMATION_PREFIX,
   automationPresets,
@@ -135,6 +136,11 @@ const topicField = (body) =>
 const effectField = (body) =>
   body.effect === undefined ? {} : { effect: body.effect };
 
+const continuationField = (body) =>
+  body.source === 'telegram' && body.continueLast === true
+    ? { continueLast: true }
+    : {};
+
 const buildDraft = (body) => {
   const clientId =
     typeof body.clientId === 'string' && body.clientId.length <= 100
@@ -152,6 +158,7 @@ const buildDraft = (body) => {
     chat: String(body.chat),
     contact: body.contact ?? null,
     text: String(body.text),
+    ...continuationField(body),
     ...(clientId ? { clientId } : {}),
     ...(replyTo ? { replyTo } : {}),
     ...(replyQuote ? { replyQuote } : {}),
@@ -200,6 +207,31 @@ const sendOnce = (ctx, draft, send) => {
   return promise;
 };
 
+// Several tabs can send to the same dialog. Keep the tail read and
+// resulting write in order, including normal sends between continuations.
+const telegramSends = new WeakMap();
+const orderedSend = (ctx, draft, send) => {
+  if (
+    draft.source !== 'telegram' ||
+    !CHANNEL.test(draft.chat) ||
+    !ctx.telegramAccount?.continueMessage
+  ) {
+    return send();
+  }
+  if (!telegramSends.has(ctx)) {
+    telegramSends.set(ctx, new Map());
+  }
+  const chats = telegramSends.get(ctx);
+  const previous = chats.get(draft.chat);
+  const pending = (previous ?? Promise.resolve()).catch(() => {}).then(send);
+  chats.set(draft.chat, pending);
+  return pending.finally(() => {
+    if (chats.get(draft.chat) === pending) {
+      chats.delete(draft.chat);
+    }
+  });
+};
+
 // The network has it: a store that cannot take the copy (a full disk,
 // R-Z14) does not make it unsent — answering "failed" would invite a
 // second send. The sync brings the message once the store takes writes.
@@ -236,6 +268,19 @@ const reportSend = (ctx, trace, result, error) =>
   });
 
 const deliverMessage = async (store, ctx, draft) => {
+  const edited = draft.continueLast
+    ? await ctx.telegramAccount?.continueMessage?.(draft)
+    : null;
+  if (edited?.edited) {
+    const { link } = edited;
+    return {
+      status: 'sent',
+      via: 'api',
+      edited: true,
+      link,
+      links: link ? [link] : [],
+    };
+  }
   const result = await ctx.send(draft);
   const links = sentLinks(draft, result);
   const stored = await keepSent(store, links);
@@ -247,6 +292,16 @@ const deliverMessage = async (store, ctx, draft) => {
     ...(stored ? {} : { stored: false }),
     ...(result?.scheduled ? { scheduled: true } : {}),
   };
+};
+
+const currentDelivery = async (store, sent) => {
+  if (!sent.edited || !sent.link) {
+    return sent;
+  }
+  // A replay may follow another edit. Reply with the current link.
+  const latest = await store.get(sent.link.id).catch(() => null);
+  const link = latest?.deleted ? null : latest;
+  return { ...sent, link, links: link ? [link] : [] };
 };
 
 const sendFailure = (res, error) =>
@@ -297,10 +352,10 @@ const handleSend = async (store, res, body, ctx) => {
   }
   try {
     const sent = await sendOnce(ctx, draft, () =>
-      deliverMessage(store, ctx, draft)
+      orderedSend(ctx, draft, () => deliverMessage(store, ctx, draft))
     );
     reportSend(ctx, trace, sent);
-    return json(res, 200, sent);
+    return json(res, 200, await currentDelivery(store, sent));
   } catch (error) {
     reportSend(ctx, trace, null, error);
     return sendFailure(res, error);

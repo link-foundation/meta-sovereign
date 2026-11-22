@@ -437,6 +437,11 @@ export const ru = {
     'Обновить профиль в {networks}? Люди там увидят изменения.',
   'profile.confirmPublish.resume':
     'Обновить резюме в {networks}? Работодатели там увидят изменения.',
+  'settings.sending.title': 'Отправка сообщений',
+  'settings.sending.continueLast':
+    'Продолжать моё последнее сообщение в публичных чатах',
+  'settings.sending.continueHint':
+    'В публичных группах и каналах Telegram дополнение добавляется к вашему последнему текстовому сообщению, пока оно остаётся самым новым.',
   'settings.privacy.title': 'Конфиденциальность',
   'settings.shareTyping': 'Показывать собеседнику, что я печатаю',
   'settings.shareTypingHint':

@@ -414,6 +414,10 @@ export const zh = {
     '在 {networks} 上更新你的个人资料吗？那里的人会看到改动。',
   'profile.confirmPublish.resume':
     '在 {networks} 上更新你的简历吗？那里的雇主会看到改动。',
+  'settings.sending.title': '发送消息',
+  'settings.sending.continueLast': '在公开聊天中续写我的上一条消息',
+  'settings.sending.continueHint':
+    '在 Telegram 公开群组和频道中，如果您的上一条文字消息仍是最新消息，就将补充内容添加到该消息中。',
   'settings.privacy.title': '隐私',
   'settings.shareTyping': '向对方显示我正在输入',
   'settings.shareTypingHint':
