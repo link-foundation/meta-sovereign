@@ -119,6 +119,16 @@ const handleJobRoute = async (manager, req, res, id, action) => {
 };
 
 const statusRoute = async (res, ctx) => {
+  if (ctx.cloud) {
+    return (
+      json(res, 200, {
+        available: false,
+        code: 'local-device-only',
+        jobs: [],
+        providers: {},
+      }) ?? true
+    );
+  }
   const { available, reason } = await availability(ctx);
   const signIns = signInsFor(ctx);
   return (
@@ -442,13 +452,21 @@ const dispatch = async (store, req, res, p, ctx) => {
   if (p === PREFIX && req.method === 'GET') {
     return statusRoute(res, ctx);
   }
-  const browsers = BROWSERS_ROUTE.exec(p);
-  if (browsers && req.method === 'POST') {
-    return browsersRoute(req, res, ctx, browsers[1]);
-  }
   const login = TELEGRAM_LOGIN_ROUTE.exec(p);
   if (login && req.method === 'POST') {
     return telegramLoginRoute(store, req, res, ctx, login[1]);
+  }
+  if (ctx.cloud) {
+    return (
+      json(res, 501, {
+        code: 'local-device-only',
+        error: 'Browser and credential scans run on your own device',
+      }) ?? true
+    );
+  }
+  const browsers = BROWSERS_ROUTE.exec(p);
+  if (browsers && req.method === 'POST') {
+    return browsersRoute(req, res, ctx, browsers[1]);
   }
   const telegram = TELEGRAM_ROUTE.exec(p);
   if (telegram && req.method === 'POST') {

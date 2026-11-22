@@ -2,6 +2,7 @@
 // Apply uses its one-use ticket. Nothing is uploaded to a messaging service.
 import React, { useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
+import { workspaceName } from './cloud-workspace.js';
 import { Busy } from './spinner.js';
 import { decodeVcard } from '../sources/vcard.js';
 
@@ -211,17 +212,19 @@ export const ContactsImport = ({ api, onImported }) => {
           )
         : null,
       el('div', { key: 'sources', className: 'row' }, [
-        el(
-          'button',
-          {
-            key: 'system',
-            type: 'button',
-            'data-action': 'contacts-import-system',
-            disabled: state.busy || !sources?.system?.available,
-            onClick: () => preview({ source: 'system' }),
-          },
-          t('contacts.import.system')
-        ),
+        workspaceName()
+          ? null
+          : el(
+              'button',
+              {
+                key: 'system',
+                type: 'button',
+                'data-action': 'contacts-import-system',
+                disabled: state.busy || !sources?.system?.available,
+                onClick: () => preview({ source: 'system' }),
+              },
+              t('contacts.import.system')
+            ),
         el(
           'button',
           {

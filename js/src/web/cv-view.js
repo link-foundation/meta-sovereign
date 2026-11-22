@@ -14,6 +14,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { api as defaultApi } from './dom.js';
 import { useDates, useT } from './i18n.js';
 import { Busy } from './spinner.js';
+import { workspaceName } from './cloud-workspace.js';
 
 const el = React.createElement;
 
@@ -438,9 +439,14 @@ const CvPlatforms = ({ state }) => {
  */
 export const CvScreen = ({ state, login = '', setLogin = () => {} }) => {
   const t = useT();
+  const cloud = Boolean(workspaceName());
   return el('div', { className: 'col cv-view' }, [
     el('h2', { key: 'h' }, t('cv.title')),
-    el('p', { key: 'intro', className: 'meta' }, t('cv.intro')),
+    el(
+      'p',
+      { key: 'intro', className: 'meta' },
+      t(cloud ? 'cloud.cv' : 'cv.intro')
+    ),
     // An empty catalogue means the backend has no `/api/cv/*` routes
     // (the Rust server, or no server at all), which is worth saying
     // out loud rather than showing an empty table.
@@ -451,7 +457,12 @@ export const CvScreen = ({ state, login = '', setLogin = () => {} }) => {
           t('cv.unavailable')
         )
       : el(CvPlatforms, { key: 'platforms', state }),
-    el(CvControls, { key: 'controls', state, login, setLogin }),
+    cloud
+      ? button('compare', t('cv.compare'), {
+          disabled: Boolean(state.busy),
+          onClick: state.compare,
+        })
+      : el(CvControls, { key: 'controls', state, login, setLogin }),
     state.busy ? el(Busy, { key: 'busy' }, t('cv.busy')) : null,
     el(Failures, { key: 'failures', failures: state.failures }),
     el('h3', { key: 'cmp-h' }, t('cv.differences')),
@@ -459,8 +470,8 @@ export const CvScreen = ({ state, login = '', setLogin = () => {} }) => {
       key: 'cmp',
       comparison: state.comparison?.comparison ?? null,
     }),
-    el('h3', { key: 'sync-h' }, t('cv.syncTitle')),
-    el(SyncPlan, { key: 'sync', result: state.sync }),
+    cloud ? null : el('h3', { key: 'sync-h' }, t('cv.syncTitle')),
+    cloud ? null : el(SyncPlan, { key: 'sync', result: state.sync }),
     el('h3', { key: 'tel-h' }, t('cv.telemetry')),
     el(TelemetryPanel, { key: 'tel', telemetry: state.telemetry }),
   ]);

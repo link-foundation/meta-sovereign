@@ -194,6 +194,18 @@ export const handleCvRoutes = async (store, req, res, p, url, ctx) => {
   if (!p.startsWith('/api/cv/')) {
     return false;
   }
+  if (
+    ctx.cloud &&
+    req.method === 'POST' &&
+    ['/api/cv/read', '/api/cv/sync'].includes(p)
+  ) {
+    return (
+      json(res, 501, {
+        code: 'local-device-only',
+        error: 'Live CV browser reads and writes run on your own device',
+      }) ?? true
+    );
+  }
   return (
     (await handleCatalogue(store, req, res, p, url)) ||
     (await handleRead(store, req, res, p, ctx)) ||

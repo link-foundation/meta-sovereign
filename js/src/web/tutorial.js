@@ -202,6 +202,17 @@ export const defaultSteps = [
   },
 ];
 
+const workspaceCopy = {
+  pick: { bodyKey: 'cloud.tourPick' },
+  setup: { titleKey: 'cloud.tourSetupTitle', bodyKey: 'cloud.tourSetup' },
+};
+
+export const workspaceSteps = defaultSteps.map((step) =>
+  Object.hasOwn(workspaceCopy, step.id)
+    ? { ...step, ...workspaceCopy[step.id] }
+    : step
+);
+
 // Translate a step list with the active locale's `t()`. Steps without
 // translation keys (custom callers, tests) keep their literal strings.
 export const localizeSteps = (t, steps = defaultSteps) =>
@@ -583,7 +594,7 @@ export const navigationFor = (route, place, remembered = null) => {
 
 const goToRoute = (route) => {
   globalThis.dispatchEvent?.(
-    new CustomEvent('meta-sovereign:navigate', {
+    new globalThis.CustomEvent('meta-sovereign:navigate', {
       detail: navigationFor(route, readPlace(), rememberedProvider()),
     })
   );

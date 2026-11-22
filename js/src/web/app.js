@@ -12,6 +12,7 @@ import { views } from './views.js';
 import {
   TutorialButton,
   TutorialOverlay,
+  workspaceSteps,
   readPreference,
   useTutorialPreference,
 } from './tutorial.js';
@@ -42,6 +43,7 @@ import { useAppNavigation } from './app-navigation.js';
 import { useNavigationCounts } from './navigation-counts.js';
 import { PageLoading } from './spinner.js';
 import { OutboxHost } from './outbox-host.js';
+import { watchWorkspaceSession, workspaceName } from './cloud-workspace.js';
 
 // Browser e2e tests reach the booted api here: in the bundled build the
 // source modules are not each served, so `import('/dom.js')` fails.
@@ -93,6 +95,42 @@ const ViewNotifications = ({ active, t, onOpen }) =>
     ? null
     : el(AppNotifications, { api, t, onOpen });
 
+const ShellOverlays = () =>
+  el(React.Fragment, null, [
+    el(InviteHost, { key: 'invite-host', api }),
+    el(LimitHost, { key: 'limit-host', api }),
+    el(ProxyHost, { key: 'proxy-host', api }),
+    // Unique gifts and gift codes, from links and buttons (R-Y193).
+    el(GiftHost, { key: 'gift-host', api }),
+    el(AddlistHost, { key: 'addlist-host', api }),
+    // A t.me/addtheme link's preview (R-Y209).
+    el(AddthemeHost, { key: 'addtheme-host', api }),
+    // A t.me/contact or t.me/+phone link opens the person (R-Y217).
+    el(ContactLinkHost, { key: 'contact-link-host', api }),
+    // The Chat section notifies by itself; the others through this.
+  ]);
+
+const ServerRecovery = ({ workspace, online, t }) => {
+  const retry = () => api.rediscover();
+  if (!workspace) {
+    return el(WebModeBanner, {
+      online,
+      onRetry: retry,
+      findNearby: api.nearby,
+    });
+  }
+  return online
+    ? null
+    : el('aside', { className: 'card', role: 'status' }, [
+        el('p', { key: 'hint' }, t('cloud.unreachable')),
+        el(
+          'button',
+          { key: 'retry', type: 'button', onClick: retry },
+          t('webMode.retry')
+        ),
+      ]);
+};
+
 const App = () => {
   const [route, navigate] = useAppNavigation();
   const active = route.view;
@@ -105,7 +143,19 @@ const App = () => {
   useApplyUiScale();
   const { theme, toggle } = useAppearance();
   const localeApi = useLocale();
+  const workspace = workspaceName();
   const { t } = localeApi;
+  const brandedLocale = useMemo(
+    () =>
+      workspace
+        ? {
+            ...localeApi,
+            t: (key, ...args) =>
+              key === 'appName' ? workspace : localeApi.t(key, ...args),
+          }
+        : localeApi,
+    [localeApi, workspace]
+  );
   const tutorial = useTutorialPreference();
   const width = useViewportWidth();
   // The overlay opens by itself for a new user (nothing saved, no
@@ -121,10 +171,13 @@ const App = () => {
       return;
     }
     decided.current = true;
-    if (shouldAutoOpen(readPreference(getLocalStorage()), connected)) {
+    if (
+      !workspace &&
+      shouldAutoOpen(readPreference(getLocalStorage()), connected)
+    ) {
       setTutorialOpen(true);
     }
-  }, [connected]);
+  }, [connected, workspace]);
 
   const openTutorial = () => {
     tutorial.reopen();
@@ -133,7 +186,7 @@ const App = () => {
   const closeTutorial = () => setTutorialOpen(false);
   const View = useMemo(() => views[active] ?? views.chat, [active]);
 
-  return el(LocaleContext.Provider, { value: localeApi }, [
+  return el(LocaleContext.Provider, { value: brandedLocale }, [
     el(OutboxHost, { key: 'shell', api }, [
       el('a', { key: 'skip', className: 'skip-link', href: '#root' }, [
         t('skipLink'),
@@ -142,10 +195,21 @@ const App = () => {
         'header',
         { key: 'header', className: 'topbar glass', role: 'banner' },
         [
-          el('h1', { key: 'brand' }, t('appName')),
+          el('h1', { key: 'brand' }, brandedLocale.t('appName')),
           el(ModeBadge, { key: 'mode', online }),
           el(TutorialButton, { key: 'tutorial', onOpen: openTutorial }),
           el(LanguageSwitcher, { key: 'lang' }),
+          workspace
+            ? el(
+                'form',
+                { key: 'sign-out', action: '/_cloud/sign-out', method: 'post' },
+                el(
+                  'button',
+                  { className: 'header-btn', type: 'submit' },
+                  t('cloud.signOut')
+                )
+              )
+            : null,
           el(
             'button',
             {
@@ -195,27 +259,12 @@ const App = () => {
             el(DiskBanner, { key: 'disk', api }),
             el(SchemaBanner, { key: 'schema', api }),
             el(ApiErrorToast, { key: 'api-error' }),
-            el(WebModeBanner, {
-              key: 'web-mode',
-              online,
-              onRetry: () => api.rediscover(),
-              findNearby: api.nearby,
-            }),
+            el(ServerRecovery, { key: 'recovery', workspace, online, t }),
             el(View, { key: 'view' }),
           ]
         )
       ),
-      el(InviteHost, { key: 'invite-host', api }),
-      el(LimitHost, { key: 'limit-host', api }),
-      el(ProxyHost, { key: 'proxy-host', api }),
-      // Unique gifts and gift codes, from links and buttons (R-Y193).
-      el(GiftHost, { key: 'gift-host', api }),
-      el(AddlistHost, { key: 'addlist-host', api }),
-      // A t.me/addtheme link's preview (R-Y209).
-      el(AddthemeHost, { key: 'addtheme-host', api }),
-      // A t.me/contact or t.me/+phone link opens the person (R-Y217).
-      el(ContactLinkHost, { key: 'contact-link-host', api }),
-      // The Chat section notifies by itself; the others through this.
+      el(ShellOverlays, { key: 'overlays' }),
       el(ViewNotifications, {
         key: 'notify',
         active,
@@ -224,6 +273,7 @@ const App = () => {
       }),
       el(TutorialOverlay, {
         key: 'tutorial-overlay',
+        steps: workspace ? workspaceSteps : undefined,
         open: tutorialOpen,
         connected,
         onClose: closeTutorial,
@@ -239,6 +289,7 @@ const App = () => {
 const Root = () => {
   const localeApi = useLocale();
   const lock = useLocalLock(api);
+  useEffect(watchWorkspaceSession, []);
   return lock.phase === 'locked'
     ? el(LocaleContext.Provider, { value: localeApi }, el(LockScreen, { api }))
     : lock.phase === 'loading'
@@ -250,7 +301,7 @@ const Root = () => {
       : el(App);
 };
 
-const mount = document.getElementById('app');
+const mount = globalThis.document.getElementById('app');
 installClientLog({ send: api.clientLog });
 installDialogFocus();
 createRoot(mount).render(el(Root));

@@ -35,6 +35,22 @@ export const en = {
   ...enTranscribe,
   ...enGithub,
   appName: 'meta-sovereign',
+  'cloud.signOut': 'Sign out',
+  'cloud.unreachable':
+    'The workspace server is unavailable. Check your connection and try again.',
+  'cloud.browserProvider':
+    'You can upload an exported archive here. Live browser sign-in requires the app on your device.',
+  'cloud.whatsapp':
+    'Connect the WhatsApp Business API or import a chat archive. Personal WhatsApp Web sign-in runs on your device.',
+  'cloud.cv':
+    'Compare saved CV snapshots. Live CV reads and updates run on your device.',
+  'cloud.marketplaces':
+    'View saved marketplace profiles. Capturing profiles from a signed-in browser runs on your device.',
+  'cloud.tourPick':
+    'Choose a service to connect with its API or import an archive.',
+  'cloud.tourSetupTitle': 'Connect or import an archive',
+  'cloud.tourSetup':
+    'Follow the instructions for your service. Enter credentials or upload an archive where supported.',
   skipLink: 'Skip to main content',
   'header.theme': 'Theme',
   'header.themeAria': 'Toggle dark mode',

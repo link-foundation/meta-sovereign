@@ -111,6 +111,12 @@ export const handleWhatsAppRoutes = async (store, req, res, p, ctx) => {
   if (isArchive) {
     return req.method === 'POST' ? archiveRoute(store, req, res, ctx) : false;
   }
+  if (ctx.cloud) {
+    return reply(res, 501, {
+      code: 'local-device-only',
+      error: 'Use an exported chat or connect the WhatsApp Business Cloud API',
+    });
+  }
   const expected = route === 'web' ? 'GET' : 'POST';
   return req.method === expected
     ? webRoute(req, res, ctx, route.split('/')[1])

@@ -70,7 +70,9 @@ import { createTelegramAccount } from '../sources/telegram-account.js';
 import { createExtraAccounts } from '../sources/telegram-accounts.js';
 import { createExtraRuntime, telegramChats } from './telegram-extras.js';
 import { accountScope } from './account-scope.js';
-import { bodyFailure, fail, json } from './util.js';
+import { bodyFailure, fail, json, text } from './util.js';
+import { createCloudAccess } from './cloud-access.js';
+import { cloudIndex } from './cloud-pages.js';
 import { handleDerivedRoutes } from './routes-derived.js';
 import { handleMutatingRoutes } from './routes-mutating.js';
 import { handleCvRoutes } from './routes-cv.js';
@@ -234,11 +236,19 @@ const BROWSER_MOUNTS = [
   ['/sync/', path.join(SRC_ROOT, 'sync')],
 ];
 
-const handleStatic = async (req, res, p) => {
+const handleStatic = async (req, res, p, cloud) => {
   if (req.method !== 'GET') {
     return false;
   }
   if (p === '/' || p === '/index.html') {
+    if (cloud) {
+      const template = await fs.readFile(
+        path.join(webRoot, 'index.html'),
+        'utf8'
+      );
+      text(res, 200, cloudIndex(template, cloud.brand), MIME['.html']);
+      return true;
+    }
     return serveStatic(req, res, path.join(webRoot, 'index.html'));
   }
   if (/^\/[a-zA-Z0-9._-]+\.(js|css|svg|wasm)$/.test(p)) {
@@ -501,33 +511,49 @@ const greetingContext = (greetings = {}) => ({
   greetingRandom: greetings.random ?? null,
 });
 
-const applySecurityHeaders = (res) => {
+const applySecurityHeaders = (res, cloud) => {
   for (const [k, v] of Object.entries(SECURITY_HEADERS)) {
     if (!res.hasHeader(k)) {
       res.setHeader(k, v);
     }
+  }
+  if (cloud) {
+    res.setHeader(
+      'content-security-policy',
+      `${CSP.replace(
+        'ws: wss: http://127.0.0.1:* http://localhost:*',
+        `wss://${cloud.host}`
+      )}; form-action 'self'`
+    );
   }
 };
 
 // The app's own files, or — with the local copy off — the way to the
 // hosted one (R-Y59).
 const handlePage = (req, res, p, ctx) =>
-  serveBeacon(req, res, p, ctx) ||
-  serveTrust(req, res, p, ctx) ||
-  (ctx.localUi
-    ? handleStatic(req, res, p)
-    : redirectToHosted(req, res, p, ctx.uiUrl));
+  ctx.cloud
+    ? handleStatic(req, res, p, ctx.cloud)
+    : serveBeacon(req, res, p, ctx) ||
+      serveTrust(req, res, p, ctx) ||
+      (ctx.localUi
+        ? handleStatic(req, res, p)
+        : redirectToHosted(req, res, p, ctx.uiUrl));
 
 // Same rule as HTTP: no sockets for pages on other websites, none while
 // locked (R-Y183).
 // Nor for a Host that is not this server's own (DNS rebinding, R-Z1).
-const socketAllowed = (ctx) => (req) =>
+const localSocketAllowed = (ctx, req) =>
   hostAllowed(req, ctx.port) &&
   classifyOrigin(req, ctx.allowOrigins) !== 'denied' &&
   (!ctx.tls ||
     req.socket?.encrypted ||
-    classifyOrigin(req, ctx.allowOrigins) === 'allowed') &&
-  !ctx.passcode.locked();
+    classifyOrigin(req, ctx.allowOrigins) === 'allowed');
+
+const socketAllowed = (ctx) => (req) =>
+  !ctx.passcode.locked() &&
+  (ctx.cloud
+    ? ctx.cloud.socketAuthorized.has(req)
+    : localSocketAllowed(ctx, req));
 
 // With TLS enabled, direct local access uses the trusted certificate.
 // The public bootstrap routes stay usable before trust; an allow-listed
@@ -565,17 +591,20 @@ const handlePageOrLock = async (req, res, p, ctx) =>
   (await handlePage(req, res, p, ctx)) || passcodeHandled(req, res, p, ctx);
 
 const route = async (store, req, res, ctx) => {
-  applySecurityHeaders(res);
-  // First of all, on every route: only a loopback Host with this server's
-  // port may use it. A rebound DNS name sends its own name (R-Z1).
-  if (!hostAllowed(req, ctx.port)) {
-    return fail(res, 421, 'bad-host', 'unexpected Host header');
-  }
-  if (handleCors(req, res, ctx.allowOrigins)) {
-    return;
+  applySecurityHeaders(res, ctx.cloud);
+  if (!ctx.cloud) {
+    if (!hostAllowed(req, ctx.port)) {
+      return fail(res, 421, 'bad-host', 'unexpected Host header');
+    }
+    if (handleCors(req, res, ctx.allowOrigins)) {
+      return;
+    }
   }
   const url = new URL(req.url, 'http://localhost');
   const p = url.pathname;
+  if (ctx.cloud && !(await ctx.cloud.allowHttp(req, res, p))) {
+    return;
+  }
   if (redirectLocalTls(req, res, url, ctx)) {
     return;
   }
@@ -767,7 +796,10 @@ const createHttpServer = (store, ctx, log) => {
   );
   server.requestGate = gate;
   server.prependListener('upgrade', (req, socket) => {
-    if (!gate.authorize(req)) {
+    if (
+      !gate.authorize(req) ||
+      (ctx.cloud && !ctx.cloud.allowUpgrade(req, socket))
+    ) {
       socket.destroy();
     }
   });
@@ -816,13 +848,15 @@ const attachSockets = (server, ctx, store, { enableSync, node }) => {
 
 // The browser sender signs in to the web apps in profiles inside the store
 // (owner only), the same ones "Sign in to WhatsApp Web" opens (R-Z9).
-const withStoreProfiles = (automations = {}, storeDir, front) => ({
+const withStoreProfiles = (automations = {}, storeDir, front, cloud) => ({
   ...automations,
   ...(front?.warming ? { deferRecovery: true } : {}),
-  browser: {
-    profileDirFor: (source) => profileDirIn(storeDir, source),
-    ...automations.browser,
-  },
+  browser: cloud
+    ? false
+    : {
+        profileDirFor: (source) => profileDirIn(storeDir, source),
+        ...automations.browser,
+      },
 });
 
 // The open connections of `server`, so a shutdown can end them.
@@ -846,6 +880,11 @@ const automationFor = (store, automations, log, telegramAccount, later) =>
   );
 
 const logFlusher = (store) => store?.flushLog;
+
+const workspaceUiContext = (cloud, allowOrigins, uiUrl, localUi) =>
+  cloud
+    ? { allowOrigins: [cloud.origin], uiUrl: cloud.origin, localUi: true }
+    : uiContext(allowOrigins, uiUrl, localUi);
 const applyServerAddress = (ctx, listening, front, activate) => {
   ctx.tls = front?.tls ?? listening.tls;
   ctx.port = front?.port ?? listening.listener.address().port;
@@ -900,7 +939,11 @@ export const startServer = async ({
   backups,
   // Private rolling-worker options; the public listener remains in its host.
   front,
+  // Cloud workspaces use a proxy for TLS and their own Host and session gate.
+  cloud: cloudConfig,
+  host,
 } = {}) => {
+  const cloud = cloudConfig ? createCloudAccess(cloudConfig) : null;
   const { store, resolvedArchiveDir, flush, storeHealth } = await initStore({
     providedStore,
     storeDir,
@@ -910,7 +953,7 @@ export const startServer = async ({
   });
   // Services that run in the background start only after the port is ours.
   const later = [];
-  automations = withStoreProfiles(automations, storeDir, front);
+  automations = withStoreProfiles(automations, storeDir, front, cloud);
   const chatIndex = createChatIndex(store, { log });
   const telegramAccount = telegramAccountFor(
     store,
@@ -925,6 +968,7 @@ export const startServer = async ({
     later
   );
   const ctx = {
+    cloud,
     front,
     archiveDir: resolvedArchiveDir,
     sync: null,
@@ -932,7 +976,7 @@ export const startServer = async ({
     secretPassphrase,
     emailLiveFactory,
     ...emailContext(storeDir),
-    ...uiContext(allowOrigins, uiUrl, localUi),
+    ...workspaceUiContext(cloudConfig, allowOrigins, uiUrl, localUi),
     ...cvContext(cv),
     replies: replyService(store, storeDir, replies),
     ...automationFor(store, automations, log, telegramAccount, later),
@@ -982,7 +1026,7 @@ export const startServer = async ({
   const listening = await listenOrRelease(
     server,
     sockets,
-    { port, storeDir, tls, log },
+    { port, storeDir, tls, log, host },
     async () => {
       lifecycle.bus?.close();
       wsHandle?.close();
@@ -1008,7 +1052,9 @@ export const startServer = async ({
     drain: server.requestGate.drain,
     passcodeState: () => ctx.passcode.status(),
     inheritUnlock: () => ctx.passcode.inheritUnlock(),
-    close: (options) =>
-      lifecycle.close(listening, { wsHandle, signaling }, options),
+    close: (options) => {
+      cloud?.close();
+      return lifecycle.close(listening, { wsHandle, signaling }, options);
+    },
   };
 };

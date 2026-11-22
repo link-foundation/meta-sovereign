@@ -70,6 +70,7 @@ import { createGithubLive } from '../sources/github.js';
 import { createUpworkLive } from '../sources/upwork.js';
 import { createPeoplePerHourLive } from '../sources/peopleperhour.js';
 import { startServer } from '../server/index.js';
+import { serveCloud } from './cloud-serve.js';
 import { clearPasscode } from '../server/passcode.js';
 import { createServerLog, installCrashLogging } from '../server/log.js';
 import {
@@ -100,6 +101,8 @@ Commands:
                 verbose logs are written to <store>/logs/meta-sovereign.log by default
                 repeat serve after updating: the current worker serves while its replacement prepares
                 https is served on the same port (for Safari); --tls=false or MS_TLS=off turns it off
+  serve-cloud   --store=<dir> [--port=<n>] [--listen=127.0.0.1|0.0.0.0]
+                run a browser workspace behind an HTTPS proxy (see docs/SAAS.md)
 ${TRUST_HELP}
 ${CONTACTS_HELP}
   sources
@@ -832,6 +835,7 @@ const COMMANDS = {
   restore: restoreCmd,
   passcode: passcodeCmd,
   serve: serveCmd,
+  'serve-cloud': serveCloud,
   sources: sourcesCmd,
   'source-pull': sourcePullCmd,
   'email-send': emailSendCmd,
@@ -904,6 +908,7 @@ export const runCli = async (argv, { log = console.log } = {}) => {
       args.store === undefined &&
       ![
         'help',
+        'serve-cloud',
         '--help',
         '-h',
         'version',
