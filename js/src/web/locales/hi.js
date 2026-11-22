@@ -5,6 +5,7 @@
 // applyLocale in i18n.js) is essential for screen readers and
 // font-fallback in the platform Chrome / Safari / Firefox.
 
+import { hiVisibility } from './hidden-senders.js';
 import { hiChat } from './hi-chat.js';
 import { hiChatMore } from './hi-chat-more.js';
 import { hiChatAccount } from './hi-chat-account.js';
@@ -30,6 +31,7 @@ export const hi = {
   'panels.chats': 'चैट सूची की चौड़ाई बदलें',
   'panels.details': 'विवरण की चौड़ाई बदलें',
   ...hiChat,
+  ...hiVisibility,
   ...hiChatMore,
   ...hiChatAccount,
   ...hiFolders,

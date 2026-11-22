@@ -636,13 +636,19 @@ const parseReply = (link, raw, msgById) => {
     return null;
   }
   const repliedId = repliedLinkId(link, replyMsgId);
+  const replied = msgById.get(repliedId);
+  if (replied?.hidden) {
+    return { msgId: replyMsgId, linkId: repliedId, hidden: true };
+  }
+  const hideQuote = !replied && msgById.hideUnresolved?.(link.source);
   return {
     msgId: replyMsgId,
     linkId: repliedId,
     ephemeral: Boolean(raw.replyTo?.replyToEphemeral),
-    ...repliedFields(msgById.get(repliedId)),
-    quoteText:
-      typeof raw.replyTo?.quoteText === 'string'
+    ...repliedFields(replied),
+    quoteText: hideQuote
+      ? null
+      : typeof raw.replyTo?.quoteText === 'string'
         ? raw.replyTo.quoteText
         : quoteRichText(raw.replyTo) || null,
   };

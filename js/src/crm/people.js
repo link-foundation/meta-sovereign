@@ -570,8 +570,8 @@ export const resolveAudience = (links = [], spec, opts = {}) => {
 
 const slug = (text) =>
   fold(text)
-    .replace(/[^\p{L}\p{N}]+/gu, '-')
-    .replace(/^-+|-+$/g, '');
+    .match(/[\p{L}\p{N}]+/gu)
+    ?.join('-') ?? '';
 
 // `id` may be given whole (`list:x`, as read back from the store).
 const linkId = (id, name, kind, prefix) => {
