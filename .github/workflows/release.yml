@@ -1023,6 +1023,9 @@ jobs:
       - name: Build both Docker services from the committed lockfile
         if: runner.os == 'Linux'
         run: docker compose -f docker/docker-compose.yml build
+      - name: Verify hosted workspace isolation and persistence
+        if: runner.os == 'Linux'
+        run: bash docker/test-cloud-workspace.sh
 
   pipeline-status:
     concurrency:

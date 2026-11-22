@@ -1,0 +1,74 @@
+# Launch each workspace with its own Compose project and env file.
+services:
+  egress:
+    build:
+      context: ..
+      dockerfile: docker/cloud-egress.Dockerfile
+    cap_drop: [ALL]
+    cap_add: [NET_ADMIN]
+    security_opt: [no-new-privileges:true]
+    read_only: true
+    tmpfs:
+      - /run:size=1m,mode=0755
+    sysctls:
+      net.ipv6.conf.all.disable_ipv6: '1'
+      net.ipv6.conf.default.disable_ipv6: '1'
+    ports:
+      - '127.0.0.1:${MS_CLOUD_PORT:?Set the private host port}:8787'
+    healthcheck:
+      test: ['CMD', 'test', '-f', '/run/egress-ready']
+      interval: 3s
+      timeout: 2s
+      retries: 5
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ..
+      dockerfile: docker/web.Dockerfile
+      target: web
+    command:
+      [
+        'node',
+        'js/bin/meta-sovereign.js',
+        'serve-cloud',
+        '--store=/data',
+        '--listen=0.0.0.0',
+        '--port=8787',
+      ]
+    init: true
+    user: '1000:1000'
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    network_mode: service:egress
+    depends_on:
+      egress:
+        condition: service_healthy
+        restart: true
+    environment:
+      MS_CLOUD_ORIGIN: ${MS_CLOUD_ORIGIN:?Set the public HTTPS origin}
+      MS_CLOUD_OWNER_KEY_FILE: /workspace/owner.key
+      MS_CLOUD_STORE_KEY_FILE: /workspace/store.key
+      MS_CLOUD_BRAND_NAME: ${MS_CLOUD_BRAND_NAME:-}
+      MS_CLOUD_BRAND_ACCENT: ${MS_CLOUD_BRAND_ACCENT:-}
+      MS_CLOUD_BRAND_LOGO_FILE: ${MS_CLOUD_BRAND_LOGO_FILE:-}
+    volumes:
+      - workspace-data:/data
+      - type: bind
+        source: ${MS_CLOUD_CONFIG_DIR:?Set the workspace configuration directory}/secrets
+        target: /workspace
+        read_only: true
+        bind:
+          create_host_path: false
+    restart: unless-stopped
+    stop_grace_period: 30s
+
+volumes:
+  workspace-data: {}
+
+networks:
+  default:
+    enable_ipv6: false
