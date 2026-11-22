@@ -31,6 +31,16 @@ export const handleMarketplaceRoutes = async (store, req, res, p, ctx) => {
   if (!match || req.method !== 'POST') {
     return false;
   }
+  return handleSessionAction(store, req, res, ctx, match);
+};
+
+const handleSessionAction = async (store, req, res, ctx, match) => {
+  if (ctx.cloud) {
+    return reply(res, 501, {
+      code: 'local-device-only',
+      error: 'Marketplace browser sessions run on your own device',
+    });
+  }
   if (!Object.hasOwn(MARKETPLACES, match[1])) {
     return reply(res, 404, {
       code: 'unknown-marketplace',

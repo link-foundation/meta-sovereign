@@ -7,6 +7,7 @@
 
 import React from 'react';
 import { useT } from './i18n.js';
+import { workspaceName } from './cloud-workspace.js';
 import { TelegramNotifySettings } from './settings-notify.js';
 import { SoundSettings } from './settings-sounds.js';
 import { MediaSettings } from './settings-media.js';
@@ -323,7 +324,7 @@ export const SettingsView = () => {
     el(FolderTabSettings, { key: 'folder-tabs' }),
     el(StoriesSettings, { key: 'stories' }),
     el(BirthdaySettings, { key: 'birthdays' }),
-    el(ConnectionSettings, { key: 'connection' }),
+    workspaceName() ? null : el(ConnectionSettings, { key: 'connection' }),
     el(OperatorSettings, { key: 'operator' }),
     el(ConversationSettings, { key: 'conversation', api }),
     el(FeedbackSettings, { key: 'feedback', api }),

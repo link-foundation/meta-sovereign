@@ -3,6 +3,7 @@ import { api as defaultApi } from './dom.js';
 import { useDates, useT } from './i18n.js';
 import { MARKETPLACES } from '../marketplaces/catalogue.js';
 import { Busy } from './spinner.js';
+import { workspaceName } from './cloud-workspace.js';
 
 const el = React.createElement;
 
@@ -132,6 +133,7 @@ const AccountCard = ({
   const t = useT();
   const [busy, setBusy] = useState(null);
   const [error, setError] = useState(null);
+  const cloud = Boolean(workspaceName());
   const provider = MARKETPLACES[providerId];
   const act = async (action) => {
     if (busy) {
@@ -172,26 +174,30 @@ const AccountCard = ({
     },
     [
       el('h3', { key: 'h' }, provider.label),
-      el(
-        'p',
-        {
-          key: 'state',
-          className: 'meta',
-          role: 'status',
-          'data-session-open': Boolean(account?.open),
-        },
-        sessionText(t, loading, account)
-      ),
+      cloud
+        ? null
+        : el(
+            'p',
+            {
+              key: 'state',
+              className: 'meta',
+              role: 'status',
+              'data-session-open': Boolean(account?.open),
+            },
+            sessionText(t, loading, account)
+          ),
       el(ProfileSnapshot, { key: 'profile', profile: account?.profile }),
-      el('div', { key: 'controls', className: 'row' }, [
-        button(
-          'open',
-          t(account?.open ? 'marketplace.show' : 'marketplace.open'),
-          Boolean(account?.opening)
-        ),
-        button('profile', t('marketplace.capture'), !account?.open),
-        account?.open ? button('close', t('marketplace.close')) : null,
-      ]),
+      cloud
+        ? null
+        : el('div', { key: 'controls', className: 'row' }, [
+            button(
+              'open',
+              t(account?.open ? 'marketplace.show' : 'marketplace.open'),
+              Boolean(account?.opening)
+            ),
+            button('profile', t('marketplace.capture'), !account?.open),
+            account?.open ? button('close', t('marketplace.close')) : null,
+          ]),
       account?.open
         ? el(
             'p',
@@ -225,6 +231,7 @@ const AccountCard = ({
 export const MarketplaceAccounts = ({ api = defaultApi, onProfiles }) => {
   const t = useT();
   const { state, refresh } = useAccounts(api);
+  const cloud = Boolean(workspaceName());
   useEffect(() => {
     onProfiles?.(state.accounts.filter((account) => account.profile).length);
   }, [state.accounts, onProfiles]);
@@ -240,12 +247,16 @@ export const MarketplaceAccounts = ({ api = defaultApi, onProfiles }) => {
         { key: 'h', id: 'marketplace-accounts-title' },
         t('marketplace.title')
       ),
-      el('p', { key: 'intro', className: 'meta' }, t('marketplace.intro')),
+      el(
+        'p',
+        { key: 'intro', className: 'meta' },
+        t(cloud ? 'cloud.marketplaces' : 'marketplace.intro')
+      ),
       state.error
         ? el(
             'p',
             { key: 'server', className: 'meta', role: 'status' },
-            t('marketplace.serverRequired')
+            t(cloud ? 'cloud.unreachable' : 'marketplace.serverRequired')
           )
         : null,
       state.error

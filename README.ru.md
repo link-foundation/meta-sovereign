@@ -28,6 +28,10 @@ meta-sovereign представляет **человека или организ
 
 Скачайте installer для своей системы на <https://link-foundation.github.io/meta-sovereign/download/> или в [GitHub releases](https://github.com/link-foundation/meta-sovereign/releases): Linux (AppImage, deb, tar.gz), macOS (dmg, zip) и Windows (installer, portable), каждый для x64 и arm64. Desktop app включает сервер, поэтому все функции работают без отдельного запуска сервера. Первый запуск неподписанных сборок, контрольные суммы и обновления описаны в [`docs/USER-GUIDE.ru.md` §4](docs/USER-GUIDE.ru.md#4-установить-desktop-или-mobile-app).
 
+## Размещение рабочего пространства
+
+Запустите `serve-cloud` за HTTPS-прокси, чтобы пользователь мог открыть личное рабочее пространство в браузере. У каждого пространства свои ключ для входа, постоянное хранилище и фоновые задачи провайдеров. Имя, цвет и логотип задаются в конфигурации. [Руководство по развёртыванию](docs/CLOUD-WORKSPACES.md)
+
 ## Локальный сервер (рекомендуется для синхронизации)
 
 Чтобы синхронизировать устройства и получить полный набор функций, запустите локальный сервер рядом со SPA. Доступны два backend; оба реализуют один wire protocol (см. [`docs/SERVER-PARITY.ru.md`](docs/SERVER-PARITY.ru.md)).

@@ -106,16 +106,8 @@ const parseObject = (raw, allowEmpty) => {
   return value;
 };
 
-/**
- * The request's JSON object body. Rejects with a BodyError (the server
- * answers it: 400 `bad-json`, 413 `too-large`) and never turns a broken
- * body into `{}`. An empty body is `{}` unless `allowEmpty: false`.
- * @param {{limit?: number, allowEmpty?: boolean}} options
- */
-export const readBody = (
-  req,
-  { limit = MAX_JSON_BODY, allowEmpty = true } = {}
-) =>
+/** Read a bounded request body. */
+export const readBytes = (req, { limit = MAX_JSON_BODY } = {}) =>
   new Promise((resolve, reject) => {
     if (Number(req.headers?.['content-length']) > limit) {
       req.resume();
@@ -141,13 +133,14 @@ export const readBody = (
       if (over) {
         return;
       }
-      try {
-        resolve(
-          parseObject(Buffer.concat(chunks).toString('utf8'), allowEmpty)
-        );
-      } catch (err) {
-        reject(err);
-      }
+      resolve(Buffer.concat(chunks));
     });
     req.on('error', reject);
+    req.on('aborted', () =>
+      reject(new BodyError(400, 'aborted', 'request was interrupted'))
+    );
   });
+
+/** An empty JSON object body returns `{}` unless `allowEmpty: false`. */
+export const readBody = async (req, { limit, allowEmpty = true } = {}) =>
+  parseObject((await readBytes(req, { limit })).toString('utf8'), allowEmpty);

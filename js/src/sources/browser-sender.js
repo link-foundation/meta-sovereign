@@ -680,49 +680,57 @@ export const createDefaultSender = ({
     : null;
   const send = createFallbackSender({
     apiSend: adapterSend,
-    browserSend: (draft) => {
-      refuseAutomatedWeb(draft);
-      // A plain browser send cannot preserve these message semantics.
-      // Refuse rather than silently turning a reply into a normal message.
-      if (
-        draft.replyTo ||
-        draft.replyQuote ||
-        draft.topic ||
-        draft.sendAs ||
-        draft.scheduleDate ||
-        draft.allowPaidStars ||
-        draft.silent ||
-        draft.effect ||
-        draft.noWebpage ||
-        draft.invertMedia ||
-        draft.previewUrl ||
-        draft.previewSize
-      ) {
-        throw codedError(
-          'this message requires the network API to preserve its reply and send options',
-          'unsupported-send-options'
-        );
-      }
-      return browserFor().send({
-        source: draft.source,
-        chat: draft.chat,
-        to: draft.contact ?? draft.to,
-        text: draft.text,
-      });
-    },
+    browserSend:
+      browser === false
+        ? null
+        : (draft) => {
+            refuseAutomatedWeb(draft);
+            // A plain browser send cannot preserve these message semantics.
+            // Refuse rather than silently turning a reply into a normal message.
+            if (
+              draft.replyTo ||
+              draft.replyQuote ||
+              draft.topic ||
+              draft.sendAs ||
+              draft.scheduleDate ||
+              draft.allowPaidStars ||
+              draft.silent ||
+              draft.effect ||
+              draft.noWebpage ||
+              draft.invertMedia ||
+              draft.previewUrl ||
+              draft.previewSize
+            ) {
+              throw codedError(
+                'this message requires the network API to preserve its reply and send options',
+                'unsupported-send-options'
+              );
+            }
+            return browserFor().send({
+              source: draft.source,
+              chat: draft.chat,
+              to: draft.contact ?? draft.to,
+              text: draft.text,
+            });
+          },
     log,
   });
   const actions = createMessageActions({
     getSource,
     optionsFor: merged,
     browser: browserFor,
+    ...(browser === false ? { platforms: {} } : {}),
     log,
   });
   return Object.assign(send, {
     perform: actions.perform,
     supports: actions.supports,
-    readChats: (params) => browserFor().readChats(params),
-    readRecent: (params) => browserFor().readRecent(params),
+    ...(browser === false
+      ? {}
+      : {
+          readChats: (params) => browserFor().readChats(params),
+          readRecent: (params) => browserFor().readRecent(params),
+        }),
     close: async () => browserSender?.close(),
   });
 };

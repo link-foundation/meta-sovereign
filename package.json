@@ -38,6 +38,7 @@
     "./server": "./js/src/server/index.js"
   },
   "scripts": {
+    "test:e2e:cloud-workspace": "node js/tests/e2e-cloud-workspace-browser.mjs",
     "test": "node --test --test-concurrency=2 --test-timeout=30000 js/tests/*.test.js",
     "test:e2e:browser": "node js/tests/e2e-browser-spa.mjs",
     "test:e2e:browser:webkit": "E2E_BROWSER=webkit node js/tests/e2e-browser-spa.mjs",

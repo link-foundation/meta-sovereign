@@ -28,6 +28,10 @@ meta-sovereign 在网上**代表一个人或一个组织**。连接 Telegram、V
 
 从 <https://link-foundation.github.io/meta-sovereign/download/> 或 [GitHub releases](https://github.com/link-foundation/meta-sovereign/releases) 下载适合你系统的安装包：Linux（AppImage、deb、tar.gz）、macOS（dmg、zip）和 Windows（安装版、便携版），均提供 x64 和 arm64。桌面应用内置服务器，因此无需自己启动服务器即可使用全部功能。未签名构建的首次启动步骤、校验和与更新说明见 [`docs/USER-GUIDE.zh.md` §4](docs/USER-GUIDE.zh.md#4-安装桌面或移动-app)。
 
+## 托管工作区
+
+在 HTTPS 代理后运行 `serve-cloud`，用户即可通过浏览器访问个人工作区。每个工作区都有独立的登录密钥、持久存储和服务商后台任务。可通过配置设置名称、主色和徽标。[部署指南](docs/CLOUD-WORKSPACES.md)
+
 ## 运行本地服务器（推荐用于同步）
 
 如果要在设备之间同步并使用完整功能，请在 SPA 旁边启动本地服务器。当前有两个后端，它们实现同一套 wire protocol（见 [`docs/SERVER-PARITY.zh.md`](docs/SERVER-PARITY.zh.md)）。

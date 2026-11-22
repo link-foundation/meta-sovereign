@@ -43,6 +43,7 @@ import { EmailPullRow } from './email-pull.js';
 import { FETCHABLE, FetchNow } from './fetch-now.js';
 import { GithubInbox } from './github-inbox.js';
 import { MarketplaceAccounts } from '../marketplace-accounts.js';
+import { workspaceName } from '../cloud-workspace.js';
 
 const el = React.createElement;
 
@@ -787,10 +788,22 @@ export const ProviderConnectionControls = ({
  */
 const BrowserSessionPanel = ({ providerId, provider }) => {
   const t = useT();
+  if (workspaceName()) {
+    return el('div', { className: 'col provider-browser-session' }, [
+      el(
+        'p',
+        { key: 'availability', className: 'meta' },
+        t('cloud.browserProvider')
+      ),
+      el(ProviderArchiveImport, { key: 'arch', providerId, provider }),
+    ]);
+  }
   const session = provider.session;
   const openCv = () =>
     globalThis.dispatchEvent?.(
-      new CustomEvent('meta-sovereign:navigate', { detail: { view: 'cv' } })
+      new globalThis.CustomEvent('meta-sovereign:navigate', {
+        detail: { view: 'cv' },
+      })
     );
   const link = (key, href, label) =>
     el(
@@ -915,6 +928,19 @@ const WorkApiNote = ({ providerId }) => {
     : null;
 };
 
+const WhatsAppCardStatus = () => {
+  const t = useT();
+  return workspaceName()
+    ? el('p', { className: 'meta' }, t('cloud.whatsapp'))
+    : el(WhatsAppWebPanel);
+};
+
+const canScanProvider = (providerId, provider, autoImport) =>
+  !workspaceName() &&
+  !provider.browserOnly &&
+  autoImport?.available !== false &&
+  Boolean(autoImport?.providers?.[providerId] ?? !autoImport);
+
 const ProviderCard = ({ providerId, status, autoImport, onOpen }) => {
   const t = useT();
   const { locale } = useLocaleContext();
@@ -922,10 +948,7 @@ const ProviderCard = ({ providerId, status, autoImport, onOpen }) => {
   const state = classifyConnectionState(status, providerId);
   const users = serviceUsers[providerId];
   const signedIn = autoImport?.signIns?.[providerId];
-  const canImport =
-    !provider.browserOnly &&
-    autoImport?.available !== false &&
-    Boolean(autoImport?.providers?.[providerId] ?? !autoImport);
+  const canImport = canScanProvider(providerId, provider, autoImport);
   return el(
     'article',
     {
@@ -965,7 +988,7 @@ const ProviderCard = ({ providerId, status, autoImport, onOpen }) => {
         tx(t, provider.archive.hint, provider.archive.hintKey)
       ),
       providerId === 'whatsapp'
-        ? el(WhatsAppWebPanel, { key: 'wa-web' })
+        ? el(WhatsAppCardStatus, { key: 'wa-web' })
         : null,
       el(ProviderCardActions, {
         key: 'actions',
@@ -998,6 +1021,7 @@ const useAutoImportStatus = () => {
 
 export const ConnectionsList = ({ status, onOpen, initialAutoImport }) => {
   const t = useT();
+  const workspace = workspaceName();
   const [loaded, reload] = useAutoImportStatus();
   const autoImport = loaded ?? initialAutoImport ?? null;
   const ids = byPopularity(Object.keys(providerCatalogue));
@@ -1010,11 +1034,15 @@ export const ConnectionsList = ({ status, onOpen, initialAutoImport }) => {
     [
       el('header', { key: 'h', className: 'connections-list-header' }, [
         el('h2', { key: 'title' }, t('connections.title')),
-        el('p', { key: 'intro', className: 'meta' }, t('connections.intro')),
+        el(
+          'p',
+          { key: 'intro', className: 'meta' },
+          t(workspace ? 'cloud.connectionsIntro' : 'connections.intro')
+        ),
       ]),
       // Shown while the status loads (so it never pops in late) and
       // hidden only once the server says browser import is unavailable.
-      autoImport?.available === false
+      workspace || autoImport?.available === false
         ? null
         : el(BrowserSignIns, {
             key: 'sign-ins',
@@ -1147,24 +1175,26 @@ const manualHint = (t, provider) =>
     ? tx(t, provider.session.hint, provider.session.hintKey)
     : tx(t, provider.apiCredentials.hint, provider.apiCredentials.hintKey);
 
-const ManualPanel = ({ providerId, provider, links, refresh }) => {
+const ManualPanel = ({ providerId, provider, links, refresh, tabbed }) => {
   const t = useT();
   return el(
     'div',
     {
       id: 'conn-panel-manual',
-      role: provider.browserOnly ? undefined : 'tabpanel',
-      'aria-labelledby': provider.browserOnly ? undefined : 'conn-tab-manual',
+      role: tabbed ? 'tabpanel' : undefined,
+      'aria-labelledby': tabbed ? 'conn-tab-manual' : undefined,
       className: 'connections-panel',
     },
     [
-      el(ManualIntro, {
-        key: 'intro',
-        providerId,
-        provider,
-        hint: manualHint(t, provider),
-      }),
-      providerId === 'telegram'
+      workspaceName() && provider.browserOnly
+        ? null
+        : el(ManualIntro, {
+            key: 'intro',
+            providerId,
+            provider,
+            hint: manualHint(t, provider),
+          }),
+      providerId === 'telegram' && !workspaceName()
         ? el(TelegramSessionsPanel, { key: 'find', onConnected: refresh })
         : null,
       providerId === 'telegram'
@@ -1218,7 +1248,8 @@ export const ConnectionDetail = ({
     );
   }
   const state = classifyConnectionState(status, providerId);
-  const shown = provider.browserOnly ? 'manual' : mode;
+  const tabbed = !provider.browserOnly && !workspaceName();
+  const shown = tabbed ? mode : 'manual';
   return el(
     'section',
     {
@@ -1247,9 +1278,9 @@ export const ConnectionDetail = ({
         el('h2', { key: 'title' }, tx(t, provider.label, provider.labelKey)),
         el(StateBadge, { key: 'badge', state }),
       ]),
-      provider.browserOnly
-        ? null
-        : el(SetupTabs, { key: 'tabs', providerId, mode: shown, onMode }),
+      tabbed
+        ? el(SetupTabs, { key: 'tabs', providerId, mode: shown, onMode })
+        : null,
       shown === 'import'
         ? el(ImportPanel, { key: 'panel', providerId, provider })
         : el(ManualPanel, {
@@ -1258,6 +1289,7 @@ export const ConnectionDetail = ({
             provider,
             links,
             refresh,
+            tabbed,
           }),
     ]
   );

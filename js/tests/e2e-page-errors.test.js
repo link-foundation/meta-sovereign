@@ -129,6 +129,17 @@ test('native WebKit display-form URLs retain the exact origin boundary', () => {
   assert.deepEqual(errors, [String(foreign)]);
 });
 
+test('native WebKit HTTPS diagnostics retain the workspace scheme and port boundary', () => {
+  const secure = base.replace('http:', 'https:');
+  const { first, errors } = fixture({ base: secure });
+  const insecure = accessError();
+  const foreign = accessError('https://127.0.0.1:49744/api/status?probe=1');
+  first.emit('pageerror', accessError(`${secure}/api/status?probe=1`));
+  first.emit('pageerror', insecure);
+  first.emit('pageerror', foreign);
+  assert.deepEqual(errors, [insecure, foreign].map(String));
+});
+
 test('failure screenshot uses reopened pages and continues after a capture fails', async () => {
   const captures = [];
   const reports = [];

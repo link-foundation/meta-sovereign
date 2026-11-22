@@ -866,6 +866,14 @@ applies **uniformly** across every applicable surface of the app.
 
 ---
 
+## Hosted workspaces
+
+- R-SAAS1 requires browser access to the cloud-hosted app with persistent server-side data and provider jobs.
+- R-SAAS2 requires a deployable server mode with isolated workspaces, authenticated access, health checks and recovery procedures.
+- R-SAAS3 requires configurable workspace names, accent colors and logos.
+
+See the [issue 73 requirement inventory and verification](case-studies/issue-73/solution-plan.md) and the [deployment guide](CLOUD-WORKSPACES.md).
+
 ## Traceability
 
 When a future PR or commit lands a feature, reference the requirement

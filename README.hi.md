@@ -28,6 +28,10 @@ Server के बिना hosted app **browser-only mode** में चलत�
 
 अपने system का installer <https://link-foundation.github.io/meta-sovereign/download/> से या [GitHub releases](https://github.com/link-foundation/meta-sovereign/releases) से download करें: Linux (AppImage, deb, tar.gz), macOS (dmg, zip) और Windows (installer, portable), हर एक x64 और arm64 के लिए। Desktop app में server bundled है, इसलिए खुद server start किए बिना हर feature काम करता है। Unsigned builds की पहली launch, checksums और updates [`docs/USER-GUIDE.hi.md` §4](docs/USER-GUIDE.hi.md#4-desktop-या-mobile-app-install-करें) में हैं।
 
+## कार्यस्थान होस्ट करें
+
+किसी उपयोगकर्ता को ब्राउज़र से निजी कार्यस्थान देने के लिए `serve-cloud` को HTTPS के पीछे चलाएँ। हर कार्यस्थान का अपना साइन-इन, स्थायी स्टोरेज और प्रदाता जॉब हैं। नाम, रंग और लोगो कॉन्फ़िगरेशन से सेट करें। [डिप्लॉयमेंट गाइड](docs/CLOUD-WORKSPACES.md)
+
 ## local server चलाएँ (sync के लिए recommended)
 
 Devices के बीच sync, encrypted backups और पूरा feature set इस्तेमाल करने के लिए SPA के पास local server start करें। दो backend उपलब्ध हैं; दोनों समान wire protocol लागू करते हैं (देखें [`docs/SERVER-PARITY.hi.md`](docs/SERVER-PARITY.hi.md))।

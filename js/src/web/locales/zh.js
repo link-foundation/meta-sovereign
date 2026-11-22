@@ -37,6 +37,23 @@ export const zh = {
   ...zhTranscribe,
   ...zhGithub,
   appName: 'meta-sovereign',
+  'cloud.signOut': '退出登录',
+  'cloud.connectionsIntro': '选择要连接账号或上传归档文件的服务。',
+  'cloud.contactsImportHint': '上传 vCard 文件以预览并导入联系人。',
+  'cloud.contactsReading': '正在读取 vCard 文件…',
+  'cloud.unreachable': '工作区服务器暂时无法访问。请检查连接后重试。',
+  'cloud.browserProvider':
+    '您可以在此上传导出的归档文件。通过浏览器实时登录需要在您的设备上运行应用。',
+  'cloud.whatsapp':
+    '连接 WhatsApp Business API 或导入聊天归档。个人 WhatsApp Web 登录在您的设备上进行。',
+  'cloud.cv':
+    '比较已保存的简历快照。实时读取和更新简历的操作在您的设备上进行。',
+  'cloud.marketplaces':
+    '查看已保存的平台资料。从已登录的浏览器采集资料需要在您的设备上进行。',
+  'cloud.tourPick': '请选择要通过 API 连接或导入归档的服务。',
+  'cloud.tourSetupTitle': '连接服务或导入归档',
+  'cloud.tourSetup':
+    '请按所选服务的说明操作。在支持的情况下，输入凭据或上传归档。',
   skipLink: '跳到主要内容',
   'header.theme': '主题',
   'header.themeAria': '切换深色模式',
