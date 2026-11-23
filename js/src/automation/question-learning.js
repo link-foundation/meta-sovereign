@@ -162,6 +162,8 @@ const learnedIdentity = (text, notice) => {
     key: `${notice ? 'notice:' : ''}${questionKey(question)}`,
   };
 };
+const observedCount = (context, key, text, count) =>
+  context.observeTurn?.(key, text) === false ? 0 : count;
 
 const answerCollection = ({ policy, contract, correction }) => {
   const learned = new Map();
@@ -189,6 +191,7 @@ const answerCollection = ({ policy, contract, correction }) => {
     }
     text = contract(text);
     const key = identity.key;
+    count = observedCount(context, key, text, count);
     const group = learned.get(key) ?? {
       id: `${QA_RULE_PREFIX}${answerKeyHash(key)}`,
       tokens: ['qa-rule'],
@@ -265,51 +268,27 @@ export const createAnswerPairLearner = ({
   };
 };
 
-// One chronological conversation at a time; retain a question or passive notice,
-// a question's immediate reminder and twenty actual outgoing bubbles.
-export const createAnswerLearner = ({
-  self = ['me'],
-  policy = {},
-  contract = (text) => text,
-  rules = [],
-  profile = {},
-} = {}) => {
-  const isSelf = (message) =>
-    message.out === true ||
-    message.outgoing === true ||
-    self.includes(message.sender);
-  const correction = createAnswerCorrectionGuard(rules, {
-    policy,
-    contract,
-    profile,
-  });
-  const collection = answerCollection({ policy, contract, correction });
-  let question;
-  let priorQuestion;
-  let answers = [];
+// Keep one pending question, its immediate reminder and at most 20 bubbles.
+const createTurnReader = (isSelf, onTurn, onSummary, initial = {}) => {
+  let { question, priorQuestion, answers = [] } = initial;
   const finish = () => {
     if (question && answers.length) {
-      const text = answers.map((answer) => answer.body.trim()).join('\n');
-      const evidence = answers.map((answer) => answer.id);
-      const context = { ...question, notice: usableNotice(question, isSelf) };
-      if (context.notice) {
-        debugQuestionTurn('notice-pair-observed', {
-          question: question.id,
-          answers: evidence,
-        });
-      }
-      collection.add(question.body.trim(), text, evidence, 1, context);
-      if (!context.notice) {
-        addAlignedParts(question.body, text, evidence, (part, answer, ids) =>
-          collection.add(part, answer, ids, 1, context)
-        );
-      }
+      onTurn(question, answers);
     }
     question = null;
     priorQuestion = null;
     answers = [];
   };
   return {
+    pending: () => Boolean(question || priorQuestion),
+    contains: (id) => answers.some((answer) => answer.id === id),
+    fork(onRevisedTurn) {
+      return createTurnReader(isSelf, onRevisedTurn, () => {}, {
+        question,
+        priorQuestion,
+        answers: [...answers],
+      });
+    },
     accept(message) {
       if (privateMessageLinks(message)) {
         // A private continuation invalidates the whole pending answer, including
@@ -361,9 +340,7 @@ export const createAnswerLearner = ({
       finish();
       const summaries = incomingSummary(message, isSelf);
       if (summaries.length) {
-        for (const pair of summaries) {
-          collection.add(pair.question, pair.text, [message.id], 0, message);
-        }
+        onSummary(message, summaries);
       } else if (
         usableQuestion(message, isSelf) ||
         usableNotice(message, isSelf)
@@ -372,7 +349,113 @@ export const createAnswerLearner = ({
         priorQuestion = previous;
       }
     },
-    finishChat: finish,
+    finish,
+  };
+};
+
+// Branch only for the one revised source bubble and stop once it leaves the
+// pending turn. Ordinary transcript reads continue through the same reader.
+export const createAnswerLearner = ({
+  self = ['me'],
+  policy = {},
+  contract = (text) => text,
+  rules = [],
+  profile = {},
+} = {}) => {
+  const isSelf = (message) =>
+    message.out === true ||
+    message.outgoing === true ||
+    self.includes(message.sender);
+  const correction = createAnswerCorrectionGuard(rules, {
+    policy,
+    contract,
+    profile,
+  });
+  const collection = answerCollection({ policy, contract, correction });
+  const observations = new Set();
+  let observationBytes = 0;
+  let branches = [];
+  const record = (question, answers, revision = null) => {
+    const text = answers.map((answer) => answer.body.trim()).join('\n');
+    const evidence = answers.map((answer) => answer.id);
+    const context = { ...question, notice: usableNotice(question, isSelf) };
+    if (revision || answers.some((answer) => answer.versionHead)) {
+      const turn = [question.id, ...evidence];
+      context.observeTurn = (key, answer) => {
+        const observation = JSON.stringify([turn, key, answer]);
+        if (observations.has(observation)) {
+          return false;
+        }
+        observationBytes += observation.length * 2 + 64;
+        if (observationBytes > 8 * 1024 ** 2) {
+          throw new Error(
+            'answer revision capacity exceeded; no proposals applied'
+          );
+        }
+        observations.add(observation);
+        return true;
+      };
+    }
+    if (revision?.revisionId.length <= 500) {
+      evidence.push(revision.revisionId);
+    }
+    if (context.notice) {
+      debugQuestionTurn('notice-pair-observed', {
+        question: question.id,
+        answers: evidence,
+      });
+    }
+    collection.add(question.body.trim(), text, evidence, 1, context);
+    if (!context.notice) {
+      addAlignedParts(question.body, text, evidence, (part, answer, ids) =>
+        collection.add(part, answer, ids, 1, context)
+      );
+    }
+  };
+  const reader = createTurnReader(isSelf, record, (message, summaries) => {
+    for (const pair of summaries) {
+      collection.add(pair.question, pair.text, [message.id], 0, message);
+    }
+  });
+  const confirmedOutgoing = (message) =>
+    isSelf(message) &&
+    !message.deleted &&
+    !message.service &&
+    !message.pending &&
+    !message.failed &&
+    !undelivered(message);
+  return {
+    canReplay: (message) => reader.pending() && confirmedOutgoing(message),
+    accept(message, earlier = []) {
+      const alternates = earlier.filter(confirmedOutgoing).map((revision) => ({
+        revision,
+        reader: reader.fork((question, answers) => {
+          if (answers.includes(revision)) {
+            record(question, answers, revision);
+          }
+        }),
+      }));
+      reader.accept(message);
+      for (const branch of branches) {
+        branch.reader.accept(message);
+      }
+      branches = branches.filter((branch) => branch.reader.contains(branch.id));
+      for (const { revision, reader: alternate } of alternates) {
+        alternate.accept(revision);
+        if (alternate.contains(revision.id)) {
+          branches.push({ reader: alternate, id: revision.id });
+        }
+      }
+    },
+    finishChat() {
+      reader.finish();
+      for (const branch of branches) {
+        branch.reader.finish();
+      }
+      branches = [];
+      observations.clear();
+      observationBytes = 0;
+    },
     rules: () => collection.values(),
   };
 };

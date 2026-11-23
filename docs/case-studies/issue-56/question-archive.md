@@ -20,4 +20,4 @@ After: the older answer is offered for review with its observed frequency.
 
 ![Mobile archive learning](https://github.com/link-foundation/meta-sovereign/blob/issue-56-2677debd3a31/docs/screenshots/issue-56-question-archive-mobile.png?raw=true)
 
-This verifies the shared stored-archive mechanism. Provider history import, historical versions, wider language/form workflows and the remaining requirements in [PR 57](https://github.com/link-foundation/meta-sovereign/pull/57) remain unfinished.
+This verifies the original shared stored-archive mechanism. [Edited answer history](question-archive-revisions.md) extends it to saved message versions. Full provider history retrieval, wider language/form workflows and the remaining requirements in [PR 57](https://github.com/link-foundation/meta-sovereign/pull/57) remain unfinished.

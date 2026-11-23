@@ -6,9 +6,15 @@ import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { createMemoryStore } from '../../js/src/storage/universal.js';
 import { hhSource } from '../../js/src/sources/hh.js';
-import { hhHistoryFixture } from './hh-history-fixture.mjs';
+import {
+  hhHistoryFixture,
+  seedHhAnswerRevisions,
+} from './hh-history-fixture.mjs';
 import { openChatApp } from '../../js/tests/helpers/e2e-chat.mjs';
-import { verifyHhHistory } from '../../js/tests/helpers/e2e-hh-history.mjs';
+import {
+  verifyHhAnswerRevisions,
+  verifyHhHistory,
+} from '../../js/tests/helpers/e2e-hh-history.mjs';
 import {
   TUTORIAL_STORAGE_KEY,
   TUTORIAL_VERSION,
@@ -39,7 +45,12 @@ if (before) {
   }
 }
 const store = createMemoryStore();
-await store.putMany(await source.parseArchive(hhHistoryFixture()));
+const revisions = process.env.HH_HISTORY_REVISIONS_ONLY === '1';
+if (revisions) {
+  await seedHhAnswerRevisions(store);
+} else {
+  await store.putMany(await source.parseArchive(hhHistoryFixture()));
+}
 const { page, base, until, finish } = await openChatApp('hh-history', {
   store,
 });
@@ -50,6 +61,20 @@ await page.addInitScript(
     value: JSON.stringify({ off: true, v: TUTORIAL_VERSION }),
   }
 );
-await finish(() =>
-  verifyHhHistory({ page, base, store, until, before: Boolean(before) })
-);
+await finish(() => {
+  if (!revisions) {
+    return verifyHhHistory({
+      page,
+      base,
+      store,
+      until,
+      before: Boolean(before),
+    });
+  }
+  return verifyHhAnswerRevisions({
+    page,
+    base,
+    store,
+    screenshot: process.env.HH_HISTORY_REVISIONS_SCREENSHOT,
+  });
+});

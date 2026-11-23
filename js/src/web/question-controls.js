@@ -330,6 +330,15 @@ const LearnedAnswers = ({ busy, learned, learn }) => {
                 t('questions.partialHistory')
               )
             : null,
+          learned.coverage.incompleteRevisionChains > 0
+            ? el(
+                'p',
+                { key: 'revisions', className: 'meta' },
+                t('questions.incompleteRevisions', {
+                  count: learned.coverage.incompleteRevisionChains,
+                })
+              )
+            : null,
           el(
             'ul',
             { key: 'list' },

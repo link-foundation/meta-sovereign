@@ -1947,3 +1947,10 @@ Native profile persistence follow-up:
 - [x] Preserve the failed Windows x64 and arm64 logs at exact head `72d5a02c`. Both reach the Node debugger before the installed application times out.
 - [x] Reproduce the missing React import without the checkout and verify independent translation, locale behavior and the production bundle. Node and Deno pass 44 focused checks. [Reproduction and sources](desktop-attention-packaging.md).
 - [ ] Verify clean installed startup, one visible window, runtime drain and screenshot in the exact-head Windows x64 and arm64 jobs.
+
+### Edited answers in the shared archive (QA02 and QA06)
+
+- [x] Compare the pinned sent-answer frequency and correction rules. Reproduce missing earlier answers at `05366339` through the production Questions view and shared CLI path.
+- [x] Reuse immutable edit chains and the common turn reader. Count each wording once per source turn, preserve private-link/delivery barriers, and record incomplete coverage.
+- [x] Verify 66 checks in each focused runtime and the actual parent and corrected browser behavior. Confirm CLI, both Lino formats and independent mobile Playwright MCP.
+- [ ] Verify exact-head hosted checks and authenticated provider history. [Reproduction and sources](question-archive-revisions.md).

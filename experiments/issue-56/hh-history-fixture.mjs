@@ -1,3 +1,6 @@
+import { importInto } from '../../js/src/sources/index.js';
+import { withMessageVersions } from '../../js/src/storage/message-versions.js';
+
 // Documented HH negotiation/message shapes, with invented people and text.
 export const hhHistoryFixture = (answer = 'Vietnam.') => ({
   negotiations: [
@@ -39,3 +42,30 @@ export const hhHistoryFixture = (answer = 'Vietnam.') => ({
     },
   ],
 });
+
+export const seedHhAnswerRevisions = async (store) => {
+  const versioned = withMessageVersions(store);
+  await importInto(versioned, 'hh', hhHistoryFixture());
+  const edited = hhHistoryFixture('Thailand.');
+  edited.negotiations[0].messages.items[1].edited_at = '2026-11-09T11:00:00Z';
+  await importInto(versioned, 'hh', edited);
+  const incomplete = {
+    id: 'msg:hh:revision-coverage',
+    source: 'hh',
+    chat: 'history-56-partial',
+    timestamp: '2026-11-09T10:00:01Z',
+    sender: 'employer',
+  };
+  await versioned.putMany([
+    { ...incomplete, body: 'When are you available?' },
+    {
+      ...incomplete,
+      id: 'msg:hh:revision-coverage-answer',
+      timestamp: '2026-11-09T10:00:02Z',
+      sender: 'applicant',
+      outgoing: true,
+      edited: '2026-11-09T11:00:00Z',
+      body: 'Monday morning.',
+    },
+  ]);
+};

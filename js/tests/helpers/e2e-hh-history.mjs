@@ -3,23 +3,19 @@ import { hhHistoryFixture } from '../../../experiments/issue-56/hh-history-fixtu
 import { importInto } from '../../src/sources/index.js';
 import { openQuestionDisclosure } from './question-preview.mjs';
 
-export const resetHhHistoryFixture = async (store) => {
+const seedHhHistory = (store) => importInto(store, 'hh', hhHistoryFixture());
+
+export const resetHhHistoryFixture = async (store, seed = seedHhHistory) => {
   for (const link of await store.query((link) =>
-    /^(?:msg:|qa-rule:)/u.test(link.id)
+    /^(?:msg:|qa-rule:|message-version:)/u.test(link.id)
   )) {
     await store.delete(link.id);
   }
-  await importInto(store, 'hh', hhHistoryFixture());
+  await seed(store);
 };
 
-export const verifyHhHistory = async ({
-  page,
-  base,
-  store,
-  until,
-  before = false,
-}) => {
-  await page.goto(`${base}/?history-check=hh#/automation`);
+const previewHhArchive = async (page, base, fixture) => {
+  await page.goto(`${base}/?history-check=${fixture}#/automation`);
   const panel = page.locator('[data-question-controls]');
   await openQuestionDisclosure(panel);
   const learner = panel.locator('details').filter({
@@ -31,6 +27,17 @@ export const verifyHhHistory = async ({
   await learner
     .getByRole('button', { name: 'Preview learned answers', exact: true })
     .click();
+  return learner;
+};
+
+export const verifyHhHistory = async ({
+  page,
+  base,
+  store,
+  until,
+  before = false,
+}) => {
+  const learner = await previewHhArchive(page, base, 'hh');
   const proposal = learner.locator('li').filter({
     has: page
       .locator('strong')
@@ -106,5 +113,41 @@ export const verifyHhHistory = async ({
     .click();
   await proposal
     .getByText('Observed answer turns: 1', { exact: true })
+    .waitFor();
+};
+
+export const verifyHhAnswerRevisions = async ({
+  page,
+  base,
+  store,
+  screenshot,
+}) => {
+  const learner = await previewHhArchive(page, base, 'hh-revisions');
+  const proposal = learner
+    .locator('li')
+    .filter({ hasText: 'Where do you live?' });
+  await proposal.getByText('Thailand.', { exact: true }).waitFor();
+  assert(
+    (await store.query((link) => link.id.startsWith('qa-rule:'))).length === 0,
+    'the archive preview leaves the knowledge store untouched'
+  );
+  if (screenshot) {
+    await proposal.evaluate((element) =>
+      element.scrollIntoView({ block: 'center' })
+    );
+    await page.screenshot({ path: screenshot });
+  }
+  assert(
+    (await proposal.getByText('Vietnam.', { exact: true }).count()) === 1,
+    'the earlier observed wording appears once beside the current wording'
+  );
+  assert(
+    (await proposal
+      .getByText('Observed answer turns: 1', { exact: true })
+      .count()) === 2,
+    'the original and edited wordings count once each'
+  );
+  await learner
+    .getByText('Incomplete edit history for 1 sent message.', { exact: false })
     .waitFor();
 };

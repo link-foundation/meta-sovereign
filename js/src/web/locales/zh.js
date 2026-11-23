@@ -1294,6 +1294,8 @@ export const zh = {
   'questions.coverage': '已检查的存档消息：{retained} / {seen}。',
   'questions.partialHistory':
     '部分对话缺少可靠时间戳，已排除。学习仅使用已保存的消息，不会下载服务商缺失的历史。',
+  'questions.incompleteRevisions':
+    '{count} 条已发送消息的编辑历史不完整。统计仅包含已保存的版本。',
   'questions.preview': '预览回答',
   'questions.previewSource': '预览服务商',
   'questions.previewChat': '预览聊天',

@@ -43,7 +43,7 @@ test('HH archive and live normalization agree on nested messages and retain role
   assert.deepEqual(archive[1].raw, fixture.negotiations[0].messages.items[1]);
 });
 
-test('HH repeated imports count a turn once and preserve edits without learning old versions', async () => {
+test('HH repeated imports count each observed wording once and preserve edits', async () => {
   const store = withMessageVersions(createMemoryStore());
   await importInto(store, 'hh', hhHistoryFixture());
   await importInto(store, 'hh', hhHistoryFixture());
@@ -52,14 +52,23 @@ test('HH repeated imports count a turn once and preserve edits without learning 
   edited.negotiations[0].messages.items[1].edited_at = '2026-11-09T11:00:00Z';
   await importInto(store, 'hh', edited);
   const next = await learnSavedAnswers(store);
-  assert.equal(next.rules[0].answers[0].text, 'Thailand.');
-  assert.equal(next.rules[0].answers[0].count, 1);
   const history = await messageVersions(store, 'msg:hh:56002');
   assert.deepEqual(
     history.versions.map((v) => v.snapshot.body),
     ['Thailand.', 'Vietnam.']
   );
   assert.equal(history.versions[0].editedAt, '2026-11-09T11:00:00.000Z');
+  assert.deepEqual(
+    next.rules[0].answers.map(({ text, count, evidence }) => [
+      text,
+      count,
+      evidence,
+    ]),
+    [
+      ['Thailand.', 1, ['msg:hh:56002']],
+      ['Vietnam.', 1, ['msg:hh:56002', history.versions[1].id]],
+    ]
+  );
   assert.equal(next.coverage.retained, 4);
 });
 

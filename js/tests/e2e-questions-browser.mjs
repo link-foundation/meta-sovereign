@@ -36,9 +36,11 @@ import {
 } from './helpers/question-preview.mjs';
 import { verifyQuestionDisclosures } from './helpers/e2e-question-disclosures.mjs';
 import {
+  verifyHhAnswerRevisions,
   verifyHhHistory,
   resetHhHistoryFixture,
 } from './helpers/e2e-hh-history.mjs';
+import { seedHhAnswerRevisions } from '../../experiments/issue-56/hh-history-fixture.mjs';
 
 const store = createMemoryStore();
 const reading = { beforeGet: null };
@@ -626,12 +628,20 @@ const verifyRefusedSave = async (saved) => {
   }
 };
 
-const verifyProviderHistoryAndNotices = async () => {
-  // These final scenarios use their own transcript and saved-rule baseline.
+const verifyProviderHistory = async () => {
+  // Archive scenarios use their own transcript and saved-rule baseline.
   await resetHhHistoryFixture(store);
   await traceBrowserScenario('questions', 'hh-history-learning', async () => {
     await verifyHhHistory({ page, base, store, until });
   });
+  await resetHhHistoryFixture(store, seedHhAnswerRevisions);
+  await traceBrowserScenario('questions', 'hh-answer-revisions', () =>
+    verifyHhAnswerRevisions({ page, base, store })
+  );
+};
+
+const verifyProviderHistoryAndNotices = async () => {
+  await verifyProviderHistory();
   await traceBrowserScenario('questions', 'notice-review', async () => {
     await verifyQuestionNotices({ page, base, store, until });
   });
@@ -647,6 +657,9 @@ const verifyProviderHistoryAndNotices = async () => {
 };
 
 const focusedQuestionScenario = () => {
+  if (process.env.QUESTION_HH_HISTORY_ONLY === '1') {
+    return verifyProviderHistory;
+  }
   if (process.env.QUESTION_WORDING_SEQUENCE_ONLY === '1') {
     return async () => {
       const { preview } = await openQuestionPreview(page);

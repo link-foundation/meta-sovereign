@@ -1346,6 +1346,8 @@ export const en = {
   'questions.coverage': 'Archived messages inspected: {retained} of {seen}.',
   'questions.partialHistory':
     'Some conversations lack reliable timestamps and were excluded. Learning covers saved messages; it does not download missing provider history.',
+  'questions.incompleteRevisions':
+    'Incomplete edit history for {count, plural, one {# sent message} other {# sent messages}}. Only saved versions contributed to these counts.',
   'questions.preview': 'Preview answer',
   'questions.previewSource': 'Provider for preview',
   'questions.previewChat': 'Chat for preview',

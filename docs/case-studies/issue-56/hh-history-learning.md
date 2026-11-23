@@ -48,8 +48,10 @@ raw data remain readable and require explicit re-import; discarded history
 cannot be reconstructed by migration.
 
 Repeated import counts the same source turn once. The existing shared version
-store retains both bodies after an edit, while learning uses the current body
-only. Preview never saves rules; explicit saving creates unapproved proposals.
+store retains both bodies after an edit. The original learner used the current
+body; [the shared edit history follow-up](question-archive-revisions.md) also
+counts distinct earlier sent wording once per turn. Preview never saves rules;
+explicit saving creates unapproved proposals.
 Actual downloaded-file import, CLI, offline controls and both text/binary Lino
 HTTP APIs use that same behavior. A malformed HTTP upload returns 400 with zero
 imported messages and preserves the existing history.

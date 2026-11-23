@@ -2,6 +2,8 @@ import { messageTime } from '../crm/message-time.js';
 import { sourceMessageLinkProperties } from '../sources/message-text-links.js';
 import { historyOrder } from '../replies/history-order.js';
 import { createAnswerLearner } from './question-learning.js';
+import { createArchiveRevisionReader } from './question-archive-revisions.js';
+import { VERSION_PREFIX } from '../storage/message-version-id.js';
 import { QA_RULE_PREFIX } from './question-answers.js';
 import { QA_POLICY_ID } from './question-policy.js';
 import { QA_PROFILE_PREFIX } from './question-profiles.js';
@@ -33,6 +35,11 @@ const messageProjection = (message) => {
     status: message.status,
     out: message.out,
     outgoing: message.outgoing,
+    versionHead: message.versionHead,
+    versionPartial:
+      message.versionPartial === true ||
+      (!message.versionHead &&
+        Boolean(message.edited || message.raw?.editDate)),
     ...sourceMessageLinkProperties(message),
   };
 };
@@ -80,7 +87,9 @@ export const archiveReadGuard = (store) => {
   let knowledgeChanged = false;
   const stop = store.subscribe?.((event) => {
     const id = event.link?.id;
-    changed ||= id?.startsWith('msg:') === true;
+    changed ||=
+      id?.startsWith('msg:') === true ||
+      id?.startsWith(VERSION_PREFIX) === true;
     knowledgeChanged ||=
       id === QA_POLICY_ID ||
       id?.startsWith(QA_RULE_PREFIX) === true ||
@@ -108,6 +117,7 @@ export const archiveReadGuard = (store) => {
 export const learnArchivedAnswers = async (store, options) => {
   const { chats, seen, bytes } = await indexAnswerArchive(store);
   const learner = createAnswerLearner(options);
+  const revisions = createArchiveRevisionReader(store, messageProjection);
   let retained = 0;
   let excludedChats = 0;
   for (const [key, chat] of chats) {
@@ -128,7 +138,13 @@ export const learnArchivedAnswers = async (store, options) => {
           'archive changed during learning; retry before applying'
         );
       }
-      learner.accept(messageProjection(message));
+      const current = messageProjection(message);
+      const earlier =
+        (current.versionHead || current.versionPartial) &&
+        learner.canReplay(current)
+          ? await revisions.read(current)
+          : [];
+      learner.accept(current, earlier);
       retained++;
     }
     learner.finishChat();
@@ -142,6 +158,7 @@ export const learnArchivedAnswers = async (store, options) => {
       retained,
       limited: retained < seen,
       excludedChats,
+      incompleteRevisionChains: revisions.incomplete,
       indexBytes: bytes,
       maxIndexBytes: MAX_INDEX_BYTES,
     },

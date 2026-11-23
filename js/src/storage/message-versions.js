@@ -7,8 +7,9 @@ import { changedLink, replicatedMutation } from './mutation.js';
 import { syncRecords } from './sync-deletions.js';
 import { isTombstone } from './soft-delete.js';
 import { SYNC_STAMP } from '../sync/register.js';
+import { VERSION_PREFIX, messageVersionPrefix } from './message-version-id.js';
 
-export const VERSION_PREFIX = 'message-version:';
+export { VERSION_PREFIX } from './message-version-id.js';
 export const isMessageVersion = (link) => link?.kind === 'message-version';
 const isMessage = (link) => String(link?.id ?? '').startsWith('msg:');
 const wrapped = new WeakMap();
@@ -68,7 +69,7 @@ const snapshot = (link) => {
   return globalThis.structuredClone(rest);
 };
 const version = (link, parent, at) => {
-  const id = `${VERSION_PREFIX}${encodeURIComponent(link.id)}:${hash(JSON.stringify([content(link), editedAt(link), parent]))}`;
+  const id = `${messageVersionPrefix(link.id)}${hash(JSON.stringify([content(link), editedAt(link), parent]))}`;
   return {
     id,
     tokens: ['message-version'],

@@ -20,6 +20,8 @@ Recognize required test assignment sections throughout the owned form. Preserve 
 
 Load localized desktop notifications in a clean installation using the same translation catalog as the web client (issue #56, QA24 and HH01).
 
+Learn distinct earlier versions of confirmed outgoing answers through CLI, Lino and Questions. Count each wording once per real reply turn, keep the transcript and explicit corrections, and show when saved edit history is incomplete (issue #56, QA02 and QA06).
+
 Restore the verified GitHub repository and issue together when reopening the same Forms assignment. Both Lino formats and CLI plans expose the same receipt, and the assignment still requires owner review before submission (issue #56, QA24).
 
 Open saved HeadHunter web conversations in Chat with a receipt-checked native send. Retain pending messages when delivery is uncertain, and use provider unread counts and filters in Chat and Operator (issue #56, HH09).

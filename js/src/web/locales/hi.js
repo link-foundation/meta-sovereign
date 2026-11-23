@@ -1340,6 +1340,8 @@ export const hi = {
   'questions.coverage': 'संग्रह के जाँचे गए संदेश: {seen} में से {retained}।',
   'questions.partialHistory':
     'विश्वसनीय समय न होने से कुछ बातचीत बाहर रखी गई हैं। सीखना सहेजे गए संदेशों तक सीमित है; सेवाओं से अनुपलब्ध इतिहास डाउनलोड नहीं होता।',
+  'questions.incompleteRevisions':
+    'भेजे गए {count} संदेशों का संपादन इतिहास अधूरा है। गिनती में केवल सहेजे गए संस्करण शामिल हैं।',
   'questions.preview': 'जवाब का पूर्वावलोकन',
   'questions.previewSource': 'पूर्वावलोकन का प्रदाता',
   'questions.previewChat': 'पूर्वावलोकन की चैट',
