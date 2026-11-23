@@ -4,6 +4,7 @@ import { setTimeout, clearTimeout } from 'node:timers';
 import { runRunnerCommand } from './runner-transport.js';
 import { dockerRunnerInspection } from './runner-docker.js';
 import { configuredRunnerRuntime } from './runner-node.js';
+import { inspectRunnerBackend } from './runner-backend.js';
 
 const confirmed = (result, signal) =>
   !signal.aborted &&
@@ -73,6 +74,10 @@ export const readRunnerInspection = async ({
   const current = await control.status({ signal });
   const session = current.states[mode];
   const target = targets[mode];
+  const backend =
+    session === 'unknown'
+      ? await inspectRunnerBackend(target, run, { signal })
+      : undefined;
   const inspect = () =>
     target?.isolation === 'desktop'
       ? (desktopRunner?.inspect(target, { signal }) ?? 'unknown')
@@ -91,6 +96,7 @@ export const readRunnerInspection = async ({
     ok: state !== 'unknown',
     scope: 'isolated-session',
     application: { mode, state },
+    ...(backend ? { backend } : {}),
     ...(refusal ? { code: refusal } : {}),
   };
 };

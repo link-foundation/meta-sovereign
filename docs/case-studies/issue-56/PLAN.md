@@ -1,3 +1,10 @@
+### 2026-11-23 Diagnose the isolation tool on an unconfirmed runner (VD01)
+
+- [x] Reproduce the missing backend observation with the published parent.
+- [x] Distinguish a missing executable from failed daemon access or an unconfirmed remote lookup without touching the active peer.
+- [x] Verify both Lino encodings, connected CLI, native tools over authenticated SSH and the refreshed Settings diagnosis. [Reproduction and screenshots](runner-backend-inspection.md).
+- [ ] Verify the hosted runner lifecycles and packaged runtime targets against the current source.
+
 ### 2026-11-23 Prepare reviewed release source for a fresh runner (VD01)
 
 - [x] Reproduce the absent source review and apply flow with the published parent bundle and a fresh target.

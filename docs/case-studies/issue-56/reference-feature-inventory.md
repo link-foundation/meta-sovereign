@@ -6,6 +6,8 @@ the earlier exact-source reviews, supersedes pending statuses and historical
 counts in the dated progress notes below.
 Every remaining requirement stays in scope for PR57.
 
+[Runner isolation inspection](runner-backend-inspection.md) distinguishes missing or unavailable host tools from an unconfirmed lookup across CLI, both Lino encodings and Settings. Real Screen and Docker checks run locally and over loopback SSH without an application checkout. Exact-source hosted lifecycle and packaged runtime verification remain required for VD01.
+
 Partial QA24 and HH01 Forms prerequisite: [active owner notices](forms-attention.md) use a bounded, read-only verification receipt and exact-request browser focus across views. Both Lino encodings, production Chromium and independent Playwright MCP verify the wait, snooze, optional sound and cleanup. Native system actions and alerts in other application workflows remain required.
 
 [Foreground Forms attention](forms-cli-attention.md) keeps the console available during either prefill entry point, uses the same request-bound focus and drains pending verification when the slot or command closes. QA24 and HH01 remain unfinished.

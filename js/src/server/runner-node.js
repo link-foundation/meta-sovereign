@@ -62,7 +62,7 @@ const cachedRuntime = (target, result) => {
   };
 };
 
-/** Resolve Node on the execution host. Only Start may install it. */
+/** Resolve Node on the execution host. Only explicitly approved operations may install it. */
 export const createRunnerRuntimePreparation =
   ({ probe = runRunnerCommand, install = installRuntime } = {}) =>
   async (

@@ -3,7 +3,10 @@ import assert from 'node:assert/strict';
 import { readFile, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { runnerApiFixture } from '../../experiments/issue-56/runner-api-fixture.mjs';
-import { runnerProfile } from '../../experiments/issue-56/runner-fixture.mjs';
+import {
+  runnerFixture,
+  runnerProfile,
+} from '../../experiments/issue-56/runner-fixture.mjs';
 import { requestRunner } from '../src/cli/runner-client.js';
 import { inspectRunnerApplication } from '../src/server/runner-inspection.js';
 import {
@@ -29,6 +32,98 @@ const receipt = (state = 'ready', session = 'running') => ({
   application: { mode: 'local', state },
   ...(state === 'unknown' ? { code: 'runner-application-unconfirmed' } : {}),
 });
+
+test(
+  'unconfirmed runner inspection separates a missing backend from a refused host or daemon',
+  { timeout: 10000 },
+  async (t) => {
+    const backend = runnerFixture({ local: 'running', server: 'unknown' });
+    backend.health.server = 'unknown';
+    const run = backend.run;
+    let result;
+    const observed = [];
+    backend.run = async (target, argv, options) => {
+      if (argv[0] === 'docker' && argv[1] === 'container') {
+        return { code: 1, stdout: '', stderr: 'PRIVATE daemon location' };
+      }
+      if (target.directory === '/') {
+        observed.push(argv);
+        assert.equal(target.host, 'fixture@example.invalid');
+        if (argv[0] === 'sh') {
+          return result === 'unknown'
+            ? { code: 255, stderr: 'PRIVATE ssh error' }
+            : {
+                code: 0,
+                stdout: result === 'missing' ? 'missing' : 'present',
+              };
+        }
+        assert.deepEqual(argv, [
+          'docker',
+          'info',
+          '--format',
+          '{{json .ServerVersion}}',
+        ]);
+        return result === 'ready'
+          ? { code: 0, stdout: '"29.0.1"\n' }
+          : { code: 1, stderr: 'PRIVATE daemon location' };
+      }
+      if (target.host && argv.includes('health')) {
+        return { code: 1, stderr: 'PRIVATE application health' };
+      }
+      return run(target, argv, options);
+    };
+    const fixture = await runnerApiFixture({
+      backend,
+      overlay: { server: { isolation: 'docker', image: 'node:26' } },
+    });
+    t.after(fixture.close);
+    for (const state of ['missing', 'unavailable', 'unknown', 'ready']) {
+      result = state;
+      for (const type of [LINO_TEXT, LINO_BINARY]) {
+        const previous = observed.length;
+        const response = await fetch(
+          `${fixture.base}/api/runner/inspect?mode=server`,
+          {
+            headers: { accept: type },
+          }
+        );
+        const answer = runnerInspectionReceipt(
+          await readWireResponse(response),
+          'server'
+        );
+        assert.deepEqual(answer.states, {
+          local: 'running',
+          server: 'unknown',
+        });
+        assert.deepEqual(answer.backend, { kind: 'docker', state });
+        assert.equal(answer.application.state, 'unknown');
+        assert.doesNotMatch(JSON.stringify(answer), /PRIVATE/u);
+        assert.equal(
+          observed.length - previous,
+          ['missing', 'unknown'].includes(state) ? 1 : 2
+        );
+      }
+    }
+    result = 'unavailable';
+    const output = [];
+    assert.equal(
+      await runCli(['runner', 'inspect', 'server', `--url=${fixture.base}`], {
+        log: (line) => output.push(line),
+      }),
+      1
+    );
+    assert.deepEqual(decodeWire(output[0], LINO_TEXT).backend, {
+      kind: 'docker',
+      state: 'unavailable',
+    });
+    assert.ok(backend.calls.every(([, action]) => action === 'probe'));
+    assert.equal(backend.state.local, 'running');
+    await assert.rejects(
+      stat(join(fixture.dir, 'runner-control/binding.lino')),
+      { code: 'ENOENT' }
+    );
+  }
+);
 
 test(
   'inspection reads each configured application over Lino without launching or binding',
@@ -215,10 +310,21 @@ test('application receipts reject contradictory states and project private diagn
     runnerInspectionReceipt({ ...receipt(), private: 'PRIVATE' }, 'local'),
     receipt()
   );
+  const unknown = receipt('unknown', 'unknown');
+  const backend = { kind: 'screen', state: 'missing' };
+  assert.deepEqual(
+    runnerInspectionReceipt(
+      { ...unknown, backend: { ...backend, private: 'PRIVATE' } },
+      'local'
+    ),
+    { ...unknown, backend }
+  );
   for (const value of [
     receipt('ready', 'stopped'),
     { ...receipt(), ok: false },
     { ...receipt(), application: { mode: 'server', state: 'ready' } },
+    { ...receipt(), backend },
+    { ...unknown, backend: { ...backend, state: 'PRIVATE' } },
   ]) {
     assert.throws(() => runnerInspectionReceipt(value, 'local'));
   }

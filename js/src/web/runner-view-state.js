@@ -26,7 +26,8 @@ const retainedInspection = (state, answer) =>
   state.inspection &&
   answer.states[state.inspection.mode] ===
     state.answer?.states[state.inspection.mode] &&
-  answer.code === state.answer?.code
+  (answer.code === state.answer?.code ||
+    (!answer.code && state.answer?.code === 'runner-application-unconfirmed'))
     ? state.inspection
     : null;
 
@@ -85,6 +86,13 @@ export const followRunnerSessions = ({
     });
     try {
       const answer = await request(action, mode, owner.signal);
+      const inspection = retainedInspection(state, answer);
+      const notice =
+        action === 'status'
+          ? !inspection && state.notice === 'runner-application-unconfirmed'
+            ? null
+            : state.notice
+          : (answer.code ?? null);
       failures = 0;
       publish({
         feedback: actionFeedback(
@@ -96,10 +104,16 @@ export const followRunnerSessions = ({
         ),
         answer,
         ...(action === 'inspect'
-          ? { inspection: { ...answer.application, checkedAt: Date.now() } }
-          : { inspection: retainedInspection(state, answer) }),
+          ? {
+              inspection: {
+                ...answer.application,
+                ...(answer.backend ? { backend: answer.backend } : {}),
+                checkedAt: Date.now(),
+              },
+            }
+          : { inspection }),
         error: false,
-        notice: action === 'status' ? state.notice : (answer.code ?? null),
+        notice,
       });
     } catch {
       failures++;

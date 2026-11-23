@@ -51,6 +51,10 @@ const keys = [
   'deployTo',
   'deployDigest',
   'deployLock',
+  'backend_ready',
+  'backend_missing',
+  'backend_unavailable',
+  'backend_unknown',
 ];
 const messages = {
   en: [
@@ -106,6 +110,10 @@ const messages = {
     'Destination',
     'Archive SHA-256',
     'Dependency lock SHA-256',
+    '{backend} responded on the selected host. The session state is still unknown.',
+    '{backend} is missing from the selected host’s executable path.',
+    '{backend} is installed, but its availability could not be confirmed for the runner account.',
+    'Could not check {backend} on the selected host.',
   ],
   ru: [
     'Сеансы выполнения',
@@ -160,6 +168,10 @@ const messages = {
     'Назначение',
     'SHA-256 архива',
     'SHA-256 файла зависимостей',
+    '{backend} ответил на выбранном узле. Состояние сеанса пока неизвестно.',
+    '{backend} отсутствует в пути поиска программ на выбранном узле.',
+    '{backend} установлен, но его доступность для учётной записи выполнения не подтверждена.',
+    'Не удалось проверить {backend} на выбранном узле.',
   ],
   hi: [
     'रनर सत्र',
@@ -214,6 +226,10 @@ const messages = {
     'गंतव्य',
     'संग्रह का SHA-256',
     'निर्भरता लॉक का SHA-256',
+    'चुने गए होस्ट पर {backend} ने जवाब दिया। सत्र की स्थिति अब भी अज्ञात है।',
+    'चुने गए होस्ट के एक्ज़ीक्यूटेबल पथ में {backend} नहीं मिला।',
+    '{backend} इंस्टॉल है, लेकिन रनर खाते के लिए उसकी उपलब्धता की पुष्टि नहीं हुई।',
+    'चुने गए होस्ट पर {backend} की जाँच नहीं हो सकी।',
   ],
   zh: [
     '运行会话',
@@ -268,6 +284,10 @@ const messages = {
     '目标位置',
     '归档 SHA-256',
     '依赖锁 SHA-256',
+    '{backend} 已在所选主机上响应。会话状态仍然未知。',
+    '所选主机的可执行路径中缺少 {backend}。',
+    '已安装 {backend}，但无法确认运行账户能否使用它。',
+    '无法检查所选主机上的 {backend}。',
   ],
 };
 

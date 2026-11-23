@@ -18,9 +18,20 @@ const noticeKey = (code) =>
       'applicationDependenciesUnavailable',
   })[code] ?? 'actionNotConfirmed';
 
+const RunnerBackend = ({ observation }) => {
+  const t = useT();
+  const backend = observation.kind === 'screen' ? 'GNU Screen' : 'Docker';
+  return el(
+    'p',
+    { role: 'status', 'data-runner-backend': observation.state },
+    t(`runner.backend_${observation.state}`, { backend })
+  );
+};
+
 const RunnerMode = ({ mode, state, act }) => {
   const t = useT();
   const observed = state.answer?.states[mode] ?? 'loading';
+  const inspection = state.inspection?.mode === mode ? state.inspection : null;
   return el('div', { className: 'col', 'data-runner-mode': mode }, [
     el('h4', { key: 'title' }, t(`runner.${mode}`)),
     el(
@@ -49,28 +60,31 @@ const RunnerMode = ({ mode, state, act }) => {
         )
       )
     ),
-    state.inspection?.mode === mode
+    inspection
       ? el(
           'p',
           {
             key: 'health',
             role: 'status',
-            'data-runner-health': state.inspection.state,
+            'data-runner-health': inspection.state,
           },
           [
             `${t('runner.lastCheck')} `,
-            t(`runner.health_${state.inspection.state}`),
+            t(`runner.health_${inspection.state}`),
             ' ',
             el(
               'time',
               {
                 key: 'at',
-                dateTime: new Date(state.inspection.checkedAt).toISOString(),
+                dateTime: new Date(inspection.checkedAt).toISOString(),
               },
-              new Date(state.inspection.checkedAt).toLocaleTimeString()
+              new Date(inspection.checkedAt).toLocaleTimeString()
             ),
           ]
         )
+      : null,
+    inspection?.backend
+      ? el(RunnerBackend, { key: 'backend', observation: inspection.backend })
       : null,
   ]);
 };
@@ -102,7 +116,7 @@ const RunnerControls = ({ api }) => {
     state.busy
       ? el('p', { key: 'pending', role: 'status' }, t('runner.checking'))
       : null,
-    notice
+    notice && !(state.inspection && notice === 'runner-application-unconfirmed')
       ? el(
           'p',
           { key: 'notice', role: 'status' },

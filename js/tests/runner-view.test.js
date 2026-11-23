@@ -100,6 +100,40 @@ test('runner view retains unconfirmed observed states and gates unsafe switches'
   }
 });
 
+test('an unconfirmed backend inspection remains visible until the observed session changes', async () => {
+  let server = 'unknown';
+  const backend = { kind: 'screen', state: 'missing' };
+  const view = fixture(async (action) =>
+    receipt(
+      'running',
+      server,
+      action === 'inspect'
+        ? {
+            ok: false,
+            code: 'runner-application-unconfirmed',
+            application: { mode: 'server', state: 'unknown' },
+            backend,
+          }
+        : {}
+    )
+  );
+  try {
+    await tick();
+    await view.owner.act('inspect', 'server');
+    const inspection = view.state().inspection;
+    assert.deepEqual(inspection.backend, backend);
+    await view.owner.refresh();
+    assert.equal(view.state().inspection, inspection);
+    assert.equal(canRunnerAction(view.state(), 'start', 'server'), false);
+    server = 'stopped';
+    await view.owner.refresh();
+    assert.equal(view.state().inspection, null);
+    assert.equal(view.state().notice, null);
+  } finally {
+    view.owner.close();
+  }
+});
+
 test('runner recovery performs only a status read after an ambiguous mutation', async () => {
   const calls = [];
   const view = fixture(async (action) => {

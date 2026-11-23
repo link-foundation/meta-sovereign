@@ -36,6 +36,32 @@ export const screenResult = (state, session = 'meta-sovereign-test') => {
 
 const isScreenStop = (argv) => argv[0] === 'screen' && argv[1] === '-S';
 
+const fixtureAction = (argv) =>
+  argv[0] === 'screen' && argv[1] === '-ls'
+    ? 'probe'
+    : argv.includes('health')
+      ? 'health'
+      : argv[1] === '--stop' || isScreenStop(argv)
+        ? 'stop'
+        : 'start';
+
+const executableProbe = (argv) => {
+  if (
+    argv[0] === 'sh' &&
+    argv[1] === '-c' &&
+    ['$', 'node', 'screen', 'docker'].includes(argv.at(-1))
+  ) {
+    return { code: 0, stdout: 'present' };
+  }
+  if (argv[0] === '$' && argv[1] === '--version') {
+    return { code: 0, stdout: 'start-command version: 0.44.0' };
+  }
+  if (argv[0] === 'screen' && argv[1] === '-v') {
+    return { code: 0, stdout: 'Screen version 4.09.00 (GNU) 30-Jan-22' };
+  }
+  return null;
+};
+
 export const runnerFixture = (
   initial = {},
   { stopFails = [], launchState = 'running', launchCode = 0 } = {}
@@ -50,24 +76,11 @@ export const runnerFixture = (
     if (argv[0] === 'sh' && argv[3] === 'runner-application') {
       return application[mode] ? { code: 0, stdout: 'readable' } : { code: 1 };
     }
-    if (
-      argv[0] === 'sh' &&
-      argv[1] === '-c' &&
-      ['$', 'node'].includes(argv.at(-1))
-    ) {
-      return { code: 0, stdout: 'present' };
+    const executable = executableProbe(argv);
+    if (executable) {
+      return executable;
     }
-    if (argv[0] === '$' && argv[1] === '--version') {
-      return { code: 0, stdout: 'start-command version: 0.44.0' };
-    }
-    const action =
-      argv[0] === 'screen' && argv[1] === '-ls'
-        ? 'probe'
-        : argv.includes('health')
-          ? 'health'
-          : argv[1] === '--stop' || isScreenStop(argv)
-            ? 'stop'
-            : 'start';
+    const action = fixtureAction(argv);
     calls.push([mode, action]);
     targets.push(target);
     if (signal?.aborted) {

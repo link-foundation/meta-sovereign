@@ -2,6 +2,10 @@
 'meta-sovereign': minor
 ---
 
+Check whether GNU Screen or Docker is available on an unconfirmed runner target
+through Settings, the CLI and Lino. Keep the active peer running while checking
+an absent checkout (issue #56, VD01).
+
 Review a pinned release archive and dependency lock in Runner Settings, through
 the CLI or in either Lino encoding. Prepare a fresh local or SSH checkout after
 explicit approval while retaining existing owner files and active sessions

@@ -1,6 +1,7 @@
 import { runnerReceipt } from './runner-receipt.js';
 
 const healthStates = new Set(['ready', 'locked', 'degraded', 'unknown']);
+const backendStates = new Set(['ready', 'missing', 'unavailable', 'unknown']);
 
 export const runnerHealthReceipt = (value) => {
   if (
@@ -18,6 +19,7 @@ export const runnerInspectionReceipt = (value, mode) => {
     throw new Error('Invalid runner selection.');
   }
   const answer = runnerReceipt(value, 'status');
+  const backend = value.backend;
   const state = value.application?.state;
   const session = answer.states[mode];
   const expected = ['stopped', 'unconfigured'].includes(session)
@@ -30,5 +32,19 @@ export const runnerInspectionReceipt = (value, mode) => {
   ) {
     throw new Error('Application inspection was not confirmed.');
   }
-  return { ...answer, application: { mode, state } };
+  if (
+    backend !== undefined &&
+    (session !== 'unknown' ||
+      !['screen', 'docker'].includes(backend?.kind) ||
+      !backendStates.has(backend?.state))
+  ) {
+    throw new Error('Runner backend inspection was not confirmed.');
+  }
+  return {
+    ...answer,
+    application: { mode, state },
+    ...(backend
+      ? { backend: { kind: backend.kind, state: backend.state } }
+      : {}),
+  };
 };

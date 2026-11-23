@@ -136,7 +136,11 @@ and skips package scripts.
 SSH uses existing host-key and key authentication with batch mode;
 it does not accept unknown host keys or request passwords. Each backend
 requires a compatible host. Missing tools, refused SSH and malformed status
-output report `unknown` and prevent a switch. A launcher that cannot be
+output report `unknown` and prevent a switch. For an unconfirmed session,
+**Inspect** also reports whether GNU Screen or Docker is reachable, missing,
+unavailable after discovery, or still unconfirmed. This read runs outside the
+application directory so it can diagnose a fresh host. A reachable backend
+can still have unconfirmed application or session status. A launcher that cannot be
 prepared or verified returns `runner-launcher-unavailable`. If discovery
 confirms the destination is stopped, Start checks that the configured
 application file is readable and prepares the launcher before requesting Stop on
