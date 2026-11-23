@@ -113,6 +113,49 @@ test('operator queues positive unread counts once, including muted chats, and ex
   });
 });
 
+test('HeadHunter badges use the provider count, and Done requires displayed history and confirmed zero', async () => {
+  const newest = {
+    id: 'msg:hh:chat:42:opaque:999',
+    source: 'hh',
+    chat: 'chat:42',
+    outgoing: true,
+    sender: 'account',
+  };
+  const read = {
+    id: 'read:hh:chat:42',
+    source: 'hh',
+    chat: 'chat:42',
+    unreadCount: 2,
+    hhLatestMessageId: 'opaque:999',
+  };
+  const [item] = operatorQueue(summarizeChats([newest, read]));
+  assert.equal(item.unread, 2);
+  assert.equal(item.last.mine, true);
+
+  const calls = [];
+  let count = 1;
+  const api = {
+    messageAction: async (action, body) => {
+      calls.push([action, body]);
+      return { ok: true, read: true, readState: { unreadCount: count } };
+    },
+  };
+  await assert.rejects(
+    completeOperatorChat(api, item, []),
+    /history-required/u
+  );
+  assert.equal(calls.length, 0);
+  await assert.rejects(
+    completeOperatorChat(api, item, [newest]),
+    /head-hunter-unread/u
+  );
+  assert.deepEqual(calls, [
+    ['read', { source: 'hh', chat: 'chat:42', ids: [newest.id] }],
+  ]);
+  count = 0;
+  await completeOperatorChat(api, item, [newest]);
+});
+
 test('Operator defaults to private chats; configured types and badges share the filter', () => {
   const items = ['private', 'group', 'channel'].map((kind, i) =>
     chat(i + 1, 1, { kind })

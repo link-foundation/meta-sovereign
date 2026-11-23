@@ -48,6 +48,10 @@ test('default HH live reads actual paginated history, not negotiation collection
   );
   assert.equal((await store.get('msg:hh:chat:41:1')).outgoing, false);
   assert.equal((await store.get('msg:hh:chat:41:2')).outgoing, true);
+  assert.equal((await store.get('msg:hh:chat:41:2')).delivery, 'sent');
+  assert.equal((await store.get('msg:hh:chat:41:1')).delivery, undefined);
+  assert.equal((await store.get('read:hh:chat:41')).unreadCount, 1);
+  assert.equal((await store.get('read:hh:chat:41')).hhLatestMessageId, '3');
   assert.equal((await store.get('msg:hh:chat:41:3')).service, true);
   assert.deepEqual((await store.get('msg:hh:chat:42:1')).attachments, [
     {

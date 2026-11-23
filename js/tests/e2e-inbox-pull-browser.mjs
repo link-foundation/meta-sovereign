@@ -15,6 +15,9 @@ import { createFakeVk, userMethods, FAKE_VK_BASE } from './helpers/fake-vk.js';
 import { fakePph, fakeUpwork } from './helpers/fake-marketplaces.js';
 import { hhCommonFixture } from '../../experiments/issue-56/hh-common-fixture.mjs';
 import { verifyHhCommon } from './helpers/e2e-hh-common.mjs';
+import { verifyHhProviders } from './helpers/e2e-hh-providers.mjs';
+import { createHhLive } from '../src/sources/hh.js';
+import { createMessageActions } from '../src/sources/message-actions.js';
 
 const store = createMemoryStore();
 await store.put({
@@ -87,10 +90,20 @@ const fakeVk = createFakeVk({
 });
 
 const hh = hhCommonFixture();
+const hhLive = createHhLive({ ...hh, token: 'fixture-token' });
+const messageActions = createMessageActions({
+  getSource: (source) => (source === 'hh' ? { live: hhLive } : null),
+  platforms: {},
+});
 let pullNow = Date.now();
 const { page, base, until, finish } = await openChatApp('inbox-pull', {
   store,
+  secure: true,
   serverOptions: {
+    automations: {
+      scheduler: false,
+      send: Object.assign(async () => ({ via: 'fake' }), messageActions),
+    },
     pulls: {
       hh: { ...hh, maxRequests: 2 },
       now: () => pullNow,
@@ -104,6 +117,9 @@ const { page, base, until, finish } = await openChatApp('inbox-pull', {
     },
   },
 });
+await page.addInitScript(() =>
+  globalThis.localStorage.setItem('metaSovereignReadReceipts', 'off')
+);
 
 // VK's picture CDN is answered here: the request never leaves the machine,
 // and a load proves the page's CSP lets these hosts through.
@@ -215,4 +231,5 @@ await finish(async () => {
       pullNow += 16000;
     },
   });
+  await verifyHhProviders({ page, base, store, until, hh });
 });

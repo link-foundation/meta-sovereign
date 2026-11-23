@@ -113,3 +113,26 @@ the new head still requires its own CI. That passing Pages run updated zero
 APT source files because the hosted runner uses an unhandled mirror-list
 file; a separate correction is required. Wider HH, QA, VK and device/platform
 criteria remain unfinished. PR 57 stays draft and unmerged.
+
+## Read receipts and provider scopes
+
+At `9ee093a7`, marking HH read through the browser fallback could report success
+after scrolling without confirming delivery to the provider. The shared
+directory also counted cached rows as unread and lacked a provider filter.
+
+The [public read operation](https://api.hh.ru/openapi/en/redoc#tag/Chats/operation/set-last-viewed-message)
+acknowledges a specific HH message with HTTP 204. Chat, when read receipts are
+enabled, and Operator's Done action submit a saved message from the displayed
+thread. The adapter checks the current provider boundary before sending.
+History pulls and post-acknowledgement reads store the provider's unread count.
+Operator retains work if the count is still positive or cannot be confirmed.
+Chat and Operator offer the same provider selection when several are present.
+
+The focused `hh-common-chats`, `message-actions` and `operator` checks cover
+the exact boundary, a newer arrival, unknown acknowledgements, and retained
+Operator work. The registered `e2e-inbox-pull-browser.mjs` Chromium scenario
+reproduces the missing provider selector on the previous bundle and verifies
+both selectors, passive viewing, the exact HH receipt, and Telegram isolation.
+Independent Playwright MCP verified desktop layout and a 390-pixel viewport.
+The provider responses came from a fixture. Authenticated native web
+messaging remains open under HH09.

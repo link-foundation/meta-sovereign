@@ -5,6 +5,8 @@ import { ruChatInvite } from './ru-chat-invite.js';
 
 export const ruChat = {
   ...ruChatInvite,
+  'chat.provider.label': 'Сервис чатов',
+  'chat.provider.all': 'Все сервисы',
   'chat.history.complete': 'Все доступные сообщения загружены',
   'chat.history.loading': 'Загружаем сообщения…',
   'chat.history.wait': 'Telegram просит подождать. Повторим автоматически…',

@@ -5,6 +5,8 @@ import { zhChatInvite } from './zh-chat-invite.js';
 
 export const zhChat = {
   ...zhChatInvite,
+  'chat.provider.label': '聊天服务',
+  'chat.provider.all': '所有服务',
   'chat.history.complete': '已加载所有可用消息',
   'chat.history.loading': '正在加载消息…',
   'chat.history.wait': 'Telegram 要求等待，稍后将自动重试…',

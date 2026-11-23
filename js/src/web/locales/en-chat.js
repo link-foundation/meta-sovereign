@@ -5,6 +5,8 @@ import { enChatInvite } from './en-chat-invite.js';
 
 export const enChat = {
   ...enChatInvite,
+  'chat.provider.label': 'Chat provider',
+  'chat.provider.all': 'All providers',
   'chat.history.complete': 'All available messages loaded',
   'chat.history.loading': 'Loading messages…',
   'chat.history.wait': 'Telegram asked to wait. Retrying automatically…',

@@ -2,6 +2,7 @@
 // is committed only after the caller has stored every returned message.
 import { buildMessageLink } from './link.js';
 import { loadPullState, savePullState } from './pull-runner.js';
+import { hhReadState, storeHhReadState } from './hh-chat-read.js';
 
 const stableId = (value) =>
   typeof value === 'string' && value.trim() && value.length <= 300
@@ -78,7 +79,15 @@ export const hhChatMessageLink = (message, chat) => {
       blocked: chatBlocked(chat),
       attachments: attachmentsOf(message.payload),
       raw: message,
+      delivery:
+        message.sender_display_info?.is_current_participant === true &&
+        typeof message.viewed_by_opponent === 'boolean'
+          ? message.viewed_by_opponent
+            ? 'read'
+            : 'sent'
+          : undefined,
     }),
+    messageId: id,
     hhChat: chatMetadata(chat),
   };
 };
@@ -137,7 +146,19 @@ const validList = (list, page) =>
   inRange(list.pages, 0, Number.MAX_SAFE_INTEGER) &&
   inRange(list.found, 0, Number.MAX_SAFE_INTEGER) &&
   list.items.length <= 20;
-const readList = async (read, cursor) => {
+const recordReadState = (snapshots, chat, latest, checkedAt) => {
+  const state = hhReadState(chat, stableId(latest), checkedAt);
+  if (state) {
+    snapshots.set(state.id, state);
+  }
+};
+const recordChatListReadStates = (snapshots, items, checkedAt) => {
+  for (const chat of items) {
+    recordReadState(snapshots, chat, chat.last_message?.id, checkedAt);
+  }
+};
+const readList = async (read, cursor, snapshots) => {
+  const checkedAt = new Date().toISOString();
   const list = await read('/common/chats', {
     page: cursor.page,
     per_page: 20,
@@ -150,6 +171,7 @@ const readList = async (read, cursor) => {
   if (ids.some((id) => !id) || new Set(ids).size !== ids.length) {
     throw invalid('chat-list identities are missing or repeated');
   }
+  recordChatListReadStates(snapshots, list.items, checkedAt);
   cursor.pending = ids.filter((id) => !cursor.seen.includes(id));
   cursor.listChanged ||=
     cursor.pending.length !== ids.length ||
@@ -214,8 +236,9 @@ const advanceMessages = (cursor, chat) => {
   cursor.page = cursor.nextPage;
   return false;
 };
-const readMessages = async (read, cursor, limit, links) => {
+const readMessages = async (read, cursor, limit, links, snapshots) => {
   const active = cursor.active;
+  const checkedAt = new Date().toISOString();
   const chat = await read(
     `/common/chats/${encodeURIComponent(active.id)}/messages`,
     {
@@ -232,6 +255,9 @@ const readMessages = async (read, cursor, limit, links) => {
   );
   if (new Set(records.map((link) => link.id)).size !== records.length) {
     throw invalid('message page contains duplicate IDs');
+  }
+  if (!chat.has_more) {
+    recordReadState(snapshots, chat, chat.messages.at(-1)?.id, checkedAt);
   }
   const finished = advanceMessages(cursor, chat);
   for (const record of records) {
@@ -272,11 +298,12 @@ export const pullHhChats = async ({ read, options, origin }) => {
   }
   const cursor = await resumeCursor(options, accountId, origin);
   const links = new Map();
+  const snapshots = new Map();
   let requests = 0;
   let finished = false;
   while (requests < budget) {
     if (!cursor.active && !cursor.pending.length) {
-      await readList(read, cursor);
+      await readList(read, cursor, snapshots);
       requests++;
     }
     finished = activateNext(cursor);
@@ -289,7 +316,7 @@ export const pullHhChats = async ({ read, options, origin }) => {
     if (requests >= budget) {
       break;
     }
-    finished = await readMessages(read, cursor, limit, links);
+    finished = await readMessages(read, cursor, limit, links, snapshots);
     requests++;
     if (finished) {
       break;
@@ -307,8 +334,15 @@ export const pullHhChats = async ({ read, options, origin }) => {
     nextCursor: finished ? null : nextCursor,
     history,
     afterStore: options.store
-      ? () =>
-          savePullState(options.store, 'hh', { hhHistory: nextCursor, history })
+      ? async () => {
+          for (const state of snapshots.values()) {
+            await storeHhReadState(options.store, state);
+          }
+          await savePullState(options.store, 'hh', {
+            hhHistory: nextCursor,
+            history,
+          });
+        }
       : undefined,
   };
 };

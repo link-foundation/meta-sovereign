@@ -15,6 +15,10 @@ import { Icon } from './icons.js';
 import { useOperatorWork, finishOperatorWork } from './operator-work.js';
 import { traceClient } from './client-log.js';
 import {
+  ChatProviderFilter,
+  filterChatProvider,
+} from './chat-provider-filter.js';
+import {
   completeOperatorChat,
   needsAttention,
   operatorQueue,
@@ -37,7 +41,9 @@ const useOperator = (api, t) => {
   const [scope] = useOperatorScope();
   const work = useOperatorWork();
   const [order, setOrder] = useOperatorOrder(state.all, state.loading, work);
-  const queue = operatorQueue(state.all, handled, scope, order, work);
+  const provider = state.provider;
+  const scoped = filterChatProvider(state.all, provider.selected);
+  const queue = operatorQueue(scoped, handled, scope, order, work);
   const latest = useRef(null);
   const unread = useOperatorUnread(api, state, queue, work);
   useEffect(() => {
@@ -161,6 +167,7 @@ const useOperator = (api, t) => {
     advance,
     done,
     unread,
+    provider,
   };
 };
 
@@ -194,8 +201,17 @@ const needsConnection = (state) =>
 
 export const OperatorView = ({ api = defaultApi }) => {
   const t = useT();
-  const { state, current, queue, busy, error, advance, done, unread } =
-    useOperator(api, t);
+  const {
+    state,
+    current,
+    queue,
+    busy,
+    error,
+    advance,
+    done,
+    unread,
+    provider,
+  } = useOperator(api, t);
   if (!state.loading && needsConnection(state)) {
     return el(ConnectionGuide, { section: 'operator' });
   }
@@ -220,6 +236,7 @@ export const OperatorView = ({ api = defaultApi }) => {
           ),
         ]),
         el('div', { key: 'actions', className: 'row' }, [
+          el(ChatProviderFilter, { key: 'provider', filter: provider }),
           el(
             'button',
             {

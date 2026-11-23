@@ -34,7 +34,10 @@ const isShownMessage = (link) =>
   link.chat !== undefined &&
   !link.deleted;
 
-const isMine = (message, self) => self.includes(String(message.sender));
+const isMine = (message, self) =>
+  message.source === 'hh' && typeof message.outgoing === 'boolean'
+    ? message.outgoing
+    : self.includes(String(message.sender));
 
 const chatTitle = (messages, self) => {
   const named = messages.find((m) => m.chatName)?.chatName;
@@ -85,6 +88,10 @@ const unreadSnapshot = (read) => {
 export const unreadCount = (messages, read, self = ['me']) => {
   if (!read) {
     return 0;
+  }
+  // HH's identifiers are opaque. Its own count is the unread snapshot.
+  if (read.source === 'hh') {
+    return Number(read.unreadCount ?? 0);
   }
   const snapshot = unreadSnapshot(read);
   const after = Math.max(snapshot.top, Number(read.inboxMaxId ?? 0));
@@ -265,6 +272,9 @@ const summarize = (key, messages, self, read, now, visibility) => {
     count: sorted.length,
     unread:
       unreadCount(shown, read, self) - hiddenUnread(sorted, shown, read, self),
+    ...(read?.source === 'hh'
+      ? { hhLatestMessageId: read.hhLatestMessageId }
+      : {}),
     ...unreadMarks(shown, read, self),
     // How Telegram lists it (R-Y68).
     muted: mutedNow(read, now),

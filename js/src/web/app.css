@@ -13744,6 +13744,11 @@ main[data-view='operator']:has(> .vk-friend-stats) > .operator-workspace {
   align-items: center;
   gap: 0.4rem;
 }
+.operator-toolbar [data-chat-provider] {
+  flex: 0 1 auto;
+  max-width: 100%;
+  min-height: var(--control-h);
+}
 .operator-card {
   display: flex;
   flex: 1;

@@ -5,6 +5,8 @@ import { hiChatInvite } from './hi-chat-invite.js';
 
 export const hiChat = {
   ...hiChatInvite,
+  'chat.provider.label': 'चैट सेवा',
+  'chat.provider.all': 'सभी सेवाएँ',
   'chat.history.complete': 'सभी उपलब्ध संदेश लोड हो गए',
   'chat.history.loading': 'संदेश लोड हो रहे हैं…',
   'chat.history.wait':
