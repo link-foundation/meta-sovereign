@@ -212,9 +212,38 @@ const botIdentity = (head = {}, read = {}) =>
 const deletedIdentity = (head, read) =>
   head?.deletedAccount || read?.deletedAccount ? { deletedAccount: true } : {};
 
-const summarize = (key, messages, self, read = null, now = Date.now()) => {
+// Telegram's regular dialog snapshot includes unread history that may
+// still be on the server. Discount only cached incoming messages in its
+// range, and retain topic aggregates whose authors are not identifiable.
+const hiddenUnread = (all, shown, read, self) => {
+  if (all === shown || read?.source !== 'telegram' || isForum(read)) {
+    return 0;
+  }
+  const min = Number(read.inboxMaxId ?? 0);
+  const max = Number(read.unreadTopId ?? 0);
+  const inRange = (message) => {
+    const id = networkMessageId(message) ?? 0;
+    return !isMine(message, self) && id > min && id <= max;
+  };
+  return Math.min(
+    Number(read.unreadCount ?? 0),
+    all.filter(inRange).length - shown.filter(inRange).length
+  );
+};
+
+const lastPreview = (message, self) => ({
+  body: String(message?.body ?? ''),
+  mine: Boolean(message && isMine(message, self)),
+  at: message?.timestamp ?? null,
+  senderName: message?.senderName ?? null,
+  message,
+});
+
+const summarize = (key, messages, self, read, now, visibility) => {
   const sorted = [...messages].sort(byTime);
   const last = sorted.at(-1);
+  const shown = visibility?.show(sorted) ?? sorted;
+  const preview = shown.at(-1);
   const people = new Set(
     sorted.filter((m) => !isMine(m, self)).map((m) => String(m.sender))
   );
@@ -234,8 +263,9 @@ const summarize = (key, messages, self, read = null, now = Date.now()) => {
     ...deletedIdentity(last, read),
     people: [...people],
     count: sorted.length,
-    unread: unreadCount(sorted, read, self),
-    ...unreadMarks(sorted, read, self),
+    unread:
+      unreadCount(shown, read, self) - hiddenUnread(sorted, shown, read, self),
+    ...unreadMarks(shown, read, self),
     // How Telegram lists it (R-Y68).
     muted: mutedNow(read, now),
     pinned: Number(read?.pinnedRank ?? 0) || 0,
@@ -246,16 +276,9 @@ const summarize = (key, messages, self, read = null, now = Date.now()) => {
     ...draftField(read),
     // A forum group: its messages are in topics (R-Y122).
     forum: isForum(read),
-    last: {
-      body: String(last.body ?? ''),
-      mine: isMine(last, self),
-      at: last.timestamp ?? null,
-      senderName: last.senderName ?? null,
-      // The message itself: what it holds when it has no text.
-      message: last,
-    },
+    last: lastPreview(preview, self),
     search: fold(
-      [title, last.chat, last.source, ...sorted.map((m) => m.body)].join('\n')
+      [title, last.chat, last.source, ...shown.map((m) => m.body)].join('\n')
     ),
   };
 };
@@ -371,11 +394,16 @@ export const createChatSummarizer = () => {
   let kept = new Map();
   let chats = [];
   let owner = '';
-  return (links = [], { query = '', self = ['me'], now = Date.now() } = {}) => {
+  let visibilityBefore;
+  return (
+    links = [],
+    { query = '', self = ['me'], now = Date.now(), visibility } = {}
+  ) => {
     const identity = JSON.stringify(self);
-    if (identity !== owner) {
+    if (identity !== owner || visibility !== visibilityBefore) {
       kept = new Map();
       owner = identity;
+      visibilityBefore = visibility;
     }
     const { groups, reads, people } = directoryParts(links);
     const next = new Map();
@@ -392,7 +420,10 @@ export const createChatSummarizer = () => {
       changed = true;
       const chat = messages.length
         ? withStatus(
-            named(summarize(key, messages, self, read, now), person),
+            named(
+              summarize(key, messages, self, read, now, visibility),
+              person
+            ),
             person,
             messages,
             self

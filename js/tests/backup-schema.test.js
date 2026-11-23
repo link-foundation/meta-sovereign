@@ -84,13 +84,25 @@ test('an older-schema backup restores and the store migrates on next open', asyn
   reopened.close();
 });
 
-test('restoring into a folder keeps the old stamp so the open migrates', async () => {
+test('restoring into a folder keeps the old stamp so the open migrates', async (t) => {
   const { restoreBackupToDir } = await import('../src/storage/backup.js');
   const dir = await tmp('dir');
   const source = await olderStore(path.join(dir, 'src'));
   const made = await makeBackup(source, { archiveDir: path.join(dir, 'a') });
   source.close();
   const dest = path.join(dir, 'dest');
+  const snapshot = path.join(dest, 'data.bin');
+  const rm = fs.rm;
+  // The Windows Deno runner reported EBUSY from rm for this new folder.
+  // Restore only needs to unlink the optional snapshot file.
+  t.mock.method(fs, 'rm', async (file, options) => {
+    if (file === snapshot) {
+      throw Object.assign(new Error('resource busy or locked, rm'), {
+        code: 'EBUSY',
+      });
+    }
+    return rm(file, options);
+  });
   await restoreBackupToDir(made.file, dest);
   const store = await openDualStore(dest);
   assert.equal((await store.get('msg:old:1')).deleted.by, 'unknown');

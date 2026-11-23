@@ -7,6 +7,7 @@
 
 import React from 'react';
 import { useT } from './i18n.js';
+import { workspaceName } from './cloud-workspace.js';
 import { TelegramNotifySettings } from './settings-notify.js';
 import { SoundSettings } from './settings-sounds.js';
 import { MediaSettings } from './settings-media.js';
@@ -31,6 +32,8 @@ import { FeedbackSettings } from './settings-feedback.js';
 import { BrowserSettings } from './settings-browser.js';
 import { DiagnosticSettings } from './settings-diagnostics.js';
 import { RunnerSettings } from './settings-runner.js';
+import { HiddenSenderSettings } from './settings-hidden-senders.js';
+import { useContinueLast } from './continuation-pref.js';
 import {
   NOTIFY_KEY,
   NOTIFY_PREVIEW_KEY,
@@ -306,6 +309,30 @@ export const NotificationSettings = () => {
   );
 };
 
+const SendingSettings = () => {
+  const t = useT();
+  const [on, setOn] = useContinueLast();
+  return el(
+    'section',
+    { className: 'card', 'aria-labelledby': 'sending-title' },
+    [
+      el('h3', { key: 'h', id: 'sending-title' }, t('settings.sending.title')),
+      el(Check, {
+        key: 'on',
+        action: 'continue-last-message',
+        checked: on,
+        onChange: setOn,
+        label: t('settings.sending.continueLast'),
+      }),
+      el(
+        'p',
+        { key: 'hint', className: 'meta' },
+        t('settings.sending.continueHint')
+      ),
+    ]
+  );
+};
+
 export const SettingsView = () => {
   const t = useT();
   const appearance = useAppearance();
@@ -332,14 +359,15 @@ export const SettingsView = () => {
       t('settings.openConnections')
     ),
     el(AppearanceSettings, { key: 'appearance', appearance }),
-    el(BrowserSettings, { key: 'browser', api }),
+    workspaceName() ? null : el(BrowserSettings, { key: 'browser', api }),
     el(DiagnosticSettings, { key: 'diagnostics', api }),
-    el(RunnerSettings, { key: 'runner', api }),
+    workspaceName() ? null : el(RunnerSettings, { key: 'runner', api }),
     el(FolderTabSettings, { key: 'folder-tabs' }),
     el(StoriesSettings, { key: 'stories' }),
     el(BirthdaySettings, { key: 'birthdays' }),
-    el(ConnectionSettings, { key: 'connection' }),
+    workspaceName() ? null : el(ConnectionSettings, { key: 'connection' }),
     el(OperatorSettings, { key: 'operator' }),
+    el(SendingSettings, { key: 'sending' }),
     el(ConversationSettings, { key: 'conversation', api }),
     el(FeedbackSettings, { key: 'feedback', api }),
     el(ChatBackgroundSettings, { key: 'background', api }),
@@ -347,6 +375,7 @@ export const SettingsView = () => {
     el(FoldersSettings, { key: 'folders', api }),
     el(TranslateSettings, { key: 'translate' }),
     el(PrivacySettings, { key: 'privacy' }),
+    el(HiddenSenderSettings, { key: 'hidden-senders' }),
     el(NotificationSettings, { key: 'notify' }),
     el(TelegramNotifySettings, { key: 'notify-telegram', api }),
     el(SoundSettings, { key: 'sounds', api }),

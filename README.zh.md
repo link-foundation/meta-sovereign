@@ -47,6 +47,10 @@ meta-sovereign 在网上**代表一个人或一个组织**。连接 Telegram、V
 xattr -dr com.apple.quarantine "/Applications/Meta Sovereign.app"
 ```
 
+## 托管工作区
+
+在 HTTPS 代理后运行 `serve-cloud`，用户即可通过浏览器访问个人工作区。每个工作区都有独立的登录密钥、持久存储和服务商后台任务。可通过配置设置名称、主色和徽标。[部署指南](docs/CLOUD-WORKSPACES.md)
+
 ## 运行本地服务器（推荐用于同步）
 
 如果要在设备之间同步并使用完整功能，请在 SPA 旁边启动本地服务器。当前有两个后端，它们实现同一套 wire protocol（见 [`docs/SERVER-PARITY.zh.md`](docs/SERVER-PARITY.zh.md)）。

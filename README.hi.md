@@ -48,6 +48,10 @@ quarantine flag हटाएँ, फिर app खोलें:
 xattr -dr com.apple.quarantine "/Applications/Meta Sovereign.app"
 ```
 
+## कार्यस्थान होस्ट करें
+
+किसी उपयोगकर्ता को ब्राउज़र से निजी कार्यस्थान देने के लिए `serve-cloud` को HTTPS के पीछे चलाएँ। हर कार्यस्थान का अपना साइन-इन, स्थायी स्टोरेज और प्रदाता जॉब हैं। नाम, रंग और लोगो कॉन्फ़िगरेशन से सेट करें। [डिप्लॉयमेंट गाइड](docs/CLOUD-WORKSPACES.md)
+
 ## local server चलाएँ (sync के लिए recommended)
 
 Devices के बीच sync, encrypted backups और पूरा feature set इस्तेमाल करने के लिए SPA के पास local server start करें। दो backend उपलब्ध हैं; दोनों समान wire protocol लागू करते हैं (देखें [`docs/SERVER-PARITY.hi.md`](docs/SERVER-PARITY.hi.md))।

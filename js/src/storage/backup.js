@@ -662,7 +662,11 @@ export const restoreBackupToDir = async (
     });
     await writeStreamDurable(log, out);
     await feeding;
-    await fs.rm(path.join(dir, 'data.bin'), { force: true });
+    await fs.unlink(path.join(dir, 'data.bin')).catch((error) => {
+      if (error.code !== 'ENOENT') {
+        throw error;
+      }
+    });
     await fsyncDir(dir);
     return checked.lines;
   } finally {

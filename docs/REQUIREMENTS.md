@@ -962,6 +962,14 @@ applies **uniformly** across every applicable surface of the app.
 
 ---
 
+## Hosted workspaces
+
+- R-SAAS1 requires browser access to the cloud-hosted app with persistent server-side data and provider jobs.
+- R-SAAS2 requires a deployable server mode with isolated workspaces, authenticated access, health checks and recovery procedures.
+- R-SAAS3 requires configurable workspace names, accent colors and logos.
+
+See the [issue 73 requirement inventory and verification](case-studies/issue-73/solution-plan.md) and the [deployment guide](CLOUD-WORKSPACES.md).
+
 ## Traceability
 
 When a future PR or commit lands a feature, reference the requirement
@@ -986,6 +994,8 @@ Evidence: `js/tests/chat-feed.test.js`, `js/tests/telegram-dialog-state.test.js`
 | R-Z35 | Audit all six issue #54 CI runs and complete language templates; repair release failures and misleading results. | Exact release SHA resolution, strict API evidence, complete bounded Markdown/PR notes and explicit cache owners are implemented. Reproductions, upstream reports, comparison and exact-SHA verification: dev/log/issues/54/pulls/55/.                                                                     |
 
 ## Conversation context and communication rules
+
+- **R-Z37** · An opt-in per-browser setting lets Chat and Operator continue an eligible latest outgoing text message in public Telegram chats with a provider edit. Keep the normal send outside those conditions and preserve an unknown outcome when the edit could not be confirmed. [Issue 75 requirements and verification](case-studies/issue-75/solution-plan.md).
 
 | ID    | Requirement                                                                                                                                                                                                | Status and evidence                                                                                                                                                                                                                                                                                                                                                                             |
 | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

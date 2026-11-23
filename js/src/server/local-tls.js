@@ -304,7 +304,7 @@ export const listenHttpAndHttps = (
  */
 export const listenLocal = async (
   server,
-  { port, storeDir, tls: wanted = false, log }
+  { port, storeDir, tls: wanted = false, log, host = '127.0.0.1' }
 ) => {
   if (wanted && storeDir && canShareTlsPort()) {
     let local;
@@ -318,7 +318,7 @@ export const listenLocal = async (
       if (local.made) {
         log?.({ event: 'tls_certificate_made', path: local.certPath });
       }
-      const listener = await listenHttpAndHttps(server, local, port);
+      const listener = await listenHttpAndHttps(server, local, port, host);
       return {
         listener,
         tls: {
@@ -332,7 +332,7 @@ export const listenLocal = async (
   // A busy port rejects (it used to hang for ever, R-Z1).
   await new Promise((resolve, reject) => {
     server.once('error', reject);
-    server.listen(port, '127.0.0.1', () => {
+    server.listen(port, host, () => {
       server.off('error', reject);
       resolve();
     });

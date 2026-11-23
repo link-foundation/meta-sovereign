@@ -167,7 +167,7 @@ const Results = ({ t, api, results, tag, onOpen }) => {
   if (results.loading && results.messages.length === 0) {
     return el('p', { className: 'meta' }, el(Spinner));
   }
-  if (results.messages.length === 0) {
+  if (results.messages.length === 0 && !results.cursor) {
     return el(
       'p',
       { className: 'meta', 'data-tags': 'none' },
@@ -252,7 +252,11 @@ const TagDialog = ({ api, state, request, close }) => {
         key: 'results',
         t,
         api,
-        results,
+        results: {
+          ...results,
+          messages:
+            state.visibility?.show(results.messages) ?? results.messages,
+        },
         tag: request.tag,
         onOpen: (link) => {
           close();

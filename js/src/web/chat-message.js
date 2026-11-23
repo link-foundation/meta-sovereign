@@ -219,6 +219,13 @@ export const ReplyQuote = ({ replyRef, onScrollTo }) => {
   if (!replyRef) {
     return null;
   }
+  if (replyRef.hidden) {
+    return el(
+      'div',
+      { className: 'bubble-reply meta' },
+      t('chat.visibility.quote')
+    );
+  }
   const loaded = replyRef.sender !== null || replyRef.deleted;
   const ref = { ...replyRef, loaded };
   const { unknown, senderName, text } = quoteWords(t, ref, selfName);
@@ -348,6 +355,7 @@ const MENU_ITEMS = {
   deleteGif: ['chat.stickers.unsaveGif', 'trash'],
   reply: ['chat.reply', 'reply'],
   quoteReply: ['chat.quoteReply', 'quote'],
+  hideSender: ['chat.visibility.hide', 'eye'],
   edit: ['chat.edit', 'edit'],
   editHistory: ['chat.versions.title', 'clock'],
   pin: ['chat.pin', 'pin'],

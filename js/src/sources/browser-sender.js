@@ -850,6 +850,32 @@ const refuseAutomatedWeb = (draft) => {
   }
 };
 
+const browserReadMethods = (browser, browserFor) =>
+  browser === false
+    ? {}
+    : {
+        readChats: (params) => browserFor().readChats(params),
+        scanChats: (params) => browserFor().scanChats(params),
+        scanConversation: (params) => browserFor().scanConversation(params),
+        scanUnreadConversations: (params) =>
+          browserFor().scanUnreadConversations(params),
+        readRecent: (params) => browserFor().readRecent(params),
+        readAnswerChoices: (params) => browserFor().readAnswerChoices(params),
+        prefillAnswer: (params) => browserFor().prefillAnswer(params),
+        replyText: (params) => browserFor().replyText(params),
+        choiceSources: () => browserFor().choiceSources?.() ?? [],
+        textReplySources: () => browserFor().textReplySources?.() ?? [],
+        noticeReplySources: () => browserFor().noticeReplySources?.() ?? [],
+        unreadConversationSources: () =>
+          browserFor().unreadConversationSources?.() ?? [],
+        unreadNoticeReplySources: () =>
+          browserFor().unreadNoticeReplySources?.() ?? [],
+        unreadAnswerReplySources: () =>
+          browserFor().unreadAnswerReplySources?.() ?? [],
+        answerWatchSources: () => browserFor().answerWatchSources?.() ?? [],
+        openAnswerWatch: (params) => browserFor().openAnswerWatch(params),
+      };
+
 /**
  * The sender automations and the chat composer use: the source adapter's
  * `live.post` first, the official web UI second. It also does every other
@@ -878,6 +904,12 @@ export const createDefaultSender = ({
 } = {}) => {
   let browserSender = typeof browser?.send === 'function' ? browser : null;
   const browserFor = () => {
+    if (browser === false) {
+      throw codedError(
+        'Browser operations are unavailable on this server',
+        'unsupported'
+      );
+    }
     browserSender ??= createBrowserSender({ log, store, ...browser });
     return browserSender;
   };
@@ -904,42 +936,45 @@ export const createDefaultSender = ({
     : null;
   const sendText = createFallbackSender({
     apiSend: adapterSend,
-    browserSend: async (draft, dispatch) => {
-      // A definite API refusal may arrive after the owner withdrew consent.
-      await createBrowserSendConsent(store, draft, dispatch)();
-      refuseAutomatedWeb(draft);
-      // A plain browser send cannot preserve these message semantics.
-      // Refuse rather than silently turning a reply into a normal message.
-      if (
-        draft.sticker ||
-        draft.replyTo ||
-        draft.replyQuote ||
-        draft.topic ||
-        draft.sendAs ||
-        draft.scheduleDate ||
-        draft.allowPaidStars ||
-        draft.silent ||
-        draft.effect ||
-        draft.noWebpage ||
-        draft.invertMedia ||
-        draft.previewUrl ||
-        draft.previewSize
-      ) {
-        throw codedError(
-          'this message requires the network API to preserve its reply and send options',
-          'unsupported-send-options'
-        );
-      }
-      return browserFor().send(
-        {
-          source: draft.source,
-          chat: draft.chat,
-          to: draft.contact ?? draft.to,
-          text: draft.text,
-        },
-        dispatch
-      );
-    },
+    browserSend:
+      browser === false
+        ? null
+        : async (draft, dispatch) => {
+            // A definite API refusal may arrive after the owner withdrew consent.
+            await createBrowserSendConsent(store, draft, dispatch)();
+            refuseAutomatedWeb(draft);
+            // A plain browser send cannot preserve these message semantics.
+            // Refuse rather than silently turning a reply into a normal message.
+            if (
+              draft.sticker ||
+              draft.replyTo ||
+              draft.replyQuote ||
+              draft.topic ||
+              draft.sendAs ||
+              draft.scheduleDate ||
+              draft.allowPaidStars ||
+              draft.silent ||
+              draft.effect ||
+              draft.noWebpage ||
+              draft.invertMedia ||
+              draft.previewUrl ||
+              draft.previewSize
+            ) {
+              throw codedError(
+                'this message requires the network API to preserve its reply and send options',
+                'unsupported-send-options'
+              );
+            }
+            return browserFor().send(
+              {
+                source: draft.source,
+                chat: draft.chat,
+                to: draft.contact ?? draft.to,
+                text: draft.text,
+              },
+              dispatch
+            );
+          },
     log,
   });
   const send = (input, dispatch) => {
@@ -963,31 +998,13 @@ export const createDefaultSender = ({
     getSource,
     optionsFor: merged,
     browser: browserFor,
+    ...(browser === false ? { platforms: {} } : {}),
     log,
   });
   return Object.assign(send, {
     perform: actions.perform,
     supports: actions.supports,
-    readChats: (params) => browserFor().readChats(params),
-    scanChats: (params) => browserFor().scanChats(params),
-    scanConversation: (params) => browserFor().scanConversation(params),
-    scanUnreadConversations: (params) =>
-      browserFor().scanUnreadConversations(params),
-    readRecent: (params) => browserFor().readRecent(params),
-    readAnswerChoices: (params) => browserFor().readAnswerChoices(params),
-    prefillAnswer: (params) => browserFor().prefillAnswer(params),
-    replyText: (params) => browserFor().replyText(params),
-    choiceSources: () => browserFor().choiceSources?.() ?? [],
-    textReplySources: () => browserFor().textReplySources?.() ?? [],
-    noticeReplySources: () => browserFor().noticeReplySources?.() ?? [],
-    unreadConversationSources: () =>
-      browserFor().unreadConversationSources?.() ?? [],
-    unreadNoticeReplySources: () =>
-      browserFor().unreadNoticeReplySources?.() ?? [],
-    unreadAnswerReplySources: () =>
-      browserFor().unreadAnswerReplySources?.() ?? [],
-    answerWatchSources: () => browserFor().answerWatchSources?.() ?? [],
-    openAnswerWatch: (params) => browserFor().openAnswerWatch(params),
+    ...browserReadMethods(browser, browserFor),
     close: async () => browserSender?.close(),
   });
 };

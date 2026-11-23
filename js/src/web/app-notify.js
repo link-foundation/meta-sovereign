@@ -11,6 +11,7 @@ import { summarizeChats } from './chat-model.js';
 import { openChat } from './chat-state.js';
 import { useNotifications } from './chat-notify.js';
 import { usePublishChatFeed } from './navigation-counts.js';
+import { useMessageVisibility } from './message-visibility-prefs.js';
 
 const NO_CHATS = Object.freeze([]);
 
@@ -18,9 +19,10 @@ const NO_CHATS = Object.freeze([]);
 export const AppNotifications = ({ api, t, onOpen }) => {
   const [tick, setTick] = useState(0);
   const { links } = useLiveLinks(api, tick, () => setTick((n) => n + 1));
+  const visibility = useMessageVisibility();
   const chats = useMemo(
-    () => (links ? summarizeChats(links) : NO_CHATS),
-    [links]
+    () => (links ? summarizeChats(links, { visibility }) : NO_CHATS),
+    [links, visibility]
   );
   usePublishChatFeed(chats, links);
   useNotifications({
@@ -32,6 +34,7 @@ export const AppNotifications = ({ api, t, onOpen }) => {
       onOpen();
     },
     t,
+    visibility,
   });
   return null;
 };

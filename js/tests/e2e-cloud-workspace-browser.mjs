@@ -1,0 +1,162 @@
+import assert from 'node:assert/strict';
+import { mkdir } from 'node:fs/promises';
+import path from 'node:path';
+import { LINO_TEXT, decodeWire, encodeWire } from '../src/transport/lino.js';
+import { browserOf } from './helpers/e2e-chat.mjs';
+import { watchChatPages } from './helpers/e2e-page-errors.mjs';
+import {
+  startWorkspaceFixture,
+  WORKSPACE_BRAND,
+} from './helpers/cloud-workspace-fixture.mjs';
+
+const { engine, browserType } = await browserOf('cloud-workspace');
+const app = await startWorkspaceFixture();
+let browser;
+const errors = [];
+const artifacts = process.env.E2E_CLOUD_SCREENSHOTS;
+const screenshot = (page, name) =>
+  artifacts
+    ? page.screenshot({ path: path.join(artifacts, `${name}.png`) })
+    : null;
+
+const signIn = async (page, key) => {
+  await page.getByLabel('Workspace access key').fill(key);
+  await page.getByRole('button', { name: 'Sign in' }).click();
+};
+
+const writeLink = (page, link) =>
+  page.evaluate(
+    async ({ body, type }) => {
+      const res = await fetch('/links', {
+        method: 'PUT',
+        headers: { 'content-type': type },
+        body,
+      });
+      return res.status;
+    },
+    { body: encodeWire(link), type: LINO_TEXT }
+  );
+
+const linkId = async (page) => {
+  const wire = await page.evaluate(async () => {
+    const response = await fetch('/links/fixture:cross-browser');
+    return response.text();
+  });
+  return decodeWire(wire).id;
+};
+
+try {
+  if (artifacts) {
+    await mkdir(artifacts, { recursive: true });
+  }
+  browser = await browserType.launch({ headless: true });
+  const options = {
+    viewport: { width: 1200, height: 800 },
+    locale: 'en-US',
+    ignoreHTTPSErrors: true,
+  };
+  const first = await browser.newContext(options);
+  const second = await browser.newContext(options);
+  const observe = {
+    errors,
+    engine,
+    base: app.origin,
+    trace:
+      process.env.CI_BROWSER_DEBUG === '1'
+        ? (event) => console.log(`[e2e-cloud-workspace] ${event}`)
+        : undefined,
+  };
+  watchChatPages(first, observe);
+  watchChatPages(second, observe);
+  const page = await first.newPage();
+  const secondPage = await second.newPage();
+  const foreignRequests = [];
+  page.on('request', (request) => {
+    if (new URL(request.url()).origin !== app.origin) {
+      foreignRequests.push(request.url());
+    }
+  });
+
+  await page.goto(`${app.origin}/?server=http://127.0.0.1:1`);
+  assert.equal(new URL(page.url()).pathname, '/_cloud/sign-in');
+  await page.getByRole('heading', { name: WORKSPACE_BRAND }).waitFor();
+  assert.equal(
+    await page
+      .locator('.cloud-logo')
+      .evaluate((img) => img.decode().then(() => img.naturalWidth)),
+    24
+  );
+  await screenshot(page, 'sign-in');
+  await signIn(page, 'invalid');
+  await page.getByRole('alert').waitFor();
+  await signIn(page, app.ownerKey);
+  await page.getByRole('button', { name: 'Sign out' }).waitFor();
+  assert.equal(await page.title(), WORKSPACE_BRAND);
+  const [cookie] = (await first.cookies()).filter(
+    ({ name }) => name === '__Host-ms-workspace'
+  );
+  assert.ok(cookie.secure && cookie.httpOnly);
+  assert.equal(cookie.sameSite, 'Strict');
+
+  assert.equal(
+    await writeLink(page, { id: 'fixture:cross-browser', tokens: ['fixture'] }),
+    200
+  );
+  await page.reload();
+  assert.equal(await linkId(page), 'fixture:cross-browser');
+  await secondPage.goto(app.origin);
+  assert.equal(new URL(secondPage.url()).pathname, '/_cloud/sign-in');
+  await signIn(secondPage, app.ownerKey);
+  await secondPage.getByRole('button', { name: 'Sign out' }).waitFor();
+  assert.equal(await linkId(secondPage), 'fixture:cross-browser');
+  await page.bringToFront();
+  const persisted = await page.evaluate(async () =>
+    typeof globalThis.indexedDB.databases === 'function'
+      ? (await globalThis.indexedDB.databases()).map(({ name }) => name)
+      : []
+  );
+  assert.deepEqual(persisted, []);
+
+  await page.locator('button[data-view="operator"]').click();
+  await page.locator('main[data-view="operator"]').waitFor();
+  await page.locator('button[data-view="settings"]').click();
+  await page.locator('main[data-view="settings"]').waitFor();
+  assert.equal(
+    await page.locator('.browser-settings, [data-runner-settings]').count(),
+    0
+  );
+  await page.locator('button[data-view="cv"]').click();
+  await page
+    .locator('main[data-view="cv"] [data-action="cv-compare"]')
+    .waitFor();
+  assert.equal(await page.locator('[data-action="cv-read"]').count(), 0);
+  await page.locator('button[data-view="connections"]').click();
+  await page.locator('article[data-provider-id="telegram"]').waitFor();
+  await page
+    .getByText('Choose a service to connect an account or upload an archive.')
+    .waitFor();
+  assert.equal(
+    await page.locator('[data-action="marketplace-open"]').count(),
+    0
+  );
+  assert.equal(
+    await page.getByText('Find sign-ins', { exact: true }).count(),
+    0
+  );
+  await screenshot(page, 'connections');
+  const signOut = page.getByRole('button', { name: 'Sign out' });
+  await signOut.waitFor();
+  await signOut.press('Enter');
+  await page.getByLabel('Workspace access key').waitFor();
+  assert.equal(
+    await page.evaluate(async () => (await fetch('/links')).status),
+    401
+  );
+  assert.equal(await linkId(secondPage), 'fixture:cross-browser');
+  assert.deepEqual(foreignRequests, []);
+  assert.deepEqual(errors, []);
+  console.log(`[e2e-cloud-workspace] OK (${engine})`);
+} finally {
+  await browser?.close();
+  await app.close();
+}

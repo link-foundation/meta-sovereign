@@ -113,7 +113,7 @@ export const useLocalLock = (api) => {
 export const secondsOf = (ms) => Math.max(1, Math.ceil((ms ?? 0) / 1000));
 
 /** The full-screen unlock screen. */
-export const LockScreen = ({ api }) => {
+export const LockScreen = ({ api, extraAction = null }) => {
   const t = useT();
   const [value, setValue] = useState('');
   const [problem, setProblem] = useState(null);
@@ -201,6 +201,7 @@ export const LockScreen = ({ api }) => {
         },
         t('passcode.unlock')
       ),
-    ])
+    ]),
+    extraAction
   );
 };

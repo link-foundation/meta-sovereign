@@ -35,6 +35,13 @@ export const runCli = async (argv, options = {}) => {
     );
     return runCliCommand(argv, serveCmd, options);
   }
+  if (argv[0] === 'serve-cloud') {
+    const { serveCloud } = await loadConsumer(
+      'serve-cloud command',
+      () => import('./cloud-serve.js')
+    );
+    return runCliCommand(argv, serveCloud, options);
+  }
   const help = [undefined, 'help', '--help', '-h'].includes(argv[0]);
   if (help || !ordinaryCommandNames.has(argv[0])) {
     const { HELP } = await loadConsumer(

@@ -2,11 +2,15 @@
 // Apply uses its one-use ticket. Nothing is uploaded to a messaging service.
 import React, { useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
+import { workspaceName } from './cloud-workspace.js';
 import { Busy } from './spinner.js';
 import { decodeVcard } from '../sources/vcard.js';
 
 const el = React.createElement;
 const MAX_FILE_BYTES = 10 * 1024 * 1024;
+
+const readingKey = (workspace) =>
+  workspace ? 'cloud.contactsReading' : 'contacts.import.reading';
 
 const Preview = ({ preview, busy, apply, cancel, t }) =>
   el('div', { className: 'col', 'data-contacts-preview': true }, [
@@ -192,6 +196,7 @@ const useContactImport = (api, onImported, t) => {
 
 export const ContactsImport = ({ api, onImported }) => {
   const t = useT();
+  const workspace = workspaceName();
   const { file, sources, state, preview, selected, apply, cancel } =
     useContactImport(api, onImported, t);
   return el(
@@ -202,7 +207,11 @@ export const ContactsImport = ({ api, onImported }) => {
     },
     [
       el('h3', { key: 'title' }, t('contacts.import.title')),
-      el('p', { key: 'hint', className: 'meta' }, t('contacts.import.hint')),
+      el(
+        'p',
+        { key: 'hint', className: 'meta' },
+        t(workspace ? 'cloud.contactsImportHint' : 'contacts.import.hint')
+      ),
       sources?.ok === false
         ? el(
             'p',
@@ -211,17 +220,19 @@ export const ContactsImport = ({ api, onImported }) => {
           )
         : null,
       el('div', { key: 'sources', className: 'row' }, [
-        el(
-          'button',
-          {
-            key: 'system',
-            type: 'button',
-            'data-action': 'contacts-import-system',
-            disabled: state.busy || !sources?.system?.available,
-            onClick: () => preview({ source: 'system' }),
-          },
-          t('contacts.import.system')
-        ),
+        workspace
+          ? null
+          : el(
+              'button',
+              {
+                key: 'system',
+                type: 'button',
+                'data-action': 'contacts-import-system',
+                disabled: state.busy || !sources?.system?.available,
+                onClick: () => preview({ source: 'system' }),
+              },
+              t('contacts.import.system')
+            ),
         el(
           'button',
           {
@@ -250,7 +261,7 @@ export const ContactsImport = ({ api, onImported }) => {
             t(
               state.preview
                 ? 'contacts.import.importing'
-                : 'contacts.import.reading'
+                : readingKey(workspace)
             )
           )
         : null,

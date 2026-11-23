@@ -44,6 +44,7 @@ import { traceClient } from './client-log.js';
 import { READ_RECOVERED_EVENT } from './read-retry.js';
 import { OutboxContext } from './outbox-context.js';
 import { activeAccount } from './telegram-account-scope.js';
+import { readContinueLast } from './continuation-pref.js';
 
 /** Shared directory: reopening a view shows its last good snapshot immediately. */
 export const useLiveLinks = (api, tick) => {
@@ -103,6 +104,7 @@ const sendResult = async (api, item) => {
       chat: item.chat,
       text: item.text,
       clientId: item.clientId,
+      ...(item.continueLast ? { continueLast: true } : {}),
       ...(item.replyTo ? { replyTo: item.replyTo } : {}),
       ...(item.replyQuote ? { replyQuote: item.replyQuote } : {}),
       ...(item.topic ? { topic: item.topic } : {}),
@@ -421,6 +423,35 @@ const useDraftBox = ({ api, current, cloud, storage }) => {
 const outFields = (fields) =>
   Object.fromEntries(Object.entries(fields).filter(([, value]) => value));
 
+const useComposerReply = (api, current, visibility) => {
+  const key = current?.key ?? null;
+  const [replyTargets, setReplyTargets] = useState({});
+  const reply = replyTargets[key];
+  const replyTo = visibility?.hidesAuthor(reply?.author)
+    ? null
+    : (reply ?? null);
+  useEffect(() => {
+    setReplyTargets((before) => {
+      const visible = Object.entries(before).filter(
+        ([, target]) => !visibility?.hidesAuthor(target?.author)
+      );
+      return visible.length === Object.keys(before).length
+        ? before
+        : Object.fromEntries(visible);
+    });
+  }, [visibility]);
+  const setReplyTo = (target) => {
+    setReplyTargets((before) => ({ ...before, [key]: target }));
+    traceClient(api, target ? 'reply_selected' : 'reply_cleared', {
+      chat: current?.chat,
+      source: current?.source,
+      replyTo: target?.msgId ?? 0,
+      quoted: Boolean(target?.quoteText),
+    });
+  };
+  return { replyTo, setReplyTo };
+};
+
 /**
  * The composer: per-chat drafts and an ordered, exactly-once send queue.
  *   typing   { start(), cancel() } — our "typing…" to the other side
@@ -436,22 +467,12 @@ export const useComposer = ({
   typing = { start: () => {}, cancel: () => {} },
   cloud,
   storage,
+  visibility,
 }) => {
   const outbox = useOutbox({ api, addLinks, after, storage });
   const box = useDraftBox({ api, current, cloud, storage });
   const key = current?.key ?? null;
-  // replyTo: { msgId, senderName, text } set by Reply action; cleared on send.
-  const [replyTargets, setReplyTargets] = useState({});
-  const replyTo = replyTargets[key] ?? null;
-  const setReplyTo = (reply) => {
-    setReplyTargets((before) => ({ ...before, [key]: reply }));
-    traceClient(api, reply ? 'reply_selected' : 'reply_cleared', {
-      chat: current?.chat,
-      source: current?.source,
-      replyTo: reply?.msgId ?? 0,
-      quoted: Boolean(reply?.quoteText),
-    });
-  };
+  const { replyTo, setReplyTo } = useComposerReply(api, current, visibility);
   // The link preview bar's choice for the next send (R-Y145).
   const previewChoice = useRef(null);
   // Editing a message in the box (R-Y146).
@@ -499,7 +520,12 @@ export const useComposer = ({
       at: new Date().toISOString(),
       status: 'queued',
       attempts: 0,
-      ...outFields({ replyTo: replyId, replyQuote: quote, topic }),
+      ...outFields({
+        replyTo: replyId,
+        replyQuote: quote,
+        topic,
+        continueLast: current.source === 'telegram' && readContinueLast(),
+      }),
       ...outFields({ silent, scheduleDate, effect }),
       ...sendAsField(current.chat),
       ...preview,

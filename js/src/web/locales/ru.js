@@ -1,3 +1,5 @@
+import { ruSending } from './sending.js';
+import { ruCloud } from './cloud.js';
 import { vkProviderJobsLocale } from './vk-provider-jobs.js';
 import { vkAttachmentsLocale } from './vk-attachments.js';
 import { ruGratitude } from './ru-gratitude.js';
@@ -21,6 +23,8 @@ import { ruBrowser } from './ru-browser.js';
 // drift. Reviewed against the Telegram Desktop ru.strings file
 // (https://github.com/telegramdesktop/tdesktop) for terminology
 // consistency on common UI verbs.
+
+import { ruVisibility } from './hidden-senders.js';
 import { ruChat } from './ru-chat.js';
 import { ruChatMore } from './ru-chat-more.js';
 import { ruChatAccount } from './ru-chat-account.js';
@@ -85,12 +89,14 @@ export const ru = {
   'panels.chats': 'Ширина списка чатов',
   'panels.details': 'Ширина сведений',
   ...ruChat,
+  ...ruVisibility,
   ...ruChatMore,
   ...ruChatAccount,
   ...ruFolders,
   ...ruTranscribe,
   ...ruGithub,
   appName: 'meta-sovereign',
+  ...ruCloud,
   skipLink: 'Перейти к основному содержимому',
   'header.theme': 'Тема',
   'header.themeAria': 'Переключить тёмный режим',
@@ -483,13 +489,7 @@ export const ru = {
     'Обновить профиль в {networks}? Люди там увидят изменения.',
   'profile.confirmPublish.resume':
     'Обновить резюме в {networks}? Работодатели там увидят изменения.',
-  'settings.privacy.title': 'Конфиденциальность',
-  'settings.shareTyping': 'Показывать собеседнику, что я печатаю',
-  'settings.shareTypingHint':
-    'По умолчанию выключено. Когда включено, VK и Telegram показывают «печатает…» тому, кому вы пишете.',
-  'settings.readReceipts': 'Отмечать чаты прочитанными, когда я их читаю',
-  'settings.readReceiptsHint':
-    'По умолчанию включено, как в приложениях Telegram. Когда выключено, чтение чата здесь не отмечает его прочитанным в Telegram: отправитель не видит ✓✓, счётчики непрочитанных остаются.',
+  ...ruSending,
   'settings.notify.title': 'Уведомления',
   'settings.notify.on': 'Показывать новые сообщения уведомлениями',
   'settings.notify.preview': 'Показывать отправителя и текст',

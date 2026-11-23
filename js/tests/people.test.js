@@ -255,6 +255,19 @@ describe('crossReference', () => {
   });
 });
 
+describe('saved people lists and audiences', () => {
+  it('uses normalized Unicode words and numbers for generated IDs', () => {
+    const name = ' — Тёплый — 東京 １２! ';
+    expect(listLink({ name, members: [] }).id).toBe('list:теплый-東京-12');
+    expect(audienceLink({ name, spec: 'friends' }).id).toBe(
+      'audience:теплый-東京-12'
+    );
+    expectError(() => listLink({ name: '— !', members: [] })).toThrow(
+      'a list needs an id or a name'
+    );
+  });
+});
+
 describe('resolveAudience', () => {
   it('resolves every atom kind', () => {
     expect(resolveKeys({ kind: 'all' }).length).toBe(buildPeople(links).length);

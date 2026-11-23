@@ -1,3 +1,5 @@
+import { zhSending } from './sending.js';
+import { zhCloud } from './cloud.js';
 import { questionFinalPeriodLocale } from './question-final-period.js';
 import { vkProviderJobsLocale } from './vk-provider-jobs.js';
 import { vkAttachmentsLocale } from './vk-attachments.js';
@@ -23,6 +25,7 @@ import { zhBrowser } from './zh-browser.js';
 // `navigator.language` values (`zh`, `zh-CN`, `zh-Hans`, `zh-Hans-CN`,
 // `zh-Hant-TW`, …) resolve to this dictionary via prefix matching.
 
+import { zhVisibility } from './hidden-senders.js';
 import { zhChat } from './zh-chat.js';
 import { zhChatMore } from './zh-chat-more.js';
 import { zhChatAccount } from './zh-chat-account.js';
@@ -88,12 +91,14 @@ export const zh = {
   'panels.chats': '调整聊天列表宽度',
   'panels.details': '调整详情宽度',
   ...zhChat,
+  ...zhVisibility,
   ...zhChatMore,
   ...zhChatAccount,
   ...zhFolders,
   ...zhTranscribe,
   ...zhGithub,
   appName: 'meta-sovereign',
+  ...zhCloud,
   skipLink: '跳到主要内容',
   'header.theme': '主题',
   'header.themeAria': '切换深色模式',
@@ -464,13 +469,7 @@ export const zh = {
     '在 {networks} 上更新你的个人资料吗？那里的人会看到改动。',
   'profile.confirmPublish.resume':
     '在 {networks} 上更新你的简历吗？那里的雇主会看到改动。',
-  'settings.privacy.title': '隐私',
-  'settings.shareTyping': '向对方显示我正在输入',
-  'settings.shareTypingHint':
-    '默认关闭。开启后，VK 和 Telegram 会向你正在联系的人显示“正在输入…”。',
-  'settings.readReceipts': '阅读聊天时将其标为已读',
-  'settings.readReceiptsHint':
-    '默认开启，与 Telegram 官方应用一致。关闭后，在这里阅读聊天不会在 Telegram 上标为已读：对方看不到 ✓✓，未读数也会保留。',
+  ...zhSending,
   'settings.notify.title': '通知',
   'settings.notify.on': '以通知显示新消息',
   'settings.notify.preview': '显示发送者和内容',

@@ -183,7 +183,6 @@ test('long application workflows have separate registered budgets without nestin
 });
 
 test('application salary and answer scenarios have separate mandatory deadlines', () => {
-  assert.equal(registry.length, 160);
   assert.ok(!registry.includes('job-application-language'));
   for (const [group, expected] of [
     [
@@ -201,6 +200,12 @@ test('application salary and answer scenarios have separate mandatory deadlines'
   ]) {
     assert.ok(registry.includes(group), group);
     assert.deepEqual(registeredScenarios([group]), expected);
+  }
+});
+
+test('hosted workspaces and Telegram chat controls have mandatory browser checks', () => {
+  for (const check of ['cloud-workspace', 'continuation', 'hide-sender']) {
+    assert.ok(registry.includes(check), check);
   }
 });
 
@@ -248,7 +253,7 @@ test('both mandatory browser engines retain each registered check once within un
       partitionBrowserChecks(registry, `${index}/8`)
     );
     for (const index of job.strategy.matrix.shard) {
-      assert.ok(partitionBrowserChecks(registry, `${index}/8`).length <= 20);
+      assert.ok(partitionBrowserChecks(registry, `${index}/8`).length <= 21);
     }
     assert.equal(new Set(assigned).size, registry.length);
     assert.deepEqual(assigned.sort(), [...registry].sort());

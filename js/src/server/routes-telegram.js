@@ -47,10 +47,9 @@
  *   POST /api/telegram/search-global {q, cursor?}
  *                                      -> { ok, messages, count, more, cursor }
  *                                         messages in every chat (R-Y107)
- *   POST /api/telegram/search {chat, q, offsetId?}
- *                                      -> { ids, count, more } the chat's
- *                                         messages with `q`, newest first,
- *                                         stored (R-Y98)
+ *   POST /api/telegram/search {chat, q, offsetId?, links?}
+ *                                      -> { ids, count, more, messages? }
+ *                                         the chat's matches, stored (R-Y98)
  *   POST /api/telegram/history {chat, topic, before?, limit?}
  *                                      -> { written, complete } a forum
  *                                         topic's newest messages, or the
@@ -691,6 +690,7 @@ const POSTS = {
         chat: body.chat,
         q: body.q,
         offsetId: Number.isInteger(body.offsetId) ? body.offsetId : 0,
+        ...(body.links === true ? { links: true } : {}),
       }),
     ];
   },

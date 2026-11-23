@@ -1,6 +1,6 @@
 {
   "name": "meta-sovereign",
-  "version": "1.2.0",
+  "version": "1.5.0",
   "description": "Personal meta profile sovereign system - fully local, privacy-respecting personal CRM and unified messenger across services",
   "type": "module",
   "main": "js/src/index.js",
@@ -39,6 +39,7 @@
     "./server": "./js/src/server/index.js"
   },
   "scripts": {
+    "test:e2e:cloud-workspace": "node js/tests/e2e-cloud-workspace-browser.mjs",
     "test": "node --test --test-concurrency=2 --test-timeout=30000 js/tests/*.test.js",
     "test:e2e:browser": "node js/tests/e2e-browser-spa.mjs",
     "test:e2e:browser:webkit": "E2E_BROWSER=webkit node js/tests/e2e-browser-spa.mjs",
@@ -91,6 +92,8 @@
     "test:e2e:schedule": "node js/tests/e2e-schedule-browser.mjs",
     "test:e2e:send-extras": "node js/tests/e2e-send-extras-browser.mjs",
     "test:e2e:send-extras:webkit": "E2E_BROWSER=webkit node js/tests/e2e-send-extras-browser.mjs",
+    "test:e2e:continuation": "node js/tests/e2e-continuation-browser.mjs",
+    "test:e2e:continuation:webkit": "E2E_BROWSER=webkit node js/tests/e2e-continuation-browser.mjs",
     "test:e2e:folders": "node js/tests/e2e-folders-browser.mjs",
     "test:e2e:passcode": "node js/tests/e2e-passcode-browser.mjs",
     "test:e2e:passcode:webkit": "E2E_BROWSER=webkit node js/tests/e2e-passcode-browser.mjs",
@@ -309,6 +312,7 @@
     "test:e2e:scale-proxy": "node js/tests/e2e-scale-proxy-browser.mjs",
     "test:e2e:scale-proxy:webkit": "E2E_BROWSER=webkit node js/tests/e2e-scale-proxy-browser.mjs",
     "test:e2e:peer-bar": "node js/tests/e2e-peer-bar-browser.mjs",
+    "test:e2e:hide-sender": "node js/tests/e2e-hide-sender-browser.mjs",
     "test:e2e:visual-effects": "node js/tests/e2e-visual-effects-browser.mjs",
     "test:e2e:visual-effects:webkit": "E2E_BROWSER=webkit node js/tests/e2e-visual-effects-browser.mjs",
     "test:e2e:voice-chat": "node js/tests/e2e-voice-chat-browser.mjs",
@@ -321,6 +325,7 @@
     "test:e2e:folder-live": "node js/tests/e2e-folder-live-browser.mjs",
     "test:e2e:folder-live:webkit": "E2E_BROWSER=webkit node js/tests/e2e-folder-live-browser.mjs",
     "test:e2e:peer-bar:webkit": "E2E_BROWSER=webkit node js/tests/e2e-peer-bar-browser.mjs",
+    "test:e2e:hide-sender:webkit": "E2E_BROWSER=webkit node js/tests/e2e-hide-sender-browser.mjs",
     "test:e2e:sounds:webkit": "E2E_BROWSER=webkit node js/tests/e2e-sounds-browser.mjs",
     "test:e2e:forward-options": "node js/tests/e2e-forward-options-browser.mjs",
     "test:e2e:forward-options:webkit": "E2E_BROWSER=webkit node js/tests/e2e-forward-options-browser.mjs",

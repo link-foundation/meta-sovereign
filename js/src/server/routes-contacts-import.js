@@ -22,6 +22,11 @@ const preview = async (store, body, ctx) => {
   if (body.source === 'vcard') {
     contacts = parseVcard(body.text);
   } else if (body.source === 'system') {
+    if (ctx.cloud) {
+      throw Object.assign(new Error('Upload a vCard from your device'), {
+        code: 'local-device-only',
+      });
+    }
     contacts = await (ctx.systemContactsReader ?? readSystemContacts)(
       ctx.storeDir
     );
@@ -61,7 +66,8 @@ export const handleContactsImport = async (store, req, res, p, ctx) => {
       vcard: true,
       system: {
         available:
-          Boolean(ctx.systemContactsReader) || process.platform === 'darwin',
+          !ctx.cloud &&
+          (Boolean(ctx.systemContactsReader) || process.platform === 'darwin'),
         platform: process.platform,
       },
     });

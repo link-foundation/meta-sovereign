@@ -17,6 +17,7 @@ import { Busy } from './spinner.js';
 import { VacanciesPanel } from './vacancies-panel.js';
 import { CvExperienceComparison } from './cv-experience-view.js';
 import { CvExperienceDocuments } from './cv-experience-documents.js';
+import { workspaceName } from './cloud-workspace.js';
 
 const el = React.createElement;
 
@@ -446,9 +447,14 @@ const CvPlatforms = ({ state }) => {
  */
 export const CvScreen = ({ state, login = '', setLogin = () => {} }) => {
   const t = useT();
+  const cloud = Boolean(workspaceName());
   return el('div', { className: 'col cv-view' }, [
     el('h2', { key: 'h' }, t('cv.title')),
-    el('p', { key: 'intro', className: 'meta' }, t('cv.intro')),
+    el(
+      'p',
+      { key: 'intro', className: 'meta' },
+      t(cloud ? 'cloud.cv' : 'cv.intro')
+    ),
     // An empty catalogue means the backend has no `/api/cv/*` routes
     // (the Rust server, or no server at all), which is worth saying
     // out loud rather than showing an empty table.
@@ -461,7 +467,12 @@ export const CvScreen = ({ state, login = '', setLogin = () => {} }) => {
             t('cv.unavailable')
           )
       : el(CvPlatforms, { key: 'platforms', state }),
-    el(CvControls, { key: 'controls', state, login, setLogin }),
+    cloud
+      ? button('compare', t('cv.compare'), {
+          disabled: Boolean(state.busy),
+          onClick: state.compare,
+        })
+      : el(CvControls, { key: 'controls', state, login, setLogin }),
     state.busy
       ? el(
           Busy,
@@ -479,8 +490,12 @@ export const CvScreen = ({ state, login = '', setLogin = () => {} }) => {
       key: 'experience',
       comparison: state.comparison?.comparison?.experience ?? null,
     }),
-    el('h3', { key: 'sync-h' }, t('cv.syncTitle')),
-    el(SyncPlan, { key: 'sync', result: state.sync }),
+    cloud
+      ? null
+      : el(React.Fragment, { key: 'sync' }, [
+          el('h3', { key: 'title' }, t('cv.syncTitle')),
+          el(SyncPlan, { key: 'plan', result: state.sync }),
+        ]),
     el('h3', { key: 'tel-h' }, t('cv.telemetry')),
     el(TelemetryPanel, { key: 'tel', telemetry: state.telemetry }),
   ]);
@@ -489,9 +504,10 @@ export const CvScreen = ({ state, login = '', setLogin = () => {} }) => {
 export const CvView = ({ api = defaultApi }) => {
   const [login, setLogin] = useState('');
   const state = useCvState(api);
+  const cloud = Boolean(workspaceName());
   return el('div', { className: 'col' }, [
     el(CvScreen, { key: 'cv', state, login, setLogin }),
-    el(CvExperienceDocuments, { key: 'documents', api }),
-    el(VacanciesPanel, { key: 'vacancies', api }),
+    cloud ? null : el(CvExperienceDocuments, { key: 'documents', api }),
+    cloud ? null : el(VacanciesPanel, { key: 'vacancies', api }),
   ]);
 };

@@ -50,6 +50,11 @@ import { createCvApi } from './cv-api.js';
 import { createVacancyApi } from './vacancy-api.js';
 import { createPublicationApi } from './publication-api.js';
 import { AUTOMATION_CALLS } from './dom-automation-calls.js';
+import {
+  createWorkspaceStore,
+  workspaceFetch,
+  workspaceName,
+} from './cloud-workspace.js';
 
 export const h = (tag, attrs = {}, children = []) => {
   const el = globalThis.document.createElement(tag);
@@ -117,19 +122,52 @@ const openMigratedStore = async (suffix) => {
   }
 };
 
+const bootDiscovery = async (cloud) =>
+  cloud
+    ? { origin: globalThis.location.origin }
+    : discoverServer({ signal: pageLifetime });
+
+const makeBus = (store) => {
+  const bus = createHandlerBus(store);
+  const built = broadcastHandler({ broadcast: localBroadcast });
+  bus.register('broadcast', built.selector, built.run);
+  return bus;
+};
+
+const peerSync = (store, discovered, slot) =>
+  discovered && slot === 1
+    ? attachWebRtcSync({
+        store,
+        origin: discovered.origin,
+        capabilities: discovered.capabilities,
+        onError: (error) => {
+          rawApi
+            .clientLog({
+              level: 'warn',
+              event: 'rtc_negotiation_failed',
+              error: String(error?.message ?? 'rtc-failed').slice(0, 300),
+            })
+            .catch(() => {});
+        },
+      })
+    : null;
+
 const boot = async () => {
   // An extra Telegram account keeps its own copy in the browser, so
   // nothing of it mixes with account 1's (R-Y202).
   const slot = activeAccount();
   const suffix = slot > 1 ? `@telegram-${slot}` : '';
-  const store = await openMigratedStore(suffix);
-  // Local handler bus so writes to broadcast:* trigger work even
-  // when the SPA is fully offline.
-  const bus = createHandlerBus(store);
-  const built = broadcastHandler({ broadcast: localBroadcast });
-  bus.register('broadcast', built.selector, built.run);
-
-  const discovered = await discoverServer({ signal: pageLifetime });
+  const cloud = Boolean(workspaceName());
+  const request = createLinoFetch(
+    cloud ? workspaceFetch : (url, init) => globalThis.fetch(url, init)
+  );
+  const fetchScoped = (url, init) =>
+    request(scopedUrl(String(url), init?.method ?? 'GET'), init);
+  const store = cloud
+    ? createWorkspaceStore(fetchScoped)
+    : await openMigratedStore(suffix);
+  const bus = cloud ? null : makeBus(store);
+  const discovered = await bootDiscovery(cloud);
   debugBrowser('boot-discovery', { discovered });
   if (discovered) {
     rememberServerConnection();
@@ -140,15 +178,15 @@ const boot = async () => {
     ? {
         origin: discovered.origin,
         // The links and chat pages of the account this tab uses (R-Y202).
-        fetchImpl: createLinoFetch((url, init) =>
-          globalThis.fetch(scopedUrl(String(url), init?.method ?? 'GET'), init)
-        ),
+        fetchImpl: fetchScoped,
       }
     : null;
   const client = createOfflineClient({
     store,
     server,
-    replyDriver: pickSnapshotDriver(`meta-sovereign:reply-model${suffix}`),
+    replyDriver: cloud
+      ? null
+      : pickSnapshotDriver(`meta-sovereign:reply-model${suffix}`),
     signal: pageLifetime,
     onReplyCacheError: (error) =>
       debugBrowser('reply-cache-refused', { code: error.code }),
@@ -164,29 +202,13 @@ const boot = async () => {
   // Best-effort: a missing
   // RTCPeerConnection (older browsers) just skips this path. Only account
   // 1's: the peers are account 1's pages (R-Y202).
-  const rtc =
-    discovered && slot === 1
-      ? attachWebRtcSync({
-          store,
-          origin: discovered.origin,
-          capabilities: discovered.capabilities,
-          onError: (error) => {
-            rawApi
-              .clientLog({
-                level: 'warn',
-                event: 'rtc_negotiation_failed',
-                error: String(error?.message ?? 'rtc-failed').slice(0, 300),
-              })
-              .catch(() => {});
-          },
-        })
-      : null;
+  const rtc = peerSync(store, discovered, cloud ? null : slot);
   return {
     store,
     bus,
     client,
     requests: createRecoveringRequest({
-      fetchImpl: createLinoFetch((url, init) => globalThis.fetch(url, init)),
+      fetchImpl: request,
       reached: client.reached,
       failed: client.failed,
     }),
@@ -656,7 +678,9 @@ const rawApi = {
     if (signal?.aborted) {
       return false;
     }
-    const found = await discover({ signal });
+    const found = workspaceName()
+      ? { origin: globalThis.location.origin }
+      : await discover({ signal });
     debugBrowser('manual-rediscovery', { found });
     if (found && !signal?.aborted) {
       resetServerBinding();

@@ -1,5 +1,23 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 1.5.0
+
+### Minor Changes
+
+- 6ee8d49: R-Z37 adds an opt-in setting to continue your latest text message in public Telegram chats. Chat and Operator use Telegram’s normal edited message state and send a separate post when the newest message cannot be continued.
+
+## 1.4.0
+
+### Minor Changes
+
+- c152b75: Add a hosted workspace mode with browser sign-in, isolated deployments, and configurable branding.
+
+## 1.3.0
+
+### Minor Changes
+
+- 797cf74: Hide a sender's messages across supported Chat and Operator conversations, including Telegram groups and channels. Choose whether to hide when blocking someone in a Telegram private chat, or hide directly from a message. Restore visibility in Settings under Hidden senders.
+
 ## 1.2.0
 
 ### Minor Changes

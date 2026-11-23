@@ -36,6 +36,8 @@ import { useReport } from './chat-report.js';
 import { useBlockFromReplies } from './chat-replies-block.js';
 import { readMedia, saveUrl } from './media-src.js';
 import { useMessageVersions } from './chat-message-versions.js';
+import { messageAuthor } from './message-visibility.js';
+import { hideMessageSender } from './message-visibility-prefs.js';
 import { versionedMediaApi } from './message-version-media.js';
 import { expandAlbums, groupAlbums } from './chat-album.js';
 import {
@@ -97,6 +99,7 @@ export const replyRefOf = (message) => ({
   linkId: message.id,
   senderName: message.senderName ?? message.sender,
   text: message.body ?? '',
+  author: messageAuthor(message),
 });
 
 // Each network's messages go their own way: Telegram's by their network
@@ -370,7 +373,10 @@ const describer =
 
 const lookup = (state) => {
   const shown = new Map((state.messages ?? []).map((m) => [m.id, m]));
-  return { get: (id) => shown.get(id) ?? state.replyTargets?.get?.(id) };
+  return {
+    get: (id) => shown.get(id) ?? state.replyTargets?.get?.(id),
+    hideUnresolved: state.replyTargets?.hideUnresolved,
+  };
 };
 
 // The composer's keys: Up edits the last own message, Ctrl/Cmd+Up and
@@ -494,7 +500,11 @@ const useFeatureHooks = ({ state, api, copy, selection }) => ({
   // A bot's mini app, over the chat (R-Y168).
   webApp: useWebAppHost({ api, state }),
   // A post's comments, a message's thread (R-Y126).
-  comments: useComments({ api }),
+  comments: useComments({
+    api,
+    visibility: state.visibility,
+    notify: state.notify,
+  }),
   // Who read, who reacted (R-Y127); a post's statistics (R-Y195).
   readers: useReadersWithStats({ api, info: state.info }),
   games: useGameScores({ api }),
@@ -508,6 +518,7 @@ const useFeatureHooks = ({ state, api, copy, selection }) => ({
   report: useReport({ api, chat: state.current, onDone: selection.clear }),
   // "Block user" in the Replies chat (R-Y217).
   blockReplies: useBlockFromReplies({ api }),
+  versions: useMessageVersions(api, state.current?.key, state.visibility),
 });
 
 /**
@@ -532,19 +543,7 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
     choose: setForwarding,
   });
   const copy = useCopy(state);
-  const {
-    bots,
-    webApp,
-    comments,
-    readers,
-    games,
-    translate,
-    gifs,
-    saveMusic,
-    report,
-    blockReplies,
-  } = useFeatureHooks({ state, api, copy, selection });
-  const versions = useMessageVersions(api, state.current?.key);
+  const features = useFeatureHooks({ state, api, copy, selection });
   const messages = state.messages ?? [];
   // As the chat draws them: an album is one row, chosen with its items.
   const rows = groupAlbums(messages);
@@ -572,9 +571,9 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
       copy: () => copy(message.body ?? ''),
       copySelected: () => copy(value),
       copyUrl: () => copy(value, 'link-copied'),
-      saveMessageGif: () => gifs.toggle(message),
-      unsaveMessageGif: () => gifs.toggle(message),
-      saveMessageMusic: () => saveMusic(message),
+      saveMessageGif: () => features.gifs.toggle(message),
+      unsaveMessageGif: () => features.gifs.toggle(message),
+      saveMessageMusic: () => features.saveMusic(message),
       copyLink: () => copy(linkOf(state, api, message), 'link-copied'),
       saveAs: () => saveMedia(api, chat, message, value === 'photo'),
       copyImage: () => copyImage(state, api, chat, message),
@@ -586,14 +585,15 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
       forward: () => setForwarding(expandAlbums([message])),
       delete: () => setDeleting(expandAlbums([message])),
       edit: () => state.composer.startEdit(message),
-      editHistory: () => versions.open(message),
+      editHistory: () => features.versions.open(message),
+      hideSender: () => hideMessageSender(message, state.notify),
       select: () => selection.add(message.id),
       selectBulk: () => selectBulk(selection, message, order),
       copySelectedItems: copySelected,
       forwardSelected: () => setForwarding(chosen()),
       deleteSelected: () => setDeleting(chosen()),
-      ...report.actions(message, chosen),
-      ...blockReplies.actions(message),
+      ...features.report.actions(message, chosen),
+      ...features.blockReplies.actions(message),
       unpinSelected: () => unpinAll(send, chosen()),
       clearSelection: selection.clear,
       react: () =>
@@ -602,12 +602,12 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
           : send.generic('react', [message], { emoji: value }),
     };
     act.copyPostLink = act.copyLink;
-    act.bot = () => bots.press(message, value);
-    act.comments = () => comments.open(message);
-    Object.assign(act, readers.actions(message));
-    act.gameScores = () => games.open(message);
-    act.translate = () => translate.open(message);
-    act.summarize = () => translate.summarize(message);
+    act.bot = () => features.bots.press(message, value);
+    act.comments = () => features.comments.open(message);
+    Object.assign(act, features.readers.actions(message));
+    act.gameScores = () => features.games.open(message);
+    act.translate = () => features.translate.open(message);
+    act.summarize = () => features.translate.summarize(message);
     return act[action]?.();
   };
 
@@ -618,7 +618,7 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
   const top = {
     count: selection.ids.length,
     canForward,
-    ...report.top(chosen()),
+    ...features.report.top(chosen()),
     onClear: selection.clear,
     onForward: () => setForwarding(chosen()),
     onDelete: () => setDeleting(chosen()),
@@ -637,7 +637,8 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
       info: state.info,
       selectedText,
       target,
-      gifs: gifs.ids,
+      gifs: features.gifs.ids,
+      hideSender: Boolean(messageAuthor(message)),
       selection: menuSelection(selection, {
         ...{ canForward, canCopy: !lockedAny, canReport: top.canReport },
         anyPinned: chosen().some((m) => m.raw?.pinned),
@@ -663,16 +664,16 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
     // The state whose Send also forwards what waits (R-Y154).
     withForward: stage.wrap,
     dialogs: [
-      versions.dialog,
+      features.versions.dialog,
       ...dialogs,
-      bots.dialog,
-      webApp.dialog,
-      comments.dialog,
-      readers.dialog,
-      games.dialog,
-      translate.dialog,
-      report.dialog,
-      blockReplies.dialog,
+      features.bots.dialog,
+      features.webApp.dialog,
+      features.comments.dialog,
+      features.readers.dialog,
+      features.games.dialog,
+      features.translate.dialog,
+      features.report.dialog,
+      features.blockReplies.dialog,
     ],
   };
 };

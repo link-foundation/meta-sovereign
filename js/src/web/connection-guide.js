@@ -19,6 +19,7 @@ import {
   applyLocalServerOverride,
 } from './connection-guides.js';
 import { useT } from './i18n.js';
+import { workspaceName } from './cloud-workspace.js';
 import {
   useProviderLiveState,
   telegramConnectionState,
@@ -44,6 +45,9 @@ export { tx as translateGuideValue };
 export const LocalServerHelp = () => {
   const t = useT();
   const [override, setOverride] = useState('');
+  if (workspaceName()) {
+    return null;
+  }
   const apply = () => {
     if (!override) {
       return;
@@ -118,7 +122,7 @@ export const ConnectionsConnectFirstCta = ({ providerId }) => {
   const navigate = () => {
     const anchor = providerId ? `#conn-${providerId}` : '';
     globalThis.dispatchEvent?.(
-      new CustomEvent('meta-sovereign:navigate', {
+      new globalThis.CustomEvent('meta-sovereign:navigate', {
         detail: { view: 'connections', anchor },
       })
     );

@@ -26,7 +26,13 @@ export const handleFormRoutes = async (store, req, res, p, ctx) => {
       return true;
     }
     if (p.endsWith('/capabilities') && req.method === 'GET') {
-      json(res, 200, await ctx.forms.capabilities());
+      json(
+        res,
+        200,
+        ctx.cloud
+          ? { ok: true, available: false, review: false, plan: true }
+          : await ctx.forms.capabilities()
+      );
     } else if (
       [
         '/api/forms/read',

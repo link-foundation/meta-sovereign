@@ -34,13 +34,20 @@ test('every Deno platform retains native partitions, test discovery and deadline
   ).jobs.test;
   const { matrix } = job.strategy;
   for (const targetOS of ['ubuntu-26.04', 'macos-26', 'windows-2025']) {
-    const count = targetOS === 'macos-26' ? 8 : 3;
+    const count = targetOS === 'macos-26' ? 16 : 3;
     assert.deepEqual(
       matrix.include
         .filter(({ os, runtime }) => os === targetOS && runtime === 'deno')
-        .map(({ shard }) => shard)
-        .sort(),
-      Array.from({ length: count }, (_, index) => `${index + 1}/${count}`),
+        .flatMap(({ shard }) => {
+          const [index, parts] = shard.split('/').map(Number);
+          const size = count / parts;
+          assert.ok(Number.isInteger(size) && size > 0, shard);
+          return Array.from(
+            { length: size },
+            (_, offset) => (index - 1) * size + offset
+          );
+        }),
+      Array.from({ length: count }, (_, index) => index),
       targetOS
     );
     assert.ok(
@@ -59,7 +66,8 @@ test('every Deno platform retains native partitions, test discovery and deadline
     mac.map(({ shard, runner }) => [shard, runner ?? 'macos-26']),
     [
       ['1/8', 'macos-26'],
-      ['2/8', 'macos-26-intel'],
+      ['3/16', 'macos-26-intel'],
+      ['4/16', 'macos-26-intel'],
       ['3/8', 'macos-26'],
       ['4/8', 'macos-26'],
       ['5/8', 'macos-26'],
@@ -67,7 +75,7 @@ test('every Deno platform retains native partitions, test discovery and deadline
       ['7/8', 'macos-26'],
       ['8/8', 'macos-26'],
     ],
-    'the capacity-refused shard uses Intel while the other partitions retain ARM'
+    'the original Intel range is split while the remaining ranges retain ARM'
   );
   assert.equal(job['runs-on'], '${{ matrix.runner || matrix.os }}');
   assert.equal(job.strategy['fail-fast'], false);

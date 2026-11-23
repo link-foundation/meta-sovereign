@@ -1,3 +1,5 @@
+import { enSending } from './sending.js';
+import { enCloud } from './cloud.js';
 import { enQuestionMatching } from './en-question-matching.js';
 import { questionFinalPeriodLocale } from './question-final-period.js';
 import { vkProviderJobsLocale } from './vk-provider-jobs.js';
@@ -23,6 +25,8 @@ import { enBrowser } from './en-browser.js';
 // adds a key. Provider names ("Telegram", "WhatsApp", …) and API URLs
 // stay in their source form because they are proper nouns / API
 // brand identifiers.
+
+import { enVisibility } from './hidden-senders.js';
 import { enChat } from './en-chat.js';
 import { enChatMore } from './en-chat-more.js';
 import { enChatAccount } from './en-chat-account.js';
@@ -86,12 +90,14 @@ export const en = {
   'panels.chats': 'Resize chat list',
   'panels.details': 'Resize details',
   ...enChat,
+  ...enVisibility,
   ...enChatMore,
   ...enChatAccount,
   ...enFolders,
   ...enTranscribe,
   ...enGithub,
   appName: 'meta-sovereign',
+  ...enCloud,
   skipLink: 'Skip to main content',
   'header.theme': 'Theme',
   'header.themeAria': 'Toggle dark mode',
@@ -480,13 +486,7 @@ export const en = {
     'Update your profile on {networks}? People there will see the change.',
   'profile.confirmPublish.resume':
     'Update your CV on {networks}? Employers there will see the change.',
-  'settings.privacy.title': 'Privacy',
-  'settings.shareTyping': 'Show others when I am typing',
-  'settings.shareTypingHint':
-    'Off by default. When on, VK and Telegram show "typing…" to the person you are writing to.',
-  'settings.readReceipts': 'Mark chats as read when I read them',
-  'settings.readReceiptsHint':
-    'On by default, as in Telegram’s own apps. When off, reading a chat here does not mark it read on Telegram: the sender does not see ✓✓ and unread counts stay.',
+  ...enSending,
   'settings.notify.title': 'Notifications',
   'settings.notify.on': 'Show new messages as notifications',
   'settings.notify.preview': 'Show the sender and the text',

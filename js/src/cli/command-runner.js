@@ -23,6 +23,7 @@ export const runCliCommand = async (
         '-h',
         'version',
         'runner',
+        'serve-cloud',
         '--version',
         '-v',
         undefined,

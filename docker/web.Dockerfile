@@ -1,12 +1,13 @@
 # Web/API microservice (R-F7).
 # Runs `meta-sovereign serve` against a mounted data volume.
-FROM node:26.13.0-alpine@sha256:8996bb5821d62a8fd9bb27c1cb07462f3fdce6e47d640c6a881ead0b064ce216
+FROM node:26.13.0-alpine@sha256:8996bb5821d62a8fd9bb27c1cb07462f3fdce6e47d640c6a881ead0b064ce216 AS web
 
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm install --global npm@12.2.2 && npm ci --omit=dev
 COPY js/src ./js/src
 COPY js/bin ./js/bin
+RUN install -d -o node -g node -m 0700 /data
 
 ENV STORE_DIR=/data
 VOLUME ["/data"]

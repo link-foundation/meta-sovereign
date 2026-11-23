@@ -13,6 +13,9 @@ import { MessageBubble } from './chat-message.js';
 import { byTime, networkMessageId } from './chat-model.js';
 import { useEsc } from './chat-invite.js';
 import { threadOf } from './chat-comments-bar.js';
+import { menuItems } from './chat-selection.js';
+import { messageAuthor } from './message-visibility.js';
+import { hideMessageSender } from './message-visibility-prefs.js';
 
 const el = React.createElement;
 
@@ -95,9 +98,16 @@ const ReplyBar = ({ replyTo, onCancel, t }) =>
   ]);
 
 // The composer: Enter sends, Shift+Enter breaks the line.
-const useCommentSender = ({ api, chat, post, load, onSent }) => {
+const useCommentSender = ({ api, chat, post, load, onSent, visibility }) => {
   const [text, setText] = useState('');
-  const [replyTo, setReplyTo] = useState(null);
+  const [target, setReplyTo] = useState(null);
+  const hidden = visibility?.hides(target);
+  const replyTo = hidden ? null : target;
+  useEffect(() => {
+    if (hidden) {
+      setReplyTo(null);
+    }
+  }, [hidden]);
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
   const send = async () => {
@@ -181,7 +191,7 @@ const Composer = ({ sender, t, comments, inputRef }) =>
     ]),
   ]);
 
-const listStatus = (state, t) => {
+const listStatus = (state, list, t) => {
   if (state.phase === 'loading') {
     return el(
       'p',
@@ -200,18 +210,34 @@ const listStatus = (state, t) => {
       )
     );
   }
-  return state.messages.length === 0
-    ? el('p', { key: 'st', className: 'meta' }, t('chat.comments.empty'))
+  return list.length === 0
+    ? el(
+        'p',
+        { key: 'st', className: 'meta' },
+        t(
+          state.messages.length
+            ? 'chat.visibility.empty'
+            : 'chat.comments.empty'
+        )
+      )
     : null;
 };
 
 // The comments as the chat draws a group: names on the first of a run,
 // avatars on its last.
-const CommentList = ({ state, api, onAction, onOlder, t }) => {
-  const msgById = new Map(state.messages.map((m) => [m.id, m]));
-  const list = state.messages;
+const CommentList = ({
+  state,
+  list,
+  api,
+  onAction,
+  onOlder,
+  t,
+  visibility,
+}) => {
+  const known = new Map(state.messages.map((m) => [m.id, m]));
+  const msgById = visibility?.lookup(known) ?? known;
   return [
-    state.phase === 'ready' && !state.complete && list.length > 0
+    state.phase === 'ready' && !state.complete && state.messages.length > 0
       ? el(
           'button',
           {
@@ -224,7 +250,7 @@ const CommentList = ({ state, api, onAction, onOlder, t }) => {
           t('chat.comments.older')
         )
       : null,
-    listStatus(state, t),
+    listStatus(state, list, t),
     ...list.map((message, i) =>
       el(MessageBubble, {
         key: message.id,
@@ -234,23 +260,37 @@ const CommentList = ({ state, api, onAction, onOlder, t }) => {
         msgById,
         api,
         onAction,
+        menuFor: (message, options) =>
+          menuItems({
+            message,
+            ...options,
+            hideSender: Boolean(messageAuthor(message)),
+          }),
         fastReply: true,
       })
     ),
   ];
 };
 
-const CommentsPanel = ({ post, api, close }) => {
+const CommentsPanel = ({ post, api, close, visibility, notify }) => {
   const t = useT();
   const chat = String(post.chat ?? '');
   const id = networkMessageId(post);
   const comments = threadOf(post)?.comments ?? true;
   const [state, load] = useThread(api, chat, id);
-  useReadMark(api, chat, id, state.messages);
+  const list = visibility?.show(state.messages) ?? state.messages;
+  useReadMark(api, chat, id, list);
   const end = useRef(null);
   const input = useRef(null);
   const toEnd = () => end.current?.scrollIntoView?.({ block: 'end' });
-  const sender = useCommentSender({ api, chat, post: id, load, onSent: toEnd });
+  const sender = useCommentSender({
+    api,
+    chat,
+    post: id,
+    load,
+    onSent: toEnd,
+    visibility,
+  });
   useEsc(close);
   const ready = state.phase === 'ready';
   useEffect(() => {
@@ -258,11 +298,13 @@ const CommentsPanel = ({ post, api, close }) => {
       toEnd();
     }
   }, [ready]);
-  // Reply on a comment answers it; nothing else acts in the panel.
   const onAction = (action, message) => {
     if (action === 'reply') {
       sender.setReplyTo(message);
       input.current?.focus();
+    }
+    if (action === 'hideSender') {
+      hideMessageSender(message, notify);
     }
   };
   const older = () => load(networkMessageId(state.messages[0]));
@@ -325,7 +367,15 @@ const CommentsPanel = ({ post, api, close }) => {
               { key: 'start', className: 'comments-start' },
               t('chat.comments.start')
             ),
-            ...CommentList({ state, api, onAction, onOlder: older, t }),
+            ...CommentList({
+              state,
+              list,
+              api,
+              onAction,
+              onOlder: older,
+              t,
+              visibility,
+            }),
             el('div', { key: 'end', ref: end }),
           ]),
         ]),
@@ -339,13 +389,27 @@ const CommentsPanel = ({ post, api, close }) => {
  * The comments panel of the open chat: `{ open(message), dialog }`;
  * `dialog` is null while it is closed.
  */
-export const useComments = ({ api }) => {
+export const useComments = ({ api, visibility, notify }) => {
   const [post, setPost] = useState(null);
   const close = useCallback(() => setPost(null), []);
+  const hidden = visibility?.hides(post);
+  useEffect(() => {
+    if (hidden) {
+      close();
+    }
+  }, [hidden, close]);
   return {
     open: (message) => setPost(message),
-    dialog: post
-      ? el(CommentsPanel, { key: 'comments', post, api, close })
-      : null,
+    dialog:
+      post && !hidden
+        ? el(CommentsPanel, {
+            key: 'comments',
+            post,
+            api,
+            close,
+            visibility,
+            notify,
+          })
+        : null,
   };
 };

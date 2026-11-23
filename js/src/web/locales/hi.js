@@ -1,3 +1,5 @@
+import { hiSending } from './sending.js';
+import { hiCloud } from './cloud.js';
 import { hiQuestionMatching } from './hi-question-matching.js';
 import { questionFinalPeriodLocale } from './question-final-period.js';
 import { vkProviderJobsLocale } from './vk-provider-jobs.js';
@@ -23,6 +25,8 @@ import { hiBrowser } from './hi-browser.js';
 // every modern OS, but the <html lang="hi"> attribute (set by
 // applyLocale in i18n.js) is essential for screen readers and
 // font-fallback in the platform Chrome / Safari / Firefox.
+
+import { hiVisibility } from './hidden-senders.js';
 import { hiChat } from './hi-chat.js';
 import { hiChatMore } from './hi-chat-more.js';
 import { hiChatAccount } from './hi-chat-account.js';
@@ -88,12 +92,14 @@ export const hi = {
   'panels.chats': 'चैट सूची की चौड़ाई बदलें',
   'panels.details': 'विवरण की चौड़ाई बदलें',
   ...hiChat,
+  ...hiVisibility,
   ...hiChatMore,
   ...hiChatAccount,
   ...hiFolders,
   ...hiTranscribe,
   ...hiGithub,
   appName: 'meta-sovereign',
+  ...hiCloud,
   skipLink: 'मुख्य सामग्री पर जाएँ',
   'header.theme': 'थीम',
   'header.themeAria': 'डार्क मोड टॉगल करें',
@@ -479,13 +485,7 @@ export const hi = {
     '{networks} पर अपनी प्रोफ़ाइल अपडेट करें? वहाँ लोग बदलाव देखेंगे।',
   'profile.confirmPublish.resume':
     '{networks} पर अपना CV अपडेट करें? वहाँ नियोक्ता बदलाव देखेंगे।',
-  'settings.privacy.title': 'गोपनीयता',
-  'settings.shareTyping': 'दूसरों को दिखाएँ कि मैं टाइप कर रहा हूँ',
-  'settings.shareTypingHint':
-    'डिफ़ॉल्ट रूप से बंद। चालू होने पर VK और Telegram उस व्यक्ति को "टाइप कर रहे हैं…" दिखाते हैं जिसे आप लिख रहे हैं।',
-  'settings.readReceipts': 'चैट पढ़ने पर उसे पढ़ा हुआ चिह्नित करें',
-  'settings.readReceiptsHint':
-    'डिफ़ॉल्ट रूप से चालू, जैसे Telegram के अपने ऐप में। बंद होने पर यहाँ चैट पढ़ने से Telegram पर वह पढ़ी हुई नहीं मानी जाती: भेजने वाले को ✓✓ नहीं दिखता और अपठित गिनती बनी रहती है।',
+  ...hiSending,
   'settings.notify.title': 'सूचनाएँ',
   'settings.notify.on': 'नए संदेश सूचनाओं के रूप में दिखाएँ',
   'settings.notify.preview': 'भेजने वाला और पाठ दिखाएँ',

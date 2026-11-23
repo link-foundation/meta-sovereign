@@ -375,12 +375,9 @@ jobs:
         # Bun/Deno and desktop packaging still cover macOS ARM.
         include:
           - { os: macos-26, runtime: deno, shard: 1/8 }
-          - os: macos-26
-            runtime: deno
-            # Keep the Intel allocation fallback. Eight bounded partitions leave room
-            # for cold setup within the unchanged ten-minute job deadline.
-            runner: macos-26-intel
-            shard: 2/8
+          # These two halves replace 2/8, which hit the job deadline on Intel.
+          - { os: macos-26, runtime: deno, runner: macos-26-intel, shard: 3/16 }
+          - { os: macos-26, runtime: deno, runner: macos-26-intel, shard: 4/16 }
           - { os: macos-26, runtime: deno, shard: 3/8 }
           - { os: macos-26, runtime: deno, shard: 4/8 }
           - { os: macos-26, runtime: deno, shard: 5/8 }
@@ -1170,6 +1167,9 @@ jobs:
           path: ci-logs/runner-docker-*.log
           if-no-files-found: ignore
           retention-days: 7
+      - name: Verify hosted workspace isolation and persistence
+        if: runner.os == 'Linux'
+        run: bash docker/test-cloud-workspace.sh
 
   pipeline-status:
     concurrency:

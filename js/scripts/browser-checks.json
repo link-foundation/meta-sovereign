@@ -158,5 +158,8 @@
   "job-application-collection",
   "job-application-search-route",
   "job-application-vacancy-skips",
-  "job-application-vacancy-skip-preview"
+  "job-application-vacancy-skip-preview",
+  "cloud-workspace",
+  "continuation",
+  "hide-sender"
 ]

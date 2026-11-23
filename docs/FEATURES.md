@@ -75,6 +75,8 @@ Nothing is in progress now and nothing is parked.
 
 ## Sending and composing
 
+Public Telegram groups, forum topics and broadcast channels support an opt-in **Continue my last message in public chats** setting for eligible text sends in Chat and Operator. [R-Z37 and verification](case-studies/issue-75/solution-plan.md).
+
 | Feature                                                               | Status    | Access    | Requirements                | Notes / what is missing                                                                                                                                                                                                                                                                                                                              |
 | --------------------------------------------------------------------- | --------- | --------- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Sending text, exactly once                                            | Supported | API + Web | R-Y13, R-Y15, R-Y21, R-Y22  | Pending queue that survives reload, retries with back-off, flood-wait countdown, delivery ticks.                                                                                                                                                                                                                                                     |
