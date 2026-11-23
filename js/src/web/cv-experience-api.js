@@ -11,6 +11,19 @@ export const experienceReply = (value) => {
 };
 export const createExperienceApi = ({ get, report }) => ({
   ...Object.fromEntries(
+    ['start', 'status', 'stop', 'decide'].map((operation) => [
+      `cvHhWorkplace${operation[0].toUpperCase()}${operation.slice(1)}`,
+      async (input) => {
+        const route = `/api/cv/experience/hh-workplace-${operation}`;
+        return experienceReply(
+          await (operation === 'status'
+            ? get(`${route}?${new URLSearchParams(input)}`)
+            : report(route, input, { quiet: true }))
+        );
+      },
+    ])
+  ),
+  ...Object.fromEntries(
     ['start', 'status', 'stop'].map((operation) => [
       `cvHhAcquisition${operation[0].toUpperCase()}${operation.slice(1)}`,
       async (input) => {

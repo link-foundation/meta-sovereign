@@ -31,6 +31,7 @@ import { createLinkedinExperienceCommands } from './cv-linkedin-experience-comma
 import { createLinkedinPositionCommands } from './cv-linkedin-position-command.js';
 import { createExperienceCommands } from './cv-experience-commands.js';
 import { createHhExperienceCommands } from './cv-hh-experience-command.js';
+import { createHhExperienceWorkplaceCommands } from './cv-hh-experience-workplace-command.js';
 import { createExperiencePlanCommands } from './cv-experience-plan-command.js';
 import { createFormalReportCommands } from './cv-formal-report-command.js';
 
@@ -330,6 +331,10 @@ export const createCvCommands = ({
       ...createHhExperienceCommands(
         { openStore, openReadOnly },
         live.hhExperience
+      ),
+      ...createHhExperienceWorkplaceCommands(
+        { openStore, openReadOnly },
+        live.hhWorkplace
       ),
       ...createFormalReportCommands(
         { openStore, openReadOnly },

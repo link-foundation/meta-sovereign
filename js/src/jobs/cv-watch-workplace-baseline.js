@@ -11,12 +11,12 @@ import {
 export const missingWorkplaceBaseline = () =>
   jobsFailure('cv-record', 'The pre-Save workplace evidence is unavailable.');
 
-const captureWorkplaceBaseline = async ({
+export const captureWorkplaceBaseline = async ({
   session,
   store,
   initial,
   signal,
-  deadline,
+  deadline = globalThis.performance.now() + 30000,
   readExports,
   readIds = readCvSavedWorkplaceIds,
   readWorkplace = readCvSavedWorkplace,

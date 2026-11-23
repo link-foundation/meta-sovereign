@@ -50,11 +50,12 @@ const existingCvEndpoint = (saved, profileDir, targetId) => {
 };
 
 /** Connect only. An absent browser or exact tab is never replaced or launched. */
-export const attachCvWatchBrowser = async ({
+const connectExistingHhBrowser = async ({
   browserSlot,
   targetId,
   profileDir = defaultProfileDir('hh', browserName(browserSlot)),
   loadCommander = () => import('browser-commander'),
+  confirmUrl,
 }) => {
   const file = path.join(profileDir, '.browser-commander-session.json');
   const stat = await fs.lstat(file);
@@ -79,7 +80,20 @@ export const attachCvWatchBrowser = async ({
     timeout: 10000,
   });
   try {
-    cvWatchUrl(session.page.url());
+    confirmUrl(session.page.url());
+    return { bc, session };
+  } catch (error) {
+    await session.detach();
+    throw error;
+  }
+};
+
+export const attachCvWatchBrowser = async (input) => {
+  const { bc, session } = await connectExistingHhBrowser({
+    ...input,
+    confirmUrl: cvWatchUrl,
+  });
+  try {
     const commander = bc.makeBrowserCommander({
       page: session.page,
       enableNetworkTracking: false,
@@ -101,4 +115,17 @@ export const attachCvWatchBrowser = async ({
     await session.detach();
     throw error;
   }
+};
+
+export const attachHhExperienceCookieSource = async (input) => {
+  const { session } = await connectExistingHhBrowser({
+    ...input,
+    confirmUrl(value) {
+      const url = new URL(value);
+      if (url.origin !== 'https://hh.ru' || url.username || url.password) {
+        throw jobsFailure('cv-page', 'The source HH tab is unavailable.');
+      }
+    },
+  });
+  return { page: session.page, detach: () => session.detach() };
 };

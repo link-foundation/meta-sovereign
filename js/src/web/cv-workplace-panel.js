@@ -6,6 +6,7 @@ import {
 import { CvWorkplaceFields } from './cv-workplace-fields.js';
 import { PreparationReceipt } from './cv-prepare-panel.js';
 import { Busy } from './spinner.js';
+import { HhExperienceWorkplace } from './cv-experience-hh-workplace.js';
 import {
   cvWorkplaceValues,
   cvWorkplaceRecordId,
@@ -138,7 +139,29 @@ const Plan = ({ state, idle, ready, t }) => {
       ),
       plan.status === 'draft'
         ? button('approve', state.approve, !idle, t)
-        : button('prepare', state.prepare, !idle || !ready, t),
+        : [
+            state.native
+              ? el(HhExperienceWorkplace, {
+                  key: 'native',
+                  job: state.native,
+                  t,
+                })
+              : null,
+            button(
+              'prepare',
+              state.prepare,
+              !idle ||
+                !ready ||
+                Boolean(
+                  state.native?.active ||
+                  state.native?.unknown ||
+                  ['saved', 'unconfirmed', 'interrupted'].includes(
+                    state.native?.row?.phase
+                  )
+                ),
+              t
+            ),
+          ],
     ]
   );
 };
@@ -296,30 +319,33 @@ const ExperienceWorkplaceReview = ({ review, idle, ready, t }) => {
           {
             key: 'close',
             type: 'button',
-            disabled: !idle,
+            disabled:
+              !idle ||
+              Boolean(
+                review.native?.active ||
+                review.native?.unknown ||
+                review.native?.busy
+              ),
             onClick: review.dismiss,
           },
           t('experiencePlan.workplaceDismiss')
         ),
       ]),
+      review.loadError
+        ? el('div', { key: 'error', className: 'row wrap' }, [
+            el('p', { key: 'text', role: 'alert' }, t('cvWorkplace.loadError')),
+            button('reload', review.reload, !idle, t),
+          ])
+        : null,
+      !review.loadError && !review.plan
+        ? el(Busy, { key: 'load' }, t('common.loading'))
+        : null,
       !review.matchingSlot
         ? el(
             'p',
-            { key: 'slot', role: 'status' },
+            { key: 'slot', className: 'meta' },
             t('experiencePlan.workplaceSlot', { slot: review.browserSlot })
           )
-        : review.loadError
-          ? el('div', { key: 'error', className: 'row wrap' }, [
-              el(
-                'p',
-                { key: 'text', role: 'alert' },
-                t('cvWorkplace.loadError')
-              ),
-              button('reload', review.reload, !idle, t),
-            ])
-          : null,
-      review.matchingSlot && !review.loadError && !review.plan
-        ? el(Busy, { key: 'load' }, t('common.loading'))
         : null,
       ...(review.plan?.experience.unapplied ?? []).map((field) =>
         el(
@@ -334,7 +360,13 @@ const ExperienceWorkplaceReview = ({ review, idle, ready, t }) => {
           })
         )
       ),
-      el(Plan, { key: 'review', state: review, idle, ready, t }),
+      el(Plan, {
+        key: 'review',
+        state: review,
+        idle,
+        ready: ready && review.matchingSlot,
+        t,
+      }),
     ]
   );
 };

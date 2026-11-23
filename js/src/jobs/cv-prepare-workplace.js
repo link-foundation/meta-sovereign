@@ -26,6 +26,8 @@ export const prepareNativeCvWorkplace = async ({
   phase,
   readinessMs = 20000,
   settleMs = 750,
+  captureBaseline,
+  withPrepared,
 }) => {
   await openNativeCvWorkplace({ session, change, check, phase, readinessMs });
   if (change.plan) {
@@ -36,6 +38,8 @@ export const prepareNativeCvWorkplace = async ({
       phase,
       readinessMs,
       settleMs,
+      captureBaseline,
+      withPrepared,
     });
   }
   const { recordId, job } = change.workplace;

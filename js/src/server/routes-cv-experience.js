@@ -10,6 +10,7 @@ import {
 } from '../cv/experience-store.js';
 import { experienceFromHhExport } from '../cv/experience-hh.js';
 import { createHhExperienceAcquisition } from '../cv/experience-hh-acquisition.js';
+import { createHhExperienceWorkplaceJobs } from '../cv/experience-hh-workplace-job.js';
 import { createLinkedinExperienceService } from '../cv/linkedin-experience-service.js';
 import { createExperiencePlanningService } from '../cv/experience-plan-service.js';
 import { createLinkedinPositionReviews } from '../cv/linkedin-position-review.js';
@@ -40,6 +41,20 @@ const hhAcquisition = (store, ctx) => {
   return (ctx.cvHhAcquisition ??= createHhExperienceAcquisition({
     ...hhExportOptions(store, ctx),
     getVacancies: () => workspaceVacancies(store, ctx),
+  }));
+};
+
+const hhWorkplaceJobs = (store, ctx) => {
+  if (ctx.cvExperienceClosing) {
+    throw Object.assign(new Error('HeadHunter workplace review has stopped.'), {
+      code: 'cv-hh-workplace-stopped',
+      status: 503,
+    });
+  }
+  return (ctx.cvHhWorkplaceJobs ??= createHhExperienceWorkplaceJobs({
+    ...hhExportOptions(store, ctx),
+    storeDir: ctx.storeDir ?? defaultStoreDir(),
+    ...ctx.cvExperienceOptions?.hhWorkplace,
   }));
 };
 
@@ -120,6 +135,12 @@ const actions = {
       (store, input, ctx) => hhAcquisition(store, ctx)[operation](input),
     ])
   ),
+  ...Object.fromEntries(
+    ['start', 'status', 'stop', 'decide'].map((operation) => [
+      `hh-workplace-${operation}`,
+      (store, input, ctx) => hhWorkplaceJobs(store, ctx)[operation](input),
+    ])
+  ),
   compare: (store, input) => compareStoredExperience(store, input),
   'report-preview': (store, input) =>
     previewFormalExperienceReport(store, input),
@@ -162,6 +183,7 @@ const admission = (req, operation, ctx) => {
     'stored',
     'document',
     'hh-status',
+    'hh-workplace-status',
     'linkedin-status',
     'linkedin-evidence',
     'linkedin-position-stored',

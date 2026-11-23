@@ -1183,3 +1183,7 @@ and verify its new record ID after the owner saves it (issue #56).
 Capture pre-Save evidence when the owner opens a HeadHunter workplace form in
 the observed tab. Verify edits and same-URL Add using the form's own evidence.
 Retain previous snapshots while a CV export is stale (issue #56).
+
+Review approved HeadHunter experience changes in a separate browser profile.
+Save or discard the exact draft, leave it open, or recover an existing review
+after reconnecting without replaying a provider action (issue #56).

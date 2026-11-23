@@ -1,4 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { PrivateCvJobState } from './private-cv-job-state.js';
+import {
+  confirmedHhWorkplaceJob,
+  hhExperienceWorkplaceRunning,
+} from '../cv/experience-hh-workplace-receipt.js';
 
 const handoffKey = 'meta-sovereign:experience-workplace-review';
 const restoredHandoff = () => {
@@ -45,6 +50,53 @@ export const useExperienceWorkplaceHandoff = () => {
   return { handoff, select, dismiss: () => setHandoff(null) };
 };
 
+const useHhWorkplaceJob = (api, sourceSlot, fingerprint) => {
+  const controller = useRef(null);
+  const [snapshot, setSnapshot] = useState(null);
+  const available = typeof api?.cvHhWorkplaceStart === 'function';
+  useEffect(() => {
+    if (!available || !sourceSlot || !fingerprint) {
+      return;
+    }
+    const initial = { browserSlot: sourceSlot, fingerprint };
+    const job = new PrivateCvJobState(api, setSnapshot, {
+      initial,
+      fields: Object.keys(initial),
+      prefix: 'cvHhWorkplace',
+      pendingKey: `meta-sovereign:hh-experience-workplace:${fingerprint}`,
+      checked: (row, requestId) =>
+        confirmedHhWorkplaceJob(row, requestId, initial),
+      running: hhExperienceWorkplaceRunning,
+    });
+    controller.current = job;
+    setSnapshot(job.state);
+    if (job.state.attempted) {
+      void job.refresh();
+    }
+    return () => {
+      controller.current = null;
+      job.dispose();
+    };
+  }, [api, available, sourceSlot, fingerprint]);
+  if (!available || !fingerprint || snapshot?.fingerprint !== fingerprint) {
+    return null;
+  }
+  return {
+    ...snapshot,
+    active: hhExperienceWorkplaceRunning(snapshot.row),
+    start: () => controller.current?.mutate('Start'),
+    decide: (decision) =>
+      controller.current?.mutate('Decide', {
+        fingerprint,
+        browserSlot: sourceSlot,
+        decision,
+      }),
+    stop: () => controller.current?.mutate('Stop'),
+    refresh: () => controller.current?.refresh(),
+    reset: () => controller.current?.newRequest(),
+  };
+};
+
 export const useExperienceWorkplaceReview = ({
   api,
   browserSlot,
@@ -53,17 +105,23 @@ export const useExperienceWorkplaceReview = ({
   selection,
 }) => {
   const handoff = selection?.handoff;
-  const fingerprint =
-    handoff?.browserSlot === browserSlot ? handoff.fingerprint : null;
+  const sourceSlot = handoff?.browserSlot;
+  const fingerprint = handoff?.fingerprint;
   const [plan, setPlan] = useState(null);
   const [failed, setFailed] = useState(null);
   const [retry, setRetry] = useState(0);
+  const selectedPlan = fingerprint === plan?.fingerprint ? plan : null;
+  const native = useHhWorkplaceJob(
+    api,
+    sourceSlot,
+    selectedPlan?.status === 'reviewed' ? fingerprint : null
+  );
   useEffect(() => {
     let current = true;
     setFailed(null);
     if (fingerprint) {
       void api
-        .vacancyCvWorkplacePlanStored({ browserSlot, fingerprint })
+        .vacancyCvWorkplacePlanStored({ browserSlot: sourceSlot, fingerprint })
         .then(({ plan: confirmed }) => {
           if (
             current &&
@@ -84,21 +142,22 @@ export const useExperienceWorkplaceReview = ({
     return () => {
       current = false;
     };
-  }, [api, browserSlot, fingerprint, retry]);
+  }, [api, sourceSlot, fingerprint, retry]);
   if (!handoff) {
     return null;
   }
   return {
     browserSlot: handoff.browserSlot,
-    matchingSlot: Boolean(fingerprint),
-    plan: fingerprint === plan?.fingerprint ? plan : null,
+    matchingSlot: sourceSlot === browserSlot,
+    plan: selectedPlan,
+    native,
     loadError: Boolean(fingerprint && failed === fingerprint),
     reload: () => setRetry((value) => value + 1),
     dismiss: selection.dismiss,
     approve: () =>
       run('cv-workplace-review', async () => {
         const answer = await api.vacancyCvWorkplaceReview({
-          browserSlot,
+          browserSlot: sourceSlot,
           fingerprint,
         });
         selection.select(answer.plan);

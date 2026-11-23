@@ -199,7 +199,7 @@ const sameAreaNames = (before, after, entries) => {
   }
 };
 
-const jobFingerprint = (job) =>
+export const cvWorkplaceExportJobFingerprint = (job) =>
   createHash('sha256')
     .update(
       JSON.stringify([
@@ -239,7 +239,12 @@ export const cvWorkplaceExportBaseline = (exports, resumes) => {
     throw missingExportBaseline();
   }
   return confirmedCvWorkplaceExportBaseline(
-    new Map(exports.map((row) => [row.hash, row.cv.jobs.map(jobFingerprint)])),
+    new Map(
+      exports.map((row) => [
+        row.hash,
+        row.cv.jobs.map(cvWorkplaceExportJobFingerprint),
+      ])
+    ),
     resumes
   );
 };
@@ -263,7 +268,7 @@ export const cvWorkplaceMembershipBaseline = (saved, exports) => {
                     row.areaEntries
                   )
                 )
-                .map(jobFingerprint)
+                .map(cvWorkplaceExportJobFingerprint)
             : []
         );
         return [row.hash, { checked, jobs: jobs.get(row.hash), matching }];
@@ -282,7 +287,7 @@ const workplaceAddedToExport = (attempt, cv, checked, previous) => {
   }
   let added;
   for (const job of cv.cv.jobs) {
-    const key = jobFingerprint(job);
+    const key = cvWorkplaceExportJobFingerprint(job);
     const remaining = counts.get(key);
     if (remaining) {
       counts.set(key, remaining - 1);

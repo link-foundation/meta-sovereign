@@ -55,9 +55,7 @@ const currentSource = async (options, plan) => {
     await confirmCurrentExperienceWorkplaces(options, source);
   }
 };
-/** The exact original export is checked again immediately before browser admission. */
-export const cvWorkplacePreparationSource = async (options, input) => {
-  const { plan } = await storedCvWorkplacePlan(options.store, input);
+const preparationSourceForPlan = async (options, input, plan) => {
   if (
     !plan ||
     plan.status !== 'reviewed' ||
@@ -75,6 +73,29 @@ export const cvWorkplacePreparationSource = async (options, input) => {
     workplace: { recordId: plan.recordId, job: plan.source.job },
     plan,
   };
+};
+/** The exact original export is checked again immediately before browser admission. */
+export const cvWorkplacePreparationSource = async (options, input) => {
+  const { plan } = await storedCvWorkplacePlan(options.store, input);
+  return preparationSourceForPlan(options, input, plan);
+};
+
+export const hhExperienceWorkplacePreparationSource = async (
+  options,
+  input
+) => {
+  const { plan } = await storedCvWorkplacePlan(options.store, input);
+  if (!plan?.experience || ![undefined, 'add'].includes(plan.operation)) {
+    cvWorkplaceFail('conflict');
+  }
+  return preparationSourceForPlan(
+    options,
+    {
+      operation: plan.operation,
+      changeId: `${plan.source.identity.language}:workplace`,
+    },
+    plan
+  );
 };
 const propose = async (options, input, signal, derived = {}) => {
   const browserSlot = browserName(input.browserSlot ?? 'jobs');

@@ -100,6 +100,7 @@
 
 - [LinkedIn card text and About](linkedin-acquisition.md): bounded observed-card fallback, separately owned profile acquisition, original private evidence and native Chromium guard regressions. Live provider acceptance and native sync remain required.
 - [HeadHunter workplace review from a comparison](experience-hh-workplace-review.md): exact draft staging, explicit approval, native preparation and fresh synthetic export verification after an owner Save. Includes desktop and phone screenshots.
+- [Dedicated HeadHunter workplace reviewer](experience-hh-workplace-slot.md): isolated Experience profile, exact Save or Skip, preserved drafts and same-request phone recovery. Includes Chromium reproduction and screenshots.
 - [LinkedIn position review from a comparison](experience-linkedin-position-review.md) covers exact native evidence, separate approval, and Chromium form preparation with zero saves.
 - [HeadHunter acquisition from Experience](experience-hh-acquisition.md) covers verified cache reuse, explicit native refresh, a missing structured artifact and same-ID recovery on a phone.
 - [CV initial loading](cv-loading.md): deterministic slow-catalogue regression, disabled controls and shared loading state, with before/after browser captures.

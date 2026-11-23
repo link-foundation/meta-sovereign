@@ -293,6 +293,8 @@ const prepareFields = async (context, plan, locale) => {
 export const prepareNativeCvWorkplaceEdit = async ({
   readinessMs = 20000,
   settleMs = 750,
+  captureBaseline,
+  withPrepared,
   ...input
 }) => {
   const context = contextFor({ ...input, readinessMs, settleMs });
@@ -340,6 +342,8 @@ export const prepareNativeCvWorkplaceEdit = async ({
       before = await verifyBaseline(context, session, change);
       locale = before.locale;
     }
+    const baseline =
+      captureBaseline && (await captureBaseline(await context.rawForm()));
     await context.phase('preparing');
     await context.guard();
     if (plan.operation !== 'detach') {
@@ -350,7 +354,8 @@ export const prepareNativeCvWorkplaceEdit = async ({
     }
     await delay(settleMs);
     await context.guard();
-    const after = cvSaveAttempt(await context.rawForm());
+    const raw = await context.rawForm();
+    const after = cvSaveAttempt(raw);
     const wanted = cvWorkplacePlanJob(plan, 'desired', locale);
     if (
       after.recordId !== (before?.recordId ?? null) ||
@@ -360,6 +365,9 @@ export const prepareNativeCvWorkplaceEdit = async ({
       throw cvPrepareFailure('field');
     }
     traceCvWatch('workplace-fields-prepared', { state: 'prepared' });
+    if (withPrepared) {
+      return await withPrepared({ raw, after, anchor, baseline });
+    }
   } finally {
     await anchor.dispose();
   }

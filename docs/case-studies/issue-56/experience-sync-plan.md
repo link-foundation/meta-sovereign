@@ -57,7 +57,11 @@ The [HeadHunter workplace handoff](experience-hh-workplace-review.md) prepares
 one explicitly approved workplace from a completed directed plan. The CLI and
 both Lino encodings stage the same exact review. Chromium verifies the shared
 CV review, native preparation and an explicit owner Save with fresh synthetic
-exports. Interactive queue decisions remain required.
+exports. The [dedicated HeadHunter reviewer](experience-hh-workplace-slot.md)
+prepares one directed Add or update in a separate profile, reads the Jobs
+session without navigating it, and shares Save, Skip and Leave draft through
+CLI, Lino and the CV view. Hosted and authenticated confirmation of that path
+and interactive queue decisions remain required.
 The [LinkedIn position review](experience-linkedin-position-review.md) binds
 one Add or update to the acknowledged native export and a separate approval.
 The CLI and both Lino encodings can recover the exact private review. The

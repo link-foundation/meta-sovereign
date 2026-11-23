@@ -88,7 +88,7 @@ const descriptionHtml = (mode) => {
 /** Real DOM and commander navigation; provider traffic stays inside owned routes. */
 export const vacancyBrowserFixture = async (
   browser,
-  { exports, store = createMemoryStore() } = {}
+  { exports, store = createMemoryStore(), cv } = {}
 ) => {
   const navigationDelayMs = fixtureNavigationDelay();
   const records = [];
@@ -169,6 +169,7 @@ export const vacancyBrowserFixture = async (
     telegramAccount: false,
     log: null,
     automations: { scheduler: false },
+    cv,
     vacancies: {
       openSession,
       availability: async () => ({ available: true }),

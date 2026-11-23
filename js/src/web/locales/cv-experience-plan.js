@@ -50,7 +50,7 @@ const entries = {
     workplaceReview: 'Workplace review from experience plan',
     workplaceDismiss: 'Close review',
     workplaceSlot:
-      'Select the {slot} browser slot in Jobs to review and prepare this draft.',
+      'To prepare in the Jobs window, select browser slot {slot} in Jobs.',
     workplaceUnapplied: 'Review {field} separately in the experience plan.',
     text: 'Download plan as Lino',
     binary: 'Download plan as binary Lino',
@@ -120,7 +120,7 @@ const entries = {
     workplaceReview: 'Проверка места работы по плану опыта',
     workplaceDismiss: 'Закрыть проверку',
     workplaceSlot:
-      'Выберите в разделе вакансий слот браузера {slot}, чтобы проверить и подготовить черновик.',
+      'Для подготовки в окне вакансий выберите в разделе «Вакансии» слот браузера {slot}.',
     workplaceUnapplied:
       'Поле «{field}» остаётся в плане опыта для отдельной проверки.',
     text: 'Скачать план в Lino',
@@ -192,7 +192,7 @@ const entries = {
     workplaceReview: 'अनुभव योजना से कार्यस्थल की समीक्षा',
     workplaceDismiss: 'समीक्षा बंद करें',
     workplaceSlot:
-      'ड्राफ़्ट की समीक्षा और तैयारी के लिए नौकरियों में {slot} ब्राउज़र स्लॉट चुनें।',
+      'नौकरियों की विंडो में ड्राफ़्ट तैयार करने के लिए वहाँ {slot} ब्राउज़र स्लॉट चुनें।',
     workplaceUnapplied:
       '{field} अलग समीक्षा के लिए अनुभव योजना में रखा गया है।',
     text: 'योजना Lino में डाउनलोड करें',
@@ -255,7 +255,8 @@ const entries = {
     workplaceError: '无法确认工作经历草稿。计划和已输入的信息均已保留。',
     workplaceReview: '审核经历计划中的工作经历',
     workplaceDismiss: '关闭审核',
-    workplaceSlot: '请在职位页面选择 {slot} 浏览器槽位，以审核并准备此草稿。',
+    workplaceSlot:
+      '如需在职位窗口准备草稿，请在职位页面选中浏览器槽位 {slot}。',
     workplaceUnapplied: '“{field}”保留在经历计划中，供单独审核。',
     text: '下载 Lino 计划',
     binary: '下载二进制 Lino 计划',

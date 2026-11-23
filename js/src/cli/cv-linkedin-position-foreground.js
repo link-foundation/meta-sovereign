@@ -2,15 +2,24 @@ import { createInterface } from 'node:readline';
 import { linkedinPositionRunning } from '../cv/linkedin-position-job.js';
 import { foregroundPrivateCvJob } from './private-cv-job-command.js';
 
-export const foregroundLinkedinPosition = async (
+export const foregroundPositionReview = async (
   service,
   input,
-  { wait, stdin = process.stdin, notice = (text) => console.error(text) } = {}
+  {
+    running,
+    provider,
+    label = 'position',
+    awaitingLogin,
+    wait,
+    stdin = process.stdin,
+    notice = (text) => console.error(text),
+  }
 ) => {
   let reader;
   let action;
   let problem;
   let finished = false;
+  let shownLogin = false;
   const stop = () => service.stop({ requestId: input.requestId });
   const choose = (decision) => {
     if (action || finished) {
@@ -28,23 +37,27 @@ export const foregroundLinkedinPosition = async (
   };
   try {
     const row = await foregroundPrivateCvJob(service, input, {
-      running: linkedinPositionRunning,
+      running,
       wait,
       observe: (value) => {
+        if (value.phase === 'waiting-login' && awaitingLogin && !shownLogin) {
+          shownLogin = true;
+          notice(awaitingLogin);
+        }
         if (value.phase !== 'prepared' || reader) {
           return;
         }
         notice(
           value.canSave === false
-            ? 'Review the position in the LinkedIn window. Type s to Skip or q to leave the draft open.'
-            : 'Review the position in the LinkedIn window. Type y to Save, s to Skip, or q to leave the draft open.'
+            ? `Review the ${label} in the ${provider} window. Type s to Skip or q to leave the draft open.`
+            : `Review the ${label} in the ${provider} window. Type y to Save, s to Skip, or q to leave the draft open.`
         );
         if (value.preparedSkills?.length) {
           notice(`Prepared skills: ${value.preparedSkills.join(', ')}.`);
         }
         if (value.unresolvedSkills?.length) {
           notice(
-            `Review these skills in LinkedIn: ${value.unresolvedSkills.join(', ')}.`
+            `Review these skills in ${provider}: ${value.unresolvedSkills.join(', ')}.`
           );
         }
         if (value.preparedMedia) {
@@ -52,7 +65,7 @@ export const foregroundLinkedinPosition = async (
             `Prepared media: ${value.preparedMedia.title} (${value.preparedMedia.url}).`
           );
         }
-        if (value.unapplied.length) {
+        if (value.unapplied?.length) {
           notice(`Manual review required for ${value.unapplied.join(', ')}.`);
         }
         reader = createInterface({ input: stdin, terminal: false });
@@ -80,3 +93,10 @@ export const foregroundLinkedinPosition = async (
     await action;
   }
 };
+
+export const foregroundLinkedinPosition = (service, input, options = {}) =>
+  foregroundPositionReview(service, input, {
+    ...options,
+    provider: 'LinkedIn',
+    running: linkedinPositionRunning,
+  });

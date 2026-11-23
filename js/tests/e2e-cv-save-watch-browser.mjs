@@ -5,6 +5,7 @@ import { verifyCvWatchCreatedWorkplace } from './helpers/e2e-cv-created-workplac
 import { verifyCvWorkplaceFollowup } from './helpers/e2e-cv-workplace-followup.mjs';
 import { verifyCvWatchTransitions } from './helpers/e2e-cv-watch-transitions.mjs';
 import { verifyCvWorkplaceExperience } from './helpers/e2e-cv-workplace-experience.mjs';
+import { verifyHhWorkplaceJob } from './helpers/e2e-cv-hh-workplace-job.mjs';
 
 await runBrowserScenarios('cv-save-watch', [
   verifyCvSaveWatch,
@@ -13,4 +14,5 @@ await runBrowserScenarios('cv-save-watch', [
   verifyCvWorkplaceFollowup,
   verifyCvWatchTransitions,
   verifyCvWorkplaceExperience,
+  verifyHhWorkplaceJob,
 ]);

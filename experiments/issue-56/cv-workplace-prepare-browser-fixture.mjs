@@ -10,6 +10,8 @@ import { prepareNativeCvWorkplace } from '../../js/src/jobs/cv-prepare-workplace
 import { cvWorkplaceDictionaryRows } from './cv-workplace-fields-fixture.mjs';
 import { cvWorkplaceFollowupState } from './cv-workplace-followup-state.mjs';
 import { bilingualTechnologyCv } from './cv-technology-fixture.mjs';
+import { withHhExperienceBrowser } from '../../js/src/jobs/cv-experience-browser.js';
+import { verifyOwnerCvSave } from '../../js/src/jobs/cv-save-cycle.js';
 
 let bundle;
 const attachProvider = (provider, counters) => async () => {
@@ -38,6 +40,7 @@ export const cvWorkplacePrepareBrowserFixture = async (
     followupMode = false,
     addMode = false,
     singleTarget = false,
+    experienceMode = false,
   } = {}
 ) => {
   const changeId = 'en:jobs.0.description';
@@ -77,6 +80,9 @@ export const cvWorkplacePrepareBrowserFixture = async (
   const script = await bundle;
   const native = await browser.newContext();
   const provider = await native.newPage();
+  const jobs = experienceMode ? await browser.newContext() : null;
+  const cookieSource = await jobs?.newPage();
+  const sourceUrl = 'https://hh.ru/applicant/resumes';
   let options = {};
   let beforeRead;
   let app;
@@ -97,6 +103,7 @@ export const cvWorkplacePrepareBrowserFixture = async (
     fieldsMode,
     membershipMode: options.membershipMode ?? followupMode,
     captureSave: Boolean(followup),
+    discardConfirmation: experienceMode,
   });
   const html = (saved = false, screen, record) => {
     const value = {
@@ -106,7 +113,7 @@ export const cvWorkplacePrepareBrowserFixture = async (
         ? { screen, list: { allowAdd: copyMode || addMode, ...options.list } }
         : {}),
     };
-    return `<!doctype html><html lang="en"><head><style>body{font:17px system-ui;margin:24px;max-width:850px}textarea{display:block;width:95%;height:300px;margin:16px 0}input,button{margin:6px;padding:10px}label{display:block}</style></head><body><div id="root">${renderToString(React.createElement(screen ? NativeCvWorkplaceList : NativeCvWorkplace, value))}</div><script>globalThis.fixtureProps=${JSON.stringify(value).replaceAll('<', '\\u003c')};globalThis.fixtureDelay=${options.delay ?? 100};globalThis.fixtureInputs=0;globalThis.fixtureSaves=0;globalThis.fixturePickerSaves=0;globalThis.fixtureCancels=0;</script><script src="/fixture.js"></script></body></html>`;
+    return `<!doctype html><html lang="en"><head><style>body{font:17px system-ui;margin:24px;max-width:850px}textarea{display:block;width:95%;height:300px;margin:16px 0}input,button{margin:6px;padding:10px}label{display:block}</style></head><body>${experienceMode ? '<nav data-qa="mainmenu_applicantProfilePage">Fixture profile</nav>' : ''}<div id="root">${renderToString(React.createElement(screen ? NativeCvWorkplaceList : NativeCvWorkplace, value))}</div><script>globalThis.fixtureProps=${JSON.stringify(value).replaceAll('<', '\\u003c')};globalThis.fixtureDelay=${options.delay ?? 100};globalThis.fixtureInputs=0;globalThis.fixtureSaves=0;globalThis.fixturePickerSaves=0;globalThis.fixtureCancels=0;</script><script src="/fixture.js"></script></body></html>`;
   };
   await native.route('**/*', async (route) => {
     const url = new URL(route.request().url());
@@ -173,9 +180,68 @@ export const cvWorkplacePrepareBrowserFixture = async (
     });
   };
   try {
-    await open();
+    if (jobs) {
+      await jobs.route(sourceUrl, (route) =>
+        route.fulfill({
+          contentType: 'text/html',
+          body: '<nav data-qa="mainmenu_applicantProfilePage">Fixture Jobs profile</nav>',
+        })
+      );
+      await jobs.addCookies([
+        {
+          name: 'fixture-hh-session',
+          value: 'synthetic',
+          url: 'https://hh.ru/',
+        },
+        {
+          name: 'fixture-other-session',
+          value: 'synthetic',
+          url: 'https://example.test/',
+        },
+      ]);
+      await cookieSource.goto(sourceUrl);
+    } else {
+      await open();
+    }
     const attach = attachProvider(provider, counters);
+    const prepare = (input) =>
+      prepareNativeCvWorkplace({ ...input, readinessMs: 2000, settleMs: 50 });
     app = await vacancyBrowserFixture(browser, {
+      ...(experienceMode && {
+        cv: {
+          experience: {
+            hhWorkplace: {
+              storeDir: data.artifactRoot,
+              browser: (input) =>
+                withHhExperienceBrowser({
+                  ...input,
+                  open: (options) => {
+                    counters.experienceSlot = options.slot;
+                    counters.experienceProfile = options.profileDir;
+                    return attach();
+                  },
+                  attach: async ({ profileDir }) => {
+                    counters.sourceProfile = profileDir;
+                    return {
+                      page: cookieSource,
+                      detach: async () => {
+                        counters.sourceDetached =
+                          (counters.sourceDetached ?? 0) + 1;
+                      },
+                    };
+                  },
+                }),
+              prepare,
+              verify: (input) =>
+                verifyOwnerCvSave({
+                  ...input,
+                  pollMs: 100,
+                  verificationMs: 2500,
+                }),
+            },
+          },
+        },
+      }),
       exports: {
         service: () => ({
           artifactRoot: data.artifactRoot,
@@ -187,12 +253,7 @@ export const cvWorkplacePrepareBrowserFixture = async (
           }),
           cvPrepare: {
             attach,
-            prepare: (input) =>
-              prepareNativeCvWorkplace({
-                ...input,
-                readinessMs: 2000,
-                settleMs: 50,
-              }),
+            prepare,
           },
         }),
       },
@@ -204,6 +265,7 @@ export const cvWorkplacePrepareBrowserFixture = async (
       ...app,
       data,
       provider,
+      cookieSource,
       change,
       counters,
       followup,
@@ -214,12 +276,14 @@ export const cvWorkplacePrepareBrowserFixture = async (
       close: async () => {
         await app.close();
         await native.close();
+        await jobs?.close();
         await data.close();
       },
     };
   } catch (error) {
     await app?.close();
     await native.close();
+    await jobs?.close();
     await data.close();
     throw error;
   }

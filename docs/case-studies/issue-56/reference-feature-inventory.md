@@ -67,7 +67,9 @@ view. Chromium exercises approval, native prefill and explicit owner Save with
 fresh synthetic export verification. The [LinkedIn position handoff](experience-linkedin-position-review.md)
 also prepares exact skills and website media in a separately approved native
 draft. Synthetic coverage includes replacing a company-named title on the exact
-existing URL. HH21 stays unchecked pending complete acquisition, queue decisions
+existing URL. The [dedicated HeadHunter reviewer](experience-hh-workplace-slot.md)
+exercises isolated profile preparation and explicit decisions in a synthetic
+native editor. HH21 stays unchecked pending complete acquisition, queue decisions
 and authenticated provider verification.
 
 Partial HH10 extension: [application-owned chat review](application-chats.md) adds an explicit actual child, separate persistent chat slot, 120 minute default interval, independent held review and awaited Stop/completion/expiry/shutdown. Focused runtime, native Chromium and independent MCP evidence is retained. Exact-head hosted verification and full reference/provider parity remain required; all 60 rows stay unchecked.
