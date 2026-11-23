@@ -87,6 +87,8 @@ const preparedResult = (raw, input) => {
   if (
     !validReceipt(raw) ||
     !states.includes(raw.state) ||
+    (raw.operation !== undefined &&
+      (raw.operation !== 'copy' || options.reviewKind !== 'workplace')) ||
     !['ru', 'en'].includes(raw.language) ||
     !raw.changeId.startsWith(`${raw.language}:`) ||
     (raw.code !== null && !/^jobs-[a-z\d-]+$/u.test(raw.code))
@@ -109,6 +111,7 @@ const preparedResult = (raw, input) => {
   return {
     preparation: {
       ...options,
+      ...(raw.operation === 'copy' ? { operation: raw.operation } : {}),
       version: 1,
       hash: preparationHash(raw),
       language: raw.language,

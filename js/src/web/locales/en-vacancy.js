@@ -346,6 +346,11 @@ export const enVacancy = {
   'cvWorkplace.loadError': 'The saved workplace review could not be loaded.',
   'cvWorkplace.operation': 'Workplace operation',
   'cvWorkplace.update': 'Edit workplace fields',
+  'cvWorkplace.copy': 'Copy a shared workplace',
+  'cvWorkplace.copyHint':
+    'Prepare a new workplace for this CV. Start the Save watch before saving in HeadHunter. Verify the new record before separately reviewing deselection of the original.',
+  'cvWorkplace.copySelection': 'Selection on the new workplace',
+  'cvWorkplace.originalRecord': 'Original workplace record ID',
   'cvWorkplace.detach': 'Deselect from this CV',
   'cvWorkplace.loadMembership': 'Read saved CV membership',
   'cvWorkplace.resumes': 'CV selection',

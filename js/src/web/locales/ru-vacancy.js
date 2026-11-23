@@ -360,6 +360,11 @@ export const ruVacancy = {
   'cvWorkplace.operation': 'Действие с местом работы',
   'cvWorkplace.update': 'Изменить поля места работы',
   'cvWorkplace.detach': 'Убрать из этого резюме',
+  'cvWorkplace.copy': 'Скопировать общее место работы',
+  'cvWorkplace.copyHint':
+    'Подготовьте новое место работы для этого резюме. Запустите наблюдение перед сохранением в HeadHunter. Проверьте новую запись перед отдельной проверкой исключения исходной записи.',
+  'cvWorkplace.copySelection': 'Выбор в новой записи о месте работы',
+  'cvWorkplace.originalRecord': 'ID исходной записи о месте работы',
   'cvWorkplace.loadMembership': 'Прочитать сохранённый выбор резюме',
   'cvWorkplace.resumes': 'Выбор резюме',
   'cvWorkplace.detachHint':

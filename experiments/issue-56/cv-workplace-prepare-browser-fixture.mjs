@@ -30,7 +30,7 @@ const attachProvider = (provider, counters) => async () => {
 
 export const cvWorkplacePrepareBrowserFixture = async (
   browser,
-  { fieldsMode = false } = {}
+  { fieldsMode = false, copyMode = false } = {}
 ) => {
   const data = await cvPrepareFixture({ selected: ['en:jobs.0.description'] });
   const change = data.review.report.changes.find(
@@ -76,7 +76,9 @@ export const cvWorkplacePrepareBrowserFixture = async (
   const html = (saved = false, screen) => {
     const value = {
       ...props(saved),
-      ...(screen ? { screen, list: options.list } : {}),
+      ...(screen
+        ? { screen, list: { allowAdd: copyMode, ...options.list } }
+        : {}),
     };
     return `<!doctype html><html lang="en"><head><style>body{font:17px system-ui;margin:24px;max-width:850px}textarea{display:block;width:95%;height:300px;margin:16px 0}input,button{margin:6px;padding:10px}label{display:block}</style></head><body><div id="root">${renderToString(React.createElement(screen ? NativeCvWorkplaceList : NativeCvWorkplace, value))}</div><script>globalThis.fixtureProps=${JSON.stringify(value).replaceAll('<', '\\u003c')};globalThis.fixtureDelay=${options.delay ?? 100};globalThis.fixtureInputs=0;globalThis.fixtureSaves=0;globalThis.fixturePickerSaves=0;globalThis.fixtureCancels=0;</script><script src="/fixture.js"></script></body></html>`;
   };

@@ -173,6 +173,7 @@ export const VACANCY_HELP = `${APPLICATION_HELP}
   vacancies-cv-workplace-source --export-id=<id> --resume=<hash> [--job-index=0] [--browser-slot=jobs] [--store=<dir>]
   vacancies-cv-workplace-dictionaries [--store=<dir>]
   vacancies-cv-workplace-plan --export-id=<id> --resume=<hash> --job-index=<index> --record-id=<existing-id> --file=<fields.json|fields.lino|fields.bin> [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-workplace-plan --operation=copy --export-id=<id> --resume=<hash> --job-index=<index> --record-id=<source-id> --file=<copy.json|copy.lino|copy.bin> [--browser-slot=jobs] [--store=<dir>]
   vacancies-cv-workplace-plan --operation=detach --export-id=<id> --resume=<hash> --job-index=<index> --record-id=<existing-id> --file=<reviewed-membership.json|.lino|.bin> [--browser-slot=jobs] [--store=<dir>]
   vacancies-cv-workplace-plan-stored [--fingerprint=<plan-fingerprint>] [--browser-slot=jobs] [--store=<dir>]
   vacancies-cv-workplace-review --fingerprint=<plan-fingerprint> [--browser-slot=jobs] [--store=<dir>]

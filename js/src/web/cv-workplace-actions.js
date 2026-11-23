@@ -1,5 +1,6 @@
 import { cvAreaIdentity } from '../jobs/cv-workplace-dictionaries.js';
 import { cvWorkplaceJobValues } from '../jobs/cv-workplace-plan.js';
+import { cvWorkplaceUsesMembership } from '../jobs/cv-workplace-membership.js';
 
 export const createCvWorkplaceActions = ({
   api,
@@ -45,6 +46,7 @@ export const createCvWorkplaceActions = ({
         hash: source.identity.hash,
         jobIndex: source.jobIndex,
         recordId,
+        ...(operation === 'copy' ? { operation } : {}),
       });
       if (current === generation.current && read === revision.current) {
         setMembership(answer.membership);
@@ -116,7 +118,7 @@ export const createCvWorkplaceActions = ({
           jobIndex: source.jobIndex,
           recordId,
           fields: operation === 'detach' ? {} : fields,
-          ...(operation === 'detach'
+          ...(cvWorkplaceUsesMembership(operation)
             ? { operation, resumes: membership.resumes }
             : {}),
         }),

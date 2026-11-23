@@ -21,8 +21,9 @@ export const NativeCvWorkplace = ({
   maxLength = 24000,
   fieldsMode = false,
   membershipMode = false,
+  newWorkplace = false,
 }) => {
-  const [targetChecked, setTargetChecked] = useState(true);
+  const [targetChecked, setTargetChecked] = useState(!newWorkplace);
   const [description, setDescription] = useState(job.description);
   const [company, setCompany] = useState(job.company);
   const [checked, setChecked] = useState(shared);
@@ -38,7 +39,13 @@ export const NativeCvWorkplace = ({
     globalThis.location.href = `/resume/${hash}`;
   };
   return el('main', null, [
-    el('h1', { key: 'title' }, 'Existing workplace · owner Save'),
+    el(
+      'h1',
+      { key: 'title' },
+      newWorkplace
+        ? 'New workplace · owner Save'
+        : 'Existing workplace · owner Save'
+    ),
     el('input', {
       key: 'company',
       name: 'company',
@@ -85,32 +92,34 @@ export const NativeCvWorkplace = ({
             readOnly: true,
           }),
         ]),
-    el(React.Fragment, { key: 'metadata' }, [
-      fieldsMode
-        ? el(NativeArea, { key: 'area', value: area, update: setArea })
-        : field('resume-editor-experience-area-input', job.area),
-      el('input', {
-        key: 'website',
-        'data-qa': 'resume-editor-experience-company-url-input',
-        value: website,
-        readOnly: !fieldsMode,
-        onChange: (event) => setWebsite(event.target.value),
-      }),
-      fieldsMode
-        ? el(NativeIndustries, {
-            key: 'industry',
-            values: industryIds,
-            update: setIndustryIds,
-          })
-        : el('div', { key: 'industry', 'data-qa': 'trigger-root' }, [
-            el('label', { key: 'label' }, 'Field of activity'),
-            el(
-              'span',
-              { key: 'values', 'data-qa': 'trigger-values-wrapper' },
-              job.industries.map((row) => row.name).join(', ')
-            ),
-          ]),
-    ]),
+    !newWorkplace || company.trim()
+      ? el(React.Fragment, { key: 'metadata' }, [
+          fieldsMode
+            ? el(NativeArea, { key: 'area', value: area, update: setArea })
+            : field('resume-editor-experience-area-input', job.area),
+          el('input', {
+            key: 'website',
+            'data-qa': 'resume-editor-experience-company-url-input',
+            value: website,
+            readOnly: !fieldsMode,
+            onChange: (event) => setWebsite(event.target.value),
+          }),
+          fieldsMode
+            ? el(NativeIndustries, {
+                key: 'industry',
+                values: industryIds,
+                update: setIndustryIds,
+              })
+            : el('div', { key: 'industry', 'data-qa': 'trigger-root' }, [
+                el('label', { key: 'label' }, 'Field of activity'),
+                el(
+                  'span',
+                  { key: 'values', 'data-qa': 'trigger-values-wrapper' },
+                  job.industries.map((row) => row.name).join(', ')
+                ),
+              ]),
+        ])
+      : null,
     el('label', { key: 'cv' }, [
       el('input', {
         key: 'checkbox',

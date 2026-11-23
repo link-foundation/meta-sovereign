@@ -1,7 +1,11 @@
 import { attachCvWatchBrowser } from './cv-watch-browser.js';
 import { inspectNativeCvWorkplace } from './cv-workplace-edit-native.js';
+import { readCvSavedWorkplace } from './cv-workplace-readback.js';
 import { cvWorkplaceMatchesJob } from './cv-watch-verification.js';
-import { cvWorkplaceMembership } from './cv-workplace-membership.js';
+import {
+  cvWorkplaceMembership,
+  cvWorkplaceUsesMembership,
+} from './cv-workplace-membership.js';
 import { browserName } from '../browser/policy.js';
 import { modelFingerprint } from '../automation/answer-model-context.js';
 import { verifiedTechnologyCv } from './technology-cv.js';
@@ -65,8 +69,13 @@ const propose = async (options, input, signal) => {
     !Number.isInteger(input.jobIndex) ||
     input.jobIndex < 0 ||
     input.jobIndex > 199 ||
+    (input.operation !== undefined &&
+      !cvWorkplaceUsesMembership(input.operation)) ||
     !input.fields ||
-    Object.keys(input.fields).some((key) => !cvWorkplaceFields.includes(key))
+    typeof input.fields !== 'object' ||
+    Array.isArray(input.fields) ||
+    Object.keys(input.fields).some((key) => !cvWorkplaceFields.includes(key)) ||
+    (input.operation === 'detach' && Object.keys(input.fields).length)
   ) {
     cvWorkplaceFail('options');
   }
@@ -83,12 +92,6 @@ const propose = async (options, input, signal) => {
     job,
     cvAreaIdentity(job.area, dictionaries)
   );
-  if (input.operation !== undefined && input.operation !== 'detach') {
-    cvWorkplaceFail('options');
-  }
-  if (input.operation === 'detach' && Object.keys(input.fields).length) {
-    cvWorkplaceFail('options');
-  }
   const desired = cvWorkplaceValues({ ...baseline, ...input.fields });
   const metadata = Object.fromEntries(
     [
@@ -109,12 +112,13 @@ const propose = async (options, input, signal) => {
     baseline,
     desired,
     metadata,
-    ...(input.operation === 'detach'
+    ...(input.operation
       ? {
-          operation: 'detach',
+          operation: input.operation,
           membership: cvWorkplaceMembership(
             input.resumes,
-            source.identity.hash
+            source.identity.hash,
+            input.operation
           ),
         }
       : {}),
@@ -159,12 +163,16 @@ const inspectMembership = async ({ options, input, signal, attach }) => {
       browserSlot: source.identity.browserSlot,
       targetId: input.targetId,
     });
-    const form = await inspectNativeCvWorkplace({
-      session,
-      recordId,
-      hash: source.identity.hash,
-      check: () => signal.throwIfAborted(),
-    });
+    const check = () => signal.throwIfAborted();
+    const form =
+      input.operation === 'copy'
+        ? await readCvSavedWorkplace({ session, attempt: { recordId }, check })
+        : await inspectNativeCvWorkplace({
+            session,
+            recordId,
+            hash: source.identity.hash,
+            check,
+          });
     if (
       !cvWorkplaceMatchesJob(
         form,

@@ -4,10 +4,18 @@ const cvWorkplaceFail = (code) => {
   throw cvPrepareFailure(code);
 };
 
-/** A deselection preserves the record and every other CV, including unchecked rows. */
-export const cvWorkplaceMembership = (rows, hash) => {
+export const cvWorkplaceUsesMembership = (operation) =>
+  operation === 'copy' || operation === 'detach';
+
+/** Use the complete shared roster for either the original or its target-only copy. */
+export const cvWorkplaceMembership = (rows, hash, operation = 'detach') => {
   resumeHash(hash);
-  if (!Array.isArray(rows) || !rows.length || rows.length > 100) {
+  if (
+    !cvWorkplaceUsesMembership(operation) ||
+    !Array.isArray(rows) ||
+    !rows.length ||
+    rows.length > 100
+  ) {
     cvWorkplaceFail('membership');
   }
   const before = rows
@@ -28,9 +36,13 @@ export const cvWorkplaceMembership = (rows, hash) => {
   }
   return {
     before,
-    after: before.map((row) =>
-      row.hash === hash ? { ...row, checked: false } : row
-    ),
+    after: before.map((row) => ({
+      hash: row.hash,
+      checked:
+        operation === 'copy'
+          ? row.hash === hash
+          : row.hash !== hash && row.checked,
+    })),
   };
 };
 

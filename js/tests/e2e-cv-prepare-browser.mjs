@@ -5,6 +5,7 @@ import { verifyCvPreparationCancellation } from './helpers/e2e-cv-prepare-cancel
 import { verifyCvWorkplaceMembership } from './helpers/e2e-cv-workplace-membership.mjs';
 import { verifyCvWorkplaceFields } from './helpers/e2e-cv-workplace-fields.mjs';
 import { verifyCvWorkplaceOpening } from './helpers/e2e-cv-workplace-open.mjs';
+import { verifyCvWorkplaceCopy } from './helpers/e2e-cv-workplace-copy.mjs';
 
 await runBrowserScenarios('cv-prepare', [
   verifyCvPreparation,
@@ -13,4 +14,5 @@ await runBrowserScenarios('cv-prepare', [
   verifyCvWorkplaceFields,
   verifyCvWorkplaceMembership,
   verifyCvWorkplaceOpening,
+  verifyCvWorkplaceCopy,
 ]);

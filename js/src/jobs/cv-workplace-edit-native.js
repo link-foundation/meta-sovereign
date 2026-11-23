@@ -35,17 +35,21 @@ const contextFor = ({
   settleMs,
 }) => {
   const page = session.page;
-  const recordId = change.workplace.recordId;
-  const read = async () => {
+  const copy = change.plan?.operation === 'copy';
+  const recordId = copy ? null : change.workplace.recordId;
+  const checkPage = () => {
     check();
     if (!cvWorkplaceEditorUrl(page.url(), recordId, change.hash)) {
       throw cvPrepareFailure('page');
     }
+  };
+  const read = async () => {
+    checkPage();
     const state = await session.commander.evaluate({
       fn: readCvWorkplaceControls,
       args: [cvWorkplaceSelectors],
     });
-    check();
+    checkPage();
     if (state.foreign) {
       throw cvPrepareFailure('draft');
     }
@@ -56,17 +60,19 @@ const contextFor = ({
     check,
     phase,
     settleMs,
+    copy,
     read,
-    form: async () => {
+    rawForm: async () => {
+      checkPage();
       const raw = await session.commander.evaluate({
         fn: readCvEditorDocument,
         args: [],
       });
-      check();
+      checkPage();
       if (raw?.kind !== 'workplace' || raw.recordId !== recordId) {
         throw cvPrepareFailure('draft');
       }
-      return cvSaveAttempt(raw);
+      return raw;
     },
     wait: async (accept) => {
       const deadline = Date.now() + readinessMs;
@@ -81,6 +87,7 @@ const contextFor = ({
     },
   };
 };
+const blankMetadata = ['website', 'area', 'industryText'];
 const installGuard = (context, anchor) => {
   context.guard = async (
     expected = context.expected,
@@ -88,6 +95,14 @@ const installGuard = (context, anchor) => {
     picker = false
   ) => {
     state ??= await context.read();
+    if (context.copy) {
+      for (const key of blankMetadata) {
+        if (expected[key] === null && state.fields[key] === '') {
+          expected[key] = '';
+          context.expected[key] = '';
+        }
+      }
+    }
     if (
       state.foreign ||
       state.dialogs !== (picker ? 1 : 0) ||
@@ -105,8 +120,15 @@ const installGuard = (context, anchor) => {
     return state;
   };
 };
+const textControls = (state, keys) =>
+  keys.every(
+    (key) =>
+      state.controls[key].writable &&
+      state.controls[key].controlled &&
+      state.controls[key].value === state.fields[key]
+  );
 const readyControls = (state) =>
-  [
+  textControls(state, [
     'company',
     'position',
     'description',
@@ -114,16 +136,11 @@ const readyControls = (state) =>
     'startYear',
     'current',
     ...(state.fields.current ? [] : ['endYear']),
-  ].every(
-    (key) =>
-      state.controls[key].writable &&
-      state.controls[key].controlled &&
-      state.controls[key].value === state.fields[key]
-  ) &&
+  ]) &&
   state.fields.area !== null &&
   state.fields.industryText !== null;
 const verifyBaseline = async (context, session, change) => {
-  const before = await context.form();
+  const before = cvSaveAttempt(await context.rawForm());
   const selected = before.resumes.filter((row) => row.checked);
   if (
     change.plan.operation === 'detach'
@@ -162,12 +179,63 @@ const verifyBaseline = async (context, session, change) => {
   await context.guard();
   return before;
 };
+const verifyCopySource = async (context, session, change) => {
+  const saved = await readCvSavedWorkplace({
+    session,
+    attempt: change.workplace,
+    check: context.check,
+  });
+  const plan = change.plan;
+  const expected = cvWorkplacePlanJob(plan, 'baseline', saved.locale);
+  if (
+    saved.recordId !== plan.recordId ||
+    !sameCvMembership(saved.resumes, plan.membership.before) ||
+    !cvWorkplaceMatchesJob(saved, expected, expected.industries)
+  ) {
+    throw cvPrepareFailure('baseline');
+  }
+  const form = await context.rawForm();
+  await context.guard();
+  return /^ru\b/iu.test(form.locale ?? '') ? 'ru' : 'en';
+};
+const blankCopyForm = (state, plan) => {
+  const { fields } = state;
+  const { after } = plan.membership;
+  return (
+    ['company', 'position', 'description', 'startYear', 'endYear'].every(
+      (key) => fields[key] === ''
+    ) &&
+    [fields.startMonth, fields.endMonth].every(
+      (value) => value === null || /^(?:month|месяц)?$/iu.test(value)
+    ) &&
+    blankMetadata.every((key) => fields[key] === null || fields[key] === '') &&
+    fields.current === false &&
+    (sameCvMembership(fields.resumes, after) ||
+      sameCvMembership(
+        fields.resumes,
+        after.map((row) => ({ ...row, checked: false }))
+      ))
+  );
+};
 const prepareFields = async (context, plan, locale) => {
   const wanted = plan.desired;
-  for (const key of ['company', 'position', 'description', 'website']) {
+  const baseline = context.copy
+    ? { start: null, end: null, areaId: null, industryIds: [] }
+    : plan.baseline;
+  for (const key of ['company', 'position', 'description']) {
     if (wanted[key] !== context.expected[key]) {
       await typeCvWorkplaceField({ context, key, value: wanted[key] });
     }
+  }
+  if (context.copy) {
+    await context.wait(async () => readyControls(await context.guard()));
+  }
+  if (wanted.website !== context.expected.website) {
+    await typeCvWorkplaceField({
+      context,
+      key: 'website',
+      value: wanted.website,
+    });
   }
   if (wanted.current !== context.expected.current) {
     await toggleCvWorkplaceCurrent(context, wanted.current);
@@ -181,12 +249,12 @@ const prepareFields = async (context, plan, locale) => {
         value: date.slice(0, 4),
       });
     }
-    const original = plan.baseline[part];
+    const original = baseline[part];
     if (!original || original.slice(5) !== date.slice(5)) {
       await chooseCvWorkplaceMonth(context, part, date);
     }
   }
-  if (wanted.areaId !== plan.baseline.areaId) {
+  if (wanted.areaId !== baseline.areaId) {
     await chooseCvWorkplaceArea(
       context,
       plan.metadata.areas.find((row) => row.id === wanted.areaId),
@@ -194,22 +262,36 @@ const prepareFields = async (context, plan, locale) => {
     );
   }
   if (
-    JSON.stringify(wanted.industryIds) !==
-    JSON.stringify(plan.baseline.industryIds)
+    JSON.stringify(wanted.industryIds) !== JSON.stringify(baseline.industryIds)
   ) {
     await chooseCvWorkplaceIndustries(context, plan, locale);
   }
 };
-/** Complete reviewed existing-record draft. Never navigate, save, cancel or edit a shared job. */
+/** Prepare the reviewed fields in an existing editor or a new native copy. */
 export const prepareNativeCvWorkplaceEdit = async ({
   readinessMs = 20000,
   settleMs = 750,
   ...input
 }) => {
   const context = contextFor({ ...input, readinessMs, settleMs });
+  const { change, session } = input;
+  const { plan } = change;
   await context.wait(async () => {
     const state = await context.read();
-    return state.ready && !state.dialogs && readyControls(state);
+    const ready = context.copy
+      ? textControls(state, [
+          'company',
+          'position',
+          'description',
+          'startYear',
+          'endYear',
+          'current',
+        ])
+      : readyControls(state);
+    if (ready && context.copy && !blankCopyForm(state, plan)) {
+      throw cvPrepareFailure('draft');
+    }
+    return state.ready && !state.dialogs && ready;
   });
   const anchor = await context.page
     .locator(cvWorkplaceSelectors.company)
@@ -218,32 +300,34 @@ export const prepareNativeCvWorkplaceEdit = async ({
     throw cvPrepareFailure('draft');
   }
   try {
-    context.expected = (await context.read()).fields;
+    const state = await context.read();
+    if (context.copy && !blankCopyForm(state, plan)) {
+      throw cvPrepareFailure('draft');
+    }
+    context.expected = state.fields;
     installGuard(context, anchor);
-    const before = await verifyBaseline(context, input.session, input.change);
+    const before = context.copy
+      ? null
+      : await verifyBaseline(context, session, change);
+    const locale =
+      before?.locale ?? (await verifyCopySource(context, session, change));
     await context.phase('preparing');
     await context.guard();
-    if (input.change.plan.operation === 'detach') {
-      await prepareCvWorkplaceMembership(context, input.change.plan);
-    } else {
-      await prepareFields(context, input.change.plan, before.locale);
+    if (plan.operation !== 'detach') {
+      await prepareFields(context, plan, locale);
+    }
+    if (plan.membership) {
+      await prepareCvWorkplaceMembership(context, plan);
     }
     await delay(settleMs);
     await context.guard();
-    const after = await context.form();
-    const wanted = cvWorkplacePlanJob(
-      input.change.plan,
-      'desired',
-      before.locale
-    );
+    const after = cvSaveAttempt(await context.rawForm());
+    const wanted = cvWorkplacePlanJob(plan, 'desired', locale);
     if (
-      !sameCvWorkplace(
-        {
-          ...before,
-          ...after,
-          resumes: input.change.plan.membership?.after ?? before.resumes,
-        },
-        after
+      after.recordId !== (before?.recordId ?? null) ||
+      !sameCvMembership(
+        plan.membership?.after ?? before.resumes,
+        after.resumes
       ) ||
       !cvWorkplaceMatchesJob(after, wanted, wanted.industries)
     ) {
@@ -273,7 +357,7 @@ export const inspectNativeCvWorkplace = async ({
     const state = await context.read();
     return state.ready && !state.dialogs && readyControls(state);
   });
-  const before = await context.form();
+  const before = cvSaveAttempt(await context.rawForm());
   const controls = await context.read();
   const saved = await readCvSavedWorkplace({ session, attempt: before, check });
   if (
@@ -288,7 +372,8 @@ export const inspectNativeCvWorkplace = async ({
     ].some((key) => before[key] !== saved[key]) ||
     JSON.stringify(controls.fields) !==
       JSON.stringify((await context.read()).fields) ||
-    JSON.stringify(before) !== JSON.stringify(await context.form())
+    JSON.stringify(before) !==
+      JSON.stringify(cvSaveAttempt(await context.rawForm()))
   ) {
     throw cvPrepareFailure('baseline');
   }

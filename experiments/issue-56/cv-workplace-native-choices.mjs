@@ -8,7 +8,7 @@ const months = Array.from({ length: 12 }, (_, month) =>
 
 export const NativeMonth = ({ part, date, update }) => {
   const [open, setOpen] = useState(false);
-  const value = months[Number(date.slice(5)) - 1];
+  const value = months[Number(date.slice(5)) - 1] ?? 'Month';
   return el(
     'div',
     { 'data-qa': `resume-editor-experience-${part}-month-input` },
@@ -35,7 +35,7 @@ export const NativeMonth = ({ part, date, update }) => {
                   role: 'option',
                   onClick: () => {
                     update(
-                      `${date.slice(0, 4)}-${String(index + 1).padStart(2, '0')}`
+                      `${date.slice(0, 4) || '0000'}-${String(index + 1).padStart(2, '0')}`
                     );
                     setOpen(false);
                   },
@@ -55,6 +55,7 @@ export const NativeArea = ({ value, update }) => {
     'div',
     {
       'data-qa': 'resume-editor-experience-area-input',
+      style: { minHeight: '1em' },
       onClick: () => setOpen(true),
     },
     [

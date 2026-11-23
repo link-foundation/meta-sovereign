@@ -345,6 +345,11 @@ export const hiVacancy = {
   'cvWorkplace.operation': 'कार्यस्थल की कार्रवाई',
   'cvWorkplace.update': 'कार्यस्थल के फ़ील्ड बदलें',
   'cvWorkplace.detach': 'इस बायोडाटा से चयन हटाएँ',
+  'cvWorkplace.copy': 'साझा कार्यस्थल की प्रतिलिपि बनाएँ',
+  'cvWorkplace.copyHint':
+    'इस बायोडाटा के लिए नया कार्यस्थल तैयार करें। HeadHunter में सहेजने से पहले सहेजने की निगरानी शुरू करें। नया रिकॉर्ड सत्यापित करें, फिर मूल रिकॉर्ड का चयन हटाने की अलग से समीक्षा करें।',
+  'cvWorkplace.copySelection': 'नए कार्यस्थल में बायोडाटा का चयन',
+  'cvWorkplace.originalRecord': 'मूल कार्यस्थल रिकॉर्ड का ID',
   'cvWorkplace.loadMembership': 'सहेजा गया बायोडाटा चयन पढ़ें',
   'cvWorkplace.resumes': 'बायोडाटा का चयन',
   'cvWorkplace.detachHint':

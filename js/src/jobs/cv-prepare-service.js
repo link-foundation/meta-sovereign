@@ -169,7 +169,11 @@ export const createCvPrepareService = ({
             { store, artifactRoot },
             options
           );
-          record = { ...record, hash: change.hash };
+          record = {
+            ...record,
+            hash: change.hash,
+            ...(change.plan?.operation === 'copy' ? { operation: 'copy' } : {}),
+          };
           signal.throwIfAborted();
           try {
             session = await attach(options);

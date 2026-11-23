@@ -11,7 +11,9 @@ export const cvWorkplaceEditorUrl = (value, recordId, hash) => {
     return false;
   }
   return (
-    url.pathname === `/profile/edit/experience/${recordId}` &&
+    url.pathname ===
+      `/profile/edit/experience${recordId === null ? '' : `/${recordId}`}` &&
+    (recordId !== null || url.searchParams.get('resumeFrom') === hash) &&
     !url.hash &&
     new Set(url.searchParams.keys()).size === [...url.searchParams].length &&
     [...url.searchParams].every(
@@ -40,8 +42,10 @@ export const readCvWorkplaceNavigation = ({ recordId, job, hash }) => {
     )
   );
   const dialogs = [...doc.querySelectorAll('[role="dialog"]')].some(visible);
-  const selector =
-    'main [data-qa^="edit-experience-button-"],main a[href*="/profile/edit/experience/"]';
+  const adding = recordId === null;
+  const selector = adding
+    ? 'main [data-qa="list-add"]'
+    : 'main [data-qa^="edit-experience-button-"],main a[href*="/profile/edit/experience/"]';
   const controls = [...doc.querySelectorAll(selector)];
   if (controls.length > 1000) {
     return { open, challenge, dialogs, overflow: true };
@@ -54,7 +58,9 @@ export const readCvWorkplaceNavigation = ({ recordId, job, hash }) => {
       !url.username &&
       !url.password &&
       !url.hash &&
-      url.pathname === `/profile/edit/experience/${recordId}` &&
+      url.pathname ===
+        `/profile/edit/experience${adding ? '' : `/${recordId}`}` &&
+      (!adding || url.searchParams.get('resumeFrom') === hash) &&
       new Set(url.searchParams.keys()).size === [...url.searchParams].length &&
       [...url.searchParams].every(
         ([key, value]) =>
@@ -63,7 +69,9 @@ export const readCvWorkplaceNavigation = ({ recordId, job, hash }) => {
       )
     );
   };
-  const parts = [job.company, job.position, job.description].map(norm);
+  const parts = adding
+    ? []
+    : [job.company, job.position, job.description].map(norm);
   const cardMatches = (node) => {
     let card = node.parentElement;
     for (let depth = 0; card && card !== doc.body && depth < 30; depth++) {
@@ -90,14 +98,22 @@ export const readCvWorkplaceNavigation = ({ recordId, job, hash }) => {
   };
   const candidates = [];
   for (const [index, node] of controls.entries()) {
-    if (!visible(node) || node.disabled) {
+    if (
+      !visible(node) ||
+      node.disabled ||
+      node.getAttribute('aria-disabled') === 'true'
+    ) {
       continue;
     }
     const href = node.getAttribute('href');
     if (href && !nativeHref(href)) {
       continue;
     }
-    if (cardMatches(node)) {
+    if (
+      adding
+        ? /^(add|добавить)/iu.test(norm(node.textContent))
+        : cardMatches(node)
+    ) {
       candidates.push({ index, ready: Boolean(href || handlerReady(node)) });
     }
   }
@@ -144,8 +160,13 @@ export const openNativeCvWorkplace = async ({
   readinessMs = 20000,
 }) => {
   const { page, commander } = session;
-  const { recordId, job } = change.workplace;
-  if (cvWorkplaceEditorUrl(page.url(), recordId, change.hash)) {
+  const { job } = change.workplace;
+  const recordId =
+    change.plan?.operation === 'copy' ? null : change.workplace.recordId;
+  if (
+    recordId !== null &&
+    cvWorkplaceEditorUrl(page.url(), recordId, change.hash)
+  ) {
     return;
   }
   const read = async () => {
@@ -202,6 +223,14 @@ export const openNativeCvWorkplace = async ({
       (url) => cvWorkplaceEditorUrl(url.href, recordId, change.hash),
       { timeout: readinessMs }
     );
+    if (recordId === null) {
+      await page
+        .locator('input[name="position"]')
+        .waitFor({ timeout: readinessMs });
+      if (!cvWorkplaceEditorUrl(page.url(), recordId, change.hash)) {
+        throw cvPrepareFailure('page');
+      }
+    }
     check();
     traceCvWatch('workplace-opened', { state: 'opening' });
   } finally {

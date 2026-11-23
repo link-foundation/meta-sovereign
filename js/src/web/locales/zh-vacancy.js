@@ -315,6 +315,11 @@ export const zhVacancy = {
   'cvWorkplace.operation': '工作经历操作',
   'cvWorkplace.update': '编辑工作经历字段',
   'cvWorkplace.detach': '从此简历中取消选择',
+  'cvWorkplace.copy': '复制共享工作经历',
+  'cvWorkplace.copyHint':
+    '为这份简历准备一条新工作经历。在 HeadHunter 中保存之前启动保存监视。核实新记录后，再单独审核是否从此简历中取消选择原记录。',
+  'cvWorkplace.copySelection': '新工作经历中的简历选择',
+  'cvWorkplace.originalRecord': '原工作经历记录 ID',
   'cvWorkplace.loadMembership': '读取已保存的简历选择',
   'cvWorkplace.resumes': '简历选择',
   'cvWorkplace.detachHint':

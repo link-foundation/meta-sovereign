@@ -304,7 +304,8 @@
 
 - [Independent WebRTC connections and connected-peer reload](webrtc-mesh.md): real three-peer native and MCP convergence, fresh post-reload writes, deletion, secret isolation and surviving-pair cleanup; offline reconciliation remains required.
 
-- [Separately reviewed workplace deselection](cv-workplace-membership.md): complete native membership, target-only preparation, preserved owner edits and non-replaying CLI/Lino/four-language recovery. Full shared copy and new identities remain unfinished.
+- [Separately reviewed workplace deselection](cv-workplace-membership.md): complete native membership, target-only preparation, preserved owner edits and non-replaying CLI/Lino/four-language recovery.
+- [Reviewed copy of a shared workplace](cv-workplace-copy.md): verified original membership, native Add and target-only draft preparation with desktop and phone recovery. Complete owner Save and copy/Save/detach verification remain open.
 
 - [Offline rediscovery read race and connection lifecycle evidence](ci-lino-sync-rediscovery.md).
 

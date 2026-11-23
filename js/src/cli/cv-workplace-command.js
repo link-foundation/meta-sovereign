@@ -22,6 +22,17 @@ export const cvWorkplaceCommandInput = async (operation, args) => {
     if (input.operation === 'detach') {
       input.fields = {};
       input.resumes = file;
+    } else if (input.operation === 'copy') {
+      if (
+        !file ||
+        Object.keys(file).length !== 2 ||
+        !Object.hasOwn(file, 'fields') ||
+        !Object.hasOwn(file, 'resumes')
+      ) {
+        throw new Error('Supply a copy file with fields and resumes.');
+      }
+      input.fields = file.fields;
+      input.resumes = file.resumes;
     } else {
       input.fields = file;
     }

@@ -1,5 +1,8 @@
 import React from 'react';
-import { cvWorkplaceMembership } from '../jobs/cv-workplace-membership.js';
+import {
+  cvWorkplaceMembership,
+  cvWorkplaceUsesMembership,
+} from '../jobs/cv-workplace-membership.js';
 import { CvWorkplaceFields } from './cv-workplace-fields.js';
 import { PreparationReceipt } from './cv-prepare-panel.js';
 import {
@@ -69,7 +72,7 @@ const Plan = ({ state, idle, ready, t }) => {
       el(
         'p',
         { key: 'record', className: 'meta' },
-        `${t('cvPrepare.recordId')}: ${plan.recordId} · ${plan.source.job.company} · ${plan.source.job.position}`
+        `${t(plan.operation === 'copy' ? 'cvWorkplace.originalRecord' : 'cvPrepare.recordId')}: ${plan.recordId} · ${plan.source.job.company} · ${plan.source.job.position}`
       ),
       ...plan.changes.map((change) =>
         el(
@@ -101,7 +104,11 @@ const Plan = ({ state, idle, ready, t }) => {
             el(
               'span',
               { key: 'after-label', className: 'meta' },
-              t('cvWorkplace.after')
+              t(
+                change.field === 'resumes' && plan.operation === 'copy'
+                  ? 'cvWorkplace.copySelection'
+                  : 'cvWorkplace.after'
+              )
             ),
             el(
               'pre',
@@ -187,7 +194,15 @@ const Source = ({ state, exports, idle, t }) =>
         ])
       : null,
     el('label', { key: 'record', className: 'chat-form-field' }, [
-      el('span', { key: 'label' }, t('cvPrepare.recordId')),
+      el(
+        'span',
+        { key: 'label' },
+        t(
+          state.operation === 'copy'
+            ? 'cvWorkplace.originalRecord'
+            : 'cvPrepare.recordId'
+        )
+      ),
       el('input', {
         key: 'input',
         value: state.recordId,
@@ -204,10 +219,11 @@ const validWorkplaceReview = (review) => {
   try {
     cvWorkplaceValues(review.fields);
     cvWorkplaceRecordId(review.recordId);
-    if (review.operation === 'detach') {
+    if (cvWorkplaceUsesMembership(review.operation)) {
       cvWorkplaceMembership(
         review.membership?.resumes,
-        review.source?.identity.hash
+        review.source?.identity.hash,
+        review.operation
       );
     }
     valid = true;
@@ -218,7 +234,15 @@ const validWorkplaceReview = (review) => {
 };
 const Membership = ({ review, idle, capable, t }) =>
   el('div', { key: 'membership', className: 'col' }, [
-    el('p', { key: 'hint', className: 'meta' }, t('cvWorkplace.detachHint')),
+    el(
+      'p',
+      { key: 'hint', className: 'meta' },
+      t(
+        review.operation === 'copy'
+          ? 'cvWorkplace.copyHint'
+          : 'cvWorkplace.detachHint'
+      )
+    ),
     button(
       'loadMembership',
       review.loadMembership,
@@ -275,12 +299,12 @@ export const CvWorkplaceReview = ({ state, t }) => {
             'data-cv-workplace-operation': true,
             onChange: (event) => review.setOperation(event.target.value),
           },
-          ['update', 'detach'].map((value) =>
+          ['update', 'copy', 'detach'].map((value) =>
             el('option', { key: value, value }, t(`cvWorkplace.${value}`))
           )
         ),
       ]),
-      review.operation === 'detach'
+      cvWorkplaceUsesMembership(review.operation)
         ? el(Membership, {
             key: 'membership',
             review,
@@ -288,7 +312,10 @@ export const CvWorkplaceReview = ({ state, t }) => {
             capable: state.capabilities?.cvSaveWatch === true,
             t,
           })
-        : el(CvWorkplaceFields, { key: 'fields', state: review, idle, t }),
+        : null,
+      review.operation !== 'detach'
+        ? el(CvWorkplaceFields, { key: 'fields', state: review, idle, t })
+        : null,
       el('div', { key: 'actions', className: 'row' }, [
         button('propose', review.propose, !idle || !valid, t),
         button('reload', review.reload, !idle, t),

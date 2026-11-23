@@ -2,7 +2,10 @@ import { browserName } from '../browser/policy.js';
 import { modelFingerprint } from '../automation/answer-model-context.js';
 import { resumeExportId } from './resume-export-result.js';
 import { resumeHash } from './resume-list.js';
-import { cvWorkplaceMembership } from './cv-workplace-membership.js';
+import {
+  cvWorkplaceMembership,
+  cvWorkplaceUsesMembership,
+} from './cv-workplace-membership.js';
 import { sanitizedResumeCv } from './resume-cv.js';
 import { cvPrepareFailure } from './cv-prepare-record.js';
 
@@ -271,7 +274,11 @@ const validateInputBindings = (plan, input) => {
     (input.jobIndex !== undefined && input.jobIndex !== plan.source.jobIndex) ||
     (input.resumes &&
       JSON.stringify(
-        cvWorkplaceMembership(input.resumes, plan.source.identity.hash)
+        cvWorkplaceMembership(
+          input.resumes,
+          plan.source.identity.hash,
+          plan.operation
+        )
       ) !== JSON.stringify(plan.membership))
   ) {
     cvWorkplaceFail('conflict');
@@ -337,7 +344,7 @@ export const confirmedCvWorkplacePlan = async (answer, input = {}) => {
   return { plan };
 };
 
-/** Membership-only plans never authorize changes to a workplace field. */
+/** Keep the original membership and the approved destination bound to the plan. */
 export const cvWorkplacePlanDifferences = (plan) => {
   const changes = cvWorkplaceDifferences(plan.baseline, plan.desired);
   if (plan.operation === undefined) {
@@ -346,15 +353,19 @@ export const cvWorkplacePlanDifferences = (plan) => {
     }
     return changes;
   }
-  if (plan.operation !== 'detach' || changes.length) {
+  if (
+    !cvWorkplaceUsesMembership(plan.operation) ||
+    (plan.operation === 'detach' && changes.length)
+  ) {
     cvWorkplaceFail();
   }
   const expected = cvWorkplaceMembership(
     plan.membership?.before,
-    plan.source.identity.hash
+    plan.source.identity.hash,
+    plan.operation
   );
   if (JSON.stringify(expected) !== JSON.stringify(plan.membership)) {
     cvWorkplaceFail();
   }
-  return [{ field: 'resumes', ...expected }];
+  return [{ field: 'resumes', ...expected }, ...changes];
 };

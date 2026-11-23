@@ -1163,3 +1163,7 @@ source before drafting a linked task through Forms, CLI or Lino (issue #56).
 Keep confirmed HeadHunter chat send receipts and uncertain reservations across
 server restarts. Exact retries through Chat, CLI and either Lino encoding reuse
 the saved outcome without issuing a second provider send (issue #56).
+
+Review and prepare a target-only HeadHunter workplace copy from a shared record.
+Keep the original memberships intact and leave native Save under the owner's
+control (issue #56).
