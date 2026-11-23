@@ -95,7 +95,9 @@ export const verifyUnreadReplyViewControls = async (
   } catch (error) {
     await shot('reply-view-failed');
     console.error('[question-unread-reply-view]', {
-      result: await page.locator('[data-browser-unread-controls]').innerText(),
+      result: await page
+        .locator('[data-browser-unread-controls]')
+        .allTextContents(),
       provider: await fixture.stats(),
     });
     throw error;

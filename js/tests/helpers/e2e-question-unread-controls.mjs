@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { questionBrowserUi } from './question-browser-ui.mjs';
 import { openQuestionDisclosure } from './question-preview.mjs';
+import { READ_RECEIPTS_KEY } from '../../src/web/privacy-prefs.js';
 
 export const ownerState = (page) =>
   page.evaluate(() => {
@@ -31,16 +32,13 @@ export const openUnreadSurface = async (scenario, surface, hash, width) => {
   const { fixture, page } = scenario;
   await fixture.reset();
   await page.setViewportSize({ width, height: 950 });
-  // Chat's read marker can reload the provider. Settle it before freezing the view.
-  const marked =
-    surface === 'chat'
-      ? page.waitForResponse(
-          (response) => new URL(response.url()).pathname === '/api/message/read'
-        )
-      : null;
+  // Unread automation owns these reads. Keep the foreground Chat marker off.
+  await page.evaluate(
+    (key) => globalThis.localStorage.setItem(key, 'off'),
+    READ_RECEIPTS_KEY
+  );
   await page.goto(`${fixture.base}/?unread-surface=${surface}${hash}`);
   await page.bringToFront();
-  await marked;
   await page.locator('[data-action="chat-automations"]').click();
   return openUnread(
     page.locator('.chat-menu-list [data-browser-answer-controls]')

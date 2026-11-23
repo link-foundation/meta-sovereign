@@ -335,6 +335,7 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [hosted-browser-45109832980.md](hosted-browser-45109832980.md) links seven hosted failures to three browser fixture paths and preserves the raw workflow log. Six focused Chromium entry points pass after correcting wire format, notification-stream matching and foreground read ownership.
 - [ci-locked-prettier.md](ci-locked-prettier.md) reproduces published Hindi locale and requirement-document failures with the locked formatter, preserving raw hosted logs and correcting only formatting.
 - [ci-evidence-duplication.md](ci-evidence-duplication.md) preserves the exact-head 6.53% gate failure and shares fourteen deterministic archive writers. Four byte/hash comparisons, twenty workflow contracts and the unchanged duplication gate pass locally; hosted verification remains required.
 

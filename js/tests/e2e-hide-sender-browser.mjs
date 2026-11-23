@@ -1,6 +1,7 @@
 // Real-browser coverage for sender visibility in private and public chats.
 import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, fulfil, openChatApp } from './helpers/e2e-chat.mjs';
+import { requestBody } from './helpers/http-wire.mjs';
 
 const ADA = '42';
 const MAX = '43';
@@ -148,14 +149,14 @@ await page.addInitScript(() => {
 const blocks = [];
 let rejectBlock = false;
 await page.route('**/api/telegram/peer-settings', (route) => {
-  const { chat } = route.request().postDataJSON();
+  const { chat } = requestBody(route.request());
   return fulfil(route, {
     ok: true,
     bar: [ADA, MAX].includes(String(chat)) ? { blockContact: true } : {},
   });
 });
 await page.route('**/api/telegram/peer-block', (route) => {
-  const request = route.request().postDataJSON();
+  const request = requestBody(route.request());
   blocks.push(request);
   return fulfil(
     route,
@@ -175,7 +176,7 @@ await page.route('**/api/telegram/pinned-list', (route) =>
   fulfil(route, { ok: true, messages: [hidden, oldPin], count: 2, next: null })
 );
 await page.route('**/api/telegram/search', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   const messages = body.offsetId ? [shown] : [hidden];
   return fulfil(route, {
     ok: true,
@@ -192,7 +193,7 @@ await page.route('**/api/telegram/search-global', (route) =>
   fulfil(route, { ok: true, messages: [hidden, shown], count: 2, more: false })
 );
 await page.route('**/api/telegram/dialog-state', async (route) => {
-  const { chat } = route.request().postDataJSON();
+  const { chat } = requestBody(route.request());
   return fulfil(route, {
     ok: true,
     read: await store.get(`read:telegram:${chat}`),
@@ -395,9 +396,12 @@ const restoreTelegram = async () => {
   // Switching off Operator closes its subscription. Wait for the Settings
   // watcher's new connection before sending messages to that watcher.
   await Promise.all([
-    page.waitForResponse(
-      (response) => response.url() === `${base}/api/events` && response.ok()
-    ),
+    page.waitForResponse((response) => {
+      const url = new URL(response.url());
+      return (
+        url.origin === base && url.pathname === '/api/events' && response.ok()
+      );
+    }),
     page.goto(`${base}/#/settings`),
   ]);
   await page.getByRole('heading', { name: 'Hidden senders' }).waitFor();

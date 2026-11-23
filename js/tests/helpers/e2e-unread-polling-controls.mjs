@@ -152,7 +152,9 @@ export const verifyUnreadPollingControls = async (
   } catch (error) {
     await shot('polling-failed');
     console.error('[question-unread-polling]', {
-      result: await page.locator('[data-browser-unread-controls]').innerText(),
+      result: await page
+        .locator('[data-browser-unread-controls]')
+        .allTextContents(),
       provider: await fixture.stats(),
     });
     throw error;
