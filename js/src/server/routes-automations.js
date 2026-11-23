@@ -46,6 +46,7 @@ import { bodyFailure, json, readBody } from './util.js';
 import { confirmed } from './confirmations.js';
 import { previewFields } from '../sources/telegram-link-preview.js';
 import { hhCommonChatId, validHhMessageId } from '../sources/hh-chat-read.js';
+import { isHhWebTarget } from '../sources/hh-web-ui.js';
 import { CHANNEL } from '../sources/telegram-usernames.js';
 import {
   AUTOMATION_PREFIX,
@@ -292,11 +293,12 @@ const reportSend = (ctx, trace, result, error) =>
 
 const hhBrowserSendDraft = async (store, draft) => {
   const id = draft.hhBrowserMessage;
-  if (id === undefined) {
+  const archived = draft.source === 'hh' && isHhWebTarget(draft.chat);
+  if (id === undefined && !archived) {
     return draft;
   }
   const reference =
-    /^\d{1,30}$/u.test(draft.chat) &&
+    (archived || /^\d{1,30}$/u.test(draft.chat)) &&
     typeof id === 'string' &&
     id.startsWith(`msg:hh:${draft.chat}:`) &&
     id.length <= 160 &&
@@ -312,7 +314,43 @@ const hhBrowserSendDraft = async (store, draft) => {
       { code: 'unsupported-target' }
     );
   }
-  return { ...draft, chat: `web:${draft.chat}`, chatName: reference.chatName };
+  return {
+    ...draft,
+    chat: archived ? draft.chat : `web:${draft.chat}`,
+    chatName: reference.chatName,
+  };
+};
+
+const keepArchivedHhDestination = (draft, result) => {
+  if (draft.source !== 'hh' || !isHhWebTarget(draft.chat)) {
+    return result;
+  }
+  const native = draft.chat.slice(4);
+  const link = result?.link;
+  if (
+    result?.via !== 'browser' ||
+    link?.source !== 'hh' ||
+    link.chat !== native ||
+    link.outgoing !== true ||
+    !['sent', 'delivered', 'read'].includes(link.delivery) ||
+    !validHhMessageId(result.messageId) ||
+    link.id !== `msg:hh:${native}:${result.messageId}`
+  ) {
+    throw Object.assign(new Error('HeadHunter did not confirm delivery.'), {
+      code: 'send-unknown',
+      ambiguous: true,
+      fallback: false,
+    });
+  }
+  return {
+    via: result.via,
+    link: {
+      ...link,
+      id: `msg:hh:${draft.chat}:${result.messageId}`,
+      chat: draft.chat,
+      tokens: ['message', 'hh', draft.chat],
+    },
+  };
 };
 
 const hhReplyDraft = async (store, draft) => {
@@ -353,7 +391,10 @@ const deliverMessage = async (store, ctx, draft) => {
     };
   }
   const destination = await hhBrowserSendDraft(store, draft);
-  const result = await ctx.send(await hhReplyDraft(store, destination));
+  const result = keepArchivedHhDestination(
+    draft,
+    await ctx.send(await hhReplyDraft(store, destination))
+  );
   const links = sentLinks({ ...draft, chatName: destination.chatName }, result);
   const stored = await keepSent(store, links);
   return {

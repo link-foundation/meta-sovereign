@@ -365,3 +365,33 @@ acceptance and the remaining native messaging actions remain open.
 ![Operator retains the unread card before the fix](../../screenshots/issue-56-hh-browser-import-read-before.png)
 
 ![Operator finishes the conversation after the native receipt](../../screenshots/issue-56-hh-browser-import-read-after.png)
+
+## Sending in the open import browser
+
+Open Connections and start a HeadHunter browser import. Open a conversation
+in the provider window, capture it, and leave the window open. Then select
+the captured conversation in Chat, type a plain message, and press Enter.
+At `45fd40f2`, Chat reported that the saved conversation could not be
+verified. Capture used a `web:` address, while the send endpoint accepted
+only numeric addresses from earlier archives.
+
+The send endpoint now checks the exact saved message reference and uses the
+matching open import browser. It verifies that this is the only visible
+provider conversation before touching the composer. Chat accepts delivery
+after the browser reports the outgoing message ID and a confirmed state.
+The outgoing row retains the captured conversation's address, so it appears
+alongside the incoming history. The existing separately launched browser
+path remains available when no matching import job is open.
+
+The registered Chromium scenario reproduces the failure on the previous
+source and verifies the delivery in the production Chat bundle. The Lino
+probes cover a missing archive reference, an unsupported quoted reply, a
+protected owner draft, a different open conversation and two attempts with
+one pending native send. Node and Deno each passed 68 focused checks.
+Independent Playwright MCP observed one native send, a saved `delivered`
+receipt and no HeadHunter API token. Authenticated provider acceptance and
+the remaining browser message actions are open.
+
+![Chat previously recorded an unverified conversation error](../../screenshots/issue-56-hh-browser-import-send-before.png)
+
+![Chat shows the message in the same conversation after a confirmed delivery](../../screenshots/issue-56-hh-browser-import-send-after.png)

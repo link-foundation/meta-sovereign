@@ -264,8 +264,18 @@ export const resolveBrowserChoiceDocument = (commander, page, ui, target) => {
 };
 
 /** Infer the exact chat only when one trusted, visible native pane owns it. */
-export const resolveOpenBrowserConversation = (commander, page, ui) =>
-  resolveBrowserDocument(commander, page, ui);
+export const resolveOpenBrowserConversation = async (
+  commander,
+  page,
+  ui,
+  target
+) => {
+  const document = await resolveBrowserDocument(commander, page, ui);
+  if (target !== undefined && document.chat !== target) {
+    throw failure();
+  }
+  return document;
+};
 
 /** List scans use the same visible-frame and document-identity ownership. */
 export const resolveBrowserChatListDocument = (commander, page, ui) =>

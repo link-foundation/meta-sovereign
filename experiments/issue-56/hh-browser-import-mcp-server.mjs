@@ -6,6 +6,7 @@ import { chromium } from 'playwright';
 import { startServer } from '../../js/src/server/index.js';
 import { createMemoryStore } from '../../js/src/storage/universal.js';
 import { launchHhImportFixture } from '../../js/tests/helpers/e2e-hh-browser-import.mjs';
+import { installHhComposer } from './hh-manual-chat-fixture.mjs';
 
 const dir = await mkdtemp(path.join(os.tmpdir(), 'hh-import-mcp-'));
 const store = createMemoryStore();
@@ -62,7 +63,12 @@ try {
         .getByRole('textbox', { name: 'Provider composer' })
         .fill('Unsent owner draft');
       console.log(`Opened isolated conversation ${chat} with a read receipt`);
+    } else if (command === 'send') {
+      await session.page.goto('https://hh.ru/chat/7?read-import');
+      await installHhComposer(session.page);
+      console.log('Opened isolated conversation 7 with a delivery receipt');
     } else if (command === 'status') {
+      const sent = await store.get('msg:hh:web:7:102');
       console.log(
         JSON.stringify({
           archived: Boolean(await store.get('msg:hh:web:7:101')),
@@ -70,6 +76,10 @@ try {
           reads: session.page.isClosed()
             ? undefined
             : await session.page.evaluate(() => globalThis.fixture?.reads),
+          sends: session.page.isClosed()
+            ? undefined
+            : await session.page.evaluate(() => globalThis.fixture?.textSends),
+          sent: sent ? { id: sent.id, delivery: sent.delivery } : null,
           unread: (await store.get('read:hh:web:7'))?.unreadCount,
           token: Boolean(await store.get('secret:hh:access-token')),
           closed: session.page.isClosed(),

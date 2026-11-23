@@ -234,7 +234,10 @@ const mediaSteps = async () => {
 };
 
 await finish(async () => {
-  if (process.env.HH_IMPORT_READ_BEFORE === '1') {
+  if (
+    process.env.HH_IMPORT_READ_BEFORE === '1' ||
+    process.env.HH_IMPORT_SEND_BEFORE === '1'
+  ) {
     await verifyHhImportRead(page);
     return;
   }

@@ -1918,4 +1918,5 @@ Native profile persistence follow-up:
 - [x] Reproduce HTTP 502 when Operator acknowledges a chat captured in the still-open import browser. Trace the separate browser pool and the missing archive prefix on the receipt.
 - [x] Guard the current import browser by workspace slot and unique provider pane. Require the saved message boundary and provider confirmation. Drain admitted reads before Finish.
 - [x] Verify the exact-parent failure, 60 focused checks in each runtime, and registered Chromium and independent MCP against the isolated provider. Preserve before/after evidence and attach it to PR #57. [Read receipt evidence](hh-common-history.md#confirming-read-receipts-in-the-import-browser)
+- [x] Reproduce a plain send failing in the newly imported conversation. Confirm the receipt through the open provider browser, keep the same archive identity, and verify owner draft protection and uncertain delivery against a one-click native fixture. [Send receipt evidence](hh-common-history.md#sending-in-the-open-import-browser)
 - [ ] Verify exact-source hosted checks and complete the remaining native messaging contract.

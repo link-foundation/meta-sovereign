@@ -1107,3 +1107,7 @@ entry deadlines and shard limits.
 Confirm HeadHunter read receipts in the open import browser for matching
 archived conversations in Chat and Operator. Keep drafts and selections,
 refuse ambiguous panes, and drain admitted receipts before closing.
+
+Send plain messages from captured HeadHunter web conversations through the
+open import browser. Keep the provider-confirmed message in its original
+Chat history and hold uncertain sends for review.

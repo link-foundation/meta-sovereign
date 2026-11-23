@@ -2,9 +2,14 @@ import assert from 'node:assert/strict';
 import { mkdtemp, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import { installHhComposer } from '../../../experiments/issue-56/hh-manual-chat-fixture.mjs';
 import { startServer } from '../../src/server/index.js';
 import { createMemoryStore } from '../../src/storage/universal.js';
-import { decodeWire, LINO_TEXT } from '../../src/transport/lino.js';
+import {
+  decodeWire,
+  LINO_BINARY,
+  LINO_TEXT,
+} from '../../src/transport/lino.js';
 import { launchHhImportFixture } from './e2e-hh-browser-import.mjs';
 import { createWirePost } from './http-wire.mjs';
 
@@ -35,6 +40,92 @@ const screenshot = (page, state) =>
         path: `docs/screenshots/issue-56-hh-browser-import-read-${state}.png`,
       })
     : Promise.resolve();
+
+const sendFromChat = async ({ page, provider, store }) => {
+  await installHhComposer(provider);
+  const text = 'Thank you. I can meet on Wednesday.';
+  const composer = page.locator('.chat-composer textarea');
+  const sent = page.waitForResponse(
+    (res) => res.url().endsWith('/api/send') && res.status() !== 428
+  );
+  await composer.fill(text);
+  await composer.press('Enter');
+  const answer = await readReceipt(await sent);
+  const bubble = (state) =>
+    page.locator(`[data-delivery="${state}"]`).filter({ hasText: text });
+  if (process.env.HH_IMPORT_SEND_BEFORE === '1') {
+    await bubble('failed').waitFor();
+    if (process.env.HH_IMPORT_SEND_SCREENSHOTS === '1') {
+      await page.screenshot({
+        path: 'docs/screenshots/issue-56-hh-browser-import-send-before.png',
+      });
+    }
+  }
+  assert.equal(answer.status, 'sent', answer.error);
+  await bubble('sent').waitFor();
+  assert.equal(answer.link.id, 'msg:hh:web:7:102');
+  assert.equal((await store.get(answer.link.id)).delivery, 'delivered');
+  assert.equal(await store.get('msg:hh:7:102'), null);
+  assert.equal(await provider.evaluate(() => globalThis.fixture.textSends), 1);
+  if (process.env.HH_IMPORT_SEND_SCREENSHOTS === '1') {
+    await page.screenshot({
+      path: 'docs/screenshots/issue-56-hh-browser-import-send-after.png',
+    });
+  }
+};
+
+const archiveSend = (base, type) => {
+  const post = createWirePost(base, '/api', type);
+  return async (options) => {
+    const draft = {
+      source: 'hh',
+      chat: 'web:7',
+      hhBrowserMessage: 'msg:hh:web:7:101',
+      text: 'A second message from the archive',
+      ...options,
+    };
+    const { status, answer } = await post('/send', draft);
+    assert.equal(status, 428);
+    return post('/send', { ...draft, confirmToken: answer.confirm.token });
+  };
+};
+
+const verifySendRefusals = async ({ base, provider, store }) => {
+  const send = archiveSend(base, LINO_TEXT);
+  const missing = await send({ hhBrowserMessage: undefined });
+  assert.equal(missing.answer.code, 'unsupported-target');
+  const post = createWirePost(base, '/api', LINO_TEXT);
+  const reply = await post('/send', {
+    source: 'hh',
+    chat: 'web:7',
+    hhBrowserMessage: 'msg:hh:web:7:101',
+    replyTo: 'msg:hh:web:7:101',
+    text: 'A quoted reply',
+  });
+  assert.equal(reply.status, 400);
+  assert.equal(reply.answer.code, 'bad-reply');
+  assert.equal(await provider.evaluate(() => globalThis.fixture.textSends), 1);
+  const composer = provider.getByRole('textbox', { name: 'Provider composer' });
+  await composer.fill('Keep this provider draft');
+  const held = await send({ clientId: 'owner-draft' });
+  assert.equal(held.answer.code, 'answer-draft-preserved');
+  assert.equal(await composer.inputValue(), 'Keep this provider draft');
+  await composer.clear();
+  await installHhComposer(provider, 'pending');
+  for (let repeat = 0; repeat < 2; repeat += 1) {
+    const uncertain = await send({ clientId: 'uncertain-native-send' });
+    assert.equal(uncertain.answer.code, 'send-unknown');
+  }
+  assert.equal(await provider.evaluate(() => globalThis.fixture.textSends), 2);
+  assert.equal(await store.get('msg:hh:web:7:103'), null);
+
+  await provider.goto('https://hh.ru/chat/8?read-import');
+  await installHhComposer(provider);
+  const binary = archiveSend(base, LINO_BINARY);
+  const wrong = await binary({ clientId: 'other-import-pane' });
+  assert.equal(wrong.answer.code, 'answer-chat-unverified');
+  assert.equal(await provider.evaluate(() => globalThis.fixture.textSends), 0);
+};
 
 const operatorRead = async ({ page, base, provider, store }) => {
   const composer = provider.getByRole('textbox', { name: 'Provider composer' });
@@ -118,6 +209,8 @@ export const verifyHhImportRead = async (page) => {
     automations: {
       scheduler: false,
       browser: {
+        choiceReceiptMs: 1200,
+        pollMs: 50,
         openSession: () => {
           opens += 1;
           throw new Error('This operation must use the open import browser');
@@ -143,6 +236,8 @@ export const verifyHhImportRead = async (page) => {
     await rejectOtherPanes(base, provider, store);
     await provider.goto(url);
     await chatRead(state);
+    await sendFromChat(state);
+    await verifySendRefusals(state);
     assert.equal(opens, 0);
     assert.equal(await store.get('secret:hh:access-token'), null);
   } finally {

@@ -295,7 +295,7 @@ const captureJob = async (store, job, touch, { history = false }) => {
   if (!job.session || !ACTIVE.has(job.state)) {
     throw statusError('the browser for this job is not open', 409);
   }
-  if (job.state !== 'waiting' || job.reading) {
+  if (job.state !== 'waiting' || job.openChatWork) {
     throw statusError('the browser is already importing', 409);
   }
   job.scanningHistory = history;
@@ -323,12 +323,12 @@ const captureJob = async (store, job, touch, { history = false }) => {
   return snapshot(job);
 };
 
-/** Keep a read receipt in the owner's currently open import browser. */
-const readOpenHhImport = async (job, work, touch) => {
+/** Serialize interaction with the owner's currently open import browser. */
+const useOpenHhImport = async (job, work, touch) => {
   if (!job) {
     return undefined;
   }
-  if (job.state !== 'waiting' || !job.session || job.reading) {
+  if (job.state !== 'waiting' || !job.session || job.openChatWork) {
     throw Object.assign(
       statusError(
         'The HeadHunter import browser is busy',
@@ -338,12 +338,14 @@ const readOpenHhImport = async (job, work, touch) => {
       { fallback: false, read: false }
     );
   }
-  job.reading = Promise.resolve().then(() => work(job.session));
+  job.openChatWork = Promise.resolve().then(() =>
+    work(job.session, job.controller.signal)
+  );
   touch(job);
   try {
-    return await job.reading;
+    return await job.openChatWork;
   } finally {
-    job.reading = null;
+    job.openChatWork = null;
   }
 };
 
@@ -416,7 +418,7 @@ export const createAutoImportManager = ({
       if (job.scanningHistory) {
         await job.capturing?.catch(() => {});
       }
-      await job.reading?.catch(() => {});
+      await job.openChatWork?.catch(() => {});
       job.session = null;
       await session?.close().catch(() => {});
       await job.capturing?.catch(() => {});
@@ -513,7 +515,7 @@ export const createAutoImportManager = ({
     },
 
     withOpenHhImport: (slot, work) =>
-      readOpenHhImport(activeFor('hh', slot), work, touch),
+      useOpenHhImport(activeFor('hh', slot), work, touch),
 
     async stop(id) {
       const job = requireJob(id);

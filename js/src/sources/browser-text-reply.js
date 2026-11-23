@@ -1,4 +1,5 @@
 import { answerChoiceState } from '../automation/question-options.js';
+import { requireDeliveryOwner } from '../automation/delivery-owner.js';
 import { messageLinkProperties } from '../message-link-targets.js';
 import { checkedBrowserPendingTurn } from './browser-pending-turn.js';
 import {
@@ -6,7 +7,10 @@ import {
   dispatchBrowserReply,
   readBrowserManualBoundary,
 } from './browser-choices.js';
-import { resolveBrowserChoiceDocument } from './browser-choice-document.js';
+import {
+  resolveBrowserChoiceDocument,
+  resolveOpenBrowserConversation,
+} from './browser-choice-document.js';
 import { withInactiveBrowserView } from './browser-inactive-view.js';
 import { createBrowserSendConsent } from './browser-send-consent.js';
 import { toBrowserMessageLink } from './browser-message.js';
@@ -168,6 +172,7 @@ export const createBrowserTextActions = ({
   store,
   uiFor,
   inChat,
+  withOpenHhImport,
   receiptMs,
   pollMs,
 }) => {
@@ -193,21 +198,42 @@ export const createBrowserTextActions = ({
       requireTextCapability(ui, text);
       const target = ui.target({ chat, to });
       const consent = createBrowserSendConsent(store, draft, dispatch);
-      const verifyCurrent = async () => {
+      const verifyCurrent = async (owner) => {
         await consent();
+        requireDeliveryOwner(owner);
         requireOpen();
       };
+      const imported = await withOpenHhImport?.(
+        async ({ commander, page }, owner) => {
+          const verify = () => verifyCurrent(owner);
+          await verify();
+          const document = await resolveOpenBrowserConversation(
+            commander,
+            page,
+            ui,
+            target
+          );
+          return sendManualText(document, ui, target, text, {
+            receiptMs,
+            pollMs,
+            verifyCurrent: verify,
+          });
+        }
+      );
+      if (imported !== undefined) {
+        return imported;
+      }
       return inChat(
         source,
         target,
-        { beforeOpen: verifyCurrent, signal: dispatch.signal },
+        { beforeOpen: () => verifyCurrent(), signal: dispatch.signal },
         async (commander, page) =>
           sendManualText(
             await resolveBrowserChoiceDocument(commander, page, ui, target),
             ui,
             target,
             text,
-            { receiptMs, pollMs, verifyCurrent }
+            { receiptMs, pollMs, verifyCurrent: () => verifyCurrent() }
           )
       );
     },

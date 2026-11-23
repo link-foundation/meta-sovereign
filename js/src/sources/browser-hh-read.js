@@ -143,14 +143,9 @@ export const readHhBrowserChat = async (ctx, ui, { chat, id }) => {
       const document = await resolveOpenBrowserConversation(
         commander,
         page,
-        ui
+        ui,
+        target
       );
-      if (document.chat !== target) {
-        throw failure(
-          'Open the selected HeadHunter conversation in the import browser',
-          'answer-chat-unverified'
-        );
-      }
       return confirmRead(document, ui, boundary);
     });
     if (result !== undefined) {

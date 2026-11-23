@@ -663,6 +663,7 @@ export const createBrowserSender = ({
     store,
     uiFor,
     inChat,
+    withOpenHhImport: (work) => withOpenHhImport?.(slot, work),
     receiptMs: choiceReceiptMs,
     pollMs,
   });
