@@ -20,6 +20,13 @@ export const templateRequestExample = {
   answer: 'Five years.',
 };
 
+export const templateBoundaryExample = {
+  id: 'experience-boundary-template',
+  pattern: 'Do you have experience? …',
+  question: 'Do you have experience. Does Tuesday work for you?',
+  answer: 'Five years.',
+};
+
 export const templateRule = (extra = {}) => ({
   id: templateExample.id,
   question: templateExample.pattern,

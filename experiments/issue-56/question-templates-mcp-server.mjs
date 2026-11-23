@@ -1,6 +1,7 @@
 import { chromium } from 'playwright';
 import { questionBrowserServer } from './question-browser-server.mjs';
 import {
+  templateBoundaryExample,
   templateExample,
   templateLinkExample,
   templateRequestExample,
@@ -47,6 +48,7 @@ try {
     [
       ['--link-guard', templateLinkExample],
       ['--request-guard', templateRequestExample],
+      ['--boundary-guard', templateBoundaryExample],
     ].find(([flag]) => process.argv.includes(flag))?.[1] ?? templateExample;
   if (hidden) {
     await fixture.page.evaluate(mountHiddenQuestionLink, hiddenLink.first);

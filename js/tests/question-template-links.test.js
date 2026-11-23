@@ -6,6 +6,7 @@ import { textLinks, linkOf } from '../src/message-links.js';
 import { planAutomation } from '../src/automation/automations.js';
 import {
   templateLinkExample as example,
+  templateBoundaryExample,
   templateRequestExample,
 } from '../../experiments/issue-56/question-template-fixture.mjs';
 
@@ -84,6 +85,7 @@ test('unchanged targets and ordinary technical filenames retain matching', () =>
 for (const [sample, expectedDrafts, name] of [
   [example, 1, 'changed destinations require review'],
   [templateRequestExample, 0, 'an added request holds the old answer'],
+  [templateBoundaryExample, 0, 'a new question holds the old answer'],
 ]) {
   test(`shared provider plans: ${name}`, () => {
     for (const source of [

@@ -1,3 +1,10 @@
+### 2026-11-23 Question marks that move between clauses (QA04)
+
+- [x] Reproduce the old approval in the direct matcher, CLI preview, Lino API and native browser review.
+- [x] Align saved question marks and sentence boundaries while preserving ordinary qualifiers, dotted abbreviations and an optional final question mark.
+- [x] Verify 60 focused checks per runtime, six provider plans, both Lino encodings, the production Chromium before-and-after review and independent mobile Playwright MCP. [Reproduction and screenshots](question-template-requests.md#a-question-mark-moves-to-a-different-clause).
+- [ ] Inspect the exact hosted results and verify the remaining QA04 provider contexts.
+
 ### 2026-11-23 Added requests inside an approved template (QA04)
 
 - [x] Reproduce the matcher granting template approval when a wildcard absorbs an added request. Preserve four failing parent assertions and the published-browser review.

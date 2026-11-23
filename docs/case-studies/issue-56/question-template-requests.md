@@ -20,3 +20,22 @@ The parent reproduces four focused regressions and the approved browser preview.
 ![After, the incoming request remains visible and the reply stays empty for review](../../screenshots/issue-56-template-request-after.png)
 
 [Evidence archive](data/question-template-requests.tar.gz) · [Entry hashes](data/question-template-requests.tar.sha256.json). QA04 still requires the remaining provider contexts and behavioral verification in [PR 57](https://github.com/link-foundation/meta-sovereign/pull/57).
+
+## A question mark moves to a different clause
+
+Save `Do you have experience? …` with `Five years.` approved. Inspect a native fixture conversation containing `Do you have experience. Does Tuesday work for you?`. The published matcher compared the number of question marks and stripped the terminal mark from the skipped text. It granted template approval and prefilled `Five years.` for the new question. The same error appeared in the CLI and text Lino preview. The browser showed the source text, the saved answer and an available Send action.
+
+The shared matcher now binds question marks and sentence breaks where the owner saved them. A wildcard can still qualify a single question, include an ordinary acknowledgment after a saved question mark, or use a dotted abbreviation such as `a.m.`. The final question mark can be omitted after the complete wording. Additional clauses introduced by common conjunctions and commas go through the existing question recognizer. All matches still require the existing subject and full-link checks.
+
+The current preview displays **No matching answer** and **Review required before automatic sending.** It preserves the complete incoming wording, empties the reply and disables Send. The owned browser fixture observes zero sends. Six shared provider fixtures emit zero drafts, and 60 focused checks pass in each runtime. Independent Playwright MCP at 390 × 844 observes only the Save and Inspect mutations, an empty reply, disabled Send, zero page exceptions and no horizontal overflow. Its console reports the fixture favicon 404. Both browser contexts close. The localized regression covers the Hindi danda, the Chinese full stop and full-width question mark, and Russian question variants.
+
+```sh
+node --test --test-concurrency=1 js/tests/{question-template-workflows,question-template-links,question-language,question-context,question-matching-options,question-automation}.test.js
+RUN_BROWSER_E2E=1 E2E_EXECUTABLE_PATH=/usr/bin/google-chrome QUESTION_SCREENSHOT_DIR=docs/screenshots/issue-56-template-boundaries node experiments/issue-56/question-template-request-browser.mjs --boundary
+```
+
+![Before, the template approves the extra question and fills the old reply](../../screenshots/issue-56-template-boundaries/boundary-guard-before-phone.png)
+
+![After, the preview shows no matching answer and leaves the draft empty](../../screenshots/issue-56-template-boundaries/boundary-guard-after-phone.png)
+
+[Evidence archive](data/question-template-boundaries.tar.gz) · [Entry hashes](data/question-template-boundaries.tar.sha256.json). Exact hosted checks and the remaining QA04 provider contexts stay open.

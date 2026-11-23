@@ -18,7 +18,7 @@
 - [Snapshot diagnostic ownership](ci-snapshot-observers.md): preserve the exact macOS Bun failure and two finite parent regressions; owner-specific cleanup assertions retain unrelated workers and all acknowledgement/workspace checks.
 - [Shared automation file defaults](automation-defaults.md): six native VK policies share global/local readable Lino, CLI overrides, saved-owner precedence and rolling configuration removal. Focused before/after evidence supports unfinished VD07.
 - [Actual first-use browser preparation](browser-preparation.md): exact-source hosted cold-cache download, headed render, reuse and resource closure pass.
-- [Isolated runner launcher and runtime preparation](runner-launcher-preparation.md): explicit Start stages the pinned launcher and checksum-verified Node with bundled npm privately on the target. The real Linux Screen fixture verifies corrupted downloads, cold Start and warm reuse. Native SSH, other platforms and the remaining application prerequisites still need verification.
+- [Isolated runner launcher and runtime preparation](runner-launcher-preparation.md) stages the pinned launcher and checksum-verified Node with bundled npm privately on explicit Start. Native Linux Screen starts cold and warm locally and over loopback SSH with or without an existing Node executable. Hosted SSH, other platforms and the remaining application prerequisites still need verification.
 
 - [Complete generic reader contract](hosted-form-reader-5283e26a.md): all five workflows, 18 named reader/report checks and both actual native engines pass at `5283e26a`. Current acceptance is **84 of 118**, with **34 unfinished**; every remaining criterion stays required in the draft PR. Earlier counts below are historical checkpoints.
 
@@ -398,7 +398,7 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 - [Edited answer history](question-archive-revisions.md) retains earlier observed versions of confirmed answers with original message and revision IDs. Shared archive learning deduplicates repeated wording, respects owner corrections and reports incomplete edit chains. Authenticated provider history remains required for QA02 and QA06.
 - [HeadHunter recorder history](hh-recording-import.md) verifies the recorder file through CLI, both Lino encodings, production Chromium and mobile Playwright MCP. Chat preserves revisions, unknown times and unconfirmed delivery. QA02 and QA06 remain unfinished.
 - [Manual archive import](manual-archive-import.md) verifies Messenger paste and Telegram file import under the existing browser policy, with both conversations reopening from browser storage while the server API is unavailable.
-- [Added requests in templates](question-template-requests.md) preserves the original wording and punctuation of added questions or instructions, keeps ordinary approved template wording usable and requires review in the shared preview. The case includes both Lino encodings and browser evidence for QA04.
+- [Added requests in templates](question-template-requests.md) preserves the original wording and punctuation of added questions or instructions, keeps ordinary approved template wording usable and requires review in the shared preview. Both Lino encodings, shared provider plans and browser evidence cover moved question marks and new clauses for QA04.
 
 - [solver-authentication.md](solver-authentication.md) preserves the full public sanitized session and reconstructs the November 21 solver interruption from the exact Codex refresh error and wrapper termination.
 

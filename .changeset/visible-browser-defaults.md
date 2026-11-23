@@ -28,6 +28,8 @@ Restore manual Messenger and Telegram archive import in Connections under the ex
 
 Keep added questions, bookings and other requests in review when an approved question template contains wildcards. The shared matcher inspects the original clause punctuation and preserves ordinary variations (issue #56, QA04).
 
+Bind saved question marks and sentence breaks to their clauses. An added question that reuses the original punctuation count now requires review, while ordinary approved wording still matches (issue #56, QA04).
+
 Restore the verified GitHub repository and issue together when reopening the same Forms assignment. Both Lino formats and CLI plans expose the same receipt, and the assignment still requires owner review before submission (issue #56, QA24).
 
 Open saved HeadHunter web conversations in Chat with a receipt-checked native send. Retain pending messages when delivery is uncertain, and use provider unread counts and filters in Chat and Operator (issue #56, HH09).

@@ -26,6 +26,8 @@ Partial QA02 and QA06 include [edited answer history](question-archive-revisions
 
 [Added requests in templates](question-template-requests.md) guards wildcard expansions against extra clauses, calls, invitations, assignments and forms. Localized regression fixtures retain ordinary approved variations and verify zero drafts for the extra request across shared provider plans. QA04 remains open.
 
+[Question boundaries in templates](question-template-requests.md#a-question-mark-moves-to-a-different-clause) keep an added question from inheriting approval by moving the original question mark. CLI, both Lino encodings, six provider plans and native Chromium verify the review hold. Remaining QA04 provider contexts and exact hosted verification stay open.
+
 QA19/QA20 also include [Stop during sender preparation](dispatch-stop.md):
 forty-five actual-parent failures and 383 focused passes cover separate dispatch
 ownership, native queues and real autopilot drainage while preserving issued

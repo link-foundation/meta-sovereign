@@ -19,6 +19,7 @@ import {
 } from '../src/transport/lino.js';
 import {
   templateExample as example,
+  templateBoundaryExample,
   templateLinkExample,
   templateRequestExample,
   templateRule,
@@ -84,10 +85,39 @@ test('ordinary wording and the saved request retain template approval', () => {
     ['Do you have … experience?', 'Do you have formal experience?'],
     ['Do you have … experience?', 'Do you have hands-on experience?'],
     ['Do you have experience? …', 'Do you have experience? Thanks.'],
+    [
+      'Do you have experience …?',
+      'Do you have experience with distributed systems?',
+    ],
+    [
+      'Do you have experience …?',
+      'Do you have experience with distributed systems',
+    ],
+    ['Do you have … availability?', 'Do you have 9 a.m. availability?'],
+    [
+      'Hello. Do you have … experience?',
+      'Hello! Do you have formal experience?',
+    ],
     ['Please book … time', 'Please book some time'],
     ['Где … живёт*?', 'Где вы сейчас живете?'],
   ]) {
     assert.equal(matchQuestion(pattern, question), 'template', question);
+  }
+});
+
+test('a wildcard cannot move a question or acquire a new sentence or ask', () => {
+  for (const [pattern, question] of [
+    [templateBoundaryExample.pattern, templateBoundaryExample.question],
+    ['Do you have experience …?', templateBoundaryExample.question],
+    [
+      'Do you have experience …?',
+      'Do you have experience with Python, and can you start Monday?',
+    ],
+    ['Есть ли у вас опыт? …', 'Есть ли у вас опыт. Завтра вам удобно?'],
+    ['क्या आपको अनुभव है …?', 'क्या आपको अनुभव है। मंगलवार ठीक रहेगा?'],
+    ['您有相关经验吗？ …', '您有相关经验吗。周二方便？'],
+  ]) {
+    assert.equal(matchQuestion(pattern, question), null, question);
   }
 });
 
@@ -130,6 +160,7 @@ test('CLI and offline controls preserve templates and hold added links or reques
   await verifyControlPlan(example, 'template', false);
   await verifyControlPlan(templateLinkExample, 'approximate', true);
   await verifyControlPlan(templateRequestExample, 'unanswered', true);
+  await verifyControlPlan(templateBoundaryExample, 'unanswered', true);
 });
 
 test(
@@ -156,6 +187,7 @@ test(
           [example, 'template', false],
           [templateLinkExample, 'approximate', true],
           [templateRequestExample, 'unanswered', true],
+          [templateBoundaryExample, 'unanswered', true],
         ]) {
           await call('PUT', '', {
             rule: {

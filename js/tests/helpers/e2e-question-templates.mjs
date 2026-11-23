@@ -5,6 +5,7 @@ import { decoded } from './e2e-form-review.mjs';
 import { assertViewportFits } from './e2e-viewport.mjs';
 import {
   templateExample as example,
+  templateBoundaryExample,
   templateLinkExample,
   templateRequestExample,
   mountTemplateQuestion,
@@ -124,7 +125,7 @@ const verifyTemplateGuard = async (
   { screenshots, before = false } = {}
 ) => {
   const ui = await questionBrowserUi(browser, {
-    group: `question-template-${kind}s`,
+    group: `question-template-${kind}`,
     screenshots,
   });
   const { fixture, page } = ui;
@@ -147,6 +148,14 @@ const verifyTemplateGuard = async (
         assert.equal(review.plan.requiresReview, !before);
         const protectedMatch = kind === 'link' ? 'approximate' : 'unanswered';
         assert.equal(review.plan.match, before ? 'template' : protectedMatch);
+        if (kind === 'boundary') {
+          const draft = ui.controls.locator('[data-browser-text-draft]');
+          assert.equal(await draft.inputValue(), before ? example.answer : '');
+          assert.equal(
+            await ui.controls.locator('[data-browser-text-send]').isDisabled(),
+            !before
+          );
+        }
         assert.deepEqual(await fixture.stats(), {
           clicks: 0,
           textSends: 0,
@@ -167,10 +176,14 @@ const verifyTemplateGuard = async (
         await ui.shot(`${kind}-guard-${phase}-phone`);
       }
     );
+    const receipt = {
+      boundary: 'separateQuestionRequiresReview',
+      link: 'newLinkRequiresReview',
+      request: 'newRequestRequiresReview',
+    }[kind];
     return {
       ...ui.result(),
-      [kind === 'link' ? 'newLinkRequiresReview' : 'newRequestRequiresReview']:
-        !before,
+      [receipt]: !before,
       nativeSends: 0,
       liveProvider: false,
     };
@@ -184,3 +197,6 @@ export const verifyTemplateLinkGuards = (browser, options) =>
 
 export const verifyTemplateRequestGuards = (browser, options) =>
   verifyTemplateGuard(browser, templateRequestExample, 'request', options);
+
+export const verifyTemplateBoundaryGuards = (browser, options) =>
+  verifyTemplateGuard(browser, templateBoundaryExample, 'boundary', options);

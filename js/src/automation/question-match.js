@@ -15,6 +15,7 @@ import {
 
 export { MAX_QUESTION_LENGTH } from '../crm/question-recognition.js';
 const MAX_WORDS = 256;
+const MAX_TEMPLATE_TOKENS = 2 * MAX_WORDS + 1;
 const fold = (text, { caseSensitive = false } = {}) => {
   const value = String(text ?? '')
     .normalize('NFKC')
@@ -24,6 +25,9 @@ const fold = (text, { caseSensitive = false } = {}) => {
 };
 const WORD =
   /[$€£₽₹¥]|\.?[\p{L}\p{N}][\p{L}\p{M}\p{N}\u200c\u200d]*(?:[+#]{1,2}|(?:[./:@_-][\p{L}\p{N}][\p{L}\p{M}\p{N}\u200c\u200d]*)+)?/gu;
+const BOUNDARY = String.raw`\?|(?<sentence>[.!。।]+|\r?\n[^\S\r\n]*\r?\n)`;
+const MESSAGE_TOKEN = new RegExp(`(?:${WORD.source})|${BOUNDARY}`, 'gu');
+const PATTERN_TOKEN = new RegExp(`…|(?:${WORD.source})\\*?|${BOUNDARY}`, 'gu');
 export const questionWords = (text, options) =>
   fold(text, options).match(WORD) ?? [];
 export const questionKey = (text, options) =>
@@ -31,14 +35,55 @@ export const questionKey = (text, options) =>
 export const asksQuestion = isQuestion;
 
 const extraIntent = (text) =>
-  asksQuestion(text) ||
+  text
+    .split(/[,，;；]|\s+(?:and|or|but|а|и|или|और|या)\s+/iu)
+    .some(asksQuestion) ||
   questionAction.test(text) ||
   questionInvitation.test(text) ||
   /(?<!\p{L})(?:когда|почему|сколько|какая|какие|укажите|созвон\p{L}*|встреч\p{L}*|when|why|which)(?!\p{L})/iu.test(
     text
   );
 
-const advancePattern = (states, token, { words, text, tail }, maxGap) => {
+const abbreviation = (stop, previous) =>
+  stop[0] === '.' &&
+  previous &&
+  previous.index + previous[0].length === stop.index &&
+  /^(?:\p{L}\.)+\p{L}$/u.test(previous[0]);
+
+const templateTokens = (text, expression) => {
+  const matches = [...text.matchAll(expression)];
+  return matches.flatMap((match, index) => {
+    // A terminal full stop or the dot in a.m. does not separate two clauses.
+    if (
+      match.groups.sentence &&
+      (index === matches.length - 1 || abbreviation(match, matches[index - 1]))
+    ) {
+      return [];
+    }
+    return [
+      {
+        value: match.groups.sentence ? '.' : match[0],
+        index: match.index,
+        end: match.index + match[0].length,
+      },
+    ];
+  });
+};
+
+const isBoundary = (token) => token === '?' || token === '.';
+const nextFixedPosition = (words, position, expected) => {
+  // A plain-text question may omit the final mark after all its words.
+  if (expected === '?' && position === words.length) {
+    return position;
+  }
+  const token = words[position]?.value;
+  const matches = expected.endsWith('*')
+    ? token?.startsWith(expected.slice(0, -1))
+    : token === expected;
+  return matches ? position + 1 : null;
+};
+
+const advancePattern = (states, token, words, text, maxGap) => {
   const next = new Map();
   for (const [position, skipped] of states) {
     if (token === '…') {
@@ -48,29 +93,26 @@ const advancePattern = (states, token, { words, text, tail }, maxGap) => {
         size++
       ) {
         const end = position + size;
-        // Keep punctuation between words so a skipped clause cannot look like
-        // a continuation of the approved question. Leave terminal punctuation
-        // to the whole-template check when a wildcard ends the message.
+        // Only the saved pattern can consume a question mark or sentence break.
         if (
           size > 0 &&
-          extraIntent(
-            text.slice(words[position].index, words[end]?.index ?? tail)
-          )
+          (isBoundary(words[end - 1].value) ||
+            extraIntent(
+              text.slice(
+                words[position].index,
+                words[end]?.index ?? words[end - 1].end
+              )
+            ))
         ) {
           break;
         }
         next.set(end, Math.min(next.get(end) ?? Infinity, skipped + size));
       }
-    } else if (
-      position < words.length &&
-      (token.endsWith('*')
-        ? words[position][0].startsWith(token.slice(0, -1))
-        : words[position][0] === token)
-    ) {
-      next.set(
-        position + 1,
-        Math.min(next.get(position + 1) ?? Infinity, skipped)
-      );
+    } else {
+      const end = nextFixedPosition(words, position, token);
+      if (end !== null) {
+        next.set(end, Math.min(next.get(end) ?? Infinity, skipped));
+      }
     }
   }
   return next;
@@ -94,38 +136,40 @@ const invalidInputs = (pattern, text) =>
   // before either exact normalization or wildcard expansion can hide a change.
   JSON.stringify(questionLinks(pattern)) !==
     JSON.stringify(questionLinks(text));
-const invalidTemplateExpansion = (pattern, text, options) =>
-  (text.match(/[?？]/gu)?.length ?? 0) >
-    (pattern.match(/[?？]/gu)?.length ?? 0) ||
-  !(options?.templateSubjects ?? sameQuestionSubjects)(pattern, text);
-
 const matchTemplate = (pattern, text, options) => {
-  const folded = fold(text, options);
-  const words = [...folded.matchAll(WORD)];
-  if (!words.length || words.length > MAX_WORDS) {
+  const folded = fold(text, options).trim();
+  const words = templateTokens(folded, MESSAGE_TOKEN);
+  const wordCount = words.filter(({ value }) => !isBoundary(value)).length;
+  if (
+    !wordCount ||
+    wordCount > MAX_WORDS ||
+    words.length > MAX_TEMPLATE_TOKENS
+  ) {
     return null;
   }
-  const tokens =
+  const tokens = templateTokens(
     fold(pattern, options)
-      .replace(/\.\.\./gu, '…')
-      .match(
-        /…|[$€£₽₹¥]|\.?[\p{L}\p{N}][\p{L}\p{M}\p{N}\u200c\u200d]*(?:[+#]{1,2}|(?:[./:@_-][\p{L}\p{N}][\p{L}\p{M}\p{N}\u200c\u200d]*)+)?\*?/gu
-      ) ?? [];
-  const fixed = tokens.filter((token) => token !== '…').length;
-  if (!fixed || tokens.length > MAX_WORDS) {
+      .trim()
+      .replace(/\.\.\./gu, '…'),
+    PATTERN_TOKEN
+  ).map(({ value }) => value);
+  const terms = tokens.filter((token) => !isBoundary(token));
+  const fixed = terms.filter((token) => token !== '…').length;
+  if (
+    !fixed ||
+    terms.length > MAX_WORDS ||
+    tokens.length > MAX_TEMPLATE_TOKENS
+  ) {
     return null;
   }
-  // Reject new question punctuation even if punctuation normalization hides it.
-  if (invalidTemplateExpansion(pattern, text, options)) {
+  if (!(options?.templateSubjects ?? sameQuestionSubjects)(pattern, text)) {
     return null;
   }
   const maxGap = Math.min(40, fixed * 3);
-  const last = words.at(-1);
-  const input = { words, text: folded, tail: last.index + last[0].length };
   // Keep one cheapest path per input position: O(pattern * words * maxGap).
   let states = new Map([[0, 0]]);
   for (const token of tokens) {
-    states = advancePattern(states, token, input, maxGap);
+    states = advancePattern(states, token, words, folded, maxGap);
     if (!states.size) {
       return null;
     }

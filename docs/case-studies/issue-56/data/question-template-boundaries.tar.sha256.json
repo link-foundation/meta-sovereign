@@ -1,0 +1,31 @@
+{
+  "archive": "question-template-boundaries.tar.gz",
+  "files": {
+    "js/src/automation/question-match.js": "aab729e581a5011feeefeb425c13705a7ad8bfe6a373f51c1ace51ebb5188e2c",
+    "js/tests/e2e-question-templates-browser.mjs": "723ceac686a824636c2797098b41ff7743c966fc1ad3b3dce6c6efee283f95a7",
+    "js/tests/helpers/e2e-question-templates.mjs": "d3d51ee7bdc95c7310e9a4b351474f2173b3e4277bfd78658231946e74efafcd",
+    "js/tests/question-template-links.test.js": "3044ce99764971a20c2db1150651c246117b1a36f2bd973e1a57fcba83642f59",
+    "js/tests/question-template-workflows.test.js": "4cb1459cf077b8d19e1d3bc29fdae6ee92c3ca53bee56abd86a8407c0c6093a3",
+    "experiments/issue-56/collect-question-template-boundaries.py": "7740db12024cdb3bff64877c5afc377d425d95dce172eeb12fa8cd1d60471b24",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "experiments/issue-56/question-template-boundary-mcp.mjs": "61512fab7c650ce8b4f046caa003f2a434ce29e91cb3b6c60fc5f9cb57572031",
+    "experiments/issue-56/question-template-fixture.mjs": "9eead8d25d9e69c057c7045845d683979224fbc7c26ff6cec5796ad2dbf3f832",
+    "experiments/issue-56/question-template-request-browser.mjs": "d004bee981f24bf26d0dc5ae12a47a034b45480dfc6420bca04d1eb911d84df2",
+    "experiments/issue-56/question-templates-mcp-server.mjs": "818bf924e6419c7cbf7b3274b56b84cbeed44175d1f3acf0ab25e709b9bc6ed8",
+    "before/js/src/automation/question-match.js": "e374ce6c68d16b081c5acea955bdf575f98304bfeb707cca24dd18462a1f02bd",
+    "ci-logs/question-template-boundary-node-before.log": "3ab6f980fc93a41535de09eb8359c541761edff1609f198a1c0551665968fba2",
+    "ci-logs/question-template-boundary-node.log": "5c5baedf816b8e921a0d6e217c3395002a47ac443b545aaf87173dba4384e3ee",
+    "ci-logs/question-template-boundary-deno.log": "45614e96e5380589fcf2fc093abb06c38454d00ca6dc7822f46e645d6cd11ccb",
+    "ci-logs/question-template-boundary-browser-before.log": "3e68c9b76c0e588bde249f8b48e5b9f100b9c2dd696afbe954c2d73232d52119",
+    "ci-logs/question-template-boundary-browser-after.log": "7e2ce28b40f3c44e7dc95f010ede3142c80d511850447eae0b1ec87da85f387b",
+    "ci-logs/question-template-boundary-mcp.log": "9b7079a944b1e4480fa1b8c6c09665f87c31577e60c3718d8f3f267085b56d4c",
+    "ci-logs/question-template-boundary-mcp-network.log": "e89f50de9a240cba775d5d1e0eca3216bda2c806c0655c31827d1002559dd379",
+    "ci-logs/question-template-boundary-mcp-console.log": "8844007034913ef0bdf89e05104bbb7e7fa4ef4df7807f785549da7d944c7240",
+    "ci-logs/question-template-boundary-mcp-server.log": "7c53b5c01c65fff8e270e36ade7f11ddff966935b1776542f7dab25b4ea6128b",
+    "ci-logs/question-template-boundary-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/question-template-boundary-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/question-template-boundary-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/question-template-boundary-build.log": "bcf31f60bdb3d09fb24d6f20457392de7a43319fa2610c8cbc8b47a3c314b87f",
+    "metadata.json": "f4b8b8f37495a37bd7853b496759467bef6274c464076ceced88fb08b6bca96c"
+  }
+}
