@@ -226,6 +226,7 @@ const vacancyCapabilities = (browser) => ({
   ...browser,
   search: browser.available === true,
   manualLogin: browser.available === true,
+  manualLoginAttention: true,
   discovery: browser.available === true,
   collect: browser.available === true,
   resumes: browser.available === true,

@@ -129,6 +129,7 @@ export const CV_HELP = `  cv-platforms  [--json]
 
 export const VACANCY_HELP = `${APPLICATION_HELP}
   vacancies-login-open [--request-id=<id>] [--browser-slot=jobs] [--headless=false] [--duration-ms=1800000] [--store=<dir>]
+      In a terminal, type attention, status, focus <wait-id>, or quit while the browser is open.
     Keep a visible browser open for manual HH login/CAPTCHA. Ctrl+C closes it. Authentication is not verified.
   vacancies-login-status [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
   vacancies-login-close [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]

@@ -11,7 +11,18 @@ export const jobLoginInput = (extra = {}) => ({
 export const jobLoginFixture = () => {
   const store = createMemoryStore();
   const page = new EventEmitter();
-  const calls = { launches: [], navigations: [], closes: 0, traces: [] };
+  const calls = {
+    launches: [],
+    navigations: [],
+    closes: 0,
+    focuses: 0,
+    traces: [],
+  };
+  let pageClosed = false;
+  page.isClosed = () => pageClosed;
+  page.bringToFront = async () => {
+    calls.focuses++;
+  };
   const timers = new Map();
   let time = Date.parse('2026-11-17T17:00:00Z');
   let launch, navigation, closing;
@@ -26,6 +37,7 @@ export const jobLoginFixture = () => {
     close: async () => {
       calls.closes++;
       await closing?.();
+      pageClosed = true;
     },
   };
   const options = {
@@ -35,6 +47,7 @@ export const jobLoginFixture = () => {
     openSession: async (input) => {
       calls.launches.push(input);
       await launch?.();
+      pageClosed = false;
       return browser;
     },
     login: {
@@ -64,6 +77,10 @@ export const jobLoginFixture = () => {
     },
     beforeClose: (value) => {
       closing = value;
+    },
+    closeNativePage: () => {
+      pageClosed = true;
+      page.emit('close');
     },
     advance: (value) => {
       time += value;

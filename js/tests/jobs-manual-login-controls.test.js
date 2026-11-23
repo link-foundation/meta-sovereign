@@ -9,7 +9,12 @@ import { createJobLoginApi } from '../src/web/job-login-api.js';
 import { JobLoginPanel } from '../src/web/job-login-panel.js';
 import { translate } from '../src/web/i18n.js';
 import { renderInLocale } from './util-render.js';
-import { decodeWire, LINO_TEXT, LINO_BINARY } from '../src/transport/lino.js';
+import {
+  decodeWire,
+  LINO_TEXT,
+  LINO_BINARY,
+  readWireResponse,
+} from '../src/transport/lino.js';
 import { withRoutes, wirePost } from './helpers/vacancy-routes.mjs';
 import {
   jobLoginFixture,
@@ -75,6 +80,81 @@ for (const type of [LINO_TEXT, LINO_BINARY]) {
           );
           assert.equal(f.calls.launches.length, 1);
           assert.equal(f.calls.closes, 1);
+        },
+        { store: f.store, service: f.options }
+      );
+    }
+  );
+  test(
+    `manual login attention uses no-store and guarded exact focus in ${type}`,
+    { timeout: 5000 },
+    async (t) => {
+      const f = jobLoginFixture();
+      t.after(() => f.service.stop());
+      const input = jobLoginInput();
+      await withRoutes(
+        async (base) => {
+          const api = createJobLoginApi({
+            get: async (path, options) => {
+              assert.equal(options.recover, false);
+              const response = await fetch(`${base}${path}`, {
+                headers: { accept: type },
+                signal: options.signal,
+              });
+              assert.equal(
+                response.status,
+                200,
+                'read-only HeadHunter login route'
+              );
+              assert.equal(response.headers.get('cache-control'), 'no-store');
+              return readWireResponse(response);
+            },
+            report: async (path, value, options) => {
+              assert.deepEqual(options, { network: true, read: false });
+              return (await wirePost(base, path.split('/').at(-1), value, type))
+                .value;
+            },
+          });
+          await wirePost(base, 'login-open', input, type);
+          const {
+            attention: [notice],
+          } = await api.vacancyLoginAttention();
+          assert.equal(notice.requestId, input.requestId);
+          assert.equal(notice.browserSlot, input.browserSlot);
+          assert.equal(
+            (await fetch(`${base}/api/vacancies/login-attention-focus`)).status,
+            405
+          );
+          assert.equal(
+            (
+              await wirePost(base, 'login-attention-focus', notice, type, {
+                origin: 'https://untrusted.test',
+              })
+            ).status,
+            403
+          );
+          assert.equal(
+            (
+              await wirePost(
+                base,
+                'login-attention-focus',
+                { ...notice, browserSlot: 'other' },
+                type
+              )
+            ).value.code,
+            'jobs-attention-ended'
+          );
+          assert.deepEqual(await api.vacancyLoginAttentionFocus(notice), {
+            ok: true,
+          });
+          await wirePost(base, 'login-close', input, type);
+          assert.deepEqual((await api.vacancyLoginAttention()).attention, []);
+          assert.equal(
+            (await api.vacancyLoginAttentionFocus(notice)).code,
+            'jobs-attention-ended'
+          );
+          assert.equal(f.calls.launches.length, 1);
+          assert.equal(f.calls.focuses, 1);
         },
         { store: f.store, service: f.options }
       );
@@ -211,6 +291,53 @@ test(
     assert.equal((await result)[0].status, 'rejected');
     assert.equal(f.calls.closes, 1);
     assert.equal(f.calls.navigations.length, 0);
+  }
+);
+
+test(
+  'foreground manual login CLI shows and focuses its own wait and drains on quit',
+  { timeout: 5000 },
+  async (t) => {
+    const f = jobLoginFixture();
+    t.after(() => f.service.stop());
+    const output = [];
+    const stream = {
+      async *[Symbol.asyncIterator]() {
+        yield 'status';
+        yield 'attention';
+        yield 'focus stale';
+        const current = output.find((row) => row.attention)?.attention[0];
+        yield `focus ${current?.id}`;
+        yield 'quit';
+        assert.fail('quit must drain the owned browser and stop reading');
+      },
+    };
+    const commands = createVacancyCommands({
+      openStore: async () => f.store,
+      readLoginInput: () => stream,
+      ...f.options,
+    });
+    const watchdog = setTimeout(() => process.emit('SIGINT'), 2000);
+    const exit = await commands['vacancies-login-open'](
+      { 'request-id': 'interactive-login', 'browser-slot': 'account-two' },
+      (text) => output.push(decodeWire(text))
+    ).finally(() => clearTimeout(watchdog));
+    assert.equal(exit, 0);
+    assert.deepEqual(output[1].commands, [
+      'attention',
+      'status',
+      'focus <wait-id>',
+      'quit',
+    ]);
+    assert.equal(output[2].login.state, 'browser-open');
+    assert.equal(output[3].attention[0].requestId, 'interactive-login');
+    assert.equal(output[4].code, 'jobs-attention-ended');
+    assert.deepEqual(output[5], { ok: true });
+    assert.equal(output[6].login.state, 'cancelled');
+    assert.equal(output[6].login.authentication, 'unverified');
+    assert.equal(f.calls.launches.length, 1);
+    assert.equal(f.calls.focuses, 1);
+    assert.equal(f.calls.closes, 1);
   }
 );
 

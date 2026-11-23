@@ -65,6 +65,52 @@ class JobLogin {
     }
     return result;
   }
+  currentNotice() {
+    const current = this.current;
+    if (
+      !current?.notice ||
+      current.record.state !== 'browser-open' ||
+      this.stopped ||
+      this.closing ||
+      this.finishing ||
+      current.browserClosed ||
+      current.browser.page.isClosed?.() ||
+      Date.parse(current.notice.expiresAt) <= this.now()
+    ) {
+      return null;
+    }
+    return {
+      ...current.notice,
+      focusAvailable: typeof current.browser.page.bringToFront === 'function',
+    };
+  }
+  attention() {
+    const notice = owners.get(this.store)?.currentNotice();
+    return { ok: true, attention: notice ? [notice] : [] };
+  }
+  async focus({ id, requestId, browserSlot } = {}) {
+    const owner = owners.get(this.store);
+    const notice = owner?.currentNotice();
+    if (
+      !notice ||
+      notice.id !== id ||
+      notice.requestId !== requestId ||
+      notice.browserSlot !== browserSlot
+    ) {
+      throw jobsFailure(
+        'attention-ended',
+        'That HeadHunter login window has ended.'
+      );
+    }
+    if (!notice.focusAvailable) {
+      throw jobsFailure(
+        'attention-focus-unavailable',
+        'This browser cannot be focused.'
+      );
+    }
+    await owner.current.browser.page.bringToFront();
+    return { ok: true };
+  }
   async save(change) {
     const current = this.current;
     const next = { ...current.record, ...change };
@@ -170,6 +216,16 @@ class JobLogin {
         throw jobsFailure('login-expired', 'The manual login window expired.');
       }
       await this.save({ state: 'browser-open' });
+      const { browserSlot, requestId, startedAt, expiresAt } =
+        this.current.record;
+      this.current.notice = {
+        id: globalThis.crypto.randomUUID(),
+        kind: 'hh-manual-login',
+        browserSlot,
+        requestId,
+        startedAt,
+        expiresAt,
+      };
       this.arm(started + options.durationMs);
       return this.status(options);
     } catch (error) {
@@ -190,6 +246,9 @@ class JobLogin {
       Math.max(1, expiresAt - this.now())
     );
     this.timer.unref?.();
+    if (this.current.browser.page.isClosed?.()) {
+      close('closed');
+    }
   }
   finish(state, code = null) {
     if (!this.finishing) {
@@ -296,6 +355,8 @@ export const createJobLoginService = (options) => {
       'login-open': (input) => service.start(input),
       'login-status': (input) => service.status(input),
       'login-close': (input) => service.close(input),
+      'login-attention': () => service.attention(),
+      'login-attention-focus': (input) => service.focus(input),
     },
   };
 };

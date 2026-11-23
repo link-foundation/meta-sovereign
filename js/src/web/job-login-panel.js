@@ -1,5 +1,6 @@
 import React from 'react';
 import { useWorkspaceJob } from './workspace-job-state.js';
+import { refreshLoginAttention } from './form-attention.js';
 
 const el = React.createElement;
 const cannotOpen = (state, control, login) =>
@@ -17,7 +18,10 @@ export const useJobLogin = ({ api, values, remember }) => {
     member: 'login',
   });
   const act = (name, input) => {
-    void state.execute(name, input).catch(() => {});
+    void state
+      .execute(name, input)
+      .catch(() => {})
+      .finally(refreshLoginAttention);
   };
   return {
     ...state,

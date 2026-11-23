@@ -23,6 +23,10 @@ const entries = {
       'Choose Visible browser for manual sign-in, or change the saved visibility preference.',
     error:
       'This operation was not confirmed. Check browser state; opening is never replayed.',
+    'attention.waiting':
+      'Finish HeadHunter sign-in in {slot}, then close the browser.',
+    'attention.notification':
+      'A HeadHunter browser is open for manual sign-in.',
   },
   ru: {
     title: 'Браузер входа HH',
@@ -47,6 +51,9 @@ const entries = {
       'Выберите видимый браузер для ручного входа или измените сохранённую настройку видимости.',
     error:
       'Операция не подтверждена. Проверьте состояние браузера; открытие не повторяется автоматически.',
+    'attention.waiting':
+      'Завершите вход в HeadHunter в слоте {slot}, затем закройте браузер.',
+    'attention.notification': 'Открыт браузер для ручного входа в HeadHunter.',
   },
   zh: {
     title: 'HH 登录浏览器',
@@ -66,6 +73,9 @@ const entries = {
     interrupted: '登录请求已中断，不会自动重新打开。',
     visible: '请为手动登录选择可见浏览器，或修改已保存的可见性设置。',
     error: '操作尚未确认。请检查浏览器状态；系统不会重放打开请求。',
+    'attention.waiting':
+      '请在 {slot} 槽位完成 HeadHunter 登录，然后关闭浏览器。',
+    'attention.notification': '已打开浏览器，可手动登录 HeadHunter。',
   },
   hi: {
     title: 'HH साइन-इन ब्राउज़र',
@@ -90,6 +100,10 @@ const entries = {
       'मैन्युअल साइन-इन के लिए दृश्य ब्राउज़र चुनें या सहेजी दृश्यता बदलें।',
     error:
       'कार्रवाई अपुष्ट है। ब्राउज़र स्थिति जाँचें; खोलने का अनुरोध दोहराया नहीं जाएगा।',
+    'attention.waiting':
+      '{slot} स्लॉट में HeadHunter साइन-इन पूरा करें, फिर ब्राउज़र बंद करें।',
+    'attention.notification':
+      'HeadHunter में मैन्युअल साइन-इन के लिए ब्राउज़र खुला है।',
   },
 };
 export const jobLoginLocale = (language) =>

@@ -105,7 +105,11 @@ const vacancyOperations = [
   'cv-translation-status',
   'cv-translation-cancel',
 ];
-export const createVacancyCommands = ({ openStore, ...options }) =>
+export const createVacancyCommands = ({
+  openStore,
+  readLoginInput,
+  ...options
+}) =>
   Object.assign(
     createApplicationCommands({ openStore, ...options }),
     Object.fromEntries(
@@ -202,7 +206,12 @@ export const createVacancyCommands = ({ openStore, ...options }) =>
                   : operation === 'cv-watch'
                     ? await foregroundCvWatch(service, input, log)
                     : operation === 'login-open'
-                      ? await foregroundJobLogin(service, input, log)
+                      ? await foregroundJobLogin(
+                          service,
+                          input,
+                          log,
+                          readLoginInput
+                        )
                       : await service[operation](input);
             log(encodeWire(result));
             return vacancyCommandExit(operation, result);

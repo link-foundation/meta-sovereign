@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { jobLoginBrowserFixture } from '../../../experiments/issue-56/job-login-browser-fixture.mjs';
+import { LINO_TEXT, readWireResponse } from '../../src/transport/lino.js';
 import { captureVkAutomationLayouts } from './vk-automation-browser.mjs';
 
 const captureFailure = async (page, panel) => {
@@ -148,6 +149,82 @@ export const verifyJobsManualLogin = async (browser) => {
   } catch (error) {
     await captureFailure(page, panel);
     throw error;
+  } finally {
+    await fixture.close();
+  }
+};
+
+const captureAttention = async (page, stage) => {
+  if (process.env.HH_LOGIN_ATTENTION_SCREENSHOTS === stage) {
+    await page.screenshot({
+      path: `docs/screenshots/issue-56-hh-manual-login-attention-${stage}.png`,
+    });
+  }
+};
+
+export const verifyManualLoginAttention = async (browser) => {
+  const fixture = await jobLoginBrowserFixture(browser);
+  const { page, base } = fixture;
+  page.context().setDefaultTimeout(10000);
+  const banner = page.locator('[data-login-attention="manual-account"]');
+  const current = async () => {
+    const response = await fetch(`${base}/api/vacancies/login-attention`, {
+      headers: { accept: LINO_TEXT },
+    });
+    assert.equal(response.status, 200, 'read-only HeadHunter login route');
+    return (await readWireResponse(response)).attention;
+  };
+  try {
+    await page.goto(`${base}/#/cv`);
+    const slot = page.locator('[data-vacancy-field=browserSlot]');
+    await slot.fill('manual-account');
+    await page.locator('[data-job-login-action=open]').click();
+    await page.locator('[data-job-login-state="browser-open"]').waitFor();
+    const owner = fixture.providerPages[0];
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`${base}/#/settings`);
+    await page.locator('main[data-view="settings"]').waitFor();
+    await captureAttention(page, 'before');
+    const [notice] = await current();
+    assert.equal(notice.kind, 'hh-manual-login');
+    assert.equal(notice.browserSlot, 'manual-account');
+    await banner
+      .getByText(
+        'Finish HeadHunter sign-in in manual-account, then close the browser.'
+      )
+      .waitFor();
+    assert.equal(
+      await page.evaluate(
+        () =>
+          globalThis.document.documentElement.scrollWidth <=
+          globalThis.innerWidth
+      ),
+      true
+    );
+    await captureAttention(page, 'after');
+    await page.goto(`${base}/#/operator`);
+    await page.locator('main[data-view="operator"]').waitFor();
+    const focused = page.waitForResponse(
+      (response) =>
+        response.url().endsWith('/api/vacancies/login-attention-focus') &&
+        response.ok()
+    );
+    await banner.getByRole('button', { name: 'Show browser' }).click();
+    await focused;
+    assert.equal(fixture.records[0].focuses, 1);
+    const privateAccess = await owner.evaluate(() => globalThis.loginAccess);
+    assert.deepEqual(privateAccess, { reads: 0, writes: 0, submits: 0 });
+    await owner.close();
+    assert.deepEqual(await current(), []);
+    await banner.waitFor({ state: 'detached' });
+    assert.equal(fixture.records[0].closed, true);
+    assert.deepEqual(fixture.errors, []);
+    return {
+      exactWindowFocus: 1,
+      settingsAndOperator: true,
+      privateAccess,
+      closed: true,
+    };
   } finally {
     await fixture.close();
   }

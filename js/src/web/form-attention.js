@@ -29,6 +29,17 @@ const APPLICATION = {
   notification: 'application.attention.notification',
   waiting: 'application.attention.waiting',
 };
+const LOGIN = {
+  name: 'login',
+  kind: 'hh-manual-login',
+  event: 'meta-sovereign:job-login-attention',
+  capabilities: 'vacancyCapabilities',
+  capability: 'manualLoginAttention',
+  attention: 'vacancyLoginAttention',
+  focus: 'vacancyLoginAttentionFocus',
+  notification: 'jobLogin.attention.notification',
+  waiting: 'jobLogin.attention.waiting',
+};
 const keyOf = ({ id, requestId }) => JSON.stringify([id, requestId]);
 const validWait = (item, source) =>
   item?.kind === source.kind &&
@@ -41,6 +52,7 @@ const validWait = (item, source) =>
 const refresh = (event) =>
   globalThis.dispatchEvent?.(new globalThis.Event(event));
 export const refreshFormAttention = () => refresh(REFRESH);
+export const refreshLoginAttention = () => refresh(LOGIN.event);
 
 const observe = (api, source, update) => {
   const owner = new AbortController();
@@ -302,3 +314,5 @@ export const FormAttention = ({ api }) =>
   el(OwnerAttention, { api, source: FORM });
 export const ApplicationAttention = ({ api }) =>
   el(OwnerAttention, { api, source: APPLICATION });
+export const JobLoginAttention = ({ api }) =>
+  el(OwnerAttention, { api, source: LOGIN });

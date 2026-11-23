@@ -71,7 +71,7 @@ const replyVacancy = (res, result, file, operation) => {
     res.end(result.bytes);
     return true;
   }
-  if (operation === 'application-attention') {
+  if (['login-attention', 'application-attention'].includes(operation)) {
     res.setHeader('cache-control', 'no-store');
   }
   return json(res, 200, result) ?? true;
@@ -86,6 +86,7 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
     [
       'capabilities',
       'login-status',
+      'login-attention',
       'application-status',
       'application-attention',
       'application-batch-status',
@@ -115,6 +116,7 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
       'search',
       'login-open',
       'login-close',
+      'login-attention-focus',
       'discovery-start',
       'discovery-stop',
       'application-open',

@@ -1,3 +1,10 @@
+2026-11-23 HeadHunter manual login attention (HH01 remains unfinished):
+
+- [x] Reproduce six focused failures and the missing Lino route on the published parent while the manual browser is open.
+- [x] Expose the acknowledged live login window across views, both Lino encodings and the owning terminal. Verify exact focus, expiry, replacement, closure and private input isolation.
+- [x] Verify 65 Node and 65 Deno checks, both production Chromium scenarios and an independent 390-pixel Playwright MCP run. Record unverified authentication and zero provider reads, writes or submissions.
+- [ ] Review hosted checks and continue native desktop actions and authenticated provider verification.
+
 2026-11-23 shared notification chime (HH01 and QA24 remain unfinished):
 
 - [x] Reproduce the production media policy rejection with a real audio element on the published parent.

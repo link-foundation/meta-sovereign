@@ -38,7 +38,11 @@ import { AddlistHost } from './chat-folder-share.js';
 import { AddthemeHost, useApplyCloudTheme } from './cloud-themes.js';
 import { ContactLinkHost } from './contact-links.js';
 import { AppNotifications } from './app-notify.js';
-import { ApplicationAttention, FormAttention } from './form-attention.js';
+import {
+  ApplicationAttention,
+  FormAttention,
+  JobLoginAttention,
+} from './form-attention.js';
 import { VkFriendStatsBanner } from './vk-friend-stats-banner.js';
 import { LockScreen, useLocalLock } from './passcode.js';
 import { useAppNavigation } from './app-navigation.js';
@@ -268,6 +272,9 @@ const App = () => {
             online ? el(FormAttention, { key: 'form-attention', api }) : null,
             online
               ? el(ApplicationAttention, { key: 'application-attention', api })
+              : null,
+            online
+              ? el(JobLoginAttention, { key: 'login-attention', api })
               : null,
             el(View, { key: 'view' }),
           ]

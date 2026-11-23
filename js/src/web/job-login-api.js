@@ -26,6 +26,13 @@ const checked = (value, input) => {
   return loginResult(value.login, loginIdentity(input));
 };
 export const createJobLoginApi = ({ get, report }) => ({
+  vacancyLoginAttention: (signal) =>
+    get('/api/vacancies/login-attention', { signal, recover: false }),
+  vacancyLoginAttentionFocus: (input) =>
+    report('/api/vacancies/login-attention-focus', input, {
+      network: true,
+      read: false,
+    }),
   vacancyLoginStatus: async (input = {}) => {
     const identity = loginIdentity(input);
     return checked(

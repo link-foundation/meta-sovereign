@@ -104,6 +104,137 @@ test(
 );
 
 test(
+  'manual login attention focuses only the exact current workspace owner',
+  { timeout: 5000 },
+  async (t) => {
+    const f = fixture(t);
+    const other = createVacancyService(f.options);
+    const isolated = fixture(t);
+    assert.deepEqual(other['login-attention'](), { ok: true, attention: [] });
+    await f.service['login-open'](input);
+    const {
+      attention: [notice],
+    } = other['login-attention']();
+    assert.deepEqual(notice, {
+      id: notice.id,
+      kind: 'hh-manual-login',
+      requestId: input.requestId,
+      browserSlot: input.browserSlot,
+      startedAt: '2026-11-17T17:00:00.000Z',
+      expiresAt: '2026-11-17T17:30:00.000Z',
+      focusAvailable: true,
+    });
+    assert.match(notice.id, /^[\da-f-]{36}$/u);
+    for (const change of [
+      { id: 'stale' },
+      { requestId: 'another' },
+      { browserSlot: 'other-slot' },
+    ]) {
+      await assert.rejects(
+        other['login-attention-focus']({ ...notice, ...change }),
+        {
+          code: 'jobs-attention-ended',
+        }
+      );
+    }
+    await assert.rejects(isolated.service['login-attention-focus'](notice), {
+      code: 'jobs-attention-ended',
+    });
+    const previous = await f.service['login-status'](input);
+    assert.deepEqual(await other['login-attention-focus'](notice), {
+      ok: true,
+    });
+    assert.deepEqual(await f.service['login-status'](input), previous);
+    assert.equal(f.calls.focuses, 1);
+    assert.equal(f.calls.launches.length, 1);
+    assert.equal(f.calls.navigations.length, 1);
+
+    f.closeNativePage();
+    assert.deepEqual(other['login-attention']().attention, []);
+    await f.wait('closed');
+    await f.service['login-open']({ ...input, requestId: 'second-owner' });
+    assert.notEqual(other['login-attention']().attention[0].id, notice.id);
+    await assert.rejects(other['login-attention-focus'](notice), {
+      code: 'jobs-attention-ended',
+    });
+    assert.equal(f.calls.focuses, 1);
+  }
+);
+
+test(
+  'manual login attention refuses focus after deadline or during unconfirmed closure',
+  { timeout: 5000 },
+  async (t) => {
+    const f = fixture(t);
+    await f.service['login-open']({ ...input, durationMs: 1000 });
+    const {
+      attention: [notice],
+    } = f.service['login-attention']();
+    f.advance(1000);
+    assert.deepEqual(f.service['login-attention']().attention, []);
+    await assert.rejects(f.service['login-attention-focus'](notice), {
+      code: 'jobs-attention-ended',
+    });
+    await f.service['login-close'](input);
+    const next = { ...input, requestId: 'closing-owner' };
+    await f.service['login-open'](next);
+    const other = f.service['login-attention']().attention[0];
+    const entered = deferred(),
+      release = deferred();
+    f.beforeClose(async () => {
+      entered.resolve();
+      await release.promise;
+      throw new Error('unconfirmed close');
+    });
+    const closing = f.service['login-close'](next);
+    const rejected = assert.rejects(closing, { code: 'jobs-login-close' });
+    try {
+      await entered.promise;
+      assert.deepEqual(f.service['login-attention']().attention, []);
+      await assert.rejects(f.service['login-attention-focus'](other), {
+        code: 'jobs-attention-ended',
+      });
+    } finally {
+      release.resolve();
+      await rejected;
+      f.beforeClose(null);
+    }
+    assert.equal(
+      (await f.service['login-status'](next)).login.state,
+      'close-failed'
+    );
+    assert.deepEqual(f.service['login-attention']().attention, []);
+    assert.equal(f.calls.focuses, 0);
+  }
+);
+
+test(
+  'manual login notices survive a focus capability gap and disappear if the window closes during startup',
+  { timeout: 5000 },
+  async (t) => {
+    const f = fixture(t);
+    delete f.page.bringToFront;
+    await f.service['login-open'](input);
+    const {
+      attention: [notice],
+    } = f.service['login-attention']();
+    assert.equal(notice.focusAvailable, false);
+    await assert.rejects(f.service['login-attention-focus'](notice), {
+      code: 'jobs-attention-focus-unavailable',
+    });
+    await f.service['login-close'](input);
+    f.beforeNavigation(f.closeNativePage);
+    const startup = { ...input, requestId: 'closed-at-startup' };
+    await f.service['login-open'](startup);
+    assert.deepEqual(f.service['login-attention']().attention, []);
+    assert.equal(
+      (await f.wait('closed', startup)).login.authentication,
+      'unverified'
+    );
+  }
+);
+
+test(
   'manual login respects saved headless policy and accepts an explicit visible override',
   { timeout: 5000 },
   async (t) => {

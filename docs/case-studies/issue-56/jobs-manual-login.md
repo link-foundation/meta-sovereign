@@ -24,7 +24,8 @@ service instance drains the actual workspace owner. Default-off
 
 ```sh
 meta-sovereign vacancies-login-open --browser-slot jobs --headless false
-# Complete sign-in manually; Ctrl+C closes the owned browser before exiting.
+# Type attention, status, focus <wait-id>, or quit in the owning terminal.
+# Complete sign-in manually. Ctrl+C also closes the owned browser before exit.
 meta-sovereign vacancies-login-status --browser-slot jobs
 ```
 
@@ -95,8 +96,50 @@ receipts. Scoped lint, formatting, secrets, source limits and the unchanged
 6.5% duplication gate pass (6.49% duplication). New-head hosted matrices remain
 required.
 
-HH01 is **unfinished**: the complete pinned workflow, private bounded diagnostics,
-attention behavior and authenticated provider acceptance still require review
-and verification. No original criterion is accepted from this unit alone.
-The issue inventory remains 82 verified / 36 unfinished; PR57 remains draft and
-unmerged with every unfinished requirement active.
+## Return to the current sign-in window
+
+The original CV controls showed the held window only in CV. Switching to a
+different view removed the action, and the foreground terminal could only wait
+for the browser to close. On published commit `03c83ec9`, the new tests find
+six focused failures and Chromium gets HTTP 404 for the attention query after
+opening a visible-policy test window and navigating to Settings.
+
+Use **Show browser** from Settings, Operator or any connected view to focus the
+same named window. **Later** uses the shared reminder timing. GET
+`/api/vacancies/login-attention` reads only the live owner notice and uses
+`Cache-Control: no-store`. POST `/api/vacancies/login-attention-focus` uses the
+existing trusted-origin guard and requires the current notice ID, request ID
+and named slot. Expiry, replacement, native close and unconfirmed closure
+invalidate focus. A browser without a focus method still shows its active
+notice. Closing at startup drains ownership when the page already reports itself
+closed. The foreground CLI exposes the same commands in a terminal. A piped
+invocation keeps its original start and terminal receipts and signal handling.
+
+```sh
+node --max-old-space-size=384 --test --test-concurrency=1 \
+  js/tests/jobs-manual-login.test.js js/tests/jobs-manual-login-controls.test.js \
+  js/tests/job-application-attention.test.js js/tests/i18n.test.js
+RUN_BROWSER_E2E=1 HH_LOGIN_ATTENTION_SCREENSHOTS=after npm run test:e2e:jobs-manual-login
+```
+
+Node and Deno each pass 65 focused checks. The two Chromium scenarios verify
+original manual-input and recovery behavior, then one exact focus across
+Settings and Operator, zero accesses to synthetic input values, zero
+submissions and successful native drain. Independent Playwright MCP repeats
+those attention checks at 390 pixels. Its console records missing fixture
+favicon and optional Telegram routes and zero page exceptions.
+
+| Published parent with a live sign-in window                                                           | Current notice in Settings                                                                                     |
+| ----------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| ![Settings before the shared notice](../../screenshots/issue-56-hh-manual-login-attention-before.png) | ![Settings showing the current sign-in window](../../screenshots/issue-56-hh-manual-login-attention-after.png) |
+
+![Independent phone verification of the active sign-in window](../../screenshots/issue-56-hh-manual-login-attention-mcp.png)
+
+The [attention evidence archive](data/hh-manual-login-attention.tar.gz) contains
+the six exact-parent failures, native browser traces, Playwright MCP results,
+focused runtime logs and source hashes.
+
+HH01 remains **unfinished**. The complete pinned workflow, native desktop
+notification actions and authenticated provider acceptance still require evidence.
+The issue inventory remains 88 verified and 30 unfinished. PR57 remains draft
+and unmerged.
