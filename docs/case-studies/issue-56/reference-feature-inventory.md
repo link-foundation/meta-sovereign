@@ -32,6 +32,8 @@ Partial QA02 and QA06 include [edited answer history](question-archive-revisions
 
 [Word-prefix wildcard review](question-template-requests.md#a-word-prefix-wildcard-absorbs-a-new-request) also sends added intent in joined words to review. Four published-parent regressions, 88 focused checks per runtime and Chromium and Playwright MCP receipts cover the correction. QA04 remains open.
 
+[WhatsApp Cloud question destinations](question-whatsapp-links.md) preserve referral and contact-card URLs and nested media captions from supplied native payloads. Nine parent failures, the CLI, both Lino encodings and production browser receipts verify the shared review. Authenticated receipt and the complete QA04 scope remain open.
+
 QA19/QA20 also include [Stop during sender preparation](dispatch-stop.md):
 forty-five actual-parent failures and 383 focused passes cover separate dispatch
 ownership, native queues and real autopilot drainage while preserving issued

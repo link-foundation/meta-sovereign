@@ -16,13 +16,18 @@ import {
   vkQuestionAutomation,
   vkQuestionLink,
 } from './question-vk-links-fixture.mjs';
+import {
+  whatsappQuestionAutomation,
+  whatsappTarget,
+} from './question-whatsapp-links-fixture.mjs';
 
 const inspect = async (page, data) => {
   const errors = [];
   const followed = [];
+  const targetOrigin = new URL(data.target).origin;
   page.on('pageerror', (error) => errors.push(String(error)));
   page.on('request', (request) => {
-    if (request.url().startsWith('https://example.test/')) {
+    if (request.url().startsWith(`${targetOrigin}/`)) {
       followed.push(request.url());
     }
   });
@@ -53,7 +58,8 @@ const inspect = async (page, data) => {
       )
       .first()
       .click();
-    if ((await response).status() !== 200) {
+    const preview = await response;
+    if (preview.status() !== 200) {
       throw new Error('Preview failed');
     }
     const evidence = page
@@ -61,10 +67,13 @@ const inspect = async (page, data) => {
       .first();
     const links = evidence.locator('[data-question-links]');
     await links.waitFor();
+    if (data.kind === 'whatsapp') {
+      await evidence.getByText(label.review, { exact: true }).waitFor();
+    }
     if ((await links.locator('code').textContent()) !== data.target) {
       throw new Error('Destination changed');
     }
-    if ((await links.locator('small').textContent()) !== label) {
+    if ((await links.locator('small').textContent()) !== label.links) {
       throw new Error(`Missing ${locale} label`);
     }
     if (await links.locator('a').count()) {
@@ -105,7 +114,20 @@ const inspect = async (page, data) => {
 
 const email = process.argv.includes('--email');
 const vk = process.argv.includes('--vk');
-const kind = vk ? 'vk' : email ? 'email' : 'api';
+const whatsapp = process.argv.includes('--whatsapp');
+const kind = whatsapp ? 'whatsapp' : vk ? 'vk' : email ? 'email' : 'api';
+const cases = {
+  api: { automation: apiLinkAutomation.id, target: apiLink.first },
+  email: {
+    automation: emailLinkAutomation.id,
+    target: emailLinkTarget('mime'),
+  },
+  vk: { automation: vkQuestionAutomation.id, target: vkQuestionLink.first },
+  whatsapp: {
+    automation: whatsappQuestionAutomation.id,
+    target: whatsappTarget,
+  },
+};
 const code = mcpInspectionCode(inspect, {
   base: process.argv[2],
   root: resolve('.'),
@@ -113,20 +135,14 @@ const code = mcpInspectionCode(inspect, {
     [TUTORIAL_STORAGE_KEY, JSON.stringify({ off: true, v: TUTORIAL_VERSION })],
   ],
   kind,
-  automation: vk
-    ? vkQuestionAutomation.id
-    : email
-      ? emailLinkAutomation.id
-      : apiLinkAutomation.id,
-  target: vk
-    ? vkQuestionLink.first
-    : email
-      ? emailLinkTarget('mime')
-      : apiLink.first,
+  ...cases[kind],
   labels: Object.fromEntries(
     ['en', 'ru', 'hi', 'zh'].map((locale) => [
       locale,
-      dictionaries[locale]['browserAnswer.links'],
+      {
+        links: dictionaries[locale]['browserAnswer.links'],
+        review: dictionaries[locale]['questions.reviewRequired'],
+      },
     ])
   ),
 });

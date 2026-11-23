@@ -1,6 +1,7 @@
 import { messageLinkProperties } from '../message-link-targets.js';
 import { metaMessageTargets } from './meta-message-links.js';
 import { vkMessageTargets } from './vk-message-links.js';
+import { whatsappMessageTargets } from './whatsapp-message-fields.js';
 
 const invalid = () => {
   throw Object.assign(new Error('Message link metadata is unverified.'), {
@@ -182,6 +183,9 @@ const sourceLinks = (message) => {
   }
   if (message.source === 'facebook' || message.source === 'instagram') {
     return metaMessageTargets(message);
+  }
+  if (message.source === 'whatsapp') {
+    return whatsappMessageTargets(message);
   }
   return message.source === 'email' ? emailLinks(message.bodyTree) : undefined;
 };

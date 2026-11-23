@@ -174,6 +174,8 @@
 
 - [Meta question destinations](question-meta-links.md): published-parent regressions and shared review for Messenger Graph and webhook destinations and Facebook and Instagram archive links. See CLI, Lino and Chromium evidence. QA04 remains incomplete.
 
+- [WhatsApp Cloud question destinations](question-whatsapp-links.md) preserve referral and contact-card URLs and media captions before shared answer review. The parent reproduction, CLI, both Lino encodings and two independent browser runs verify supplied Cloud payloads for QA04.
+
 - [VK question destinations and chronology](question-vk-links.md): actual four-adapter parent regressions, bounded direct destinations, consistent native time, frozen final admission and private learning, with CLI/Lino/native/MCP evidence. QA04 remains incomplete.
 - [Layered runner configuration](runner-configuration.md): local/global precedence, ephemeral CLI fields, shared revision-checked editing and retained Stop addresses, with exact-parent and actual browser evidence. Full VD07 remains required.
 

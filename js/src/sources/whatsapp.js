@@ -29,21 +29,10 @@ import {
 } from './http.js';
 import { contentSticker } from './sticker.js';
 import { parseWhatsAppArchive } from './whatsapp-archive.js';
+import { sourceMessageLinkProperties } from './message-text-links.js';
+import { whatsappMessageBody } from './whatsapp-message-fields.js';
 
 const SOURCE = 'whatsapp';
-
-const messageBody = (message) => {
-  if (message.text?.body) {
-    return message.text.body;
-  }
-  if (message.button?.text) {
-    return message.button.text;
-  }
-  if (message.interactive?.button_reply?.title) {
-    return message.interactive.button_reply.title;
-  }
-  return message.caption ?? message.body ?? '';
-};
 
 const webhookSticker = (message) =>
   message.type === 'sticker' && message.sticker
@@ -89,6 +78,7 @@ const waDocAtt = (doc) =>
     url: doc?.url,
     mime: doc?.mime_type,
     name: doc?.filename,
+    caption: doc?.caption,
   });
 
 const waStickerAtt = (st) =>
@@ -123,10 +113,11 @@ const webhookAttachments = (message) => {
     return [waLocationAtt(message.location)];
   }
   if (t === 'contacts') {
-    const items = (message.contacts ?? []).map((c) =>
-      omitNull({ kind: 'contact', name: c.name?.formatted_name })
-    );
-    return items.length > 0 ? items : null;
+    return Array.isArray(message.contacts)
+      ? message.contacts.map((contact) =>
+          omitNull({ kind: 'contact', name: contact?.name?.formatted_name })
+        )
+      : null;
   }
   return null;
 };
@@ -146,19 +137,20 @@ const buildWebhookLink = (message, value, businessPhone) => {
     message.context?.forwarded === true
       ? { id: message.context?.from ?? null }
       : null;
+  const body = whatsappMessageBody(message);
+  const content = { source: SOURCE, body, raw: message };
   return buildMessageLink({
-    source: SOURCE,
+    ...content,
+    ...sourceMessageLinkProperties(content),
     externalId: String(message.id),
     sender: String(message.from ?? 'unknown'),
     chat: String(message.from ?? businessPhone),
-    body: messageBody(message),
     timestamp: message.timestamp ?? null,
     sticker: webhookSticker(message),
     replyTo: message.context?.id ?? null,
     forwardedFrom,
     attachments: webhookAttachments(message),
     senderName: findSenderName(value.contacts, message.from),
-    raw: message,
     outgoing: false,
   });
 };

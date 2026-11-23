@@ -1,3 +1,10 @@
+2026-11-23 WhatsApp Cloud question evidence (QA04 remains unfinished)
+
+- [x] Reproduce dropped Cloud referral destinations and media captions on the published parent with nine focused failures and the production preview.
+- [x] Retain exact ad, post and contact destinations and complete media captions. Verify destination-only changes, contradictory saved evidence, private learning, review and confirmed-send behavior across CLI, both Lino encodings and shared preview.
+- [x] Pass 114 focused Node checks, 97 Deno tests with 27 substeps, and the Chromium and independent Playwright MCP previews. Register the new scenario in the hosted browser group.
+- [ ] Verify the published source in hosted CI and continue outstanding provider and context checks.
+
 2026-11-23 isolated runner launcher and runtime preparation (VD01 remains unfinished)
 
 - [x] Trace the pinned reference installer and identify the window before the controller stops an active peer.

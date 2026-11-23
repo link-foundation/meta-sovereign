@@ -29,6 +29,10 @@ if "--meta" in sys.argv:
     PARENT = "b616c88066727b41baaf1363353e01c88eb60941"
     FILES = [f"js/src/sources/{name}.js" for name in [
         "facebook", "message-text-links", "archive/meta-thread"]]
+if "--whatsapp" in sys.argv:
+    kind = "whatsapp"
+    PARENT = "a57f60cdd5d9284716b78f33226ebe0e54af1852"
+    FILES = ["js/src/sources/message-text-links.js", "js/src/sources/whatsapp.js"]
 if "--browser" in sys.argv:
     FILES.append("js/src/web/app.min.js")
 saved = {name: (ROOT / name).read_bytes() for name in FILES}
