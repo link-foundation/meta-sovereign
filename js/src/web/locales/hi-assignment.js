@@ -12,6 +12,9 @@ export const hiAssignment = {
   'assignment.hint':
     'कॉन्फ़िगर किए गए स्थानीय मॉडल से नियोक्ता के नाम के बिना अंग्रेज़ी में इश्यू का मसौदा बनाएँ। प्रकाशित करने से पहले आवश्यकताएँ, स्टैक, टेम्पलेट और दृश्यता जाँचें। रिक्ति का लिंक अलग ब्राउज़र में खुलेगा; सहेजी गई HH चैट से यह अपने आप मिल सकता है।',
   'assignment.instructions': 'निर्देश दस्तावेज़ का URL (वैकल्पिक)',
+  'assignment.instructions-detected': 'फ़ॉर्म में निर्देशों के लिंक',
+  'assignment.instructions-select': 'लिंक चुनें या URL डालें',
+  'assignment.instructions-required': 'निर्देश दस्तावेज़ का URL',
   'assignment.instructions-hint':
     'HTML या सादे पाठ वाले पेज का दिखाई देने वाला पाठ अलग ब्राउज़र में पढ़ें। लॉगिन, सत्यापन, PDF और कैनवस दस्तावेज़ों के लिए पढ़ने योग्य पाठ संस्करण चाहिए।',
   'assignment.instructions-used': 'प्रयुक्त निर्देश: {title}',

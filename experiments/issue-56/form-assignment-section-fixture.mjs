@@ -12,6 +12,17 @@ export const taskSection = `
     <textarea>Private native fixture value</textarea>
   </section>`;
 
+export const linkedTaskSection = `
+  <section id="assignment">
+    <h2>Test task</h2>
+    <p><a id="instruction-link" href="/source-redirect"><span>Read the</span> assignment instructions</a></p>
+    <p><a href="/examples">Example output</a></p>
+    <p hidden><a href="/hidden">Task instructions</a></p>
+    <div contenteditable="true"><a href="/private">Task instructions</a></div>
+    <p><a href="javascript:void(0)">Task instructions</a></p>
+    <p><a href="#assignment">Assignment brief</a></p>
+  </section>`;
+
 export const assignmentSectionHtml = (section = taskSection) => `<!doctype html>
   <html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Application</title>
   <form>

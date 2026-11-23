@@ -155,6 +155,45 @@ test('waived sections make no assignment and incomplete required sections refuse
   assert.equal(await storedFormAssignment(store, inspection.url), null);
 });
 
+test('instruction links persist across later pages and changes invalidate a saved assignment', async () => {
+  const { store, inspection } = await setup();
+  const frame = inspection.frames[0];
+  frame.assignmentSections = ['Test task\nRead the assignment instructions'];
+  frame.assignmentInstructionLinks = ['https://instructions.example.test/one'];
+  const first = await planFormAnswers(store, options(inspection));
+  assert.deepEqual(
+    first.planning.assignment.instructionLinks,
+    frame.assignmentInstructionLinks
+  );
+  const linked = await link(store, inspection);
+  frame.assignmentInstructionLinks = ['https://instructions.example.test/two'];
+  const changed = await planFormAnswers(store, options(inspection));
+  assert.equal(changed.planning.proposed, 0);
+  assert.notEqual(
+    changed.planning.assignment.revision,
+    linked.assignment.revision
+  );
+  const next = assignmentInspection('Application');
+  next.frames[0].intro = 'Application';
+  next.fields.splice(2, 1);
+  const later = await planFormAnswers(store, options(next));
+  assert.deepEqual(later.planning.assignment, changed.planning.assignment);
+});
+
+test('invalid detected instruction URLs cannot reach the saved assignment', async () => {
+  const { store, inspection } = await setup();
+  const credentialed = new URL('https://example.test/');
+  credentialed.username = 'test-user';
+  credentialed.password = 'test-only';
+  for (const value of ['javascript:alert(1)', credentialed.href]) {
+    inspection.frames[0].assignmentInstructionLinks = [value];
+    await assert.rejects(planFormAnswers(store, options(inspection)), {
+      code: 'form-report',
+    });
+  }
+  assert.equal(await storedFormAssignment(store, inspection.url), null);
+});
+
 test(
   'automatic prefilling refuses all writes and PDF uploads before the assignment repository',
   { timeout: 10000 },

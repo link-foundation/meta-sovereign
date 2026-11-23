@@ -58,7 +58,13 @@ const fromStdin = async (input, signal) => {
 export const assignmentSourceArguments = (args) => {
   const { from, url, file, source } = args;
   if (from === undefined) {
-    return { file, url, standalone: !file && !url && source !== undefined };
+    const active =
+      args.server !== undefined || args['review-slot'] !== undefined;
+    return {
+      file,
+      url,
+      standalone: !active && !file && !url && source !== undefined,
+    };
   }
   if (
     typeof from !== 'string' ||

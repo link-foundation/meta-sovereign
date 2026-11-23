@@ -195,7 +195,17 @@ const draftLanguages = (vacancy, languageOverride) => {
 const draftContext = async (store, input) => {
   const standalone = await standaloneAssignment(input);
   if (!standalone) {
-    return currentAssignmentForDraft(store, input);
+    const context = await currentAssignmentForDraft(store, input);
+    if (
+      context.assignment.instructionLinks?.length &&
+      input.sourceUrl === undefined
+    ) {
+      throw assignmentFailure(
+        'source-required',
+        'Provide the linked assignment instructions before drafting.'
+      );
+    }
+    return context;
   }
   const selection = await standaloneDraftSelection(store, standalone.id);
   return { assignment: standalone, selection };

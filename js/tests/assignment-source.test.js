@@ -4,6 +4,7 @@ import { createAssignmentPublisher } from '../src/assignments/service.js';
 import { createAssignmentSourceReader } from '../src/assignments/source-reader.js';
 import { assignmentSourceReceipt } from '../src/assignments/source.js';
 import { assignmentIssueMarker } from '../src/assignments/records.js';
+import { rememberFormAssignment } from '../src/forms/assignment-store.js';
 import { createFormsApi } from '../src/web/forms-api.js';
 import {
   assignmentPublisherFixture,
@@ -52,6 +53,26 @@ test('linked instructions reach private model context and frozen source proof', 
   assert.ok(!JSON.stringify(draft).includes(text));
   assert.equal((await env.store.get(draft.id)).source.text, text);
   assert.ok(!env.state.calls.includes('create'));
+});
+
+test('a discovered instruction link requires an explicit readable source before drafting', async (t) => {
+  const env = await environment(t);
+  env.input.inspection.frames[0].assignmentInstructionLinks = [sourceUrl];
+  const assignment = await rememberFormAssignment(
+    env.store,
+    env.input.inspection
+  );
+  const input = { ...env.input, revision: assignment.revision };
+  await assert.rejects(env.publisher.draft(input), {
+    code: 'assignment-source-required',
+  });
+  assert.equal(env.state.modelCalls.length, 0);
+  assert.deepEqual(env.reads, []);
+  assert.deepEqual(env.state.calls, []);
+  const { draft } = await env.publisher.draft({ ...input, sourceUrl });
+  assert.equal(draft.sourceEvidence.requestedUrl, sourceUrl);
+  assert.deepEqual(env.reads, [sourceUrl]);
+  assert.equal(env.state.modelCalls.length, 1);
 });
 
 test('six words copied from linked instructions cannot become a publishable draft', async (t) => {

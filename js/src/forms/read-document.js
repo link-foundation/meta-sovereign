@@ -150,6 +150,10 @@ export const readFormDocument = ({
     const excluded = `${challengeRoots},script,style,noscript,input,textarea,select,button,label,output,[contenteditable],[role="textbox"],[role="combobox"]`;
     const marker = new RegExp(assignmentSectionPatterns.marker, 'iu');
     const waived = new RegExp(assignmentSectionPatterns.waived, 'iu');
+    const instructions = new RegExp(
+      assignmentSectionPatterns.instructions,
+      'iu'
+    );
     const taskHeading = (value) => marker.test(value) && !waived.test(value);
     const textParent = (node) => {
       const parent = node.parentElement;
@@ -161,6 +165,48 @@ export const readFormDocument = ({
         : null;
     };
     const sections = [];
+    const instructionLinks = new Set();
+    const documentUrl = new globalThis.URL(identity.url);
+    documentUrl.hash = '';
+    const instructionUrl = (anchor, label) => {
+      if (!instructions.test(label)) {
+        return null;
+      }
+      try {
+        const url = new globalThis.URL(anchor.href);
+        url.hash = '';
+        return ['http:', 'https:'].includes(url.protocol) &&
+          !url.username &&
+          !url.password &&
+          url.href.length <= 4000 &&
+          url.href !== documentUrl.href
+          ? url.href
+          : null;
+      } catch {
+        return null;
+      }
+    };
+    const rememberAnchorLabel = (section, anchorLabels, parent, value) => {
+      const anchor = parent.closest('a[href]');
+      if (anchor && section.contains(anchor)) {
+        anchorLabels.set(
+          anchor,
+          `${anchorLabels.get(anchor) ?? ''} ${value}`.trim().slice(0, 500)
+        );
+      }
+    };
+    const addInstructionLinks = (anchorLabels) => {
+      for (const [anchor, label] of anchorLabels) {
+        const url = instructionUrl(anchor, label);
+        if (url) {
+          instructionLinks.add(url);
+          if (instructionLinks.size > 8) {
+            return false;
+          }
+        }
+      }
+      return true;
+    };
     let remainingNodes = 12000;
     let remainingText = 30000;
     let limited = false;
@@ -168,6 +214,7 @@ export const readFormDocument = ({
     const readSection = (section) => {
       const walker = doc.createTreeWalker(section);
       const chunks = [];
+      const anchorLabels = new Map();
       let length = 0;
       const heading = () => chunks.slice(0, 2).join(' ');
       const exceed = (prefix) => {
@@ -201,12 +248,19 @@ export const readFormDocument = ({
         if (chunks.length === 2 && !taskHeading(heading())) {
           return '';
         }
+        rememberAnchorLabel(section, anchorLabels, parent, value);
         length += value.length + (chunks.length > 1 ? 1 : 0);
         if (length > remainingText) {
           return exceed(heading());
         }
       }
-      return taskHeading(heading()) ? chunks.join('\n') : '';
+      if (!taskHeading(heading())) {
+        return '';
+      }
+      if (!addInstructionLinks(anchorLabels)) {
+        return exceed(heading());
+      }
+      return chunks.join('\n');
     };
     let inspected = 0;
     for (const section of root.querySelectorAll(region)) {
@@ -230,6 +284,7 @@ export const readFormDocument = ({
     return {
       limited,
       sections,
+      instructionLinks: instructionLinks.size <= 8 ? [...instructionLinks] : [],
       taskLimited: taskLimited || (limited && sections.length > 0),
     };
   }
@@ -237,12 +292,16 @@ export const readFormDocument = ({
     if (hhLimit || !assignmentSectionPatterns) {
       return {};
     }
-    const { sections, limited, taskLimited } = readAssignmentSections();
+    const { sections, instructionLinks, limited, taskLimited } =
+      readAssignmentSections();
     if (limited) {
       reasons.add('assignment-section-limit');
     }
     return {
       ...(sections.length ? { assignmentSections: sections } : {}),
+      ...(instructionLinks.length
+        ? { assignmentInstructionLinks: instructionLinks }
+        : {}),
       ...(taskLimited ? { assignmentSectionsLimited: true } : {}),
     };
   }

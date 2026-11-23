@@ -93,6 +93,111 @@ const request = async (page, control, action) => {
 const vacancyInput = (control) =>
   control.locator('[data-assignment-publish-input="vacancy"]');
 
+export const verifyLinkedAssignmentInstructions = async ({
+  page,
+  fixture,
+  owned,
+  store,
+  sourceReads,
+  publication,
+  until,
+}) => {
+  await seedAssignmentAnswers(store);
+  const url = new URL('/assignment-linked', fixture.url).href;
+  const sourceUrl = new URL('/source-redirect', url).href;
+  const reads = sourceReads.length;
+  const modelCalls = publication.state.modelCalls.length;
+  const plan = await openFormPlan(page, url, 'qa-profile:forms-fixture');
+  const owner = owned.at(-1);
+  const control = page.locator(
+    '[data-form-assignment] [data-assignment-publisher]'
+  );
+  const source = control.locator('[data-assignment-publish-input="source"]');
+  const pick = control.locator(
+    '[data-assignment-publish-input="detected-source"]'
+  );
+  const draft = control.locator('[data-action="draft-assignment"]');
+  const mode = process.env.FORMS_ASSIGNMENT_LINKED_SCREENSHOTS;
+  try {
+    await control
+      .locator('[data-assignment-publish-input="target"]')
+      .fill('fixture-owner/linked-task');
+    if (mode === 'before' && (await draft.isEnabled())) {
+      const result = await request(page, control, 'draft');
+      assert(
+        result.ok && !result.draft.sourceEvidence,
+        'parent drafts without reading the linked task'
+      );
+    }
+    if (mode === 'before' || mode === 'after') {
+      if (mode === 'after') {
+        await pick.selectOption(sourceUrl);
+      }
+      await page.setViewportSize({ width: 390, height: 844 });
+      await source.evaluate((node) =>
+        node.scrollIntoView({ block: 'center', behavior: 'instant' })
+      );
+      await page.screenshot({
+        path: `docs/screenshots/issue-56-assignment-linked-${mode}.png`,
+      });
+      await page.setViewportSize({ width: 1200, height: 800 });
+      if (mode === 'after') {
+        await source.fill('');
+      }
+    }
+    assert(
+      JSON.stringify(plan.planning.assignment.instructionLinks) ===
+        JSON.stringify([sourceUrl]),
+      'only the visible instruction link enters the plan'
+    );
+    assert(
+      plan.planning.proposed === 0 && (await draft.isDisabled()),
+      'readable instructions are required before drafting'
+    );
+    await pick.selectOption(sourceUrl);
+    assert(
+      (await source.inputValue()) === sourceUrl && sourceReads.length === reads,
+      'choosing the URL causes no navigation'
+    );
+    const result = await request(page, control, 'draft');
+    assert(
+      result.ok && result.draft.sourceEvidence.requestedUrl === sourceUrl,
+      'explicit draft uses the chosen document'
+    );
+    assert(
+      result.draft.sourceEvidence.url === new URL('/instructions', url).href,
+      'real redirect is recorded'
+    );
+    assert(
+      sourceReads.length === reads + 1 && sourceReads.at(-1).closed,
+      'one owned document browser closes'
+    );
+    assert(
+      publication.state.modelCalls.length === modelCalls + 1 &&
+        publication.state.modelCalls.at(-1).prompt.includes(instructionText),
+      'full document requirements reach exactly one model request'
+    );
+    assert(
+      (await owner.page.locator('[name="english"]').inputValue()) === '' &&
+        fixture.submits === 0,
+      'the form stays untouched'
+    );
+    console.log(
+      '[assignment-linked-instructions]',
+      JSON.stringify({
+        links: 1,
+        reads: 1,
+        modelCalls: 1,
+        submissions: 0,
+        sourceClosed: true,
+      })
+    );
+  } finally {
+    await closeFormReview(page, until, 'linked assignment review closed');
+  }
+  assert(owner.closed, 'the owned form browser closes');
+};
+
 const verifyPendingPlan = async (page, { sessionId, id }) => {
   const response = await page.request.post(
     new URL('/api/forms/sessions/apply', page.url()).href,

@@ -130,6 +130,7 @@ const PublisherFields = ({
   setVacancyUrl,
   sourceUrl,
   setSourceUrl,
+  instructionLinks,
   standalone,
   sourceText,
   setSourceText,
@@ -143,8 +144,10 @@ const PublisherFields = ({
 }) => {
   const t = useT();
   const disabled = busy || attempted;
-  const sourceReady =
-    !standalone || Boolean(sourceUrl.trim()) !== Boolean(sourceText.trim());
+  const needsSource = Boolean(instructionLinks?.length);
+  const sourceReady = standalone
+    ? Boolean(sourceUrl.trim()) !== Boolean(sourceText.trim())
+    : !needsSource || Boolean(sourceUrl.trim());
   const input = (key, label, value, setter, attributes = {}) =>
     el('label', { key, className: 'col' }, [
       t(label),
@@ -167,6 +170,7 @@ const PublisherFields = ({
           value,
           onChange: change(setter),
           disabled,
+          style: { minWidth: 0, maxWidth: '100%' },
           'data-assignment-publish-input': key,
         },
         options.map(([value, label]) =>
@@ -192,10 +196,27 @@ const PublisherFields = ({
       ['', t('assignment.language-auto')],
       ...Object.entries(ASSIGNMENT_LANGUAGES),
     ]),
-    input('source', 'assignment.instructions', sourceUrl, setSourceUrl, {
-      type: 'url',
-      maxLength: 4000,
-    }),
+    needsSource
+      ? select(
+          'detected-source',
+          'assignment.instructions-detected',
+          instructionLinks.includes(sourceUrl) ? sourceUrl : '',
+          setSourceUrl,
+          [
+            ['', t('assignment.instructions-select')],
+            ...instructionLinks.map((url) => [url, url]),
+          ]
+        )
+      : null,
+    input(
+      'source',
+      needsSource
+        ? 'assignment.instructions-required'
+        : 'assignment.instructions',
+      sourceUrl,
+      setSourceUrl,
+      { type: 'url', maxLength: 4000, required: needsSource }
+    ),
     el(
       'p',
       { key: 'source-hint', className: 'meta' },
@@ -381,20 +402,21 @@ export const FormAssignmentPublisher = ({
     setDraft(null);
     setAttempted(false);
     setError(null);
+    if (assignment?.instructionLinks?.length) {
+      setSourceUrl('');
+    }
     setResult((value) =>
       value?.assignment?.revision === revision ? value : null
     );
   }, [revision]);
-  const change = (setter) => (event) => {
-    setter(
-      event.target.type === 'checkbox'
-        ? event.target.checked
-        : event.target.value
-    );
-    setDraft(null);
-    setResult(null);
-    setError(null);
-  };
+  const change =
+    (setter) =>
+    ({ target: field }) => {
+      setter(field.type === 'checkbox' ? field.checked : field.value);
+      setDraft(null);
+      setResult(null);
+      setError(null);
+    };
   const preview = (event) => {
     event.preventDefault();
     return perform('drafting', async () => {
@@ -472,6 +494,7 @@ export const FormAssignmentPublisher = ({
       setVacancyUrl,
       sourceUrl,
       setSourceUrl,
+      instructionLinks: assignment?.instructionLinks,
       standalone,
       sourceText,
       setSourceText,

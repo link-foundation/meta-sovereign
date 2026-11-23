@@ -1156,3 +1156,6 @@ cannot be displayed. Keep the reminder and chime tied to the current wait.
 
 Defer the desktop alert and chime while the exact waiting browser page has
 focus, then check again at the normal reminder interval.
+
+Preserve visible instruction URLs in Forms assignments and require a readable
+source before drafting a linked task through Forms, CLI or Lino (issue #56).

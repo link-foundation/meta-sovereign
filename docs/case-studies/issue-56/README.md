@@ -367,6 +367,7 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 - [question-strict-options.md](question-strict-options.md) reproduces absent strict controls falling back to text/model drafts and verifies a bounded pending state, frozen strict-state invalidation, reviewed-choice guards and zero ordinary writes. Actual browser choice execution remains required.
 
 - [assignment-source.md](assignment-source.md) verifies explicit linked instruction reads, private frozen context, source integrity, written-deliverable headings and CLI/Lino/UI restoration with failing-before and actual browser/MCP evidence.
+- [Instruction links in Forms](assignment-detected-links.md) verifies that a visible assignment link requires a readable source before drafting. Includes the parent reproduction, Chromium and MCP checks at phone width, and CLI plus both Lino formats.
 
 - [assignment-language.md](assignment-language.md) verifies explicit owner template selection, reviewed language and template readback, and recovery of the same issued draft across CLI, both Lino encodings and Forms. Eight focused parent failures, a legacy control and production Chromium/MCP screenshots are preserved.
 

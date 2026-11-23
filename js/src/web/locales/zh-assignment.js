@@ -12,6 +12,9 @@ export const zhAssignment = {
   'assignment.hint':
     '使用已配置的本地模型起草不含雇主名称的英文议题。发布前请检查需求、技术栈、模板和可见性。职位链接会在单独的浏览器中打开；也可从已保存的 HH 聊天链接自动获取。',
   'assignment.instructions': '任务说明文档网址（可选）',
+  'assignment.instructions-detected': '表单中的任务说明链接',
+  'assignment.instructions-select': '选择链接或输入网址',
+  'assignment.instructions-required': '任务说明文档网址',
   'assignment.instructions-hint':
     '在单独的浏览器中读取 HTML 或纯文本页面的可见文字。登录、验证、PDF 和画布文档需要可读的文字版本。',
   'assignment.instructions-used': '使用的说明：{title}',

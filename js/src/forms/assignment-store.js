@@ -4,6 +4,7 @@ import {
   assignmentFormUrl,
   assignmentRecordId,
   recognizeFormAssignment,
+  validAssignmentInstructionLinks,
 } from './assignment-recognition.js';
 import { formFailure } from './options.js';
 import {
@@ -32,6 +33,7 @@ export const assignmentState = (record) => {
     record.description.length > 30000 ||
     (record.fingerprint !== null &&
       !/^[a-f\d]{64}$/u.test(record.fingerprint)) ||
+    !validAssignmentInstructionLinks(record.instructionLinks) ||
     assignmentFormUrl(record.formUrl) !== record.formUrl ||
     !validRepository(repository)
   ) {
@@ -46,6 +48,9 @@ export const assignmentState = (record) => {
     formUrl: record.formUrl,
     state: record.repository ? 'verified' : 'needs-repository',
     repository: record.repository ?? null,
+    ...(record.instructionLinks
+      ? { instructionLinks: record.instructionLinks }
+      : {}),
   };
 };
 
@@ -85,6 +90,9 @@ export const rememberFormAssignment = async (store, inspection) => {
       formUrl: assignmentFormUrl(inspection.url),
       description: found.description,
       fingerprint: found.fingerprint,
+      ...(found.instructionLinks
+        ? { instructionLinks: found.instructionLinks }
+        : {}),
       revision: globalThis.crypto.randomUUID(),
       repository: null,
     };

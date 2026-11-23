@@ -18,12 +18,17 @@ const planTarget = {
 const ownedBrowser = (task = assignmentTask) => {
   const browser = reviewBrowser();
   const evaluate = browser.commander.evaluate;
+  let instructionLinks;
   browser.setTask = (value) => {
     task = value;
+  };
+  browser.setInstructionLinks = (links) => {
+    instructionLinks = links;
   };
   browser.commander.evaluate = async (request) => ({
     ...(await evaluate(request)),
     intro: task,
+    assignmentInstructionLinks: instructionLinks,
   });
   return browser;
 };
@@ -121,6 +126,12 @@ test('active assignment review refuses drafting against a changed Forms inspecti
   });
   assert.deepEqual(env.state.calls, []);
   browser.setTask(assignmentTask);
+  browser.setInstructionLinks(['https://instructions.example.test/revised']);
+  await assert.rejects(reader.draftAssignment(input), {
+    code: 'assignment-review-changed',
+  });
+  assert.deepEqual(env.state.calls, []);
+  browser.setInstructionLinks(undefined);
   const preview = await reader.draftAssignment(input);
   assert.equal(preview.draft.formUrl, activeUrl);
   assert.equal(preview.draft.assignmentRevision, revision);
@@ -139,8 +150,25 @@ test(
       const env = await assignmentPublisherFixture();
       t.after(env.publisher.stop);
       const browser = ownedBrowser();
+      const source = 'https://instructions.example.test/task';
+      browser.setInstructionLinks([source]);
+      const reads = [];
       const { server, base } = await formReviewHttp(
-        activeOptions(env, { assignment: browser }),
+        {
+          ...activeOptions(env, { assignment: browser }),
+          readAssignmentSource: async (url) => {
+            reads.push(url);
+            return {
+              requestedUrl: url,
+              url,
+              title: 'Instructions',
+              text: 'Provide an explanation of storage recovery.',
+              complete: true,
+              scope: 'visible-document-text',
+              capturedAt: '2026-01-01T00:00:00Z',
+            };
+          },
+        },
         LINO_TEXT
       );
       try {
@@ -156,20 +184,24 @@ test(
         const args = [`--server=${base}`, ...(binary ? ['--binary'] : [])];
         const logs = [];
         const log = (line) => logs.push(JSON.parse(line));
+        const draftArgs = [
+          planTarget.target,
+          '--dry-run',
+          ...args,
+          ...(binary ? ['--review-slot=assignment'] : []),
+        ];
+        await assert.rejects(command(parseArgs(draftArgs), log), {
+          code: 'assignment-source-required',
+        });
+        assert.deepEqual(reads, []);
+        assert.equal(env.state.modelCalls.length, 0);
         assert.equal(
-          await command(
-            parseArgs([
-              planTarget.target,
-              '--dry-run',
-              ...args,
-              ...(binary ? ['--review-slot=assignment'] : []),
-            ]),
-            log
-          ),
+          await command(parseArgs([...draftArgs, `--source=${source}`]), log),
           0
         );
         const { draft } = logs.at(-1);
         assert.equal(draft.formUrl, activeUrl);
+        assert.equal(draft.sourceEvidence.requestedUrl, source);
         assert.equal(env.state.calls.includes('create'), false);
         await assert.rejects(
           command(
@@ -193,6 +225,7 @@ test(
           1
         );
         assert.equal(env.state.modelCalls.length, 1);
+        assert.deepEqual(reads, [source]);
         assert.deepEqual(browser.calls, [['goto', activeUrl]]);
       } finally {
         await server.close();

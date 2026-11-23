@@ -1,3 +1,5 @@
+import { validAssignmentInstructionLinks } from './assignment-recognition.js';
+
 const fail = () => {
   throw Object.assign(new Error('Use a bounded form inspection report.'), {
     code: 'form-report',
@@ -112,6 +114,7 @@ const validFrame = (frame) =>
   text(frame.intro ?? '', 6000) &&
   (frame.assignmentSections === undefined ||
     list(frame.assignmentSections, 8, (section) => text(section, 30000))) &&
+  validAssignmentInstructionLinks(frame.assignmentInstructionLinks) &&
   (frame.assignmentSectionsLimited === undefined ||
     frame.assignmentSectionsLimited === true) &&
   validChallenge(frame.challenge) &&

@@ -1,5 +1,6 @@
 import { modelFingerprint } from '../automation/answer-model-context.js';
 import { formUrl, formFailure } from './options.js';
+import { assignmentSourceUrl } from '../assignments/validation.js';
 
 const marker =
   /test\s+(?:assignment|task)|take[ -]home\s+(?:assignment|task|exercise)|(?:тестов|домашн)\p{L}*\s+задан\p{L}*|测试任务|परीक्षण\s+कार्य/iu;
@@ -9,7 +10,22 @@ const waived =
 export const assignmentSectionPatterns = {
   marker: marker.source,
   waived: waived.source,
+  instructions:
+    /\b(?:assignment|task|exercise)\s+(?:instructions?|specification|description|brief|details)|\b(?:instructions?|specification|description|brief|details)\s+(?:for|of)\s+(?:the\s+)?(?:assignment|task|exercise)|^(?:read\s+(?:the\s+)?)?(?:instructions?|assignment\s+brief|full\s+task)|(?:инструкц|услови|описани)\p{L}*\s+(?:к\s+|по\s+)?задан|(?:任务|作业)(?:说明|要求)|कार्य\s+(?:के\s+)?निर्देश/iu
+      .source,
 };
+const validInstructionLink = (value) => {
+  try {
+    return typeof value === 'string' && assignmentSourceUrl(value) === value;
+  } catch {
+    return false;
+  }
+};
+export const validAssignmentInstructionLinks = (links) =>
+  links === undefined ||
+  (Array.isArray(links) &&
+    links.length <= 8 &&
+    links.every(validInstructionLink));
 const text = (value) =>
   String(value ?? '')
     .replace(/\s+/gu, ' ')
@@ -66,8 +82,16 @@ export const recognizeFormAssignment = async (inspection) => {
   ];
   const links = inspection.fields.filter(assignmentResultField);
   const description = [...new Set(chunks)].join('\n');
+  const instructionLinks = [
+    ...new Set(
+      inspection.frames.flatMap(
+        (frame) => frame.assignmentInstructionLinks ?? []
+      )
+    ),
+  ].sort();
   if (
     description.length > 30000 ||
+    instructionLinks.length > 8 ||
     inspection.frames.some((frame) => frame.assignmentSectionsLimited)
   ) {
     throw formFailure(
@@ -80,7 +104,14 @@ export const recognizeFormAssignment = async (inspection) => {
   }
   return {
     description,
-    fingerprint: description ? await modelFingerprint(description) : null,
+    fingerprint: description
+      ? await modelFingerprint(
+          instructionLinks.length
+            ? [description, instructionLinks]
+            : description
+        )
+      : null,
     resultFields: links.map((field) => field.id),
+    ...(instructionLinks.length ? { instructionLinks } : {}),
   };
 };
