@@ -1,11 +1,14 @@
 import { assert } from './e2e-chat.mjs';
 
-const installAlertSpies = () => {
-  globalThis.localStorage.setItem('metaSovereignNotifySound', 'on');
+const installAlertSpies = (permission) => {
+  globalThis.localStorage.setItem(
+    'metaSovereignNotifySound',
+    permission === 'denied' ? 'on' : 'off'
+  );
   globalThis.noticeCalls = [];
   globalThis.chimes = 0;
   globalThis.Notification = class {
-    static permission = 'denied';
+    static permission = permission;
 
     constructor(title, options) {
       this.title = title;
@@ -26,13 +29,30 @@ const installAlertSpies = () => {
   };
 };
 
-export const verifyFormWaitNotice = async ({ page, owner }) => {
+const openNotice = async (page, permission = 'denied') => {
   const notice = await page.context().newPage();
-  await notice.addInitScript(installAlertSpies);
+  await notice.addInitScript(installAlertSpies, permission);
   await notice.setViewportSize({ width: 390, height: 844 });
   await notice.clock.install({ time: new Date() });
   await notice.goto(new URL('/#/settings', page.url()).toString());
-  const banner = notice.locator('[data-form-attention="application-2"]');
+  return notice;
+};
+
+const enableNotice = (notice) =>
+  notice.evaluate(() => {
+    globalThis.Notification.permission = 'granted';
+    globalThis.localStorage.setItem('metaSovereignNotifySound', 'off');
+    globalThis.dispatchEvent(
+      new globalThis.Event('meta-sovereign:form-attention')
+    );
+  });
+
+const formWaitBanner = (notice) =>
+  notice.locator('[data-form-attention="application-2"]');
+
+export const verifyFormWaitNotice = async ({ page, owner }) => {
+  const notice = await openNotice(page);
+  const banner = formWaitBanner(notice);
   await banner.waitFor();
   assert(
     await banner
@@ -48,7 +68,8 @@ export const verifyFormWaitNotice = async ({ page, owner }) => {
   );
   assert(
     await notice.evaluate(
-      () => document.documentElement.scrollWidth <= globalThis.innerWidth
+      () =>
+        globalThis.document.documentElement.scrollWidth <= globalThis.innerWidth
     ),
     'mobile notice fits viewport'
   );
@@ -61,13 +82,7 @@ export const verifyFormWaitNotice = async ({ page, owner }) => {
 
   // Exercise the headed receipt path while running the actual browser headlessly in CI.
   owner.policy.headless = false;
-  await notice.evaluate(() => {
-    globalThis.Notification.permission = 'granted';
-    globalThis.localStorage.setItem('metaSovereignNotifySound', 'off');
-    globalThis.dispatchEvent(
-      new globalThis.Event('meta-sovereign:form-attention')
-    );
-  });
+  await enableNotice(notice);
   await banner.getByRole('button', { name: 'Show browser' }).waitFor();
   await notice.waitForFunction(() => globalThis.noticeCalls.length === 1);
   assert(
@@ -88,20 +103,40 @@ export const verifyFormWaitNotice = async ({ page, owner }) => {
     await notice.setViewportSize({ width: 390, height: 844 });
   }
 
+  await notice.clock.fastForward(5 * 60_000);
+  await notice.waitForFunction(
+    () =>
+      globalThis.noticeCalls.length === 2 && globalThis.noticeCalls[0].closed
+  );
   const focused = notice.waitForResponse(
     (response) =>
       response.url().endsWith('/api/forms/sessions/focus') && response.ok()
   );
-  await banner.getByRole('button', { name: 'Show browser' }).click();
+  const show = banner.getByRole('button', { name: 'Show browser' });
+  await show.click();
   await focused;
+  await notice.waitForFunction(() =>
+    globalThis.document.querySelector(
+      '[data-action="form-attention-focus"]:enabled'
+    )
+  );
   assert(
     owner.focuses === 1,
     'browser focus reaches the owned window exactly once'
   );
   await notice.clock.fastForward(5 * 60_000);
+  assert(
+    (await notice.evaluate(() => globalThis.noticeCalls.length)) === 2,
+    'an acknowledged browser focus waits longer than an unanswered reminder'
+  );
+  assert(
+    await show.isVisible(),
+    'browser focus keeps the in-app status visible'
+  );
+  await notice.clock.fastForward(10 * 60_000);
   await notice.waitForFunction(
     () =>
-      globalThis.noticeCalls.length === 2 && globalThis.noticeCalls[0].closed
+      globalThis.noticeCalls.length === 3 && globalThis.noticeCalls[1].closed
   );
   const alertFocused = notice.waitForResponse(
     (response) =>
@@ -109,10 +144,29 @@ export const verifyFormWaitNotice = async ({ page, owner }) => {
   );
   await notice.evaluate(() => globalThis.noticeCalls.at(-1).onclick());
   await alertFocused;
+  await notice.waitForFunction(() =>
+    globalThis.document.querySelector(
+      '[data-action="form-attention-focus"]:enabled'
+    )
+  );
   assert(
     owner.focuses === 2,
     'system notice click targets the same active request'
   );
+  await notice.clock.fastForward(5 * 60_000);
+  assert(
+    (await notice.evaluate(() => globalThis.noticeCalls.length)) === 3,
+    'system notification focus defers the next external reminder'
+  );
+  await notice.close();
+  return verifyLater(page);
+};
+
+const verifyLater = async (page) => {
+  const notice = await openNotice(page, 'granted');
+  const banner = formWaitBanner(notice);
+  await banner.waitFor();
+  await notice.waitForFunction(() => globalThis.noticeCalls.length === 1);
   await banner.getByRole('button', { name: 'Later' }).click();
   await banner.waitFor({ state: 'detached' });
   await notice.evaluate(() => {
@@ -124,6 +178,6 @@ export const verifyFormWaitNotice = async ({ page, owner }) => {
   assert((await banner.count()) === 0, 'Later does not repeat early');
   await notice.clock.fastForward(60_000);
   await banner.waitFor();
-  await notice.waitForFunction(() => globalThis.noticeCalls.length === 3);
+  await notice.waitForFunction(() => globalThis.noticeCalls.length === 2);
   return notice;
 };

@@ -5,7 +5,7 @@ import { SOUND_KEY, playNotifySound } from './notify-sound.js';
 
 const el = React.createElement;
 const REMIND_MS = 5 * 60_000;
-const LATER_MS = 15 * 60_000;
+const ACKNOWLEDGED_MS = 15 * 60_000;
 const REFRESH = 'meta-sovereign:form-attention';
 const keyOf = ({ id, requestId }) => JSON.stringify([id, requestId]);
 const validWait = (item) =>
@@ -101,7 +101,7 @@ const useNoticeTimer = ({
   api,
   item,
   t,
-  later,
+  resumeAt,
   now,
   shown,
   show,
@@ -114,9 +114,10 @@ const useNoticeTimer = ({
       return undefined;
     }
     const remaining =
-      Math.min(expires, later > now ? later : now + REMIND_MS) - Date.now();
+      Math.min(expires, resumeAt > now ? resumeAt : now + REMIND_MS) -
+      Date.now();
     const clearAlert =
-      later > now
+      resumeAt > now
         ? null
         : alertOwner({
             api,
@@ -139,7 +140,7 @@ const useNoticeTimer = ({
     id,
     requestId,
     t,
-    later,
+    resumeAt,
     now,
     shown,
     show,
@@ -149,10 +150,15 @@ const useNoticeTimer = ({
 
 const AttentionItem = ({ api, item, available, t }) => {
   const { id, requestId, browserSlot, focusAvailable } = item;
-  const [later, setLater] = useState(0);
+  const [deferred, setDeferred] = useState({ resumeAt: 0, hideBanner: false });
   const [now, updateTime] = useState(Date.now);
   const [status, setStatus] = useState('');
   const focusing = useRef(false);
+  const acknowledge = useCallback((hideBanner) => {
+    const at = Date.now();
+    updateTime(at);
+    setDeferred({ resumeAt: at + ACKNOWLEDGED_MS, hideBanner });
+  }, []);
   const show = useCallback(async () => {
     if (focusing.current) {
       return;
@@ -161,25 +167,34 @@ const AttentionItem = ({ api, item, available, t }) => {
     setStatus('opening');
     try {
       const result = await api.formsFocusReview({ id, requestId });
-      setStatus(result?.ok === true ? '' : 'focusFailed');
+      if (result?.ok === true) {
+        acknowledge(false);
+        setStatus('');
+      } else {
+        setStatus('focusFailed');
+      }
     } catch {
       setStatus('focusFailed');
     } finally {
       focusing.current = false;
       refreshFormAttention();
     }
-  }, [api, id, requestId]);
+  }, [api, id, requestId, acknowledge]);
   useNoticeTimer({
     api,
     item,
     t,
-    later,
+    resumeAt: deferred.resumeAt,
     now,
     shown: available,
     show,
     updateTime,
   });
-  if (!available || later > now || Date.parse(item.expiresAt) <= now) {
+  if (
+    !available ||
+    (deferred.hideBanner && deferred.resumeAt > now) ||
+    Date.parse(item.expiresAt) <= now
+  ) {
     return null;
   }
   return el(
@@ -222,11 +237,7 @@ const AttentionItem = ({ api, item, available, t }) => {
             key: 'later',
             type: 'button',
             'data-action': 'form-attention-later',
-            onClick: () => {
-              const at = Date.now();
-              updateTime(at);
-              setLater(at + LATER_MS);
-            },
+            onClick: () => acknowledge(true),
           },
           t('forms.attention.later')
         ),

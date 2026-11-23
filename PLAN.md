@@ -1,3 +1,10 @@
+2026-11-23 Forms reminders after browser focus (QA24 and HH01 remain unfinished):
+
+- [x] Reproduce an early external alert five minutes after successful Show browser on the previous production bundle.
+- [x] Keep the active banner visible and defer sound and system alerts for fifteen minutes after confirmed focus. Verify both focus entry points, unanswered alerts, Later, and removal after owner verification in Chromium.
+- [x] Verify the visible banner and reminder timing in a separate 390-pixel Playwright MCP fixture. Record one exact focus, zero challenge reads and zero submissions.
+- [ ] Review hosted checks and continue HeadHunter owner attention and native OS actions.
+
 2026-11-23 foreground Forms controls during owner verification (QA24 and HH01 remain unfinished):
 
 - [x] Compare the web notice with the pinned Show browser action and foreground Forms behavior. The CLI delays reading input until the owner wait finishes during both explicit prefill paths.
