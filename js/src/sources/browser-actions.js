@@ -16,6 +16,7 @@
 /* global document, window, MouseEvent -- the page-side helpers run in the page */
 
 import { setTimeout as sleep } from 'node:timers/promises';
+import { readHhBrowserChat } from './browser-hh-read.js';
 
 /** The attribute the target message gets while an action runs. */
 export const TARGET_ATTRIBUTE = 'data-ms-target';
@@ -396,8 +397,15 @@ const forwardMessages = async (
   });
 };
 
-const markRead = async (ctx, { source, chat }) => {
+const markRead = async (ctx, { source, chat, id }) => {
   const ui = ctx.uiFor(source);
+  if (source === 'hh') {
+    return ctx.done(
+      source,
+      chat,
+      await readHhBrowserChat(ctx, ui, { chat, id })
+    );
+  }
   const seen = await ctx.inChat(source, chat, (commander) =>
     commander.evaluate({ fn: scrollToNewest, args: [ui.messages] })
   );

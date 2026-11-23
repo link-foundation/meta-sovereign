@@ -3,6 +3,7 @@
 - [x] Verify the public HeadHunter read operation, identifier format, acknowledgement and unread count against its OpenAPI specification. Reproduce the missing adapter method and the false local read acknowledgement.
 - [x] Write only the matching provider message boundary, keep provider unread counts after concurrent delivery, and preserve cached counts when no snapshot is available.
 - [x] Carry authoritative unread state through history pulls, Chat and Operator. Verify provider scopes and read behavior in Chromium, with a separate regression for an arrival during review.
+- [x] Verify the native fallback with Chromium fixtures for an already-open conversation, stale boundaries, uncounted badges and concurrent arrivals. Keep the unread state when a read cannot be confirmed.
 - [ ] Verify the authenticated native web path, remaining messaging capabilities and exact-source CI. HH09 stays open.
 
 2026-11-18 MCP fixture serialization correction:

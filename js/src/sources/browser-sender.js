@@ -632,6 +632,7 @@ export const createBrowserSender = ({
   const actions = createBrowserActions({
     inChat: (source, chat, fn) => inChat(source, chat, {}, fn),
     inList,
+    inExisting,
     uiFor,
     waitFor,
     firstMatch,
@@ -756,12 +757,24 @@ const markUnknown = (error) => {
   return error;
 };
 
+const isHhReadRefusal = (action, source, code) =>
+  action === 'read' &&
+  source === 'hh' &&
+  [
+    'read-unconfirmed',
+    'history-changed',
+    'browser-view-unavailable',
+    'answer-chat-unverified',
+    'unsupported-target',
+  ].includes(code);
+
 // What a failed web-UI send raises after the API failed with `apiError`.
 const browserFailure = (error, apiError, draft, action) => {
   // "Not allowed to automate this" is the answer, not a pair of failures.
   if (
     error?.code === 'unsupported' ||
     error?.code === 'stopped' ||
+    isHhReadRefusal(action, draft?.source, error?.code) ||
     isSendConsentRefusal(error)
   ) {
     return error;

@@ -136,3 +136,11 @@ both selectors, passive viewing, the exact HH receipt, and Telegram isolation.
 Independent Playwright MCP verified desktop layout and a 390-pixel viewport.
 The provider responses came from a fixture. Authenticated native web
 messaging remains open under HH09.
+
+The native read fallback checks only an already-open numeric web conversation.
+It verifies the provider pane, chat row and latest visible message before
+requesting a scroll. The read result requires a fresh unread count of zero at
+that same boundary. If the history advances, the new boundary and count are
+stored without claiming the operation completed. Unrecognized or unavailable
+views cannot clear cached unread messages. Four native Chromium regressions
+reproduce the old optimistic results and pass with the verified fallback.

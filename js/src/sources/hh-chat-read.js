@@ -11,24 +11,37 @@ const segment = (id) =>
 const readFailure = (message, code) =>
   Object.assign(codedError(message, code), { fallback: false });
 
-export const hhReadState = (chat, latestMessageId, checkedAt) => {
-  const count = chat.unread_message_count;
-  if (!Number.isSafeInteger(count) || count < 0) {
+export const hhReadRecord = ({
+  chat,
+  chatName,
+  unreadCount,
+  latestMessageId,
+  checkedAt,
+}) => {
+  if (!Number.isSafeInteger(unreadCount) || unreadCount < 0) {
     return null;
   }
-  const key = `chat:${chat.id}`;
   return {
-    id: `read:hh:${key}`,
-    tokens: ['read', 'hh', key],
+    id: `read:hh:${chat}`,
+    tokens: ['read', 'hh', chat],
     kind: 'read',
     source: 'hh',
-    chat: key,
-    chatName: chat.display?.title,
-    unreadCount: count,
+    chat,
+    chatName,
+    unreadCount,
     hhLatestMessageId: latestMessageId ?? null,
     checkedAt,
   };
 };
+
+export const hhReadState = (chat, latestMessageId, checkedAt) =>
+  hhReadRecord({
+    chat: `chat:${chat.id}`,
+    chatName: chat.display?.title,
+    unreadCount: chat.unread_message_count,
+    latestMessageId,
+    checkedAt,
+  });
 
 const queueReadState = createStoreQueue();
 export const storeHhReadState = (store, state) =>

@@ -1,6 +1,31 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createBrowserSender } from '../src/sources/browser-sender.js';
+import {
+  createBrowserSender,
+  createDefaultSender,
+} from '../src/sources/browser-sender.js';
+
+test('HH read requires an already-open verified web chat', async () => {
+  const sender = createBrowserSender({
+    openSession: async () => assert.fail('read launched a browser'),
+  });
+  try {
+    const send = createDefaultSender({
+      browser: sender,
+      getSource: () => ({
+        live: { markRead: async () => ({ supported: false }) },
+      }),
+    });
+    await assert.rejects(send.perform('read', { source: 'hh', chat: '7' }), {
+      code: 'browser-view-unavailable',
+    });
+    await assert.rejects(sender.markRead({ source: 'hh', chat: 'chat:7' }), {
+      code: 'unsupported-target',
+    });
+  } finally {
+    await sender.close();
+  }
+});
 
 test('public scanner validates capability, bounds and cancellation before launching a browser', async () => {
   let opened = 0;

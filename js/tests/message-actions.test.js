@@ -668,6 +668,22 @@ test('HH message reads retain cached unread counts until a matching provider sna
   assert.equal(store.map.get(old.id).unreadCount, 2);
 });
 
+test('an unread arrival in a native HH view persists without a read acknowledgement', async () => {
+  const chat = '7';
+  const id = `read:hh:${chat}`;
+  const state = { id, source: 'hh', chat, unreadCount: 2 };
+  const store = memoryStore([state]);
+  const readState = { ...state, unreadCount: 1, hhLatestMessageId: '103' };
+  const { ctx } = routeCtx(() => ({ via: 'browser', read: false, readState }));
+  const result = await call(store, ctx, 'POST', '/api/message/read', {
+    source: 'hh',
+    chat,
+  });
+  assert.equal(result.status, 200);
+  assert.equal(result.body.read, false);
+  assert.deepEqual(store.map.get(id), readState);
+});
+
 test('POST /api/message/forward forwards to the chat named', async () => {
   const store = memoryStore([message('A')]);
   const { ctx, performed } = routeCtx();
