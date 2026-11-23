@@ -1175,3 +1175,7 @@ snapshot while a provider export still shows only the original (issue #56).
 Verify a separately reviewed HeadHunter workplace detach against the exact
 saved membership and the prior CV exports. Preserve the target-only copy,
 unrelated jobs and the prior snapshot while the detach export is stale (issue #56).
+
+Review and prepare a new HeadHunter workplace from a saved CV export, including
+CVs with no existing workplaces. Keep the draft assigned only to the chosen CV
+and verify its new record ID after the owner saves it (issue #56).

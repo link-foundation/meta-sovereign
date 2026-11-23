@@ -9,6 +9,7 @@ import { vacancyBrowserFixture } from './vacancy-browser-fixture.mjs';
 import { prepareNativeCvWorkplace } from '../../js/src/jobs/cv-prepare-workplace.js';
 import { cvWorkplaceDictionaryRows } from './cv-workplace-fields-fixture.mjs';
 import { cvWorkplaceFollowupState } from './cv-workplace-followup-state.mjs';
+import { bilingualTechnologyCv } from './cv-technology-fixture.mjs';
 
 let bundle;
 const attachProvider = (provider, counters) => async () => {
@@ -31,22 +32,35 @@ const attachProvider = (provider, counters) => async () => {
 
 export const cvWorkplacePrepareBrowserFixture = async (
   browser,
-  { fieldsMode = false, copyMode = false, followupMode = false } = {}
+  {
+    fieldsMode = false,
+    copyMode = false,
+    followupMode = false,
+    addMode = false,
+  } = {}
 ) => {
-  const data = await cvPrepareFixture({ selected: ['en:jobs.0.description'] });
-  const change = data.review.report.changes.find(
-    (row) => row.id === 'en:jobs.0.description'
-  );
-  const source = data.review.sources.find((row) => row.cv.language === 'en');
-  const otherHash = data.review.sources.find((row) => row.cv.language === 'ru')
+  const changeId = 'en:jobs.0.description';
+  const data = await cvPrepareFixture({
+    selected: [changeId],
+    emptyWorkplaces: addMode ? 'en' : undefined,
+  });
+  const change = data.review?.report.changes.find((row) => row.id === changeId);
+  const source = data.sources.find((row) => row.cv.language === 'en');
+  const { hash } = source.identity;
+  const [originalJob] = addMode
+    ? bilingualTechnologyCv('en').jobs
+    : source.cv.jobs;
+  const otherHash = data.sources.find((row) => row.cv.language === 'ru')
     .identity.hash;
-  const followup = followupMode
-    ? cvWorkplaceFollowupState({
-        hash: change.hash,
-        otherHash,
-        job: source.cv.jobs[0],
-      })
-    : null;
+  const followup =
+    followupMode || addMode
+      ? cvWorkplaceFollowupState({
+          hash,
+          otherHash,
+          job: originalJob,
+          emptyTarget: addMode,
+        })
+      : null;
   bundle ??= build({
     stdin: {
       contents:
@@ -73,21 +87,21 @@ export const cvWorkplacePrepareBrowserFixture = async (
     destinations: [],
   };
   const props = (saved = false) => ({
-    job: { ...source.cv.jobs[0], ...(saved ? options.saved : options.live) },
-    hash: change.hash,
+    job: { ...originalJob, ...(saved ? options.saved : options.live) },
+    hash,
     otherHash,
     shared: options.shared ?? false,
     maxLength: options.maxLength ?? 24000,
     fieldsMode,
     membershipMode: options.membershipMode ?? followupMode,
-    captureSave: followupMode,
+    captureSave: Boolean(followup),
   });
   const html = (saved = false, screen, record) => {
     const value = {
       ...props(saved),
       ...record,
       ...(screen
-        ? { screen, list: { allowAdd: copyMode, ...options.list } }
+        ? { screen, list: { allowAdd: copyMode || addMode, ...options.list } }
         : {}),
     };
     return `<!doctype html><html lang="en"><head><style>body{font:17px system-ui;margin:24px;max-width:850px}textarea{display:block;width:95%;height:300px;margin:16px 0}input,button{margin:6px;padding:10px}label{display:block}</style></head><body><div id="root">${renderToString(React.createElement(screen ? NativeCvWorkplaceList : NativeCvWorkplace, value))}</div><script>globalThis.fixtureProps=${JSON.stringify(value).replaceAll('<', '\\u003c')};globalThis.fixtureDelay=${options.delay ?? 100};globalThis.fixtureInputs=0;globalThis.fixtureSaves=0;globalThis.fixturePickerSaves=0;globalThis.fixtureCancels=0;</script><script src="/fixture.js"></script></body></html>`;
@@ -147,10 +161,10 @@ export const cvWorkplacePrepareBrowserFixture = async (
     options = next;
     await provider.goto(
       next.screen === 'overview'
-        ? `https://hh.ru/resume/${change.hash}`
+        ? `https://hh.ru/resume/${hash}`
         : next.screen === 'list'
-          ? `https://hh.ru/profile/edit/experience?resumeFrom=${change.hash}&hhtmFrom=resume`
-          : `https://hh.ru/profile/edit/experience/${next.recordId ?? '123'}${next.context ? `?resumeFrom=${change.hash}&hhtmFrom=resume` : ''}`
+          ? `https://hh.ru/profile/edit/experience?resumeFrom=${hash}&hhtmFrom=resume`
+          : `https://hh.ru/profile/edit/experience/${next.recordId ?? '123'}${next.context ? `?resumeFrom=${hash}&hhtmFrom=resume` : ''}`
     );
     await provider.evaluate(() => {
       globalThis.sessionStorage.fixtureListClicks = '0';

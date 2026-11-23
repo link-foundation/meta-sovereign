@@ -15,6 +15,7 @@ import {
 } from './cv-workplace-plan-storage.js';
 import { saveTechnologyRecord } from './technology-storage.js';
 import {
+  blankCvWorkplaceValues,
   cvWorkplaceFields,
   cvWorkplaceValues,
   cvWorkplaceJobValues,
@@ -30,14 +31,18 @@ import {
   cvLocalizedEntry,
 } from './cv-workplace-dictionaries.js';
 
+const cvWorkplaceSource = (data, jobIndex) => ({
+  identity: data.identity,
+  jobIndex,
+  job: jobIndex === null ? null : data.cv.jobs[jobIndex],
+});
+
 const currentSource = async (options, plan) => {
   const source = await verifiedTechnologyCv(options, plan.source.identity);
   if (
-    (await modelFingerprint({
-      identity: source.identity,
-      jobIndex: plan.source.jobIndex,
-      job: source.cv.jobs[plan.source.jobIndex],
-    })) !== (await modelFingerprint(plan.source))
+    (await modelFingerprint(
+      cvWorkplaceSource(source, plan.source.jobIndex)
+    )) !== (await modelFingerprint(plan.source))
   ) {
     cvWorkplaceFail('conflict');
   }
@@ -48,6 +53,7 @@ export const cvWorkplacePreparationSource = async (options, input) => {
   if (
     !plan ||
     plan.status !== 'reviewed' ||
+    (plan.operation === 'add') !== (input.operation === 'add') ||
     input.changeId !== `${plan.source.identity.language}:workplace`
   ) {
     cvWorkplaceFail('conflict');
@@ -64,12 +70,20 @@ export const cvWorkplacePreparationSource = async (options, input) => {
 };
 const propose = async (options, input, signal) => {
   const browserSlot = browserName(input.browserSlot ?? 'jobs');
-  cvWorkplaceRecordId(input.recordId);
+  const adding = input.operation === 'add';
+  if (!adding) {
+    cvWorkplaceRecordId(input.recordId);
+  }
   if (
-    !Number.isInteger(input.jobIndex) ||
-    input.jobIndex < 0 ||
-    input.jobIndex > 199 ||
+    (adding
+      ? input.jobIndex !== undefined ||
+        input.recordId !== undefined ||
+        input.resumes !== undefined
+      : !Number.isInteger(input.jobIndex) ||
+        input.jobIndex < 0 ||
+        input.jobIndex > 199) ||
     (input.operation !== undefined &&
+      !adding &&
       !cvWorkplaceUsesMembership(input.operation)) ||
     !input.fields ||
     typeof input.fields !== 'object' ||
@@ -79,20 +93,24 @@ const propose = async (options, input, signal) => {
   ) {
     cvWorkplaceFail('options');
   }
-  const source = await verifiedTechnologyCv(options, { ...input, browserSlot });
-  const job = source.cv.jobs[input.jobIndex];
-  if (!job) {
+  const data = await verifiedTechnologyCv(options, { ...input, browserSlot });
+  const source = cvWorkplaceSource(data, adding ? null : input.jobIndex);
+  if (!adding && !source.job) {
     cvWorkplaceFail('options');
   }
   const dictionaries = await loadCvWorkplaceDictionaries({
     store: options.store,
     signal,
   });
-  const baseline = cvWorkplaceJobValues(
-    job,
-    cvAreaIdentity(job.area, dictionaries)
+  const baseline = adding
+    ? blankCvWorkplaceValues()
+    : cvWorkplaceJobValues(
+        source.job,
+        cvAreaIdentity(source.job.area, dictionaries)
+      );
+  const desired = cvWorkplaceValues(
+    adding ? input.fields : { ...baseline, ...input.fields }
   );
-  const desired = cvWorkplaceValues({ ...baseline, ...input.fields });
   const metadata = Object.fromEntries(
     [
       ['areas', [baseline.areaId, desired.areaId].filter(Boolean)],
@@ -107,14 +125,14 @@ const propose = async (options, input, signal) => {
   const content = {
     version: 1,
     browserSlot,
-    recordId: input.recordId,
-    source: { identity: source.identity, jobIndex: input.jobIndex, job },
+    recordId: adding ? null : input.recordId,
+    source,
     baseline,
     desired,
     metadata,
-    ...(input.operation
+    ...(input.operation ? { operation: input.operation } : {}),
+    ...(cvWorkplaceUsesMembership(input.operation)
       ? {
-          operation: input.operation,
           membership: cvWorkplaceMembership(
             input.resumes,
             source.identity.hash,
@@ -219,9 +237,15 @@ export const createCvWorkplaceReviewService = ({
       write((signal) => inspectMembership({ options, input, signal, attach })),
     'cv-workplace-source': (input) =>
       read(async () => {
+        const data = await verifiedTechnologyCv(options, input);
+        if (input.operation === 'add') {
+          if (input.jobIndex !== undefined || input.recordId !== undefined) {
+            cvWorkplaceFail('options');
+          }
+          return { source: cvWorkplaceSource(data, null), jobs: [] };
+        }
         const jobIndex =
           input.jobIndex === undefined ? 0 : Number(input.jobIndex);
-        const data = await verifiedTechnologyCv(options, input);
         if (
           !Number.isInteger(jobIndex) ||
           jobIndex < 0 ||
@@ -230,11 +254,7 @@ export const createCvWorkplaceReviewService = ({
           cvWorkplaceFail('options');
         }
         return {
-          source: {
-            identity: data.identity,
-            jobIndex,
-            job: data.cv.jobs[jobIndex],
-          },
+          source: cvWorkplaceSource(data, jobIndex),
           jobs: data.cv.jobs.map(({ company, position }, index) => ({
             index,
             company,

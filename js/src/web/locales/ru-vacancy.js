@@ -359,6 +359,10 @@ export const ruVacancy = {
     'Не удалось загрузить сохранённую проверку места работы.',
   'cvWorkplace.operation': 'Действие с местом работы',
   'cvWorkplace.update': 'Изменить поля места работы',
+  'cvWorkplace.add': 'Добавить новое место работы',
+  'cvWorkplace.loadAddSource': 'Загрузить резюме и справочники',
+  'cvWorkplace.addHint':
+    'Проверьте новое место работы для выбранного резюме. Запустите наблюдение за сохранением, прежде чем сохранить черновик на HeadHunter.',
   'cvWorkplace.detach': 'Убрать из этого резюме',
   'cvWorkplace.copy': 'Скопировать общее место работы',
   'cvWorkplace.copyHint':

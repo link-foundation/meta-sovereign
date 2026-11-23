@@ -30,6 +30,8 @@ export const NativeCvWorkplaceList = ({
       fieldsMode: true,
       membershipMode: true,
       newWorkplace: true,
+      shared: list.newShared,
+      target: list.newTarget,
       captureSave,
     });
   }

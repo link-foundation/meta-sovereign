@@ -308,6 +308,7 @@
 - [Reviewed copy of a shared workplace](cv-workplace-copy.md): verified original membership, native Add and target-only draft preparation with desktop and phone recovery.
 - [Owner Save verification for identical workplace copies](cv-copy-save.md) covers the exact new native ID, fresh export delta and stale-export refusal.
 - [Reviewed copy, owner Save and separate detach](cv-workplace-followup.md) verifies both Saves, preserved CV history and phone recovery when the target export remains stale.
+- [Independent workplace Add](cv-workplace-add.md) covers an empty target CV, target-only native preparation and owner Save recovery on a phone.
 
 - [Offline rediscovery read race and connection lifecycle evidence](ci-lino-sync-rediscovery.md).
 

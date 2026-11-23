@@ -7,6 +7,9 @@ const cvWorkplaceFail = (code) => {
 export const cvWorkplaceUsesMembership = (operation) =>
   operation === 'copy' || operation === 'detach';
 
+export const cvWorkplaceCreatesRecord = (operation) =>
+  operation === 'add' || operation === 'copy';
+
 /** Use the complete shared roster for either the original or its target-only copy. */
 export const cvWorkplaceMembership = (rows, hash, operation = 'detach') => {
   resumeHash(hash);

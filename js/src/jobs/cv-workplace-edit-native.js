@@ -5,6 +5,7 @@ import {
   cvSaveAttempt,
   sameCvWorkplace,
   cvWorkplaceMatchesJob,
+  cvWorkplaceSaveResumes,
 } from './cv-watch-verification.js';
 import { cvPrepareFailure } from './cv-prepare-record.js';
 import { cvWorkplacePlanJob } from './cv-workplace-plan.js';
@@ -21,7 +22,10 @@ import {
   chooseCvWorkplaceArea,
   chooseCvWorkplaceIndustries,
 } from './cv-workplace-choices.js';
-import { sameCvMembership } from './cv-workplace-membership.js';
+import {
+  cvWorkplaceCreatesRecord,
+  sameCvMembership,
+} from './cv-workplace-membership.js';
 import { prepareCvWorkplaceMembership } from './cv-workplace-membership-native.js';
 import { traceCvWatch } from './cv-watch-trace.js';
 import { cvWorkplaceEditorUrl } from './cv-workplace-open.js';
@@ -35,8 +39,8 @@ const contextFor = ({
   settleMs,
 }) => {
   const page = session.page;
-  const copy = change.plan?.operation === 'copy';
-  const recordId = copy ? null : change.workplace.recordId;
+  const creating = cvWorkplaceCreatesRecord(change.plan?.operation);
+  const recordId = creating ? null : change.workplace.recordId;
   const checkPage = () => {
     check();
     if (!cvWorkplaceEditorUrl(page.url(), recordId, change.hash)) {
@@ -60,7 +64,7 @@ const contextFor = ({
     check,
     phase,
     settleMs,
-    copy,
+    creating,
     read,
     rawForm: async () => {
       checkPage();
@@ -95,7 +99,7 @@ const installGuard = (context, anchor) => {
     picker = false
   ) => {
     state ??= await context.read();
-    if (context.copy) {
+    if (context.creating) {
       for (const key of blankMetadata) {
         if (expected[key] === null && state.fields[key] === '') {
           expected[key] = '';
@@ -194,13 +198,10 @@ const verifyCopySource = async (context, session, change) => {
   ) {
     throw cvPrepareFailure('baseline');
   }
-  const form = await context.rawForm();
   await context.guard();
-  return /^ru\b/iu.test(form.locale ?? '') ? 'ru' : 'en';
 };
-const blankCopyForm = (state, plan) => {
+const blankWorkplaceForm = (state) => {
   const { fields } = state;
-  const { after } = plan.membership;
   return (
     ['company', 'position', 'description', 'startYear', 'endYear'].every(
       (key) => fields[key] === ''
@@ -209,17 +210,38 @@ const blankCopyForm = (state, plan) => {
       (value) => value === null || /^(?:month|месяц)?$/iu.test(value)
     ) &&
     blankMetadata.every((key) => fields[key] === null || fields[key] === '') &&
-    fields.current === false &&
-    (sameCvMembership(fields.resumes, after) ||
-      sameCvMembership(
-        fields.resumes,
-        after.map((row) => ({ ...row, checked: false }))
-      ))
+    fields.current === false
   );
+};
+const newWorkplaceForm = async (context, plan) => {
+  const form = await context.rawForm();
+  const before = cvWorkplaceSaveResumes(form);
+  const hash = plan.source.identity.hash;
+  const after =
+    plan.membership?.after ??
+    before.map((row) => ({ ...row, checked: row.hash === hash }));
+  if (
+    !sameCvMembership(before, context.expected.resumes) ||
+    !before.some((row) => row.hash === hash) ||
+    !(
+      sameCvMembership(before, after) ||
+      sameCvMembership(
+        before,
+        after.map((row) => ({ ...row, checked: false }))
+      )
+    )
+  ) {
+    throw cvPrepareFailure('membership');
+  }
+  await context.guard();
+  return {
+    membership: { before, after },
+    locale: /^ru\b/iu.test(form.locale ?? '') ? 'ru' : 'en',
+  };
 };
 const prepareFields = async (context, plan, locale) => {
   const wanted = plan.desired;
-  const baseline = context.copy
+  const baseline = context.creating
     ? { start: null, end: null, areaId: null, industryIds: [] }
     : plan.baseline;
   for (const key of ['company', 'position', 'description']) {
@@ -227,7 +249,7 @@ const prepareFields = async (context, plan, locale) => {
       await typeCvWorkplaceField({ context, key, value: wanted[key] });
     }
   }
-  if (context.copy) {
+  if (context.creating) {
     await context.wait(async () => readyControls(await context.guard()));
   }
   if (wanted.website !== context.expected.website) {
@@ -278,7 +300,7 @@ export const prepareNativeCvWorkplaceEdit = async ({
   const { plan } = change;
   await context.wait(async () => {
     const state = await context.read();
-    const ready = context.copy
+    const ready = context.creating
       ? textControls(state, [
           'company',
           'position',
@@ -288,7 +310,7 @@ export const prepareNativeCvWorkplaceEdit = async ({
           'current',
         ])
       : readyControls(state);
-    if (ready && context.copy && !blankCopyForm(state, plan)) {
+    if (ready && context.creating && !blankWorkplaceForm(state)) {
       throw cvPrepareFailure('draft');
     }
     return state.ready && !state.dialogs && ready;
@@ -301,23 +323,30 @@ export const prepareNativeCvWorkplaceEdit = async ({
   }
   try {
     const state = await context.read();
-    if (context.copy && !blankCopyForm(state, plan)) {
+    if (context.creating && !blankWorkplaceForm(state)) {
       throw cvPrepareFailure('draft');
     }
     context.expected = state.fields;
     installGuard(context, anchor);
-    const before = context.copy
-      ? null
-      : await verifyBaseline(context, session, change);
-    const locale =
-      before?.locale ?? (await verifyCopySource(context, session, change));
+    let before;
+    let membership = plan.membership;
+    let locale;
+    if (context.creating) {
+      ({ membership, locale } = await newWorkplaceForm(context, plan));
+      if (plan.operation === 'copy') {
+        await verifyCopySource(context, session, change);
+      }
+    } else {
+      before = await verifyBaseline(context, session, change);
+      locale = before.locale;
+    }
     await context.phase('preparing');
     await context.guard();
     if (plan.operation !== 'detach') {
       await prepareFields(context, plan, locale);
     }
-    if (plan.membership) {
-      await prepareCvWorkplaceMembership(context, plan);
+    if (membership) {
+      await prepareCvWorkplaceMembership(context, plan, membership);
     }
     await delay(settleMs);
     await context.guard();
@@ -325,10 +354,7 @@ export const prepareNativeCvWorkplaceEdit = async ({
     const wanted = cvWorkplacePlanJob(plan, 'desired', locale);
     if (
       after.recordId !== (before?.recordId ?? null) ||
-      !sameCvMembership(
-        plan.membership?.after ?? before.resumes,
-        after.resumes
-      ) ||
+      !sameCvMembership(membership?.after ?? before.resumes, after.resumes) ||
       !cvWorkplaceMatchesJob(after, wanted, wanted.industries)
     ) {
       throw cvPrepareFailure('field');

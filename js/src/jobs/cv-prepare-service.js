@@ -125,7 +125,8 @@ export const createCvPrepareService = ({
         return status(options);
       }
       if (
-        JSON.stringify(cvPrepareOptions(previous)) !== JSON.stringify(options)
+        JSON.stringify(cvPrepareOptions(previous, { stored: true })) !==
+        JSON.stringify(options)
       ) {
         throw cvPrepareFailure('conflict');
       }

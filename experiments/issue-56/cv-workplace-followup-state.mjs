@@ -2,19 +2,41 @@ import { cvSaveAttempt } from '../../js/src/jobs/cv-watch-verification.js';
 import { cvWorkplaceListHtml } from './cv-created-workplace-fixture.mjs';
 import { resumeCvFixture, resumeExportHtml } from './resume-export-fixture.mjs';
 
-export const cvWorkplaceFollowupState = ({ hash, otherHash, job }) => {
+const localizedPeriod = (job, language) => {
+  const monthName = new Intl.DateTimeFormat(language, {
+    month: 'long',
+    timeZone: 'UTC',
+  });
+  const date = (value) => {
+    const [year, month] = value.split('-');
+    return `${monthName.format(Date.UTC(Number(year), Number(month) - 1))} ${year}`;
+  };
+  const end = job.current
+    ? language === 'ru'
+      ? 'настоящее время'
+      : 'present'
+    : date(job.end);
+  return `${date(job.start)} — ${end}`;
+};
+
+export const cvWorkplaceFollowupState = ({
+  hash,
+  otherHash,
+  job,
+  emptyTarget,
+}) => {
   const ids = [hash, otherHash];
-  const original = { job, hashes: ids };
+  const original = { job, hashes: emptyTarget ? [otherHash] : ids };
   const records = new Map([['123', original]]);
   let staleDetach = false;
   const localizedJob = (value, language) => {
     const [sample] = resumeCvFixture(language).jobs;
-    return {
+    const result = {
       ...sample,
       ...value,
       industries: sample.industries,
-      period: sample.period,
     };
+    return { ...result, period: localizedPeriod(result, language) };
   };
   return {
     save(body) {
@@ -53,7 +75,10 @@ export const cvWorkplaceFollowupState = ({ hash, otherHash, job }) => {
         { company: 'Unrelated workplace' },
         language
       );
-      return resumeExportHtml(language, [...selected, unrelated]);
+      return resumeExportHtml(
+        language,
+        emptyTarget && hash !== otherHash ? selected : [...selected, unrelated]
+      );
     },
     keepOriginalInExport() {
       staleDetach = true;

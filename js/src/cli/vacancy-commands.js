@@ -184,6 +184,10 @@ export const createVacancyCommands = ({
                       changeId: args['change-id'],
                       recordId: args['record-id'],
                       reviewKind: args['review-kind'],
+                      ...(operation === 'cv-prepare' &&
+                      args.operation !== undefined
+                        ? { operation: args.operation }
+                        : {}),
                       formats:
                         args.formats === undefined
                           ? undefined

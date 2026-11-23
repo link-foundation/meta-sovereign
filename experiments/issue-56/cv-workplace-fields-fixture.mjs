@@ -40,8 +40,8 @@ export const cvWorkplaceFieldsPatch = {
   areaId: '2',
   industryIds: ['7.541'],
 };
-export const cvWorkplaceFieldsFixture = async () => {
-  const f = await cvPrepareFixture();
+export const cvWorkplaceFieldsFixture = async (options) => {
+  const f = await cvPrepareFixture(options);
   const dictionaries = cvWorkplaceDictionaryRows();
   for (const row of dictionaries) {
     await f.store.put(row);

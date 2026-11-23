@@ -314,6 +314,10 @@ export const zhVacancy = {
   'cvWorkplace.loadError': '无法加载已保存的工作经历审核。',
   'cvWorkplace.operation': '工作经历操作',
   'cvWorkplace.update': '编辑工作经历字段',
+  'cvWorkplace.add': '添加新工作经历',
+  'cvWorkplace.loadAddSource': '加载简历和词典',
+  'cvWorkplace.addHint':
+    '为所选简历审核一条新工作经历。在 HeadHunter 保存草稿前，先启动保存监控。',
   'cvWorkplace.detach': '从此简历中取消选择',
   'cvWorkplace.copy': '复制共享工作经历',
   'cvWorkplace.copyHint':

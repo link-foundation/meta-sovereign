@@ -39,12 +39,18 @@ const dictionaryReply = (answer) => {
   return answer;
 };
 const sourceReply = (answer, input) => {
-  cvWorkplaceSourceShape(answer?.source);
+  cvWorkplaceSourceShape(answer?.source, input.operation);
   const { source, jobs } = answer;
   for (const field of ['exportId', 'hash', 'browserSlot']) {
     if (input[field] !== undefined && input[field] !== source.identity[field]) {
       cvWorkplaceFail('conflict');
     }
+  }
+  if (input.operation === 'add') {
+    if (!Array.isArray(jobs) || jobs.length) {
+      cvWorkplaceFail();
+    }
+    return answer;
   }
   if (
     source.jobIndex !== (input.jobIndex ?? 0) ||

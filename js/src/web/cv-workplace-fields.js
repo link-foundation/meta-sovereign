@@ -58,7 +58,7 @@ const DictionaryFields = ({ state, t }) => {
             state.update('areaId', event.target.value || null),
         },
         [
-          state.fields.areaId === null
+          state.fields.areaId === null || state.operation === 'add'
             ? el('option', { key: 'none', value: '' }, t('cvWorkplace.empty'))
             : null,
           ...areaChoices.map((row) =>

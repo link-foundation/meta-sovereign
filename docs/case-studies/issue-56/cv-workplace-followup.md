@@ -58,5 +58,6 @@ The watcher uses the existing bounded GETs and issues no native mutations.
 
 The [evidence archive](data/cv-workplace-followup.tar.gz) records the
 reproduction, checks and screenshot hashes. This is synthetic provider evidence
-for HH14–HH16 and HH18. Independent Add, wider passive observation across form
-transitions and authenticated verification remain open. [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57)
+for HH14–HH16 and HH18. [Independent Add](cv-workplace-add.md) has separate fixture
+evidence. Wider passive observation across form transitions and authenticated
+verification remain open. [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57)

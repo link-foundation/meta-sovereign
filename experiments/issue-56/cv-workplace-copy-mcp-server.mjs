@@ -3,6 +3,7 @@ import { chromium } from 'playwright';
 import { cvWorkplacePrepareBrowserFixture } from './cv-workplace-prepare-browser-fixture.mjs';
 
 const followupMode = process.argv.includes('--followup');
+const addMode = process.argv.includes('--add');
 const stale = process.argv.includes('--stale');
 const browser = await chromium.launch({
   headless: true,
@@ -14,11 +15,12 @@ const fixture = await cvWorkplacePrepareBrowserFixture(browser, {
   fieldsMode: true,
   copyMode: true,
   followupMode,
+  addMode,
 });
 const { identity } = fixture.data.sources.find(
   (row) => row.identity.language === 'en'
 );
-await fixture.open({ screen: 'overview', shared: true });
+await fixture.open({ screen: 'overview', shared: !addMode });
 const control = createServer(async (req, res) => {
   try {
     if (req.method === 'GET' && req.url === '/native') {
@@ -28,10 +30,13 @@ const control = createServer(async (req, res) => {
       return;
     }
     res.setHeader('content-type', 'application/json');
-    if (followupMode && req.method === 'POST') {
+    if ((followupMode || addMode) && req.method === 'POST') {
       if (req.url === '/open-original' && fixture.counters.saves === 1) {
         await fixture.open({ context: true });
-      } else if (req.url === '/owner-save' && fixture.counters.saves < 2) {
+      } else if (
+        req.url === '/owner-save' &&
+        fixture.counters.saves < (addMode ? 1 : 2)
+      ) {
         if (stale && fixture.counters.saves === 1) {
           fixture.followup.keepOriginalInExport();
         }
@@ -49,15 +54,16 @@ const control = createServer(async (req, res) => {
       res.writeHead(404).end('{}');
       return;
     }
-    const cvSnapshots = followupMode
-      ? ((await fixture.store.get('jobs-cv-snapshots:jobs'))?.snapshots ?? [])
-      : [];
+    const cvSnapshots =
+      followupMode || addMode
+        ? ((await fixture.store.get('jobs-cv-snapshots:jobs'))?.snapshots ?? [])
+        : [];
     res.end(
       JSON.stringify({
         source: `${identity.exportId}:${identity.hash}`,
         ...fixture.counters,
         errors: fixture.errors,
-        ...(followupMode && {
+        ...((followupMode || addMode) && {
           snapshots: cvSnapshots.map(({ hash, attemptId, workplace, cv }) => ({
             hash,
             attemptId,

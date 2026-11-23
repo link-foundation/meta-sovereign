@@ -344,6 +344,10 @@ export const hiVacancy = {
   'cvWorkplace.loadError': 'कार्यस्थल की सहेजी गई समीक्षा लोड नहीं हो सकी।',
   'cvWorkplace.operation': 'कार्यस्थल की कार्रवाई',
   'cvWorkplace.update': 'कार्यस्थल के फ़ील्ड बदलें',
+  'cvWorkplace.add': 'नया कार्यस्थल जोड़ें',
+  'cvWorkplace.loadAddSource': 'सीवी और शब्दकोश लोड करें',
+  'cvWorkplace.addHint':
+    'चुने गए सीवी के लिए नए कार्यस्थल की समीक्षा करें। HeadHunter में ड्राफ़्ट सहेजने से पहले सहेजने की निगरानी शुरू करें।',
   'cvWorkplace.detach': 'इस बायोडाटा से चयन हटाएँ',
   'cvWorkplace.copy': 'साझा कार्यस्थल की प्रतिलिपि बनाएँ',
   'cvWorkplace.copyHint':

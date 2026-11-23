@@ -20,6 +20,17 @@ export const cvWorkplaceFields = [
   'website',
   'industryIds',
 ];
+export const blankCvWorkplaceValues = () => ({
+  company: '',
+  position: '',
+  description: '',
+  start: null,
+  end: null,
+  current: false,
+  areaId: null,
+  website: '',
+  industryIds: [],
+});
 export const cvWorkplaceFail = (code = 'review') => {
   throw cvPrepareFailure(code);
 };
@@ -133,23 +144,26 @@ export const cvWorkplaceDifferences = (before, after) =>
       (field) => JSON.stringify(before[field]) !== JSON.stringify(after[field])
     )
     .map((field) => ({ field, before: before[field], after: after[field] }));
-export const cvWorkplaceSourceShape = (source) => {
+export const cvWorkplaceSourceShape = (source, operation) => {
   const id = source?.identity;
   resumeExportId(id?.exportId);
   resumeHash(id.hash);
   browserName(id.browserSlot);
-  const job = sanitizedResumeCv({
+  const adding = operation === 'add';
+  const { cv } = sanitizedResumeCv({
     language: id.language,
     title: id.title,
     skills: [],
     about: '',
-    jobs: [source.job],
-  }).cv.jobs[0];
+    jobs: adding ? [] : [source.job],
+  });
   if (
-    JSON.stringify(job) !== JSON.stringify(source.job) ||
-    !Number.isInteger(source.jobIndex) ||
-    source.jobIndex < 0 ||
-    source.jobIndex > 199 ||
+    (adding
+      ? source.job !== null || source.jobIndex !== null || cv.title !== id.title
+      : JSON.stringify(cv.jobs[0]) !== JSON.stringify(source.job) ||
+        !Number.isInteger(source.jobIndex) ||
+        source.jobIndex < 0 ||
+        source.jobIndex > 199) ||
     !/^[a-f\d]{64}$/u.test(id.sha256) ||
     !Number.isFinite(Date.parse(id.capturedAt))
   ) {
@@ -177,6 +191,9 @@ const metadataShape = (plan) => {
         boundedText(row[language]?.parent, 500);
       }
     }
+  }
+  if (plan.operation === 'add') {
+    return;
   }
   const sourceArea = metadata.areas.find((row) => row.id === baseline.areaId);
   if (
@@ -272,7 +289,7 @@ const validateInputBindings = (plan, input) => {
   }
   if (
     (input.jobIndex !== undefined && input.jobIndex !== plan.source.jobIndex) ||
-    (input.resumes &&
+    (input.resumes !== undefined &&
       JSON.stringify(
         cvWorkplaceMembership(
           input.resumes,
@@ -316,14 +333,27 @@ export const confirmedCvWorkplacePlan = async (answer, input = {}) => {
     return { plan: null };
   }
   validatePlanEnvelope(plan);
-  cvWorkplaceSourceShape(plan.source);
-  cvWorkplaceRecordId(plan.recordId);
-  const baseline = cvWorkplaceValues(plan.baseline);
+  const adding = plan.operation === 'add';
+  cvWorkplaceSourceShape(plan.source, plan.operation);
+  if (adding) {
+    if (plan.recordId !== null) {
+      cvWorkplaceFail();
+    }
+  } else {
+    cvWorkplaceRecordId(plan.recordId);
+  }
+  const baseline = adding
+    ? blankCvWorkplaceValues()
+    : cvWorkplaceValues(plan.baseline);
   const desired = cvWorkplaceValues(plan.desired);
   if (
     plan.browserSlot !== plan.source.identity.browserSlot ||
     JSON.stringify(baseline) !==
-      JSON.stringify(cvWorkplaceJobValues(plan.source.job, baseline.areaId))
+      JSON.stringify(
+        adding
+          ? plan.baseline
+          : cvWorkplaceJobValues(plan.source.job, baseline.areaId)
+      )
   ) {
     cvWorkplaceFail();
   }
@@ -347,9 +377,19 @@ export const confirmedCvWorkplacePlan = async (answer, input = {}) => {
 /** Keep the original membership and the approved destination bound to the plan. */
 export const cvWorkplacePlanDifferences = (plan) => {
   const changes = cvWorkplaceDifferences(plan.baseline, plan.desired);
-  if (plan.operation === undefined) {
+  if (plan.operation === undefined || plan.operation === 'add') {
     if (plan.membership !== undefined) {
       cvWorkplaceFail();
+    }
+    if (plan.operation === 'add') {
+      return [
+        {
+          field: 'resumes',
+          before: [],
+          after: [{ hash: plan.source.identity.hash, checked: true }],
+        },
+        ...changes,
+      ];
     }
     return changes;
   }

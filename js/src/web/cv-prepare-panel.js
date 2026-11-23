@@ -72,7 +72,13 @@ export const PreparationReceipt = ({ result, t }) =>
                 { key: 'record', className: 'meta' },
                 `${t(result.operation === 'copy' ? 'cvWorkplace.originalRecord' : 'cvPrepare.recordId')}: ${result.recordId}`
               )
-            : null,
+            : result.operation === 'add'
+              ? el(
+                  'p',
+                  { key: 'record', className: 'meta' },
+                  t('cvWorkplace.add')
+                )
+              : null,
           result.code
             ? el('p', { key: 'code', className: 'meta' }, result.code)
             : null,

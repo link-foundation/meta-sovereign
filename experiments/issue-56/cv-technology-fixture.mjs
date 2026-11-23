@@ -26,7 +26,7 @@ export const bilingualTechnologyCv = (language) => {
 };
 
 /** Private integrity-checked artifact files; provider access is intentionally absent. */
-export const cvTechnologyFixture = async () => {
+export const cvTechnologyFixture = async ({ emptyWorkplaces } = {}) => {
   const base = await technologyFixture();
   const sources = [];
   const receipts = [];
@@ -38,6 +38,9 @@ export const cvTechnologyFixture = async () => {
   }
   for (const language of ['ru', 'en']) {
     const cv = bilingualTechnologyCv(language);
+    if (language === emptyWorkplaces) {
+      cv.jobs = [];
+    }
     const receipt = resumeExportReceipt(
       language === 'ru' ? 'c'.repeat(32) : 'b'.repeat(32)
     );

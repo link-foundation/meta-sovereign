@@ -10,16 +10,20 @@ export const cvPrepareIdentity = (input) => ({
   browserSlot: browserName(input.browserSlot ?? 'jobs'),
 });
 const recordMatchesChange = (input) =>
-  input.changeId?.endsWith(':about')
+  input.changeId?.endsWith(':about') || input.operation === 'add'
     ? input.recordId === undefined
     : typeof input.recordId === 'string' && /^\d{1,100}$/u.test(input.recordId);
-export const cvPrepareOptions = (input) => {
+export const cvPrepareOptions = (input, { stored = false } = {}) => {
   const workplace = input.reviewKind === 'workplace';
   const changePattern = workplace
     ? /^(?:ru|en):workplace$/u
     : /^(?:ru|en):(?:about|jobs\.(?:0|[1-9]\d{0,2})\.description)$/u;
   if (
     (input.reviewKind !== undefined && !workplace) ||
+    (input.operation !== undefined &&
+      (!workplace ||
+        (input.operation !== 'add' &&
+          !(stored && input.operation === 'copy')))) ||
     !/^[a-f\d]{64}$/u.test(input.fingerprint ?? '') ||
     !changePattern.test(input.changeId ?? '') ||
     !recordMatchesChange(input) ||
@@ -33,6 +37,7 @@ export const cvPrepareOptions = (input) => {
     fingerprint: input.fingerprint,
     changeId: input.changeId,
     ...(workplace ? { reviewKind: 'workplace' } : {}),
+    ...(input.operation === 'add' ? { operation: 'add' } : {}),
     ...(input.recordId ? { recordId: input.recordId } : {}),
     ...(input.targetId ? { targetId: input.targetId } : {}),
   };
@@ -83,12 +88,10 @@ const cancelledPreparation = (raw, input) => {
   };
 };
 const preparedResult = (raw, input) => {
-  const options = cvPrepareOptions(raw ?? {});
+  const options = cvPrepareOptions(raw ?? {}, { stored: true });
   if (
     !validReceipt(raw) ||
     !states.includes(raw.state) ||
-    (raw.operation !== undefined &&
-      (raw.operation !== 'copy' || options.reviewKind !== 'workplace')) ||
     !['ru', 'en'].includes(raw.language) ||
     !raw.changeId.startsWith(`${raw.language}:`) ||
     (raw.code !== null && !/^jobs-[a-z\d-]+$/u.test(raw.code))
@@ -104,7 +107,8 @@ const preparedResult = (raw, input) => {
       'targetId',
       'recordId',
       'reviewKind',
-    ].some((key) => input[key] !== undefined && input[key] !== options[key])
+    ].some((key) => input[key] !== undefined && input[key] !== options[key]) ||
+    (input.operation !== undefined && input.operation !== raw.operation)
   ) {
     throw cvPrepareFailure('state');
   }

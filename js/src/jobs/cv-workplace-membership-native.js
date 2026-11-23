@@ -1,16 +1,23 @@
 import { cvPrepareFailure } from './cv-prepare-record.js';
-import { sameCvMembership } from './cv-workplace-membership.js';
+import {
+  cvWorkplaceCreatesRecord,
+  sameCvMembership,
+} from './cv-workplace-membership.js';
 
 /** Only the reviewed target checkbox changes. Never Save, delete or alter another CV. */
-export const prepareCvWorkplaceMembership = async (context, plan) => {
+export const prepareCvWorkplaceMembership = async (
+  context,
+  plan,
+  membership
+) => {
   const { page, guard, expected, wait } = context;
   await guard();
   const hash = plan.source.identity.hash;
-  const wanted = plan.operation === 'copy';
+  const wanted = cvWorkplaceCreatesRecord(plan.operation);
   const prior = wanted
-    ? plan.membership.after.map((row) => ({ ...row, checked: false }))
-    : plan.membership.before;
-  if (wanted && sameCvMembership(expected.resumes, plan.membership.after)) {
+    ? membership.after.map((row) => ({ ...row, checked: false }))
+    : membership.before;
+  if (wanted && sameCvMembership(expected.resumes, membership.after)) {
     return;
   }
   if (!sameCvMembership(expected.resumes, prior)) {

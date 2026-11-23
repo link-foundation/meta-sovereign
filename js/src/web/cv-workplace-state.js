@@ -20,6 +20,12 @@ export const useCvWorkplaceReview = ({ api, values, run, preparation }) => {
     const read = ++revision.current;
     const answer = await api.vacancyCvWorkplacePlanStored({ browserSlot });
     if (current === generation.current && read === revision.current) {
+      if ((answer.plan?.operation === 'add') !== (operation === 'add')) {
+        setSource(null);
+        setJobs([]);
+        setFields(null);
+        setRecordId('');
+      }
       setPlan(answer.plan);
       setOperation(answer.plan?.operation ?? 'update');
       setMembership(

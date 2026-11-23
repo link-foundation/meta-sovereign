@@ -2,6 +2,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { cvWatchUrl } from './cv-watch-browser.js';
 import { cvPrepareFailure } from './cv-prepare-record.js';
 import { traceCvWatch } from './cv-watch-trace.js';
+import { cvWorkplaceCreatesRecord } from './cv-workplace-membership.js';
 
 export const cvWorkplaceEditorUrl = (value, recordId, hash) => {
   let url;
@@ -161,8 +162,9 @@ export const openNativeCvWorkplace = async ({
 }) => {
   const { page, commander } = session;
   const { job } = change.workplace;
-  const recordId =
-    change.plan?.operation === 'copy' ? null : change.workplace.recordId;
+  const recordId = cvWorkplaceCreatesRecord(change.plan?.operation)
+    ? null
+    : change.workplace.recordId;
   if (
     recordId !== null &&
     cvWorkplaceEditorUrl(page.url(), recordId, change.hash)

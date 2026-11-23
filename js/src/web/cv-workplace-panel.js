@@ -25,12 +25,14 @@ const button = (action, handler, disabled, t) =>
   );
 const valueLabel = (plan, field, value, t) => {
   if (field === 'resumes') {
-    return value
-      .map(
-        (row) =>
-          `${row.hash} · ${t(row.checked ? 'cvWorkplace.yes' : 'cvWorkplace.no')}`
-      )
-      .join('\n');
+    return (
+      value
+        .map(
+          (row) =>
+            `${row.hash} · ${t(row.checked ? 'cvWorkplace.yes' : 'cvWorkplace.no')}`
+        )
+        .join('\n') || t('cvWorkplace.empty')
+    );
   }
   if (field === 'current') {
     return t(value ? 'cvWorkplace.yes' : 'cvWorkplace.no');
@@ -69,11 +71,13 @@ const Plan = ({ state, idle, ready, t }) => {
         { key: 'identity', className: 'meta' },
         `${plan.source.identity.title} · ${plan.source.identity.language.toUpperCase()} · ${plan.source.identity.hash} · ${plan.source.identity.exportId}`
       ),
-      el(
-        'p',
-        { key: 'record', className: 'meta' },
-        `${t(plan.operation === 'copy' ? 'cvWorkplace.originalRecord' : 'cvPrepare.recordId')}: ${plan.recordId} · ${plan.source.job.company} · ${plan.source.job.position}`
-      ),
+      plan.recordId !== null
+        ? el(
+            'p',
+            { key: 'record', className: 'meta' },
+            `${t(plan.operation === 'copy' ? 'cvWorkplace.originalRecord' : 'cvPrepare.recordId')}: ${plan.recordId} · ${plan.source.job.company} · ${plan.source.job.position}`
+          )
+        : el('p', { key: 'record', className: 'meta' }, t('cvWorkplace.add')),
       ...plan.changes.map((change) =>
         el(
           'div',
@@ -105,7 +109,8 @@ const Plan = ({ state, idle, ready, t }) => {
               'span',
               { key: 'after-label', className: 'meta' },
               t(
-                change.field === 'resumes' && plan.operation === 'copy'
+                change.field === 'resumes' &&
+                  ['add', 'copy'].includes(plan.operation)
                   ? 'cvWorkplace.copySelection'
                   : 'cvWorkplace.after'
               )
@@ -165,12 +170,12 @@ const Source = ({ state, exports, idle, t }) =>
       ),
     ]),
     button(
-      'loadSource',
+      state.operation === 'add' ? 'loadAddSource' : 'loadSource',
       () => state.loadSource(exports),
       !idle || !state.choice,
       t
     ),
-    state.source
+    state.source && state.operation !== 'add'
       ? el('label', { key: 'job', className: 'chat-form-field' }, [
           el('span', { key: 'label' }, t('cvWorkplace.job')),
           el(
@@ -193,32 +198,36 @@ const Source = ({ state, exports, idle, t }) =>
           ),
         ])
       : null,
-    el('label', { key: 'record', className: 'chat-form-field' }, [
-      el(
-        'span',
-        { key: 'label' },
-        t(
-          state.operation === 'copy'
-            ? 'cvWorkplace.originalRecord'
-            : 'cvPrepare.recordId'
-        )
-      ),
-      el('input', {
-        key: 'input',
-        value: state.recordId,
-        inputMode: 'numeric',
-        maxLength: 100,
-        disabled: !idle,
-        'data-cv-workplace-record': true,
-        onChange: (event) => state.setRecordId(event.target.value),
-      }),
-    ]),
+    state.operation === 'add'
+      ? null
+      : el('label', { key: 'record', className: 'chat-form-field' }, [
+          el(
+            'span',
+            { key: 'label' },
+            t(
+              state.operation === 'copy'
+                ? 'cvWorkplace.originalRecord'
+                : 'cvPrepare.recordId'
+            )
+          ),
+          el('input', {
+            key: 'input',
+            value: state.recordId,
+            inputMode: 'numeric',
+            maxLength: 100,
+            disabled: !idle,
+            'data-cv-workplace-record': true,
+            onChange: (event) => state.setRecordId(event.target.value),
+          }),
+        ]),
   ]);
 const validWorkplaceReview = (review) => {
   let valid = false;
   try {
     cvWorkplaceValues(review.fields);
-    cvWorkplaceRecordId(review.recordId);
+    if (review.operation !== 'add') {
+      cvWorkplaceRecordId(review.recordId);
+    }
     if (cvWorkplaceUsesMembership(review.operation)) {
       cvWorkplaceMembership(
         review.membership?.resumes,
@@ -226,7 +235,10 @@ const validWorkplaceReview = (review) => {
         review.operation
       );
     }
-    valid = true;
+    valid = Boolean(
+      review.source &&
+      (review.source.job === null) === (review.operation === 'add')
+    );
   } catch {
     /* Keep incomplete edits editable. */
   }
@@ -278,16 +290,15 @@ export const CvWorkplaceReview = ({ state, t }) => {
     },
     [
       el('h3', { key: 'title' }, t('cvWorkplace.title')),
-      el('p', { key: 'hint', className: 'meta' }, t('cvWorkplace.hint')),
-      el(Source, {
-        key: 'source',
-        state: review,
-        exports: state.resumeExports.exports.filter(
-          (row) => row.browserSlot === state.values.browserSlot
-        ),
-        idle,
-        t,
-      }),
+      el(
+        'p',
+        { key: 'hint', className: 'meta' },
+        t(
+          review.operation === 'add'
+            ? 'cvWorkplace.addHint'
+            : 'cvWorkplace.hint'
+        )
+      ),
       el('label', { key: 'operation', className: 'chat-form-field' }, [
         el('span', { key: 'label' }, t('cvWorkplace.operation')),
         el(
@@ -299,11 +310,20 @@ export const CvWorkplaceReview = ({ state, t }) => {
             'data-cv-workplace-operation': true,
             onChange: (event) => review.setOperation(event.target.value),
           },
-          ['update', 'copy', 'detach'].map((value) =>
+          ['update', 'add', 'copy', 'detach'].map((value) =>
             el('option', { key: value, value }, t(`cvWorkplace.${value}`))
           )
         ),
       ]),
+      el(Source, {
+        key: 'source',
+        state: review,
+        exports: state.resumeExports.exports.filter(
+          (row) => row.browserSlot === state.values.browserSlot
+        ),
+        idle,
+        t,
+      }),
       cvWorkplaceUsesMembership(review.operation)
         ? el(Membership, {
             key: 'membership',
