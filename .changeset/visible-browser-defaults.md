@@ -1216,3 +1216,7 @@ read-only application health, keeping preparation before a peer Stop (issue #56)
 
 Show whether the selected runner host could prepare Node.js or the isolated
 session launcher. Keep both observed session states visible in Settings (issue #56).
+
+Prepare private npm for a cold isolated launcher when the host has Node.js
+and npm is missing. Preserve the application's Node command and allow warm
+launcher reuse without npm or network downloads (issue #56).

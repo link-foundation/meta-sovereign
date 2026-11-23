@@ -78,6 +78,7 @@ test('ambiguous discovery never prepares and invalid preparation output never la
   for (const probe of [
     { code: 255, stdout: 'missing' },
     { code: 0, stdout: 'missing', aborted: true },
+    { code: 0, stdout: 'missing', stderr: 'unconfirmed' },
     success('SSH welcome banner\nmissing'),
   ]) {
     const prepare = createRunnerLauncherPreparation({

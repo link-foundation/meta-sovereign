@@ -1,0 +1,28 @@
+{
+  "archive": "runner-npm-preparation.tar.gz",
+  "files": {
+    "js/src/server/runner-dependencies.js": "7128a8eaaa581935ac0ff767b1f11f47c2e6b9e3c8dab39075c30b4984af02c1",
+    "js/src/server/runner-node.js": "33167ae87f3543c160e2e6601039335f9780cc7e6de4b86adca7137449cb9777",
+    "js/src/server/runner-tools/prepare.mjs": "77e1933d7a384019b62facc44adf37c544afeba7161a40a30a2e1a2579e50ab2",
+    ".github/workflows/release.yml": "7d91e94d24ff46a29a64e47599d035dad6d0f02c6b8845e0579286e870f2bdf4",
+    "experiments/issue-56/collect-runner-npm.py": "87cc0eba4d1a265f0fafb5c3866a2f5f50b8b9a7e8cf3b1bbd334a0b27426a53",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "experiments/issue-56/runner-node-local.mjs": "2185f3824edf922a0444b17c246e686a08a04c78dc2fc89490e46b8ed879a9f5",
+    "experiments/issue-56/runner-node-loopback-ssh.py": "abddc17860d3e219b9132c6399526ed5fe0bbd0e076c38ba74733af155001292",
+    "js/tests/runner-dependencies.test.js": "72bc4d0c732b552c2c0b54e57eac125dd56226e4eabe075e4976433b3bae866a",
+    "js/tests/runner-node.test.js": "ff9441d408667e9dc43f670bfb8f751d5f272fedbe1d9fb66e606ed7c3470828",
+    "before/js/src/server/runner-dependencies.js": "5b1d050da4e10707327adde35b89c213dd6bef95613528e3defc51f3ca55b3ec",
+    "before/js/src/server/runner-node.js": "baf22134fd4390b53b6a607f5f51ca949e7a0ecc7703aae72d2a9d632817d8a4",
+    "before/js/src/server/runner-tools/prepare.mjs": "50d916ef68b404d44160fb6762752bd213fb67a9c18197f9269fedb75169e79d",
+    "ci-logs/runner-npm-native-parent.log": "8dd06262e38b02818da5390a45b6f3560cfe9ada426125385fd8f5ea1c99f0f0",
+    "ci-logs/runner-npm-native-current.log": "611467f8870265abd2edb210d33d99f1414fcbe2642a734a131f48bdb6f49c53",
+    "ci-logs/runner-npm-native-ssh.log": "5e6f383be739c2da5020da6d8ed61fef5472cd551e182670f6e55ab0dc99b58e",
+    "ci-logs/runner-npm-no-node-compatibility.log": "cf629b8080fd8649c146be532e8129b6eed87793a45a94c9348eef8e894a502c",
+    "ci-logs/runner-npm-node-tests.log": "3bc4ec234624c5e8f8afc6ba0cef89dd4234228f3a79e351c4283327c7b599ae",
+    "ci-logs/runner-npm-deno-tests.log": "4d3f2fcb68be7449eb2e866c839cef16d60045efb3ce739da5a11675232d4ea0",
+    "ci-logs/runner-npm-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/runner-npm-actionlint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/runner-npm-secretlint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "metadata.json": "49d14522b727dc29eac1e357befeae4a4d889219791ee8185a30af5cbeb35ede"
+  }
+}

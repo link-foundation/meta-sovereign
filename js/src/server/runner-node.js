@@ -16,6 +16,21 @@ export const configuredRunnerRuntime = (target) => ({
 
 const installRuntime = createRunnerTransport({ deadlineMs: 90000 });
 
+export const lookupRunnerExecutable = async (
+  probe,
+  target,
+  command,
+  options
+) => {
+  const reply = await probe(target, probeRunnerExecutable(command), options);
+  return reply.code === 0 &&
+    !reply.aborted &&
+    !reply.stderr?.trim() &&
+    ['present', 'missing'].includes(reply.stdout)
+    ? reply.stdout
+    : null;
+};
+
 const cachedRuntime = (target, result) => {
   if (result.code !== 0 || result.aborted || result.stderr?.trim()) {
     return null;
@@ -47,31 +62,33 @@ const cachedRuntime = (target, result) => {
   };
 };
 
-/** Resolve the application runtime on the execution host. Only Start may install it. */
+/** Resolve Node on the execution host. Only Start may install it. */
 export const createRunnerRuntimePreparation =
   ({ probe = runRunnerCommand, install = installRuntime } = {}) =>
-  async (target, { installMissing = false, ...options } = {}) => {
+  async (
+    target,
+    { installMissing = false, requireNpm = false, ...options } = {}
+  ) => {
     const configured = configuredRunnerRuntime(target);
     if (
       target.isolation === 'docker' ||
-      configured.node !== 'node' ||
       (!target.host && process.platform === 'win32')
     ) {
       return configured;
     }
     try {
-      const lookup = await probe(
-        target,
-        probeRunnerExecutable('node'),
-        options
-      );
-      if (lookup.code !== 0 || lookup.aborted || lookup.stderr?.trim()) {
-        return null;
-      }
-      if (lookup.stdout === 'present') {
+      const node =
+        configured.node === 'node'
+          ? await lookupRunnerExecutable(probe, target, 'node', options)
+          : 'present';
+      const available =
+        node === 'present' && requireNpm
+          ? await lookupRunnerExecutable(probe, target, 'npm', options)
+          : node;
+      if (available === 'present') {
         return configured;
       }
-      if (lookup.stdout !== 'missing') {
+      if (available !== 'missing') {
         return null;
       }
       const script = await readFile(

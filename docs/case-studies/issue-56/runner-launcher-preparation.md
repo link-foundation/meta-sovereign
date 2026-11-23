@@ -127,6 +127,39 @@ and [Telegram Web A conversation states](https://github.com/Ajaxy/telegram-tt/bl
 [Launcher before](../../screenshots/issue-56-runner-dependencies/launcher-before-phone.png) ·
 [Launcher after](../../screenshots/issue-56-runner-dependencies/launcher-after-phone.png)
 
+## Node.js is installed and npm is missing
+
+The published controller at `0812c89d` sees the host Node.js and proceeds to
+install the locked launcher. In a clean private home with npm absent from PATH,
+the first native Screen Start returns `runner-launcher-unavailable`. The
+fixture confirms that both modes remain stopped or unconfigured.
+
+The launcher first checks its verified cache with the existing Node.js.
+A cold cache can request bundled npm after an explicit missing-command result
+and a separate host lookup. The controller prepares the signed private Node
+archive and uses its npm to install only the locked launcher with lifecycle
+scripts disabled. The configured application command stays on its original
+Node.js. An ambiguous lookup or a failed install preserves the refusal before
+any peer Stop. A verified warm launcher works even after the fixture moves the
+private Node installation away and disables further downloads.
+
+```sh
+node experiments/issue-56/runner-node-local.mjs --node-on-path
+python3 -B experiments/issue-56/runner-node-loopback-ssh.py --node-on-path
+node --test --test-concurrency=1 js/tests/runner-node.test.js \
+  js/tests/runner-dependencies.test.js js/tests/runner-control.test.js \
+  js/tests/runner-api.test.js
+```
+
+The 25 focused checks pass in Node and in Deno. The native Screen fixture
+confirms both Starts, readiness reads and Stops locally and over loopback SSH.
+The Linux hosted job now checks both the clean PATH and the preinstalled Node.js
+cases. Hosted acceptance and the remaining application closure still need
+verification for VD01.
+
+[Source and native npm preparation evidence](data/runner-npm-preparation.tar.gz) ·
+[Hash manifest](data/runner-npm-preparation.tar.sha256.json)
+
 [Signed release manifest](https://nodejs.org/dist/v26.13.0/SHASUMS256.txt.asc) ·
 [Pinned release keyring](https://github.com/nodejs/release-keys/tree/481637f813e912c4aa3622d7964ab426c97b8e8d)
 

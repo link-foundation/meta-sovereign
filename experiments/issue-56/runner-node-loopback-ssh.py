@@ -11,6 +11,7 @@ from tempfile import TemporaryDirectory
 from threading import Event, Thread
 import os
 import subprocess
+import sys
 
 import paramiko
 
@@ -96,7 +97,8 @@ with TemporaryDirectory(prefix='ms-runner-node-ssh-') as directory:
         listener = Thread(target=server.serve_forever)
         listener.start()
         try:
-            subprocess.run(['node', 'experiments/issue-56/runner-node-local.mjs'],
+            subprocess.run(['node', 'experiments/issue-56/runner-node-local.mjs',
+                            *sys.argv[1:]],
                            env={**os.environ, 'PATH': f'{root}:{os.environ["PATH"]}',
                                 'RUNNER_PRIVATE_NODE_HOST': 'runner-node-loopback'},
                            check=True)

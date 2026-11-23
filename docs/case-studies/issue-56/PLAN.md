@@ -1981,4 +1981,5 @@ Native profile persistence follow-up:
 
 - [x] Verify private runtime preparation from a restricted PATH over local Screen and the normal SSH transport. Confirm corrupt archives refuse before peer Stop, and both cold and warm application readiness reads succeed.
 - [x] Reproduce generic refusal copy with the published bundle and verify both precise Settings messages, four languages and desktop and phone layouts. [Reproduction and screenshots](runner-launcher-preparation.md#dependency-refusals-in-settings).
+- [x] Reproduce the existing-Node and missing-npm startup failure against the published source. Verify private npm preparation on cold startup and warm reuse with npm and the private Node folder absent. [Reproduction](runner-launcher-preparation.md#nodejs-is-installed-and-npm-is-missing).
 - [ ] Verify the hosted SSH, native desktop and application dependency cases on the current source. Complete the supported OS backend and application preparation workflow.

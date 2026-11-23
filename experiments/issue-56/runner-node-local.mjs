@@ -1,4 +1,4 @@
-/** Start an actual Screen runner with no Node, npm or launcher on its PATH. */
+/** Start an actual Screen runner with no npm or launcher on its PATH. */
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import {
@@ -6,6 +6,7 @@ import {
   mkdtemp,
   readdir,
   readFile,
+  rename,
   rm,
   stat,
   symlink,
@@ -38,6 +39,7 @@ const corrupt = join(home, 'invalid-archive');
 const offline = join(home, 'offline');
 const downloads = join(home, 'downloads');
 const host = process.env.RUNNER_PRIVATE_NODE_HOST;
+const nodeOnPath = process.argv.includes('--node-on-path');
 const mode = host ? 'server' : 'local';
 const executionEnvironment = { HOME: home, PATH: bin, SCREENDIR: socket };
 const withEnvironment = (transport) => (target, argv, options) =>
@@ -93,6 +95,9 @@ const controller = createRunnerController({
       }
     : {}),
   async run(target, argv, options) {
+    if (nodeOnPath && argv.includes('--isolated')) {
+      assert.equal(argv[argv.indexOf(target.cli) - 2], 'node');
+    }
     const reply = await transport(target, argv, options);
     if (
       process.env.MS_RUNNER_NODE_DEBUG === '1' &&
@@ -158,6 +163,9 @@ try {
   ]) {
     await symlink(await command(name), join(bin, name));
   }
+  if (nodeOnPath) {
+    await symlink(process.execPath, join(bin, 'node'));
+  }
   await writeFile(
     join(bin, 'curl'),
     `#!/bin/sh
@@ -188,11 +196,13 @@ exec ${quoteRunnerArgument(await command('curl'))} "$@"
   await assert.rejects(stat(cache), { code: 'ENOENT' });
   await assert.rejects(stat(downloads), { code: 'ENOENT' });
 
-  await writeFile(corrupt, 'replace download with a corrupt archive');
-  assert.equal((await start()).code, 'runner-runtime-unavailable');
-  assert.deepEqual(await readdir(cache), []);
-  assert.equal(await readFile(downloads, 'utf8'), 'called\n');
-  await rm(corrupt);
+  if (!nodeOnPath) {
+    await writeFile(corrupt, 'replace download with a corrupt archive');
+    assert.equal((await start()).code, 'runner-runtime-unavailable');
+    assert.deepEqual(await readdir(cache), []);
+    assert.equal(await readFile(downloads, 'utf8'), 'called\n');
+    await rm(corrupt);
+  }
 
   const cold = await start();
   assert.equal(cold.ok, true, JSON.stringify(cold));
@@ -200,26 +210,33 @@ exec ${quoteRunnerArgument(await command('curl'))} "$@"
   assert.equal((await stop()).ok, true);
   const cached = await readdir(cache);
   assert.equal(cached.length, 2);
-  assert.equal(
-    cached.filter((name) => name.startsWith('node-v26.13.0-')).length,
-    1
-  );
-  assert.equal(await readFile(downloads, 'utf8'), 'called\ncalled\n');
+  const runtimes = cached.filter((name) => name.startsWith('node-v26.13.0-'));
+  assert.equal(runtimes.length, 1);
+  const expectedDownloads = nodeOnPath ? 'called\n' : 'called\ncalled\n';
+  assert.equal(await readFile(downloads, 'utf8'), expectedDownloads);
 
   await writeFile(offline, 'refuse further downloads');
+  if (nodeOnPath) {
+    await rename(join(cache, runtimes[0]), join(home, 'saved-node-runtime'));
+  }
   const warm = await start();
   assert.equal(warm.ok, true, JSON.stringify(warm));
   await ready();
   assert.equal((await stop()).ok, true);
-  assert.deepEqual(await readdir(cache), cached);
-  assert.equal(await readFile(downloads, 'utf8'), 'called\ncalled\n');
+  assert.deepEqual(
+    await readdir(cache),
+    nodeOnPath ? cached.filter((name) => name !== runtimes[0]) : cached
+  );
+  assert.equal(await readFile(downloads, 'utf8'), expectedDownloads);
   assert.equal(await readFile(marker, 'utf8'), 'retain\n');
   console.log(
     JSON.stringify({
-      nodeOnPath: false,
+      nodeOnPath,
       npmOnPath: false,
       nativeScreen: true,
-      checksumRefusal: true,
+      ...(nodeOnPath
+        ? { keptPathNode: true, warmWithoutNpmRuntime: true }
+        : { checksumRefusal: true }),
       privateCache: true,
       coldAndWarmReady: true,
       stopConfirmed: true,

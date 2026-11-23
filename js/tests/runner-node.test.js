@@ -87,6 +87,49 @@ test('runtime preparation preserves PATH, custom executables and Docker applicat
   assert.equal(probes, 1);
 });
 
+test('a launcher can prepare npm privately while the application retains its Node command', async () => {
+  const lookedUp = [];
+  const attempts = [];
+  let npmState = success('missing');
+  const prepare = createRunnerLauncherPreparation({
+    probe: async (_host, argv) => {
+      const command = argv.at(-1);
+      lookedUp.push(command);
+      return command === 'npm'
+        ? npmState
+        : success(command === '$' ? 'missing' : 'present');
+    },
+    async run(host, argv) {
+      assert.equal(host, target);
+      attempts.push(argv[0]);
+      if (argv[0] === 'sh') {
+        assert.equal(argv.at(-1), 'install');
+        return success(`${root}\n`);
+      }
+      if (argv[0] === 'node') {
+        assert.equal(argv.at(-1), '');
+        return { code: 1, stdout: 'npm-unavailable\n' };
+      }
+      assert.equal(argv[0], runtime.node);
+      assert.equal(argv.at(-1), runtime.npm);
+      return success(JSON.stringify(['/host/bun', '/host/start.js']));
+    },
+  });
+  const application = { node: 'node' };
+  assert.deepEqual(await prepare(target, {}, application), [
+    '/host/bun',
+    '/host/start.js',
+  ]);
+  assert.deepEqual(lookedUp, ['$', 'node', 'npm']);
+  assert.deepEqual(attempts, ['node', 'sh', runtime.node]);
+  assert.deepEqual(application, { node: 'node' });
+
+  npmState = { code: 0, stdout: 'missing', stderr: 'ambiguous lookup' };
+  assert.equal(await prepare(target, {}, application), null);
+  assert.deepEqual(lookedUp, ['$', 'node', 'npm', '$', 'node', 'npm']);
+  assert.deepEqual(attempts, ['node', 'sh', runtime.node, 'node']);
+});
+
 test('ambiguous absence or an invalid runtime receipt refuses launch preparation', async () => {
   for (const reply of [
     success('SSH welcome banner\nmissing'),
@@ -121,6 +164,7 @@ test('host launcher preparation uses bundled npm and preserves the Docker entry 
       assert.equal(host.host, docker.host);
       assert.equal(host.node, 'node');
       assert.equal(options.installMissing, true);
+      assert.equal(options.requireNpm, undefined);
       return runtime;
     },
     run: async (host, argv) => {

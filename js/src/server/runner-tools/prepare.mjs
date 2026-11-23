@@ -17,6 +17,7 @@ import { join } from 'node:path';
 import { promisify } from 'node:util';
 
 const execute = promisify(execFile);
+const packageManagerUnavailable = new Error('npm is unavailable');
 const readJson = async (file) => JSON.parse(await readFile(file, 'utf8'));
 const directory = async (file) => {
   const info = await lstat(file);
@@ -82,26 +83,33 @@ const install = async (stage, lockText, root, npm) => {
   const env = Object.fromEntries(
     Object.entries(process.env).filter(([key]) => !/^npm_config_/i.test(key))
   );
-  await execute(
-    npm ? process.execPath : 'npm',
-    [
-      ...(npm ? [npm] : []),
-      'ci',
-      '--ignore-scripts',
-      '--omit=dev',
-      '--include=optional',
-      '--no-audit',
-      '--no-fund',
-      '--registry=https://registry.npmjs.org/',
-      '--userconfig=/dev/null',
-      `--globalconfig=${join(stage, 'global.npmrc')}`,
-      `--cache=${join(stage, '.npm-cache')}`,
-      '--loglevel=error',
-      '--fetch-retries=0',
-      '--fetch-timeout=30000',
-    ],
-    { cwd: stage, env, timeout: 75000, maxBuffer: 32 * 1024 }
-  );
+  try {
+    await execute(
+      npm ? process.execPath : 'npm',
+      [
+        ...(npm ? [npm] : []),
+        'ci',
+        '--ignore-scripts',
+        '--omit=dev',
+        '--include=optional',
+        '--no-audit',
+        '--no-fund',
+        '--registry=https://registry.npmjs.org/',
+        '--userconfig=/dev/null',
+        `--globalconfig=${join(stage, 'global.npmrc')}`,
+        `--cache=${join(stage, '.npm-cache')}`,
+        '--loglevel=error',
+        '--fetch-retries=0',
+        '--fetch-timeout=30000',
+      ],
+      { cwd: stage, env, timeout: 75000, maxBuffer: 32 * 1024 }
+    );
+  } catch (error) {
+    if (!npm && error.code === 'ENOENT' && error.path === 'npm') {
+      throw packageManagerUnavailable;
+    }
+    throw error;
+  }
 };
 
 const publish = async (cache, destination, lockText, root, npm) => {
@@ -146,8 +154,10 @@ const prepare = async (lockText, npm) => {
 try {
   const prefix = await prepare(process.argv[1], process.argv[2]);
   process.stdout.write(`${JSON.stringify(prefix)}\n`);
-} catch {
-  if (process.env.MS_RUNNER_CONTROL_DEBUG === '1') {
+} catch (error) {
+  if (error === packageManagerUnavailable) {
+    process.stdout.write('npm-unavailable\n');
+  } else if (process.env.MS_RUNNER_CONTROL_DEBUG === '1') {
     console.error('[runner-control] private launcher preparation failed');
   }
   process.exitCode = 1;
