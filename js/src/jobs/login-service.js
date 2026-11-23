@@ -1,6 +1,7 @@
 import { resolveBrowserPolicy } from '../browser/policy.js';
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
 import { jobsFailure } from './options.js';
+import { bindAttentionPage } from '../automation/attention-foreground.js';
 import {
   loginIdentity,
   loginKey,
@@ -79,10 +80,14 @@ class JobLogin {
     ) {
       return null;
     }
-    return {
-      ...current.notice,
-      focusAvailable: typeof current.browser.page.bringToFront === 'function',
-    };
+    const { page } = current.browser;
+    return bindAttentionPage(
+      {
+        ...current.notice,
+        focusAvailable: typeof page.bringToFront === 'function',
+      },
+      page
+    );
   }
   attention() {
     const notice = owners.get(this.store)?.currentNotice();

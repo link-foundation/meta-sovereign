@@ -178,6 +178,19 @@ export class DesktopOwnerAttention {
     };
   }
 
+  async browserState(item) {
+    try {
+      return (
+        (await this.owner.browserState?.(item)) ?? {
+          active: true,
+          focused: false,
+        }
+      );
+    } catch {
+      return { active: false, focused: false };
+    }
+  }
+
   postPrompt(entry) {
     let dispose;
     const release = () => dispose?.();
@@ -210,13 +223,23 @@ export class DesktopOwnerAttention {
           (item) =>
             itemKey(item) === key && Date.parse(item.expiresAt) > this.now()
         );
+        if (current) {
+          const { active, focused } = await this.browserState(current);
+          if (!active || focused) {
+            current = undefined;
+          }
+        }
       } catch {
         // A failed read cannot establish that the same owner still needs a prompt.
       }
     }
     if (entry.release === release && shouldRecover()) {
       this.dismiss(entry);
-      if (this.visual && current) {
+      if (
+        this.visual &&
+        current &&
+        Date.parse(current.expiresAt) > this.now()
+      ) {
         entry.item = current;
         this.postPrompt(entry);
       }
@@ -331,7 +354,7 @@ export class DesktopOwnerAttention {
       if (!this.enabled || generation !== this.timer) {
         return;
       }
-      this.reconcile(current);
+      await this.reconcile(current);
     } catch {
       traceAttention();
     } finally {
@@ -339,7 +362,26 @@ export class DesktopOwnerAttention {
     }
   }
 
-  reconcile(current) {
+  async postIfBackground(key, entry) {
+    const { item, next } = entry;
+    const { active, focused } = await this.browserState(item);
+    if (
+      this.entries.get(key) !== entry ||
+      entry.next !== next ||
+      Date.parse(item.expiresAt) <= this.now()
+    ) {
+      return;
+    }
+    if (!active) {
+      this.dismiss(entry);
+    } else if (focused) {
+      this.delay(entry, ATTENTION_REMIND_MS);
+    } else {
+      this.post(entry);
+    }
+  }
+
+  async reconcile(current) {
     const time = this.now();
     const live = new Map(
       current
@@ -356,13 +398,15 @@ export class DesktopOwnerAttention {
         this.entries.delete(key);
       }
     }
+    const due = [];
     for (const [key, item] of live) {
       const entry = this.entries.get(key) ?? { next: time };
       this.entries.set(key, entry);
       entry.item = item;
       if (entry.next <= time) {
-        this.post(entry);
+        due.push(this.postIfBackground(key, entry));
       }
     }
+    await Promise.all(due);
   }
 }

@@ -8,6 +8,10 @@ import {
 } from '../electron/owner-attention-ipc.js';
 import { DesktopOwnerAttention } from '../electron/owner-attention.js';
 import {
+  attentionPageForeground,
+  bindAttentionPage,
+} from '../src/automation/attention-foreground.js';
+import {
   ATTENTION_ACKNOWLEDGED_MS,
   ATTENTION_POLL_MS,
   ATTENTION_REMIND_MS,
@@ -394,6 +398,64 @@ test(
 );
 
 test(
+  'only the exact focused browser suppresses its reminder until the next five-minute check',
+  { timeout: 5000 },
+  async () => {
+    const f = desktopFixture();
+    const form = ownerWait();
+    const login = ownerWait('hh-manual-login');
+    f.setWaits(form, login);
+    let focused = form;
+    f.owner.browserState = async (wait) => ({
+      active: true,
+      focused: wait === focused,
+    });
+    f.controller.configure(preferences);
+    await settled();
+    assert.equal(f.beeps, 1);
+    assert.match(f.notices[0].options.body, /HeadHunter/u);
+    focused = login;
+    await f.advance(ATTENTION_REMIND_MS - 1);
+    assert.equal(f.beeps, 1);
+    await f.advance(1);
+    assert.equal(f.beeps, 2);
+    assert.match(f.notices[1].options.body, /form review/u);
+    assert.equal(f.notices[0].closed, true);
+    f.controller.close();
+  }
+);
+
+test(
+  'foreground detection rechecks a failed alert and respects acknowledgement during polling',
+  { timeout: 5000 },
+  async () => {
+    const f = desktopFixture({ fallback: true });
+    const form = ownerWait();
+    f.setWaits(form);
+    f.controller.configure(preferences);
+    await settled();
+    f.owner.browserState = async () => ({ active: true, focused: true });
+    f.notices[0].emit('failed');
+    await settled();
+    assert.equal(f.notices[0].closed, true);
+    assert.deepEqual(f.prompts, []);
+    let resume;
+    f.owner.browserState = () =>
+      new Promise((resolve) => {
+        resume = resolve;
+      });
+    const refresh = f.advance(ATTENTION_REMIND_MS);
+    await settled();
+    assert.deepEqual(await f.controller.acknowledge(form), { ok: true });
+    resume({ active: true, focused: false });
+    await refresh;
+    assert.equal(f.beeps, 1);
+    assert.equal(f.notices.length, 1);
+    f.controller.close();
+  }
+);
+
+test(
   'desktop owner reads isolate failed sources and refuse stale, headless or locked focus',
   { timeout: 5000 },
   async () => {
@@ -446,6 +508,116 @@ test(
     ctx.vacanciesClosing = true;
     assert.deepEqual(await owner.focus(application), { ok: false });
     assert.deepEqual(focus, [[form.id, form.requestId], application]);
+  }
+);
+
+test(
+  'foreground browser state is private and revalidates the live slot and lock after CDP',
+  { timeout: 5000 },
+  async () => {
+    const wait = ownerWait();
+    let reads = 0;
+    let locked = false;
+    let current = [wait];
+    const commands = [];
+    const cdp = {
+      async send(command, args) {
+        commands.push([command, args]);
+        if (command === 'Page.getFrameTree') {
+          return { frameTree: { frame: { id: 'fixture-frame' } } };
+        }
+        if (command === 'Page.createIsolatedWorld') {
+          return { executionContextId: 123 };
+        }
+        if (command === 'Runtime.evaluate') {
+          return { result: { value: true } };
+        }
+      },
+      detach: async () => commands.push(['detach']),
+    };
+    assert.equal(
+      bindAttentionPage(wait, {
+        context: () => ({ newCDPSession: async () => cdp }),
+      }),
+      wait
+    );
+    assert.deepEqual(JSON.parse(JSON.stringify(wait)), ownerWait());
+    const owner = serverOwnerAttention({
+      passcode: { locked: () => locked },
+      forms: {
+        reviewAttention: () => {
+          reads++;
+          return { ok: true, attention: current };
+        },
+      },
+    });
+    assert.deepEqual(await owner.browserState(wait), {
+      active: true,
+      focused: true,
+    });
+    assert.deepEqual(
+      commands.map(([command]) => command),
+      [
+        'Emulation.setFocusEmulationEnabled',
+        'Page.getFrameTree',
+        'Page.createIsolatedWorld',
+        'Runtime.evaluate',
+        'detach',
+      ]
+    );
+    assert.deepEqual(commands[0][1], { enabled: false });
+    assert.match(
+      commands[3][1].expression,
+      /^document\.visibilityState === "visible" && document\.hasFocus\(\)$/u
+    );
+    current = [{ ...wait, requestId: 'different' }];
+    assert.deepEqual(await owner.browserState(wait), {
+      active: false,
+      focused: false,
+    });
+    const detach = cdp.detach;
+    cdp.detach = async () => {
+      await detach();
+      locked = true;
+    };
+    assert.deepEqual(await owner.browserState(wait), {
+      active: false,
+      focused: false,
+    });
+    assert.equal(reads, 2);
+  }
+);
+
+test(
+  'foreground probing times out and shares one unresolved protocol session per page',
+  { timeout: 5000 },
+  async () => {
+    const wait = ownerWait();
+    let connects = 0;
+    let finish;
+    const context = {
+      newCDPSession() {
+        connects++;
+        return new Promise((resolve, reject) => {
+          finish = reject;
+        });
+      },
+    };
+    const page = { context: () => context };
+    bindAttentionPage(wait, page);
+    const secondWait = bindAttentionPage(ownerWait(), page);
+    assert.deepEqual(
+      await Promise.all([
+        attentionPageForeground(wait),
+        attentionPageForeground(secondWait),
+      ]),
+      [false, false]
+    );
+    assert.equal(connects, 1);
+    finish(new Error('fixture page closed'));
+    await settled();
+    assert.equal(await attentionPageForeground({ ...wait }), false);
+    assert.equal(connects, 1);
   }
 );
 

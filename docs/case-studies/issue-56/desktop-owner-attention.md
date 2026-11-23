@@ -44,4 +44,19 @@ Set `META_SOVEREIGN_ATTENTION_SCREENSHOT` to save the private Xvfb screen. To ru
 
 ![Desktop fallback with Show browser and Later after the same rejection](../../screenshots/issue-56-desktop-attention-prompt-after.png)
 
-QA24 and HH01 remain unfinished. Signed macOS and Windows delivery, Wayland display, silent suppression by Focus after an OS display receipt, suppression when the exact browser is already frontmost, and authenticated provider acceptance still require evidence. [Electron notification platform behavior](https://www.electronjs.org/docs/latest/tutorial/notifications).
+## While the owner is at the waiting browser
+
+The desktop runtime checks the exact waiting page when a reminder is due. A visible, focused page defers its alert and chime until the next five-minute check. An unrelated tab or window leaves the original wait eligible. The runtime repeats the check before presenting a fallback for a failed desktop notification.
+
+The server binds the current browser page to its local attention receipt. The public receipt fields stay the same across CLI and both Lino formats. Chromium normally receives an emulated focus override from Playwright. The probe disables that override and reads visibility and focus in an isolated browser world with a 750 ms deadline. It reads two browser state values and keeps the page reference in-process. The server revalidates the live case, request, slot and lock before acting on the result. When Chromium cannot confirm focus, the live wait remains eligible for its reminder. [Chromium focus emulation](https://chromedevtools.github.io/devtools-protocol/tot/Emulation/#method-setFocusEmulationEnabled) · [Chromium isolated worlds](https://chromedevtools.github.io/devtools-protocol/tot/Page/#method-createIsolatedWorld).
+
+Run the [headed regression](../../../experiments/issue-56/desktop-attention-foreground-probe.mjs) against Chromium with an isolated Xvfb display. Set `META_SOVEREIGN_TEST_CHROMIUM` to use an installed Chromium executable. The fixture uses the production Forms attention receipt, server owner and desktop controller, with counters for the system alert and chime. Its two tabs and separate window use local pages. The published parent `17a346f8` produces one notification and one sound with the exact page focused. The updated controller produces zero, then issues one of each at the next cutoff after focus moves to another window. A page script supplies misleading focus readings as a control.
+
+```sh
+META_SOVEREIGN_TEST_CHROMIUM=/opt/google/chrome/chrome \
+  xvfb-run -a node --max-old-space-size=384 experiments/issue-56/desktop-attention-foreground-probe.mjs
+```
+
+Use `META_SOVEREIGN_ATTENTION_PARENT_CONTROLLER` with `git show 17a346f8:js/electron/owner-attention.js` in the isolated checkout described above to observe the regression on the published parent. [Evidence archive](data/desktop-attention-foreground.tar.gz) · [Entry hashes](data/desktop-attention-foreground.tar.sha256.json).
+
+QA24 and HH01 remain unfinished. Signed macOS and Windows delivery, Wayland display, silent suppression by Focus after an OS display receipt, and authenticated provider acceptance still require evidence. Foreground behavior is verified for focused browser content in headed Linux Chromium. [Electron notification platform behavior](https://www.electronjs.org/docs/latest/tutorial/notifications).

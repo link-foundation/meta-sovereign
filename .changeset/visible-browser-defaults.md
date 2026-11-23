@@ -1141,3 +1141,6 @@ the exact waiting browser while the desktop runtime is active.
 
 Show the same owner actions in a local desktop prompt when the system alert
 cannot be displayed. Keep the reminder and chime tied to the current wait.
+
+Defer the desktop alert and chime while the exact waiting browser page has
+focus, then check again at the normal reminder interval.

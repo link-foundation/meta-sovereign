@@ -2,6 +2,7 @@ import { CAPTCHA_WAIT_MS } from '../forms/challenge-wait.js';
 import { inspectFormChallenge } from '../forms/inspection.js';
 import { readApplicationVerification } from './application-page.js';
 import { jobsFailure } from './options.js';
+import { bindAttentionPage } from '../automation/attention-foreground.js';
 
 const live = (record) =>
   record?.active === true &&
@@ -91,7 +92,10 @@ export class ApplicationAttention {
       record.attention = null;
       return null;
     }
-    return { ...wait.notice, focusAvailable: viewing(record) };
+    return bindAttentionPage(
+      { ...wait.notice, focusAvailable: viewing(record) },
+      record.browser.page
+    );
   }
 
   async focus(record, owned, { id, requestId, browserSlot }) {

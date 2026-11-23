@@ -1,4 +1,5 @@
 import { formFailure as failure } from './options.js';
+import { bindAttentionPage } from '../automation/attention-foreground.js';
 
 const activeReview = (record) =>
   record.state === 'open' &&
@@ -19,16 +20,19 @@ const waitingAttention = (record, now) => {
     return null;
   }
   const { page, policy } = record.browser;
-  return {
-    id: record.id,
-    browserSlot: record.slot,
-    requestId: result.requestId,
-    kind: wait.kind,
-    startedAt: wait.startedAt,
-    expiresAt: wait.expiresAt,
-    focusAvailable:
-      policy?.headless === false && typeof page?.bringToFront === 'function',
-  };
+  return bindAttentionPage(
+    {
+      id: record.id,
+      browserSlot: record.slot,
+      requestId: result.requestId,
+      kind: wait.kind,
+      startedAt: wait.startedAt,
+      expiresAt: wait.expiresAt,
+      focusAvailable:
+        policy?.headless === false && typeof page?.bringToFront === 'function',
+    },
+    page
+  );
 };
 
 export const reviewAttention = (records, observedAt) => ({

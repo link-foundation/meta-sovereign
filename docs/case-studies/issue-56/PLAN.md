@@ -1927,3 +1927,10 @@ Native profile persistence follow-up:
 - [x] Preserve the exact owner, private text, actions and reminder schedule when replacing a failed or unavailable notification.
 - [x] Verify normal and failed OS delivery, replacement and expiry paths, and keyboard actions. Preserve before and after screenshots and the source-bound evidence. [Desktop alert delivery recovery](desktop-owner-attention.md#when-the-system-cannot-display-the-alert).
 - [ ] Verify exact-head hosted checks, signed OS delivery, Focus behavior and authenticated provider acceptance. QA24 and HH01 remain unfinished.
+
+### Focused browser reminders (QA24 and HH01)
+
+- [x] Reproduce Chromium focus emulation and the redundant chime and notification on the published desktop controller.
+- [x] Bind each private browser page to its read-only receipt and revalidate the exact live wait after a bounded focus probe.
+- [x] Verify the two-tab and separate-window controls, an incorrect page-reported focus value, deadline and stale ownership recovery. Preserve exact parent and current receipts. [Focused browser reminders](desktop-owner-attention.md#while-the-owner-is-at-the-waiting-browser).
+- [ ] Verify exact-head hosted checks, remaining desktop system behaviors and authenticated workflows.

@@ -1,3 +1,16 @@
+import { attentionPageForeground } from '../automation/attention-foreground.js';
+
+const currentAttention = ({ kind, id, requestId, browserSlot }, result) =>
+  result?.ok === true && Array.isArray(result.attention)
+    ? result.attention.find(
+        (item) =>
+          item.kind === kind &&
+          item.id === id &&
+          item.requestId === requestId &&
+          item.browserSlot === browserSlot
+      )
+    : undefined;
+
 /** In-process desktop access to the same live owners used by the Lino routes. */
 export const serverOwnerAttention = (ctx) => {
   const allowed = () => !ctx.vacanciesClosing && !ctx.passcode.locked();
@@ -33,23 +46,28 @@ export const serverOwnerAttention = (ctx) => {
           )
         : [];
     },
-    async focus({ kind, id, requestId, browserSlot }) {
-      if (!allowed() || !Object.hasOwn(sources, kind)) {
+    async browserState(item) {
+      if (!allowed() || !Object.hasOwn(sources, item.kind)) {
+        return { active: false, focused: false };
+      }
+      const focused = await attentionPageForeground(item);
+      const source = sources[item.kind];
+      const notice = allowed() && currentAttention(item, await source.read());
+      const active = allowed() && Boolean(notice);
+      return {
+        active,
+        focused: active && notice.focusAvailable === true && focused,
+      };
+    },
+    async focus(item) {
+      if (!allowed() || !Object.hasOwn(sources, item.kind)) {
         return { ok: false };
       }
-      const source = sources[kind];
-      const result = await source.read();
-      const notice =
-        result?.ok === true &&
-        result.attention?.find(
-          (item) =>
-            item.kind === kind &&
-            item.id === id &&
-            item.requestId === requestId &&
-            item.browserSlot === browserSlot &&
-            item.focusAvailable
-        );
-      return allowed() && notice ? source.focus(notice) : { ok: false };
+      const source = sources[item.kind];
+      const notice = currentAttention(item, await source.read());
+      return allowed() && notice?.focusAvailable
+        ? source.focus(notice)
+        : { ok: false };
     },
   };
 };
