@@ -1941,3 +1941,9 @@ Native profile persistence follow-up:
 - [x] Capture the complete visible section with bounded reads and preserve the whole-form hold, task revision and manual verification boundary.
 - [x] Verify 48 focused tests in each runtime and the browser and Playwright MCP receipts. Preserve the before and after screenshots. [Reproduction and sources](assignment-sections.md).
 - [ ] Verify the hosted Forms group and the remaining QA24 instruction and desktop notification behavior.
+
+### Desktop notification packaging
+
+- [x] Preserve the failed Windows x64 and arm64 logs at exact head `72d5a02c`. Both reach the Node debugger before the installed application times out.
+- [x] Reproduce the missing React import without the checkout and verify independent translation, locale behavior and the production bundle. Node and Deno pass 44 focused checks. [Reproduction and sources](desktop-attention-packaging.md).
+- [ ] Verify clean installed startup, one visible window, runtime drain and screenshot in the exact-head Windows x64 and arm64 jobs.

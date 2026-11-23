@@ -4,7 +4,8 @@ import {
   ATTENTION_REMIND_MS,
   attentionNotification,
 } from '../src/automation/attention-policy.js';
-import { availableLocales, translate } from '../src/web/i18n.js';
+import { availableLocales } from '../src/web/locales/index.js';
+import { translate } from '../src/web/translate.js';
 
 const itemKey = ({ kind, id, requestId, browserSlot }) =>
   JSON.stringify([kind, id, requestId, browserSlot]);

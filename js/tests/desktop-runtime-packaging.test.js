@@ -1,9 +1,51 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
-import { join } from 'node:path';
+import { cp, mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
+import { pathToFileURL } from 'node:url';
 import { validateDesktopRuntime } from '../scripts/validate-desktop-runtime.mjs';
+
+test(
+  'desktop owner attention loads and localizes outside a checkout without renderer dependencies',
+  { timeout: 5000 },
+  async () => {
+    const out = await mkdtemp(join(tmpdir(), 'desktop-attention-boundary-'));
+    try {
+      await writeFile(join(out, 'package.json'), '{"type":"module"}');
+      const files = [
+        'js/electron/owner-attention.js',
+        'js/src/automation',
+        'js/src/configuration',
+        'js/src/storage',
+        'js/src/web/i18n.js',
+        'js/src/web/translate.js',
+        'js/src/web/ui-defaults.js',
+        'js/src/web/locales',
+      ];
+      for (const path of files) {
+        const destination = join(out, path);
+        await mkdir(dirname(destination), { recursive: true });
+        await cp(new URL(`../../${path}`, import.meta.url), destination, {
+          recursive: true,
+        });
+      }
+      const entry = pathToFileURL(join(out, files[0]));
+      const { DesktopOwnerAttention } = await import(entry.href);
+      const controller = new DesktopOwnerAttention({ owner: {} });
+      controller.locale = 'ru';
+      const labels = controller.labels({
+        item: { kind: 'captcha', focusAvailable: true },
+      });
+      assert.equal(labels.locale, 'ru');
+      for (const label of [labels.body, labels.show, labels.later]) {
+        assert.match(label, /\p{Script=Cyrillic}/u);
+      }
+    } finally {
+      await rm(out, { recursive: true, force: true });
+    }
+  }
+);
 
 test(
   'desktop runtime validation refuses dependencies resolved from a surrounding checkout',

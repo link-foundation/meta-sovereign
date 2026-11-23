@@ -376,6 +376,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 - [Test assignment sections](assignment-sections.md) preserves exact parent and fixed Forms reviews, private instruction capture and the prerequisite for a task below the first control. Chromium and independent Playwright MCP confirm refusal and zero submissions.
 
+- [Desktop notification packaging](desktop-attention-packaging.md) traces both Windows installer smoke failures to a checkout-only React import and verifies localized attention in an isolated copy without renderer dependencies.
+
 - [solver-authentication.md](solver-authentication.md) preserves the full public sanitized session and reconstructs the November 21 solver interruption from the exact Codex refresh error and wrapper termination.
 
 - [assignment-publication.md](assignment-publication.md) verifies reviewed English issues, current template selection/history, vacancy associations and durable publication recovery through CLI/Lino/UI. Focused Node/Deno, production Chromium and independent MCP preserve one creation, actual readback, the whole-form hold and zero submissions.
