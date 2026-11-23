@@ -1,0 +1,9 @@
+{
+  "archive": "solver-authentication.tar.gz",
+  "files": {
+    "gist-revision.json": "e3824116e6cb22e2bcd5e7a2cc1c168e588214f3ca0c61c52e03e91a66dc704b",
+    "sanitized-session-7058896374.log": "210cff394f1f606d443d5dc8f3c6c6923e5905128fa31d4c581c51d614f106f4",
+    "session-7058896374-secretlint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "session-7058896374-source.json": "955732f0623d14a95067dadb5c5c7306d748040456bf23fff0671d4f19cafbe5"
+  }
+}

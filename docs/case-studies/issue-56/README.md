@@ -364,6 +364,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 - [assignment-language.md](assignment-language.md) verifies explicit owner template selection, reviewed language and template readback, and recovery of the same issued draft across CLI, both Lino encodings and Forms. Eight focused parent failures, a legacy control and production Chromium/MCP screenshots are preserved.
 
+- [solver-authentication.md](solver-authentication.md) preserves the full public sanitized session and reconstructs the November 21 solver interruption from the exact Codex refresh error and wrapper termination.
+
 - [assignment-publication.md](assignment-publication.md) verifies reviewed English issues, current template selection/history, vacancy associations and durable publication recovery through CLI/Lino/UI. Focused Node/Deno, production Chromium and independent MCP preserve one creation, actual readback, the whole-form hold and zero submissions.
 
 - [forms-assignment-prerequisite.md](forms-assignment-prerequisite.md) verifies the private whole-form hold, revision-bound GitHub existence check, protected owner input and actual selected-only readback through CLI/Lino/UI/browser/MCP. The later assignment-publication study extends this prerequisite with reviewed publishing and written-deliverable instructions.
