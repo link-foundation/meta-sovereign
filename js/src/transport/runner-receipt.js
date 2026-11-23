@@ -3,8 +3,8 @@ const states = new Set(['unconfigured', 'stopped', 'running', 'unknown']);
 export const runnerRequestPath = (action, mode) =>
   action === 'status'
     ? '/api/runner'
-    : action === 'inspect'
-      ? `/api/runner/inspect?mode=${mode}`
+    : ['inspect', 'deploy-plan'].includes(action)
+      ? `/api/runner/${action}?mode=${mode}`
       : `/api/runner/${action}`;
 const refusals = new Set([
   'invalid-runner-action',

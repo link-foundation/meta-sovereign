@@ -145,8 +145,55 @@ with the freshly observed session states. For the standard product CLI path,
 Start also loads the application module graph in the selected Node runtime.
 Docker runs this check in the resolved image with a read-only application mount.
 A failed load returns `runner-application-dependencies-unavailable` before
-stopping a peer. Install the selected operating-system backend and provision the
-application source before configuring the target.
+stopping a peer. Install the selected operating-system backend before starting
+the target. For a fresh target, prepare application source from a reviewed
+release before the first Start.
+
+### Prepare application source from a release
+
+Select a GitHub release with `meta-sovereign-runner-source.tar.gz` and
+`meta-sovereign-runner-source.tar.gz.lino`. The recipe identifies the release
+tag, source commit, archive SHA-256 and dependency lock SHA-256. Both files are
+listed in the release's `SHA256SUMS.txt` and included in the build provenance
+attestation. Review the release and recipe, then copy `applicationSource` and
+`applicationLock` into the Lino target. Use a new, absolute application
+`directory` under an existing parent controlled by the selected host's OS user.
+Set `cli` to `js/bin/meta-sovereign.js` inside that directory and keep the runner
+store at its own path.
+
+In **Settings → Runner sessions → Edit session targets**, save the profile, choose
+**Review application source** for the destination, and check the URL, host,
+directory and both hashes. Choose **Prepare reviewed source** to authorize the
+download on that host. Preparation checks the archive against the reviewed hash
+and verifies the package version and lockfile before publishing the checkout. It
+returns **already present** for the same verified recipe and preserves existing
+owner-managed directories. A new target, release or lock requires a new review.
+The action leaves existing sessions and application data in place. Use a separate
+**Start** to prepare dependencies and launch the session.
+
+Direct or connected CLI commands show the same plan and require its revision.
+The example uses an SSH target selected on an existing controller server.
+
+```sh
+meta-sovereign runner deploy-plan server --url=http://127.0.0.1:8787
+meta-sovereign runner deploy server --revision="$reviewed_revision" --url=http://127.0.0.1:8787
+```
+
+For a direct command, use `--profile=/absolute/path/runner.lino` in place of
+`--url`, or use the default file precedence. Direct commands can override the
+pins with `--local-application-source` and `--local-application-lock` or their
+`--server-` equivalents. The same overrides must be used in both commands. The
+default HTTP API accepts Lino text and binary on both source endpoints.
+
+| Request                                   | Decoded body         | Effect                                       |
+| ----------------------------------------- | -------------------- | -------------------------------------------- |
+| `GET /api/runner/deploy-plan?mode=server` | none                 | Read the effective source plan and revision. |
+| `POST /api/runner/deploy`                 | `{ mode, revision }` | Prepare the destination from that source.    |
+
+The target needs a supported host Node runtime and `tar`. Private Node bootstrap
+can run after approval on supported hosts. GitHub release asset access is needed
+for cold preparation. A repeated preparation of the same source uses the
+existing checkout without another download.
 
 ### Prepare production dependencies from a reviewed lockfile
 

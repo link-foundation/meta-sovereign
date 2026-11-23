@@ -1,3 +1,10 @@
+### 2026-11-23 Prepare reviewed release source for a fresh runner (VD01)
+
+- [x] Reproduce the absent source review and apply flow with the published parent bundle and a fresh target.
+- [x] Bind approval to the exact selected host, application path, archive and lockfile. Stage and verify the release checkout independently of Start and preserve the active peer.
+- [x] Verify the direct CLI, connected CLI, shared Settings flow and both Lino encodings. Preserve parent/current screenshots and cold/warm evidence. [Source deployment case](runner-source-deployment.md).
+- [ ] Verify the source publishing workflow and remote operating-system prerequisites on the exact hosted source.
+
 ### 2026-11-23 Docker image preparation during explicit Start (VD01)
 
 - [x] Reproduce the switch handing missing image preparation to the launcher after stopping the active Screen peer.

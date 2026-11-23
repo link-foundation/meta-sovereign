@@ -67,6 +67,7 @@ export const DESKTOP_REQUIRED_FILES = Object.freeze([
   'js/electron/attention-prompt.html',
   'js/src/server/index.js',
   'js/src/server/runner-tools/check-application.mjs',
+  'js/src/server/runner-tools/deploy-source.mjs',
   'js/src/server/runner-tools/prepare-application.mjs',
   'js/src/server/runner-tools/prepare.mjs',
   'js/src/server/runner-tools/prepare-node.sh',

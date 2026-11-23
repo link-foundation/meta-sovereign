@@ -84,6 +84,7 @@ export const runnerOverrideOptions = new Set([
       'start',
       'node',
       'application-lock',
+      'application-source',
       ...(mode === 'server' ? ['host', 'image'] : []),
     ].map((field) => `${mode}-${field}`)
   ),
@@ -107,7 +108,9 @@ export const runnerConfigurationOverrides = (args) => {
     const separator = option.indexOf('-');
     const mode = option.slice(0, separator);
     const name = option.slice(separator + 1);
-    const field = name === 'application-lock' ? 'applicationLock' : name;
+    const field = name.replace(/-([a-z])/gu, (_, letter) =>
+      letter.toUpperCase()
+    );
     value[mode] ??= {};
     if (field === 'port' && !/^\d{1,5}$/.test(supplied)) {
       throw invalid();

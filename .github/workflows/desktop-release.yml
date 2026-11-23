@@ -2,7 +2,7 @@ name: Desktop release
 
 # Builds the Electron desktop app for Windows, macOS and Linux (x64 and
 # arm64) and attaches the installers, SHA256SUMS.txt, BUILD-PROVENANCE.txt
-# and the electron-updater feeds (latest*.yml) to the GitHub release of
+# the runner source archive and recipe, and the electron-updater feeds (latest*.yml) to the GitHub release of
 # the current package version (issue #37). The download page
 # (https://link-foundation.github.io/meta-sovereign/download/) and the
 # in-app updater read those assets; their names come from one catalogue,
@@ -52,6 +52,7 @@ on: # zizmor: ignore[dangerous-triggers]
       - 'js/src/**'
       - 'js/bin/**'
       - 'js/scripts/build-web.mjs'
+      - 'js/scripts/build-runner-source.mjs'
       - 'js/scripts/validated-release-tree.mjs'
       - 'js/scripts/github-release-state.mjs'
       - 'js/scripts/create-github-release.mjs'
@@ -189,6 +190,12 @@ jobs:
           fi
           echo "build=true" >> "$GITHUB_OUTPUT"
           echo "publish=true" >> "$GITHUB_OUTPUT"
+
+      - name: Test runner source packaging on pull requests
+        if: github.event_name == 'pull_request'
+        env:
+          TAG: ${{ steps.resolve.outputs.tag }}
+        run: node js/scripts/build-runner-source.mjs HEAD "$RUNNER_TEMP/runner-source" "$TAG"
 
   build:
     concurrency:
@@ -497,8 +504,11 @@ jobs:
           TAG: ${{ needs.resolve.outputs.tag }}
         run: |
           set -euo pipefail
+          git fetch --no-tags --depth=1 origin "refs/tags/$TAG"
+          node js/scripts/build-runner-source.mjs FETCH_HEAD dist "$TAG"
           cd dist
           cat SHA256SUMS-*.txt | sort -k2 > SHA256SUMS.txt
+          sha256sum meta-sovereign-runner-source.tar.gz* >> SHA256SUMS.txt
           {
             echo "# Meta Sovereign desktop $TAG"
             echo "repository: $GITHUB_REPOSITORY"
@@ -513,13 +523,14 @@ jobs:
       - name: Validate release assets
         env:
           TAG: ${{ needs.resolve.outputs.tag }}
-        run: node js/scripts/validate-desktop-assets.mjs --tag="$TAG" --dist=dist
+        run: node js/scripts/validate-desktop-assets.mjs --tag="$TAG" --dist=dist --runner-source=true
 
       - name: Attest build provenance
         uses: actions/attest@v4.2.2
         with:
           subject-path: |
             dist/meta-sovereign-desktop-*
+            dist/meta-sovereign-runner-source.tar.gz*
 
       - name: Upload to GitHub release
         env:
@@ -540,7 +551,7 @@ jobs:
         run: |
           set -euo pipefail
           gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name' \
-            | node js/scripts/validate-desktop-assets.mjs --tag="$TAG" --names=-
+            | node js/scripts/validate-desktop-assets.mjs --tag="$TAG" --names=- --runner-source=true
           for f in dist/*; do
             name=$(basename "$f")
             url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/download/$TAG/$name"

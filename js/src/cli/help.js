@@ -280,6 +280,7 @@ Commands:
                 inspect local|inspect server [--profile=<runner.lino> | --url=<server-origin>]
                 health [--store=<directory>]
                 profile|configure --input=<runner.lino> --revision=<saved-revision> [--profile=<runner.lino> | --url=<server-origin>]
+                deploy-plan local|server | deploy local|server --revision=<plan-revision> [--profile=<runner.lino> | --url=<server-origin>]
                 observes isolated server sessions; starts/stops require confirmed backend state
                 local and SSH targets use screen via link-foundation/start; no automatic start
   diagnostics   logs [--url=http://127.0.0.1:8787] [--after=0] [--follow]

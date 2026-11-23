@@ -14,6 +14,11 @@ import { readRunnerInspection } from './runner-inspection.js';
 import { readRunnerConfiguration } from '../cli/runner-configuration.js';
 import { createRunnerLauncherPreparation } from './runner-dependencies.js';
 import { createRunnerRuntimePreparation } from './runner-node.js';
+import {
+  createRunnerSourcePreparation,
+  runRunnerDeployment,
+} from './runner-deployment.js';
+import { runnerDeploymentAction } from '../transport/runner-deployment-receipt.js';
 
 export const defaultRunnerDirectory = () =>
   path.dirname(
@@ -65,7 +70,8 @@ const validAction = (action, mode, overrides) => {
   }
   return ['status', 'profile', 'configure'].includes(action)
     ? mode === undefined
-    : ['start', 'stop', 'inspect'].includes(action) &&
+    : (['start', 'stop', 'inspect'].includes(action) ||
+        runnerDeploymentAction(action)) &&
         ['local', 'server'].includes(mode);
 };
 const profileReader =
@@ -84,6 +90,10 @@ const profileReader =
           optional: profile === undefined,
           overrides,
         });
+const configurationOperation = (file, read, input, prepareSource) =>
+  runnerDeploymentAction(input.action)
+    ? runRunnerDeployment(read, input, prepareSource)
+    : runnerProfileOperation(file, input, undefined, read);
 
 /** Serialize runner control and edits while retaining the bound target identity. */
 export const createRunnerController = ({
@@ -93,6 +103,9 @@ export const createRunnerController = ({
   prepareLauncher = createRunnerLauncherPreparation({ probe: run }),
   prepareRuntime = createRunnerRuntimePreparation({ probe: run }),
   prepareApplication,
+  prepareSource = createRunnerSourcePreparation({
+    resolveRuntime: prepareRuntime,
+  }),
   desktopRunner,
   load,
   lock = acquireStoreLock,
@@ -118,28 +131,19 @@ export const createRunnerController = ({
       localDirectory,
       overrides,
     });
-    if (action === 'profile') {
-      return runnerProfileOperation(
-        profileFile,
-        { action, signal },
-        undefined,
-        read
-      );
+    const input = { action, mode, document, revision, signal };
+    if (['profile', 'deploy-plan'].includes(action)) {
+      return configurationOperation(profileFile, read, input, prepareSource);
     }
     const dir = path.join(root, 'runner-control');
     const lease = await lock(dir, { exclusive: true });
     try {
-      if (action === 'configure') {
-        return await runnerProfileOperation(
+      if (['configure', 'deploy'].includes(action)) {
+        return await configurationOperation(
           profileFile,
-          {
-            action,
-            document,
-            revision,
-            signal,
-          },
-          undefined,
-          read
+          read,
+          input,
+          prepareSource
         );
       }
       const file = path.join(dir, 'binding.lino');

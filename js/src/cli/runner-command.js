@@ -4,6 +4,7 @@ import { requestRunner } from './runner-client.js';
 import { readRunnerProfile, runnerProfileData } from './runner-profile.js';
 import { formatIndented } from 'lino-objects-codec';
 import { runnerHealthCommand } from './runner-health-command.js';
+import { runnerDeploymentAction } from '../transport/runner-deployment-receipt.js';
 import {
   runnerConfigurationOverrides,
   runnerOverrideOptions,
@@ -22,13 +23,17 @@ const validSelection = (args) => {
     (typeof args.profile === 'string' && Boolean(args.profile))
   );
 };
-const validConfiguration = (args, action) =>
-  action === 'configure'
-    ? typeof args.input === 'string' &&
-      Boolean(args.input) &&
-      typeof args.revision === 'string' &&
-      /^[a-f0-9]{64}$/.test(args.revision)
-    : args.input === undefined && args.revision === undefined;
+const validConfiguration = (args, action) => {
+  const revision =
+    typeof args.revision === 'string' && /^[a-f0-9]{64}$/u.test(args.revision);
+  if (action === 'configure') {
+    return typeof args.input === 'string' && Boolean(args.input) && revision;
+  }
+  return (
+    args.input === undefined &&
+    (action === 'deploy' ? revision : args.revision === undefined)
+  );
+};
 const selectedOverrides = (args, action) => {
   const overrides = runnerConfigurationOverrides(args);
   if (
@@ -50,9 +55,10 @@ export const createRunnerCommand =
     }
     if (
       extra ||
-      !['status', 'start', 'stop', 'inspect', 'profile', 'configure'].includes(
+      (!['status', 'start', 'stop', 'inspect', 'profile', 'configure'].includes(
         action
-      ) ||
+      ) &&
+        !runnerDeploymentAction(action)) ||
       (['status', 'profile', 'configure'].includes(action)
         ? mode !== undefined
         : !['local', 'server'].includes(mode)) ||
@@ -65,7 +71,7 @@ export const createRunnerCommand =
       !validConfiguration(args, action)
     ) {
       log(
-        'Use runner status|start local|start server|stop local|stop server|inspect local|inspect server|profile|configure --input=<file> --revision=<saved-revision> [--profile=<file> | --url=<server-origin>].'
+        'Use runner status, start|stop|inspect local|server, profile, configure --input=<file> --revision=<saved-revision>, deploy-plan local|server, or deploy local|server --revision=<plan-revision>. Select --profile=<file> or --url=<server-origin> when needed.'
       );
       return 1;
     }
@@ -81,13 +87,13 @@ export const createRunnerCommand =
         profile: args.profile,
         signal: abort.signal,
         overrides,
+        revision: args.revision,
         ...(action === 'configure'
           ? {
               document: formatIndented({
                 id: 'runner',
                 obj: runnerProfileData(await readRunnerProfile(args.input)),
               }),
-              revision: args.revision,
             }
           : {}),
       };

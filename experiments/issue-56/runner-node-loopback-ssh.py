@@ -101,6 +101,7 @@ with TemporaryDirectory(prefix='ms-runner-node-ssh-') as directory:
                 '--image': ('runner-image-native', 'RUNNER_IMAGE_PROBE_SSH_HOST'),
                 '--graph': ('runner-graph-native', 'RUNNER_GRAPH_SSH_HOST'),
                 '--application': ('runner-application-native', 'RUNNER_APPLICATION_SSH_HOST'),
+                '--source': ('runner-deployment-native', 'RUNNER_SOURCE_SSH_HOST'),
             }
             arguments = sys.argv[1:]
             variant = variants.get(arguments[0]) if len(arguments) == 1 else None

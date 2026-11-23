@@ -128,7 +128,11 @@ const RunnerControls = ({ api }) => {
       },
       t('runner.refresh')
     ),
-    el(RunnerProfileSettings, { key: 'profile', api }),
+    el(RunnerProfileSettings, {
+      key: 'profile',
+      api,
+      onPrepared: () => void owner.current?.refresh(),
+    }),
   ]);
 };
 

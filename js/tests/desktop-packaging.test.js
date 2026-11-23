@@ -25,6 +25,7 @@ import {
   validateDesktopAssets,
 } from '../scripts/validate-desktop-assets.mjs';
 import { newestVersion } from '../scripts/build-desktop.mjs';
+import { runnerSourceAsset } from '../src/transport/runner-deployment-receipt.js';
 import {
   DOWNLOAD_OPTIONS,
   assetNameFor,
@@ -296,6 +297,28 @@ describe('validate-desktop-assets', () => {
       true
     );
     expect(result.unchecksummed.length).toBe(4);
+  });
+
+  it('requires both source assets and checksums when the release publishes runner source', () => {
+    const recipe = `${runnerSourceAsset}.lino`;
+    const names = [...expectedReleaseAssets(VERSION), runnerSourceAsset];
+    const input = {
+      tag: `v${VERSION}`,
+      names,
+      checksums: sums(names),
+      runnerSource: true,
+    };
+    const result = validateDesktopAssets(input);
+    expect(result.missing).toEqual([recipe]);
+    expect(result.unchecksummed).toEqual([recipe]);
+    names.push(recipe);
+    expect(validateDesktopAssets({ ...input, checksums: sums(names) })).toEqual(
+      {
+        version: VERSION,
+        missing: [],
+        unchecksummed: [],
+      }
+    );
   });
 
   it('rejects tags without a version', () => {

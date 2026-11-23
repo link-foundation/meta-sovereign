@@ -4,9 +4,39 @@ import {
 } from '../transport/runner-receipt.js';
 import { runnerProfileReceipt } from '../transport/runner-profile-receipt.js';
 import { runnerInspectionReceipt } from '../transport/runner-health-receipt.js';
+import {
+  runnerDeploymentAction,
+  runnerDeploymentReceipt,
+} from '../transport/runner-deployment-receipt.js';
 
 /** The wire bridge encodes Lino; every mutation is issued once. */
 export const createRunnerApi = ({ serverResponse }) => ({
+  runnerDeploymentRequest: async (action, mode, revision, signal) => {
+    if (
+      !runnerDeploymentAction(action) ||
+      !['local', 'server'].includes(mode)
+    ) {
+      throw new Error('Invalid runner source action.');
+    }
+    const response = await serverResponse(
+      runnerRequestPath(action, mode),
+      {
+        signal,
+        ...(action === 'deploy'
+          ? {
+              method: 'POST',
+              headers: { 'content-type': 'application/json' },
+              body: JSON.stringify({ mode, revision }),
+            }
+          : {}),
+      },
+      { network: true, recover: false }
+    );
+    if (!response?.ok) {
+      throw new Error('Runner source was not confirmed.');
+    }
+    return runnerDeploymentReceipt(await response.json(), action, mode);
+  },
   runnerProfileRequest: async (action, input, signal) => {
     if (!['profile', 'configure'].includes(action)) {
       throw new Error('Invalid runner profile action.');

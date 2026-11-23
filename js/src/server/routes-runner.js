@@ -5,17 +5,24 @@ import { bodyFailure, json, readBody } from './util.js';
 const permitted = (req, ctx, action) =>
   classifyOrigin(req, ctx.allowOrigins ?? []) !== 'denied' &&
   (action === 'status' || isTrustedMutation(req, ctx.allowOrigins));
+const validMode = (mode) => ['local', 'server'].includes(mode);
 const validInput = (input, action) =>
   input &&
   (action === 'configure'
     ? Object.keys(input).length === 2 &&
       typeof input.document === 'string' &&
       typeof input.revision === 'string'
-    : Object.keys(input).length === 1 &&
-      ['local', 'server'].includes(input.mode));
-const readOnly = (action) => ['status', 'profile', 'inspect'].includes(action);
+    : action === 'deploy'
+      ? Object.keys(input).length === 2 &&
+        validMode(input.mode) &&
+        typeof input.revision === 'string' &&
+        /^[a-f0-9]{64}$/u.test(input.revision)
+      : Object.keys(input).length === 1 && validMode(input.mode));
+const modeQuery = (action) => ['inspect', 'deploy-plan'].includes(action);
+const readOnly = (action) =>
+  ['status', 'profile'].includes(action) || modeQuery(action);
 const readInput = (req, action) => {
-  if (action === 'inspect') {
+  if (modeQuery(action)) {
     const entries = [...new URL(req.url, 'http://local').searchParams];
     return entries.length === 1 ? Object.fromEntries(entries) : null;
   }
@@ -48,7 +55,9 @@ const failureResponse = (res, error) => {
 /** Execution selects configured targets; configuration owns one fixed profile. */
 export const handleRunner = async (req, res, path, ctx) => {
   const match =
-    /^\/api\/runner(?:\/(start|stop|profile|configure|inspect))?$/.exec(path);
+    /^\/api\/runner(?:\/(start|stop|profile|configure|inspect|deploy-plan|deploy))?$/.exec(
+      path
+    );
   if (!match) {
     return false;
   }
@@ -65,7 +74,7 @@ export const handleRunner = async (req, res, path, ctx) => {
   try {
     const input = await readInput(req, action);
     if (
-      (!readOnly(action) || action === 'inspect') &&
+      (!readOnly(action) || modeQuery(action)) &&
       !validInput(input, action)
     ) {
       json(res, 400, { ok: false, code: 'invalid-runner-action' });

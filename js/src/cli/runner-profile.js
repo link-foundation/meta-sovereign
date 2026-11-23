@@ -1,5 +1,6 @@
 import { readReadableConfiguration } from './readable-configuration.js';
 import path from 'node:path';
+import { runnerSourcePin } from '../transport/runner-deployment-receipt.js';
 
 const invalid = () => new Error('Runner profile unavailable or invalid.');
 const record = (value) =>
@@ -22,6 +23,7 @@ const fields = new Set([
   'node',
   'image',
   'applicationLock',
+  'applicationSource',
 ]);
 const hostValid = (host) =>
   typeof host === 'string' &&
@@ -34,7 +36,9 @@ const optionalTextValid = (target) =>
   ) &&
   (target.applicationLock === undefined ||
     (typeof target.applicationLock === 'string' &&
-      /^[a-f0-9]{64}$/u.test(target.applicationLock)));
+      /^[a-f0-9]{64}$/u.test(target.applicationLock))) &&
+  (target.applicationSource === undefined ||
+    Boolean(runnerSourcePin(target.applicationSource)));
 const pathsValid = (target, mode, partial) =>
   (target.isolation === 'desktop'
     ? ['store']
@@ -62,9 +66,15 @@ const isolationValid = (target, mode, partial) => {
   if (isolation === 'desktop') {
     return (
       mode === 'local' &&
-      ['directory', 'cli', 'start', 'node', 'image', 'applicationLock'].every(
-        (key) => target[key] === undefined
-      )
+      [
+        'directory',
+        'cli',
+        'start',
+        'node',
+        'image',
+        'applicationLock',
+        'applicationSource',
+      ].every((key) => target[key] === undefined)
     );
   }
   if (
@@ -95,6 +105,17 @@ const productPath = (target, mode) => {
 };
 const applicationPathValid = (target, mode, partial) =>
   partial || target.applicationLock === undefined || productPath(target, mode);
+const sourcePathValid = (target, mode, partial) => {
+  if (partial || target.applicationSource === undefined) {
+    return true;
+  }
+  const paths = mode === 'server' ? path.posix : path;
+  return (
+    target.applicationLock !== undefined &&
+    paths.resolve(target.directory) === target.directory &&
+    paths.dirname(target.directory) !== target.directory
+  );
+};
 const validateTarget = (target, mode, session, partial) => {
   if (
     !record(target) ||
@@ -108,7 +129,8 @@ const validateTarget = (target, mode, session, partial) => {
   if (
     !addressValid(target, mode, partial) ||
     !isolationValid(target, mode, partial) ||
-    !applicationPathValid(target, mode, partial)
+    !applicationPathValid(target, mode, partial) ||
+    !sourcePathValid(target, mode, partial)
   ) {
     throw invalid();
   }

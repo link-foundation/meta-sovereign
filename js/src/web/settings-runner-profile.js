@@ -4,9 +4,13 @@ import {
   canSaveRunnerProfile,
   editRunnerProfile,
 } from './runner-profile-state.js';
+import {
+  RunnerDeploymentSettings,
+  runnerSourceModes,
+} from './settings-runner-deployment.js';
 
 const el = React.createElement;
-const Editor = ({ api }) => {
+const Editor = ({ api, onPrepared }) => {
   const t = useT();
   const [state, setState] = useState({ draft: '', busy: true });
   const owner = useRef(null);
@@ -79,11 +83,20 @@ const Editor = ({ api }) => {
         },
         t('runner.profileReload')
       ),
+      ...runnerSourceModes(state.saved?.document).map((mode) =>
+        el(RunnerDeploymentSettings, {
+          key: `${mode}:${state.saved.revision}`,
+          api,
+          mode,
+          disabled: state.busy || state.draft !== state.saved.document,
+          onPrepared,
+        })
+      ),
     ]
   );
 };
 
-export const RunnerProfileSettings = ({ api }) => {
+export const RunnerProfileSettings = ({ api, onPrepared }) => {
   const t = useT();
   const [open, setOpen] = useState(false);
   return el(
@@ -98,7 +111,7 @@ export const RunnerProfileSettings = ({ api }) => {
         { key: 'summary', 'data-runner-profile-open': '' },
         t('runner.profileTitle')
       ),
-      open ? el(Editor, { key: 'editor', api }) : null,
+      open ? el(Editor, { key: 'editor', api, onPrepared }) : null,
     ]
   );
 };

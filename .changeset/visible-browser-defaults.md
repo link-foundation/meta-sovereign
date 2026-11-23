@@ -2,6 +2,11 @@
 'meta-sovereign': minor
 ---
 
+Review a pinned release archive and dependency lock in Runner Settings, through
+the CLI or in either Lino encoding. Prepare a fresh local or SSH checkout after
+explicit approval while retaining existing owner files and active sessions
+(issue #56, VD01).
+
 Keep Forms and HeadHunter application verification visible across views, focus the exact active browser and defer reminders after confirmed focus. Foreground Forms and HeadHunter application commands expose the active waits and support guarded focus (issue #56, QA24 and HH01).
 
 Play the default notification chime from an audio asset bundled with the local server, Pages, desktop and mobile. The existing media policy permits the same-origin file, and the sound preference works independently of system notifications (issue #56, QA24 and HH01).

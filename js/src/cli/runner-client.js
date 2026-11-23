@@ -5,12 +5,24 @@ import {
 } from '../transport/runner-receipt.js';
 import { runnerProfileReceipt } from '../transport/runner-profile-receipt.js';
 import { runnerInspectionReceipt } from '../transport/runner-health-receipt.js';
+import {
+  runnerDeploymentAction,
+  runnerDeploymentReceipt,
+} from '../transport/runner-deployment-receipt.js';
 
 const validAction = (action, mode) =>
   ['status', 'profile', 'configure'].includes(action)
     ? mode === undefined
-    : ['start', 'stop', 'inspect'].includes(action) &&
+    : (['start', 'stop', 'inspect'].includes(action) ||
+        runnerDeploymentAction(action)) &&
       ['local', 'server'].includes(mode);
+
+const mutationInput = (action, mode, document, revision) => {
+  if (action === 'configure') {
+    return { document, revision };
+  }
+  return action === 'deploy' ? { mode, revision } : { mode };
+};
 
 export const requestRunner = async (
   { url, action, mode, signal, document, revision },
@@ -39,12 +51,12 @@ export const requestRunner = async (
       signal,
       redirect: 'error',
       headers: { accept: LINO_TEXT, 'content-type': LINO_TEXT },
-      ...(['status', 'profile', 'inspect'].includes(action)
+      ...(['status', 'profile', 'inspect', 'deploy-plan'].includes(action)
         ? {}
         : {
             method: 'POST',
             body: encodeWire(
-              action === 'configure' ? { document, revision } : { mode },
+              mutationInput(action, mode, document, revision),
               LINO_TEXT
             ),
           }),
@@ -56,6 +68,9 @@ export const requestRunner = async (
   const value = await readWireResponse(response);
   if (action === 'inspect') {
     return runnerInspectionReceipt(value, mode);
+  }
+  if (runnerDeploymentAction(action)) {
+    return runnerDeploymentReceipt(value, action, mode);
   }
   return ['profile', 'configure'].includes(action)
     ? runnerProfileReceipt(value)
