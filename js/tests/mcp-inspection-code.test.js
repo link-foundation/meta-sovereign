@@ -4,6 +4,7 @@ import { runInNewContext } from 'node:vm';
 import { mcpInspectionCode } from '../../experiments/issue-56/mcp-inspection-code.mjs';
 import { applicationChatsMcpCode } from '../../experiments/issue-56/application-chats-mcp.mjs';
 import { applicationAnswerMcpRunner } from '../../experiments/issue-56/application-answer-context-mcp-runner.mjs';
+import { linkedinPositionReviewInspectionCode } from '../../experiments/issue-56/linkedin-position-review-inspect.mjs';
 
 test('MCP inspection keeps script terminators and line separators inside fixture data', async () => {
   const fixture = {
@@ -56,6 +57,44 @@ test('MCP inspection supplies its trusted callback without evaluating fixture da
     ...fixture,
     checked: true,
   });
+});
+
+test('LinkedIn position inspection accepts its configuration as data', async () => {
+  const beforeBundle = '/tmp/preview </script> bundle.js';
+  const base = 'https://example.test/profile\u2028preview';
+  const code = linkedinPositionReviewInspectionCode({
+    base,
+    beforeBundle,
+    planRequestId: 'private-review',
+  });
+  assert.doesNotMatch(code, /<\/script|[\u2028\u2029]/u);
+  const element = {
+    locator: () => element,
+    first: () => element,
+    click: async () => {},
+    waitFor: async () => {},
+    count: async () => 0,
+  };
+  const page = {
+    locator: () => element,
+    async route(_matcher, handle) {
+      await handle({
+        async fulfill({ path }) {
+          assert.equal(path, beforeBundle);
+        },
+      });
+    },
+    async setViewportSize() {},
+    async goto(url) {
+      assert.equal(url, `${base}/#/cv`);
+    },
+    async evaluate(_setPreferences, data) {
+      assert.equal(data.planRequestId, 'private-review');
+    },
+    async reload() {},
+  };
+  const result = await runInNewContext(`(${code})`, {})(page);
+  assert.equal(result.before, true);
 });
 
 for (const terminator of ['', ';', ';\n// retained final comment']) {

@@ -1,10 +1,16 @@
+import { mcpInspectionCode } from './mcp-inspection-code.mjs';
+
 const check = (condition, message) => {
   if (!condition) {
     throw new Error(message);
   }
 };
 
-export const inspectLinkedinPositionReview = async (page, config) => {
+export const inspectLinkedinPositionReview = async (
+  page,
+  config,
+  assert = check
+) => {
   const { base, planRequestId, beforeBundle, screenshots } = config;
   const layout = page.locator('[data-experience-documents]');
   const result = page.locator('[data-experience-plan-result="completed"]');
@@ -39,7 +45,7 @@ export const inspectLinkedinPositionReview = async (page, config) => {
   await layout.locator('summary').first().click();
   await update.waitFor();
   if (beforeBundle) {
-    check(
+    assert(
       (await stage.count()) === 0,
       'The parent offered no LinkedIn review on an eligible position'
     );
@@ -58,23 +64,23 @@ export const inspectLinkedinPositionReview = async (page, config) => {
   });
   await stage.click();
   await page.locator('[data-linkedin-position-review="draft"]').waitFor();
-  check(
+  assert(
     await panel.evaluate((node) => node === document.activeElement),
     'Staging focuses the review'
   );
-  check(
+  assert(
     (await control('start').count()) === 0,
     'A draft cannot prepare a provider form'
   );
-  check(
+  assert(
     (await panel.innerText()).includes('Worked on Rust and PostgreSQL.'),
     'Shows the exact original description'
   );
-  check(
+  assert(
     (await panel.innerText()).includes('Reviewed description.'),
     'Shows the reviewed replacement'
   );
-  check(
+  assert(
     (await panel.innerText()).includes(
       'Proposed media link: example.test/portfolio?mode=work (https://example.test/portfolio?mode=work)'
     ),
@@ -83,7 +89,7 @@ export const inspectLinkedinPositionReview = async (page, config) => {
   await capture(panel, 'position-review');
   await control('approve').click();
   await control('start').waitFor();
-  check(
+  assert(
     posts.join(',') === 'stage,review',
     'Approval alone never opens or saves'
   );
@@ -97,20 +103,20 @@ export const inspectLinkedinPositionReview = async (page, config) => {
   );
   await control('start').click();
   await jobState('prepared').waitFor();
-  check(
+  assert(
     (await panel.innerText()).includes(
       'Selected in the LinkedIn draft: PostgreSQL'
     ),
     'The follow-up clearly distinguishes a prepared skill from a proposal'
   );
-  check(
+  assert(
     (await panel.innerText()).includes(
       'Attached in the LinkedIn draft: example.test/portfolio?mode=work (https://example.test/portfolio?mode=work)'
     ),
     'The prepared draft exposes the exact attached URL and title'
   );
   await page.unroute('**/api/cv/experience/linkedin-position-start');
-  check(
+  assert(
     posts.join(',') === 'stage,review,start',
     'A lost Start response recovers using GET'
   );
@@ -119,7 +125,7 @@ export const inspectLinkedinPositionReview = async (page, config) => {
   const overflow = await panel.evaluate(
     (node) => node.scrollWidth - node.clientWidth
   );
-  check(overflow <= 1, 'The position review fits its phone column');
+  assert(overflow <= 1, 'The position review fits its phone column');
   for (const locale of ['ru', 'zh', 'hi', 'en']) {
     await page.evaluate(
       (value) => globalThis.localStorage.setItem('metaSovereignLocale', value),
@@ -128,22 +134,22 @@ export const inspectLinkedinPositionReview = async (page, config) => {
     await page.reload();
     await layout.locator('summary').first().click();
     await jobState('prepared').waitFor();
-    check(
+    assert(
       !/linkedinPosition\./u.test(await panel.innerText()),
       `Review is localized for ${locale}`
     );
   }
-  check(
+  assert(
     posts.join(',') === 'stage,review,start',
     'Reload never replays a mutation'
   );
   await control('skip').click();
   await jobState('skipped').waitFor();
-  check(
+  assert(
     posts.join(',') === 'stage,review,start,decide',
     'Skip makes exactly one decision'
   );
-  check((await jobState('saved').count()) === 0, 'Skip never reports Save');
+  assert((await jobState('saved').count()) === 0, 'Skip never reports Save');
   return {
     staged: true,
     verifiedAfterReload: true,
@@ -154,4 +160,4 @@ export const inspectLinkedinPositionReview = async (page, config) => {
 };
 
 export const linkedinPositionReviewInspectionCode = (config) =>
-  `async (page) => {const check = ${check}; return (${inspectLinkedinPositionReview})(page, ${JSON.stringify(config)});}`;
+  mcpInspectionCode(inspectLinkedinPositionReview, config, check);

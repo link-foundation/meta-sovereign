@@ -46,9 +46,12 @@ test('only an unambiguous explicit website becomes a media attachment', () => {
     }),
     { url: null, review: true }
   );
+  const authenticatedUrl = new URL('https://example.test/');
+  authenticatedUrl.username = 'fixture-user';
+  authenticatedUrl.password = 'fixture-password';
   assert.deepEqual(
     linkedinPositionMediaCandidate({
-      source: { native: { website: 'https://user:pass@example.test/' } },
+      source: { native: { website: authenticatedUrl.href } },
     }),
     { url: null, review: true }
   );

@@ -150,3 +150,12 @@ title. The previous modules can be loaded with
 `--import ./experiments/issue-56/linkedin-position-media-title-before.mjs`.
 An interactive queue and authenticated verification remain open in
 [HH21](experience-sync-plan.md).
+
+## Hosted fixture checks
+
+The [secret scan](https://github.com/link-foundation/meta-sovereign/actions/runs/45227515565/job/137888569334)
+flagged the test's literal authenticated URL. The fixture now constructs the
+same credential-bearing URL through URL properties and still asserts refusal.
+The [CodeQL job](https://github.com/link-foundation/meta-sovereign/actions/runs/45235528388/job/137906098147)
+flagged the independent browser fixture's generated script. The fixture now
+uses the shared inspection generator to parse its configuration as data.
