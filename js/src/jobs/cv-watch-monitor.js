@@ -33,6 +33,14 @@ export const monitorCvSaves = async ({ page, receive, failed }) => {
       cvWatchUrl(page.url());
       await page.evaluate(content);
     });
+  const stop = async () => {
+    stopped = true;
+    page.off('domcontentloaded', install);
+    await page
+      .evaluate((name) => globalThis[`__cv_observer_${name}`]?.(), binding)
+      .catch(() => {});
+    await Promise.allSettled([...pending]);
+  };
   await page.exposeBinding(binding, (source, value) => {
     if (stopped || source.page !== page || source.frame !== page.mainFrame()) {
       return;
@@ -43,17 +51,13 @@ export const monitorCvSaves = async ({ page, receive, failed }) => {
     // receive invalidates in-flight verification synchronously before any await.
     return run(() => receive(value, source.frame.url()));
   });
-  cvWatchUrl(page.url());
-  await page.evaluate(content);
   page.on('domcontentloaded', install);
-  return {
-    async stop() {
-      stopped = true;
-      page.off('domcontentloaded', install);
-      await page
-        .evaluate((name) => globalThis[`__cv_observer_${name}`]?.(), binding)
-        .catch(() => {});
-      await Promise.allSettled([...pending]);
-    },
-  };
+  try {
+    cvWatchUrl(page.url());
+    await page.evaluate(content);
+    return { stop };
+  } catch (error) {
+    await stop();
+    throw error;
+  }
 };

@@ -234,6 +234,8 @@ test('native record fetch uses a query-free bounded GET and refuses redirects, e
 const workplaceWatch = (verification) => {
   const identity = cvWorkplaceIdentityFixture();
   const fixture = cvWatchFixture({ verification });
+  const details = { formId: randomUUID() };
+  fixture.page.url = () => identity.raw.url;
   fixture.exports(
     identity.exports.map((row) => ({
       ...row,
@@ -245,6 +247,10 @@ const workplaceWatch = (verification) => {
     ...fixture,
     ...identity,
     request: { requestId: randomUUID(), durationMs: 1000 },
+    open: () =>
+      fixture.emit('workplace-opened', identity.raw, undefined, details),
+    emit: (event, form, changes) =>
+      fixture.emit(event, form, undefined, { ...details, ...changes }),
   };
 };
 
@@ -320,6 +326,7 @@ test('verified record membership survives status/snapshot recovery with per-CV i
   });
   try {
     await f.service['cv-watch'](f.request);
+    await f.open();
     await f.emit('save', f.raw);
     assert.equal((await f.wait('saved')).watch.saves, 1);
     const result = await f.service['cv-snapshots']({});
@@ -356,15 +363,19 @@ test('Cancel during an issued native record read suppresses snapshot publication
   const entered = gate();
   const release = gate();
   const { attempt } = cvWorkplaceIdentityFixture();
+  let reads = 0;
   const f = workplaceWatch({
     readWorkplace: async () => {
-      entered.resolve();
-      await release.promise;
+      if (++reads > 1) {
+        entered.resolve();
+        await release.promise;
+      }
       return { ...attempt, sha256: 'b'.repeat(64) };
     },
   });
   try {
     await f.service['cv-watch'](f.request);
+    await f.open();
     await f.emit('save', f.raw);
     await entered.promise;
     await f.emit('cancel', f.raw);
@@ -377,12 +388,37 @@ test('Cancel during an issued native record read suppresses snapshot publication
   }
 });
 
-test('Stop drains an issued record read before detaching and never publishes it', async () => {
+test('a different native form instance cannot reuse a baseline for the same record URL', async () => {
+  const { attempt } = cvWorkplaceIdentityFixture();
+  let reads = 0;
+  const f = workplaceWatch({
+    readWorkplace: async () => {
+      reads++;
+      return { ...attempt, sha256: 'b'.repeat(64) };
+    },
+  });
+  try {
+    await f.service['cv-watch'](f.request);
+    assert.equal(await f.open(), true);
+    await f.emit('save', f.raw, { formId: randomUUID() });
+    const { watch } = await f.wait('not-saved');
+    assert.equal(watch.code, 'jobs-cv-record');
+    assert.equal(watch.saves, 0);
+    assert.equal(reads, 1);
+    assert.deepEqual((await f.service['cv-snapshots']({})).snapshots, []);
+  } finally {
+    await f.service.stop();
+  }
+});
+
+test('a pending pre-Save read cannot become proof after the owner clicks Save', async () => {
   const entered = gate();
   const release = gate();
   const { attempt } = cvWorkplaceIdentityFixture();
+  let reads = 0;
   const f = workplaceWatch({
     readWorkplace: async () => {
+      reads++;
       entered.resolve();
       await release.promise;
       return { ...attempt, sha256: 'b'.repeat(64) };
@@ -390,6 +426,39 @@ test('Stop drains an issued record read before detaching and never publishes it'
   });
   try {
     await f.service['cv-watch'](f.request);
+    const pending = f.open();
+    await entered.promise;
+    await f.emit('save', f.raw, { formId: undefined });
+    const { watch } = await f.wait('not-saved');
+    assert.equal(watch.code, 'jobs-cv-record');
+    release.resolve();
+    assert.equal(await pending, undefined);
+    assert.equal(reads, 1);
+    assert.equal(f.counts().reads, 0);
+    assert.deepEqual((await f.service['cv-snapshots']({})).snapshots, []);
+  } finally {
+    release.resolve();
+    await f.service.stop();
+  }
+});
+
+test('Stop drains an issued record read before detaching and never publishes it', async () => {
+  const entered = gate();
+  const release = gate();
+  const { attempt } = cvWorkplaceIdentityFixture();
+  let reads = 0;
+  const f = workplaceWatch({
+    readWorkplace: async () => {
+      if (++reads > 1) {
+        entered.resolve();
+        await release.promise;
+      }
+      return { ...attempt, sha256: 'b'.repeat(64) };
+    },
+  });
+  try {
+    await f.service['cv-watch'](f.request);
+    await f.open();
     await f.emit('save', f.raw);
     await entered.promise;
     const stopped = f.service['cv-watch-stop'](f.request);

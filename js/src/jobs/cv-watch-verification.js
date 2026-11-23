@@ -51,8 +51,6 @@ export const cvWorkplaceSaveResumes = (raw) => {
     url.pathname.match(/^\/profile\/edit\/experience\/(\d+)\/?$/u)?.[1] ?? null;
   if (
     raw.kind !== 'workplace' ||
-    typeof raw.current !== 'boolean' ||
-    typeof raw.metadataEditable !== 'boolean' ||
     raw.recordId !== recordId ||
     (recordId === null &&
       !/^\/profile\/edit\/experience\/?$/u.test(url.pathname)) ||
@@ -76,6 +74,12 @@ export const cvWorkplaceSaveResumes = (raw) => {
 
 const workplaceAttempt = (raw) => {
   const resumes = cvWorkplaceSaveResumes(raw);
+  if (
+    typeof raw.current !== 'boolean' ||
+    typeof raw.metadataEditable !== 'boolean'
+  ) {
+    invalid();
+  }
   const start = resumePeriod(`${text(raw.start, 100)} — present`).start;
   const end = raw.current
     ? null

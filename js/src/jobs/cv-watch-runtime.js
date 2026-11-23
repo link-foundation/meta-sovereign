@@ -1,89 +1,21 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { monitorCvSaves } from './cv-watch-monitor.js';
-import {
-  cvSaveAttempt,
-  cvWorkplaceExportBaseline,
-  cvWorkplaceMembershipBaseline,
-  cvWorkplaceSaveResumes,
-} from './cv-watch-verification.js';
+import { cvSaveAttempt } from './cv-watch-verification.js';
 import { verifyOwnerCvSave } from './cv-save-cycle.js';
 import { cvWatchUrl } from './cv-watch-browser.js';
 import { publishCvSave } from './cv-watch-publication.js';
 import { jobsFailure } from './options.js';
 import { traceCvWatch } from './cv-watch-trace.js';
-import { readCvEditorDocument } from './cv-watch-document.js';
-import { readCvSavedWorkplaceIds } from './cv-workplace-created.js';
-import { readCvSavedWorkplace } from './cv-workplace-readback.js';
+import {
+  observeCvWorkplaceBaselines,
+  missingWorkplaceBaseline,
+} from './cv-watch-workplace-baseline.js';
 
 const stale = () =>
   jobsFailure(
     'cv-changed',
     'The owner changed or cancelled this save attempt.'
   );
-
-const captureWorkplaceBaseline = async ({
-  session,
-  store,
-  initial,
-  signal,
-  readExports,
-  readIds = readCvSavedWorkplaceIds,
-  readWorkplace = readCvSavedWorkplace,
-}) => {
-  const deadline = globalThis.performance.now() + 30000;
-  const check = () => {
-    signal.throwIfAborted();
-    if (session.page.url() !== initial.url) {
-      throw stale();
-    }
-    if (globalThis.performance.now() >= deadline) {
-      throw jobsFailure(
-        'cv-readback-timeout',
-        'The pre-Save CV reads expired.'
-      );
-    }
-  };
-  check();
-  if (initial.recordId !== null) {
-    const saved = await readWorkplace({
-      session,
-      attempt: { recordId: initial.recordId },
-      check,
-      signal,
-    });
-    check();
-    const exports = await readExports({
-      session,
-      store,
-      attempt: saved,
-      check,
-      signal,
-    });
-    const membership = cvWorkplaceMembershipBaseline(saved, exports);
-    check();
-    traceCvWatch('workplace-membership-baseline', {
-      resumes: membership.resumes.size,
-    });
-    return { membership };
-  }
-  const resumes = cvWorkplaceSaveResumes(initial);
-  const ids = await readIds({ session, check, signal });
-  check();
-  const exports = await readExports({
-    session,
-    store,
-    attempt: { kind: 'workplace', resumes },
-    check,
-    signal,
-  });
-  const jobs = cvWorkplaceExportBaseline(exports, resumes);
-  check();
-  traceCvWatch('workplace-list-baseline', {
-    records: ids.length,
-    resumes: jobs.size,
-  });
-  return { ids, jobs };
-};
 
 /** Durable public state contains no final draft text; only a digest of its fields. */
 export const runCvWatch = async ({
@@ -100,7 +32,14 @@ export const runCvWatch = async ({
   let attempted = false;
   let cycle;
   let monitor;
-  let workplaceBaseline;
+  const baselines = observeCvWorkplaceBaselines({
+    session,
+    store,
+    signal,
+    readExports,
+    readIds: verification?.readWorkplaceIds,
+    readWorkplace: verification?.readWorkplace,
+  });
   let tail = Promise.resolve();
   const tasks = new Set();
   const queue = (operation) => {
@@ -134,6 +73,7 @@ export const runCvWatch = async ({
     traceCvWatch('observer-failed', { code: error.code ?? error.name });
     const current = ++generation;
     cycle?.abort();
+    baselines.invalidate();
     return update(
       {
         state: 'failed',
@@ -145,8 +85,17 @@ export const runCvWatch = async ({
     );
   };
   const receive = (value, actualUrl) => {
+    if (stopped || signal.aborted) {
+      return;
+    }
     traceCvWatch('event', { event: value?.event, generation });
     cvWatchUrl(actualUrl);
+    if (value?.event === 'workplace-opened') {
+      return baselines.open(value, actualUrl);
+    }
+    if (value?.event === 'workplace-closed') {
+      return baselines.close(value.formId);
+    }
     if (value?.event === 'overflow') {
       return failed({ code: 'jobs-cv-limit' });
     }
@@ -160,6 +109,9 @@ export const runCvWatch = async ({
     cycle?.abort();
     attempted = value.event === 'save';
     if (!attempted) {
+      if (value.event === 'cancel') {
+        baselines.invalidate();
+      }
       return update(
         {
           state: value.event === 'cancel' ? 'cancelled' : 'edited',
@@ -171,7 +123,7 @@ export const runCvWatch = async ({
     // A native Save handler may synchronously change the SPA URL before the
     // binding reaches the host. Both URLs still have to be allowlisted HH CV URLs.
     const attempt = cvSaveAttempt(value.form);
-    const baseline = workplaceBaseline;
+    const baseline = attempt.kind === 'workplace' && baselines.take(value);
     const attemptId = randomUUID();
     const fingerprint = createHash('sha256')
       .update(JSON.stringify(attempt))
@@ -182,8 +134,11 @@ export const runCvWatch = async ({
       { state: 'verifying', code: null, attemptId, fingerprint },
       current
     )
-      .then(() =>
-        verifyOwnerCvSave({
+      .then(() => {
+        if (attempt.kind === 'workplace' && !baseline) {
+          throw missingWorkplaceBaseline();
+        }
+        return verifyOwnerCvSave({
           session,
           store,
           attempt,
@@ -194,24 +149,9 @@ export const runCvWatch = async ({
           workplaceBaseline: baseline?.ids,
           workplaceBaselineJobs: baseline?.jobs,
           workplaceMembership: baseline?.membership,
-        })
-      )
-      .then(async (result) => {
-        await publish(result, current, attemptId);
-        check(current);
-        if (result.workplaceIds) {
-          workplaceBaseline = {
-            ids: result.workplaceIds,
-            jobs: result.workplaceJobs,
-          };
-        }
-        if (result.workplaceMembership) {
-          workplaceBaseline = {
-            ...workplaceBaseline,
-            membership: result.workplaceMembership,
-          };
-        }
+        });
       })
+      .then((result) => publish(result, current, attemptId))
       .catch((error) => {
         if (!signal.aborted && !stopped && current === generation) {
           return update(
@@ -234,22 +174,6 @@ export const runCvWatch = async ({
   };
   try {
     signal.throwIfAborted();
-    const initial = await session.commander.evaluate({
-      fn: readCvEditorDocument,
-      args: [],
-    });
-    signal.throwIfAborted();
-    if (initial?.kind === 'workplace') {
-      workplaceBaseline = await captureWorkplaceBaseline({
-        session,
-        store,
-        initial,
-        signal,
-        readExports,
-        readIds: verification?.readWorkplaceIds,
-        readWorkplace: verification?.readWorkplace,
-      });
-    }
     monitor = await monitorCvSaves({ page: session.page, receive, failed });
     signal.throwIfAborted();
     return {
@@ -257,7 +181,7 @@ export const runCvWatch = async ({
         stopped = true;
         generation++;
         cycle?.abort();
-        await monitor.stop();
+        await Promise.all([baselines.stop(), monitor.stop()]);
         await Promise.allSettled([...tasks]);
         await tail;
       },
@@ -265,7 +189,7 @@ export const runCvWatch = async ({
   } catch (error) {
     stopped = true;
     cycle?.abort();
-    await monitor?.stop();
+    await Promise.all([baselines.stop(), monitor?.stop()]);
     await Promise.allSettled([...tasks]);
     await tail;
     throw error;

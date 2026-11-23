@@ -309,6 +309,7 @@
 - [Owner Save verification for identical workplace copies](cv-copy-save.md) covers the exact new native ID, fresh export delta and stale-export refusal.
 - [Reviewed copy, owner Save and separate detach](cv-workplace-followup.md) verifies both Saves, preserved CV history and phone recovery when the target export remains stale.
 - [Independent workplace Add](cv-workplace-add.md) covers an empty target CV, target-only native preparation and owner Save recovery on a phone.
+- [Passive workplace form transitions](cv-watch-transitions.md) covers opening the editor during observation, same-URL Add and stale export refusal on phone reload.
 
 - [Offline rediscovery read race and connection lifecycle evidence](ci-lino-sync-rediscovery.md).
 

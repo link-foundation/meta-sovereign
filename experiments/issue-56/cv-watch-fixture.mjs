@@ -81,8 +81,12 @@ export const cvWatchFixture = ({ verification = {} } = {}) => {
     service,
     options,
     page,
-    emit: (event, form = cvWatchAttempt(), source = { page, frame: page }) =>
-      receiver(source, { event, form }),
+    emit: (
+      event,
+      form = cvWatchAttempt(),
+      source = { page, frame: page },
+      details
+    ) => receiver(source, { event, form, ...details }),
     formOpen: (value) => {
       open = value;
     },

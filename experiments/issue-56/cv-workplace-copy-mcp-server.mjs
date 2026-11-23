@@ -1,8 +1,10 @@
 import { createServer } from 'node:http';
 import { chromium } from 'playwright';
 import { cvWorkplacePrepareBrowserFixture } from './cv-workplace-prepare-browser-fixture.mjs';
+import { openCvWatchOriginal } from './cv-watch-transition-owner.mjs';
 
-const followupMode = process.argv.includes('--followup');
+const transition = process.argv.includes('--transition');
+const followupMode = transition || process.argv.includes('--followup');
 const addMode = process.argv.includes('--add');
 const stale = process.argv.includes('--stale');
 const browser = await chromium.launch({
@@ -31,7 +33,14 @@ const control = createServer(async (req, res) => {
     }
     res.setHeader('content-type', 'application/json');
     if ((followupMode || addMode) && req.method === 'POST') {
-      if (req.url === '/open-original' && fixture.counters.saves === 1) {
+      if (
+        transition &&
+        req.url === '/owner-detach' &&
+        fixture.counters.saves === 0
+      ) {
+        const ownerSave = await openCvWatchOriginal(fixture);
+        await ownerSave.click();
+      } else if (req.url === '/open-original' && fixture.counters.saves === 1) {
         await fixture.open({ context: true });
       } else if (
         req.url === '/owner-save' &&
@@ -58,6 +67,12 @@ const control = createServer(async (req, res) => {
       followupMode || addMode
         ? ((await fixture.store.get('jobs-cv-snapshots:jobs'))?.snapshots ?? [])
         : [];
+    const latest = transition
+      ? await fixture.store.get('jobs-cv-watch-latest:jobs')
+      : null;
+    const watch = latest
+      ? await fixture.store.get(`jobs-cv-watch:${latest.requestId}`)
+      : null;
     res.end(
       JSON.stringify({
         source: `${identity.exportId}:${identity.hash}`,
@@ -70,6 +85,13 @@ const control = createServer(async (req, res) => {
             workplace,
             jobs: cv.jobs.length,
           })),
+        }),
+        ...(transition && {
+          watch: watch && {
+            code: watch.code,
+            state: watch.state,
+            saves: watch.saves,
+          },
         }),
         authenticatedProvider: false,
       })

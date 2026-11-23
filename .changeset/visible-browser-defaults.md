@@ -1179,3 +1179,7 @@ unrelated jobs and the prior snapshot while the detach export is stale (issue #5
 Review and prepare a new HeadHunter workplace from a saved CV export, including
 CVs with no existing workplaces. Keep the draft assigned only to the chosen CV
 and verify its new record ID after the owner saves it (issue #56).
+
+Capture pre-Save evidence when the owner opens a HeadHunter workplace form in
+the observed tab. Verify edits and same-URL Add using the form's own evidence.
+Retain previous snapshots while a CV export is stale (issue #56).
