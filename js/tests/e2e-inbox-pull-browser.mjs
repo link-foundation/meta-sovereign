@@ -14,10 +14,13 @@ import { assert, openChatApp } from './helpers/e2e-chat.mjs';
 import { createFakeVk, userMethods, FAKE_VK_BASE } from './helpers/fake-vk.js';
 import { fakePph, fakeUpwork } from './helpers/fake-marketplaces.js';
 import { hhCommonFixture } from '../../experiments/issue-56/hh-common-fixture.mjs';
-import { verifyHhCommon } from './helpers/e2e-hh-common.mjs';
+import {
+  verifyHhCommon,
+  verifyHhCommonReply,
+} from './helpers/e2e-hh-common.mjs';
 import { verifyHhProviders } from './helpers/e2e-hh-providers.mjs';
 import { createHhLive } from '../src/sources/hh.js';
-import { createMessageActions } from '../src/sources/message-actions.js';
+import { createDefaultSender } from '../src/sources/browser-sender.js';
 
 const store = createMemoryStore();
 await store.put({
@@ -91,9 +94,9 @@ const fakeVk = createFakeVk({
 
 const hh = hhCommonFixture();
 const hhLive = createHhLive({ ...hh, token: 'fixture-token' });
-const messageActions = createMessageActions({
+const send = createDefaultSender({
   getSource: (source) => (source === 'hh' ? { live: hhLive } : null),
-  platforms: {},
+  browser: false,
 });
 let pullNow = Date.now();
 const { page, base, until, finish } = await openChatApp('inbox-pull', {
@@ -102,7 +105,7 @@ const { page, base, until, finish } = await openChatApp('inbox-pull', {
   serverOptions: {
     automations: {
       scheduler: false,
-      send: Object.assign(async () => ({ via: 'fake' }), messageActions),
+      send,
     },
     pulls: {
       hh: { ...hh, maxRequests: 2 },
@@ -232,4 +235,5 @@ await finish(async () => {
     },
   });
   await verifyHhProviders({ page, base, store, until, hh });
+  await verifyHhCommonReply({ page, base, store, fake: hh });
 });

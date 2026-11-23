@@ -2,7 +2,11 @@
 // is committed only after the caller has stored every returned message.
 import { buildMessageLink } from './link.js';
 import { loadPullState, savePullState } from './pull-runner.js';
-import { hhReadState, storeHhReadState } from './hh-chat-read.js';
+import {
+  hhReadState,
+  storeHhReadState,
+  validHhMessageId,
+} from './hh-chat-read.js';
 
 const stableId = (value) =>
   typeof value === 'string' && value.trim() && value.length <= 300
@@ -64,6 +68,7 @@ export const hhChatMessageLink = (message, chat) => {
   if (!id || !chatId) {
     throw invalid('message or chat has no stable ID');
   }
+  const parentId = message.reply_to?.message_id;
   return {
     ...buildMessageLink({
       source: 'hh',
@@ -73,6 +78,9 @@ export const hhChatMessageLink = (message, chat) => {
       ...senderFields(message),
       body:
         typeof message.payload?.text === 'string' ? message.payload.text : '',
+      ...(validHhMessageId(parentId)
+        ? { replyTo: `msg:hh:chat:${chatId}:${parentId}` }
+        : {}),
       timestamp: message.creation_time ?? null,
       edited: message.last_change_time,
       bot: chat.type === 'BOT',

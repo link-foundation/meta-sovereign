@@ -45,6 +45,7 @@ import { createLiveSubset } from './live-subset.js';
 import { bodyFailure, json, readBody } from './util.js';
 import { confirmed } from './confirmations.js';
 import { previewFields } from '../sources/telegram-link-preview.js';
+import { hhCommonChatId, validHhMessageId } from '../sources/hh-chat-read.js';
 import { CHANNEL } from '../sources/telegram-usernames.js';
 import {
   AUTOMATION_PREFIX,
@@ -154,8 +155,7 @@ const buildDraft = (body) => {
     typeof body.clientId === 'string' && body.clientId.length <= 100
       ? body.clientId
       : null;
-  const replyTo =
-    typeof body.replyTo === 'number' && body.replyTo > 0 ? body.replyTo : null;
+  const replyTo = body.replyTo ?? null;
   // The part of it quoted (Quote & Reply); Telegram takes up to 1024.
   const replyQuote =
     replyTo && typeof body.replyQuote === 'string' && body.replyQuote.trim()
@@ -257,8 +257,20 @@ const keepSent = async (store, links) => {
   }
 };
 
-const validReply = (id) =>
-  id === undefined || id === null || (Number.isInteger(id) && id > 0);
+const validReply = ({ source, chat, replyTo, replyQuote }) => {
+  if (source === 'hh' && replyQuote !== undefined && replyQuote !== null) {
+    return false;
+  }
+  if (replyTo === undefined || replyTo === null) {
+    return true;
+  }
+  return source === 'hh'
+    ? Boolean(hhCommonChatId(chat)) &&
+        typeof replyTo === 'string' &&
+        replyTo.length <= 620 &&
+        replyTo.startsWith(`msg:hh:${chat}:`)
+    : Number.isInteger(replyTo) && replyTo > 0;
+};
 const sendTrace = (draft) => ({
   source: draft.source,
   chat: draft.chat,
@@ -303,6 +315,29 @@ const hhBrowserSendDraft = async (store, draft) => {
   return { ...draft, chat: `web:${draft.chat}`, chatName: reference.chatName };
 };
 
+const hhReplyDraft = async (store, draft) => {
+  if (draft.source !== 'hh' || !draft.replyTo) {
+    return draft;
+  }
+  const reference = await store.get(draft.replyTo);
+  if (
+    reference?.source !== 'hh' ||
+    reference.chat !== draft.chat ||
+    reference.hhChat?.id !== hhCommonChatId(draft.chat) ||
+    reference.raw?.can_reply !== true ||
+    reference.deleted ||
+    !validHhMessageId(reference.messageId)
+  ) {
+    throw Object.assign(
+      new Error('The saved HeadHunter reply target is unavailable.'),
+      {
+        code: 'bad-reply',
+      }
+    );
+  }
+  return { ...draft, replyTo: reference.messageId };
+};
+
 const deliverMessage = async (store, ctx, draft) => {
   const edited = draft.continueLast
     ? await ctx.telegramAccount?.continueMessage?.(draft)
@@ -318,7 +353,7 @@ const deliverMessage = async (store, ctx, draft) => {
     };
   }
   const destination = await hhBrowserSendDraft(store, draft);
-  const result = await ctx.send(destination);
+  const result = await ctx.send(await hhReplyDraft(store, destination));
   const links = sentLinks({ ...draft, chatName: destination.chatName }, result);
   const stored = await keepSent(store, links);
   return {
@@ -355,7 +390,7 @@ const handleSend = async (store, res, body, ctx) => {
   if (typeof ctx.send !== 'function') {
     return fail(res, 501, 'no-sender', 'no sender is configured');
   }
-  if (!validReply(body.replyTo)) {
+  if (!validReply(body)) {
     return fail(res, 400, 'bad-reply', 'a valid reply message id is required');
   }
   if (body.scheduleDate !== undefined && !validSchedule(body.scheduleDate)) {

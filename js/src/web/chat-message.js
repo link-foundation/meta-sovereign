@@ -42,7 +42,7 @@ import { statusOfLink } from './emoji-status-model.js';
 import { peerColorClass } from './peer-color.js';
 import { MessageText } from './message-text.js';
 import { useTranslated } from './translate-store.js';
-import { menuItems, isMine } from './chat-selection.js';
+import { canReplyTo, menuItems, isMine } from './chat-selection.js';
 import { useRowHandlers } from './chat-row.js';
 import { GameCard } from './chat-games.js';
 import { MediaAudio, MediaCard, MediaFile, MediaVideo } from './chat-media.js';
@@ -1328,7 +1328,10 @@ const withKeyboard = (bubble, message, onAction) =>
     : bubble;
 
 const canFastReply = (message, mine, onAction) =>
-  !mine && !message.pending && typeof onAction === 'function';
+  !mine &&
+  !message.pending &&
+  canReplyTo(message) &&
+  typeof onAction === 'function';
 
 // Desktop's corner "Reply": in a group, at an incoming bubble's top
 // right while the pointer is on it.

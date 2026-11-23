@@ -55,6 +55,7 @@ import { resolveBrowserChoiceDocument } from './browser-choice-document.js';
 import { createBrowserChatScans } from './browser-chat-scan.js';
 import { createBrowserTextActions } from './browser-text-reply.js';
 import { isHhWebTarget } from './hh-web-ui.js';
+import { hhCommonChatId } from './hh-chat-read.js';
 import {
   createBrowserSendConsent,
   sendConsentOptions,
@@ -1013,6 +1014,7 @@ export const createDefaultSender = ({
     log,
   });
   const sendHhWeb = createFallbackSender({ browserSend, log });
+  const sendHhApi = createFallbackSender({ apiSend: adapterSend, log });
   const send = (input, dispatch) => {
     const draft = { ...input };
     if (draft.answer?.strictOptions) {
@@ -1028,9 +1030,13 @@ export const createDefaultSender = ({
         'answer-choice-required'
       );
     }
-    return isHhWebDraft(draft)
-      ? sendHhWeb(draft, dispatch)
-      : sendText(draft, dispatch);
+    if (isHhWebDraft(draft)) {
+      return sendHhWeb(draft, dispatch);
+    }
+    if (draft.source === 'hh' && hhCommonChatId(draft.chat)) {
+      return sendHhApi(draft, dispatch);
+    }
+    return sendText(draft, dispatch);
   };
   const actions = createMessageActions({
     getSource,

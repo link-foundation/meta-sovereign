@@ -137,3 +137,37 @@ export const verifyHhCommon = async ({
     'history import neither sends nor marks read'
   );
 };
+
+export const verifyHhCommonReply = async ({ page, base, store, fake }) => {
+  await page.goto(`${base}/#/chat`);
+  await page.locator('[data-chat="hh:chat:41"]').click();
+  const row = page.locator('[data-row="msg:hh:chat:41:1"]');
+  await row.click({ button: 'right' });
+  await page.getByRole('menuitem', { name: 'Reply', exact: true }).click();
+  const text = 'Thank you for asking.';
+  const composer = page.locator('.chat-composer textarea');
+  await composer.fill(text);
+  await composer.press('Enter');
+  const id = `msg:hh:chat:41:${fake.state.receipt.id}`;
+  const bubble = page.locator(`[data-row="${id}"]`);
+  await bubble.waitFor({ timeout: 7000 });
+  assert(
+    (await bubble.innerText()).includes(text),
+    'the acknowledged reply is visible'
+  );
+  assert(
+    (await bubble.locator('.bubble-reply').innerText()).includes(
+      'Where do you live?'
+    ),
+    'the acknowledged reply quotes the actual saved parent'
+  );
+  assert(
+    (await store.get(id))?.replyTo === 'msg:hh:chat:41:1',
+    'the saved reply uses the provider receipt'
+  );
+  const writes = fake.calls.filter((call) => call.method === 'POST');
+  assert(
+    writes.length === 1 && writes[0].body.reply_to_message_id === '1',
+    'HH received one reply to the selected message'
+  );
+};

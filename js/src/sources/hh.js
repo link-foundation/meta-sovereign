@@ -89,15 +89,25 @@ export const createHhLive = ({
         typeof negotiationId === 'string' &&
         negotiationId.startsWith('chat:')
       ) {
+        const chatId = hhCommonChatId(negotiationId);
+        if (!chatId) {
+          throw unsupportedError('HH common-chat ID is invalid');
+        }
         return sendHhChat({
           fetchImpl,
           baseUrl: options.baseUrl ?? baseUrl,
           headers: headers(options.token),
           content,
           options,
-          chatId: negotiationId.slice(5),
+          chatId,
           text,
         });
+      }
+      const replyTo = content?.replyTo ?? null;
+      if (replyTo !== null || content?.replyQuote) {
+        throw unsupportedError(
+          'HH negotiation messages cannot preserve replies'
+        );
       }
       return requestJson(
         fetchImpl,

@@ -166,3 +166,26 @@ bubble on the current one. The fixture replaces live provider traffic.
 ![Previous Chat send failure](../../screenshots/issue-56-hh-native-send-before.png)
 
 ![Current Chat send confirmed](../../screenshots/issue-56-hh-native-send-after.png)
+
+## Replying in a common chat
+
+In a common chat, open the menu for a saved incoming message, choose Reply,
+and send text. Chat keeps the complete saved reference, and the server
+verifies that it belongs to the same HeadHunter chat. A fresh provider read
+must report that the exact message accepts replies. The [common-chat send
+operation](https://api.hh.ru/openapi/en/redoc#tag/Chats/operation/chat-message-post)
+receives the opaque parent ID and returns HTTP 201 and the new message ID.
+The immediate bubble and later imported history share that ID. Whole-message
+Reply appears only where the provider reports support.
+
+The focused `hh-common-chats` checks reproduce the missing receipt link and
+reply support on the previous source. They also cover a changed permission,
+owner cancellation after the provider check, and a reply to a valid opaque
+ID containing a colon. The registered `inbox-pull` Chromium scenario checks
+reply selection, provider receipt, saved identity and the visible quote.
+Independent Playwright MCP compares the saved reply from both bundles and
+observed one fixture POST carrying the complete parent ID.
+
+![Previous common-chat reply failure](../../screenshots/issue-56-hh-common-reply-before.png)
+
+![Common-chat reply with its parent](../../screenshots/issue-56-hh-common-reply-after.png)

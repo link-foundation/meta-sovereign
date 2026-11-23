@@ -293,6 +293,41 @@ test('the composer dispatches only a verified saved HH web conversation', async 
   }
 });
 
+test('the composer resolves an opaque HH reply only from the same saved API conversation', async () => {
+  const attempts = [];
+  const { server, store, confirmCall } = await boot({
+    sendDraft: (draft) => {
+      attempts.push(draft);
+      return { via: 'api' };
+    },
+  });
+  try {
+    const id = 'msg:hh:chat:41:parent:1';
+    const parent = {
+      id,
+      source: 'hh',
+      chat: 'chat:41',
+      messageId: 'parent:1',
+      hhChat: { id: '41' },
+      raw: { can_reply: true },
+    };
+    const draft = { source: 'hh', chat: 'chat:41', text: 'Reply', replyTo: id };
+    const missing = await confirmCall('/api/send', draft);
+    assert.equal(missing.body.code, 'bad-reply');
+    await store.put({ ...parent, chat: 'chat:42' });
+    const foreign = await confirmCall('/api/send', draft);
+    assert.equal(foreign.body.code, 'bad-reply');
+    await store.put(parent);
+    assert.equal((await confirmCall('/api/send', draft)).body.status, 'sent');
+    assert.deepEqual(
+      attempts.map(({ replyTo }) => replyTo),
+      ['parent:1']
+    );
+  } finally {
+    await server.close();
+  }
+});
+
 test('a send the network took stays sent when the store write fails', async () => {
   const { server, sent, confirmCall } = await boot();
   const put = server.store.put.bind(server.store);

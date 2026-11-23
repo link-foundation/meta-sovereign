@@ -43,6 +43,7 @@ import { expandAlbums, groupAlbums } from './chat-album.js';
 import {
   bulkSelect,
   canEdit,
+  canReplyTo,
   copyStamp,
   isMine,
   isProtected,
@@ -74,7 +75,7 @@ const replyable = (messages) =>
  * past the newest takes none. → message or null
  */
 export const replyStep = (messages, current, step) => {
-  const list = replyable(messages);
+  const list = replyable(messages).filter(canReplyTo);
   const at = list.findIndex((m) => m.id === current);
   if (at === -1) {
     return step < 0 ? (list.at(-1) ?? null) : null;
@@ -95,7 +96,7 @@ const whereOf = (chat) => {
 };
 
 export const replyRefOf = (message) => ({
-  msgId: networkMessageId(message),
+  msgId: message.source === 'hh' ? message.id : networkMessageId(message),
   linkId: message.id,
   senderName: message.senderName ?? message.sender,
   text: message.body ?? '',
@@ -562,7 +563,8 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
 
   const onAction = (action, message, value) => {
     const act = {
-      reply: () => state.composer.setReplyTo(replyRefOf(message)),
+      reply: () =>
+        canReplyTo(message) && state.composer.setReplyTo(replyRefOf(message)),
       quoteReply: () =>
         state.composer.setReplyTo({
           ...replyRefOf(message),

@@ -223,6 +223,9 @@ test('HH imported chat replies use the common-chat endpoint, a UUID and a positi
     clientId: key,
   });
   assert.equal(receipt.messageId, 'sent-56');
+  assert.equal(receipt.link.id, 'msg:hh:chat:41:sent-56');
+  assert.equal(receipt.link.chatName, 'Vacancy 41');
+  assert.equal(receipt.link.delivery, 'sent');
   assert.deepEqual(
     fake.calls.map((c) => [c.method, c.path]),
     [
@@ -239,6 +242,47 @@ test('HH imported chat replies use the common-chat endpoint, a UUID and a positi
     live.post({ chat: 'chat:41', text: 'No send.' }),
     /accepts messages/u
   );
+  assert.equal(fake.calls.filter((c) => c.method === 'POST').length, 1);
+});
+
+test('HH replies preserve the verified opaque message ID and refuse disabled targets', async () => {
+  const { fake, live, pull, store } = setup();
+  const parentId = 'parent:1';
+  const parent = fake.chats.get('41')[0];
+  parent.id = parentId;
+  const content = { chat: 'chat:41', text: 'Thanks.', replyTo: parentId };
+  await assert.rejects(
+    live.post(content, {
+      beforeIssue: () => {
+        throw Object.assign(new Error('Owner stopped'), { code: 'stopped' });
+      },
+    }),
+    { code: 'stopped' }
+  );
+  assert.deepEqual(
+    fake.calls.splice(0).map(({ method }) => method),
+    ['GET']
+  );
+  const receipt = await live.post(content);
+  assert.equal(receipt.link.replyTo, 'msg:hh:chat:41:parent:1');
+  assert.equal(fake.calls[0].query.start_message_id, parentId);
+  assert.equal(fake.calls[1].body.reply_to_message_id, parentId);
+
+  fake.chats.get('41')[1].reply_to = { message_id: parentId };
+  await pull();
+  assert.equal(
+    (await store.get('msg:hh:chat:41:2')).replyTo,
+    'msg:hh:chat:41:parent:1'
+  );
+
+  parent.can_reply = false;
+  await assert.rejects(live.post(content), { code: 'unsupported' });
+  await assert.rejects(live.post({ ...content, chat: '41' }), {
+    code: 'unsupported',
+  });
+  await assert.rejects(live.post({ ...content, replyTo: 1 }), {
+    code: 'unsupported',
+  });
   assert.equal(fake.calls.filter((c) => c.method === 'POST').length, 1);
 });
 
@@ -311,7 +355,7 @@ test('HH missing send receipts stay ambiguous and are never replayed', async () 
   for (const extra of [{ attachments: [{}] }, { replyTo: 'message' }]) {
     await assert.rejects(
       live.post({ chat: 'chat:41', text: 'Unsupported.', ...extra }),
-      /do not support/u
+      { code: 'unsupported' }
     );
   }
   assert.equal(fake.calls.filter((c) => c.method === 'POST').length, 1);

@@ -17,6 +17,7 @@ const message = (
   },
   payload: { text },
   can_edit: outgoing,
+  can_reply: true,
   viewed_by_opponent: !outgoing,
 });
 

@@ -1,3 +1,10 @@
+2026-11-23 HeadHunter common-chat replies (HH09):
+
+- [x] Reproduce lost reply references and a synthetic local ID after a successful public API send. Confirm HeadHunter's whole-message reply field, permissions and HTTP receipt.
+- [x] Validate the saved target and current provider permission before issuing a reply. Record the opaque reply ID and returned send ID so the next history pull updates the same bubble.
+- [x] Verify the registered Chromium flow and compare both bundles in independent Chromium. Keep native web and legacy negotiation capabilities distinct.
+- [ ] Verify live-provider behavior, the remaining messaging actions and exact-source GitHub checks. HH09 stays open.
+
 2026-11-23 HeadHunter native Chat sends (HH09):
 
 - [x] Reproduce the saved native conversation falling through to the negotiation API; use its stored browser message to verify the correct route.

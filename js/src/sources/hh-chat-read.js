@@ -1,9 +1,9 @@
 import { codedError, requestJson } from './http.js';
 import { createStoreQueue } from '../storage/serialized.js';
 
-const segment = (id) =>
+export const validHhMessageId = (id) =>
   typeof id === 'string' &&
-  id.trim() &&
+  Boolean(id.trim()) &&
   id.length <= 300 &&
   id !== '.' &&
   id !== '..';
@@ -64,7 +64,7 @@ const readLatest = async (fetchImpl, path, chatId, options) => {
     chat?.id !== chatId ||
     !Array.isArray(chat.messages) ||
     chat.messages.length > 1 ||
-    (chat.messages.length && !segment(chat.messages[0]?.id))
+    (chat.messages.length && !validHhMessageId(chat.messages[0]?.id))
   ) {
     throw readFailure(
       'HH returned a different chat or an invalid message',
@@ -121,5 +121,5 @@ export const markHhChatRead = async ({
 export const hhCommonChatId = (chat) => {
   const id =
     typeof chat === 'string' && chat.startsWith('chat:') && chat.slice(5);
-  return segment(id) ? id : null;
+  return validHhMessageId(id) ? id : null;
 };
