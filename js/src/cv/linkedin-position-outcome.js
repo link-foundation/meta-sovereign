@@ -171,17 +171,33 @@ const positionInNewExport = (
       names.has(linkedinPositionSkillKey(name))
     );
   };
-  const hasMedia = (job) =>
-    !appliedMedia ||
-    [...(previous?.media ?? []), appliedMedia].every((item) => {
+  const hasMedia = (job) => {
+    if (!appliedMedia) {
+      return true;
+    }
+    const attachments = job.media ?? [];
+    const matching = attachments.filter(
+      ({ url }) => linkedinPositionMediaUrl(url) === appliedMedia.url
+    );
+    if (matching.length !== 1 || matching[0].title !== appliedMedia.title) {
+      return false;
+    }
+    return (previous?.media ?? []).every((item) => {
       const url = linkedinPositionMediaUrl(item.url);
-      return (job.media ?? []).some(
+      if (
+        url === appliedMedia.url &&
+        item.title === appliedMedia.previousTitle
+      ) {
+        return true;
+      }
+      return attachments.some(
         (candidate) =>
           (url
             ? linkedinPositionMediaUrl(candidate.url) === url
             : candidate.url === item.url) && candidate.title === item.title
       );
     });
+  };
   const candidates = document.jobs.filter(
     (job) =>
       sameEditor(job.native.positionEditor) &&

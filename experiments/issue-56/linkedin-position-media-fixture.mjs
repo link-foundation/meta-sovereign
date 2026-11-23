@@ -1,6 +1,10 @@
 import { linkedinPositionFormHtml } from './linkedin-position-form-fixture.mjs';
 
-export const linkedinPositionMediaHtml = ({ existing, broken } = {}) =>
+export const linkedinPositionMediaHtml = ({
+  existing,
+  broken,
+  previewUrl,
+} = {}) =>
   linkedinPositionFormHtml({ actions: true })
     .replace(
       '<button type="button" id="cancel">',
@@ -15,12 +19,48 @@ export const linkedinPositionMediaHtml = ({ existing, broken } = {}) =>
       `
 window.fixtureMedia = ${JSON.stringify(existing ? [existing] : [])};
 window.fixtureMediaAttaches = 0;
+window.fixtureMediaRenames = 0;
 window.fixtureLinkOpens = 0;
 const list = document.querySelector('#attachments');
-const appendLink = ({ url, title }) => {
+const typed = (input) => {
+  const data = [];
+  input.addEventListener('input', (event) => {
+    if (event.isTrusted && event.inputType === 'insertText') data.push(event.data);
+  });
+  return data;
+};
+const showPreview = (modal, website, initial, rename, save) => {
+  modal.innerHTML = '<h2></h2><a>Preview</a><label>Title<input></label><button type="button">Save</button>';
+  modal.querySelector('h2').textContent = rename ? 'Edit media' : 'Link preview';
+  modal.querySelector('a').href = website;
+  const title = modal.querySelector('input');
+  title.value = initial;
+  const titleStrokes = typed(title);
+  modal.querySelector('button').onclick = () => {
+    if (titleStrokes.join('') !== title.value) return;
+    save(title.value);
+    modal.close();
+  };
+};
+const appendLink = (item) => {
   const link = document.createElement('a');
-  link.href = url;
-  link.textContent = title;
+  const editable = ${Boolean(previewUrl)};
+  link.href = editable ? '#edit-media' : item.url;
+  const update = () => { link.textContent = editable ? 'Edit media, ' + item.title : item.title; };
+  update();
+  if (editable) {
+    link.onclick = (event) => {
+      event.preventDefault();
+      const modal = document.createElement('dialog');
+      document.body.append(modal);
+      showPreview(modal, ${JSON.stringify(previewUrl ?? '')}, item.title, true, (title) => {
+        window.fixtureMediaRenames++;
+        item.title = title;
+        update();
+      });
+      modal.showModal();
+    };
+  }
   list.append(link);
 };
 window.fixtureMedia.forEach(appendLink);
@@ -34,29 +74,16 @@ menu.firstElementChild.onclick = () => {
   document.body.append(modal);
   modal.showModal();
   const url = modal.querySelector('input');
-  const typed = (input) => {
-    const data = [];
-    input.addEventListener('input', (event) => {
-      if (event.isTrusted && event.inputType === 'insertText') data.push(event.data);
-    });
-    return data;
-  };
   const urlStrokes = typed(url);
   modal.querySelector('button').onclick = () => {
     if (urlStrokes.join('') !== url.value || ${Boolean(broken)}) return;
     const website = url.value;
-    modal.innerHTML = '<h2>Link preview</h2><a>Preview</a><label>Title<input value="Original site title"></label><button type="button">Save</button>';
-    modal.querySelector('a').href = website;
-    const title = modal.querySelector('input');
-    const titleStrokes = typed(title);
-    modal.querySelector('button').onclick = () => {
-      if (titleStrokes.join('') !== title.value) return;
+    showPreview(modal, website, 'Original site title', false, (title) => {
       window.fixtureMediaAttaches++;
-      const item = { url: website, title: title.value };
+      const item = { url: website, title };
       window.fixtureMedia.push(item);
       appendLink(item);
-      modal.close();
-    };
+    });
   };
 };
 </script>`

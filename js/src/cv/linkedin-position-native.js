@@ -193,12 +193,22 @@ export const createLinkedinPositionNative =
       const current = before.jobs.find(
         (job) => job.native.positionEditor === plan.editor
       );
-      const mediaAlreadyPresent =
-        plan.media &&
-        current?.media.some(
-          ({ url }) => linkedinPositionMediaUrl(url) === plan.media.url
-        );
-      const pendingMedia = mediaAlreadyPresent ? null : plan.media;
+      const matches = plan.media
+        ? (current?.media ?? []).filter(
+            ({ url }) => linkedinPositionMediaUrl(url) === plan.media.url
+          )
+        : [];
+      const mediaDiverged =
+        plan.media?.previousTitle &&
+        matches.length > 0 &&
+        (matches.length !== 1 ||
+          ![plan.media.previousTitle, plan.media.title].includes(
+            matches[0].title
+          ));
+      const present =
+        matches.length > 0 &&
+        (!plan.media.previousTitle || matches[0].title === plan.media.title);
+      const pendingMedia = present || mediaDiverged ? null : plan.media;
       if (
         !eligible.length &&
         !pendingMedia &&
@@ -207,7 +217,10 @@ export const createLinkedinPositionNative =
         return {
           phase: 'no-changes',
           code: 'cv-linkedin-position-note',
-          unapplied: plan.skills.length ? ['skills'] : [],
+          unapplied: [
+            ...(plan.skills.length ? ['skills'] : []),
+            ...(mediaDiverged ? ['media'] : []),
+          ],
           unresolvedSkills: plan.skills,
         };
       }
@@ -232,16 +245,18 @@ export const createLinkedinPositionNative =
         wait,
         signal,
       });
-      const media = await fillLinkedinPositionMedia({
-        session,
-        plan: { ...plan, media: pendingMedia },
-        token,
-        form,
-        controls: draft,
-        check,
-        wait,
-        signal,
-      });
+      const media = mediaDiverged
+        ? { applied: null, unresolved: true }
+        : await fillLinkedinPositionMedia({
+            session,
+            plan: { ...plan, media: pendingMedia },
+            token,
+            form,
+            controls: draft,
+            check,
+            wait,
+            signal,
+          });
       return await withPrepared({
         session,
         token,

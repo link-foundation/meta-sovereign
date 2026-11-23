@@ -45,7 +45,7 @@ export const inspectLinkedinPositionMedia = ({ url, token, media, action }) => {
     return { state: 'clicked' };
   };
   const mediaHeading =
-    /^(?:add media|add a link|add link|link preview|добавить медиа\p{L}*|добавить ссылку|предпросмотр ссылки)$/iu;
+    /^(?:add media|add a link|add link|link preview|edit media|добавить медиа\p{L}*|добавить ссылку|предпросмотр ссылки|изменить медиа\p{L}*)$/iu;
   const heading = (root, pattern) =>
     nodes(root, 'h1, h2, h3, [role="heading"]').some(
       (node) =>
@@ -99,13 +99,49 @@ export const inspectLinkedinPositionMedia = ({ url, token, media, action }) => {
     const entries = nodes(collection, '[data-media-url], a[href]').filter(
       (node) => !node.closest('[role="menu"], [role="menuitem"]')
     );
+    const editPrefix = /^(?:edit media|изменить медиа\p{L}*),\s*/iu;
+    const titleOf = (item) =>
+      item.getAttribute('data-media-title') ??
+      label(item).replace(editPrefix, '');
     const existing = entries.filter((item) => link(item) === media.url);
-    if (existing.length) {
-      const exactTitle = existing.some(
+    const exact = existing.length === 1 && titleOf(existing[0]) === media.title;
+    if (media.previousTitle && !exact) {
+      const profile = location.pathname.split(
+        /\/(?:edit\/forms\/position|add-edit\/POSITION)\//u
+      )[0];
+      const nativeEdits = entries.filter(
         (item) =>
-          (item.getAttribute('data-media-title') ?? label(item)) === media.title
+          item.matches('a[href]') &&
+          item.origin === location.origin &&
+          item.pathname.startsWith(`${profile}/`) &&
+          editPrefix.test(label(item))
       );
-      return { state: 'present', exactTitle };
+      const edit = nativeEdits.filter(
+        (item) => titleOf(item) === media.previousTitle
+      );
+      if (
+        action.kind === 'confirm' &&
+        !existing.length &&
+        !edit.length &&
+        nativeEdits.filter((item) => titleOf(item) === media.title).length === 1
+      ) {
+        return { state: 'present', exactTitle: true };
+      }
+      const candidate = edit[0];
+      if (
+        edit.length !== 1 ||
+        existing.length > 1 ||
+        (existing.length === 1 && existing[0] !== candidate)
+      ) {
+        return { state: 'unsupported' };
+      }
+      // A legacy Edit link may be opaque. The preview must confirm its site before typing.
+      return action.kind === 'open-edit'
+        ? click(candidate)
+        : { state: 'rename' };
+    }
+    if (existing.length) {
+      return { state: 'present', exactTitle: exact };
     }
     const opaque = entries.some((item) => {
       const href = link(item);

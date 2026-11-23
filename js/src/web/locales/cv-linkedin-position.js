@@ -17,6 +17,8 @@ const entries = {
     manualSkills: 'Review these skills in LinkedIn: {skills}',
     'no-changes': 'There were no changes available to prepare in LinkedIn.',
     proposedMedia: 'Proposed media link: {title} ({url})',
+    proposedMediaRename:
+      'Proposed media title change: {previousTitle} → {title} ({url})',
     preparedMedia: 'Attached in the LinkedIn draft: {title} ({url})',
     savedMedia: 'Verified in the saved position: {title} ({url})',
     manualMedia: 'Review this media link in LinkedIn: {url}',
@@ -67,6 +69,8 @@ const entries = {
     manualSkills: 'Проверьте эти навыки в LinkedIn: {skills}',
     'no-changes': 'В LinkedIn нет доступных изменений для подготовки.',
     proposedMedia: 'Предлагаемая ссылка: {title} ({url})',
+    proposedMediaRename:
+      'Предлагаемое изменение названия: {previousTitle} → {title} ({url})',
     preparedMedia: 'Прикреплено к черновику LinkedIn: {title} ({url})',
     savedMedia: 'Проверено в сохранённой должности: {title} ({url})',
     manualMedia: 'Проверьте эту ссылку в LinkedIn: {url}',
@@ -115,6 +119,7 @@ const entries = {
     manualSkills: '请在 LinkedIn 中核对这些技能：{skills}',
     'no-changes': 'LinkedIn 中没有可准备的更改。',
     proposedMedia: '建议添加的媒体链接：{title}（{url}）',
+    proposedMediaRename: '建议修改媒体标题：{previousTitle} → {title}（{url}）',
     preparedMedia: '已附加到 LinkedIn 草稿：{title}（{url}）',
     savedMedia: '已在保存的职位中验证：{title}（{url}）',
     manualMedia: '请在 LinkedIn 中核对此媒体链接：{url}',
@@ -158,6 +163,8 @@ const entries = {
     manualSkills: 'LinkedIn में इन कौशलों की समीक्षा करें: {skills}',
     'no-changes': 'LinkedIn में तैयार करने के लिए कोई बदलाव उपलब्ध नहीं था।',
     proposedMedia: 'प्रस्तावित मीडिया लिंक: {title} ({url})',
+    proposedMediaRename:
+      'प्रस्तावित मीडिया शीर्षक बदलाव: {previousTitle} → {title} ({url})',
     preparedMedia: 'LinkedIn के मसौदे में जोड़ा गया: {title} ({url})',
     savedMedia: 'सहेजे गए पद में सत्यापित: {title} ({url})',
     manualMedia: 'LinkedIn में इस मीडिया लिंक की समीक्षा करें: {url}',

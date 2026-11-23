@@ -39,6 +39,16 @@ const typeMedia = async ({ read, wait, signal }, kind, initial, value) => {
   }
 };
 
+const openWebsitePreview = async (run, url) => {
+  await waitForMedia({ ...run, action: 'choose', state: 'clicked' });
+  const input = await waitForMedia({ ...run, state: 'url' });
+  if (input.value !== '') {
+    throw linkedinPositionFailure('owner-draft');
+  }
+  await typeMedia(run, 'type-url', input.value, url);
+  await waitForMedia({ ...run, action: 'preview', state: 'clicked' });
+};
+
 /** Attach the exact link inside the draft. The position's Save stays with its owner. */
 export const fillLinkedinPositionMedia = async ({
   session,
@@ -82,26 +92,32 @@ export const fillLinkedinPositionMedia = async ({
   };
   const run = { read, wait, signal };
   const start = await read({ kind: 'scan' });
-  if (start.state !== 'available') {
+  if (!['available', 'rename'].includes(start.state)) {
     return { applied: null, unresolved: start.state !== 'present' };
   }
-  if ((await read({ kind: 'open' })).state !== 'clicked') {
+  const rename = start.state === 'rename';
+  if (
+    (await read({ kind: rename ? 'open-edit' : 'open' })).state !== 'clicked'
+  ) {
     throw issue();
   }
-  await waitForMedia({ ...run, action: 'choose', state: 'clicked' });
-  const input = await waitForMedia({ ...run, state: 'url' });
-  if (input.value !== '') {
+  if (!rename) {
+    await openWebsitePreview(run, media.url);
+  }
+  const preview = await waitForMedia({ ...run, state: 'preview', passes: 50 });
+  if (rename && preview.value !== media.previousTitle) {
     throw linkedinPositionFailure('owner-draft');
   }
-  await typeMedia(run, 'type-url', input.value, media.url);
-  await waitForMedia({ ...run, action: 'preview', state: 'clicked' });
-  const preview = await waitForMedia({ ...run, state: 'preview', passes: 50 });
   await typeMedia(run, 'type-title', preview.value, media.title);
   if ((await read({ kind: 'attach' })).state !== 'clicked') {
     throw issue();
   }
   const confirm = async () => {
-    const result = await waitForMedia({ ...run, state: 'present' });
+    const result = await waitForMedia({
+      ...run,
+      action: 'confirm',
+      state: 'present',
+    });
     const formState = await form.read();
     if (
       !result.exactTitle ||

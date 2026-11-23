@@ -11,7 +11,7 @@ const refused = () => new Error('LinkedIn position receipt was not confirmed.');
 export const confirmedLinkedinPositionReview = async (answer, check) => {
   const { fingerprint, ...body } = answer ?? {};
   if (
-    body.version !== 1 ||
+    ![1, 2].includes(body.version) ||
     !['draft', 'reviewed'].includes(body.phase) ||
     body.providerSaved !== false ||
     body.browserSlot !== 'linkedin-experience' ||

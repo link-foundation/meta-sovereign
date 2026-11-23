@@ -10,7 +10,10 @@ import {
   linkedinExportKey,
 } from './linkedin-experience-record.js';
 import { linkedinPositionEditorUrl } from './linkedin-position-editor-url.js';
-import { linkedinPositionMediaCandidate } from './linkedin-position-media-link.js';
+import {
+  linkedinPositionMediaCandidate,
+  linkedinPositionMediaTitle,
+} from './linkedin-position-media-link.js';
 
 export const linkedinPositionFailure = (reason) =>
   Object.assign(new Error('The LinkedIn position review was not confirmed.'), {
@@ -169,7 +172,7 @@ const desiredFields = (baseline, fields, operation) => {
   return desired;
 };
 
-const positionFields = (job) => {
+const positionFields = (job, { version, legacy }) => {
   const baseline = linkedinPositionValues(job.target);
   const notes = [...job.notes];
   const fields = proposedFields(job, notes);
@@ -182,8 +185,14 @@ const positionFields = (job) => {
   if (skillProposal && (!skills || skills.limited)) {
     notes.push({ field: 'skills', reason: 'manual-review' });
   }
-  const media = linkedinPositionMediaCandidate(job);
-  if (media.review) {
+  const media = linkedinPositionMediaCandidate(job, {
+    legacy,
+    rename: version >= 2,
+  });
+  const title =
+    media.url &&
+    (version >= 2 ? linkedinPositionMediaTitle(media.url) : desired.company);
+  if (media.review || title?.length > 500) {
     notes.push({ field: 'media', reason: 'manual-review' });
   }
   return {
@@ -191,13 +200,24 @@ const positionFields = (job) => {
     fields,
     desired,
     skills: skills?.names ?? [],
-    media: media.url ? { url: media.url, title: desired.company } : null,
+    media:
+      title && title.length <= 500
+        ? {
+            url: media.url,
+            title,
+            ...(media.previousTitle && { previousTitle: media.previousTitle }),
+          }
+        : null,
     notes,
   };
 };
 
 /** Read a selected immutable comparison and prepare a review, with no browser access. */
-export const draftLinkedinPosition = async (context, input) => {
+export const draftLinkedinPosition = async (
+  context,
+  input,
+  { version = 2, legacy = false } = {}
+) => {
   const experience = reviewReference(input);
   const row = await readExperiencePlan(context.store, experience);
   const job = row.plan?.jobs[experience.jobIndex];
@@ -224,7 +244,7 @@ export const draftLinkedinPosition = async (context, input) => {
   if (!editor) {
     throw linkedinPositionFailure('editor');
   }
-  const proposal = positionFields(job);
+  const proposal = positionFields(job, { version, legacy });
   if (
     !Object.keys(proposal.fields).length &&
     !proposal.skills.length &&
@@ -233,7 +253,7 @@ export const draftLinkedinPosition = async (context, input) => {
     throw linkedinPositionFailure('note');
   }
   const plan = {
-    version: 1,
+    version,
     phase: 'draft',
     experience,
     operation: job.kind,

@@ -169,7 +169,7 @@ export const CvExperiencePlanView = ({
             (item.kind === 'update' &&
               item.target?.native?.positionEditor &&
               (item.fields.length ||
-                linkedinPositionMediaCandidate(item).url)));
+                linkedinPositionMediaCandidate(item, { rename: true }).url)));
         return el(
           PlanItem,
           { key: index, item },

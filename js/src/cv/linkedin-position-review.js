@@ -29,6 +29,7 @@ const checked = async (row, id) => {
   const { fingerprint, ...content } = row.plan;
   if (
     id !== key(fingerprint) ||
+    ![1, 2].includes(content.version) ||
     !['draft', 'reviewed'].includes(content.phase) ||
     content.providerSaved !== false ||
     content.browserSlot !== 'linkedin-experience' ||
@@ -55,6 +56,25 @@ const save = async (store, plan) => {
   return admitted;
 };
 
+const sameDraft = async (context, plan, fingerprint) => {
+  const derive = (legacy) =>
+    draftLinkedinPosition(context, plan.experience, {
+      version: plan.version,
+      legacy,
+    });
+  const current = await derive(false);
+  if (current.fingerprint === fingerprint) {
+    return current;
+  }
+  if (plan.version === 1) {
+    const prior = await derive(true);
+    if (prior.fingerprint === fingerprint) {
+      return prior;
+    }
+  }
+  throw linkedinPositionFailure('conflict');
+};
+
 /** A provider editor may open only for a separately acknowledged review. */
 export const createLinkedinPositionReviews = (context) => {
   const { store } = context;
@@ -73,10 +93,7 @@ export const createLinkedinPositionReviews = (context) => {
         if (draft.phase !== 'draft') {
           throw linkedinPositionFailure('review');
         }
-        const fresh = await draftLinkedinPosition(context, draft.experience);
-        if (fresh.fingerprint !== fingerprint) {
-          throw linkedinPositionFailure('conflict');
-        }
+        const fresh = await sameDraft(context, draft, fingerprint);
         const { fingerprint: draftFingerprint, ...plan } = fresh;
         const reviewed = { ...plan, phase: 'reviewed', draftFingerprint };
         return save(store, {
@@ -93,10 +110,7 @@ export const authorizedLinkedinPosition = async (context, fingerprint) => {
   if (reviewed.phase !== 'reviewed') {
     throw linkedinPositionFailure('review');
   }
-  const fresh = await draftLinkedinPosition(context, reviewed.experience);
-  if (fresh.fingerprint !== reviewed.draftFingerprint) {
-    throw linkedinPositionFailure('conflict');
-  }
+  const fresh = await sameDraft(context, reviewed, reviewed.draftFingerprint);
   const { fingerprint: draftFingerprint, ...plan } = fresh;
   const expected = { ...plan, phase: 'reviewed', draftFingerprint };
   if ((await modelFingerprint(expected)) !== fingerprint) {

@@ -6,7 +6,10 @@ import { openBrowserSession } from '../../js/src/cv/browser.js';
 import { createLinkedinPositionJobs } from '../../js/src/cv/linkedin-position-job.js';
 import { createLinkedinPositionReviews } from '../../js/src/cv/linkedin-position-review.js';
 import { runBrowserScenarios } from '../../js/tests/helpers/e2e-browser-scenarios.mjs';
-import { linkedinPositionFixtureUrl } from './linkedin-experience-fixture.mjs';
+import {
+  linkedinExperienceRaw,
+  linkedinPositionFixtureUrl,
+} from './linkedin-experience-fixture.mjs';
 import { waitForLinkedinPositionPhase } from './linkedin-position-job-native.mjs';
 import { linkedinPositionMediaHtml } from './linkedin-position-media-fixture.mjs';
 import { linkedinPositionExperienceHtml } from './linkedin-position-native.mjs';
@@ -16,12 +19,30 @@ import {
 } from './linkedin-position-review-fixture.mjs';
 
 export const verifyLinkedinPositionMedia = async (browser) => {
-  const fixture = await linkedinPositionReviewFixture();
+  const legacy = {
+    url: 'https://www.example.test/old/portfolio?q=1',
+    title: 'Fixture Company',
+  };
+  const renamed = {
+    url: legacy.url,
+    title: 'example.test/old/portfolio?q=1',
+    previousTitle: legacy.title,
+  };
+  const fixture = await linkedinPositionReviewFixture({
+    raw: () => {
+      const raw = linkedinExperienceRaw();
+      raw.items[0].roles[0].marks.push({
+        href: legacy.url,
+        text: legacy.title,
+      });
+      return raw;
+    },
+  });
   const context = await browser.newContext();
   let jobs;
   try {
     const website = 'example.test/portfolio?mode=work';
-    const attachment = { url: `https://${website}`, title: 'Fixture Company' };
+    const attachment = { url: `https://${website}`, title: website };
     const original = fixture.linkedin.document.jobs.find(
       ({ title }) => title === 'Lead engineer'
     );
@@ -39,6 +60,20 @@ export const verifyLinkedinPositionMedia = async (browser) => {
     assert.deepEqual(proposal.media, attachment);
     const approval = await reviews.review({
       fingerprint: proposal.fingerprint,
+    });
+    const renamePlan = await fixture.complete({
+      source: {
+        ...fixture.hh,
+        jobs: [{ ...original, native: { website: legacy.url } }],
+      },
+    });
+    const renameDraft = await reviews.stage(
+      linkedinPositionReference(renamePlan, 'update')
+    );
+    assert.deepEqual(renameDraft.fields, {});
+    assert.deepEqual(renameDraft.media, renamed);
+    const renameApproval = await reviews.review({
+      fingerprint: renameDraft.fingerprint,
     });
 
     await context.addCookies([
@@ -65,13 +100,20 @@ export const verifyLinkedinPositionMedia = async (browser) => {
         request.method() === 'POST'
       ) {
         writes.push(JSON.parse(request.postData()));
-        published = { fresh: 'media', prose: 'description' }[scenario] ?? '';
+        published =
+          { fresh: 'media', prose: 'description', rename: 'renamed' }[
+            scenario
+          ] ?? '';
         return route.fulfill({ status: 200, body: 'ok' });
       }
       if (request.method() !== 'GET' || ![url, editor].includes(target.href)) {
         return route.abort();
       }
-      const link = `<a href="${attachment.url}">${attachment.title}</a>`;
+      const rendered =
+        { legacy, renamed, custom: { ...legacy, title: 'Owner portfolio' } }[
+          published
+        ] ?? attachment;
+      const link = `<a href="${rendered.url}">${rendered.title}</a>`;
       const marker =
         published === 'description'
           ? `<p class="inline-show-more-text">See ${link}</p>`
@@ -85,8 +127,16 @@ export const verifyLinkedinPositionMedia = async (browser) => {
               )
             : linkedinPositionExperienceHtml
           : linkedinPositionMediaHtml({
-              existing: scenario === 'existing' ? attachment : null,
+              existing: {
+                existing: attachment,
+                rename: legacy,
+                'wrong-preview': legacy,
+              }[scenario],
               broken: scenario === 'broken',
+              previewUrl: {
+                rename: legacy.url,
+                'wrong-preview': 'https://other.test/',
+              }[scenario],
             });
       return route.fulfill({ contentType: 'text/html; charset=utf-8', body });
     });
@@ -102,10 +152,19 @@ export const verifyLinkedinPositionMedia = async (browser) => {
     });
     const start = async (kind, expected) => {
       scenario = kind;
-      published = kind === 'already-exported' ? 'media' : '';
+      published =
+        {
+          'already-exported': 'media',
+          rename: 'legacy',
+          'owner-title': 'custom',
+          'wrong-preview': 'legacy',
+        }[kind] ?? '';
       const input = {
         requestId: `position-media-${kind}`,
-        fingerprint: approval.fingerprint,
+        fingerprint: (['legacy', 'custom'].includes(published)
+          ? renameApproval
+          : approval
+        ).fingerprint,
       };
       await jobs.start(input);
       const row = await waitForLinkedinPositionPhase(
@@ -153,16 +212,47 @@ export const verifyLinkedinPositionMedia = async (browser) => {
     assert.equal(await page.evaluate(() => window.fixtureLinkOpens), 0);
     assert.equal(writes.length, 3);
 
+    const currentOwnerTitle = await start('owner-title', 'no-changes');
+    assert.deepEqual(currentOwnerTitle.row.unapplied, ['media']);
+    assert.equal(writes.length, 3);
+
+    const renamedDraft = await start('rename', 'prepared');
+    assert.deepEqual(renamedDraft.row.preparedMedia, renamed);
+    assert.deepEqual(await page.locator('#attachments a').allTextContents(), [
+      `Edit media, ${renamed.title}`,
+    ]);
+    assert.equal(await page.evaluate(() => window.fixtureMediaRenames), 1);
+    assert.equal(writes.length, 3);
+    assert.deepEqual(
+      (await save(renamedDraft.input, 'saved')).save.media,
+      renamed
+    );
+    assert.deepEqual(writes[3].media, [
+      { url: legacy.url, title: renamed.title },
+    ]);
+
+    const wrong = await start('wrong-preview', 'failed');
+    assert.equal(wrong.row.code, 'cv-linkedin-position-media-review');
+    assert.equal(
+      await page.getByLabel('Title', { exact: true }).last().inputValue(),
+      legacy.title
+    );
+    assert.equal(await page.evaluate(() => window.fixtureMediaRenames), 0);
+    assert.equal(writes.length, 4);
+    await page.goto(url);
+
     const broken = await start('broken', 'failed');
     assert.equal(broken.row.code, 'cv-linkedin-position-media-review');
     await page
       .getByRole('heading', { name: 'Add media', exact: true })
       .waitFor();
-    assert.equal(writes.length, 3);
+    assert.equal(writes.length, 4);
     return {
       synthetic: true,
       attachmentsBeforeSave: 1,
       verifiedMediaSaves: 1,
+      verifiedMediaRenames: 1,
+      rejectedWrongPreviews: 1,
       unconfirmedReadbacks: 2,
       duplicatePreviews: 0,
       brokenPreviewsLeftOpen: 1,

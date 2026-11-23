@@ -36,7 +36,10 @@ const PositionProposal = ({ review, row }) => {
     ['savedMedia', row?.save?.media],
     ['preparedMedia', row?.phase !== 'skipped' && row?.preparedMedia],
     ['manualMedia', row?.unapplied?.includes('media') && review.media],
-    ['proposedMedia', review.media],
+    [
+      review.media?.previousTitle ? 'proposedMediaRename' : 'proposedMedia',
+      review.media,
+    ],
   ].find(([, value]) => value);
   return el(React.Fragment, null, [
     el(

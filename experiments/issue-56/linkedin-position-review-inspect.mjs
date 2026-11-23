@@ -76,7 +76,7 @@ export const inspectLinkedinPositionReview = async (page, config) => {
   );
   check(
     (await panel.innerText()).includes(
-      'Proposed media link: Fixture Company (https://example.test/portfolio?mode=work)'
+      'Proposed media link: example.test/portfolio?mode=work (https://example.test/portfolio?mode=work)'
     ),
     'Shows the exact proposed media URL and title'
   );
@@ -105,7 +105,7 @@ export const inspectLinkedinPositionReview = async (page, config) => {
   );
   check(
     (await panel.innerText()).includes(
-      'Attached in the LinkedIn draft: Fixture Company (https://example.test/portfolio?mode=work)'
+      'Attached in the LinkedIn draft: example.test/portfolio?mode=work (https://example.test/portfolio?mode=work)'
     ),
     'The prepared draft exposes the exact attached URL and title'
   );

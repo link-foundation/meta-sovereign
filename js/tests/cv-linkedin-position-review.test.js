@@ -20,6 +20,7 @@ import {
   authorizedLinkedinPosition,
   createLinkedinPositionReviews,
 } from '../src/cv/linkedin-position-review.js';
+import { draftLinkedinPosition } from '../src/cv/linkedin-position-plan.js';
 import { linkedinPositionMediaCandidate } from '../src/cv/linkedin-position-media-link.js';
 
 test('only an unambiguous explicit website becomes a media attachment', () => {
@@ -77,7 +78,7 @@ test('stage and approve only the selected native LinkedIn position or Add link',
     assert.deepEqual(update.skills, ['PostgreSQL']);
     assert.deepEqual(update.media, {
       url: 'https://example.test/portfolio?mode=work',
-      title: 'Fixture Company',
+      title: 'example.test/portfolio?mode=work',
     });
     assert.equal(
       await store.get(`cv-linkedin-position:${update.fingerprint}`),
@@ -131,6 +132,28 @@ test('stage and approve only the selected native LinkedIn position or Add link',
       }
     );
     assert.equal(calls.length, before);
+  } finally {
+    await fixture.close();
+  }
+});
+
+test('existing version 1 position approvals keep the exact title the owner reviewed', async () => {
+  const fixture = await linkedinPositionReviewFixture();
+  try {
+    const service = createLinkedinPositionReviews(fixture);
+    const ref = linkedinPositionReference(fixture.row, 'update');
+    const draft = await draftLinkedinPosition(fixture, ref, { version: 1 });
+    const id = `secret:cv-linkedin-position:${draft.fingerprint}`;
+    await fixture.store.put({ id, version: 1, plan: draft });
+    await fixture.store.flush?.();
+    const reviewed = await service.review({ fingerprint: draft.fingerprint });
+    assert.equal(reviewed.version, 1);
+    assert.equal(reviewed.media.title, 'Fixture Company');
+    assert.deepEqual(
+      await authorizedLinkedinPosition(fixture, reviewed.fingerprint),
+      reviewed
+    );
+    assert.equal((await service.stage(ref)).version, 2);
   } finally {
     await fixture.close();
   }

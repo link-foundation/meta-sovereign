@@ -130,5 +130,20 @@ only in the description, and an unresolved preview. Run the same fixture with
 `--import ./experiments/issue-56/linkedin-position-media-before.mjs` to reproduce
 the previous omission of the website-only proposal.
 
-URL-derived titles for older attachments, an interactive queue and authenticated
-verification remain open in [HH21](experience-sync-plan.md).
+## Existing company-named attachments
+
+New reviews use a title derived from the exact URL. When the acknowledged
+export contains one attachment to that URL still titled after the company, the
+review shows the old and proposed titles. The native media preview must confirm
+the URL and old title before typing. The title-only change remains in the
+draft until the owner separately saves the position. A different preview URL or
+an owner-updated title requires manual review. Previous approvals retain the
+exact title the owner reviewed.
+
+The native fixture opens a legacy edit link, checks the website exposed only in
+the preview, then verifies one renamed attachment after an explicit Save and a
+fresh export. It also checks a different preview URL and a more recent custom
+title. The previous modules can be loaded with
+`--import ./experiments/issue-56/linkedin-position-media-title-before.mjs`.
+An interactive queue and authenticated verification remain open in
+[HH21](experience-sync-plan.md).

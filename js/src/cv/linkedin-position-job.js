@@ -83,7 +83,11 @@ const validMedia = (media) =>
     linkedinPositionMediaUrl(media.url) === media.url &&
     typeof media.title === 'string' &&
     media.title.length > 0 &&
-    media.title.length <= 500);
+    media.title.length <= 500 &&
+    (media.previousTitle === undefined ||
+      (typeof media.previousTitle === 'string' &&
+        media.previousTitle.length > 0 &&
+        media.previousTitle.length <= 1000)));
 const validPreparation = ({
   preparedSkills = [],
   unresolvedSkills = [],
