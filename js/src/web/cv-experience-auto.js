@@ -2,6 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { PrivateCvJobState } from './private-cv-job-state.js';
 import {
+  ExperienceReviewStatus,
+  useExperienceReview,
+} from './cv-experience-review.js';
+import { experienceReviewRunning } from '../cv/experience-review-record.js';
+import {
   experienceAutoOptions,
   experienceAutoRunning,
 } from '../cv/experience-auto-record.js';
@@ -149,12 +154,22 @@ const autoPhase = (state) => {
   return state.row?.phase ?? (state.busy ? 'acquiring-hh' : null);
 };
 
-const AutoControls = ({ state, actions, disabled, openComparison }) => {
+const AutoControls = ({
+  state,
+  actions,
+  disabled,
+  openComparison,
+  review,
+  api,
+}) => {
   const t = useT();
   const [opening, setOpening] = useState(false);
   const [openError, setOpenError] = useState(false);
   const active = experienceAutoRunning(state.row);
-  const locked = state.busy || state.attempted;
+  const reviewActive =
+    experienceReviewRunning(review.state?.row) || review.state?.unknown;
+  const reviewShown = review.state?.attempted || review.state?.unknown;
+  const locked = state.busy || state.attempted || reviewActive;
   const button = (name, run, blocked) =>
     el(
       'button',
@@ -179,35 +194,91 @@ const AutoControls = ({ state, actions, disabled, openComparison }) => {
     }
   };
   const phase = autoPhase(state);
+  const autoRequestId =
+    state.row?.phase === 'completed' && !state.unknown
+      ? state.row.requestId
+      : null;
+  const reviewInput = autoRequestId
+    ? { autoRequestId }
+    : {
+        ...Object.fromEntries(
+          Object.keys(initial).map((name) => [name, state[name]])
+        ),
+        hash: state.hash || null,
+      };
   return el('details', { className: 'col', 'data-experience-auto': true }, [
     el('summary', { key: 'title' }, t('experienceAuto.title')),
-    el('p', { key: 'hint', className: 'meta' }, t('experienceAuto.hint')),
-    el(AutoOptions, { key: 'options', locked, state, actions }),
-    el('div', { key: 'actions', className: 'row wrap' }, [
-      button(
-        'start',
-        () => actions.mutate('Start', { hash: state.hash || null }),
-        locked || !validStart(state)
-      ),
-      button('status', () => actions.refresh(), state.busy || !state.requestId),
-      button(
-        'stop',
-        () => actions.mutate('Stop'),
-        state.busy || (!active && !state.unknown)
-      ),
-      button(
-        'new',
-        () => {
-          setOpenError(false);
-          actions.newRequest();
-        },
-        state.busy || active || state.unknown || opening
-      ),
-      state.row?.phase === 'completed' && !state.unknown
-        ? button('open', open, opening || disabled)
-        : null,
-    ]),
-    phase
+    reviewShown
+      ? null
+      : el('p', { key: 'hint', className: 'meta' }, t('experienceAuto.hint')),
+    reviewShown
+      ? null
+      : el(AutoOptions, { key: 'options', locked, state, actions }),
+    reviewShown
+      ? null
+      : el('div', { key: 'actions', className: 'row wrap' }, [
+          button(
+            'start',
+            () => actions.mutate('Start', { hash: state.hash || null }),
+            locked || !validStart(state)
+          ),
+          button(
+            'status',
+            () => actions.refresh(),
+            state.busy || !state.requestId
+          ),
+          button(
+            'stop',
+            () => actions.mutate('Stop'),
+            state.busy || (!active && !state.unknown)
+          ),
+          button(
+            'new',
+            () => {
+              setOpenError(false);
+              actions.newRequest();
+            },
+            state.busy || active || state.unknown || opening
+          ),
+          state.row?.phase === 'completed' && !state.unknown
+            ? button('open', open, opening || disabled)
+            : null,
+          review.state && !review.state.attempted
+            ? el(
+                'button',
+                {
+                  key: 'review',
+                  type: 'button',
+                  'data-experience-review-action': 'start',
+                  disabled:
+                    disabled ||
+                    state.busy ||
+                    state.unknown ||
+                    active ||
+                    (!autoRequestId && !validStart(state)),
+                  onClick: () => review.actions.mutate('Start', reviewInput),
+                },
+                t('experienceReview.start')
+              )
+            : null,
+          review.state && !review.state.attempted && state.requestId
+            ? el(
+                'button',
+                {
+                  key: 'review-status',
+                  type: 'button',
+                  onClick: () => {
+                    review.actions.input('requestId', state.requestId);
+                    return review.actions.refresh();
+                  },
+                  disabled: state.busy || active,
+                  'data-experience-review-action': 'recover',
+                },
+                t('experienceReview.recover')
+              )
+            : null,
+        ]),
+    phase && !reviewShown
       ? el(
           'p',
           { key: 'phase', role: 'status', 'data-experience-auto-phase': phase },
@@ -221,12 +292,21 @@ const AutoControls = ({ state, actions, disabled, openComparison }) => {
           t('experienceAuto.openError')
         )
       : null,
+    reviewShown
+      ? el(ExperienceReviewStatus, {
+          key: 'review',
+          review,
+          api,
+          openComparison,
+        })
+      : null,
   ]);
 };
 
 export const CvExperienceAuto = ({ api, disabled, openComparison }) => {
   const [state, changed] = useState(null);
   const actions = useRef(null);
+  const review = useExperienceReview(api);
   useEffect(() => {
     const job = createExperienceAutoState(api, changed);
     actions.current = job;
@@ -238,6 +318,8 @@ export const CvExperienceAuto = ({ api, disabled, openComparison }) => {
         actions: actions.current,
         disabled,
         openComparison,
+        review,
+        api,
       })
     : null;
 };

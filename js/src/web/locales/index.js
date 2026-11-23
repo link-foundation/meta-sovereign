@@ -25,6 +25,7 @@ import { hhAcquisitionLocale } from './cv-hh-acquisition.js';
 import { hhWorkplaceLocale } from './cv-hh-workplace.js';
 import { experiencePlanLocale } from './cv-experience-plan.js';
 import { experienceAutoLocale } from './cv-experience-auto.js';
+import { experienceReviewLocale } from './cv-experience-review.js';
 import { formalReportLocale } from './cv-formal-report.js';
 import { jobLoginLocale } from './job-login.js';
 
@@ -44,6 +45,7 @@ export const dictionaries = Object.fromEntries(
       ...linkedinPositionLocale(language),
       ...experiencePlanLocale(language),
       ...experienceAutoLocale(language),
+      ...experienceReviewLocale(language),
       ...formalReportLocale(language),
       ...jobLoginLocale(language),
     },

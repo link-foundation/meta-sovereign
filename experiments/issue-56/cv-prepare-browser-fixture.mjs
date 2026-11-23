@@ -9,13 +9,18 @@ import { vacancyBrowserFixture } from './vacancy-browser-fixture.mjs';
 import { seedHhAboutExperience } from './cv-hh-about-fixture.mjs';
 import { prepareNativeCvAbout } from '../../js/src/jobs/cv-prepare-browser.js';
 import { verifyOwnerCvSave } from '../../js/src/jobs/cv-save-cycle.js';
+import {
+  experienceReviewFixtureData,
+  saveFreshReviewExport,
+} from './experience-review-fixture.mjs';
 
 let bundle;
 export const cvPrepareBrowserFixture = async (
   browser,
-  { flush, reviewAbout = false } = {}
+  { flush, reviewAbout = false, reviewQueue = false } = {}
 ) => {
   const data = await cvPrepareFixture();
+  const queue = reviewQueue && (await experienceReviewFixtureData(data));
   bundle ??= build({
     stdin: {
       contents:
@@ -91,9 +96,10 @@ export const cvPrepareBrowserFixture = async (
       };
     };
     app = await vacancyBrowserFixture(browser, {
-      ...(reviewAbout && {
+      ...((reviewAbout || queue) && {
         cv: {
           experience: {
+            ...(queue && { read: queue.read }),
             hhWorkplace: {
               browser: async ({ run, signal, sourceSlot, hash }) => {
                 counters.sourceSlot = sourceSlot;
@@ -125,6 +131,28 @@ export const cvPrepareBrowserFixture = async (
           }
           return {
             artifactRoot: data.artifactRoot,
+            ...(queue && {
+              readResumeExports: async ({ resume, signal }, progress) => {
+                const about = await provider.evaluate(
+                  () => globalThis.fixtureSavedAbout
+                );
+                if (
+                  resume !== queue.input.hash ||
+                  about !== queue.source.profile.about
+                ) {
+                  throw new Error(
+                    'The isolated provider did not save the queued biography.'
+                  );
+                }
+                signal.throwIfAborted();
+                const result = await saveFreshReviewExport(
+                  { ...data, store },
+                  resume,
+                  { ...queue.cv, about }
+                );
+                await progress({ total: 1, result });
+              },
+            }),
             cvPrepare: { attach },
             cvWatch: {
               attach,
@@ -143,6 +171,8 @@ export const cvPrepareBrowserFixture = async (
         store: app.store,
       });
       await open({ about: about.before, hash: about.identity.hash });
+    } else if (queue) {
+      await open({ about: queue.cv.about, hash: queue.input.hash });
     }
     return {
       ...app,
@@ -151,6 +181,7 @@ export const cvPrepareBrowserFixture = async (
       change,
       counters,
       about,
+      queue,
       open,
       close: async () => {
         await app.close();

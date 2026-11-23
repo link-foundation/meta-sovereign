@@ -66,8 +66,7 @@ exports. The [dedicated HeadHunter reviewer](experience-hh-workplace-slot.md)
 prepares one directed Add or update in a separate profile, reads the Jobs
 session without navigating it, and shares Save, Skip and Leave draft through
 CLI, Lino and the CV view. An optional record ID lets an update bind to one
-exact saved workplace in the selected résumé. Hosted and authenticated confirmation of that path
-and interactive queue decisions remain required.
+exact saved workplace in the selected résumé.
 The [LinkedIn position review](experience-linkedin-position-review.md) binds
 one Add or update to the acknowledged native export and a separate approval.
 The CLI and both Lino encodings can recover the exact private review. The
@@ -81,10 +80,12 @@ preserving other skills, a skill-only Save and a stale result that leaves the
 Save unconfirmed. Native Chromium also covers an exact website preview with
 no position Save during preparation, duplicate suppression and confirmation
 through a fresh export. One confirmed legacy title can be changed to the URL
-title in the same reviewed draft. An interactive queue and authenticated
-verification remain required in this direction.
+title in the same reviewed draft.
 The [HeadHunter About review](experience-hh-about-review.md) uses the selected
 export's exact profile proposal and the same independent browser lease, with
-fresh export readback exercised against a synthetic provider. LinkedIn
-About review, authenticated provider verification and the remaining items above
-stay required. HH21 remains unfinished.
+fresh export readback exercised against a synthetic provider.
+The [sequential native review](experience-review-queue.md) acquires both
+snapshots, compares and opens one supported draft at a time. A successful Save
+requires a fresh matching target export before the queue advances. LinkedIn
+About review and authenticated provider verification remain required. HH21
+remains unfinished.

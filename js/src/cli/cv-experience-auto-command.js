@@ -10,10 +10,14 @@ import {
   storedExperienceAutoStatus,
 } from '../cv/experience-auto-service.js';
 import { experienceAutoRunning } from '../cv/experience-auto-record.js';
+import { createExperienceReviewNative } from '../cv/experience-review-native.js';
+import { createLinkedinPositionReviews } from '../cv/linkedin-position-review.js';
+import { createLinkedinPositionJobs } from '../cv/linkedin-position-job.js';
+import { createHhExperienceWorkplaceJobs } from '../cv/experience-hh-workplace-job.js';
 import { foregroundPrivateCvJob } from './private-cv-job-command.js';
 import { typedFlag } from './lino-args.js';
 
-const cliServices = (store, storeDir, options) => {
+export const cliExperienceServices = (store, storeDir, options) => {
   const artifactRoot =
     options.hhExperience?.vacancies?.artifactRoot ??
     path.join(storeDir, 'resume-exports');
@@ -21,19 +25,29 @@ const cliServices = (store, storeDir, options) => {
   let hh;
   let linkedin;
   let plan;
-  return {
+  let auto;
+  let workplace;
+  let position;
+  const positionOptions = {
+    artifactRoot: path.join(storeDir, 'experience-exports'),
+    ...options.experience,
+    ...options.experience?.position,
+    store,
+  };
+  const getVacancies = () =>
+    (vacancies ??= createVacancyService({
+      ...options.hhExperience?.vacancies,
+      store,
+      storeDir,
+      artifactRoot,
+    }));
+  const services = {
     getHh: () =>
       (hh ??= createHhExperienceAcquisition({
         store,
         artifactRoot,
         wait: options.hhExperience?.wait,
-        getVacancies: () =>
-          (vacancies ??= createVacancyService({
-            ...options.hhExperience?.vacancies,
-            store,
-            storeDir,
-            artifactRoot,
-          })),
+        getVacancies,
       })),
     getLinkedin: () =>
       (linkedin ??= createLinkedinExperienceService({
@@ -46,34 +60,62 @@ const cliServices = (store, storeDir, options) => {
         ...options.experiencePlanning,
         store,
       })),
-    close: () =>
-      Promise.allSettled([
+    getAuto: () =>
+      (auto ??= createExperienceAutoService({
+        store,
+        ...services,
+        wait: options.wait,
+      })),
+    native: createExperienceReviewNative({
+      getVacancies,
+      getHhWorkplace: () =>
+        (workplace ??= createHhExperienceWorkplaceJobs({
+          store,
+          storeDir,
+          artifactRoot,
+          ...options.hhExperience?.workplace,
+        })),
+      getLinkedinPosition: () =>
+        (position ??= createLinkedinPositionJobs(positionOptions)),
+      getLinkedinReviews: () => createLinkedinPositionReviews(positionOptions),
+    }),
+    close: async () => {
+      await Promise.allSettled([
+        auto?.close(),
+        workplace?.close(),
+        position?.close(),
+      ]);
+      await Promise.allSettled([
         hh?.close(),
         linkedin?.close(),
         plan?.close(),
         vacancies?.stop(),
-      ]),
+      ]);
+    },
   };
+  return services;
 };
+
+export const experienceAcquisitionInput = (args, requestId) =>
+  Object.fromEntries(
+    Object.entries({
+      requestId,
+      url: args.url,
+      language: args.language,
+      to: args.to,
+      asOf: args['as-of'],
+      hash: args.resume,
+      browserSlot: args['browser-slot'],
+      refresh: typedFlag(args, 'refresh-hh', 'boolean'),
+      headless: typedFlag(args, 'headless', 'boolean'),
+    }).filter(([, value]) => value !== undefined)
+  );
 
 const runForeground = (service, args, requestId, options) => {
   let announced = false;
-  const input = {
-    requestId,
-    url: args.url,
-    language: args.language,
-    to: args.to,
-    asOf: args['as-of'],
-    hash: args.resume,
-    browserSlot: args['browser-slot'],
-    refresh: typedFlag(args, 'refresh-hh', 'boolean'),
-    headless: typedFlag(args, 'headless', 'boolean'),
-  };
   return foregroundPrivateCvJob(
     service,
-    Object.fromEntries(
-      Object.entries(input).filter(([, value]) => value !== undefined)
-    ),
+    experienceAcquisitionInput(args, requestId),
     {
       running: experienceAutoRunning,
       wait: options.foregroundWait,
@@ -111,12 +153,8 @@ export const createExperienceAutoCommands = (
           if (reading) {
             row = await storedExperienceAutoStatus(store, { requestId });
           } else {
-            children = cliServices(store, dir, options);
-            service = createExperienceAutoService({
-              store,
-              ...children,
-              wait: options.wait,
-            });
+            children = cliExperienceServices(store, dir, options);
+            service = children.getAuto();
             row =
               operation === 'start'
                 ? await runForeground(service, args, requestId, options)

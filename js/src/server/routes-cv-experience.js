@@ -15,6 +15,9 @@ import { createLinkedinExperienceService } from '../cv/linkedin-experience-servi
 import { createExperiencePlanningService } from '../cv/experience-plan-service.js';
 import { createExperienceAutoService } from '../cv/experience-auto-service.js';
 import { experienceAutoFailure } from '../cv/experience-auto-record.js';
+import { createExperienceReviewService } from '../cv/experience-review-service.js';
+import { createExperienceReviewNative } from '../cv/experience-review-native.js';
+import { experienceReviewFailure } from '../cv/experience-review-record.js';
 import { createLinkedinPositionReviews } from '../cv/linkedin-position-review.js';
 import { createLinkedinPositionJobs } from '../cv/linkedin-position-job.js';
 import {
@@ -137,6 +140,26 @@ const positionJobs = (store, ctx) => {
   }));
 };
 
+const experienceReview = (store, ctx) => {
+  if (ctx.cvExperienceClosing) {
+    throw experienceReviewFailure('stopped');
+  }
+  return (ctx.cvExperienceReview ??= createExperienceReviewService({
+    store,
+    getAuto: () => experienceAuto(store, ctx),
+    getHh: () => hhAcquisition(store, ctx),
+    getLinkedin: () => linkedinService(store, ctx),
+    getPlan: () => planningService(store, ctx),
+    native: createExperienceReviewNative({
+      getVacancies: () => workspaceVacancies(store, ctx),
+      getHhWorkplace: () => hhWorkplaceJobs(store, ctx),
+      getLinkedinPosition: () => positionJobs(store, ctx),
+      getLinkedinReviews: () =>
+        createLinkedinPositionReviews(positionOptions(store, ctx)),
+    }),
+  }));
+};
+
 const actions = {
   stored: (store) => storedExperienceDocuments(store),
   document: (store, input) => storedExperienceDocument(store, input.revision),
@@ -175,6 +198,12 @@ const actions = {
     ['start', 'status', 'stop'].map((operation) => [
       `auto-${operation}`,
       (store, input, ctx) => experienceAuto(store, ctx)[operation](input),
+    ])
+  ),
+  ...Object.fromEntries(
+    ['start', 'status', 'stop', 'resume', 'decide'].map((operation) => [
+      `review-${operation}`,
+      (store, input, ctx) => experienceReview(store, ctx)[operation](input),
     ])
   ),
   'report-preview': (store, input) =>
@@ -218,6 +247,7 @@ const admission = (req, operation, ctx) => {
     'stored',
     'document',
     'auto-status',
+    'review-status',
     'hh-status',
     'hh-workplace-status',
     'hh-about-status',

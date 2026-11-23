@@ -1,3 +1,10 @@
+2026-11-23 sequential native CV review (HH21 remains unfinished)
+
+- [x] Reproduce the missing review action on the published CV bundle. Add one command that acquires both profiles, compares them and opens supported changes one at a time.
+- [x] Pin the source, native editor and owner decision. After Save, advance only after a fresh matching target export. Recover a stale export without repeating the Save and leave the current editor open on EOF.
+- [x] Verify 38 focused checks, the production Chromium flow and independent phone Playwright MCP. The browser fixture exercises one confirmed native Save, matching readback and recovery across reload.
+- [ ] Verify hosted checks on the published queue. LinkedIn About and live authenticated acceptance still need evidence.
+
 2026-11-23 desktop browser-wait actions (QA24 and HH01 remain unfinished):
 
 - [x] Reproduce the missing desktop bridge with the published parent preload in real Electron. The private Linux notification daemon receives no actions.

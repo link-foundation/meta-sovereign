@@ -40,7 +40,7 @@ const sameChild = (row, input) =>
   row?.requestId === input.requestId &&
   JSON.stringify(row.options) === JSON.stringify(input);
 
-const workChild = async (
+export const workExperienceChild = async (
   getService,
   input,
   running,
@@ -56,7 +56,7 @@ const workChild = async (
     current = await service.start(input);
     while (sameChild(current, input) && running(current)) {
       signal.throwIfAborted();
-      await progress(current.phase);
+      await progress(current.phase, current);
       await wait(signal);
       const next = await service.status(request);
       if (!sameChild(next, input)) {
@@ -86,7 +86,7 @@ const workChild = async (
   }
 };
 
-const checkHhSnapshot = async (store, receipt, input) => {
+export const checkHhSnapshot = async (store, receipt, input) => {
   const { revision, provenance, document } = await storedExperienceDocument(
     store,
     receipt.result?.revision
@@ -106,7 +106,7 @@ const checkHhSnapshot = async (store, receipt, input) => {
   }
   return revision;
 };
-const checkLinkedinSnapshot = async (store, receipt, input) => {
+export const checkLinkedinSnapshot = async (store, receipt, input) => {
   const { revision, provenance, document } = await storedExperienceDocument(
     store,
     receipt.revision
@@ -136,7 +136,7 @@ const workFor =
     const progress = (step) =>
       owned.row.step === step ? undefined : save({ step });
     const run = (getService, input, running) =>
-      workChild(getService, input, running, signal, progress, wait);
+      workExperienceChild(getService, input, running, signal, progress, wait);
     try {
       const hhInput = hhAcquisitionOptions(inputFor('hh'));
       const hh = await checkHhSnapshot(

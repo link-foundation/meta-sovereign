@@ -48,11 +48,12 @@ export class PrivateCvJob {
     if (this.current) {
       throw this.failure('busy');
     }
-    const owned = {
-      controller: new AbortController(),
-      row: this.newRecord(options.requestId, options),
-    };
-    await saveAcknowledgedRecord(this.store, owned.row);
+    const row = this.newRecord(options.requestId, options);
+    await saveAcknowledgedRecord(this.store, row);
+    return this.launch(row);
+  }
+  launch(row) {
+    const owned = { controller: new AbortController(), row };
     this.current = owned;
     owned.task = Promise.resolve()
       .then(() => this.work(owned, (patch) => this.save(owned, patch)))

@@ -1,0 +1,28 @@
+# Review experience changes in sequence
+
+Use `cv-experience-review-start` to acquire both private experience snapshots, build the translated directional comparison, and open the first supported native draft. The same workflow is available with **Review changes one by one** in CV → Experience → Acquire both profiles and compare. The queue can also start from an existing completed acquisition.
+
+```sh
+meta-sovereign cv-experience-review-start \
+  --url=https://www.linkedin.com/in/example-person/details/experience/ \
+  --to=hh --resume=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb \
+  --request-id=experience-review
+meta-sovereign cv-experience-review-status --request-id=experience-review
+```
+
+Inspect the prepared data in the provider's editor. The owning console accepts `y` for Save, `s` for Skip, and `q` or EOF to leave the draft open. The CV view exposes the same actions with the current comparison and request ID. Save uses the exact current native editor. Skip invokes that editor's discard action, and leaving releases ownership with the draft still open. The queue reports manual changes and retains the original comparison and target-only records.
+
+After a provider confirms Save, the queue performs a new native export for the target identity and checks the saved fields again. It pins the new target alongside the original source before selecting another item. A stale or unavailable export interrupts the review at that checkpoint. Recover review or `cv-experience-review-resume --request-id=experience-review` can repeat the readback or comparison while preserving the original Save receipt. If native editor ownership was lost before confirmation, recovery reads the existing job. Unknown outcomes stay unconfirmed.
+
+The local-device UI and JSON commands use the same service as the text and binary Lino routes under `/api/cv/experience/review-*`. Status reads never launch a browser. The active decision checks the parent request, selected change and native request together. Requests and receipts remain private. No automatic model decision submits a provider form.
+
+## Reproduction and validation
+
+Expand the automatic comparison controls in CV. In the previous bundle the form can acquire both profiles and build a comparison. To queue the resulting changes, use the new action with an owned LinkedIn experience URL and HeadHunter résumé. Review the first provider draft and Save or Skip. After Save, the queue needs to read back a matching target export before it advances.
+
+- `js/tests/cv-experience-review.test.js` exercises the HTTP workflow through both Lino encodings, including request mismatch, cross-origin refusal, stale export, recovery without replay, and Skip. The foreground test exercises Save, new target revision before the next editor, and EOF.
+- `experiments/issue-56/experience-review-browser.mjs` compares the previous and current production CV bundles with a disposable Chromium fixture. The fixture hydrates a reactive HeadHunter editor, confirms one owner Save and one fresh export, and checks recovery after reload. Hosted CV browser checks include the same scenario.
+- Independent Playwright MCP at 390 pixels verified the proposed and current About values, one explicit Save with a matching revision, and no horizontal overflow. The fixture's standalone host returned 404 for the default favicon.
+- [Previous comparison controls](../../screenshots/issue-56-experience-review/before.png), [phone review](../../screenshots/issue-56-experience-review/prepared-phone.png), [native draft](../../screenshots/issue-56-experience-review/native-draft.png) and [verified receipt](../../screenshots/issue-56-experience-review/saved-phone.png).
+
+The queue can open HeadHunter About, HeadHunter workplace and LinkedIn position drafts. LinkedIn About remains a manual review. Authenticated HeadHunter and LinkedIn acceptance is required for HH21.
