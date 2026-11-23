@@ -9,6 +9,10 @@ import {
   storedAssignmentVacancy,
 } from '../src/assignments/vacancy-association.js';
 import { resolveAssignmentVacancy } from '../src/assignments/vacancy.js';
+import { parseHhArchive } from '../src/sources/hh-recording.js';
+import { createHhLive } from '../src/sources/hh.js';
+import { pullLiveInto } from '../src/sources/index.js';
+import { hhCommonFixture } from '../../experiments/issue-56/hh-common-fixture.mjs';
 
 const original = 'https://forms.gle/fixture-assignment';
 const resolved = 'https://docs.google.com/forms/d/e/fixture/viewform?entry=1';
@@ -110,6 +114,113 @@ test('vacancy association tolerates malformed evidence and accepts exact importe
   assert.equal(
     (await rememberAssignmentVacancy(store, [original])).vacancyUrl,
     vacancyUrl
+  );
+});
+
+test('a form from the default HH common-chat import finds the vacancy without an override', async () => {
+  const fake = hhCommonFixture();
+  fake.chats.get('41')[0].payload.text = `Complete ${original}`;
+  fake.state.transform = (value) =>
+    value.messages && value.id === '41'
+      ? { ...value, vacancy_id: '123' }
+      : value;
+  const store = createMemoryStore();
+  const live = createHhLive({ ...fake, token: 'fixture-token' });
+  await pullLiveInto(store, 'hh', { live });
+  assert.equal((await store.get('msg:hh:chat:41:1')).hhChat.vacancyId, '123');
+  await rememberAssignmentRedirect(store, original, resolved);
+  const result = await resolveAssignmentVacancy(
+    context(store, async (url) => {
+      assert.equal(url, vacancyUrl);
+      return snapshot;
+    }),
+    {},
+    { url: resolved }
+  );
+  assert.equal(result.source, 'chat');
+  assert.equal(result.vacancy.title, snapshot.title);
+  assert.equal(
+    (await storedAssignmentVacancy(store, resolved)).sourceMessageId,
+    'msg:hh:chat:41:1'
+  );
+});
+
+test('nested HH negotiation archives retain a vacancy ID without inventing salary or description', async () => {
+  const [link] = parseHhArchive({
+    items: [
+      {
+        id: '41',
+        vacancy: { id: '123' },
+        messages: [{ id: '1', text: original }],
+      },
+    ],
+  });
+  const store = createMemoryStore();
+  await store.put(link);
+  assert.deepEqual(link.answerContext, {
+    pay: '',
+    description: '',
+    evidence: 'vacancy:hh:123',
+  });
+  assert.equal(
+    (await rememberAssignmentVacancy(store, [original])).vacancyUrl,
+    vacancyUrl
+  );
+});
+
+test('an exact destination can associate a labeled HH link and a misleading label cannot', async () => {
+  const store = createMemoryStore();
+  const other = 'https://forms.gle/another';
+  await store.put({
+    ...message('1', '123', `See ${other}`),
+    links: [original],
+  });
+  assert.equal(await rememberAssignmentVacancy(store, [other]), null);
+  assert.equal(
+    (await rememberAssignmentVacancy(store, [original])).vacancyUrl,
+    vacancyUrl
+  );
+  await store.put({ ...message('1'), links: null });
+  assert.equal(await rememberAssignmentVacancy(store, [original]), null);
+});
+
+test('only the verified HH conversation and unambiguous vacancy can associate a form', async () => {
+  const store = createMemoryStore();
+  const common = {
+    ...message(),
+    id: 'msg:hh:chat:41:1',
+    raw: undefined,
+    chat: 'chat:41',
+    hhChat: { id: '42', vacancyId: '456' },
+  };
+  await store.put(common);
+  assert.equal(await rememberAssignmentVacancy(store, [original]), null);
+  await store.put({
+    ...common,
+    raw: { vacancy: { id: '123' } },
+    hhChat: { id: '41', vacancyId: '456' },
+  });
+  await assert.rejects(rememberAssignmentVacancy(store, [original]), {
+    code: 'assignment-vacancy-ambiguous',
+  });
+});
+
+test('a remembered redirect no longer infers a vacancy after the source link is edited or deleted', async () => {
+  const store = createMemoryStore();
+  await store.put(message());
+  await rememberAssignmentRedirect(store, original, resolved);
+  const env = context(store, async () => {
+    throw new Error('no vacancy should be read');
+  });
+  await store.put(message('1', '123', 'The assignment has been withdrawn.'));
+  assert.equal(
+    (await resolveAssignmentVacancy(env, {}, { url: resolved })).source,
+    'unknown'
+  );
+  await store.put({ ...message(), deleted: true });
+  assert.equal(
+    (await resolveAssignmentVacancy(env, {}, { url: resolved })).source,
+    'unknown'
   );
 });
 

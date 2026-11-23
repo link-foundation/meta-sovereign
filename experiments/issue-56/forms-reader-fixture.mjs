@@ -68,6 +68,7 @@ const simplePages = {
   '/model': modelFixtureHtml,
 };
 const assignmentRedirects = new Map([
+  ['/assignment-chat-link', '/assignment?from=chat'],
   ['/source-redirect', '/instructions'],
   ['/markdown-source-redirect', '/markdown-instructions'],
   ['/pdf-source-redirect', '/pdf-instructions'],

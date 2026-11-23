@@ -1,30 +1,49 @@
 import { assignmentFormUrl } from '../forms/assignment-recognition.js';
 import { modelFingerprint } from '../automation/answer-model-context.js';
+import { hhVacancyId } from '../sources/hh-context.js';
+import { sourceMessageLinkProperties } from '../sources/message-text-links.js';
 import { assignmentFailure, assignmentVacancyUrl } from './validation.js';
 
 const associationId = async (url) =>
   `form-vacancy:${await modelFingerprint(assignmentFormUrl(url))}`;
-const messageVacancy = (message) => {
-  const raw = message.raw?.vacancy?.id;
+const messageVacancies = (message) => {
+  const chat = message.hhChat;
+  const commonId =
+    typeof chat?.id === 'string' &&
+    chat.id &&
+    message.chat === `chat:${chat.id}` &&
+    message.id.startsWith(`msg:hh:${message.chat}:`)
+      ? chat.vacancyId
+      : null;
   const evidence = message.answerContext?.evidence;
   const context =
     typeof evidence === 'string'
-      ? evidence.match(/^vacancy:hh:(\d+)$/u)?.[1]
+      ? evidence.match(/^vacancy:hh:(\d{1,20})$/u)?.[1]
       : undefined;
-  const id = raw ?? context;
-  return /^\d{1,20}$/u.test(String(id)) ? `https://hh.ru/vacancy/${id}` : null;
+  return [message.raw?.vacancy?.id, context, commonId]
+    .map(hhVacancyId)
+    .filter(Boolean);
 };
-const containsFormUrl = (body, wanted) => {
-  if (typeof body !== 'string' || body.length > 30000) {
+const matchesFormUrl = (value, wanted) => {
+  try {
+    return wanted.has(assignmentFormUrl(value));
+  } catch {
     return false;
   }
-  return (body.match(/https?:\/\/[^\s<>"'()]+/gu) ?? []).some((value) => {
-    try {
-      return wanted.has(assignmentFormUrl(value.replace(/[.,;!?]+$/u, '')));
-    } catch {
-      return false;
-    }
-  });
+};
+const containsFormUrl = (message, wanted) => {
+  const { links } = sourceMessageLinkProperties(message);
+  if (links !== undefined) {
+    return links?.some((link) => matchesFormUrl(link, wanted)) ?? false;
+  }
+  const { body } = message;
+  return (
+    typeof body === 'string' &&
+    body.length <= 30000 &&
+    (body.match(/https?:\/\/[^\s<>"'()]+/gu) ?? []).some((value) =>
+      matchesFormUrl(value.replace(/[.,;!?]+$/u, ''), wanted)
+    )
+  );
 };
 
 /** Link exact original/redirect aliases only from actual stored HH messages. */
@@ -36,8 +55,12 @@ export const rememberAssignmentVacancy = async (store, urls) => {
   const found = new Map();
   const inspect = (batch) => {
     for (const message of batch) {
-      const vacancyUrl = messageVacancy(message);
-      if (vacancyUrl && containsFormUrl(message.body, wanted)) {
+      const ids = messageVacancies(message);
+      if (!ids.length || !containsFormUrl(message, wanted)) {
+        continue;
+      }
+      for (const id of ids) {
+        const vacancyUrl = `https://hh.ru/vacancy/${id}`;
         found.set(vacancyUrl, {
           vacancyUrl,
           sourceMessageId: message.id,

@@ -1,3 +1,11 @@
+2026-11-23 HeadHunter form links and vacancy evidence (QA24 remains unfinished)
+
+- [x] Trace pinned B20 and reproduce missing or stale vacancy evidence on the published parent.
+- [x] Reuse the exact vacancy ID from common chats and legacy negotiations. Match actual form destinations, keep the observed redirect, and refuse conflicting or stale evidence.
+- [x] Verify the CLI, both Lino formats, 49 focused tests per runtime, Chromium and independent Playwright MCP for the shared review.
+- [ ] Review exact-source hosted runs.
+- [ ] Capture the verified vacancy header in native HeadHunter conversation import and the owner watcher. Run authenticated B20 verification and continue the other QA24 requirements.
+
 2026-11-23 WhatsApp Cloud question evidence (QA04 remains unfinished)
 
 - [x] Reproduce dropped Cloud referral destinations and media captions on the published parent with nine focused failures and the production preview.

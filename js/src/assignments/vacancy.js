@@ -115,10 +115,7 @@ const findAssociatedVacancy = async (store, formUrl) => {
     return null;
   }
   const previous = await storedAssignmentVacancy(store, formUrl);
-  return (
-    (await rememberAssignmentVacancy(store, previous?.aliases ?? [formUrl])) ??
-    previous
-  );
+  return rememberAssignmentVacancy(store, previous?.aliases ?? [formUrl]);
 };
 
 export const resolveAssignmentVacancy = async (

@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Readable } from 'node:stream';
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import {
   assignmentModelResult,
   assignmentPublisherFixture,
@@ -22,6 +25,8 @@ import {
   readWireResponse,
 } from '../src/transport/lino.js';
 import { formReviewHttp } from './helpers/forms-review-http.mjs';
+import { importAssignmentChat } from '../../experiments/issue-56/assignment-chat-vacancy-fixture.mjs';
+import { rememberAssignmentRedirect } from '../src/assignments/vacancy-association.js';
 
 const sourceText = 'Prepare a compact reconciliation tool for a warehouse.';
 const standalone = (target) => ({
@@ -34,6 +39,66 @@ const vacancyInput = (env, value) => ({
   ...env.input,
   vacancy: undefined,
   vacancyUrl: value,
+});
+
+test('chat vacancy inference supplies the exact redirected form context to CLI and both Lino formats', async (t) => {
+  const env = await assignmentPublisherFixture();
+  t.after(env.publisher.stop);
+  const directory = await mkdtemp(join(tmpdir(), 'assignment-chat-vacancy-'));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const file = join(directory, 'inspection.json');
+  await writeFile(file, JSON.stringify(env.inspection));
+  const original = 'https://forms.gle/chat-assignment-fixture';
+  await importAssignmentChat(env.store, original);
+  await rememberAssignmentRedirect(env.store, original, env.inspection.url);
+  const reads = [];
+  const readAssignmentVacancy = async (requested) => {
+    reads.push(requested);
+    return snapshot;
+  };
+  const command = testAssignmentCommand({
+    openStore: async () => env.store,
+    modelRunner: env.modelRunner,
+    assignmentGithub: env.github,
+    readAssignmentVacancy,
+  });
+  const output = [];
+  assert.equal(
+    await command(
+      parseArgs([env.input.target, '--file', file, '--dry-run']),
+      (line) => output.push(JSON.parse(line))
+    ),
+    0
+  );
+  const { vacancyEvidence } = output.at(-1).draft;
+  assert.equal(vacancyEvidence.source, 'chat');
+  assert.equal(vacancyEvidence.url, url);
+  for (const media of [LINO_TEXT, LINO_BINARY]) {
+    const { server, base } = await formReviewHttp(
+      {
+        store: env.store,
+        assignmentGithub: env.github,
+        modelRunner: env.modelRunner,
+        readAssignmentVacancy,
+      },
+      media
+    );
+    try {
+      const response = await fetch(`${base}/api/forms/assignment/draft`, {
+        method: 'POST',
+        headers: { 'content-type': media, accept: media },
+        body: encodeWire(vacancyInput(env, undefined), media),
+      });
+      const result = await readWireResponse(response);
+      assert.equal(response.status, 200);
+      assert.deepEqual(result.draft.vacancyEvidence, vacancyEvidence);
+    } finally {
+      await server.close();
+    }
+  }
+  assert.deepEqual(reads, [url]);
+  assert.equal(env.state.repository, null);
+  assert.equal(env.state.issues.length, 0);
 });
 
 test('assignment vacancy draft binds an exact bare ID to the canonical cached URL', async (t) => {

@@ -4,6 +4,8 @@ import { chromium } from 'playwright';
 import { startServer } from '../../js/src/server/index.js';
 import { createMemoryStore } from '../../js/src/storage/universal.js';
 import { assignmentPublisherFixture } from './assignment-publisher-fixture.mjs';
+import { importAssignmentChat } from './assignment-chat-vacancy-fixture.mjs';
+import { vacancySnapshot } from './assignment-vacancy-fixture.mjs';
 import {
   assignmentSourceBrowserFixture,
   withAssignmentSourceModel,
@@ -17,11 +19,17 @@ await seedFormAnswers(store);
 await seedAssignmentAnswers(store);
 const publication = await assignmentPublisherFixture();
 const fixture = await startFormsFixture();
+const chat = process.env.FORMS_ASSIGNMENT_CHAT_ONLY === '1';
+const chatFormUrl = new URL('/assignment-chat-link', fixture.url).href;
+const vacancyReads = [];
 const owned = [];
 const sources = [];
 let browser;
 let server;
 try {
+  if (chat) {
+    await importAssignmentChat(store, chatFormUrl);
+  }
   browser = await chromium.launch({
     executablePath: process.env.E2E_EXECUTABLE_PATH,
   });
@@ -44,6 +52,12 @@ try {
         reason: null,
       }),
       assignmentGithub: publication.github,
+      ...(chat && {
+        readAssignmentVacancy: async (url) => {
+          vacancyReads.push(url);
+          return vacancySnapshot;
+        },
+      }),
       readAssignmentSource: assignmentSourceBrowserFixture({
         store,
         browser: () => browser,
@@ -84,7 +98,9 @@ try {
   const source = pdf ? 'pdf' : markdown ? 'markdown' : '';
   url.searchParams.set(
     'fixture',
-    new URL(`/assignment-linked${source ? `-${source}` : ''}`, fixture.url)
+    chat
+      ? chatFormUrl
+      : new URL(`/assignment-linked${source ? `-${source}` : ''}`, fixture.url)
   );
   if (source) {
     url.searchParams.set('source', source);
@@ -102,6 +118,7 @@ try {
       forms: owned,
       sources: sources.map(({ closed }) => closed),
       modelCalls: publication.state.modelCalls.length,
+      ...(chat && { vacancyReads }),
       externalWrites: Boolean(
         publication.state.repository || publication.state.issues.length
       ),

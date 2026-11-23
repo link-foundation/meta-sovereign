@@ -11,6 +11,7 @@ import {
   standaloneInstructions,
 } from './helpers/e2e-assignment-standalone.mjs';
 import { verifyAssignmentSourceDocument } from './helpers/e2e-assignment-source-document.mjs';
+import { verifyAssignmentChatVacancy } from './helpers/e2e-assignment-chat-vacancy.mjs';
 import { assignmentPublisherFixture } from '../../experiments/issue-56/assignment-publisher-fixture.mjs';
 import { vacancySnapshot } from '../../experiments/issue-56/assignment-vacancy-fixture.mjs';
 import {
@@ -93,6 +94,7 @@ const vacancyReads = [];
 const modelCalls = [];
 const publication = await assignmentPublisherFixture();
 const standalonePublication = await assignmentPublisherFixture();
+const chatPublication = await assignmentPublisherFixture();
 publication.modelRunner = withAssignmentSourceModel(publication.modelRunner);
 const formModel = modelRunnerFixture(modelCalls);
 for (const { github } of [publication, standalonePublication]) {
@@ -113,7 +115,11 @@ const assignmentGithub = Object.fromEntries(
     (first, ...rest) => {
       const target = typeof first === 'string' ? first : first?.target;
       const env =
-        target === standaloneTarget ? standalonePublication : publication;
+        target === 'fixture-owner/chat-task'
+          ? chatPublication
+          : target === standaloneTarget
+            ? standalonePublication
+            : publication;
       return env.github[operation](first, ...rest);
     },
   ])
@@ -384,6 +390,7 @@ const formGroups = {
     verifyLinkedAssignmentInstructions,
     verifyLinkedMarkdownInstructions,
     verifyLinkedPdfInstructions,
+    verifyAssignmentChatVacancy,
   ],
   'forms-learning': [
     verifyFormJournalUi,
@@ -418,6 +425,7 @@ const runFormChecks = async (checks) => {
       modelCalls,
       publication,
       standalonePublication,
+      chatPublication,
       sourceReads,
       vacancyReads,
     });
@@ -460,6 +468,7 @@ const verifyCustomOnly = async ({ page, until }) => {
     ['PUBLICATION', verifyAssignmentPublicationUi],
     ['STANDALONE', verifyStandaloneAssignmentUi],
     ['ASSIGNMENT', verifyFormAssignmentUi],
+    ['ASSIGNMENT_CHAT', verifyAssignmentChatVacancy],
     ['ASSIGNMENT_SECTION', verifyFormAssignmentSectionUi],
     ['ASSIGNMENT_LINKED', verifyLinkedAssignmentInstructions],
     ['ASSIGNMENT_MARKDOWN', verifyLinkedMarkdownInstructions],
@@ -483,6 +492,7 @@ const verifyCustomOnly = async ({ page, until }) => {
       modelCalls,
       publication,
       standalonePublication,
+      chatPublication,
       sourceReads,
       vacancyReads,
     });
