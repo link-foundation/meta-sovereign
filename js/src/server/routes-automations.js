@@ -43,7 +43,8 @@
 
 import { createLiveSubset } from './live-subset.js';
 import { bodyFailure, json, readBody } from './util.js';
-import { confirmationDigest, confirmed } from './confirmations.js';
+import { confirmed } from './confirmations.js';
+import { sendMessageOnce } from './chat-send-receipts.js';
 import { previewFields } from '../sources/telegram-link-preview.js';
 import { hhCommonChatId, validHhMessageId } from '../sources/hh-chat-read.js';
 import { isHhWebTarget } from '../sources/hh-web-ui.js';
@@ -130,8 +131,6 @@ const sentLinks = (draft, result) => {
   ];
 };
 
-const SEND_MEMORY_MS = 10 * 60_000;
-
 // Build the outgoing draft from the POST body.
 // A forum topic it goes to (R-Y122).
 const topicField = (body) =>
@@ -187,44 +186,6 @@ const buildDraft = (body) => {
       ? { scheduleDate: body.scheduleDate }
       : {}),
   };
-};
-
-// While a send ID is in memory, an exact retry shares the first outcome.
-// Refuse changed drafts and retain uncertain web sends. Definite failures
-// can be retried.
-const sendOnce = (ctx, draft, send) => {
-  if (!draft.clientId) {
-    return send();
-  }
-  const sends = (ctx.sends ??= new Map());
-  const key = JSON.stringify([draft.source, draft.chat, draft.clientId]);
-  const digest = confirmationDigest('message.send', draft);
-  const now = Date.now();
-  for (const [k, entry] of sends) {
-    if (now - entry.at > SEND_MEMORY_MS) {
-      sends.delete(k);
-    }
-  }
-  const known = sends.get(key);
-  if (known) {
-    if (known.digest !== digest) {
-      throw Object.assign(new Error('This send ID belongs to another draft.'), {
-        code: 'send-id-conflict',
-      });
-    }
-    return known.promise;
-  }
-  const promise = send().catch((error) => {
-    if (
-      !(draft.hhBrowserMessage && error.ambiguous === true) &&
-      sends.get(key)?.promise === promise
-    ) {
-      sends.delete(key);
-    }
-    throw error;
-  });
-  sends.set(key, { at: now, digest, promise });
-  return promise;
 };
 
 // Several tabs can send to the same dialog. Keep the tail read and
@@ -476,7 +437,7 @@ const handleSend = async (store, res, body, ctx) => {
     return true;
   }
   try {
-    const sent = await sendOnce(ctx, draft, () =>
+    const sent = await sendMessageOnce(store, ctx, draft, () =>
       orderedSend(ctx, draft, () => deliverMessage(store, ctx, draft))
     );
     reportSend(ctx, trace, sent);

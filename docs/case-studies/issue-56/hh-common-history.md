@@ -414,10 +414,10 @@ Before this change the CLI showed its generic help for `chat read`. Sending
 through Lino with an earlier send ID and newly confirmed text returned the
 old success receipt. The CLI now checks that the server preview matches all
 the submitted draft fields before confirming. It prints the receipt without
-the draft text or confirmation token. An exact retry within the server's
-in-memory receipt window returns the earlier result. A different draft with
-the same ID reports `send-id-conflict` and exits unsuccessfully. The shared
-server keeps receipts for ten minutes in the current process.
+the draft text or confirmation token. An exact retry returns the earlier result. A different draft with the same
+ID reports `send-id-conflict` and exits unsuccessfully. HeadHunter receipts
+and in-doubt reservations survive reopening the same store. See the
+[restart reproduction](hh-chat-send-restart.md).
 
 The registered Chromium scenario reads and sends via the CLI in the same
 isolated provider conversation. It confirms one native send for a multiline
@@ -432,5 +432,5 @@ receipt retains the provider message identity. These behavior choices follow
 the pinned client references for visible read boundaries and local pending
 messages. [Telegram Web K visible read boundary](https://github.com/morethanwords/tweb/blob/579e5590d5db93e6ef39a5bbe1900257cb594cc2/src/components/chat/bubbles.ts#L3384-L3418) · [Telegram Web A pending message](https://github.com/Ajaxy/telegram-tt/blob/f67a40879a7d78c2683ec5a296cf55bc22417d56/src/api/gramjs/methods/messages.ts#L364-L405).
 
-Authenticated HeadHunter browser checks, the remaining native message
-actions and cross-restart send receipt recovery remain required.
+Authenticated HeadHunter browser checks and the remaining native message
+actions remain required.

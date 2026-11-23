@@ -1159,3 +1159,7 @@ focus, then check again at the normal reminder interval.
 
 Preserve visible instruction URLs in Forms assignments and require a readable
 source before drafting a linked task through Forms, CLI or Lino (issue #56).
+
+Keep confirmed HeadHunter chat send receipts and uncertain reservations across
+server restarts. Exact retries through Chat, CLI and either Lino encoding reuse
+the saved outcome without issuing a second provider send (issue #56).

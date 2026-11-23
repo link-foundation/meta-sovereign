@@ -447,6 +447,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 - [forms-reader.md](forms-reader.md) verifies bounded accessible native/ARIA and cross-origin form inspection through CLI, text/binary Lino API and shared four-language UI. Focused Node/Deno, production Chromium and independent MCP desktop/mobile pass. The later planning and review-session units above extend this foundation; prefilling and learning remain open.
 
+- [HeadHunter restart receipts](hh-chat-send-restart.md) verify that exact manual Chat and CLI send retries share a durable outcome and avoid a second dispatch, including after uncertain results. Authenticated parity remains open.
+
 - [hh-common-history.md](hh-common-history.md) verifies current HH API pagination, durable bounded continuation, honest coverage, actual message direction, shared CLI/Lino/UI controls and guarded text receipts. Focused Node/Deno, production Chromium and independent MCP desktop/mobile pass; browser/unread and wider provider parity remain open.
 
 - [ci-browser-apt.md](ci-browser-apt.md) investigates repeated Pages setup cancellations, preserves complete download logs and verifies a narrowly scoped Ubuntu archive correction. A passing hosted run exposed an unhandled mirror-list file; the follow-up retains priorities and source indirection with a failing-before regression. The replacement hosted Pages run verifies one changed mirror list and actual primary HTTPS package transfers; later current-head assertions remain required.

@@ -1,0 +1,19 @@
+{
+  "archive": "hh-chat-send-restart.tar.gz",
+  "files": {
+    "after/acknowledged-record.js": "1fbe3716bb6e66d7c3acab3f00aaf1803672b8b31a0bd0e94f5d48e5c90af1e9",
+    "after/chat-send-receipts.js": "454b15caa57a7eb895eecc7a43dfc9fcda34933dc947fc494e9f54ab7c2d5777",
+    "after/hh-chat-send-restart.test.js": "a3cd659860d7914d4a5bbcc69f92e19c242fffc10de66c1b2e64d51e7efc95e6",
+    "after/hh-send-restart-browser.mjs": "d55a9a992872e2df8c574c4f6fe790600e4f1103e21405911ad218e93b080ca3",
+    "after/routes-automations.js": "6fb2c8d15723a1b4d36ed8e49476c855810594457e7c8e69cdf8a6d3a98a45bf",
+    "before/acknowledged-record.js": "355998d8534be628b6cd9997658e7056eec58a7cdd2560f4892b8d05e5533de2",
+    "before/routes-automations.js": "7a348cc47a98e03a94e51dc8254b30f432eaef6554b1eb0a9edfb21c8e6a7b45",
+    "logs/hh-send-restart-chromium-corrected.log": "6d877a5e0b3d582431599d033eabe3dc9f564ea7bbed791ce3a8b37492374ffb",
+    "logs/hh-send-restart-deno.log": "068e4836314720929151b65981900abc408cf8993cffaf581bc31b5bee72822c",
+    "logs/hh-send-restart-eslint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/hh-send-restart-node.log": "db2272c35104bd0a862757aeafc9d09bb91a582b42ea158b46443472d2d82ce8",
+    "logs/hh-send-restart-parent.log": "a8759aad57f3122b3c886dba3816afc6be82e0db7693ac4be1714a465894d022",
+    "logs/hh-send-restart-secretlint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "parent.txt": "ed708d160ec52c7857f04ee24cd7740a60a76031cdbe91199ad77ea1c515da52"
+  }
+}
