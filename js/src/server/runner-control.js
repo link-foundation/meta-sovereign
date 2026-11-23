@@ -15,7 +15,7 @@ import { stopScreenRunner } from './runner-screen.js';
 import { setTimeout as delay } from 'node:timers/promises';
 import { configuredRunnerLauncher } from './runner-dependencies.js';
 import { configuredRunnerRuntime } from './runner-node.js';
-import { verifyRunnerApplication } from './runner-application.js';
+import { createRunnerApplicationPreparation } from './runner-application.js';
 
 const refused = (code, states) => ({ ok: false, code, states });
 const cancelled = (options) => options.signal?.aborted === true;
@@ -28,6 +28,7 @@ const createTargetActions = ({
   run,
   prepareLauncher,
   prepareRuntime,
+  prepareApplication,
   desktopRunner,
   pullImage,
   now,
@@ -130,11 +131,12 @@ const createTargetActions = ({
       }
       destination = { ...target, image };
     }
-    const loaded = await verifyRunnerApplication(
+    const loaded = await prepareApplication(
       destination,
       runtime,
       run,
-      options
+      options,
+      prepareRuntime
     );
     if (cancelled(options)) {
       return { code: 'runner-state-unconfirmed' };
@@ -159,6 +161,7 @@ export const createRunnerControl = ({
   run = runRunnerCommand,
   prepareLauncher = configuredRunnerLauncher,
   prepareRuntime = configuredRunnerRuntime,
+  prepareApplication = createRunnerApplicationPreparation(),
   desktopRunner,
   pullImage = pullRunnerImage,
   now = () => globalThis.performance.now(),
@@ -174,6 +177,7 @@ export const createRunnerControl = ({
     run,
     prepareLauncher,
     prepareRuntime,
+    prepareApplication,
     desktopRunner,
     pullImage,
     now,

@@ -67,6 +67,9 @@ export PATH="$runner_fixture/bin:$PATH"
 export RUNNER_DOCKER_FIXTURE="$runner_fixture"
 RUNNER_IMAGE_PROBE_SSH_HOST=runner-docker-fixture node experiments/issue-56/runner-image-native.mjs
 node experiments/issue-56/runner-docker-hosted.mjs
+runner_application_image_id=$(docker image inspect --format '{{.Id}}' "$RUNNER_DOCKER_IMAGE")
+RUNNER_APPLICATION_DOCKER_IMAGE_ID="$runner_application_image_id" RUNNER_APPLICATION_SSH_HOST=runner-docker-fixture node experiments/issue-56/runner-application-native.mjs
+RUNNER_APPLICATION_SSH_HOST=runner-docker-fixture node experiments/issue-56/runner-application-native.mjs --production
 mkdir "$runner_fixture/screen"
 RUNNER_DOCKER_FIXTURE="$runner_fixture/screen" RUNNER_SERVER_ISOLATION=screen node experiments/issue-56/runner-docker-hosted.mjs
 RUNNER_PRIVATE_NODE_HOST=runner-docker-fixture node experiments/issue-56/runner-node-local.mjs

@@ -145,9 +145,37 @@ with the freshly observed session states. For the standard product CLI path,
 Start also loads the application module graph in the selected Node runtime.
 Docker runs this check in the resolved image with a read-only application mount.
 A failed load returns `runner-application-dependencies-unavailable` before
-stopping a peer. Status and inspection remain read-only.
-Install the operating-system backend and the application with its dependencies
-before configuring the target.
+stopping a peer. Install the selected operating-system backend and provision the
+application source before configuring the target.
+
+### Prepare production dependencies from a reviewed lockfile
+
+For a fresh source checkout, set `applicationLock` in the target profile to the
+SHA-256 of the reviewed `package-lock.json` from that checkout. Use the checkout
+root as `directory` and its `js/bin/meta-sovereign.js` as `cli`. To print the
+digest from the checkout on Linux, run `sha256sum package-lock.json`. On macOS,
+run `shasum -a 256 package-lock.json`. Add the field in **Settings → Runner
+sessions → Edit session targets**, in the saved Lino profile or with
+`--local-application-lock=<sha256>` or `--server-application-lock=<sha256>` for a
+direct CLI start. Both Lino encodings share the same profile revision and
+start operation. The source checkout must belong to the runner's OS user.
+
+Explicit Start with this field prepares a missing dependency tree with `npm ci`
+from the public registry and the checkout's integrity-locked vendor tarball.
+The private stage uses production and optional packages with package lifecycle
+scripts skipped. It checks the staged CLI and server imports and publishes the
+new dependency tree as the checkout's `node_modules` link. A concurrent or
+existing owner installation keeps its path. Later Starts confirm the saved lock
+and load the prepared modules again. A mismatched lock or a failed install
+keeps any active peer running. To switch to a differently reviewed lock, use a
+fresh checkout, stop the old target and save the new paths and digest.
+
+Screen uses the selected host runtime and can use bundled npm. Docker uses the
+resolved image with Node and npm, installing as the SSH owner's UID and GID.
+The image's runtime user needs read access to that private installation. The
+first install needs npm registry access in the selected environment. A completed
+warm start, status, profile save and inspection require no download. Leave the
+field unset to use an owner-managed dependency tree.
 
 Starting one mode first confirms the other is stopped, requesting its stop
 when necessary. It then rechecks the destination and starts only when its

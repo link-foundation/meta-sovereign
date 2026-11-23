@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { join, posix } from 'node:path';
 import { formatIndented, parseIndented } from 'lino-objects-codec';
 import { runnerApiFixture } from '../../experiments/issue-56/runner-api-fixture.mjs';
 import { runnerProfile } from '../../experiments/issue-56/runner-fixture.mjs';
@@ -40,17 +40,24 @@ test(
           type === LINO_TEXT
             ? 'first@example.invalid'
             : 'second@example.invalid';
+        profile.server.cli = posix.join(
+          profile.server.directory,
+          'js/bin/meta-sovereign.js'
+        );
+        profile.server.applicationLock = (
+          type === LINO_TEXT ? 'a' : 'b'
+        ).repeat(64);
         const input = {
           document: formatIndented({ id: 'runner', obj: profile }),
           revision: before.revision,
         };
         const saved = await readWireResponse(await post(fixture, input, type));
         assert.equal(saved.ok, true);
-        assert.equal(
-          (await readRunnerProfile(join(fixture.dir, 'runner.lino'))).server
-            .host,
-          profile.server.host
+        const { server } = await readRunnerProfile(
+          join(fixture.dir, 'runner.lino')
         );
+        assert.equal(server.host, profile.server.host);
+        assert.equal(server.applicationLock, profile.server.applicationLock);
         const stale = await post(fixture, input, type);
         assert.equal(stale.status, 409);
         const refused = await readWireResponse(stale);
@@ -172,6 +179,11 @@ test(
     try {
       const profile = runnerProfile();
       profile.server.host = 'cli@example.invalid';
+      profile.server.cli = posix.join(
+        profile.server.directory,
+        'js/bin/meta-sovereign.js'
+      );
+      profile.server.applicationLock = 'c'.repeat(64);
       await writeFile(
         inputFile,
         formatIndented({ id: 'runner', obj: profile })
@@ -206,11 +218,11 @@ test(
           ),
           0
         );
-        assert.equal(
-          (await readRunnerProfile(join(fixture.dir, 'runner.lino'))).server
-            .host,
-          profile.server.host
+        const { server } = await readRunnerProfile(
+          join(fixture.dir, 'runner.lino')
         );
+        assert.equal(server.host, profile.server.host);
+        assert.equal(server.applicationLock, profile.server.applicationLock);
         profile.server.host = 'cli-next@example.invalid';
         await writeFile(
           inputFile,

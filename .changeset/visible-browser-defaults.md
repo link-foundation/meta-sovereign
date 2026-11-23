@@ -1248,3 +1248,7 @@ the active session running and show which application check failed (issue #56).
 Check that the configured Meta Sovereign CLI and server modules load before
 switching a detached runner. Preserve the active session when the destination
 application is incomplete and show the corresponding Settings message (issue #56).
+
+Prepare production dependencies when an explicitly started runner selects a
+reviewed lockfile. Verify the installed modules before switching sessions and
+reuse the prepared tree on later starts (issue #56).

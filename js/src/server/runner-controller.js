@@ -92,6 +92,7 @@ export const createRunnerController = ({
   run,
   prepareLauncher = createRunnerLauncherPreparation({ probe: run }),
   prepareRuntime = createRunnerRuntimePreparation({ probe: run }),
+  prepareApplication,
   desktopRunner,
   load,
   lock = acquireStoreLock,
@@ -161,6 +162,7 @@ export const createRunnerController = ({
         run,
         prepareLauncher,
         prepareRuntime,
+        prepareApplication,
         desktopRunner,
       });
       if (action === 'status') {

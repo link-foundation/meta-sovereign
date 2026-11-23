@@ -1540,3 +1540,10 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Verify the product CLI and server module graph in the configured Node runtime before any stop. Use only the verified Docker image and a read-only application mount for the probe. Preserve existing custom launcher behavior.
 - [x] Check missing dependency, loaded graph, cancellation, Docker arguments, both Lino encodings, CLI and the localized Settings refusal. Replay the remote graph with actual loopback SSH.
 - [ ] Inspect exact-source hosted native Docker and Screen checks. Prepare a reviewed package and its locked dependencies on a clean execution host.
+
+2026-11-23 reviewed production dependency preparation (VD01 remains unfinished)
+
+- [x] Bind explicit preparation to the reviewed lock SHA-256 in effective Lino configuration, Settings and CLI overrides.
+- [x] Verify staged production imports and publish only a missing dependency link. Preserve owner dependencies and active sessions when approval or installation fails.
+- [x] Reproduce the rejected profile on the parent. Verify cold and warm installs with the production lock, native SSH, both Lino encodings, CLI and Settings.
+- [ ] Review native hosted Screen and Docker evidence. Continue reviewed application transfer and operating-system preparation.

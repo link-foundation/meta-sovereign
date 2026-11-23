@@ -83,6 +83,7 @@ export const runnerOverrideOptions = new Set([
       'isolation',
       'start',
       'node',
+      'application-lock',
       ...(mode === 'server' ? ['host', 'image'] : []),
     ].map((field) => `${mode}-${field}`)
   ),
@@ -103,7 +104,10 @@ export const runnerConfigurationOverrides = (args) => {
       value.session = supplied;
       continue;
     }
-    const [mode, field] = option.split('-');
+    const separator = option.indexOf('-');
+    const mode = option.slice(0, separator);
+    const name = option.slice(separator + 1);
+    const field = name === 'application-lock' ? 'applicationLock' : name;
     value[mode] ??= {};
     if (field === 'port' && !/^\d{1,5}$/.test(supplied)) {
       throw invalid();

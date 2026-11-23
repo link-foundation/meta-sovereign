@@ -108,15 +108,22 @@ const mount = (directory, readOnly = false) =>
     .map((cell) => `"${cell.replaceAll('"', '""')}"`)
     .join(',');
 
-export const dockerRunnerApplicationCheck = (target, executable, args) => [
+export const dockerRunnerApplicationCommand = (
+  target,
+  executable,
+  args,
+  { installAs } = {}
+) => [
   'docker',
   'run',
   '--rm',
   '--pull=never',
   '--read-only',
-  '--network=none',
+  ...(installAs
+    ? ['--user', installAs, '--tmpfs', '/tmp']
+    : ['--network=none']),
   '--mount',
-  mount(target.directory, true),
+  mount(target.directory, !installAs),
   '--workdir',
   target.directory,
   '--entrypoint',

@@ -21,6 +21,7 @@ const fields = new Set([
   'start',
   'node',
   'image',
+  'applicationLock',
 ]);
 const hostValid = (host) =>
   typeof host === 'string' &&
@@ -30,7 +31,10 @@ const hostValid = (host) =>
 const optionalTextValid = (target) =>
   ['start', 'node'].every(
     (key) => target[key] === undefined || text(target[key])
-  );
+  ) &&
+  (target.applicationLock === undefined ||
+    (typeof target.applicationLock === 'string' &&
+      /^[a-f0-9]{64}$/u.test(target.applicationLock)));
 const pathsValid = (target, mode, partial) =>
   (target.isolation === 'desktop'
     ? ['store']
@@ -58,7 +62,7 @@ const isolationValid = (target, mode, partial) => {
   if (isolation === 'desktop') {
     return (
       mode === 'local' &&
-      ['directory', 'cli', 'start', 'node', 'image'].every(
+      ['directory', 'cli', 'start', 'node', 'image', 'applicationLock'].every(
         (key) => target[key] === undefined
       )
     );
@@ -82,6 +86,15 @@ const isolationValid = (target, mode, partial) => {
     !relative.startsWith('../')
   );
 };
+const productPath = (target, mode) => {
+  const paths = mode === 'server' ? path.posix : path;
+  return (
+    paths.relative(target.directory, target.cli) ===
+    paths.join('js', 'bin', 'meta-sovereign.js')
+  );
+};
+const applicationPathValid = (target, mode, partial) =>
+  partial || target.applicationLock === undefined || productPath(target, mode);
 const validateTarget = (target, mode, session, partial) => {
   if (
     !record(target) ||
@@ -94,7 +107,8 @@ const validateTarget = (target, mode, session, partial) => {
   }
   if (
     !addressValid(target, mode, partial) ||
-    !isolationValid(target, mode, partial)
+    !isolationValid(target, mode, partial) ||
+    !applicationPathValid(target, mode, partial)
   ) {
     throw invalid();
   }
