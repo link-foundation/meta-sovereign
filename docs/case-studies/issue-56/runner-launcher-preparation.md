@@ -75,14 +75,32 @@ from a cold cache using the official archive and bundled npm, then confirms the
 same ready state from a warm cache with archive downloads disabled. Each Stop
 is observed. Both runtimes passed 61 focused runner tests, and package dry-run
 includes the bootstrap assets. The hosted Linux job now runs this fixture.
-Exact hosted SSH, other platforms, OS backend and application closure remain
-open for VD01.
+The same fixture also passed over a real loopback SSH connection. The OpenSSH
+client checked the ephemeral host key and authenticated with a private test key.
+The loopback server accepted the runner's normal stdin command. SSH quoting
+preserved the private home and store paths, and both Screen starts, application
+health reads and Stops completed with no Node or npm on the remote PATH.
+
+```sh
+python3 -B experiments/issue-56/runner-node-loopback-ssh.py
+```
+
+The loopback script uses the optional Paramiko 4.0.0 wheel. The first local
+attempt omitted public-key advertisement. The next reached native Screen but
+the test peer closed its transport before OpenSSH finished disconnecting. The
+corrected peer advertises its one key and drains the protocol before closing.
+The hosted OpenSSH server fixture now exercises the same private runtime path.
+Hosted SSH and packaged checks, other platforms, the OS backend and application
+closure remain open for VD01.
 
 [Signed release manifest](https://nodejs.org/dist/v26.13.0/SHASUMS256.txt.asc) ·
 [Pinned release keyring](https://github.com/nodejs/release-keys/tree/481637f813e912c4aa3622d7964ab426c97b8e8d)
 
 [Source and native Node preparation evidence](data/runner-node-preparation.tar.gz) ·
 [Hash manifest](data/runner-node-preparation.tar.sha256.json)
+
+[Native loopback SSH evidence](data/runner-node-ssh.tar.gz) ·
+[Hash manifest](data/runner-node-ssh.tar.sha256.json)
 
 [Source-bound logs and package evidence](data/runner-launcher-preparation.tar.gz) ·
 [Hash manifest](data/runner-launcher-preparation.tar.sha256.json)

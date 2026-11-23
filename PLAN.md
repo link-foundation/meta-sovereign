@@ -4,6 +4,7 @@
 - [x] Prepare a locked launcher and runtime in a private destination cache only on explicit Start. Preserve existing wrappers, live session checks, and owner data.
 - [x] Reproduce the missing fallback and verify real cold preparation, warm reuse, unsafe paths, rejected installation and failed switches. Pass 62 focused checks in both Node and Deno.
 - [x] Reproduce missing Node and npm on the published parent. Check a corrupt archive refusal, real cold and warm Linux Screen starts, two confirmed Stops and 61 focused checks per runtime.
+- [x] Verify the same cold and warm Screen lifecycle over loopback SSH with a strict host key, ephemeral authentication and a remote PATH without Node or npm.
 - [ ] Exercise the default launcher over hosted SSH for both Screen and Docker.
 - [ ] Verify published CI and continue the operating-system, application dependency and clean packaged-desktop preparation requirements.
 

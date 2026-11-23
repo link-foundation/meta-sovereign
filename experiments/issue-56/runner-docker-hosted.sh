@@ -68,3 +68,4 @@ export RUNNER_DOCKER_FIXTURE="$runner_fixture"
 node experiments/issue-56/runner-docker-hosted.mjs
 mkdir "$runner_fixture/screen"
 RUNNER_DOCKER_FIXTURE="$runner_fixture/screen" RUNNER_SERVER_ISOLATION=screen node experiments/issue-56/runner-docker-hosted.mjs
+RUNNER_PRIVATE_NODE_HOST=runner-docker-fixture node experiments/issue-56/runner-node-local.mjs

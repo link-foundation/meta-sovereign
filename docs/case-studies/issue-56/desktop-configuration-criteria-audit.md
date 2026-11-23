@@ -178,6 +178,17 @@ requires the named Node checks, configuration, logs and token browser receipts
 in both engines, the Electron authorization receipt, and the five packaged
 runner lanes on one revision.
 
-The five workflows for `84ca6588` are pending. VD07 remains unfinished and the
+The five workflows for `84ca6588` were pending at this review. VD07 remains unfinished and the
 inventory remains **88 verified / 30 unfinished**. PR57 stays draft and
 unmerged. [Hosted checks](https://github.com/link-foundation/meta-sovereign/pull/57/checks)
+
+## Runner configuration through `2810a508`
+
+The new 24-file source comparison still has 91 changed-source pairs. The
+runner controller is the sole audited path with a different hash from
+`84ca6588`. The revised controller passes its existing validated target through
+runtime preparation and uses a cached runtime for read-only application health.
+The configuration layers, retained session address, lease, status and Stop use
+their existing paths. Node and Deno both verify these behaviors, and the source
+audit again rejects all seven inconsistent inputs. Hosted acceptance remains
+pending. [Runner verification](runner-launcher-preparation.md)

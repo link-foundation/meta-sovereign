@@ -1,4 +1,4 @@
-/** Start the actual local Screen runner with no Node, npm or launcher on PATH. */
+/** Start an actual Screen runner with no Node, npm or launcher on its PATH. */
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import {
@@ -18,7 +18,10 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { promisify } from 'node:util';
 import { validateRunnerProfile } from '../../js/src/cli/runner-profile.js';
 import { createRunnerController } from '../../js/src/server/runner-controller.js';
+import { createRunnerLauncherPreparation } from '../../js/src/server/runner-dependencies.js';
+import { createRunnerRuntimePreparation } from '../../js/src/server/runner-node.js';
 import {
+  createRunnerTransport,
   quoteRunnerArgument,
   runRunnerCommand,
 } from '../../js/src/server/runner-transport.js';
@@ -34,6 +37,23 @@ const marker = join(home, 'owner-marker');
 const corrupt = join(home, 'invalid-archive');
 const offline = join(home, 'offline');
 const downloads = join(home, 'downloads');
+const host = process.env.RUNNER_PRIVATE_NODE_HOST;
+const mode = host ? 'server' : 'local';
+const executionEnvironment = { HOME: home, PATH: bin, SCREENDIR: socket };
+const withEnvironment = (transport) => (target, argv, options) =>
+  transport(
+    target,
+    host
+      ? [
+          'env',
+          ...Object.entries(executionEnvironment).map(
+            ([key, value]) => `${key}=${value}`
+          ),
+          ...argv,
+        ]
+      : argv,
+    options
+  );
 const command = async (name) =>
   (await exec('/bin/sh', ['-c', 'command -v "$1"', 'sh', name])).stdout.trim();
 const port = await new Promise((resolvePort, reject) => {
@@ -46,34 +66,59 @@ const port = await new Promise((resolvePort, reject) => {
 });
 const profile = validateRunnerProfile({
   session: `ms-private-node-${process.pid}`,
-  local: {
+  [mode]: {
+    ...(host ? { host } : {}),
     directory: root,
     cli: join(root, 'js/bin/meta-sovereign.js'),
     store: join(fixture, 'app store'),
     port,
   },
 });
+const transport = withEnvironment(runRunnerCommand);
 const controller = createRunnerController({
   directory: () => fixture,
   load: async () => profile,
+  ...(host
+    ? {
+        prepareRuntime: createRunnerRuntimePreparation({
+          probe: transport,
+          install: withEnvironment(
+            createRunnerTransport({ deadlineMs: 90000 })
+          ),
+        }),
+        prepareLauncher: createRunnerLauncherPreparation({
+          probe: transport,
+          run: withEnvironment(createRunnerTransport({ deadlineMs: 100000 })),
+        }),
+      }
+    : {}),
   async run(target, argv, options) {
-    const reply = await runRunnerCommand(target, argv, options);
+    const reply = await transport(target, argv, options);
     if (
       process.env.MS_RUNNER_NODE_DEBUG === '1' &&
-      argv.includes('--isolated')
+      (argv.includes('--isolated') || host)
     ) {
-      console.log(JSON.stringify({ phase: 'launch', ...reply }));
+      console.log(
+        JSON.stringify({
+          phase: argv.includes('--isolated') ? 'launch' : argv[0],
+          ...reply,
+        })
+      );
     }
     return reply;
   },
 });
-const start = () => controller.execute({ action: 'start', mode: 'local' });
-const stop = () => controller.execute({ action: 'stop', mode: 'local' });
+let startAttempted = false;
+const start = () => {
+  startAttempted = true;
+  return controller.execute({ action: 'start', mode });
+};
+const stop = () => controller.execute({ action: 'stop', mode });
 const ready = async () => {
   for (let pass = 0; pass < 35; pass++) {
     const result = await controller.execute({
       action: 'inspect',
-      mode: 'local',
+      mode,
     });
     if (result.application.state === 'ready') {
       return;
@@ -83,7 +128,6 @@ const ready = async () => {
   assert.fail('The owned Screen application did not report ready.');
 };
 
-let isolated = false;
 try {
   for (const directory of [bin, home, socket]) {
     await mkdir(directory, { mode: 0o700 });
@@ -130,18 +174,15 @@ exec ${quoteRunnerArgument(await command('curl'))} "$@"
     { mode: 0o700 }
   );
   await writeFile(marker, 'retain\n');
-  process.env.HOME = home;
-  process.env.PATH = bin;
-  process.env.SCREENDIR = socket;
-  isolated = true;
-
+  if (!host) {
+    Object.assign(process.env, executionEnvironment);
+  }
   assert.equal(
-    (await controller.execute({ action: 'status' })).states.local,
+    (await controller.execute({ action: 'status' })).states[mode],
     'stopped'
   );
   assert.equal(
-    (await controller.execute({ action: 'inspect', mode: 'local' })).application
-      .state,
+    (await controller.execute({ action: 'inspect', mode })).application.state,
     'stopped'
   );
   await assert.rejects(stat(cache), { code: 'ENOENT' });
@@ -182,12 +223,13 @@ exec ${quoteRunnerArgument(await command('curl'))} "$@"
       privateCache: true,
       coldAndWarmReady: true,
       stopConfirmed: true,
+      ...(host ? { actualSsh: true } : {}),
     })
   );
 } finally {
-  if (isolated) {
+  if (startAttempted) {
     assert.equal(
-      (await stop()).states.local,
+      (await stop()).states[mode],
       'stopped',
       `Check owned fixture at ${fixture}`
     );
