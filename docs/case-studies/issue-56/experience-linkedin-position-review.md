@@ -28,5 +28,22 @@ standalone Add, immutable baseline and approval, corrupted native evidence,
 imported targets, both encodings and trusted mutation admission. It counts
 browser starts and confirms that staging and approval never add one.
 
-Native preparation, the shared CV review, interactive decisions and fresh
-provider Save verification remain open in [HH21](experience-sync-plan.md).
+## Native form preparation
+
+The preparation adapter takes the same persistent `linkedin-experience` slot
+lease as acquisition. It observes the selected link again on the current
+profile, requires one labeled native dialog and checks the editor baseline
+before changing any fields. It preserves existing owner drafts in the slot,
+checks the current draft before each field change, and leaves the browser
+window open on detach. The adapter disables the position notification control
+when it is on. It never submits the form.
+
+The Chromium fixture in `linkedin-position-native.mjs` covers the exact
+grouped role update, standalone Add, date fields revealed by the current-role
+checkbox, and an untouched employment-type field. It reproduces the stale
+description and a concurrent owner edit, then verifies both are preserved.
+Two preparations complete and neither clicks Save. The fixture runs in the
+existing LinkedIn browser scenario. It uses synthetic provider pages.
+
+The shared CV review, native skill and media selection, interactive decisions
+and fresh provider Save verification remain open in [HH21](experience-sync-plan.md).

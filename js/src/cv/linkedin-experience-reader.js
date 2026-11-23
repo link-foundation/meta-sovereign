@@ -77,7 +77,14 @@ const checkedScan = (raw, url, identities) => {
   }
   return current;
 };
-const traverse = async ({ session, options, check, wait, now, progress }) => {
+export const traverseLinkedinExperience = async ({
+  session,
+  options,
+  check,
+  wait,
+  now,
+  progress,
+}) => {
   const deadline = now() + 120000;
   let stable = 0;
   let previous = '';
@@ -239,7 +246,7 @@ export const createLinkedinExperienceReader =
       };
       await waitForLogin(context);
       trace('reading');
-      const raw = await traverse(context);
+      const raw = await traverseLinkedinExperience(context);
       trace('reading-about');
       raw.profileAbout = await readLinkedinProfileAbout(context);
       if (!(await gateFor(session, options.url, check)).ready) {

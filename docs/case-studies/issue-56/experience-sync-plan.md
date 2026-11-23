@@ -57,7 +57,9 @@ CV review, native preparation and an explicit owner Save with fresh synthetic
 exports. Interactive queue decisions and the LinkedIn writer remain required.
 The [LinkedIn position review](experience-linkedin-position-review.md) binds
 one Add or update to the acknowledged native export and a separate approval.
-The CLI and both Lino encodings can recover the exact private review. Native
-preparation and the shared CV review remain required in this direction.
+The CLI and both Lino encodings can recover the exact private review. The
+native preparation adapter rechecks the visible form and preserves owner
+drafts. Native skill/media selection, Save verification and the shared CV
+review remain required in this direction.
 Authenticated provider verification, complete HH/About acquisition and every
 remaining item above stay required; HH21 remains unfinished.
