@@ -43,7 +43,7 @@ export const CvExperienceWorkplaceStage = ({
           fingerprint: row.fingerprint,
           jobIndex,
         },
-        ...(update ? { recordId } : {}),
+        ...(update && recordId ? { recordId } : {}),
       });
       if (mounted.current) {
         setReceipt(plan);
@@ -66,14 +66,17 @@ export const CvExperienceWorkplaceStage = ({
     [
       update
         ? el('label', { key: 'record', className: 'chat-form-field' }, [
-            el('span', { key: 'name' }, t('cvPrepare.recordId')),
+            el(
+              'span',
+              { key: 'name' },
+              t('experiencePlan.workplaceRecordOptional')
+            ),
             el('input', {
               key: 'input',
               value: recordId,
               inputMode: 'numeric',
               maxLength: 100,
               pattern: '[0-9]{1,100}',
-              required: true,
               disabled: busy,
               'data-experience-workplace-record': true,
               onChange: (event) => {
@@ -90,7 +93,9 @@ export const CvExperienceWorkplaceStage = ({
           {
             key: 'submit',
             type: 'submit',
-            disabled: busy || (update && !/^\d{1,100}$/u.test(recordId)),
+            disabled:
+              busy ||
+              (update && recordId !== '' && !/^\d{1,100}$/u.test(recordId)),
           },
           t('experiencePlan.workplaceStage')
         ),

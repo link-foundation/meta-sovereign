@@ -9,6 +9,7 @@ import { hhExperienceWorkplaceControls } from './cv-experience-workplace-control
 import { withHhExperienceBrowser } from './cv-experience-browser.js';
 import { cvWorkplacePlanJob } from './cv-workplace-plan.js';
 import { cvWorkplaceExportJobFingerprint } from './cv-watch-verification.js';
+import { resolveHhExperienceWorkplace } from './cv-experience-workplace-resolve.js';
 
 const captureBaselineForChange = async (context, change) => {
   const baseline = await captureWorkplaceBaseline(context);
@@ -131,10 +132,14 @@ export const createHhExperienceWorkplaceNative =
       language: change.language,
       signal,
       phase: (phase) => update({ phase }),
-      run: (session, check) =>
+      run: async (session, check) =>
         prepare({
           session,
-          change,
+          change: await resolveHhExperienceWorkplace({
+            session,
+            change,
+            check,
+          }),
           check,
           phase: (phase) => update({ phase }),
           captureBaseline: (initial) =>

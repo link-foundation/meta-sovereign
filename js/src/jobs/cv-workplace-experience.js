@@ -81,7 +81,7 @@ const checkedWorkplaceItem = async (store, input) => {
   ) {
     cvWorkplaceFail('conflict');
   }
-  if (job.kind === 'update') {
+  if (job.kind === 'update' && recordId !== undefined) {
     cvWorkplaceRecordId(recordId);
   } else if (recordId !== undefined) {
     cvWorkplaceFail('options');

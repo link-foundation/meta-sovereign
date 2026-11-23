@@ -1187,3 +1187,7 @@ Retain previous snapshots while a CV export is stale (issue #56).
 Review approved HeadHunter experience changes in a separate browser profile.
 Save or discard the exact draft, leave it open, or recover an existing review
 after reconnecting without replaying a provider action (issue #56).
+
+Find the exact saved HeadHunter workplace from an approved baseline when the
+experience review omits a native record ID. Refuse ambiguous matches before
+opening the editor (issue #56).

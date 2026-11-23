@@ -35,6 +35,8 @@ const entries = {
     translations: 'Translation comparison',
     workplaceSelect: 'Review this workplace in HeadHunter',
     workplaceStage: 'Create workplace draft',
+    workplaceRecordOptional: 'Workplace record ID (optional)',
+    workplaceResolve: 'Find the matching record in the Experience window.',
     workplaceOpen: 'Open workplace review',
     workplaceBusy: 'Checking the HeadHunter export…',
     workplaceDraft:
@@ -105,6 +107,8 @@ const entries = {
     translations: 'Сравнение переводов',
     workplaceSelect: 'Проверить это место работы в HeadHunter',
     workplaceStage: 'Создать черновик места работы',
+    workplaceRecordOptional: 'ID места работы (необязательно)',
+    workplaceResolve: 'Найдите соответствующую запись в окне «Опыт работы».',
     workplaceOpen: 'Открыть проверку места работы',
     workplaceBusy: 'Проверяем экспорт из HeadHunter…',
     workplaceDraft:
@@ -177,6 +181,8 @@ const entries = {
     translations: 'अनुवाद तुलना',
     workplaceSelect: 'HeadHunter में इस कार्यस्थल की समीक्षा करें',
     workplaceStage: 'कार्यस्थल का ड्राफ़्ट बनाएँ',
+    workplaceRecordOptional: 'कार्यस्थल रिकॉर्ड आईडी (वैकल्पिक)',
+    workplaceResolve: 'अनुभव विंडो में मिलता-जुलता रिकॉर्ड ढूँढें।',
     workplaceOpen: 'कार्यस्थल की समीक्षा खोलें',
     workplaceBusy: 'HeadHunter एक्सपोर्ट जाँचा जा रहा है…',
     workplaceDraft:
@@ -245,6 +251,8 @@ const entries = {
     translations: '翻译比较',
     workplaceSelect: '在 HeadHunter 中审核此工作经历',
     workplaceStage: '创建工作经历草稿',
+    workplaceRecordOptional: '工作经历记录 ID（选填）',
+    workplaceResolve: '在经历窗口中查找匹配的记录。',
     workplaceOpen: '打开工作经历审核',
     workplaceBusy: '正在核对 HeadHunter 导出文件…',
     workplaceDraft: '工作经历草稿已就绪，可在 {slot} 浏览器槽位中审核。',

@@ -373,7 +373,7 @@ export const confirmedCvWorkplacePlan = async (answer, input = {}) => {
     if (plan.recordId !== null) {
       cvWorkplaceFail();
     }
-  } else {
+  } else if (!(plan.experience && plan.recordId === null)) {
     cvWorkplaceRecordId(plan.recordId);
   }
   const baseline = adding

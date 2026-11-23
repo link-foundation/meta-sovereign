@@ -79,7 +79,13 @@ const Plan = ({ state, idle, ready, t }) => {
             { key: 'record', className: 'meta' },
             `${t(plan.operation === 'copy' ? 'cvWorkplace.originalRecord' : 'cvPrepare.recordId')}: ${plan.recordId} · ${plan.source.job.company} · ${plan.source.job.position}`
           )
-        : el('p', { key: 'record', className: 'meta' }, t('cvWorkplace.add')),
+        : el(
+            'p',
+            { key: 'record', className: 'meta' },
+            plan.operation === 'add'
+              ? t('cvWorkplace.add')
+              : `${plan.source.job.company} · ${plan.source.job.position} · ${t('experiencePlan.workplaceResolve')}`
+          ),
       ...plan.changes.map((change) =>
         el(
           'div',
@@ -147,20 +153,22 @@ const Plan = ({ state, idle, ready, t }) => {
                   t,
                 })
               : null,
-            button(
-              'prepare',
-              state.prepare,
-              !idle ||
-                !ready ||
-                Boolean(
-                  state.native?.active ||
-                  state.native?.unknown ||
-                  ['saved', 'unconfirmed', 'interrupted'].includes(
-                    state.native?.row?.phase
-                  )
-                ),
-              t
-            ),
+            plan.recordId !== null || plan.operation === 'add'
+              ? button(
+                  'prepare',
+                  state.prepare,
+                  !idle ||
+                    !ready ||
+                    Boolean(
+                      state.native?.active ||
+                      state.native?.unknown ||
+                      ['saved', 'unconfirmed', 'interrupted'].includes(
+                        state.native?.row?.phase
+                      )
+                    ),
+                  t
+                )
+              : null,
           ],
     ]
   );
@@ -340,7 +348,8 @@ const ExperienceWorkplaceReview = ({ review, idle, ready, t }) => {
       !review.loadError && !review.plan
         ? el(Busy, { key: 'load' }, t('common.loading'))
         : null,
-      !review.matchingSlot
+      !review.matchingSlot &&
+      (review.plan?.recordId || review.plan?.operation === 'add')
         ? el(
             'p',
             { key: 'slot', className: 'meta' },

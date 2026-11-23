@@ -87,5 +87,9 @@ export const cvWorkplaceFollowupState = ({
     keepOriginalInExport() {
       staleDetach = true;
     },
+    duplicateOriginal() {
+      records.set('456', original);
+      return () => records.delete('456');
+    },
   };
 };

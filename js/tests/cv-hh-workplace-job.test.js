@@ -16,6 +16,12 @@ import {
   cvFixtureRequest,
   startCvFixtureServer,
 } from '../../experiments/issue-56/cv-fixture-server.mjs';
+import {
+  cvWorkplacePreparationSource,
+  hhExperienceWorkplacePreparationSource,
+} from '../src/jobs/cv-workplace-review-service.js';
+import { cvWorkplacePlanJob } from '../src/jobs/cv-workplace-plan.js';
+import { resolveHhExperienceWorkplace } from '../src/jobs/cv-experience-workplace-resolve.js';
 
 const ready = async (status, accepts) => {
   for (let i = 0; i < 200; i++) {
@@ -27,15 +33,79 @@ const ready = async (status, accepts) => {
   }
   throw new Error('The workplace review did not reach the expected status.');
 };
-const approval = async (fixture) => {
-  const { plan } = await fixture.service['cv-workplace-plan'](
-    workplaceExperienceInput(fixture.row, 'update')
-  );
+const approval = async (fixture, bindRecord = true) => {
+  const input = workplaceExperienceInput(fixture.row, 'update');
+  if (!bindRecord) {
+    delete input.recordId;
+  }
+  const { plan } = await fixture.service['cv-workplace-plan'](input);
   const reviewed = await fixture.service['cv-workplace-review']({
     fingerprint: plan.fingerprint,
   });
   return { draft: plan, plan: reviewed.plan };
 };
+
+test(
+  'a directed review without a record ID binds only an exact and unique native baseline',
+  { timeout: 5000 },
+  async () => {
+    const fixture = await cvWorkplaceExperienceFixture();
+    try {
+      const { plan } = await approval(fixture, false);
+      assert.equal(plan.recordId, null);
+      assert.equal(plan.operation, undefined);
+      const input = { fingerprint: plan.fingerprint };
+      await assert.rejects(cvWorkplacePreparationSource(fixture, input), {
+        code: 'jobs-cv-conflict',
+      });
+      const change = await hhExperienceWorkplacePreparationSource(
+        fixture,
+        input
+      );
+      const job = cvWorkplacePlanJob(change.plan, 'baseline', 'en');
+      const baseline = {
+        ...job,
+        metadataEditable: true,
+        locale: 'en',
+        industryText: job.industries.map(({ name }) => name).join(', '),
+      };
+      const target = { hash: change.hash, checked: true };
+      const other = { hash: 'another-cv', checked: true };
+      const page = { url: () => `https://hh.ru/resume/${change.hash}` };
+      const resolve = (records) =>
+        resolveHhExperienceWorkplace({
+          session: { page },
+          change,
+          check: () => {},
+          readIds: async () => Object.keys(records),
+          readWorkplace: async ({ attempt, check }) => {
+            check();
+            return { ...baseline, ...records[attempt.recordId] };
+          },
+        });
+      const exact = { resumes: [target] };
+      const match = await resolve({
+        123: exact,
+        234: { resumes: [other] },
+        345: { ...exact, description: 'Edited by owner' },
+      });
+      assert.equal(match.workplace.recordId, '123');
+      assert.equal(match.plan.fingerprint, plan.fingerprint);
+      assert.equal(match.plan.recordId, null);
+      await assert.rejects(resolve({ 123: exact, 234: exact }), {
+        code: 'jobs-cv-experience-record-ambiguous',
+      });
+      await assert.rejects(resolve({ 123: { resumes: [target, other] } }), {
+        code: 'jobs-cv-shared',
+      });
+      await assert.rejects(resolve({ 123: { resumes: [other] } }), {
+        code: 'jobs-cv-baseline',
+      });
+    } finally {
+      await fixture.close();
+    }
+  }
+);
 const stubBrowser =
   (events, outcome = 'saved') =>
   async (change, signal, update, selection) => {

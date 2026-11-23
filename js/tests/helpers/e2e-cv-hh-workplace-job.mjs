@@ -52,8 +52,23 @@ export const verifyHhWorkplaceJob = async (browser) => {
     await panel.locator('[data-experience-plan-action="status"]').click();
     const update = panel.locator('[data-experience-plan-kind="update"]');
     await update.locator('[data-experience-workplace-select]').click();
-    await update.locator('[data-experience-workplace-record]').fill('123');
-    await update.locator('button[type="submit"]').click();
+    const stage = update.locator('button[type="submit"]');
+    if (process.env.HH_WORKPLACE_BEFORE_AUTO === '1') {
+      await screenshot('before-auto', stage);
+      assert.equal(
+        await stage.isEnabled(),
+        true,
+        'A directed change can be staged without a provider record ID.'
+      );
+      return;
+    }
+    if (process.env.HH_WORKPLACE_BEFORE === '1') {
+      await update.locator('[data-experience-workplace-record]').fill('123');
+    }
+    if (process.env.HH_WORKPLACE_MATCH_SCREENSHOTS === '1') {
+      await screenshot('after-auto', stage);
+    }
+    await stage.click();
     await review.locator('[data-cv-workplace-action="approve"]').click();
     await review.locator('[data-cv-workplace-plan="reviewed"]').waitFor();
     if (process.env.HH_WORKPLACE_BEFORE === '1') {
@@ -86,6 +101,10 @@ export const verifyHhWorkplaceJob = async (browser) => {
     assert.equal(counters.experienceSlot, 'hh-experience-slot');
     assert.equal(counters.attached, 1);
     assert.equal(counters.saves, 0);
+    assert.equal(
+      new URL(provider.url()).pathname,
+      '/profile/edit/experience/123'
+    );
     assert.equal(counters.sourceDetached, 1);
     assert.ok(
       counters.experienceProfile.endsWith(
@@ -136,6 +155,18 @@ export const verifyHhWorkplaceJob = async (browser) => {
     assert.equal(counters.saves, 0);
 
     await fixture.open({ screen: 'overview' });
+    const restore = followup.duplicateOriginal();
+    const overview = provider.url();
+    const previousReads = counters.reads;
+    await action('reset').click();
+    await action('start').click();
+    await phase('failed');
+    assert.match(await job.textContent(), /Several HeadHunter records/u);
+    assert.equal(provider.url(), overview);
+    assert.equal(counters.reads - previousReads, 3);
+    assert.equal(counters.saves, 0);
+    restore();
+
     await action('reset').click();
     await action('start').click();
     await phase('prepared');
@@ -157,6 +188,7 @@ export const verifyHhWorkplaceJob = async (browser) => {
       saves: counters.saves,
       discards: 1,
       draftPreservations: 1,
+      ambiguousBaselines: 1,
     };
   } finally {
     await fixture.close();

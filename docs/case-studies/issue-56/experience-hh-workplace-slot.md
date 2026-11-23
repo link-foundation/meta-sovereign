@@ -8,8 +8,11 @@ profile without navigating it. Sign in in the Experience window if its session
 is unavailable. An existing editor or unexpected tab prevents preparation.
 
 In **CV → Experience documents**, open a completed plan to HeadHunter. Select a
-workplace proposal, enter the native record ID for an update, stage the review
-and approve it. Choose **Prepare in Experience window**. Use **Save in
+workplace proposal, stage the review and approve it. You can supply the native
+record ID for an update. If you leave it blank, the Experience browser checks the
+saved list and binds the approved baseline to exactly one record within the
+selected CV. Shared and ambiguous matches stop before opening an editor. Choose
+**Prepare in Experience window**. Use **Save in
 HeadHunter** to submit the selected draft once, **Skip and discard** to dismiss it
 through the native dialog, or **Leave draft open** to disconnect while preserving
 the form. The CLI accepts `y`, `s`, and `q` for these three actions. Closing stdin
@@ -44,6 +47,14 @@ updated bundle it verifies a lost Start reply, phone reload, isolated cookie
 handoff, native discard, a preserved existing draft, and one Save with fresh
 readback and the other résumé unchanged.
 
+With `HH_WORKPLACE_BEFORE_AUTO=1`, the same runner checks that an update can be
+staged with the record field blank. The parent bundle fails this check. The new
+flow reads a synthetic saved list and only opens record `123` when it uniquely
+matches the approved fields and membership. It refuses a second identical
+record before navigation or Save.
+The Playwright MCP fixture also staged and approved the proposed update with a
+blank ID on a phone, then stopped the dedicated review through **Leave draft open**.
+
 ```sh
 RUN_BROWSER_E2E=1 E2E_EXECUTABLE_PATH=/path/to/chromium node experiments/issue-56/hh-workplace-job-browser.mjs
 node --test --test-concurrency=1 js/tests/cv-hh-workplace-job.test.js
@@ -58,6 +69,10 @@ worker so only the Chromium native fixture checks the provider dialog.
 ![Approved review before the independent Experience action](../../screenshots/issue-56-hh-workplace/before.png)
 ![Prepared workplace after the phone recovers its request](../../screenshots/issue-56-hh-workplace/prepared-phone.png)
 ![Save verified against a fresh synthetic export](../../screenshots/issue-56-hh-workplace/verified-phone.png)
+
+![Previous update requires a manually supplied ID](../../screenshots/issue-56-hh-workplace-match/before-auto.png)
+![The update can be staged with an empty ID](../../screenshots/issue-56-hh-workplace-match/after-auto.png)
+![Update prepared after matching the native record](../../screenshots/issue-56-hh-workplace-match/prepared-phone.png)
 
 The fixtures establish single-workplace behavior. HH21 still requires the
 automatic sequence from acquisition to queued review, reviewed About writes,

@@ -38,6 +38,11 @@ export const HhExperienceWorkplace = ({ job, t }) => {
   const status = job.unknown
     ? 'unknown'
     : (phase ?? (job.busy ? 'opening' : null));
+  const message =
+    status === 'failed' &&
+    job.row.code === 'jobs-cv-experience-record-ambiguous'
+      ? 'ambiguous'
+      : status;
   return el(
     'section',
     { className: 'col', 'data-hh-workplace-phase': status ?? 'idle' },
@@ -45,8 +50,12 @@ export const HhExperienceWorkplace = ({ job, t }) => {
       actions
         ? el('div', { key: 'actions', className: 'row wrap' }, actions)
         : null,
-      status
-        ? el('p', { key: 'status', role: 'status' }, t(`hhWorkplace.${status}`))
+      message
+        ? el(
+            'p',
+            { key: 'status', role: 'status' },
+            t(`hhWorkplace.${message}`)
+          )
         : null,
     ]
   );

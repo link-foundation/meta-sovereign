@@ -60,7 +60,8 @@ CV review, native preparation and an explicit owner Save with fresh synthetic
 exports. The [dedicated HeadHunter reviewer](experience-hh-workplace-slot.md)
 prepares one directed Add or update in a separate profile, reads the Jobs
 session without navigating it, and shares Save, Skip and Leave draft through
-CLI, Lino and the CV view. Hosted and authenticated confirmation of that path
+CLI, Lino and the CV view. An optional record ID lets an update bind to one
+exact saved workplace in the selected résumé. Hosted and authenticated confirmation of that path
 and interactive queue decisions remain required.
 The [LinkedIn position review](experience-linkedin-position-review.md) binds
 one Add or update to the acknowledged native export and a separate approval.

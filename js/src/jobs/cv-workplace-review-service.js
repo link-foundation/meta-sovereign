@@ -77,6 +77,9 @@ const preparationSourceForPlan = async (options, input, plan) => {
 /** The exact original export is checked again immediately before browser admission. */
 export const cvWorkplacePreparationSource = async (options, input) => {
   const { plan } = await storedCvWorkplacePlan(options.store, input);
+  if (plan?.experience && plan.operation !== 'add' && plan.recordId === null) {
+    cvWorkplaceFail('conflict');
+  }
   return preparationSourceForPlan(options, input, plan);
 };
 
@@ -100,7 +103,7 @@ export const hhExperienceWorkplacePreparationSource = async (
 const propose = async (options, input, signal, derived = {}) => {
   const browserSlot = browserName(input.browserSlot ?? 'jobs');
   const adding = input.operation === 'add';
-  if (!adding) {
+  if (!adding && !(derived.experience && input.recordId === undefined)) {
     cvWorkplaceRecordId(input.recordId);
   }
   if (
@@ -158,7 +161,7 @@ const propose = async (options, input, signal, derived = {}) => {
   const content = {
     version: 1,
     browserSlot,
-    recordId: adding ? null : input.recordId,
+    recordId: adding ? null : (input.recordId ?? null),
     source,
     baseline,
     desired,

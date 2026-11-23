@@ -20,6 +20,8 @@ const entries = {
     closed: 'The Experience editor was closed.',
     failed:
       'The review could not proceed. Check the Experience window and the current HeadHunter export.',
+    ambiguous:
+      'Several HeadHunter records match this workplace. Create a review with the exact record ID.',
     unconfirmed:
       'The provider outcome is unconfirmed. Check HeadHunter and get a fresh export before trying again.',
     interrupted:
@@ -48,6 +50,8 @@ const entries = {
     closed: 'Редактор опыта работы закрыт.',
     failed:
       'Не удалось продолжить проверку. Проверьте окно «Опыт работы» и текущую выгрузку HeadHunter.',
+    ambiguous:
+      'Этому месту работы соответствует несколько записей HeadHunter. Создайте проверку с точным ID записи.',
     unconfirmed:
       'Результат не подтверждён. Перед повтором проверьте HeadHunter и получите свежую выгрузку.',
     interrupted:
@@ -75,6 +79,8 @@ const entries = {
     closed: 'अनुभव संपादक बंद हो गया।',
     failed:
       'समीक्षा जारी नहीं हो सकी। अनुभव विंडो और मौजूदा HeadHunter निर्यात देखें।',
+    ambiguous:
+      'इस कार्यस्थल से कई HeadHunter रिकॉर्ड मेल खाते हैं। सटीक रिकॉर्ड आईडी के साथ समीक्षा बनाएँ।',
     unconfirmed:
       'नतीजे की पुष्टि नहीं हुई। दोबारा कोशिश करने से पहले HeadHunter देखें और नया निर्यात पाएँ।',
     interrupted:
@@ -101,6 +107,8 @@ const entries = {
     stopped: '审阅已停止。已准备的草稿会保持打开。',
     closed: '工作经历编辑器已关闭。',
     failed: '无法继续审阅。请查看工作经历窗口和当前的 HeadHunter 导出。',
+    ambiguous:
+      '有多个 HeadHunter 记录与这段经历匹配。请使用确切的记录 ID 创建审核。',
     unconfirmed: '结果尚未确认。重试前请查看 HeadHunter 并获取新的导出。',
     interrupted: '审阅已中断。请查看工作经历窗口和当前的 HeadHunter 导出。',
     unknown: '正在检查现有的审阅请求。',
