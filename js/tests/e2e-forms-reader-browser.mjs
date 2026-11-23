@@ -12,7 +12,10 @@ import {
   assignmentSourceBrowserFixture,
   withAssignmentSourceModel,
 } from '../../experiments/issue-56/assignment-source-fixture.mjs';
-import { verifyFormAssignmentUi } from './helpers/e2e-form-assignment.mjs';
+import {
+  verifyFormAssignmentUi,
+  verifyFormAssignmentSectionUi,
+} from './helpers/e2e-form-assignment.mjs';
 import { verifyAssignmentFixture } from '../../experiments/issue-56/forms-assignment-fixture.mjs';
 import { seedFormPay } from '../../experiments/issue-56/forms-pay-fixture.mjs';
 import { verifyFormMatchingUi } from './helpers/e2e-form-matching.mjs';
@@ -369,6 +372,7 @@ const verifyLimits = async (page) => {
 const formGroups = {
   'forms-assignment': [
     verifyFormAssignmentUi,
+    verifyFormAssignmentSectionUi,
     verifyAssignmentSourceDocument,
     verifyAssignmentPublicationUi,
     verifyStandaloneAssignmentUi,
@@ -448,6 +452,7 @@ const verifyCustomOnly = async ({ page, until }) => {
     ['PUBLICATION', verifyAssignmentPublicationUi],
     ['STANDALONE', verifyStandaloneAssignmentUi],
     ['ASSIGNMENT', verifyFormAssignmentUi],
+    ['ASSIGNMENT_SECTION', verifyFormAssignmentSectionUi],
     ['CAPTCHA', verifyFormCaptchaUi],
     ['AUTOMATIC', verifyFormAutomaticUi],
     ['MATCHING', verifyFormMatchingUi],

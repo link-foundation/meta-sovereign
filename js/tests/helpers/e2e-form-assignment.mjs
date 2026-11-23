@@ -1,4 +1,6 @@
 import { assert } from './e2e-chat.mjs';
+import { storedFormAssignment } from '../../src/forms/assignment-store.js';
+import { taskDetails } from '../../../experiments/issue-56/form-assignment-section-fixture.mjs';
 import {
   decoded,
   openFormPlan,
@@ -46,6 +48,77 @@ const captureLayouts = async (page, state) => {
   }
   await page.setViewportSize({ width: 1200, height: 800 });
 };
+
+export const verifyFormAssignmentSectionUi = async ({
+  page,
+  fixture,
+  owned,
+  store,
+  until,
+}) => {
+  await seedAssignmentAnswers(store);
+  const url = fixture.url.replace('/application', '/assignment-section');
+  const plan = await openFormPlan(page, url, 'qa-profile:forms-fixture');
+  const owner = owned.at(-1);
+  const shot = process.env.FORMS_ASSIGNMENT_SECTION_SCREENSHOTS;
+  const hold = page.locator('[data-form-assignment]');
+  const prerequisite = hold.locator(
+    '[data-form-assignment-state="needs-repository"]'
+  );
+  try {
+    if (shot === 'before' || shot === 'after') {
+      const target =
+        shot === 'before'
+          ? page.locator('[data-form-plan-summary]')
+          : prerequisite;
+      await target.evaluate((node) => node.scrollIntoView({ block: 'center' }));
+      await page.screenshot({
+        path: `docs/screenshots/issue-56-forms-assignment-section-${shot}.png`,
+      });
+    }
+    console.log(
+      '[forms-assignment-section]',
+      JSON.stringify({
+        proposed: plan.planning.proposed,
+        hold: plan.planning.assignment?.state ?? null,
+      })
+    );
+    assert(
+      plan.planning.assignment?.state === 'needs-repository' &&
+        plan.planning.proposed === 0,
+      'a task below the first control holds the ordinary answer'
+    );
+    assert(
+      await prerequisite.count(),
+      'the Forms review explains the prerequisite'
+    );
+    assert(
+      (await storedFormAssignment(store, url)).description.endsWith(
+        taskDetails
+      ),
+      'full task instructions are available to private assignment review'
+    );
+    const pending = responseFor(page, 'prefill');
+    await page.locator('[data-action="prefill-form"]').click();
+    const refused = await decoded(await pending);
+    assert(
+      refused.code === 'form-assignment-required' &&
+        refused.receipts.length === 0,
+      'automatic prefilling refuses all writes'
+    );
+    assert(
+      (await owner.page.locator('[name="english"]').inputValue()) === '',
+      'provider field is unchanged'
+    );
+  } finally {
+    await closeFormReview(page, until, 'assignment section review closed');
+  }
+  assert(
+    owner.closed && fixture.submits === 0,
+    'the owned browser closes without submission'
+  );
+};
+
 export const verifyFormAssignmentUi = async ({
   page,
   fixture,

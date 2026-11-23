@@ -7,8 +7,18 @@ import {
   seedFormQuestionnaire,
   formQuestionnaireHtml,
 } from './form-questionnaire-fixture.mjs';
+import { seedAssignmentAnswers } from './forms-assignment-fixture.mjs';
+import { assignmentSectionHtml } from './form-assignment-section-fixture.mjs';
+import { seedFormAnswers } from './forms-plan-fixture.mjs';
+
+const assignmentSection = process.argv.includes('--assignment-section');
 const store = createMemoryStore();
-await seedFormQuestionnaire(store);
+if (assignmentSection) {
+  await seedFormAnswers(store);
+  await seedAssignmentAnswers(store);
+} else {
+  await seedFormQuestionnaire(store);
+}
 let submissions = 0;
 const reads = [];
 const form = createServer((req, res) => {
@@ -16,7 +26,7 @@ const form = createServer((req, res) => {
     submissions++;
   }
   res.setHeader('content-type', 'text/html; charset=utf-8');
-  res.end(formQuestionnaireHtml);
+  res.end(assignmentSection ? assignmentSectionHtml() : formQuestionnaireHtml);
 });
 await new Promise((resolve) => form.listen(0, '127.0.0.1', resolve));
 const browser = await chromium.launch({
@@ -79,7 +89,13 @@ try {
           commander,
           policy: { headless: true },
           async close() {
-            record.events = await page.evaluate(() => globalThis.events);
+            const result = await page.evaluate(() => ({
+              events: globalThis.events,
+              submitted: globalThis.submissions,
+              english:
+                globalThis.document.querySelector('[name="english"]')?.value,
+            }));
+            Object.assign(record, result);
             await commander.destroy();
             await context.close();
             record.closed = true;
@@ -92,7 +108,7 @@ try {
     JSON.stringify({
       pid: process.pid,
       base: `http://127.0.0.1:${app.port}`,
-      form: `http://127.0.0.1:${form.address().port}/questionnaire`,
+      form: `http://127.0.0.1:${form.address().port}/${assignmentSection ? 'assignment-section' : 'questionnaire'}`,
       liveProvider: false,
     })
   );

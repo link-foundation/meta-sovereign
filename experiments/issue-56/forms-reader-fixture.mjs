@@ -3,6 +3,7 @@ import { salaryOptionHtml } from './salary-option-fixture.mjs';
 import { formQuestionnaireHtml } from './form-questionnaire-fixture.mjs';
 import { questionnaireLearningHtml } from './forms-questionnaire-learning-fixture.mjs';
 import { assignmentFixtureHtml } from './forms-assignment-fixture.mjs';
+import { assignmentSectionHtml } from './form-assignment-section-fixture.mjs';
 import { assignmentSourceHtml } from './assignment-source-fixture.mjs';
 import { captchaFixtureHtml } from './forms-captcha-fixture.mjs';
 import { matchingFixtureHtml } from './question-matching-fixture.mjs';
@@ -41,6 +42,7 @@ const simplePages = {
   '/questionnaire-learning': questionnaireLearningHtml,
   '/questionnaire': formQuestionnaireHtml,
   '/instructions': assignmentSourceHtml,
+  '/assignment-section': assignmentSectionHtml(),
   '/assignment': assignmentFixtureHtml,
   '/captcha': captchaFixtureHtml,
   '/matching': matchingFixtureHtml,

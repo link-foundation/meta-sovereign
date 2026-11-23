@@ -1934,3 +1934,10 @@ Native profile persistence follow-up:
 - [x] Bind each private browser page to its read-only receipt and revalidate the exact live wait after a bounded focus probe.
 - [x] Verify the two-tab and separate-window controls, an incorrect page-reported focus value, deadline and stale ownership recovery. Preserve exact parent and current receipts. [Focused browser reminders](desktop-owner-attention.md#while-the-owner-is-at-the-waiting-browser).
 - [ ] Verify exact-head hosted checks, remaining desktop system behaviors and authenticated workflows.
+
+### Test assignment sections (QA24)
+
+- [x] Reproduce two proposals and an absent hold on published `72d5a02c` when the required task comes after the first control.
+- [x] Capture the complete visible section with bounded reads and preserve the whole-form hold, task revision and manual verification boundary.
+- [x] Verify 48 focused tests in each runtime and the browser and Playwright MCP receipts. Preserve the before and after screenshots. [Reproduction and sources](assignment-sections.md).
+- [ ] Verify the hosted Forms group and the remaining QA24 instruction and desktop notification behavior.

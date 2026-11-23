@@ -15,7 +15,10 @@ import {
   assignmentRecordId,
   recognizeFormAssignment,
 } from '../src/forms/assignment-recognition.js';
-import { rememberFormAssignment } from '../src/forms/assignment-store.js';
+import {
+  rememberFormAssignment,
+  storedFormAssignment,
+} from '../src/forms/assignment-store.js';
 import { automaticFormEnvironment } from './helpers/forms-auto-prefill-fixture.mjs';
 import { formUploadEnvironment } from './helpers/forms-upload-fixture.mjs';
 import { saveConfiguredResume } from '../src/forms/configured-resume.js';
@@ -89,6 +92,67 @@ test('assignment prerequisite holds saved answers, profile contacts and model dr
     plan.fields.every((field) => field.answer.reason === 'assignment-required')
   );
   assert.match(formReportMarkdown(plan), /Assignment prerequisite/);
+});
+
+test('a scoped task without a repository field holds every answer and preserves the complete private text', async () => {
+  const store = createMemoryStore();
+  const inspection = assignmentInspection('Application');
+  inspection.fields.splice(2, 1);
+  inspection.fields[1].group = {
+    ...inspection.fields[1].group,
+    label: 'Test task',
+  };
+  inspection.frames[0].assignmentSections = [
+    'Test task\nBuild an importer.\nThe report should quote “No test task”.',
+  ];
+  const plan = await planFormAnswers(store, options(inspection));
+  assert.equal(plan.planning.proposed, 0);
+  assert.equal(plan.planning.assignment.state, 'needs-repository');
+  const saved = await storedFormAssignment(store, inspection.url);
+  assert.equal(
+    saved.description,
+    'Test task Build an importer. The report should quote “No test task”.'
+  );
+  assert.deepEqual(
+    (await recognizeFormAssignment(inspection)).resultFields,
+    []
+  );
+  const previous = await link(store, inspection);
+  inspection.frames[0].assignmentSections[0] +=
+    '\nSave a reconciliation report.';
+  const changed = await planFormAnswers(store, options(inspection));
+  assert.equal(changed.planning.assignment.state, 'needs-repository');
+  assert.notEqual(
+    changed.planning.assignment.revision,
+    previous.assignment.revision
+  );
+});
+
+test('waived sections make no assignment and incomplete required sections refuse planning', async () => {
+  const store = createMemoryStore();
+  const inspection = assignmentInspection('Application');
+  inspection.fields.splice(2, 1);
+  const frame = inspection.frames[0];
+  frame.assignmentSections = [
+    'No test task required\nPlease fill your details.',
+  ];
+  assert.equal(await recognizeFormAssignment(inspection), null);
+  frame.intro = assignmentTask;
+  assert.equal(
+    (await recognizeFormAssignment(inspection)).description,
+    assignmentTask
+  );
+  frame.intro = 'Application';
+  assert.equal(
+    (await planFormAnswers(store, options(inspection))).planning.assignment,
+    undefined
+  );
+  delete frame.assignmentSections;
+  frame.assignmentSectionsLimited = true;
+  await assert.rejects(planFormAnswers(store, options(inspection)), {
+    code: 'form-assignment-limit',
+  });
+  assert.equal(await storedFormAssignment(store, inspection.url), null);
 });
 
 test(

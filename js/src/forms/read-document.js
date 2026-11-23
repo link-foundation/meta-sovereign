@@ -8,6 +8,7 @@ export const readFormDocument = ({
   identityOnly = false,
   challengeOnly = false,
   hhLimit = null,
+  assignmentSectionPatterns,
 } = {}) => {
   const doc = globalThis.document;
   // WebKit timeOrigin can drift within one live document. Bind to a private,
@@ -143,6 +144,107 @@ export const readFormDocument = ({
       )
       ? form
       : null;
+  }
+  function readAssignmentSections() {
+    const region = 'section,article,fieldset,[role="listitem"]';
+    const excluded = `${challengeRoots},script,style,noscript,input,textarea,select,button,label,output,[contenteditable],[role="textbox"],[role="combobox"]`;
+    const marker = new RegExp(assignmentSectionPatterns.marker, 'iu');
+    const waived = new RegExp(assignmentSectionPatterns.waived, 'iu');
+    const taskHeading = (value) => marker.test(value) && !waived.test(value);
+    const textParent = (node) => {
+      const parent = node.parentElement;
+      return node.nodeType === 3 &&
+        parent &&
+        !parent.closest(excluded) &&
+        visible(parent)
+        ? parent
+        : null;
+    };
+    const sections = [];
+    let remainingNodes = 12000;
+    let remainingText = 30000;
+    let limited = false;
+    let taskLimited = false;
+    const readSection = (section) => {
+      const walker = doc.createTreeWalker(section);
+      const chunks = [];
+      let length = 0;
+      const heading = () => chunks.slice(0, 2).join(' ');
+      const exceed = (prefix) => {
+        limited = true;
+        taskLimited = taskHeading(prefix);
+        return '';
+      };
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        if (--remainingNodes < 0) {
+          return exceed(heading());
+        }
+        const parent = textParent(node);
+        if (!parent) {
+          continue;
+        }
+        if (node.length > 30000) {
+          return exceed(
+            chunks.length < 2
+              ? `${heading()} ${node.data.slice(0, 500)}`
+              : heading()
+          );
+        }
+        const value = node.data.replace(/\s+/gu, ' ').trim();
+        if (!value) {
+          continue;
+        }
+        if (!chunks.length && parent.closest(region) !== section) {
+          return '';
+        }
+        chunks.push(value);
+        if (chunks.length === 2 && !taskHeading(heading())) {
+          return '';
+        }
+        length += value.length + (chunks.length > 1 ? 1 : 0);
+        if (length > remainingText) {
+          return exceed(heading());
+        }
+      }
+      return taskHeading(heading()) ? chunks.join('\n') : '';
+    };
+    let inspected = 0;
+    for (const section of root.querySelectorAll(region)) {
+      if (++inspected > 500 || limited) {
+        limited = true;
+        break;
+      }
+      if (!visible(section) || section.closest(excluded)) {
+        continue;
+      }
+      const text = readSection(section);
+      if (text && !sections.includes(text)) {
+        if (sections.length === 8) {
+          limited = true;
+          break;
+        }
+        remainingText -= text.length + 1;
+        sections.push(text);
+      }
+    }
+    return {
+      limited,
+      sections,
+      taskLimited: taskLimited || (limited && sections.length > 0),
+    };
+  }
+  function readAssignmentEvidence(reasons) {
+    if (hhLimit || !assignmentSectionPatterns) {
+      return {};
+    }
+    const { sections, limited, taskLimited } = readAssignmentSections();
+    if (limited) {
+      reasons.add('assignment-section-limit');
+    }
+    return {
+      ...(sections.length ? { assignmentSections: sections } : {}),
+      ...(taskLimited ? { assignmentSectionsLimited: true } : {}),
+    };
   }
   const readFields = () => {
     const reasons = new Set();
@@ -715,10 +817,12 @@ export const readFormDocument = ({
         }
       }
     }
+    const assignment = readAssignmentEvidence(reasons);
     return {
       ...identity,
       title: hhLimit ? '' : clip(doc.title),
       intro: readIntro(),
+      ...assignment,
       fields,
       excluded,
       reasons: [...reasons],

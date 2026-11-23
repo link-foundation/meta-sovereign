@@ -16,6 +16,8 @@ Accept an HH vacancy URL or numeric ID when drafting an assignment. Restore the 
 
 Draft from an active Forms slot through either Lino encoding or the CLI. Recheck the current instructions before using a Forms preview and preserve the reviewed fill plan (issue #56, QA24).
 
+Recognize required test assignment sections throughout the owned form. Preserve complete visible instructions for private review and hold regular answers and attachments until the repository is confirmed (issue #56, QA24).
+
 Restore the verified GitHub repository and issue together when reopening the same Forms assignment. Both Lino formats and CLI plans expose the same receipt, and the assignment still requires owner review before submission (issue #56, QA24).
 
 Open saved HeadHunter web conversations in Chat with a receipt-checked native send. Retain pending messages when delivery is uncertain, and use provider unread counts and filters in Chat and Operator (issue #56, HH09).

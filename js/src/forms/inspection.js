@@ -1,6 +1,13 @@
 import { formFailure as failure, formUrl } from './options.js';
 import { readFormDocument, formFrameVisible } from './read-document.js';
 import { challengeFrameUrl } from './challenge-wait.js';
+import { assignmentSectionPatterns } from './assignment-recognition.js';
+
+const documentOptions = (maxFields) => ({
+  maxFields,
+  maxOptions: 100,
+  assignmentSectionPatterns,
+});
 
 /** Only verification markers in the main document and visible child frames. */
 export const inspectFormChallenge = async ({ commander, page }) => {
@@ -62,10 +69,10 @@ const readChildFrame = async (frame, parent, maxFields) => {
     await frame.waitForLoadState?.('domcontentloaded', { timeout: 5000 });
     // Commander owns main-document reads. Its API has no frame target;
     // the connected Playwright frame also permits cross-origin child DOMs.
-    const document = await frame.evaluate(readFormDocument, {
-      maxFields,
-      maxOptions: 100,
-    });
+    const document = await frame.evaluate(
+      readFormDocument,
+      documentOptions(maxFields)
+    );
     return { document: { parent, ...document } };
   } catch {
     return { omission: { reason: 'frame-unavailable' } };
@@ -171,7 +178,7 @@ export const inspectCurrentFormSession = async (
   check();
   const main = await commander.evaluate({
     fn: readFormDocument,
-    args: [{ maxFields: 200, maxOptions: 100 }],
+    args: [documentOptions(200)],
   });
   formUrl(main.url);
   check();

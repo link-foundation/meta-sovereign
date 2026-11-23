@@ -110,6 +110,10 @@ const validFrame = (frame) =>
   id(frame.id) &&
   validUrl(frame.url, frame.parent !== null) &&
   text(frame.intro ?? '', 6000) &&
+  (frame.assignmentSections === undefined ||
+    list(frame.assignmentSections, 8, (section) => text(section, 30000))) &&
+  (frame.assignmentSectionsLimited === undefined ||
+    frame.assignmentSectionsLimited === true) &&
   validChallenge(frame.challenge) &&
   list(frame.reasons, 30, reason);
 const reportIdentity = (input) =>
