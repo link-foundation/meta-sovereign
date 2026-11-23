@@ -12,7 +12,7 @@ import { reviewCapacityValue } from '../forms/review-capacity.js';
 import { modelDraftFlag } from './answer-model-commands.js';
 import { createLocalAnswerModel } from '../automation/local-answer-model.js';
 import { formReportSnapshot } from '../forms/review-journal.js';
-import { awaitFormPrefill } from './forms-prefill-wait.js';
+import { createFormPrefillWait } from './forms-prefill-wait.js';
 
 export { FORMS_REVIEW_HELP } from './help.js';
 const inputs = (args) => {
@@ -70,7 +70,13 @@ const inputs = (args) => {
     learn: ![true, 'true'].includes(args['no-learn']),
   }));
 };
-const command = async (reader, line, options) => {
+const reviewSessionCommands = {
+  read: (reader, id) => reader.readReview(id),
+  history: (reader, id) => reader.historyReview(id),
+  focus: (reader, id, requestId) => reader.focusReview(id, requestId),
+};
+
+const command = async (reader, line, options, prefills) => {
   const [action, slot, planId, fieldIds, replace] = line.trim().split(/\s+/u);
   if (action === 'list') {
     return reader.listReviews();
@@ -93,7 +99,7 @@ const command = async (reader, line, options) => {
     ].includes(action)
   ) {
     throw new Error(
-      'Use list, read/history/plan/prefill/focus/close <slot>, disclose <slot> <plan-id> <field-id>, attach <slot> <plan-id> <field-id> [replace], apply <slot> <plan-id> <field-id,...> [replace] or quit.'
+      'Use list, read/history/plan/prefill/close <slot>, focus <slot> [request-id], disclose <slot> <plan-id> <field-id>, attach <slot> <plan-id> <field-id> [replace], apply <slot> <plan-id> <field-id,...> [replace] or quit.'
     );
   }
   if (action === 'plan') {
@@ -105,11 +111,15 @@ const command = async (reader, line, options) => {
     return result;
   }
   if (action === 'prefill') {
-    return reader.prefillReview({
+    await prefills.start({
       ...options,
       id: session.id,
       requestId: globalThis.crypto.randomUUID(),
     });
+    return null;
+  }
+  if (action === 'close') {
+    return prefills.close(session.id);
   }
   if (action === 'apply') {
     return reader.applyReview({
@@ -138,7 +148,7 @@ const command = async (reader, line, options) => {
   if (action === 'disclose') {
     return reader.discloseReview({ id: session.id, planId, fieldId: fieldIds });
   }
-  return reader[`${action}Review`](session.id);
+  return reviewSessionCommands[action](reader, session.id, planId);
 };
 
 const reviewOutput = (result, output, format) =>
@@ -148,6 +158,16 @@ const reviewOutput = (result, output, format) =>
         ['read-only', 'answer-plan', 'review-journal'].includes(result.mode)
       ? output(result)
       : JSON.stringify(result);
+
+const reviewError = (log, error, browserSlot) =>
+  log(
+    JSON.stringify({
+      ok: false,
+      browserSlot,
+      code: error.code ?? 'form-review-failed',
+      error: error.message,
+    })
+  );
 
 const requestedCapacity = (args, count) => {
   const capacity =
@@ -188,34 +208,24 @@ const openReviews = async (
       const opened = await reader.openReview(form);
       log(JSON.stringify(opened));
       if (automatic.enabled && !isCancelled()) {
-        const initial = await reader.prefillReview({
+        const { done } = await automatic.prefills.start({
           ...automatic.settings,
           id: opened.session.id,
           requestId: globalThis.crypto.randomUUID(),
         });
-        const result = await awaitFormPrefill(
-          reader,
-          initial,
-          (value) =>
-            log(reviewOutput(value, automatic.output, automatic.format)),
-          isCancelled
-        );
-        log(reviewOutput(result, automatic.output, automatic.format));
-        failed ||= !result.ok;
+        if (isCancelled()) {
+          await automatic.prefills.stop();
+          break;
+        }
+        const ok = await done;
+        failed ||= !ok;
       }
     } catch (error) {
       if (isCancelled()) {
         break;
       }
       failed = true;
-      log(
-        JSON.stringify({
-          ok: false,
-          browserSlot: form.browserSlot,
-          code: error.code ?? 'form-review-failed',
-          error: error.message,
-        })
-      );
+      reviewError(log, error, form.browserSlot);
     }
   }
   return failed;
@@ -225,6 +235,7 @@ const reviewLines = async ({
   reader,
   stream,
   settings,
+  prefills,
   isCancelled,
   log,
   output,
@@ -235,22 +246,12 @@ const reviewLines = async ({
       break;
     }
     try {
-      const initial = await command(reader, line, settings);
-      const result = await awaitFormPrefill(
-        reader,
-        initial,
-        (value) => log(reviewOutput(value, output, format)),
-        isCancelled
-      );
-      log(reviewOutput(result, output, format));
+      const result = await command(reader, line, settings, prefills);
+      if (result) {
+        log(reviewOutput(result, output, format));
+      }
     } catch (error) {
-      log(
-        JSON.stringify({
-          ok: false,
-          code: error.code ?? 'form-review-failed',
-          error: error.message,
-        })
-      );
+      reviewError(log, error);
     }
   }
 };
@@ -273,6 +274,24 @@ const reviewSettings = (args, file, modelDraft) => ({
   ...questionMatchingFlags(args),
   modelDraft,
 });
+
+const reviewCommandList = {
+  ok: true,
+  commands: [
+    'list',
+    'read <slot>',
+    'history <slot>',
+    'focus <slot> [request-id]',
+    'close <slot>',
+    'plan <slot>',
+    'prefill <slot>',
+    'apply <slot> <plan-id> <field-id,...> [replace]',
+    'disclose <slot> <plan-id> <field-id>',
+    'attach <slot> <plan-id> <field-id> [replace]',
+    'quit',
+  ],
+  note: 'Use list and focus during manual verification. Close stops a review browser and its watcher. Quit and end of input stop pending verification tasks. Other durable learning watchers remain open and close after 24 idle hours. Prefill fills supported empty answers and the selected or configured PDF. Review answers and navigate later pages yourself. Forms are never submitted.',
+};
 
 export const createFormReviewCommands = ({
   openStore,
@@ -302,8 +321,8 @@ export const createFormReviewCommands = ({
       modelRunner: model.draft,
     });
     let stream;
-    const plans = new Map();
     let cancelled = false;
+    let inputEnded = false;
     let stopping;
     const cancel = () => {
       cancelled = true;
@@ -311,58 +330,68 @@ export const createFormReviewCommands = ({
       stopping ??= reader.stop();
       stopping.catch(() => {});
     };
+    let enableInput;
+    const inputReady = new Promise((resolve) => {
+      enableInput = resolve;
+    });
+    const isCancelled = () => cancelled || inputEnded;
+    const prefills = createFormPrefillWait({
+      reader,
+      show: (result) => log(reviewOutput(result, output, args.format)),
+      showError: (error, slot) => {
+        if (!isCancelled()) {
+          reviewError(log, error, slot);
+        }
+      },
+      onWaiting: enableInput,
+    });
+    const listen = async () => {
+      await inputReady;
+      if (isCancelled()) {
+        return;
+      }
+      try {
+        log(JSON.stringify(reviewCommandList));
+        stream = reviewInput();
+        await reviewLines({
+          reader,
+          stream,
+          settings: { ...settings, plans: new Map() },
+          prefills,
+          isCancelled,
+          log,
+          output,
+          format: args.format,
+        });
+      } finally {
+        inputEnded = true;
+        if (!cancelled) {
+          await prefills.stop();
+        }
+      }
+    };
     process.once('SIGINT', cancel);
     process.once('SIGTERM', cancel);
     try {
-      const failed = await openReviews(
-        reader,
-        forms,
-        capacity,
-        log,
-        () => cancelled,
-        {
-          enabled: automatic,
-          settings,
-          output,
-          format: args.format,
-        }
-      );
-      if (cancelled) {
-        return 130;
-      }
-      log(
-        JSON.stringify({
-          ok: true,
-          commands: [
-            'list',
-            'read <slot>',
-            'history <slot>',
-            'focus <slot>',
-            'close <slot>',
-            'plan <slot>',
-            'prefill <slot>',
-            'apply <slot> <plan-id> <field-id,...> [replace]',
-            'disclose <slot> <plan-id> <field-id>',
-            'attach <slot> <plan-id> <field-id> [replace]',
-            'quit',
-          ],
-          note: 'Close stops a review browser and its watcher. Durable learning watchers remain open after quit or end of input, and close after 24 idle hours. Prefill fills supported empty answers and the selected or configured PDF. Review answers and navigate later pages yourself. Forms are never submitted.',
+      const opening = openReviews(reader, forms, capacity, log, isCancelled, {
+        enabled: automatic,
+        settings,
+        prefills,
+      })
+        .catch((error) => {
+          inputEnded = true;
+          stream?.close?.();
+          throw error;
         })
-      );
-      stream = reviewInput();
-      await reviewLines({
-        reader,
-        stream,
-        settings: {
-          ...settings,
-          plans,
-        },
-        isCancelled: () => cancelled,
-        log,
-        output,
-        format: args.format,
-      });
-      return cancelled ? 130 : failed ? 1 : 0;
+        .finally(enableInput);
+      const [opened, listened] = await Promise.allSettled([opening, listen()]);
+      if (opened.status === 'rejected') {
+        throw opened.reason;
+      }
+      if (listened.status === 'rejected') {
+        throw listened.reason;
+      }
+      return cancelled ? 130 : opened.value ? 1 : 0;
     } catch (error) {
       if (cancelled) {
         return 130;

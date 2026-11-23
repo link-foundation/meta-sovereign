@@ -1,3 +1,10 @@
+2026-11-23 foreground Forms controls during owner verification (QA24 and HH01 remain unfinished):
+
+- [x] Compare the web notice with the pinned Show browser action and foreground Forms behavior. The CLI delays reading input until the owner wait finishes during both explicit prefill paths.
+- [x] Keep the same foreground console available during verification. Use the existing request guard for `focus <slot> <request-id>`. Show the original task's terminal receipt and drain pending owner work on Close, quit or end of input.
+- [x] Preserve all five exact-parent regressions. Node and Deno each pass 74 focused tests, including ordinary ordered startup and both Lino encodings.
+- [ ] Verify the published source in hosted checks.
+
 2026-11-23 Forms attention for an active owner wait (QA24 and HH01 remain unfinished):
 
 - [x] Compare the pinned notifier's exact-window Show browser action, unanswered reminders, Later and independent sound choice. Existing prefill waits belong to the server, but Forms drops the request on navigation and a focus action has no specific wait identity.

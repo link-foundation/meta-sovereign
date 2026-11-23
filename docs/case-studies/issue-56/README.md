@@ -336,6 +336,7 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 ## Evidence and chronology
 
 - [forms-attention.md](forms-attention.md) preserves the exact active verification wait across views and verifies guarded focus, the in-app fallback, independent notification sound, snooze and cleanup in both Lino formats, Chromium and Playwright MCP.
+- [forms-cli-attention.md](forms-cli-attention.md) keeps foreground Forms input available during both kinds of prefill and verifies request-bound focus, terminal receipts and cancellation on Close, quit or end of input.
 - [assignment-handoff.md](assignment-handoff.md) restores the exact confirmed repository and issue in reopened Forms review, CLI and both Lino encodings. Native Chromium and independent Playwright MCP cover a lost response, same-draft recovery and reopening with zero employer submissions.
 - [hosted-browser-45109832980.md](hosted-browser-45109832980.md) links seven hosted failures to three browser fixture paths and preserves the raw workflow log. Six focused Chromium entry points pass after correcting wire format, notification-stream matching and foreground read ownership.
 - [ci-locked-prettier.md](ci-locked-prettier.md) reproduces published Hindi locale and requirement-document failures with the locked formatter, preserving raw hosted logs and correcting only formatting.

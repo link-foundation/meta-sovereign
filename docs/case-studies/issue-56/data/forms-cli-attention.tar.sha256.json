@@ -1,0 +1,22 @@
+{
+  "archive": "forms-cli-attention.tar.gz",
+  "files": {
+    "PLAN.md": "3686c62858c160e86f64ad4a7c3c7ceae55eeaa71554aa30497f53796b6666e4",
+    "docs/case-studies/issue-56/README.md": "b5008026311259da52210ede3af9040b5d7b21ae85148de84c40aa2f5a58c049",
+    "docs/case-studies/issue-56/forms-cli-attention.md": "14e1167e02da6c5ed78478e43c4116a23df310945cad478ad1715062e437dc69",
+    "docs/case-studies/issue-56/reference-feature-inventory.md": "bd43612e2eeeed3bcc33501ec716d8d2b8e4850dfff42a0eea0945a650fff708",
+    "js/src/cli/forms-prefill-wait.js": "87cc6ef23df5442f12a3082da694f47485d54976b471e044451b03accec24db0",
+    "js/src/cli/forms-review-commands.js": "ff2f61df2a3e963bd9a252efcff39a77ae04c4402f5934ffe9b59bbe74e33011",
+    "js/src/forms/prefill-control.js": "6effc448f4e9b92fc4a4e3fc60bda119fa14143f83498ed717d0ad1d8536b97d",
+    "js/tests/forms-attention.test.js": "620570b6a704c0a8bf9c25fc740c258bd10f3f3e65f748014683f0f962ae2c7e",
+    "js/tests/forms-captcha.test.js": "b7a1730a3487c07e120b25f42b93bea3f24f6a34d412e0147042aaea292d9c95",
+    "logs/forms-cli-attention-parent.tap": "39d031ce1939a97f0e01f7ce98d474d0d09ef95657585a15a9d66ec994296c43",
+    "logs/forms-cli-attention-after.tap": "aab7e7d24e3c80b283ca7929eec640a3ca61fc3ed87d098e2c78e653b875650e",
+    "logs/forms-cli-attention-deno.log": "47dc5099230bd3f318fe64823fc8dbfc1587f18998216b08b2af141d1ebde846",
+    "logs/forms-cli-attention-format.log": "0541a7a299c63df9ac55ad7c88e077624a4fcf55d9ec942083a4b54db54d60e8",
+    "logs/forms-cli-attention-eslint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/forms-cli-attention-doc-format.log": "2e43946889c6d8b29aecdebb077af942ebd2cbdb76a00dd1ad7e1928ca7e92d9",
+    "logs/forms-cli-attention-secretlint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "metadata.json": "dc20ae3642b8faea621fa0b193441b8be859c54989ef09d66b05d0e3927de516"
+  }
+}

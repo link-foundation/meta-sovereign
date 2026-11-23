@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { clearTimeout, setTimeout } from 'node:timers';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import React from 'react';
@@ -19,7 +20,7 @@ import {
   LINO_BINARY,
   readWireResponse,
 } from '../src/transport/lino.js';
-import { awaitFormPrefill } from '../src/cli/forms-prefill-wait.js';
+import { createFormPrefillWait } from '../src/cli/forms-prefill-wait.js';
 import { formDeadlineClock } from '../../experiments/issue-56/form-deadline-clock.mjs';
 import { createPrefillControl } from '../src/forms/prefill-control.js';
 
@@ -466,7 +467,7 @@ test(
 );
 
 test(
-  'CLI waits through a manual receipt using only status reads',
+  'CLI observes a manual receipt and the original completion without polling or replay',
   { timeout: 3000 },
   async () => {
     const initial = {
@@ -474,23 +475,35 @@ test(
       requestId: 'cli',
       reviewSession: { id: 'owner' },
     };
-    let reads = 0;
-    const progress = [];
-    const result = await awaitFormPrefill(
-      {
-        prefillStatus: async (input) => {
+    let calls = 0;
+    let resume;
+    const verified = new Promise((resolve) => {
+      resume = resolve;
+    });
+    const receipts = [];
+    const pending = createFormPrefillWait({
+      reader: {
+        prefillReview: async (input, waiting) => {
           assert.deepEqual(input, { id: 'owner', requestId: 'cli' });
-          reads++;
-          return { ...initial, state: 'partial' };
+          calls++;
+          waiting(initial);
+          await verified;
+          return { ...initial, state: 'partial', ok: true };
         },
       },
-      initial,
-      (value) => progress.push(value.state),
-      () => false
+      show: (receipt) => receipts.push(receipt),
+      showError: assert.fail,
+      onWaiting: () => {},
+    });
+    const { done } = await pending.start({ id: 'owner', requestId: 'cli' });
+    assert.deepEqual(receipts, [initial]);
+    resume();
+    assert.equal(await done, true);
+    assert.deepEqual(
+      receipts.map((receipt) => receipt.state),
+      ['waiting-owner', 'partial']
     );
-    assert.equal(result.state, 'partial');
-    assert.deepEqual(progress, ['waiting-owner']);
-    assert.equal(reads, 1);
+    assert.equal(calls, 1);
   }
 );
 

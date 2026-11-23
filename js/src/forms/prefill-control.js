@@ -32,7 +32,7 @@ export const createPrefillControl = ({ get, check, identity, action }) => {
       }
       return snapshot(record, result);
     },
-    run: async (input) => {
+    run: async (input, onWaiting) => {
       const record = get(input.id);
       check(record);
       if (record.task && pendingPrefill(record.lastPrefill?.result)) {
@@ -40,6 +40,11 @@ export const createPrefillControl = ({ get, check, identity, action }) => {
         if (cached) {
           return snapshot(record, cached);
         }
+      }
+      // A foreground owner can observe and await the original task locally.
+      // The transport still returns the first receipt for status recovery.
+      if (onWaiting) {
+        return action(input, (result) => onWaiting(snapshot(record, result)));
       }
       let waiting;
       const firstWait = new Promise((resolve) => {

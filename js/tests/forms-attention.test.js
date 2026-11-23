@@ -1,13 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { clearTimeout, setTimeout } from 'node:timers';
 import { automaticFormEnvironment } from './helpers/forms-auto-prefill-fixture.mjs';
 import { formReviewHttp } from './helpers/forms-review-http.mjs';
+import { createFormsCommands } from '../src/cli/forms-commands.js';
 import {
   LINO_TEXT,
   LINO_BINARY,
   readWireResponse,
 } from '../src/transport/lino.js';
 import { formDeadlineClock } from '../../experiments/issue-56/form-deadline-clock.mjs';
+import { pendingPrefill } from '../src/forms/challenge-wait.js';
 
 const waitingForm = async (t, { headless = false, clock } = {}) => {
   let focused = 0;
@@ -164,4 +167,156 @@ for (const media of [LINO_TEXT, LINO_BINARY]) {
     await post('close', { id });
     assert.deepEqual((await read()).attention, []);
   });
+}
+
+for (const automatic of [false, true]) {
+  test(
+    `foreground Forms exposes list and exact focus during ${automatic ? '--prefill' : 'interactive prefill'}`,
+    { timeout: 5000 },
+    async (t) => {
+      const { env, focused } = await waitingForm(t);
+      await env.reader.stop();
+      const output = [];
+      let complete;
+      const completion = new Promise((resolve) => {
+        complete = resolve;
+      });
+      let fallback;
+      const release = () => {
+        delete env.report.challenge;
+      };
+      t.after(() => clearTimeout(fallback));
+      const cli = createFormsCommands({
+        ...env.options,
+        openStore: async () => env.options.store,
+        async *reviewInput() {
+          if (!automatic) {
+            yield 'prefill form-1';
+          }
+          yield 'list';
+          const wait = output.find((entry) => entry.state === 'waiting-owner');
+          yield 'focus form-1 stale-request';
+          if (wait) {
+            yield `focus form-1 ${wait.requestId}`;
+          }
+          release();
+          await completion;
+          yield 'quit';
+        },
+      });
+      const status = await cli['forms-review'](
+        {
+          url: env.report.url,
+          prefill: automatic,
+          'no-learn': true,
+          'profile-id': env.profile.id,
+        },
+        (line) => {
+          const entry = JSON.parse(line);
+          output.push(entry);
+          if (entry.state === 'waiting-owner') {
+            fallback = setTimeout(release, 300);
+          }
+          if (entry.mode === 'prefill-result' && !pendingPrefill(entry)) {
+            complete();
+          }
+        }
+      );
+      const wait = output.find((entry) => entry.state === 'waiting-owner');
+      const receipt = output.find((entry) => entry.attention?.length);
+      assert.equal(receipt?.attention[0].requestId, wait.requestId);
+      assert.equal(
+        output.filter((entry) => entry.code === 'form-attention-ended').length,
+        1
+      );
+      assert.equal(focused(), 1);
+      const result = output.find(
+        (entry) => entry.mode === 'prefill-result' && !pendingPrefill(entry)
+      );
+      assert.equal(
+        status,
+        0,
+        JSON.stringify(
+          output
+            .filter((entry) => !entry.ok)
+            .map(({ state, code, error }) => ({ state, code, error }))
+        )
+      );
+      assert.equal(
+        env.textWrites.length,
+        2,
+        JSON.stringify({
+          state: result?.state,
+          code: result?.code,
+          error: result?.error,
+        })
+      );
+      assert.equal(result.requestId, wait.requestId);
+      assert.equal(result.submissionAttempted, false);
+    }
+  );
+}
+
+for (const ending of ['close', 'quit', 'eof']) {
+  test(
+    `foreground Forms drains the owner wait on ${ending}`,
+    { timeout: 5000 },
+    async (t) => {
+      const { env } = await waitingForm(t);
+      await env.reader.stop();
+      const closed = [];
+      const output = [];
+      let fallback;
+      t.after(() => clearTimeout(fallback));
+      const cli = createFormsCommands({
+        ...env.options,
+        openSession: async (options) => {
+          const browser = await env.options.openSession(options);
+          return {
+            ...browser,
+            close: async () => closed.push(options.browserSlot),
+          };
+        },
+        openStore: async () => env.options.store,
+        async *reviewInput() {
+          if (ending === 'close') {
+            yield 'close form-1';
+            yield 'list';
+          }
+          if (ending !== 'eof') {
+            yield 'quit';
+          }
+        },
+      });
+      const status = await cli['forms-review'](
+        {
+          url: env.report.url,
+          prefill: true,
+          'no-learn': true,
+          'profile-id': env.profile.id,
+        },
+        (line) => {
+          const entry = JSON.parse(line);
+          output.push(entry);
+          if (entry.state === 'waiting-owner') {
+            fallback = setTimeout(() => {
+              delete env.report.challenge;
+            }, 300);
+          }
+        }
+      );
+      assert.equal(status, 0);
+      assert.equal(closed.length, 1);
+      assert.deepEqual(env.textWrites, []);
+      assert.equal(env.report.challenge?.active, true);
+      assert.equal(
+        output.filter((entry) => entry.mode === 'prefill-result').length,
+        1
+      );
+      if (ending === 'close') {
+        assert(output.some((entry) => entry.ok && entry.state === 'closed'));
+        assert.deepEqual(output.find((entry) => entry.attention).attention, []);
+      }
+    }
+  );
 }
