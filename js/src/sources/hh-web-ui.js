@@ -8,9 +8,15 @@ const invalid = () =>
     }
   );
 
+export const isHhWebTarget = (value) =>
+  typeof value === 'string' && /^web:\d{1,30}$/u.test(value);
+
 /** API chat UUIDs and negotiation IDs are not web-chat associations. */
 export const hhWebChatId = (value) => {
   const text = String(value ?? '').trim();
+  if (isHhWebTarget(text)) {
+    return text.slice(4);
+  }
   if (/^\d{1,30}$/u.test(text)) {
     return text;
   }

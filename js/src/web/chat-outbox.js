@@ -67,7 +67,9 @@ export const afterFailure = (item, result, now = Date.now()) => {
       : waiting(item, result, attempts, now + (seconds + 1) * 1000);
   }
   if (isConnectionFailure(code)) {
-    return waiting(item, result, attempts, now + retryDelay(attempts));
+    return item.hhBrowserMessage
+      ? failed(item, {}, 'send-unknown')
+      : waiting(item, result, attempts, now + retryDelay(attempts));
   }
   if (code === 'send-failed' && attempts < SEND_FAILED_TRIES) {
     return waiting(item, result, attempts, now + retryDelay(attempts));
@@ -146,7 +148,14 @@ export const restoreOutbox = (saved) =>
     .filter(
       (p) => p && OUTBOX_FIELDS.every((f) => typeof p[f] === 'string' && p[f])
     )
-    .map((p) => (p.status === 'sending' ? { ...p, status: 'queued' } : p))
+    .map((p) => {
+      if (p.status !== 'sending') {
+        return p;
+      }
+      return p.hhBrowserMessage
+        ? failed(p, {}, 'send-unknown')
+        : { ...p, status: 'queued' };
+    })
     .filter((p) => ['queued', 'waiting', 'failed'].includes(p.status));
 
 const storageOf = (storage) => {

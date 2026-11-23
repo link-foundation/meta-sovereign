@@ -2,6 +2,8 @@
 'meta-sovereign': minor
 ---
 
+Open saved HeadHunter web conversations in Chat with a receipt-checked native send. Retain pending messages when delivery is uncertain, and use provider unread counts and filters in Chat and Operator (issue #56, HH09).
+
 Show the reviewed full HH vacancy description for a separately configurable three-second preview before entry or full-form navigation. Preserve Stop, native-change guards, preview mode, frozen batch timing and legacy signatures across CLI, Lino and four-language controls; reserve schema 25 without replaying work (issue #56, HH03, R-Z17).
 
 Wait for the Windows uninstaller to remove its complete installation tree before

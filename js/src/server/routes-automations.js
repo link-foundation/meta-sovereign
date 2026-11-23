@@ -105,6 +105,7 @@ const sentMessage = ({ source, chat, text }, { at, via }) => ({
 const sentLinks = (draft, result) => {
   const stamp = (link) => ({
     ...link,
+    ...(draft.chatName && !link.chatName ? { chatName: draft.chatName } : {}),
     ...(result?.via ? { via: result.via } : {}),
     ...(draft.clientId ? { clientId: draft.clientId } : {}),
   });
@@ -143,6 +144,11 @@ const continuationField = (body) =>
     ? { continueLast: true }
     : {};
 
+const hhBrowserField = (body) =>
+  body.source === 'hh' && body.hhBrowserMessage !== undefined
+    ? { hhBrowserMessage: body.hhBrowserMessage }
+    : {};
+
 const buildDraft = (body) => {
   const clientId =
     typeof body.clientId === 'string' && body.clientId.length <= 100
@@ -160,6 +166,7 @@ const buildDraft = (body) => {
     chat: String(body.chat),
     contact: body.contact ?? null,
     text: String(body.text),
+    ...hhBrowserField(body),
     ...continuationField(body),
     ...(clientId ? { clientId } : {}),
     ...(replyTo ? { replyTo } : {}),
@@ -183,8 +190,8 @@ const buildDraft = (body) => {
 
 // A draft (one `clientId`) is sent at most once per server: a second
 // request — a double click, a retry after a lost answer — shares the
-// first one's outcome instead of sending again. A failed send is
-// forgotten, so the user can retry it.
+// first one's outcome instead of sending again. Keep uncertain web sends
+// in memory for the same draft. Definite failures can be retried.
 const sendOnce = (ctx, draft, send) => {
   if (!draft.clientId) {
     return send();
@@ -202,7 +209,9 @@ const sendOnce = (ctx, draft, send) => {
     return known.promise;
   }
   const promise = send().catch((error) => {
-    sends.delete(key);
+    if (!(draft.hhBrowserMessage && error.ambiguous === true)) {
+      sends.delete(key);
+    }
     throw error;
   });
   sends.set(key, { at: now, promise });
@@ -269,6 +278,31 @@ const reportSend = (ctx, trace, result, error) =>
       : { count: result.links?.length ?? 0, stored: result.stored !== false }),
   });
 
+const hhBrowserSendDraft = async (store, draft) => {
+  const id = draft.hhBrowserMessage;
+  if (id === undefined) {
+    return draft;
+  }
+  const reference =
+    /^\d{1,30}$/u.test(draft.chat) &&
+    typeof id === 'string' &&
+    id.startsWith(`msg:hh:${draft.chat}:`) &&
+    id.length <= 160 &&
+    (await store.get(id));
+  if (
+    reference?.source !== 'hh' ||
+    reference.chat !== draft.chat ||
+    reference.via !== 'browser' ||
+    reference.deleted
+  ) {
+    throw Object.assign(
+      new Error('The saved HeadHunter web conversation could not be verified.'),
+      { code: 'unsupported-target' }
+    );
+  }
+  return { ...draft, chat: `web:${draft.chat}`, chatName: reference.chatName };
+};
+
 const deliverMessage = async (store, ctx, draft) => {
   const edited = draft.continueLast
     ? await ctx.telegramAccount?.continueMessage?.(draft)
@@ -283,8 +317,9 @@ const deliverMessage = async (store, ctx, draft) => {
       links: link ? [link] : [],
     };
   }
-  const result = await ctx.send(draft);
-  const links = sentLinks(draft, result);
+  const destination = await hhBrowserSendDraft(store, draft);
+  const result = await ctx.send(destination);
+  const links = sentLinks({ ...draft, chatName: destination.chatName }, result);
   const stored = await keepSent(store, links);
   return {
     status: 'sent',

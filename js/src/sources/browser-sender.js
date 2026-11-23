@@ -54,6 +54,7 @@ import {
 import { resolveBrowserChoiceDocument } from './browser-choice-document.js';
 import { createBrowserChatScans } from './browser-chat-scan.js';
 import { createBrowserTextActions } from './browser-text-reply.js';
+import { isHhWebTarget } from './hh-web-ui.js';
 import {
   createBrowserSendConsent,
   sendConsentOptions,
@@ -511,6 +512,7 @@ const createBrowserTextSender =
   ({
     store,
     choices,
+    sendManualText,
     uiFor,
     inChat,
     focusComposer,
@@ -528,8 +530,12 @@ const createBrowserTextSender =
     if (!body.trim()) {
       throw codedError(`${source}: message text is required`, 'bad-draft');
     }
+    const platform = uiFor(source);
+    if (source === 'hh' && platform.textReply && draft.automated !== true) {
+      return sendManualText({ ...draft, text: body }, dispatch);
+    }
     const consent = createBrowserSendConsent(store, draft, dispatch);
-    const ui = requireTextUi(uiFor(source));
+    const ui = requireTextUi(platform);
     const target = ui.target({ chat, to });
     await consent();
     await inChat(source, target, { beforeOpen: consent }, async (commander) => {
@@ -650,7 +656,7 @@ export const createBrowserSender = ({
     pollMs,
   });
   const scans = createBrowserChatScans({ uiFor, inList, inChat, inExisting });
-  const texts = createBrowserTextActions({
+  const { sendManualText, ...texts } = createBrowserTextActions({
     store,
     uiFor,
     inChat,
@@ -685,6 +691,7 @@ export const createBrowserSender = ({
     send: createBrowserTextSender({
       store,
       choices,
+      sendManualText,
       uiFor,
       inChat,
       focusComposer,
@@ -889,6 +896,34 @@ const browserReadMethods = (browser, browserFor) =>
         openAnswerWatch: (params) => browserFor().openAnswerWatch(params),
       };
 
+const isHhWebDraft = (draft) =>
+  draft.source === 'hh' &&
+  isHhWebTarget(draft.chat ?? draft.contact ?? draft.to);
+
+const checkBrowserSendOptions = (draft) => {
+  const apiOnly = [
+    'sticker',
+    'replyTo',
+    'replyQuote',
+    'topic',
+    'sendAs',
+    'scheduleDate',
+    'allowPaidStars',
+    'silent',
+    'effect',
+    'noWebpage',
+    'invertMedia',
+    'previewUrl',
+    'previewSize',
+  ];
+  if (apiOnly.some((key) => draft[key])) {
+    throw codedError(
+      'this message requires the network API to preserve its reply and send options',
+      'unsupported-send-options'
+    );
+  }
+};
+
 /**
  * The sender automations and the chat composer use: the source adapter's
  * `live.post` first, the official web UI second. It also does every other
@@ -947,49 +982,37 @@ export const createDefaultSender = ({
         })(draft);
       }
     : null;
+  const browserSend =
+    browser === false
+      ? null
+      : async (draft, dispatch) => {
+          // A definite API refusal may arrive after the owner withdrew consent.
+          await createBrowserSendConsent(store, draft, dispatch)();
+          refuseAutomatedWeb(draft);
+          if (draft.source === 'hh' && !isHhWebDraft(draft)) {
+            throw codedError(
+              'This HeadHunter address is an API thread',
+              'unsupported-target'
+            );
+          }
+          checkBrowserSendOptions(draft);
+          return browserFor().send(
+            {
+              source: draft.source,
+              chat: draft.chat,
+              to: draft.contact ?? draft.to,
+              text: draft.text,
+              ...(draft.automated === true ? { automated: true } : {}),
+            },
+            dispatch
+          );
+        };
   const sendText = createFallbackSender({
     apiSend: adapterSend,
-    browserSend:
-      browser === false
-        ? null
-        : async (draft, dispatch) => {
-            // A definite API refusal may arrive after the owner withdrew consent.
-            await createBrowserSendConsent(store, draft, dispatch)();
-            refuseAutomatedWeb(draft);
-            // A plain browser send cannot preserve these message semantics.
-            // Refuse rather than silently turning a reply into a normal message.
-            if (
-              draft.sticker ||
-              draft.replyTo ||
-              draft.replyQuote ||
-              draft.topic ||
-              draft.sendAs ||
-              draft.scheduleDate ||
-              draft.allowPaidStars ||
-              draft.silent ||
-              draft.effect ||
-              draft.noWebpage ||
-              draft.invertMedia ||
-              draft.previewUrl ||
-              draft.previewSize
-            ) {
-              throw codedError(
-                'this message requires the network API to preserve its reply and send options',
-                'unsupported-send-options'
-              );
-            }
-            return browserFor().send(
-              {
-                source: draft.source,
-                chat: draft.chat,
-                to: draft.contact ?? draft.to,
-                text: draft.text,
-              },
-              dispatch
-            );
-          },
+    browserSend,
     log,
   });
+  const sendHhWeb = createFallbackSender({ browserSend, log });
   const send = (input, dispatch) => {
     const draft = { ...input };
     if (draft.answer?.strictOptions) {
@@ -1005,7 +1028,9 @@ export const createDefaultSender = ({
         'answer-choice-required'
       );
     }
-    return sendText(draft, dispatch);
+    return isHhWebDraft(draft)
+      ? sendHhWeb(draft, dispatch)
+      : sendText(draft, dispatch);
   };
   const actions = createMessageActions({
     getSource,

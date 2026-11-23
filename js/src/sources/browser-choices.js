@@ -21,6 +21,7 @@ import {
   browserChoiceSuggestions,
   browserChoiceHistory,
   browserMessageLinks,
+  browserVisibleAnswerControls,
 } from './browser-choice-reader.js';
 import { messageLinkProperties } from '../message-link-targets.js';
 import {
@@ -94,6 +95,7 @@ const source = `(input) => {
   const browserPendingTurn = (${browserPendingTurn.toString()});
   const browserChoiceSuggestions = (${browserChoiceSuggestions.toString()});
   const browserChoiceHistory = (${browserChoiceHistory.toString()});
+  const browserVisibleAnswerControls = (${browserVisibleAnswerControls.toString()});
   const context = (${createChoiceContext.toString()})(input, readBrowserChoices);
   const methods = {${Object.entries(methods)
     .map(([name, method]) => `${name}: ${method.toString()}`)
@@ -107,6 +109,8 @@ const failure = (code) =>
   Object.assign(
     new Error(
       {
+        'answer-choice-required':
+          'Review the current provider answer controls before sending a text message',
         'answer-draft-preserved':
           'The provider composer contains an owner draft; review it before selecting an answer',
         'send-unknown':
@@ -178,6 +182,26 @@ export const readBrowserAnswerChoices = async (
     strictOptions: value.strictOptions,
   });
   return { ...value, ...choices, answerOptions: choices.options };
+};
+
+export const readBrowserManualBoundary = async (commander, ui, target) => {
+  const value = await evaluate(commander, {
+    spec: browserChoiceSpec(ui),
+    operation: 'read',
+    preserveDraft: true,
+    manual: true,
+  });
+  if (value.code || value.chat !== String(target)) {
+    throw failure(value.code ?? 'answer-chat-unverified');
+  }
+  if (value.strictOptions) {
+    throw failure('answer-choice-required');
+  }
+  return {
+    chat: value.chat,
+    question: value.question,
+    boundary: value.boundary,
+  };
 };
 
 export const enrichBrowserChoices = async (commander, ui, target, rows) => {

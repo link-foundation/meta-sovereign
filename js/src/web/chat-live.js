@@ -80,6 +80,11 @@ const previewOf = (item) =>
       .map((key) => [key, item[key]])
   );
 
+const hhBrowserField = (value) =>
+  value.hhBrowserMessage === undefined
+    ? {}
+    : { hhBrowserMessage: value.hhBrowserMessage };
+
 // One send's answer; a thrown error is a failure like any other.
 const sendTrace = (item) => ({
   source: item.source,
@@ -104,6 +109,7 @@ const sendResult = async (api, item) => {
       chat: item.chat,
       text: item.text,
       clientId: item.clientId,
+      ...hhBrowserField(item),
       ...(item.continueLast ? { continueLast: true } : {}),
       ...(item.replyTo ? { replyTo: item.replyTo } : {}),
       ...(item.replyQuote ? { replyQuote: item.replyQuote } : {}),
@@ -520,6 +526,7 @@ export const useComposer = ({
       at: new Date().toISOString(),
       status: 'queued',
       attempts: 0,
+      ...hhBrowserField(current),
       ...outFields({
         replyTo: replyId,
         replyQuote: quote,
@@ -548,6 +555,7 @@ export const useComposer = ({
       at: new Date().toISOString(),
       status: 'queued',
       attempts: 0,
+      ...hhBrowserField(current),
       ...(answer ? { replyTo: answer } : {}),
       ...(topic ? { topic } : {}),
       ...sendAsField(current.chat),

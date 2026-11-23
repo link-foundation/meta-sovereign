@@ -16,7 +16,8 @@ export const createChoiceContext = (input, read) => {
     observed: new WeakSet(),
     attempts: new Map(),
   });
-  const snapshot = (historyOnly = false) => read(spec, true, historyOnly);
+  const snapshot = (historyOnly = false) =>
+    read(spec, true, historyOnly, input.manual === true);
   const inactiveKey = Symbol.for('meta-sovereign.browser-inactive-view.v1');
   const inactive = input.inactiveToken && window[inactiveKey];
   const inactiveReady = () =>
@@ -43,9 +44,7 @@ export const createChoiceContext = (input, read) => {
         ? JSON.stringify(value.pendingTurn?.messages) ===
           JSON.stringify(expected.pendingMessages)
         : value.pendingTurn?.messages.length === 1;
-  const same = (value) =>
-    inactiveReady() &&
-    !value.code &&
+  const sameQuestion = (value) =>
     !value.question.outgoing &&
     identity(value) === identity(expected) &&
     (expected.recent === undefined ||
@@ -57,6 +56,14 @@ export const createChoiceContext = (input, read) => {
         JSON.stringify(expected.noticeContext)) &&
     JSON.stringify(value.answerOptions) ===
       JSON.stringify(expected.answerOptions);
+  const sameManual = (value) =>
+    value.chat === expected.chat &&
+    value.strictOptions === false &&
+    JSON.stringify(value.boundary) === JSON.stringify(expected.boundary);
+  const same = (value) =>
+    inactiveReady() &&
+    !value.code &&
+    (input.manual ? sameManual(value) : sameQuestion(value));
   const valueOf = (node) =>
     node ? String('value' in node ? node.value : (node.textContent ?? '')) : '';
   const writable = (node) =>
@@ -240,7 +247,12 @@ export const readChoiceReceipt = (input, context) => {
       );
     }
     attempt.confirmed = true;
-    return { sent: true, messageId: matches[0].id, reveal: attempt.reveal };
+    return {
+      sent: true,
+      messageId: matches[0].id,
+      reveal: attempt.reveal,
+      ...(input.manual ? { message: matches[0] } : {}),
+    };
   }
   if (input.finish && !attempt.allowed && attempt.blocked) {
     state.attempts.delete(attempt.reservation);

@@ -1,10 +1,15 @@
 import { answerChoiceState } from '../automation/question-options.js';
 import { messageLinkProperties } from '../message-link-targets.js';
 import { checkedBrowserPendingTurn } from './browser-pending-turn.js';
-import { browserChoiceSpec, dispatchBrowserReply } from './browser-choices.js';
+import {
+  browserChoiceSpec,
+  dispatchBrowserReply,
+  readBrowserManualBoundary,
+} from './browser-choices.js';
 import { resolveBrowserChoiceDocument } from './browser-choice-document.js';
 import { withInactiveBrowserView } from './browser-inactive-view.js';
 import { createBrowserSendConsent } from './browser-send-consent.js';
+import { toBrowserMessageLink } from './browser-message.js';
 
 const failure = (code) =>
   Object.assign(
@@ -45,15 +50,45 @@ const checkedTextSnapshot = (target, expected) => {
   };
 };
 
-/** Require explicit free-text capability and a bounded whole pending turn. */
-export const checkedTextReply = (ui, target, expected, text) => {
+const requireTextCapability = (ui, text) => {
   if (!ui.documents || !ui.textReply?.send || !ui.textReply.closedText) {
     throw failure('answer-text-unavailable');
   }
   if (typeof text !== 'string' || !text.trim() || text.length > 12000) {
     throw failure('bad-draft');
   }
+};
+
+/** Require explicit free-text capability and a bounded whole pending turn. */
+export const checkedTextReply = (ui, target, expected, text) => {
+  requireTextCapability(ui, text);
   return checkedTextSnapshot(target, expected);
+};
+
+const sendManualText = async (document, ui, target, text, options) => {
+  const expected = await readBrowserManualBoundary(document, ui, target);
+  const { boundary } = expected;
+  if (boundary.outgoing && ['pending', 'unknown'].includes(boundary.delivery)) {
+    throw Object.assign(
+      new Error(
+        'Check delivery of the previous HeadHunter message before sending again.'
+      ),
+      { code: 'send-in-doubt', fallback: false, ambiguous: true }
+    );
+  }
+  const { messageId, message } = await dispatchBrowserReply(
+    document,
+    { spec: browserChoiceSpec(ui), expected, text, manual: true },
+    options
+  );
+  return {
+    via: 'browser',
+    source: ui.id,
+    chat: String(target),
+    messageId,
+    text,
+    link: toBrowserMessageLink(ui.id, String(target), message),
+  };
 };
 
 /** Receipt, not a successful click or emptied composer, establishes delivery. */
@@ -138,6 +173,11 @@ export const createBrowserTextActions = ({
 }) => {
   const pending = new Map();
   let closed = false;
+  const requireOpen = () => {
+    if (closed) {
+      throw failure('answer-text-unavailable');
+    }
+  };
   return {
     async closeTextReplies() {
       closed = true;
@@ -145,6 +185,31 @@ export const createBrowserTextActions = ({
         controller.abort();
       }
       await Promise.allSettled([...pending.keys()]);
+    },
+    async sendManualText(draft, dispatch) {
+      const { source, chat, to, text } = draft;
+      const ui = uiFor(source);
+      requireOpen();
+      requireTextCapability(ui, text);
+      const target = ui.target({ chat, to });
+      const consent = createBrowserSendConsent(store, draft, dispatch);
+      const verifyCurrent = async () => {
+        await consent();
+        requireOpen();
+      };
+      return inChat(
+        source,
+        target,
+        { beforeOpen: verifyCurrent, signal: dispatch.signal },
+        async (commander, page) =>
+          sendManualText(
+            await resolveBrowserChoiceDocument(commander, page, ui, target),
+            ui,
+            target,
+            text,
+            { receiptMs, pollMs, verifyCurrent }
+          )
+      );
     },
     async replyText({
       source,
@@ -155,9 +220,7 @@ export const createBrowserTextActions = ({
       expected,
       text,
     } = {}) {
-      if (closed) {
-        throw failure('answer-text-unavailable');
-      }
+      requireOpen();
       const ui = uiFor(source);
       const target = ui.target({ chat, to });
       const frozen = checkedTextReply(ui, target, expected, text);
@@ -169,9 +232,7 @@ export const createBrowserTextActions = ({
       });
       const verifyCurrent = async () => {
         await consent();
-        if (closed) {
-          throw failure('answer-text-unavailable');
-        }
+        requireOpen();
       };
       const controller = new AbortController();
       const result = inChat(

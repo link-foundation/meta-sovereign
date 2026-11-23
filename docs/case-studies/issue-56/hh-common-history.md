@@ -144,3 +144,25 @@ that same boundary. If the history advances, the new boundary and count are
 stored without claiming the operation completed. Unrecognized or unavailable
 views cannot clear cached unread messages. Four native Chromium regressions
 reproduce the old optimistic results and pass with the verified fallback.
+
+## Sending from a saved native conversation
+
+Open a saved native HH conversation in Chat, type a plain message and press
+Enter. With the previous Chat bundle, the numeric web address was sent to
+the negotiation API. With the current bundle, the server verifies a stored
+message from the web conversation and routes it to the native HH composer.
+The provider pane must still match before it can send. Drafts and answer
+buttons retain their existing behavior. Only a new outgoing provider message
+with a positive delivery state replaces the pending bubble. If delivery is
+uncertain, Chat keeps the message for review and suspends automatic retries.
+
+The registered question-providers browser scenario checks the production Chat
+bundle, the saved provider message ID and one native send with zero API writes.
+Three additional Chromium cases cover consecutive sends, existing drafts and
+choice buttons, and a pending receipt. Independent Playwright MCP observed a
+failed send on the old bundle and a single native dispatch and confirmed Chat
+bubble on the current one. The fixture replaces live provider traffic.
+
+![Previous Chat send failure](../../screenshots/issue-56-hh-native-send-before.png)
+
+![Current Chat send confirmed](../../screenshots/issue-56-hh-native-send-after.png)

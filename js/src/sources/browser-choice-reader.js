@@ -112,48 +112,11 @@ export const browserChoiceHistory = (
   };
 };
 
-/** Composed with static helpers; provider text stays data. */
-export const readBrowserChoices = (
-  spec,
-  internal = false,
-  historyOnly = false
-) => {
-  const text = (node) =>
-    String(node?.textContent ?? '')
-      .replace(/\s+/gu, ' ')
-      .trim();
-  const visible = (node) => {
-    if (!node?.isConnected || !node.getClientRects().length) {
-      return false;
-    }
-    for (let parent = node; parent; parent = parent.parentElement) {
-      const style = getComputedStyle(parent);
-      if (
-        parent.hidden ||
-        parent.getAttribute('aria-hidden') === 'true' ||
-        style.display === 'none' ||
-        style.visibility === 'hidden' ||
-        Number(style.opacity) === 0
-      ) {
-        return false;
-      }
-    }
-    return true;
-  };
+export const browserVisibleAnswerControls = (spec, latest, visible, text) => {
   const unavailable = (code) => ({ code });
   const validControls = (controls) =>
     controls.length <= 100 &&
     !controls.some((node) => !text(node) || text(node).length > 6000);
-  const history = browserChoiceHistory(spec, visible, text, historyOnly);
-  if (history.code) {
-    return history;
-  }
-  const { chat, latest, messages, pendingTurn, questionAvailable } = history;
-  if (!questionAvailable) {
-    return historyOnly
-      ? { chat, messages }
-      : unavailable('answer-question-unavailable');
-  }
   const all = [...document.querySelectorAll(spec.choices.button)];
   if (all.length > 1000) {
     return unavailable('answer-options-limited');
@@ -219,7 +182,64 @@ export const readBrowserChoices = (
       !node.closest('[inert],[aria-disabled="true"]')
   );
   const strictOptions = [attached.length, pair, controls.length].some(Boolean);
-  const answerOptions = enabled.map(text);
+  return {
+    strictOptions,
+    answerOptions: enabled.map(text),
+    controls,
+    enabled,
+  };
+};
+
+/** Composed with static helpers; provider text stays data. */
+export const readBrowserChoices = (
+  spec,
+  internal = false,
+  historyOnly = false,
+  manual = false
+) => {
+  const text = (node) =>
+    String(node?.textContent ?? '')
+      .replace(/\s+/gu, ' ')
+      .trim();
+  const visible = (node) => {
+    if (!node?.isConnected || !node.getClientRects().length) {
+      return false;
+    }
+    for (let parent = node; parent; parent = parent.parentElement) {
+      const style = getComputedStyle(parent);
+      if (
+        parent.hidden ||
+        parent.getAttribute('aria-hidden') === 'true' ||
+        style.display === 'none' ||
+        style.visibility === 'hidden' ||
+        Number(style.opacity) === 0
+      ) {
+        return false;
+      }
+    }
+    return true;
+  };
+  const unavailable = (code) => ({ code });
+  const history = browserChoiceHistory(
+    spec,
+    visible,
+    text,
+    historyOnly || manual
+  );
+  if (history.code) {
+    return history;
+  }
+  const { chat, latest, messages, pendingTurn, questionAvailable } = history;
+  if (!questionAvailable && !(manual && latest)) {
+    return historyOnly
+      ? { chat, messages }
+      : unavailable('answer-question-unavailable');
+  }
+  const options = browserVisibleAnswerControls(spec, latest, visible, text);
+  if (options.code) {
+    return options;
+  }
+  const { strictOptions, answerOptions, controls, enabled } = options;
   if (historyOnly) {
     return {
       chat,
@@ -247,6 +267,7 @@ export const readBrowserChoices = (
     optionsShown: controls.map(text),
     messages,
     pendingTurn,
+    ...(manual ? { boundary: messages.at(-1) } : {}),
     ...browserNoticeContext(spec),
   };
   return internal

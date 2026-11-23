@@ -246,6 +246,14 @@ const lastPreview = (message, self) => ({
   message,
 });
 
+const headHunterWebMessage = (messages, last) => {
+  const fromWeb = (message) => message.via === 'browser';
+  if (last.source !== 'hh' || !messages.some(fromWeb)) {
+    return {};
+  }
+  return { hhBrowserMessage: messages.every(fromWeb) ? last.id : null };
+};
+
 const summarize = (key, messages, self, read, now, visibility) => {
   const sorted = [...messages].sort(byTime);
   const last = sorted.at(-1);
@@ -268,6 +276,7 @@ const summarize = (key, messages, self, read, now, visibility) => {
     kind: chatKind(last.chatType, people.size),
     ...botIdentity(last, read),
     ...deletedIdentity(last, read),
+    ...headHunterWebMessage(sorted, last),
     people: [...people],
     count: sorted.length,
     unread:

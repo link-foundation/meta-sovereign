@@ -3,6 +3,7 @@ import { learnAnswerRules } from '../../src/automation/question-learning.js';
 import { providerChoiceDraft } from '../../../experiments/issue-56/provider-choice-fixture.mjs';
 import { verifyHhDelivery } from './e2e-hh-delivery.mjs';
 import { verifyHhNativeRead } from './e2e-hh-read.mjs';
+import { verifyHhManualSend } from './e2e-hh-manual-send.mjs';
 
 /** Real native history extraction, normalization, learning and guarded actions. */
 export const verifyHhBrowserHistory = async ({
@@ -131,6 +132,7 @@ export const verifyHhBrowserHistory = async ({
   });
   await verifyHhDelivery({ run, reset, page, sender, args, mount, counters });
   await verifyHhNativeRead({ run, reset, page, sender, args });
+  await verifyHhManualSend({ run, reset, page, sender, mount, counters });
 };
 
 const verifyHistoryActions = async ({

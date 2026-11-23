@@ -1,3 +1,10 @@
+2026-11-23 HeadHunter native Chat sends (HH09):
+
+- [x] Reproduce the saved native conversation falling through to the negotiation API; use its stored browser message to verify the correct route.
+- [x] Confirm one native dispatch using the exact pane, a new outgoing message and its provider delivery state. Preserve provider drafts and choices and stop on an uncertain result.
+- [x] Compare the previous Chat bundle and the current bundle in independent Chromium with the same fixture. Verify the current browser and provider use one send and keep the actual browser message ID.
+- [ ] Complete remaining HeadHunter actions and verify an authenticated native web conversation and source-bound GitHub checks. HH09 stays open.
+
 2026-11-23 HeadHunter read receipts and provider scope (HH09):
 
 - [x] Verify the public HeadHunter read operation, identifier format, acknowledgement and unread count against its OpenAPI specification. Reproduce the missing adapter method and the false local read acknowledgement.

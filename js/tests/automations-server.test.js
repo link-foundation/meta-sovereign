@@ -21,7 +21,7 @@ const m = (chat, sender, body, ago) =>
     timestamp: daysAgo(ago),
   });
 
-const boot = async () => {
+const boot = async ({ sendDraft } = {}) => {
   const store = createMemoryStore();
   for (const link of [
     m('101', 'me', 'Привет! Как ты?', 125),
@@ -40,6 +40,9 @@ const boot = async () => {
     automations: {
       scheduler: false,
       send: async (draft) => {
+        if (sendDraft) {
+          return sendDraft(draft);
+        }
         if (draft.text === 'fail') {
           throw Object.assign(new Error('captcha'), { code: 'captcha' });
         }
@@ -221,6 +224,70 @@ test('the composer sends through /api/send and stores the message', async () => 
     assert.equal(failed.body.code, 'captcha');
     const bad = await call('POST', '/api/send', { source: 'vk' });
     assert.equal(bad.status, 400);
+  } finally {
+    await server.close();
+  }
+});
+
+test('the composer dispatches only a verified saved HH web conversation', async () => {
+  const attempts = [];
+  const incoming = {
+    id: 'msg:hh:7:101',
+    source: 'hh',
+    chat: '7',
+    sender: 'employer',
+    via: 'browser',
+    body: 'Hello',
+    chatName: 'HeadHunter employer',
+  };
+  const outgoing = {
+    ...incoming,
+    id: 'msg:hh:7:102',
+    body: 'Reply',
+    sender: 'me',
+    chatName: undefined,
+    outgoing: true,
+    delivery: 'delivered',
+  };
+  const { server, store, confirmCall } = await boot({
+    sendDraft: (draft) => {
+      attempts.push(draft.chat);
+      if (draft.text === 'In doubt') {
+        throw Object.assign(new Error('Check the conversation'), {
+          code: 'send-unknown',
+          ambiguous: true,
+        });
+      }
+      return { via: 'browser', link: outgoing };
+    },
+  });
+  try {
+    await store.put(incoming);
+    const draft = {
+      source: 'hh',
+      chat: '7',
+      hhBrowserMessage: incoming.id,
+      text: 'Reply',
+    };
+    for (const body of [
+      { ...draft, chat: '8' },
+      { ...draft, hhBrowserMessage: 'msg:hh:7:999' },
+      { ...draft, hhBrowserMessage: null },
+    ]) {
+      const refused = await confirmCall('/api/send', body);
+      assert.equal(refused.body.code, 'unsupported-target');
+    }
+    assert.equal(attempts.length, 0);
+    const sent = await confirmCall('/api/send', draft);
+    assert.equal(sent.body.link.id, outgoing.id);
+    assert.equal(sent.body.link.chatName, incoming.chatName);
+    assert.equal((await store.get(outgoing.id)).delivery, 'delivered');
+    const uncertain = { ...draft, text: 'In doubt', clientId: 'hh-unknown' };
+    for (let i = 0; i < 2; i++) {
+      const result = await confirmCall('/api/send', uncertain);
+      assert.equal(result.body.code, 'send-unknown');
+    }
+    assert.deepEqual(attempts, ['web:7', 'web:7']);
   } finally {
     await server.close();
   }

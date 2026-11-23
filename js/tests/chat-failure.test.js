@@ -7,7 +7,7 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 
 import { failureText } from '../src/web/chat-failure.js';
-import { afterFailure } from '../src/web/chat-outbox.js';
+import { afterFailure, restoreOutbox } from '../src/web/chat-outbox.js';
 import { LocaleContext, translate } from '../src/web/i18n.js';
 import { MessageBubble } from '../src/web/chat-message.js';
 import { ChatItem } from '../src/web/chat-list.js';
@@ -33,6 +33,36 @@ test('a maybe-delivered message is not tried again by itself', () => {
   const next = afterFailure(item, { code: 'send-unknown' }, 0);
   assert.equal(next.status, 'failed');
   assert.equal(next.retryAt, null);
+});
+
+test('a lost HeadHunter web send stays pending review after disconnect or reload', () => {
+  const link = {
+    id: 'msg:hh:7:101',
+    source: 'hh',
+    chat: '7',
+    sender: 'employer',
+    body: 'Hello',
+    via: 'browser',
+  };
+  const [native] = summarizeChats([link]);
+  assert.equal(native.hhBrowserMessage, link.id);
+  const [mixed] = summarizeChats([
+    link,
+    { ...link, id: 'msg:hh:202', via: 'api' },
+  ]);
+  assert.equal(mixed.hhBrowserMessage, null);
+  const item = {
+    ...native,
+    status: 'sending',
+    clientId: 'hh-outbox',
+    text: 'Reply',
+    at: '2026-11-23T00:00:00Z',
+  };
+  const loss = afterFailure(item, { code: 'network' });
+  assert.equal(loss.code, 'send-unknown');
+  assert.equal(loss.status, 'failed');
+  assert.equal(loss.retryAt, null);
+  assert.deepEqual(restoreOutbox([item]), [loss]);
 });
 
 test('shared failed bubbles and directory labels explain uncertain sends in every locale', () => {
