@@ -93,6 +93,7 @@ module.exports = {
     target: ['dmg', 'zip'],
     category: 'public.app-category.productivity',
     extendInfo: {
+      NSUserNotificationAlertStyle: 'alert',
       NSContactsUsageDescription:
         'Import contacts from this Mac and its synced accounts into your local Meta Sovereign address book, after you review the import.',
     },

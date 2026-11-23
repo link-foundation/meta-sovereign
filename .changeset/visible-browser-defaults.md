@@ -1134,3 +1134,7 @@ refuse ambiguous panes, and drain admitted receipts before closing.
 Send plain messages from captured HeadHunter web conversations through the
 open import browser. Keep the provider-confirmed message in its original
 Chat history and hold uncertain sends for review.
+
+Give local desktop Forms verification and HeadHunter verification and sign-in
+alerts Show browser and Later actions. Reminders and optional sound stay tied to
+the exact waiting browser while the desktop runtime is active.

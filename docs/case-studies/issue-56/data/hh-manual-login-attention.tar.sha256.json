@@ -22,7 +22,6 @@
     "verified/docs/screenshots/issue-56-hh-manual-login-attention-after.png": "25a3419f14b79a2be2a384b1f7e209cefa9bbcf50417190907047cc1d3ebe304",
     "verified/docs/screenshots/issue-56-hh-manual-login-attention-before.png": "ebc65c1e481d7908f7084a96767ecf39c660920db38557ba4d75695908fa3979",
     "verified/docs/screenshots/issue-56-hh-manual-login-attention-mcp.png": "87753b63396b69f01caddf68cbc76541d298adeeb1885c65e2226ef8592a42a0",
-    "verified/experiments/issue-56/__pycache__/evidence_bundle.cpython-315.pyc": "25d27f87e10fbc6232b6ebc58897cf08002686a95e11640efa57c44d619fe07a",
     "verified/experiments/issue-56/job-login-attention-mcp-server.mjs": "26230cd3f44dc8036d9c2a8a96e90705c6b5d4d68c34f7578bc7a36c9d503c09",
     "verified/experiments/issue-56/job-login-browser-fixture.mjs": "4f655ac3445fb7b3b60b794c72fcf60dc1e5ab40f7ee212ca3b187280b31176c",
     "verified/experiments/issue-56/job-login-fixture.mjs": "1fe273671712ce12eaa406bba209bf6a0c28bf162d4c1078b47bcca9696a9e9e",

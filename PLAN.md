@@ -1,3 +1,11 @@
+2026-11-23 desktop browser-wait actions (QA24 and HH01 remain unfinished):
+
+- [x] Reproduce the missing desktop bridge with the published parent preload in real Electron. The private Linux notification daemon receives no actions.
+- [x] Route native Show browser, Later and optional sound through the exact local Forms, HeadHunter verification and sign-in waits. Retire closed, replaced, expired and locked targets and preserve the existing desktop exit policy.
+- [x] Verify 26 focused checks per runtime and real Electron Linux delivery after renderer destruction through the isolated notification service.
+- [x] Rebuild the production UI. Verify both Chromium sign-in scenarios and inspect an independent mobile Playwright MCP render with exact desktop acknowledgement, zero duplicate browser alerts and independent sound preferences.
+- [ ] Verify the exact published CI source and continue unavailable-alert recovery, signed macOS and Windows testing, frontmost browser handling and authenticated provider checks.
+
 2026-11-23 HeadHunter manual login attention (HH01 remains unfinished):
 
 - [x] Reproduce six focused failures and the missing Lino route on the published parent while the manual browser is open.

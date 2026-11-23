@@ -1,11 +1,16 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  ATTENTION_POLL_MS,
+  ATTENTION_REMIND_MS,
+  ATTENTION_ACKNOWLEDGED_MS,
+  attentionNotification,
+} from '../automation/attention-policy.js';
 import { useT } from './i18n.js';
 import { NOTIFY_KEY, notifyAllowed, readPref } from './chat-notify.js';
 import { SOUND_KEY, playNotifySound } from './notify-sound.js';
+import { acknowledgeDesktopAttention } from './desktop-attention.js';
 
 const el = React.createElement;
-const REMIND_MS = 5 * 60_000;
-const ACKNOWLEDGED_MS = 15 * 60_000;
 const REFRESH = 'meta-sovereign:form-attention';
 const FORM = {
   name: 'form',
@@ -15,7 +20,6 @@ const FORM = {
   capability: 'reviewAttention',
   attention: 'formsReviewAttention',
   focus: 'formsFocusReview',
-  notification: 'forms.attention.notification',
   waiting: 'forms.attention.waiting',
 };
 const APPLICATION = {
@@ -26,7 +30,6 @@ const APPLICATION = {
   capability: 'applicationAttention',
   attention: 'vacancyApplicationAttention',
   focus: 'vacancyApplicationAttentionFocus',
-  notification: 'application.attention.notification',
   waiting: 'application.attention.waiting',
 };
 const LOGIN = {
@@ -37,10 +40,10 @@ const LOGIN = {
   capability: 'manualLoginAttention',
   attention: 'vacancyLoginAttention',
   focus: 'vacancyLoginAttentionFocus',
-  notification: 'jobLogin.attention.notification',
   waiting: 'jobLogin.attention.waiting',
 };
-const keyOf = ({ id, requestId }) => JSON.stringify([id, requestId]);
+const keyOf = ({ id, requestId, browserSlot }) =>
+  JSON.stringify([id, requestId, browserSlot]);
 const validWait = (item, source) =>
   item?.kind === source.kind &&
   ['id', 'requestId', 'browserSlot'].every(
@@ -84,7 +87,7 @@ const observe = (api, source, update) => {
       reading = false;
     }
     if (!signal.aborted) {
-      timer = globalThis.setTimeout(read, queued ? 0 : 6000);
+      timer = globalThis.setTimeout(read, queued ? 0 : ATTENTION_POLL_MS);
       queued = false;
     }
   };
@@ -102,16 +105,20 @@ const observe = (api, source, update) => {
   };
 };
 
-const alertOwner = ({ api, item, source, t, show }) => {
-  if (readPref(SOUND_KEY, true)) {
+const alertOwner = ({ api, item, source, t, show, native }) => {
+  if (native?.audio === false && readPref(SOUND_KEY, true)) {
     playNotifySound(api, 'default').catch(() => {});
   }
-  if (!readPref(NOTIFY_KEY, true) || !notifyAllowed()) {
+  if (
+    native?.visual !== false ||
+    !readPref(NOTIFY_KEY, true) ||
+    !notifyAllowed()
+  ) {
     return () => {};
   }
   try {
     const note = new globalThis.Notification(t('appName'), {
-      body: t(source.notification),
+      body: t(attentionNotification[source.kind]),
       tag: `${source.name}-attention-${keyOf(item)}`,
       silent: true,
     });
@@ -141,25 +148,27 @@ const useNoticeTimer = ({
   shown,
   show,
   updateTime,
+  native,
 }) => {
-  const { expiresAt, focusAvailable, id, requestId } = item;
+  const { expiresAt, focusAvailable, id, requestId, browserSlot } = item;
   const expires = Date.parse(expiresAt);
   useEffect(() => {
     if (!shown || expires <= now) {
       return undefined;
     }
     const remaining =
-      Math.min(expires, resumeAt > now ? resumeAt : now + REMIND_MS) -
+      Math.min(expires, resumeAt > now ? resumeAt : now + ATTENTION_REMIND_MS) -
       Date.now();
     const clearAlert =
       resumeAt > now
         ? null
         : alertOwner({
             api,
-            item: { id, requestId, focusAvailable },
+            item: { id, requestId, browserSlot, focusAvailable },
             source,
             t,
             show,
+            native,
           });
     const timer = globalThis.setTimeout(
       () => updateTime(Date.now()),
@@ -175,6 +184,7 @@ const useNoticeTimer = ({
     focusAvailable,
     id,
     requestId,
+    browserSlot,
     source,
     t,
     resumeAt,
@@ -182,20 +192,32 @@ const useNoticeTimer = ({
     shown,
     show,
     updateTime,
+    native,
   ]);
 };
 
-const AttentionItem = ({ api, item, available, source, t }) => {
+const AttentionItem = ({ api, item, available, source, t, native }) => {
   const { id, requestId, browserSlot, focusAvailable } = item;
   const [deferred, setDeferred] = useState({ resumeAt: 0, hideBanner: false });
   const [now, updateTime] = useState(Date.now);
   const [status, setStatus] = useState('');
   const focusing = useRef(false);
-  const acknowledge = useCallback((hideBanner) => {
-    const at = Date.now();
-    updateTime(at);
-    setDeferred({ resumeAt: at + ACKNOWLEDGED_MS, hideBanner });
-  }, []);
+  const acknowledge = useCallback(
+    (hideBanner) => {
+      const at = Date.now();
+      updateTime(at);
+      setDeferred({ resumeAt: at + ATTENTION_ACKNOWLEDGED_MS, hideBanner });
+      if (native?.visual || native?.audio) {
+        void acknowledgeDesktopAttention({
+          kind: source.kind,
+          id,
+          requestId,
+          browserSlot,
+        });
+      }
+    },
+    [native, source, id, requestId, browserSlot]
+  );
   const show = useCallback(async () => {
     if (focusing.current) {
       return;
@@ -227,6 +249,7 @@ const AttentionItem = ({ api, item, available, source, t }) => {
     shown: available,
     show,
     updateTime,
+    native,
   });
   if (
     !available ||
@@ -291,7 +314,7 @@ const AttentionItem = ({ api, item, available, source, t }) => {
   );
 };
 
-const OwnerAttention = ({ api, source }) => {
+const OwnerAttention = ({ api, source, native }) => {
   const t = useT();
   const [items, setItems] = useState([]);
   const [available, setAvailable] = useState(false);
@@ -306,13 +329,19 @@ const OwnerAttention = ({ api, source }) => {
     [api, source]
   );
   return items.map((item) =>
-    el(AttentionItem, { key: keyOf(item), api, item, available, source, t })
+    el(AttentionItem, {
+      key: keyOf(item),
+      api,
+      item,
+      available,
+      source,
+      t,
+      native,
+    })
   );
 };
 
-export const FormAttention = ({ api }) =>
-  el(OwnerAttention, { api, source: FORM });
-export const ApplicationAttention = ({ api }) =>
-  el(OwnerAttention, { api, source: APPLICATION });
-export const JobLoginAttention = ({ api }) =>
-  el(OwnerAttention, { api, source: LOGIN });
+export const OwnerAttentionNotices = ({ api, native }) =>
+  [FORM, APPLICATION, LOGIN].map((source) =>
+    el(OwnerAttention, { key: source.kind, api, source, native })
+  );

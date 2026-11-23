@@ -19,4 +19,14 @@ contextBridge.exposeInMainWorld('metaSovereignShell', {
   discoveryCandidates,
   copyText: (text) =>
     ipcRenderer.invoke('meta-sovereign:clipboard-write', text),
+  ownerAttention: {
+    configure: (input) =>
+      ipcRenderer.invoke('meta-sovereign:owner-attention', 'configure', input),
+    acknowledge: (input) =>
+      ipcRenderer.invoke(
+        'meta-sovereign:owner-attention',
+        'acknowledge',
+        input
+      ),
+  },
 });

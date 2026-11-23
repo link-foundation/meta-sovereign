@@ -2,6 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { attachClipboard } from './clipboard.js';
 import { attachLocalCertificate } from './local-certificate.js';
+import { attachOwnerAttention } from './owner-attention-ipc.js';
 
 const preload = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -24,6 +25,7 @@ export const createMainWindow = async ({
   nativeTheme,
   ipcMain,
   clipboard,
+  attention,
 }) => {
   const win = new BrowserWindow({
     width: 1280,
@@ -43,6 +45,7 @@ export const createMainWindow = async ({
   win.once('ready-to-show', () => win.show());
   let releaseClipboard = () => {};
   let releaseCertificate = () => {};
+  let releaseAttention = () => {};
   const origin = `${tls ? 'https' : 'http'}://127.0.0.1:${port}`;
   try {
     if (tls) {
@@ -63,10 +66,20 @@ export const createMainWindow = async ({
     if (ipcMain && clipboard) {
       win.once('closed', releaseClipboard);
     }
+    if (ipcMain && attention) {
+      releaseAttention = attachOwnerAttention({
+        ipcMain,
+        attention,
+        contents: win.webContents,
+        origin,
+      });
+      win.once('closed', releaseAttention);
+    }
     await win.loadURL(`${origin}/`);
   } catch (error) {
     releaseClipboard();
     releaseCertificate();
+    releaseAttention();
     win.destroy();
     throw error;
   }

@@ -12,6 +12,8 @@ Partial QA24 and HH01 Forms prerequisite: [active owner notices](forms-attention
 
 [HeadHunter application attention](application-attention.md) shows the current manual verification wait across views and in the foreground console. It focuses the exact live slot and leaves the delivery hold in place after the notice clears. Chromium covers main-document and nested verification with zero challenge-answer reads and zero submissions. Manual login, native desktop notifications and authenticated verification remain required. HH01 stays unchecked.
 
+[HeadHunter sign-in attention](jobs-manual-login.md#return-to-the-current-sign-in-window) routes the exact current manual slot through both Lino formats, the owning console and shared views. [Desktop browser-wait actions](desktop-owner-attention.md) deliver Show browser and Later for the live Forms and HeadHunter notices through the desktop owner. Linux native Electron delivers both actions after renderer destruction. macOS and Windows native verification, Focus recovery, and authenticated provider acceptance remain required. QA24 and HH01 stay unchecked.
+
 QA19/QA20 also include [Stop during sender preparation](dispatch-stop.md):
 forty-five actual-parent failures and 383 focused passes cover separate dispatch
 ownership, native queues and real autopilot drainage while preserving issued

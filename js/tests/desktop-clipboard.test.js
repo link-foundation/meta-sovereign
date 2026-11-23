@@ -136,10 +136,15 @@ test(
     assert.deepEqual(Object.keys(exposed).sort(), [
       'copyText',
       'discoveryCandidates',
+      'ownerAttention',
       'platform',
     ]);
     assert.deepEqual(await exposed.copyText('visible'), { ok: true });
     assert.deepEqual(calls, [[CLIPBOARD_WRITE_CHANNEL, 'visible']]);
+    assert.deepEqual(Object.keys(exposed.ownerAttention).sort(), [
+      'acknowledge',
+      'configure',
+    ]);
   }
 );
 

@@ -61,6 +61,7 @@ import { openDualStore, wrapSecretStore } from '../storage/index.js';
 import { CURRENT_SCHEMA } from '../storage/migrations/index.js';
 import { createRequestGate } from './request-gate.js';
 import { createRuntimeLifecycle } from './runtime-lifecycle.js';
+import { serverOwnerAttention } from './owner-attention.js';
 import { traceShutdown } from './shutdown-trace.js';
 import { createVkTokenAcquisition } from '../sources/vk-token-acquisition.js';
 import { handleVkToken } from './routes-vk-token.js';
@@ -1443,6 +1444,7 @@ const serverHandle = (
   activate: lifecycle.activate,
   drain: server.requestGate.drain,
   passcodeState: () => ctx.passcode.status(),
+  ownerAttention: serverOwnerAttention(ctx),
   inheritUnlock: () => ctx.passcode.inheritUnlock(),
   close: (options) => {
     ctx.cloud?.close();

@@ -6,6 +6,7 @@
 // — and points users to the dedicated connection surface.
 
 import React from 'react';
+import { refreshNotificationPreference } from './desktop-attention.js';
 import { useT } from './i18n.js';
 import { workspaceName } from './cloud-workspace.js';
 import { TelegramNotifySettings } from './settings-notify.js';
@@ -269,9 +270,11 @@ export const NotificationSettings = () => {
   const [permission, setPermission] = React.useState(permissionNow);
   const turn = async (on) => {
     setNotify(on);
+    refreshNotificationPreference();
     if (on && permission === 'default') {
       const answer = await globalThis.Notification.requestPermission();
       setPermission(answer);
+      refreshNotificationPreference();
     }
   };
   return el(

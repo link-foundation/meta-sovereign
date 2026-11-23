@@ -16,6 +16,7 @@ import path from 'node:path';
 import { attachDesktopLifecycle } from './lifecycle.js';
 import { openVkAuthorization } from './vk-authorization.js';
 import { desktopConfiguration } from './configuration.js';
+import { DesktopOwnerAttention } from './owner-attention.js';
 
 import { createMainWindow } from './window.js';
 export { createMainWindow, MIN_WINDOW } from './window.js';
@@ -134,8 +135,18 @@ export const startDesktop = async ({
   argv,
   configuration,
 } = {}) => {
-  const [{ app, BrowserWindow, nativeTheme, ipcMain, clipboard }, autoUpdater] =
-    await Promise.all([electronLoader(), updaterLoader()]);
+  const [
+    {
+      app,
+      BrowserWindow,
+      nativeTheme,
+      ipcMain,
+      clipboard,
+      Notification,
+      shell,
+    },
+    autoUpdater,
+  ] = await Promise.all([electronLoader(), updaterLoader()]);
   const options = await desktopConfiguration(
     argv ?? process.argv.slice(app.isPackaged ? 1 : 2),
     configuration
@@ -156,14 +167,23 @@ export const startDesktop = async ({
       },
     },
   });
-  let closing;
+  let closing, lifecycle;
+  const attention = new DesktopOwnerAttention({
+    Notification,
+    beep: typeof shell?.beep === 'function' ? () => shell.beep() : undefined,
+    owner: handle.ownerAttention,
+    showWindow: () => lifecycle?.show(),
+  });
   const close = () =>
-    (closing ??= Promise.resolve().then(() => handle.close()));
+    (closing ??= Promise.resolve().then(() => {
+      attention.close();
+      return handle.close();
+    }));
 
   try {
     await app.whenReady();
     configureAutoUpdates({ app, autoUpdater });
-    return await attachDesktopLifecycle({
+    lifecycle = await attachDesktopLifecycle({
       app,
       BrowserWindow,
       handle: { close },
@@ -174,12 +194,14 @@ export const startDesktop = async ({
           nativeTheme,
           ipcMain,
           clipboard,
+          attention,
           port: handle.port,
           tls: handle.tls,
         });
         return mainWindow;
       },
     });
+    return lifecycle;
   } catch (error) {
     await close();
     throw error;

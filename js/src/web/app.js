@@ -38,11 +38,8 @@ import { AddlistHost } from './chat-folder-share.js';
 import { AddthemeHost, useApplyCloudTheme } from './cloud-themes.js';
 import { ContactLinkHost } from './contact-links.js';
 import { AppNotifications } from './app-notify.js';
-import {
-  ApplicationAttention,
-  FormAttention,
-  JobLoginAttention,
-} from './form-attention.js';
+import { useDesktopAttention } from './desktop-attention.js';
+import { OwnerAttentionNotices } from './form-attention.js';
 import { VkFriendStatsBanner } from './vk-friend-stats-banner.js';
 import { LockScreen, useLocalLock } from './passcode.js';
 import { useAppNavigation } from './app-navigation.js';
@@ -161,6 +158,7 @@ const App = () => {
   useApplyUiScale();
   const { theme, toggle } = useAppearance();
   const localeApi = useLocaleContext();
+  const nativeAttention = useDesktopAttention(api, localeApi.locale, online);
   const workspace = workspaceName();
   const { t } = localeApi;
   const brandedLocale = useMemo(
@@ -269,12 +267,12 @@ const App = () => {
             el(SchemaBanner, { key: 'schema', api }),
             el(ApiErrorToast, { key: 'api-error' }),
             el(ServerRecovery, { key: 'recovery', workspace, online, t }),
-            online ? el(FormAttention, { key: 'form-attention', api }) : null,
             online
-              ? el(ApplicationAttention, { key: 'application-attention', api })
-              : null,
-            online
-              ? el(JobLoginAttention, { key: 'login-attention', api })
+              ? el(OwnerAttentionNotices, {
+                  key: 'owner-attention',
+                  api,
+                  native: nativeAttention,
+                })
               : null,
             el(View, { key: 'view' }),
           ]

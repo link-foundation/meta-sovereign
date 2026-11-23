@@ -1,3 +1,5 @@
+import { isOwnedMainFrame } from './owned-frame.js';
+
 export const CLIPBOARD_WRITE_CHANNEL = 'meta-sovereign:clipboard-write';
 export const MAX_CLIPBOARD_TEXT = 1024 * 1024;
 
@@ -11,10 +13,7 @@ export const attachClipboard = ({ ipcMain, clipboard, contents, origin }) => {
     try {
       if (
         !active ||
-        contents.isDestroyed() ||
-        event.sender !== contents ||
-        event.senderFrame !== contents.mainFrame ||
-        new URL(event.senderFrame.url).origin !== origin ||
+        !isOwnedMainFrame(event, contents, origin) ||
         typeof value !== 'string' ||
         value.length > MAX_CLIPBOARD_TEXT
       ) {

@@ -1,0 +1,254 @@
+import {
+  ATTENTION_ACKNOWLEDGED_MS,
+  ATTENTION_POLL_MS,
+  ATTENTION_REMIND_MS,
+  attentionNotification,
+} from '../src/automation/attention-policy.js';
+import { availableLocales, translate } from '../src/web/i18n.js';
+
+const itemKey = ({ kind, id, requestId, browserSlot }) =>
+  JSON.stringify([kind, id, requestId, browserSlot]);
+
+const actionButtons = (locale, focus) => [
+  ...(focus
+    ? [{ type: 'button', text: translate(locale, 'forms.attention.show') }]
+    : []),
+  { type: 'button', text: translate(locale, 'forms.attention.later') },
+];
+
+const traceAttention = () => {
+  if (process.env.MS_LIFECYCLE_DEBUG === '1') {
+    console.error('[desktop] owner_attention_notification_unavailable');
+  }
+};
+
+/** Keep actionable system notifications tied to the local, live browser owner. */
+export class DesktopOwnerAttention {
+  constructor({
+    Notification,
+    beep,
+    owner,
+    showWindow,
+    platform = process.platform,
+    now = Date.now,
+    setInterval = globalThis.setInterval,
+    clearInterval = globalThis.clearInterval,
+  }) {
+    Object.assign(this, {
+      Notification,
+      beep,
+      owner,
+      showWindow,
+      platform,
+      now,
+      setInterval,
+      clearInterval,
+    });
+    this.entries = new Map();
+    this.visual = false;
+    this.audio = false;
+    this.closed = false;
+  }
+
+  get enabled() {
+    return this.visual || this.audio;
+  }
+
+  configure({ enabled, sound, locale }) {
+    if (
+      this.closed ||
+      !this.owner ||
+      typeof enabled !== 'boolean' ||
+      typeof sound !== 'boolean' ||
+      !availableLocales.some((entry) => entry.id === locale)
+    ) {
+      return { visual: false, audio: false };
+    }
+    this.locale = locale;
+    this.visual = Boolean(enabled && this.Notification?.isSupported?.());
+    this.audio = sound && typeof this.beep === 'function';
+    if (!this.enabled) {
+      this.stop();
+    } else if (this.timer === undefined) {
+      this.timer = this.setInterval(
+        () => void this.refresh(),
+        ATTENTION_POLL_MS
+      );
+      this.timer.unref?.();
+      void this.refresh();
+    } else if (!this.visual) {
+      for (const entry of this.entries.values()) {
+        this.dismiss(entry);
+      }
+    }
+    return { visual: this.visual, audio: this.audio };
+  }
+
+  stop() {
+    this.visual = false;
+    this.audio = false;
+    this.clearInterval(this.timer);
+    this.timer = undefined;
+    for (const entry of this.entries.values()) {
+      this.dismiss(entry);
+    }
+    this.entries.clear();
+  }
+
+  close() {
+    this.closed = true;
+    this.stop();
+  }
+
+  async acknowledge(item) {
+    if (!this.enabled) {
+      return { ok: false };
+    }
+    const key = itemKey(item);
+    const generation = this.timer;
+    const alive = (await this.owner.read()).some(
+      (current) => itemKey(current) === key
+    );
+    if (!alive || !this.enabled || generation !== this.timer) {
+      return { ok: false };
+    }
+    const entry = this.entries.get(key) ?? { item };
+    this.delay(entry, ATTENTION_ACKNOWLEDGED_MS);
+    this.entries.set(key, entry);
+    return { ok: true };
+  }
+
+  dismiss(entry) {
+    const release = entry.release;
+    entry.release = null;
+    release?.();
+  }
+
+  delay(entry, duration) {
+    this.dismiss(entry);
+    entry.next = this.now() + duration;
+  }
+
+  async select(entry, focus) {
+    this.delay(entry, ATTENTION_ACKNOWLEDGED_MS);
+    if (focus) {
+      try {
+        if ((await this.owner.focus(entry.item))?.ok === true) {
+          return;
+        }
+      } catch {
+        // The anchored browser may have closed between alert and activation.
+      }
+      entry.next = this.now() + ATTENTION_REMIND_MS;
+    }
+  }
+
+  post(entry) {
+    this.delay(entry, ATTENTION_REMIND_MS);
+    if (this.audio) {
+      try {
+        this.beep();
+      } catch {
+        traceAttention();
+      }
+    }
+    if (!this.visual) {
+      return;
+    }
+    const { kind, focusAvailable } = entry.item;
+    const { locale } = this;
+    const notification = new this.Notification({
+      title: translate(locale, 'appName'),
+      body: translate(locale, attentionNotification[kind]),
+      silent: true,
+      timeoutType: 'never',
+      actions: actionButtons(locale, focusAvailable),
+    });
+    const select = (focus) => {
+      if (entry.release === release) {
+        void this.select(entry, focus);
+      }
+    };
+    const click = () => {
+      if (focusAvailable) {
+        select(true);
+      } else if (entry.release === release) {
+        this.dismiss(entry);
+        void Promise.resolve(this.showWindow?.()).catch(traceAttention);
+      }
+    };
+    const action = (event, legacyIndex) => {
+      const index = event?.actionIndex ?? legacyIndex;
+      if (index === 0 || (focusAvailable && index === 1)) {
+        select(focusAvailable && index === 0);
+      }
+    };
+    const close = (event) => {
+      if (
+        (this.platform === 'win32' && event?.reason === 'userCanceled') ||
+        this.platform === 'darwin'
+      ) {
+        select(false);
+      }
+    };
+    const release = () => {
+      notification.off('click', click);
+      notification.off('action', action);
+      notification.off('close', close);
+      notification.off('failed', traceAttention);
+      notification.close();
+    };
+    entry.release = release;
+    notification.on('click', click);
+    notification.on('action', action);
+    notification.on('close', close);
+    notification.on('failed', traceAttention);
+    notification.show();
+  }
+
+  async refresh() {
+    if (!this.enabled || this.reading) {
+      return;
+    }
+    const generation = this.timer;
+    this.reading = true;
+    try {
+      const current = await this.owner.read();
+      if (!this.enabled || generation !== this.timer) {
+        return;
+      }
+      this.reconcile(current);
+    } catch {
+      traceAttention();
+    } finally {
+      this.reading = false;
+    }
+  }
+
+  reconcile(current) {
+    const time = this.now();
+    const live = new Map(
+      current
+        .filter(
+          (item) =>
+            Object.hasOwn(attentionNotification, item.kind) &&
+            Date.parse(item.expiresAt) > time
+        )
+        .map((item) => [itemKey(item), item])
+    );
+    for (const [key, entry] of this.entries) {
+      if (!live.has(key)) {
+        this.dismiss(entry);
+        this.entries.delete(key);
+      }
+    }
+    for (const [key, item] of live) {
+      const entry = this.entries.get(key) ?? { next: time };
+      this.entries.set(key, entry);
+      entry.item = item;
+      if (entry.next <= time) {
+        this.post(entry);
+      }
+    }
+  }
+}
