@@ -63,13 +63,33 @@ export const canReplyTo = (message) =>
 
 const timeOf = (message) => Date.parse(message?.timestamp ?? '') || null;
 
+const ownsHhMessage = (message) =>
+  Boolean(
+    message.hhChat?.id &&
+    message.messageId &&
+    message.raw?.id === message.messageId &&
+    message.raw.type === 'SIMPLE' &&
+    message.raw.sender_display_info?.is_current_participant === true
+  );
+
 export const canEdit = (message, now) => {
-  if (!isMine(message) || !message.body || message.pending) {
+  if (!isMine(message) || !message.body || message.pending || message.deleted) {
     return false;
+  }
+  if (message.source === 'hh') {
+    return (
+      ownsHhMessage(message) &&
+      message.raw.can_edit === true &&
+      typeof message.raw.payload?.text === 'string'
+    );
   }
   const at = timeOf(message);
   return at === null || now - at <= EDIT_LIMIT_MS;
 };
+
+export const canDeleteMessages = (messages) =>
+  !messages.some((message) => message.source === 'hh') ||
+  (messages.length === 1 && ownsHhMessage(messages[0]));
 
 /**
  * The message's t.me link: a channel's or supergroup's messages have
@@ -213,7 +233,7 @@ const gameItems = (message) => (hasGameScores(message) ? ['gameScores'] : []);
 // chat (R-Y217), who read it, Select and the read time.
 const tailItems = (message, chat, info, hideSender) => [
   'forward',
-  'delete',
+  canDeleteMessages([message]) && 'delete',
   canReport(message, chat) && 'report',
   canBlockFromReplies(message, chat) && 'blockSender',
   ...whoItems(message, chat, info),
@@ -281,7 +301,7 @@ const selectedItems = (message, selection, order) => {
       sent && canReplyTo(message) && 'reply',
       selection.canCopy !== false && 'copySelectedItems',
       selection.canForward && 'forwardSelected',
-      'deleteSelected',
+      selection.canDelete !== false && 'deleteSelected',
       selection.canReport && 'reportSelected',
       selection.anyPinned && 'unpinSelected',
       'clearSelection',
@@ -674,6 +694,7 @@ const TopButton = ({ action, label, count, onClick, filled = true }) =>
 export const SelectionTop = ({
   count,
   canForward = true,
+  canDelete = true,
   canReport = false,
   onClear,
   onForward,
@@ -694,13 +715,15 @@ export const SelectionTop = ({
             onClick: onForward,
           })
         : null,
-      el(TopButton, {
-        key: 'd',
-        action: 'delete',
-        label: t('chat.selection.delete'),
-        count,
-        onClick: onDelete,
-      }),
+      canDelete
+        ? el(TopButton, {
+            key: 'd',
+            action: 'delete',
+            label: t('chat.selection.delete'),
+            count,
+            onClick: onDelete,
+          })
+        : null,
       canReport
         ? el(TopButton, {
             key: 'r',

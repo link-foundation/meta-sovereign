@@ -559,6 +559,7 @@ export const ruChat = {
   'chat.forwardBar.you': 'Вы',
   'chat.delete': 'Удалить',
   'chat.deleteForMe': 'Удалить у себя',
+  'chat.deleteInHeadHunter': 'Удалить в HeadHunter',
   'chat.deleteForEveryone': 'Удалить у всех',
   'chat.deleteConfirm': 'Удалить это сообщение?',
   'chat.copy': 'Копировать текст',

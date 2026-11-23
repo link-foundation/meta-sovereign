@@ -171,3 +171,79 @@ export const verifyHhCommonReply = async ({ page, base, store, fake }) => {
     'HH received one reply to the selected message'
   );
 };
+
+export const verifyHhCommonActions = async ({ page, store, fake, until }) => {
+  const id = 'msg:hh:chat:41:2';
+  const answer = page.locator(`[data-row="${id}"]`);
+  const question = page.locator('[data-row="msg:hh:chat:41:1"]');
+  const item = (action) =>
+    page.locator(`[role="menuitem"][data-action="${action}"]`);
+  await answer.click({ button: 'right' });
+  assert(
+    await item('edit').count(),
+    'HeadHunter edit permission overrides Telegram timing'
+  );
+  await item('edit').click();
+  const composer = page.locator('.chat-composer textarea');
+  const text = 'I live in Hanoi.';
+  await composer.fill(text);
+  fake.state.mutationStatus = 200;
+  const editFailed = page.waitForResponse((response) =>
+    response.url().endsWith('/api/message/edit')
+  );
+  await composer.press('Enter');
+  assert(
+    (await editFailed).status() === 502,
+    'an unexpected provider receipt is reported'
+  );
+  assert(
+    (await store.get(id)).body === 'Vietnam.',
+    'unconfirmed edit preserves the saved message'
+  );
+  fake.state.mutationStatus = 204;
+  await answer.click({ button: 'right' });
+  await item('edit').click();
+  await composer.fill(text);
+  await composer.press('Enter');
+  await until(
+    async () => (await answer.innerText()).includes(text),
+    'acknowledged HH edit'
+  );
+  assert(
+    (await store.get(id)).raw.payload.text === text,
+    'the saved edit keeps native text'
+  );
+  await answer.click({ button: 'right' });
+  await item('delete').click();
+  const dialog = page.getByRole('dialog');
+  assert(
+    (await dialog.getByText('Delete for me').count()) === 0,
+    'the provider has no local-only delete'
+  );
+  await dialog.getByRole('button', { name: 'Cancel' }).click();
+  assert(
+    fake.calls.every((call) => call.method !== 'DELETE'),
+    'cancel does not delete'
+  );
+  await question.click({ button: 'right' });
+  assert(
+    (await item('delete').count()) === 0,
+    'the employer message has no delete action'
+  );
+  await page.keyboard.press('Escape');
+  await answer.click({ button: 'right' });
+  await item('delete').click();
+  await dialog.getByRole('button', { name: 'Delete in HeadHunter' }).click();
+  await until(
+    async () => Boolean((await store.get(id)).deleted),
+    'acknowledged HH deletion'
+  );
+  assert(
+    fake.calls.filter((call) => call.method === 'DELETE').length === 1,
+    'one exact provider deletion'
+  );
+  assert(
+    !(await store.get('msg:hh:chat:41:1')).deleted,
+    'the employer message is preserved'
+  );
+};

@@ -591,6 +591,41 @@ test('POST /api/message/delete marks the messages deleted', async () => {
   assert.equal(isTombstone(store.map.get('msg:whatsapp:B')), true);
 });
 
+test('HH message mutations require an exact provider receipt and a current saved edit', async () => {
+  const id = 'msg:hh:chat:41:m:2';
+  const saved = {
+    id,
+    source: 'hh',
+    chat: 'chat:41',
+    messageId: 'm:2',
+    body: 'Original',
+    raw: { payload: { text: 'Original' } },
+  };
+  const store = memoryStore([saved]);
+  let messageId = 'another-message';
+  const { ctx, performed } = routeCtx(() => ({ via: 'api', messageId }));
+  const edit = (previousText) =>
+    call(store, ctx, 'POST', '/api/message/edit', {
+      ids: [id],
+      text: 'Corrected',
+      previousText,
+    });
+  const remove = (ids, revoke) =>
+    call(store, ctx, 'POST', '/api/message/delete', { ids, revoke });
+  assert.equal((await edit('Earlier')).status, 409);
+  assert.equal((await remove([id], false)).status, 400);
+  assert.equal((await remove([id, 'msg:hh:absent'], true)).status, 400);
+  assert.deepEqual(performed, []);
+  assert.equal((await edit(saved.body)).body.code, 'mutation-unconfirmed');
+  assert.equal((await remove([id], true)).body.code, 'mutation-unconfirmed');
+  assert.deepEqual(store.map.get(id), saved);
+  messageId = saved.messageId;
+  assert.equal((await edit(saved.body)).status, 200);
+  assert.equal(store.map.get(id).raw.payload.text, 'Corrected');
+  assert.equal((await remove([id], true)).status, 200);
+  assert.equal(isTombstone(store.map.get(id)), true);
+});
+
 test('POST /api/message/react keeps one reaction of ours', async () => {
   const store = memoryStore([
     message('A', {

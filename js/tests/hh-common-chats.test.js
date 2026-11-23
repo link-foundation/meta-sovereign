@@ -286,6 +286,82 @@ test('HH replies preserve the verified opaque message ID and refuse disabled tar
   assert.equal(fake.calls.filter((c) => c.method === 'POST').length, 1);
 });
 
+test('HH edits and removes one exact owned message in the common chat', async () => {
+  const { fake, live, pull, store } = setup();
+  fake.chats.get('41')[1].id = 'answer:2/part';
+  await pull();
+  const link = await store.get('msg:hh:chat:41:answer:2/part');
+  const { chat, messageId: id } = link;
+  const edit = { chat, id, link, text: 'I live in Hanoi.' };
+  fake.calls.length = 0;
+  const updated = await live.editMessage(edit);
+  assert.equal(updated.messageId, id);
+  assert.equal(fake.chats.get('41')[1].payload.text, edit.text);
+  assert.deepEqual(fake.calls[0].query, {
+    order: 'next',
+    limit: '1',
+    start_message_id: id,
+  });
+  assert.deepEqual(fake.calls[1], {
+    path: '/common/chats/41/messages/answer%3A2%2Fpart',
+    method: 'PUT',
+    query: {},
+    body: { text: edit.text },
+  });
+  const remove = { chat, ids: [id], links: [link], revoke: true };
+  assert.deepEqual(await live.deleteMessages(remove), { messageId: id });
+  assert.equal(
+    fake.chats.get('41').some((message) => message.id === id),
+    false
+  );
+  assert.equal(fake.calls.at(-1).method, 'DELETE');
+  assert.equal(fake.calls.at(-1).path, fake.calls[1].path);
+});
+
+test('HH message mutations refuse stale text, revoked ownership, an unsupported scope and uncertain receipts', async () => {
+  const { fake, live, pull, store } = setup();
+  await pull();
+  const link = await store.get('msg:hh:chat:41:2');
+  const edit = { chat: link.chat, id: '2', text: 'New text', link };
+  const remove = { chat: link.chat, ids: ['2'], links: [link], revoke: true };
+  const message = fake.chats.get('41')[1];
+  fake.calls.length = 0;
+  await assert.rejects(live.deleteMessages({ ...remove, revoke: false }), {
+    code: 'unsupported-action',
+  });
+  await assert.rejects(live.deleteMessages({ ...remove, ids: ['2', '1'] }), {
+    code: 'unsupported-action',
+  });
+  await assert.rejects(live.editMessage({ ...edit, chat: '41' }), {
+    code: 'unsupported-action',
+  });
+  assert.deepEqual(fake.calls, []);
+  message.can_edit = false;
+  await assert.rejects(live.editMessage(edit), { code: 'unsupported-action' });
+  message.can_edit = true;
+  message.payload.text = 'Changed in HeadHunter';
+  await assert.rejects(live.editMessage(edit), { code: 'history-changed' });
+  message.payload.text = link.body;
+  message.sender_display_info.is_current_participant = false;
+  await assert.rejects(live.deleteMessages(remove), {
+    code: 'unsupported-action',
+  });
+  assert.equal(
+    fake.calls.every((call) => call.method === 'GET'),
+    true
+  );
+  message.sender_display_info.is_current_participant = true;
+  fake.state.mutationStatus = 200;
+  await assert.rejects(live.editMessage(edit), { ambiguous: true });
+  await assert.rejects(live.deleteMessages(remove), { ambiguous: true });
+  assert.deepEqual(
+    fake.calls
+      .filter((call) => call.method !== 'GET')
+      .map((call) => call.method),
+    ['PUT', 'DELETE']
+  );
+});
+
 const readFixture = ({ count = 0, latest = 'm:9', receipt = 204 } = {}) => {
   const calls = [];
   const live = createHhLive({

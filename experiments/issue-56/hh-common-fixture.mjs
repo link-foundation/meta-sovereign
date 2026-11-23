@@ -21,6 +21,29 @@ const message = (
   viewed_by_opponent: !outgoing,
 });
 
+const mutateMessage = (chats, status, path, method, body) => {
+  const [, chat, id] =
+    /^\/common\/chats\/([^/]+)\/messages\/([^/]+)$/u.exec(path) ?? [];
+  const messages = chats.get(decodeURIComponent(chat ?? ''));
+  const index = messages?.findIndex(
+    (item) => item.id === decodeURIComponent(id)
+  );
+  const message = messages?.[index];
+  if (!message) {
+    return new globalThis.Response(null, { status: 404 });
+  }
+  if (status !== 204) {
+    return new globalThis.Response(null, { status });
+  }
+  if (method === 'DELETE') {
+    messages.splice(index, 1);
+  } else {
+    message.payload.text = body.text;
+    message.last_change_time = new Date().toISOString();
+  }
+  return new globalThis.Response(null, { status: 204 });
+};
+
 // Finite, credential-free HH API fixture, following the public OpenAPI schema.
 export const hhCommonFixture = () => {
   const chats = new Map([
@@ -61,6 +84,7 @@ export const hhCommonFixture = () => {
     accountId: 'account-56',
     writeAllowed: true,
     receipt: { id: 'sent-56' },
+    mutationStatus: 204,
     unread: new Map(),
     transform: (value) => value,
   };
@@ -102,7 +126,9 @@ export const hhCommonFixture = () => {
     const messages =
       request.searchParams.get('order') === 'prev'
         ? all.slice(-limit)
-        : all.slice(index, index + limit);
+        : index === -1
+          ? []
+          : all.slice(index, index + limit);
     return {
       id,
       type: 'NEGOTIATION',
@@ -130,8 +156,17 @@ export const hhCommonFixture = () => {
       query: Object.fromEntries(request.searchParams),
       body: init.body ? JSON.parse(init.body) : null,
     });
-    if (method === 'PUT') {
+    if (method === 'PUT' && path.endsWith('/read')) {
       return markReadResponse(path);
+    }
+    if (method === 'PUT' || method === 'DELETE') {
+      return mutateMessage(
+        chats,
+        state.mutationStatus,
+        path,
+        method,
+        calls.at(-1).body
+      );
     }
     let value;
     if (path === '/me') {

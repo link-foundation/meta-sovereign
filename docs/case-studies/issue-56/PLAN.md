@@ -1,3 +1,10 @@
+2026-11-23 HeadHunter common-chat changes (HH09):
+
+- [x] Reproduce the missing edit control and misleading local-delete scope in the previous Chat bundle. Confirm the documented mutation endpoints and receipts.
+- [x] Require the exact provider message and ownership, current edit permission, current text, and a positive acknowledgement before updating local history.
+- [x] Verify the focused adapter, route, and browser controls and record before/after screenshots.
+- [ ] Verify authenticated native web behavior and remaining messaging capabilities. HH09 stays open.
+
 2026-11-23 HeadHunter common-chat replies (HH09):
 
 - [x] Reproduce lost reply references and a synthetic local ID after a successful public API send. Confirm HeadHunter's whole-message reply field, permissions and HTTP receipt.

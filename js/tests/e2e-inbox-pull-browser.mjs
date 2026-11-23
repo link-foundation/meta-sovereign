@@ -16,6 +16,7 @@ import { fakePph, fakeUpwork } from './helpers/fake-marketplaces.js';
 import { hhCommonFixture } from '../../experiments/issue-56/hh-common-fixture.mjs';
 import {
   verifyHhCommon,
+  verifyHhCommonActions,
   verifyHhCommonReply,
 } from './helpers/e2e-hh-common.mjs';
 import { verifyHhProviders } from './helpers/e2e-hh-providers.mjs';
@@ -236,4 +237,5 @@ await finish(async () => {
   });
   await verifyHhProviders({ page, base, store, until, hh });
   await verifyHhCommonReply({ page, base, store, fake: hh });
+  await verifyHhCommonActions({ page, store, fake: hh, until });
 });

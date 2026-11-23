@@ -559,6 +559,7 @@ export const hiChat = {
   'chat.forwardBar.you': 'आप',
   'chat.delete': 'हटाएँ',
   'chat.deleteForMe': 'केवल मेरे लिए हटाएँ',
+  'chat.deleteInHeadHunter': 'HeadHunter में हटाएँ',
   'chat.deleteForEveryone': 'सबके लिए हटाएँ',
   'chat.deleteConfirm': 'यह संदेश हटाएँ?',
   'chat.copy': 'टेक्स्ट कॉपी करें',

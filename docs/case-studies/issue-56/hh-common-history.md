@@ -50,11 +50,10 @@ obtained archive containing actual messages, rather than promising an
 unverified provider JSON-export command. Legacy archive IDs and the explicit
 `negotiations` protocol remain available.
 
-Modern chat replies use the matching common-chat endpoint. A fresh read must
+Modern chat sends use the matching common-chat endpoint. A fresh read must
 confirm the same chat accepts writing. Text sends include a UUID idempotency
 key and require a positive sent-message ID; unknown outcomes forbid automatic
-fallback. Attachments and quoted replies are refused before provider reads.
-This does not establish full browser messaging or delivery-state parity.
+fallback. This path supports plain text and whole-message replies.
 
 The shared Chat/Operator bubble now uses the same existing ownership predicate
 as message selection, preserving real sender IDs while rendering outgoing
@@ -189,3 +188,42 @@ observed one fixture POST carrying the complete parent ID.
 ![Previous common-chat reply failure](../../screenshots/issue-56-hh-common-reply-before.png)
 
 ![Common-chat reply with its parent](../../screenshots/issue-56-hh-common-reply-after.png)
+
+## Editing and deleting in a common chat
+
+At `f561f52c`, Chat applied Telegram's time limit to a HeadHunter message
+that the provider still allowed the owner to edit. It also offered “Delete
+for me,” even though the recorded HeadHunter operations had no local-only
+scope. Neither operation had a HeadHunter adapter.
+
+Chat now uses the saved provider edit permission. The server checks for the
+exact chat, message, and current participant before either mutation. Editing
+also checks the saved and provider text for changes since the editor opened.
+The [edit operation](https://api.hh.ru/openapi/en/redoc#tag/Chats/operation/chat-message-put)
+and [delete operation](https://api.hh.ru/openapi/en/redoc#tag/Chats/operation/chat-message-delete)
+update the local store only after the provider returns HTTP 204. Delete in
+HeadHunter requires confirmation for one owned message. Unknown outcomes
+leave the saved message intact and direct the owner to check HeadHunter.
+
+Two adapter regressions on the previous source show absent support. The
+focused tests check opaque IDs, revoked permission, stale text, the single
+message scope, wrong message receipts, and uncertain results. The registered
+Chromium inbox scenario checks the real Chat menu, a refused receipt, the
+updated bubble, cancel, and confirmed deletion. Independent Playwright MCP
+compares both UI bundles with synthetic provider data. The provider fixture
+recorded one edit and one delete for the same message. The employer's message
+remained visible. Node and Deno each passed 77 focused checks. The local
+browser test reused the installed Chromium executable.
+
+```sh
+node --test --test-concurrency=1 js/tests/hh-common-chats.test.js js/tests/message-actions.test.js js/tests/chat-selection.test.js js/tests/chat-edit-mode.test.js
+RUN_BROWSER_E2E=1 node js/tests/e2e-inbox-pull-browser.mjs
+```
+
+![Earlier Chat menu without Edit](../../screenshots/issue-56-hh-common-actions-before.png)
+
+![Edited HeadHunter message in Chat](../../screenshots/issue-56-hh-common-actions-after.png)
+
+![Earlier local-only deletion prompt](../../screenshots/issue-56-hh-common-delete-before.png)
+
+![HeadHunter deletion confirmation](../../screenshots/issue-56-hh-common-delete-after.png)

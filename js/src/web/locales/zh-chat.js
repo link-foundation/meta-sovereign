@@ -531,6 +531,7 @@ export const zhChat = {
   'chat.forwardBar.you': '你',
   'chat.delete': '删除',
   'chat.deleteForMe': '仅对我删除',
+  'chat.deleteInHeadHunter': '在 HeadHunter 中删除',
   'chat.deleteForEveryone': '对所有人删除',
   'chat.deleteConfirm': '删除此消息？',
   'chat.copy': '复制文本',

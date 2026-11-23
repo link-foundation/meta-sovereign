@@ -559,6 +559,7 @@ export const enChat = {
   'chat.forwardBar.you': 'You',
   'chat.delete': 'Delete',
   'chat.deleteForMe': 'Delete for me',
+  'chat.deleteInHeadHunter': 'Delete in HeadHunter',
   'chat.deleteForEveryone': 'Delete for everyone',
   'chat.deleteConfirm': 'Delete this message?',
   'chat.copy': 'Copy Text',

@@ -10,8 +10,10 @@ import { normalizeHhMessages } from './hh-messages.js';
 import { pullHhChats } from './hh-chats.js';
 import { sendHhChat } from './hh-chat-send.js';
 import { hhCommonChatId, markHhChatRead } from './hh-chat-read.js';
+import { mutateHhChatMessage } from './hh-chat-actions.js';
 import {
   authHeaders,
+  codedError,
   threadTarget,
   unsupportedError,
   contentText,
@@ -20,6 +22,17 @@ import {
 } from './http.js';
 
 const SOURCE = 'hh';
+
+const commonChatPostId = (target) => {
+  if (typeof target !== 'string' || !target.startsWith('chat:')) {
+    return null;
+  }
+  const id = hhCommonChatId(target);
+  if (!id) {
+    throw unsupportedError('HH common-chat ID is invalid');
+  }
+  return id;
+};
 
 export const hhNegotiationsToLinks = (payload) => normalizeHhMessages(payload);
 
@@ -35,6 +48,14 @@ export const createHhLive = ({
     ...authHeaders(resolvedToken(override)),
     'User-Agent': userAgent,
   });
+  const mutateMessage = (params, options) =>
+    mutateHhChatMessage({
+      ...params,
+      fetchImpl,
+      baseUrl: options.baseUrl ?? baseUrl,
+      headers: headers(options.token),
+      timeoutMs: options.timeout,
+    });
 
   return {
     async pullMessages(options = {}) {
@@ -85,14 +106,8 @@ export const createHhLive = ({
       if (!text) {
         throw new Error('hh message text is required');
       }
-      if (
-        typeof negotiationId === 'string' &&
-        negotiationId.startsWith('chat:')
-      ) {
-        const chatId = hhCommonChatId(negotiationId);
-        if (!chatId) {
-          throw unsupportedError('HH common-chat ID is invalid');
-        }
+      const chatId = commonChatPostId(negotiationId);
+      if (chatId) {
         return sendHhChat({
           fetchImpl,
           baseUrl: options.baseUrl ?? baseUrl,
@@ -132,6 +147,18 @@ export const createHhLive = ({
         id,
         timeoutMs: options.timeout,
       });
+    },
+    async editMessage(params, options = {}) {
+      return mutateMessage({ ...params, edit: true }, options);
+    },
+    async deleteMessages({ chat, ids, links, revoke } = {}, options = {}) {
+      if (revoke !== true || ids?.length !== 1 || links?.length !== 1) {
+        throw codedError(
+          'HeadHunter removes one message at a time from the provider chat',
+          'unsupported-action'
+        );
+      }
+      return mutateMessage({ chat, id: ids[0], link: links[0] }, options);
     },
     // No endpoint writes an applicant's resume (the CV plan researched
     // this, R-V6): report it instead of calling a URL that does not

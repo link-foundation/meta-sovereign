@@ -42,6 +42,7 @@ import { versionedMediaApi } from './message-version-media.js';
 import { expandAlbums, groupAlbums } from './chat-album.js';
 import {
   bulkSelect,
+  canDeleteMessages,
   canEdit,
   canReplyTo,
   copyStamp,
@@ -435,6 +436,7 @@ const dialogsOf = ({ state, send, selection, open, close, stage }) => {
           key: 'del',
           messages: deleting,
           isGroup: !state.current?.personal,
+          inHeadHunter: deleting[0]?.source === 'hh',
           moderation: deleteModeration(state.current, state.info, deleting),
           onClose: () => setDeleting(null),
           onDelete: (opts) => {
@@ -617,13 +619,15 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
     isProtected(m, state.current, state.info)
   );
   const canForward = chosen().every((m) => !m.pending) && !lockedAny;
+  const canDelete = canDeleteMessages(chosen());
   const top = {
     count: selection.ids.length,
     canForward,
+    canDelete,
     ...features.report.top(chosen()),
     onClear: selection.clear,
     onForward: () => setForwarding(chosen()),
-    onDelete: () => setDeleting(chosen()),
+    onDelete: () => canDelete && setDeleting(chosen()),
   };
   useSelectionKeys(selection, {
     onCopy: copySelected,
@@ -642,7 +646,12 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
       gifs: features.gifs.ids,
       hideSender: Boolean(messageAuthor(message)),
       selection: menuSelection(selection, {
-        ...{ canForward, canCopy: !lockedAny, canReport: top.canReport },
+        ...{
+          canForward,
+          canDelete,
+          canCopy: !lockedAny,
+          canReport: top.canReport,
+        },
         anyPinned: chosen().some((m) => m.raw?.pinned),
       }),
       order,
