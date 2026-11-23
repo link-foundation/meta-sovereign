@@ -635,6 +635,39 @@ test('POST /api/message/read resets the unread count of the chat', async () => {
   assert.equal(read.inboxMaxId, 2);
 });
 
+test('HH message reads retain cached unread counts until a matching provider snapshot arrives', async () => {
+  const old = {
+    id: 'read:hh:chat:5',
+    source: 'hh',
+    chat: 'chat:5',
+    unreadCount: 4,
+  };
+  const store = memoryStore([old]);
+  const body = { source: 'hh', chat: 'chat:5' };
+  const unconfirmed = routeCtx(() => ({ via: 'browser', read: true }));
+  const browser = await call(
+    store,
+    unconfirmed.ctx,
+    'POST',
+    '/api/message/read',
+    body
+  );
+  assert.equal(browser.body.read, false);
+  assert.equal(store.map.get(old.id).unreadCount, 4);
+
+  const readState = { ...old, unreadCount: 2, hhLatestMessageId: 'latest' };
+  const confirmed = routeCtx(() => ({ via: 'api', read: true, readState }));
+  const api = await call(
+    store,
+    confirmed.ctx,
+    'POST',
+    '/api/message/read',
+    body
+  );
+  assert.equal(api.body.read, true);
+  assert.equal(store.map.get(old.id).unreadCount, 2);
+});
+
 test('POST /api/message/forward forwards to the chat named', async () => {
   const store = memoryStore([message('A')]);
   const { ctx, performed } = routeCtx();

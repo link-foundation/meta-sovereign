@@ -238,6 +238,64 @@ test('HH imported chat replies use the common-chat endpoint, a UUID and a positi
   assert.equal(fake.calls.filter((c) => c.method === 'POST').length, 1);
 });
 
+const readFixture = ({ count = 0, latest = 'm:9', receipt = 204 } = {}) => {
+  const calls = [];
+  const live = createHhLive({
+    token: 'fixture-token',
+    baseUrl: 'https://hh.invalid',
+    fetchImpl: async (url, init) => {
+      const { pathname, search } = new URL(url);
+      calls.push([init.method, pathname, search]);
+      if (init.method === 'PUT') {
+        return new globalThis.Response(null, { status: receipt });
+      }
+      return globalThis.Response.json({
+        id: 'a/b',
+        unread_message_count: calls.length === 1 ? 2 : count,
+        messages: [{ id: latest }],
+      });
+    },
+  });
+  return { calls, live };
+};
+
+test('HH marks the provider message and rereads the count instead of assuming zero', async () => {
+  const { calls, live } = readFixture({ count: 1 });
+  const result = await live.markRead({ chat: 'chat:a/b', id: 'm:9' });
+  assert.equal(result.read, true);
+  assert.equal(result.messageId, 'm:9');
+  assert.equal(result.readState.unreadCount, 1);
+  assert.equal(result.readState.hhLatestMessageId, 'm:9');
+  assert.deepEqual(calls, [
+    ['GET', '/common/chats/a%2Fb/messages', '?order=prev&limit=1'],
+    ['PUT', '/common/chats/a%2Fb/message/m%3A9/read', ''],
+    ['GET', '/common/chats/a%2Fb/messages', '?order=prev&limit=1'],
+  ]);
+});
+
+test('HH refuses to mark newly arrived history beyond the displayed message', async () => {
+  const { calls, live } = readFixture();
+  await assert.rejects(live.markRead({ chat: 'chat:a/b', id: 'older' }), {
+    code: 'history-changed',
+    fallback: false,
+  });
+  assert.deepEqual(
+    calls.map(([method]) => method),
+    ['GET']
+  );
+});
+
+test('HH reports uncertain read acknowledgement without re-opening the chat', async () => {
+  const { calls, live } = readFixture({ receipt: 200 });
+  await assert.rejects(live.markRead({ chat: 'chat:a/b' }), {
+    ambiguous: true,
+  });
+  assert.deepEqual(
+    calls.map(([method]) => method),
+    ['GET', 'PUT']
+  );
+});
+
 test('HH missing send receipts stay ambiguous and are never replayed', async () => {
   const { fake, live } = setup();
   fake.state.receipt = {};

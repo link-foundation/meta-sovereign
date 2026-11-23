@@ -23,6 +23,7 @@
 import { json, readBody } from './util.js';
 import { isTrustedMutation } from './routes-auto-import.js';
 import { previewFields } from '../sources/telegram-link-preview.js';
+import { storeHhReadState } from '../sources/hh-chat-read.js';
 
 import { markDeleted as tombstone } from '../storage/soft-delete.js';
 
@@ -34,7 +35,11 @@ const fail = (res, status, code, error) =>
 
 /** The network's own id of a message: the last part of its link id. */
 export const externalIdOf = (link) =>
-  String(link.messageId ?? String(link.id).split(':').pop());
+  String(
+    link.messageId ??
+      (link.hhChat ? link.raw?.id : undefined) ??
+      String(link.id).split(':').pop()
+  );
 
 // The messages a request names, all from one chat of one network.
 const messagesOf = async (store, body) => {
@@ -57,6 +62,45 @@ const messagesOf = async (store, body) => {
 };
 
 const now = () => new Date().toISOString();
+
+const badHhReadBoundary = (body, links) => {
+  const [link] = links;
+  if (link?.source !== 'hh' && body.source !== 'hh') {
+    return false;
+  }
+  if (body.ids === undefined) {
+    return false;
+  }
+  return (
+    !Array.isArray(body.ids) ||
+    body.ids.length !== 1 ||
+    !link ||
+    (body.source && body.source !== link.source) ||
+    (body.chat && String(body.chat) !== String(link.chat))
+  );
+};
+
+const afterHhRead = async (store, target, result) => {
+  const state = result?.readState;
+  if (
+    state?.id === `read:hh:${target.chat}` &&
+    state.source === 'hh' &&
+    state.chat === target.chat &&
+    Number.isSafeInteger(state.unreadCount) &&
+    state.unreadCount >= 0
+  ) {
+    return { readState: await storeHhReadState(store, state) };
+  }
+  if (result?.via === 'browser') {
+    throw Object.assign(
+      new Error('HeadHunter has not confirmed the read state'),
+      {
+        code: 'read-unconfirmed',
+        read: false,
+      }
+    );
+  }
+};
 
 // Our own reaction on a message, among the others'.
 const withReaction = (reactions = [], emoji) => {
@@ -128,10 +172,14 @@ const ACTIONS = {
       }),
   },
   read: {
-    check: (body, links) =>
-      links.length || (body.source && body.chat)
+    check: (body, links) => {
+      if (badHhReadBoundary(body, links)) {
+        return 'one saved message from this chat is needed';
+      }
+      return links.length || (body.source && body.chat)
         ? null
-        : 'source and chat are needed',
+        : 'source and chat are needed';
+    },
     params: (body, links) => {
       const ids = links.map(externalIdOf).map(Number).filter(Number.isFinite);
       return {
@@ -140,7 +188,10 @@ const ACTIONS = {
         link: links.at(-1),
       };
     },
-    after: async (store, body, links, target) => {
+    after: async (store, body, links, target, result) => {
+      if (target.source === 'hh') {
+        return afterHhRead(store, target, result);
+      }
       const id = `read:${target.source}:${target.chat}`;
       const read = (await store.get(id)) ?? {
         id,
@@ -179,6 +230,7 @@ const FAILURE_STATUS = {
   'flood-wait': 429,
   'unsupported-action': 501,
   'no-external-id': 409,
+  'history-changed': 409,
 };
 
 const handleAction = async (store, req, res, ctx, name) => {
@@ -198,8 +250,11 @@ const handleAction = async (store, req, res, ctx, name) => {
       ...target,
       ...action.params(body, links),
     });
-    await action.after(store, body, links, target);
-    return json(res, 200, { ok: true, ...result, links: undefined }) ?? true;
+    const after = await action.after(store, body, links, target, result);
+    return (
+      json(res, 200, { ok: true, ...result, ...after, links: undefined }) ??
+      true
+    );
   } catch (error) {
     ctx.log?.({
       level: 'warn',
@@ -213,6 +268,7 @@ const handleAction = async (store, req, res, ctx, name) => {
       json(res, status, {
         error: error.message,
         code: error.code ?? 'action-failed',
+        ...(error.read === false ? { read: false } : {}),
         ...(error.retryAfter ? { retryAfter: error.retryAfter } : {}),
       }) ?? true
     );

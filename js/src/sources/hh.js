@@ -9,6 +9,7 @@
 import { normalizeHhMessages } from './hh-messages.js';
 import { pullHhChats } from './hh-chats.js';
 import { sendHhChat } from './hh-chat-send.js';
+import { hhCommonChatId, markHhChatRead } from './hh-chat-read.js';
 import {
   authHeaders,
   threadTarget,
@@ -107,6 +108,20 @@ export const createHhLive = ({
           body: { message: text },
         }
       );
+    },
+    async markRead({ chat, id } = {}, options = {}) {
+      const chatId = hhCommonChatId(chat);
+      if (!chatId) {
+        return { supported: false };
+      }
+      return markHhChatRead({
+        fetchImpl,
+        baseUrl: options.baseUrl ?? baseUrl,
+        headers: headers(options.token),
+        chatId,
+        id,
+        timeoutMs: options.timeout,
+      });
     },
     // No endpoint writes an applicant's resume (the CV plan researched
     // this, R-V6): report it instead of calling a URL that does not

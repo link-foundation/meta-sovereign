@@ -1,3 +1,10 @@
+2026-11-23 HeadHunter read receipts and provider scope (HH09):
+
+- [x] Verify the public HeadHunter read operation, identifier format, acknowledgement and unread count against its OpenAPI specification. Reproduce the missing adapter method and the false local read acknowledgement.
+- [x] Write only the matching provider message boundary, keep provider unread counts after concurrent delivery, and preserve cached counts when no snapshot is available.
+- [ ] Carry authoritative unread state through history pulls, Chat and Operator. Verify provider scopes and read behavior in the browser, including an arrival during review.
+- [ ] Verify the authenticated native web path, remaining messaging capabilities and exact-source CI. HH09 stays open.
+
 2026-11-18 MCP fixture serialization correction:
 
 - [x] Preserve exact `aa095a98` CodeQL job and SARIF; distinguish the remaining fixture-string finding from the preceding trusted-source terminator correction.
