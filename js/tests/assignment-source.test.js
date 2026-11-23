@@ -241,23 +241,23 @@ test('unconfirmed navigation never reads stale document text and closes ownershi
 
 test('HTTP error responses refuse even when navigation reports ready', async () => {
   const frame = {};
-  let listener;
-  let removed = false;
+  const listeners = new Map();
   const { read, calls } = reader({
     session: {
       page: {
         mainFrame: () => frame,
-        on: (_event, callback) => {
-          listener = callback;
+        on: (event, callback) => {
+          listeners.set(event, callback);
         },
-        off: (_event, callback) => {
-          removed = callback === listener;
+        off: (event, callback) => {
+          assert.equal(listeners.get(event), callback);
+          listeners.delete(event);
         },
       },
     },
     commander: {
       goto: async () => {
-        listener({
+        listeners.get('response')({
           frame: () => frame,
           status: () => 403,
           request: () => ({ isNavigationRequest: () => true }),
@@ -270,7 +270,7 @@ test('HTTP error responses refuse even when navigation reports ready', async () 
   await assert.rejects(read(sourceUrl), {
     code: 'assignment-source-unavailable',
   });
-  assert.equal(removed, true);
+  assert.equal(listeners.size, 0);
   assert.equal(calls.at(-1), 'closed');
 });
 

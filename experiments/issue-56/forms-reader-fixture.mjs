@@ -11,6 +11,7 @@ import {
   assignmentSourceHtml,
   assignmentSourceMarkdown,
 } from './assignment-source-fixture.mjs';
+import { assignmentPdfFixture } from './assignment-pdf-fixture.mjs';
 import { captchaFixtureHtml } from './forms-captcha-fixture.mjs';
 import { matchingFixtureHtml } from './question-matching-fixture.mjs';
 import {
@@ -53,6 +54,9 @@ const simplePages = {
   '/assignment-linked-markdown': assignmentSectionHtml(
     linkedTaskSection.replace('/source-redirect', '/markdown-source-redirect')
   ),
+  '/assignment-linked-pdf': assignmentSectionHtml(
+    linkedTaskSection.replace('/source-redirect', '/pdf-source-redirect')
+  ),
   '/assignment-linked': assignmentSectionHtml(linkedTaskSection),
   '/assignment': assignmentFixtureHtml,
   '/captcha': captchaFixtureHtml,
@@ -66,11 +70,45 @@ const simplePages = {
 const assignmentRedirects = new Map([
   ['/source-redirect', '/instructions'],
   ['/markdown-source-redirect', '/markdown-instructions'],
+  ['/pdf-source-redirect', '/pdf-instructions'],
+  ['/pdf-empty-redirect', '/pdf-instructions-empty'],
 ]);
+const pdf = assignmentPdfFixture();
+const unreadablePdf = assignmentPdfFixture(['Visible instructions.', '']);
+const servePdf = (req, res) => {
+  if (!req.headers.cookie?.includes('assignment-fixture=owner')) {
+    res.writeHead(403).end('Sign in');
+    return;
+  }
+  const data = req.url.endsWith('-empty') ? unreadablePdf : pdf;
+  res
+    .writeHead(200, {
+      'content-type': 'application/pdf',
+      'content-disposition': 'attachment; filename="instructions.pdf"',
+      'content-length': data.length,
+    })
+    .end(data);
+};
 const formsFixtureMediaType = (url) =>
   url.startsWith('/markdown-instructions')
     ? 'text/markdown; charset=utf-8'
     : 'text/html';
+
+const serveAssignmentDocument = (req, res) => {
+  const redirect = assignmentRedirects.get(req.url.split('?')[0]);
+  if (redirect) {
+    if (redirect.startsWith('/pdf-instructions')) {
+      res.setHeader('set-cookie', 'assignment-fixture=owner; HttpOnly; Path=/');
+    }
+    res.writeHead(302, { location: redirect }).end();
+    return true;
+  }
+  if (req.url.startsWith('/pdf-instructions')) {
+    servePdf(req, res);
+    return true;
+  }
+  return false;
+};
 
 export const startFormsFixture = async () => {
   const requests = [];
@@ -116,10 +154,7 @@ export const startFormsFixture = async () => {
       submits++;
     }
     res.setHeader('content-type', formsFixtureMediaType(req.url));
-    const redirect = assignmentRedirects.get(req.url.split('?')[0]);
-    if (redirect) {
-      res.writeHead(302, { location: redirect });
-      res.end();
+    if (serveAssignmentDocument(req, res)) {
       return;
     }
     if (req.url.startsWith('/automatic')) {

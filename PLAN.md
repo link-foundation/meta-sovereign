@@ -1519,3 +1519,10 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Reproduce one actual-parent registration failure with ten controls; pass all 31 focused CI contracts and the isolated native WebKit salary batch in 66,675 ms. Its two submissions target owned offline fixtures, and all owned resources close.
 - [x] Preserve 34 independently hashed archive entries and pass scoped lint, formatting, secrets, whitespace, line limits and unchanged duplication. Retain the initial missing-config lint invocation separately.
 - [ ] Publish and review exact-source hosted checks. Continue every unfinished original criterion.
+
+2026-11-23 linked PDF assignment instructions (QA24 remains unfinished)
+
+- [x] Reproduce the accepted HTTP response and missing document bytes in Chromium and WebKit. Preserve the parent Forms refusal and the delayed WebKit download trace.
+- [x] Read bounded PDF text through the same browser profile. Require one positive source receipt for every page and keep the existing private draft, CLI and Lino review paths.
+- [x] Verify the final source in focused Node, Deno and Bun checks, native Chromium and WebKit, and an independent Playwright MCP phone check. Preserve the output and both Forms states.
+- [ ] Publish only to the prepared branch and inspect exact-source CI. Continue the remaining document formats, notifications, authenticated provider acceptance and all other unchecked issue requirements.

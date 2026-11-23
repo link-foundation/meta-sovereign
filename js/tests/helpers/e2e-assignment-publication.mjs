@@ -13,6 +13,7 @@ import {
   assignmentSourceMarkdown,
   instructionText,
 } from '../../../experiments/issue-56/assignment-source-fixture.mjs';
+import { PDF_INSTRUCTION_PAGES } from '../../../experiments/issue-56/assignment-pdf-fixture.mjs';
 import {
   vacancyId,
   vacancyUrl,
@@ -68,8 +69,12 @@ const layouts = async (page, state, locator) => {
         state.startsWith('language-')) ||
       (process.env.ASSIGNMENT_ACTIVE_REVIEW_SCREENSHOTS === '1' &&
         state.startsWith('active-review-')) ||
-      (process.env.FORMS_ASSIGNMENT_LINKED_SCREENSHOTS === 'markdown' &&
-        state.startsWith('linked-markdown-'))
+      (['markdown', 'pdf'].includes(
+        process.env.FORMS_ASSIGNMENT_LINKED_SCREENSHOTS
+      ) &&
+        state.startsWith(
+          `linked-${process.env.FORMS_ASSIGNMENT_LINKED_SCREENSHOTS}-`
+        ))
     ) {
       await page.screenshot({
         path: `docs/screenshots/issue-56-assignment-source-${state}-${layout}.png`,
@@ -130,20 +135,24 @@ const captureLinkedSelection = async ({
   }
 };
 
-const captureLinkedMarkdown = async (page, control, accepted) => {
+const captureLinkedDocument = async (page, control, format, accepted) => {
   const status = accepted
     ? control.locator('[data-assignment-source-evidence]')
     : control.getByRole('alert');
   await status.waitFor();
   await layouts(
     page,
-    `linked-markdown-${accepted ? 'accepted' : 'refused'}`,
+    `linked-${format}-${accepted ? 'accepted' : 'refused'}`,
     status
   );
 };
 
-const rejectUnreadableInstructions = async (page, control, source, url) => {
-  const unreadable = new URL('/challenge', url).href;
+const rejectUnreadableInstructions = async (
+  page,
+  control,
+  source,
+  unreadable
+) => {
   await source.fill(unreadable);
   const refused = await request(page, control, 'draft');
   const alert = control.locator(
@@ -156,6 +165,30 @@ const rejectUnreadableInstructions = async (page, control, source, url) => {
       (await source.inputValue()) === unreadable,
     'unreadable instructions retain the URL and show a definite refusal'
   );
+};
+
+const linkedFormats = {
+  html: {
+    paths: ['/assignment-linked', '/source-redirect', '/instructions'],
+  },
+  markdown: {
+    paths: [
+      '/assignment-linked-markdown',
+      '/markdown-source-redirect',
+      '/markdown-instructions',
+    ],
+    expected: assignmentSourceMarkdown,
+    unreadable: '/challenge',
+  },
+  pdf: {
+    paths: [
+      '/assignment-linked-pdf',
+      '/pdf-source-redirect',
+      '/pdf-instructions',
+    ],
+    expected: PDF_INSTRUCTION_PAGES.join('\n\n'),
+    unreadable: '/pdf-empty-redirect',
+  },
 };
 
 const checkLinkedRead = ({ result, sourceUrl, resolved, receipt, added }) => {
@@ -178,16 +211,10 @@ export const verifyLinkedAssignmentInstructions = async ({
   sourceReads,
   publication,
   until,
-  markdown = false,
+  format = 'html',
 }) => {
   await seedAssignmentAnswers(store);
-  const paths = markdown
-    ? [
-        '/assignment-linked-markdown',
-        '/markdown-source-redirect',
-        '/markdown-instructions',
-      ]
-    : ['/assignment-linked', '/source-redirect', '/instructions'];
+  const { paths, expected, unreadable } = linkedFormats[format];
   const [url, sourceUrl, resolved] = paths.map(
     (path) => new URL(path, fixture.url).href
   );
@@ -234,8 +261,8 @@ export const verifyLinkedAssignmentInstructions = async ({
       'choosing the URL causes no navigation'
     );
     const result = await request(page, control, 'draft');
-    if (markdown && mode === 'markdown') {
-      await captureLinkedMarkdown(page, control, result.ok);
+    if (mode === format) {
+      await captureLinkedDocument(page, control, format, result.ok);
     }
     checkLinkedRead({
       result,
@@ -250,9 +277,8 @@ export const verifyLinkedAssignmentInstructions = async ({
     );
     const prompt = publication.state.modelCalls.at(-1).prompt;
     assert(
-      markdown
-        ? JSON.parse(prompt).linkedInstructions.text ===
-            assignmentSourceMarkdown
+      expected
+        ? JSON.parse(prompt).linkedInstructions.text === expected
         : prompt.includes(instructionText),
       'full document requirements reach the model'
     );
@@ -262,8 +288,22 @@ export const verifyLinkedAssignmentInstructions = async ({
       ),
       'Markdown examples stay literal without loading their targets'
     );
-    if (markdown) {
-      await rejectUnreadableInstructions(page, control, source, url);
+    if (format === 'pdf') {
+      const evidence = control.locator('[data-assignment-source-evidence] a');
+      assert(
+        result.draft.sourceEvidence.scope === 'pdf-text-layer' &&
+          (await evidence.textContent()).includes('PDF text used') &&
+          (await evidence.getAttribute('href')) === resolved,
+        'draft links the positively read PDF text layer'
+      );
+    }
+    if (unreadable) {
+      await rejectUnreadableInstructions(
+        page,
+        control,
+        source,
+        new URL(unreadable, url).href
+      );
       assert(
         sourceReads.length === reads + 2 &&
           sourceReads.at(-1).closed &&
@@ -279,11 +319,11 @@ export const verifyLinkedAssignmentInstructions = async ({
     console.log(
       '[assignment-linked-instructions]',
       JSON.stringify({
-        format: markdown ? 'markdown' : 'html',
+        format,
         links: 1,
         reads: 1,
         modelCalls: 1,
-        unreadableRefusals: Number(markdown),
+        unreadableRefusals: Number(Boolean(unreadable)),
         submissions: 0,
         sourceClosed: true,
       })
@@ -295,7 +335,10 @@ export const verifyLinkedAssignmentInstructions = async ({
 };
 
 export const verifyLinkedMarkdownInstructions = (options) =>
-  verifyLinkedAssignmentInstructions({ ...options, markdown: true });
+  verifyLinkedAssignmentInstructions({ ...options, format: 'markdown' });
+
+export const verifyLinkedPdfInstructions = (options) =>
+  verifyLinkedAssignmentInstructions({ ...options, format: 'pdf' });
 
 const verifyPendingPlan = async (page, { sessionId, id }) => {
   const response = await page.request.post(

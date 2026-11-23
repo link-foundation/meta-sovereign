@@ -1,5 +1,6 @@
 import { makeBrowserCommander } from 'browser-commander';
 import { createAssignmentSourceReader } from '../../js/src/assignments/source-reader.js';
+import { PDF_INSTRUCTION_PAGES } from './assignment-pdf-fixture.mjs';
 
 export const instructionText =
   'Account for damaged packages. Describe the daily reconciliation process. Keep the written proposal within three pages.';
@@ -25,7 +26,16 @@ export const assignmentSourceHtml = `<!doctype html><html lang="en"><title>Wareh
 
 export const withAssignmentSourceModel = (model) => async (request) => {
   const result = await model(request);
-  return JSON.parse(request.prompt).linkedInstructions
+  const linked = JSON.parse(request.prompt).linkedInstructions;
+  if (linked?.text.includes(PDF_INSTRUCTION_PAGES[0])) {
+    return {
+      ...result,
+      deliverable: 'document',
+      title: 'Greenhouse water use proposal',
+      body: 'Prepare an irrigation plan for the greenhouse. Include water restrictions and a daily audit of consumption. Explain the validation approach and technology choices.',
+    };
+  }
+  return linked
     ? {
         ...result,
         deliverable: 'document',

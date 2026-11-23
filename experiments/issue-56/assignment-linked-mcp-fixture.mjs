@@ -79,16 +79,15 @@ try {
     },
   });
   const url = new URL(`http://127.0.0.1:${server.port}/`);
+  const pdf = process.env.FORMS_ASSIGNMENT_PDF_ONLY === '1';
   const markdown = process.env.FORMS_ASSIGNMENT_MARKDOWN_ONLY === '1';
+  const source = pdf ? 'pdf' : markdown ? 'markdown' : '';
   url.searchParams.set(
     'fixture',
-    new URL(
-      markdown ? '/assignment-linked-markdown' : '/assignment-linked',
-      fixture.url
-    )
+    new URL(`/assignment-linked${source ? `-${source}` : ''}`, fixture.url)
   );
-  if (markdown) {
-    url.searchParams.set('source', 'markdown');
+  if (source) {
+    url.searchParams.set('source', source);
   }
   console.log(JSON.stringify({ url }));
   process.stdin.resume();

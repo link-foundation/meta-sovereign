@@ -5,6 +5,9 @@ import {
   assignmentText,
 } from './validation.js';
 export const PROVIDED_ASSIGNMENT_SCOPE = 'owner-provided-text';
+export const PDF_ASSIGNMENT_SCOPE = 'pdf-text-layer';
+export const isLinkedAssignmentScope = (scope) =>
+  scope === 'visible-document-text' || scope === PDF_ASSIGNMENT_SCOPE;
 const validCapture = (value) =>
   typeof value === 'string' &&
   value.length <= 40 &&
@@ -21,7 +24,7 @@ export const assignmentSourceReceipt = async (value, requestedUrl) => {
     !value ||
     value.complete !== true ||
     value.blocked ||
-    value.scope !== 'visible-document-text' ||
+    !isLinkedAssignmentScope(value.scope) ||
     value.requestedUrl !== assignmentSourceUrl(requestedUrl) ||
     !validCapture(value.capturedAt)
   ) {
@@ -37,18 +40,18 @@ export const assignmentSourceReceipt = async (value, requestedUrl) => {
     text: assignmentText(value.text, 30000, 'instruction text'),
     capturedAt: value.capturedAt,
     complete: true,
-    scope: 'visible-document-text',
+    scope: value.scope,
   };
   const { text: _text, complete: _complete, ...evidence } = source;
+  const content = [source.url, source.title, source.text];
+  if (source.scope === PDF_ASSIGNMENT_SCOPE) {
+    content.unshift(source.scope);
+  }
   return {
     source,
     evidence: {
       ...evidence,
-      fingerprint: await modelFingerprint([
-        source.url,
-        source.title,
-        source.text,
-      ]),
+      fingerprint: await modelFingerprint(content),
     },
   };
 };

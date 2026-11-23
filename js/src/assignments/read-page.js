@@ -13,6 +13,143 @@ const pageFailure = (error, kind) =>
         'The requested browser page could not be read.'
       );
 
+const traceNavigation = (phase, details = {}) => {
+  if (process.env.FORMS_SOURCE_DEBUG === '1') {
+    console.debug('[forms-source]', phase, details);
+  }
+};
+
+const watchNavigation = (page, downloads, watchDownload) => {
+  let navigationResponse;
+  let downloadUrl;
+  const download = (file) => {
+    traceNavigation('download-started');
+    downloadUrl ??= file.url();
+    const cancellation = file.cancel().catch(() => {});
+    downloads.add(cancellation);
+    cancellation.then(() => downloads.delete(cancellation));
+  };
+  const response = (value) => {
+    if (
+      value.request().isNavigationRequest() &&
+      value.frame() === page.mainFrame()
+    ) {
+      navigationResponse = value;
+      traceNavigation('navigation-response', { status: value.status() });
+    }
+  };
+  const verifyRedirect = ({ page: current }) => {
+    const actualUrl = current.url();
+    const status = navigationResponse?.status();
+    return {
+      actualUrl,
+      verified:
+        assignmentSourceUrl(actualUrl) === actualUrl &&
+        status >= 200 &&
+        status < 400,
+    };
+  };
+  page?.on('response', response);
+  if (watchDownload) {
+    page?.on('download', download);
+  }
+  return {
+    verifyRedirect,
+    get response() {
+      return navigationResponse;
+    },
+    get downloadUrl() {
+      return downloadUrl;
+    },
+    close() {
+      page?.off('response', response);
+      if (watchDownload) {
+        page?.off('download', download);
+      }
+    },
+  };
+};
+
+const readNavigationDocument = async (
+  navigation,
+  observed,
+  readResponse,
+  { session, signal, check }
+) => {
+  const downloadReported = /download is starting/i.test(
+    navigation?.error?.message ?? navigation?.reason ?? ''
+  );
+  traceNavigation('navigation-returned', {
+    status: navigation?.status,
+    downloadReported,
+  });
+  if (readResponse && downloadReported && !observed.downloadUrl) {
+    // WebKit may reject goto before emitting its final response and download.
+    await session.page
+      .waitForEvent('download', { timeout: 1000 })
+      .catch(() => {});
+    check();
+  }
+  return readResponse?.({
+    session,
+    response: observed.response,
+    downloadUrl: downloadReported ? observed.downloadUrl : undefined,
+    signal,
+    check,
+  });
+};
+
+const navigateAssignmentPage = async ({
+  session,
+  url,
+  redirects,
+  signal,
+  check,
+  downloads,
+  readResponse,
+  kind,
+}) => {
+  const { page, commander } = session;
+  const observed = watchNavigation(page, downloads, Boolean(readResponse));
+  try {
+    const navigation = await commander
+      .goto({
+        url,
+        waitUntil: 'domcontentloaded',
+        timeout: 30000,
+        signal,
+        ...(redirects ? { verifyFn: observed.verifyRedirect } : {}),
+      })
+      .catch((error) => ({ error }));
+    check();
+    const document = await readNavigationDocument(
+      navigation,
+      observed,
+      readResponse,
+      {
+        session,
+        signal,
+        check,
+      }
+    );
+    if (document) {
+      return document;
+    }
+    if (navigation?.error) {
+      throw navigation.error;
+    }
+    if (!navigationReady(navigation, observed.response?.status())) {
+      throw assignmentFailure(
+        `${kind}-unavailable`,
+        'The requested browser page did not load successfully.'
+      );
+    }
+    return undefined;
+  } finally {
+    observed.close();
+  }
+};
+
 /** Own the browser, including a launch that completes after cancellation. */
 export const readAssignmentPage = async ({
   store,
@@ -28,6 +165,7 @@ export const readAssignmentPage = async ({
   useCase = 'assignments',
   browserOptions = {},
   execute,
+  readResponse,
   deadlineMs = 60000,
 }) => {
   let session;
@@ -37,15 +175,7 @@ export const readAssignmentPage = async ({
   const launchSignal = globalThis.AbortSignal.any(
     [signal, deadline.signal].filter(Boolean)
   );
-  let responseStatus;
-  const response = (value) => {
-    if (
-      value.request().isNavigationRequest() &&
-      value.frame() === session.page.mainFrame()
-    ) {
-      responseStatus = value.status();
-    }
-  };
+  const downloads = new Set();
   const close = () =>
     session
       ? (closing ??= Promise.resolve().then(() => session.close()))
@@ -78,37 +208,21 @@ export const readAssignmentPage = async ({
       signal: launchSignal,
     });
     check();
-    session.page?.on('response', response);
-    const navigation = await session.commander.goto({
+    const document = await navigateAssignmentPage({
+      session,
       url,
-      waitUntil: 'domcontentloaded',
-      timeout: 30000,
-      signal,
-      ...(redirects
-        ? {
-            verifyFn: ({ page }) => {
-              const actualUrl = page.url();
-              return {
-                actualUrl,
-                verified:
-                  assignmentSourceUrl(actualUrl) === actualUrl &&
-                  responseStatus >= 200 &&
-                  responseStatus < 400,
-              };
-            },
-          }
-        : {}),
+      redirects,
+      signal: launchSignal,
+      check,
+      downloads,
+      readResponse,
+      kind,
     });
-    check();
-    if (!navigationReady(navigation, responseStatus)) {
-      throw assignmentFailure(
-        `${kind}-unavailable`,
-        'The requested browser page did not load successfully.'
-      );
-    }
-    const value = execute
-      ? await execute(session, check)
-      : await session.commander.evaluate({ fn: read, args: [] });
+    const value =
+      document ??
+      (execute
+        ? await execute(session, check)
+        : await session.commander.evaluate({ fn: read, args: [] }));
     check();
     return await validate(value);
   } catch (error) {
@@ -117,7 +231,10 @@ export const readAssignmentPage = async ({
   } finally {
     signal?.removeEventListener('abort', abort);
     globalThis.clearTimeout(timer);
-    session?.page?.off('response', response);
-    await close();
+    try {
+      await close();
+    } finally {
+      await Promise.all(downloads);
+    }
   }
 };

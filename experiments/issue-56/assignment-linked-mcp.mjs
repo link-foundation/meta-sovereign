@@ -1,15 +1,10 @@
 async (page) => {
   const location = new URL(page.url());
   const form = location.searchParams.get('fixture');
-  const markdown = location.searchParams.get('source') === 'markdown';
-  const url = new URL(
-    markdown ? '/markdown-source-redirect' : '/source-redirect',
-    form
-  ).href;
-  const finalUrl = new URL(
-    markdown ? '/markdown-instructions' : '/instructions',
-    form
-  ).href;
+  const format = location.searchParams.get('source');
+  const prefix = format ? `${format}-` : '';
+  const url = new URL(`/${prefix}source-redirect`, form).href;
+  const finalUrl = new URL(`/${prefix}instructions`, form).href;
   const requests = [];
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.message));
@@ -59,6 +54,7 @@ async (page) => {
   const evidence = publisher.locator('[data-assignment-source-evidence]');
   await evidence.waitFor();
   const resolved = await evidence.locator('a').getAttribute('href');
+  const evidenceText = await evidence.locator('a').textContent();
   const width = await page.evaluate(() => ({
     viewport: globalThis.innerWidth,
     content: globalThis.document.documentElement.scrollWidth,
@@ -71,6 +67,7 @@ async (page) => {
     selected,
     requestsBeforeDraft,
     resolved,
+    evidenceText,
     requests,
     width,
     errors,
@@ -81,6 +78,7 @@ async (page) => {
     selected !== url ||
     requestsBeforeDraft ||
     resolved !== finalUrl ||
+    (format === 'pdf' && !evidenceText.startsWith('PDF text used')) ||
     requests.join(',') !== 'draft' ||
     width.content > width.viewport ||
     errors.length

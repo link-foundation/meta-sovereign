@@ -1,7 +1,10 @@
 import React, { useEffect, useId, useState } from 'react';
 import { useT } from './i18n.js';
 import { ASSIGNMENT_LANGUAGES } from '../assignments/templates.js';
-import { PROVIDED_ASSIGNMENT_SCOPE } from '../assignments/source.js';
+import {
+  PDF_ASSIGNMENT_SCOPE,
+  PROVIDED_ASSIGNMENT_SCOPE,
+} from '../assignments/source.js';
 import { assignmentDraftRefusalKey } from './form-assignment-publisher-api.js';
 const el = React.createElement;
 
@@ -18,9 +21,12 @@ const SourceEvidence = ({ evidence }) => {
             target: '_blank',
             rel: 'noreferrer',
           },
-          t('assignment.instructions-used', {
-            title: evidence.title || evidence.url,
-          })
+          t(
+            evidence.scope === PDF_ASSIGNMENT_SCOPE
+              ? 'assignment.instructions-pdf-used'
+              : 'assignment.instructions-used',
+            { title: evidence.title || evidence.url }
+          )
         ),
     ' · ',
     el(

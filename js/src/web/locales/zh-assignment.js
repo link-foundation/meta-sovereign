@@ -16,7 +16,7 @@ export const zhAssignment = {
   'assignment.instructions-select': '选择链接或输入网址',
   'assignment.instructions-required': '任务说明文档网址',
   'assignment.instructions-hint':
-    '在单独的浏览器中读取 HTML、纯文本或直接显示的 Markdown 页面。PDF 或画布文档请提供可读的文字版本。',
+    '在单独的浏览器中打开 HTML、纯文本、直接显示的 Markdown 或文字可选中的 PDF。',
   'assignment.instructions-unreadable':
     '未能读取完整的任务说明。如果页面要求登录或验证，请先完成该步骤。也可以使用可读的文字版本。',
   'assignment.instructions-unavailable':
@@ -24,6 +24,7 @@ export const zhAssignment = {
   'assignment.instructions-timeout':
     '读取任务说明文档超时。请重试或使用可读的文字版本。',
   'assignment.instructions-used': '使用的说明：{title}',
+  'assignment.instructions-pdf-used': '使用的 PDF 文本：{title}',
   'assignment.target': 'GitHub 所有者/仓库',
   'assignment.visibility': '仓库可见性',
   'assignment.visibility.private': '私有',

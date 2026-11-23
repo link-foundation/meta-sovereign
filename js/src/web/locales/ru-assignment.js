@@ -17,7 +17,7 @@ export const ruAssignment = {
   'assignment.instructions-select': 'Выберите ссылку или введите URL',
   'assignment.instructions-required': 'URL документа с заданием',
   'assignment.instructions-hint':
-    'HTML, обычный текст и Markdown, отображаемый на странице, читаются в отдельном браузере. Для PDF и документов на canvas укажите читаемую текстовую версию.',
+    'В отдельном браузере можно открыть HTML, обычный текст, Markdown или PDF с выделяемым текстом.',
   'assignment.instructions-unreadable':
     'Не удалось прочитать задание целиком. Если страница требует входа или проверки, сначала завершите этот шаг. Можно также указать читаемую текстовую версию.',
   'assignment.instructions-unavailable':
@@ -25,6 +25,7 @@ export const ruAssignment = {
   'assignment.instructions-timeout':
     'Время чтения документа с заданием истекло. Повторите попытку или укажите читаемую текстовую версию.',
   'assignment.instructions-used': 'Использованные инструкции: {title}',
+  'assignment.instructions-pdf-used': 'Использованный текст PDF: {title}',
   'assignment.target': 'Владелец/репозиторий GitHub',
   'assignment.visibility': 'Видимость репозитория',
   'assignment.visibility.private': 'Приватный',

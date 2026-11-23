@@ -3,6 +3,7 @@ import {
   verifyAssignmentPublicationUi,
   verifyLinkedAssignmentInstructions,
   verifyLinkedMarkdownInstructions,
+  verifyLinkedPdfInstructions,
 } from './helpers/e2e-assignment-publication.mjs';
 import {
   verifyStandaloneAssignmentUi,
@@ -382,6 +383,7 @@ const formGroups = {
     verifyStandaloneAssignmentUi,
     verifyLinkedAssignmentInstructions,
     verifyLinkedMarkdownInstructions,
+    verifyLinkedPdfInstructions,
   ],
   'forms-learning': [
     verifyFormJournalUi,
@@ -461,6 +463,7 @@ const verifyCustomOnly = async ({ page, until }) => {
     ['ASSIGNMENT_SECTION', verifyFormAssignmentSectionUi],
     ['ASSIGNMENT_LINKED', verifyLinkedAssignmentInstructions],
     ['ASSIGNMENT_MARKDOWN', verifyLinkedMarkdownInstructions],
+    ['ASSIGNMENT_PDF', verifyLinkedPdfInstructions],
     ['CAPTCHA', verifyFormCaptchaUi],
     ['AUTOMATIC', verifyFormAutomaticUi],
     ['MATCHING', verifyFormMatchingUi],

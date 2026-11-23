@@ -11,6 +11,7 @@ import {
 } from '../assignments/templates.js';
 import {
   PROVIDED_ASSIGNMENT_SCOPE,
+  isLinkedAssignmentScope,
   providedAssignmentFingerprint,
 } from '../assignments/source.js';
 import { standaloneAssignmentId } from '../assignments/standalone.js';
@@ -57,7 +58,7 @@ const validSource = async (evidence, { sourceUrl: url, sourceText: text }) => {
     evidence.url === assignmentSourceUrl(evidence.url) &&
     typeof evidence.title === 'string' &&
     evidence.title.length <= 500 &&
-    evidence.scope === 'visible-document-text'
+    isLinkedAssignmentScope(evidence.scope)
   );
 };
 const validLanguage = (draft, requested) =>

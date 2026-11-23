@@ -1,5 +1,6 @@
 import { readAssignmentPage } from './read-page.js';
 import { readAssignmentSourceDocument } from './source-document.js';
+import { readAssignmentPdf } from './source-pdf.js';
 import { assignmentSourceUrl } from './validation.js';
 import { assignmentSourceReceipt } from './source.js';
 
@@ -18,6 +19,7 @@ export const createAssignmentSourceReader =
       kind: 'source',
       redirects: true,
       read: readAssignmentSourceDocument,
+      readResponse: readAssignmentPdf,
       validate: async (read) =>
         (
           await assignmentSourceReceipt(

@@ -16,7 +16,7 @@ export const hiAssignment = {
   'assignment.instructions-select': 'लिंक चुनें या URL डालें',
   'assignment.instructions-required': 'निर्देश दस्तावेज़ का URL',
   'assignment.instructions-hint':
-    'HTML, सादा पाठ या ब्राउज़र में खुलने वाला Markdown अलग ब्राउज़र में पढ़ें। PDF या कैनवस के लिए पढ़ने योग्य पाठ संस्करण दें।',
+    'HTML, सादा पाठ, सीधे खुलने वाला Markdown या चयन योग्य पाठ वाला PDF अलग ब्राउज़र में खोलें।',
   'assignment.instructions-unreadable':
     'पूरे निर्देश पढ़े नहीं जा सके। अगर पेज साइन इन या सत्यापन माँगे, तो पहले उसे पूरा करें। आप पढ़ने योग्य पाठ संस्करण भी दे सकते हैं।',
   'assignment.instructions-unavailable':
@@ -24,6 +24,7 @@ export const hiAssignment = {
   'assignment.instructions-timeout':
     'निर्देश दस्तावेज़ पढ़ने का समय समाप्त हो गया। फिर कोशिश करें या पढ़ने योग्य पाठ संस्करण दें।',
   'assignment.instructions-used': 'प्रयुक्त निर्देश: {title}',
+  'assignment.instructions-pdf-used': 'प्रयुक्त PDF पाठ: {title}',
   'assignment.target': 'GitHub मालिक/रिपॉज़िटरी',
   'assignment.visibility': 'रिपॉज़िटरी की दृश्यता',
   'assignment.visibility.private': 'निजी',
