@@ -28,6 +28,7 @@ import {
 } from '../cv/index.js';
 import { confirmCli } from './confirm.js';
 import { createLinkedinExperienceCommands } from './cv-linkedin-experience-command.js';
+import { createLinkedinPositionCommands } from './cv-linkedin-position-command.js';
 import { createExperienceCommands } from './cv-experience-commands.js';
 import { createExperiencePlanCommands } from './cv-experience-plan-command.js';
 import { createFormalReportCommands } from './cv-formal-report-command.js';
@@ -334,6 +335,10 @@ export const createCvCommands = ({
         live.experiencePlanning
       ),
       ...createLinkedinExperienceCommands(
+        { openStore, openReadOnly },
+        live.experience
+      ),
+      ...createLinkedinPositionCommands(
         { openStore, openReadOnly },
         live.experience
       ),

@@ -11,6 +11,7 @@ import {
 import { experienceFromHhExport } from '../cv/experience-hh.js';
 import { createLinkedinExperienceService } from '../cv/linkedin-experience-service.js';
 import { createExperiencePlanningService } from '../cv/experience-plan-service.js';
+import { createLinkedinPositionReviews } from '../cv/linkedin-position-review.js';
 import {
   createFormalExperienceReports,
   previewFormalExperienceReport,
@@ -58,6 +59,14 @@ const linkedinService = (store, ctx) => {
   }));
 };
 
+const positionReviews = (store, ctx) =>
+  createLinkedinPositionReviews({
+    store,
+    artifactRoot:
+      ctx.cvExperienceOptions?.artifactRoot ??
+      path.join(ctx.storeDir ?? defaultStoreDir(), 'experience-exports'),
+  });
+
 const actions = {
   stored: (store) => storedExperienceDocuments(store),
   document: (store, input) => storedExperienceDocument(store, input.revision),
@@ -93,6 +102,12 @@ const actions = {
       (store, input, ctx) => linkedinService(store, ctx)[operation](input),
     ])
   ),
+  ...Object.fromEntries(
+    ['stage', 'stored', 'review'].map((operation) => [
+      `linkedin-position-${operation}`,
+      (store, input, ctx) => positionReviews(store, ctx)[operation](input),
+    ])
+  ),
 };
 const admission = (req, operation, ctx) => {
   const read = [
@@ -100,6 +115,7 @@ const admission = (req, operation, ctx) => {
     'document',
     'linkedin-status',
     'linkedin-evidence',
+    'linkedin-position-stored',
     'plan-status',
     'report-preview',
     'report-status',
