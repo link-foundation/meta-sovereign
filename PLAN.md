@@ -1,3 +1,10 @@
+2026-11-23 Forms attention for an active owner wait (QA24 and HH01 remain unfinished):
+
+- [x] Compare the pinned notifier's exact-window Show browser action, unanswered reminders, Later and independent sound choice. Existing prefill waits belong to the server, but Forms drops the request on navigation and a focus action has no specific wait identity.
+- [x] Reproduce the missing read-only wait list and stale focus acceptance. Both Lino encodings expose the current owner wait and restrict notice focus to the exact active request.
+- [x] Add a shared notice that stays visible across views, offers a bounded Later interval and keeps sound independent of notification permission. Pass 57 Node tests, 57 Deno tests, Chromium with bounded reminder and headless evidence, and independent phone Playwright MCP.
+- [ ] Verify exact-head hosted checks. Native OS actions with the app closed and non-Forms automation alerts remain required.
+
 2026-11-23 assignment issue handoff after reopening Forms (QA24 remains unfinished):
 
 - [x] Compare B17/B18 and the donor's durable form-to-repository and issue mapping. The shared publisher remembers both receipts, but the reopened Forms plan, CLI and Lino plan expose only the repository.

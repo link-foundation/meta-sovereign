@@ -1,6 +1,7 @@
 import { assert } from './e2e-chat.mjs';
 import { decoded, responseFor, closeFormReview } from './e2e-form-review.mjs';
 import { verifyPrefillCleanup } from './e2e-prefill-cleanup.mjs';
+import { verifyFormWaitNotice } from './e2e-form-attention.mjs';
 
 const capture = async (page, state) => {
   const result = page.locator(`[data-form-automatic-result="${state}"]`);
@@ -94,6 +95,7 @@ export const verifyFormCaptchaUi = async ({ page, fixture, owned, until }) => {
     await page.locator('[data-review-action="close"]').isEnabled(),
     'Close remains usable while waiting'
   );
+  const notice = await verifyFormWaitNotice({ page, owner });
   await capture(page, 'waiting-owner');
   assert(
     (await owner.page.evaluate(() => globalThis.events.length)) === 0,
@@ -111,6 +113,14 @@ export const verifyFormCaptchaUi = async ({ page, fixture, owned, until }) => {
   // receives this button selector or a CAPTCHA answer/solver implementation.
   await verifyPrefillCleanup({ page, owner, fixture });
   await page.locator('[data-form-automatic-result="prefilled"]').waitFor();
+  await notice.locator('[data-form-attention]').waitFor({ state: 'detached' });
+  assert(
+    await notice.evaluate(() =>
+      globalThis.noticeCalls.every((call) => call.closed)
+    ),
+    'settled wait closes its system notification'
+  );
+  await notice.close();
   assert(
     (await owner.page.locator('[name="email"]').inputValue()) ===
       'ada@example.test',

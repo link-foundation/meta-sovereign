@@ -28,6 +28,14 @@ export const enForms = {
   'forms.automatic.error':
     'No confirmed result ({code}). Inspect the browser or recover the same request; recovery keeps the original settings.',
   'forms.automatic.title': 'Automatic prefill result',
+  'forms.attention.waiting': 'Complete verification in {slot} to continue.',
+  'forms.attention.notification':
+    'A form review is waiting for you to complete verification.',
+  'forms.attention.show': 'Show browser',
+  'forms.attention.later': 'Later',
+  'forms.attention.focusUnavailable':
+    'This review cannot bring a browser window forward.',
+  'forms.attention.focusFailed': 'Could not bring the review browser forward.',
   'forms.automatic.unresolved':
     'Questions still needing review or an answer: {count}.',
   'forms.automatic.next':

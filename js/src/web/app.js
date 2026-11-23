@@ -38,6 +38,7 @@ import { AddlistHost } from './chat-folder-share.js';
 import { AddthemeHost, useApplyCloudTheme } from './cloud-themes.js';
 import { ContactLinkHost } from './contact-links.js';
 import { AppNotifications } from './app-notify.js';
+import { FormAttention } from './form-attention.js';
 import { VkFriendStatsBanner } from './vk-friend-stats-banner.js';
 import { LockScreen, useLocalLock } from './passcode.js';
 import { useAppNavigation } from './app-navigation.js';
@@ -264,6 +265,7 @@ const App = () => {
             el(SchemaBanner, { key: 'schema', api }),
             el(ApiErrorToast, { key: 'api-error' }),
             el(ServerRecovery, { key: 'recovery', workspace, online, t }),
+            online ? el(FormAttention, { key: 'form-attention', api }) : null,
             el(View, { key: 'view' }),
           ]
         )

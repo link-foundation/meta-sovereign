@@ -6,6 +6,8 @@ the earlier exact-source reviews, supersedes pending statuses and historical
 counts in the dated progress notes below.
 Every remaining requirement stays in scope for PR57.
 
+Partial QA24 and HH01 Forms prerequisite: [active owner notices](forms-attention.md) use a bounded, read-only verification receipt and exact-request browser focus across views. Both Lino encodings, production Chromium and independent Playwright MCP verify the wait, snooze, optional sound and cleanup. Native system actions and alerts in other application workflows remain required.
+
 QA19/QA20 also include [Stop during sender preparation](dispatch-stop.md):
 forty-five actual-parent failures and 383 focused passes cover separate dispatch
 ownership, native queues and real autopilot drainage while preserving issued

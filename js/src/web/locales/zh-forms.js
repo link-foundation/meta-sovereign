@@ -25,6 +25,12 @@ export const zhForms = {
   'forms.automatic.error':
     '结果未确认（{code}）。请检查浏览器或恢复同一请求；恢复使用原始设置。',
   'forms.automatic.title': '自动填充结果',
+  'forms.attention.waiting': '请在 {slot} 中完成验证后继续。',
+  'forms.attention.notification': '有一份表单正在等待您完成验证。',
+  'forms.attention.show': '显示浏览器',
+  'forms.attention.later': '稍后提醒',
+  'forms.attention.focusUnavailable': '此表单无法将浏览器窗口切换到前台。',
+  'forms.attention.focusFailed': '无法将审阅浏览器切换到前台。',
   'forms.automatic.unresolved': '仍有 {count} 个问题需要检查或回答。',
   'forms.automatic.next':
     '检查当前答案，自行打开下一页，再填充新页面。完成后请自行提交表单。',

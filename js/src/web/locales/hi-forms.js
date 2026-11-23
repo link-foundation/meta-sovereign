@@ -28,6 +28,15 @@ export const hiForms = {
   'forms.automatic.error':
     'परिणाम की पुष्टि नहीं हुई ({code})। ब्राउज़र जाँचें या मूल सेटिंग वाले उसी अनुरोध का परिणाम वापस पाएँ।',
   'forms.automatic.title': 'स्वचालित भराई का परिणाम',
+  'forms.attention.waiting': 'आगे बढ़ने के लिए {slot} में सत्यापन पूरा करें।',
+  'forms.attention.notification':
+    'एक फ़ॉर्म आपके सत्यापन पूरा करने की प्रतीक्षा कर रहा है।',
+  'forms.attention.show': 'ब्राउज़र दिखाएँ',
+  'forms.attention.later': 'बाद में याद दिलाएँ',
+  'forms.attention.focusUnavailable':
+    'इस फ़ॉर्म की ब्राउज़र विंडो सामने नहीं लाई जा सकती।',
+  'forms.attention.focusFailed':
+    'समीक्षा की ब्राउज़र विंडो सामने नहीं लाई जा सकी।',
   'forms.automatic.unresolved': '{count} प्रश्नों को अभी जाँच या उत्तर चाहिए।',
   'forms.automatic.next':
     'उत्तर जाँचें, Next स्वयं खोलें और नया पृष्ठ भरें। तैयार फ़ॉर्म स्वयं सबमिट करें।',

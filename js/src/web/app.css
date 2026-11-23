@@ -12962,6 +12962,26 @@ main[data-view='chat'] > .disk-banner {
   margin: 0.75rem;
 }
 
+.form-attention {
+  flex-wrap: wrap;
+}
+.form-attention > span {
+  flex: 1 1 13rem;
+  overflow-wrap: anywhere;
+}
+.form-attention-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.form-attention-error {
+  color: var(--danger);
+  flex-basis: 100%;
+}
+main[data-view='operator'] > .form-attention {
+  margin: 0.75rem;
+}
+
 /* A store from a newer version (R-Z17): the same strip, not dismissible. */
 .disk-banner[data-banner='schema-too-new'] {
   border-left-color: var(--danger, var(--accent));
@@ -13711,12 +13731,13 @@ main[data-view='operator']:has(> .operator-workspace) {
   max-width: none;
   padding: 0;
 }
-main[data-view='operator']:has(> .vk-friend-stats) {
+main[data-view='operator']:has(> :is(.vk-friend-stats, .form-attention)) {
   display: flex;
   flex-direction: column;
   height: calc(100dvh - var(--topbar-h));
 }
-main[data-view='operator']:has(> .vk-friend-stats) > .operator-workspace {
+main[data-view='operator']:has(> :is(.vk-friend-stats, .form-attention))
+  > .operator-workspace {
   height: auto;
   flex: 1 1 auto;
 }

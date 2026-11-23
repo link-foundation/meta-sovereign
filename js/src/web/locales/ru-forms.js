@@ -28,6 +28,15 @@ export const ruForms = {
   'forms.automatic.error':
     'Результат не подтверждён ({code}). Проверьте браузер или восстановите тот же запрос с исходными настройками.',
   'forms.automatic.title': 'Результат автоматического заполнения',
+  'forms.attention.waiting': 'Пройдите проверку в {slot}, чтобы продолжить.',
+  'forms.attention.notification':
+    'Открытая форма ждёт, пока вы пройдёте проверку.',
+  'forms.attention.show': 'Показать браузер',
+  'forms.attention.later': 'Позже',
+  'forms.attention.focusUnavailable':
+    'Для этой формы нельзя вывести окно браузера на передний план.',
+  'forms.attention.focusFailed':
+    'Не удалось вывести окно браузера на передний план.',
   'forms.automatic.unresolved': 'Вопросы для проверки или ответа: {count}.',
   'forms.automatic.next':
     'Проверьте ответы, самостоятельно перейдите «Далее» и заполните новую страницу. Отправьте готовую форму самостоятельно.',

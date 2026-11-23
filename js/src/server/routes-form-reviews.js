@@ -28,7 +28,7 @@ const actions = {
     }),
   read: (forms, body) => forms.readReview(body.id),
   history: (forms, body) => forms.historyReview(body.id),
-  focus: (forms, body) => forms.focusReview(body.id),
+  focus: (forms, body) => forms.focusReview(body.id, body.requestId),
   close: (forms, body) => forms.closeReview(body.id),
   plan: (forms, body) => forms.planReview(answerOptions(body)),
   apply: (forms, body) =>
@@ -61,6 +61,11 @@ const actions = {
     }),
 };
 export const handleFormReviewRoutes = async (req, res, p, ctx) => {
+  if (p === '/api/forms/sessions/attention' && req.method === 'GET') {
+    res.setHeader('cache-control', 'no-store');
+    json(res, 200, ctx.forms.reviewAttention());
+    return true;
+  }
   if (p === '/api/forms/sessions/prefill' && req.method === 'GET') {
     const query = new URL(req.url, 'http://local').searchParams;
     json(

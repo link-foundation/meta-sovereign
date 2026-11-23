@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { pendingPrefill } from '../forms/challenge-wait.js';
 import { useT } from './i18n.js';
 import { createFormPrefillRequest } from './form-prefill-request.js';
+import { refreshFormAttention } from './form-attention.js';
 
 const el = React.createElement;
 
@@ -27,6 +28,7 @@ const usePrefillStatus = ({
         }
         if (value.state !== state || !pendingPrefill(value)) {
           onPlan(value);
+          refreshFormAttention();
         }
         state = value.state;
         if (pendingPrefill(value)) {
@@ -75,6 +77,9 @@ export const FormAutomaticControl = ({
     try {
       const value = await request.run({ id, ...settings });
       onPlan(value);
+      if (value.state === 'waiting-owner') {
+        refreshFormAttention();
+      }
       setWatching(pendingPrefill(value));
     } catch (failure) {
       setError(failure.code ?? 'form-prefill-unknown');

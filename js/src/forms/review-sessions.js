@@ -9,6 +9,7 @@ import { createReviewedPrefill } from './review-prefill.js';
 import { prefillFormReview } from './automatic-prefill.js';
 import { createPrefillControl } from './prefill-control.js';
 import { pendingPrefill } from './challenge-wait.js';
+import { checkAttentionFocus, reviewAttention } from './review-attention.js';
 import { createFormJournal, formReportSnapshot } from './review-journal.js';
 import { persistFormReport } from './report-file.js';
 import { createFormMonitor } from './review-monitor.js';
@@ -102,6 +103,27 @@ const focusBrowser = async (record) => {
   }
   await record.browser.page.bringToFront();
 };
+
+const reviewFocus =
+  ({ get, check, operate, now }) =>
+  async (id, requestId) => {
+    const record = get(id);
+    if (requestId !== undefined) {
+      checkAttentionFocus(record, requestId, now());
+    }
+    check(record);
+    if (requestId !== undefined) {
+      await focusBrowser(record);
+    } else if (
+      record.lastPrefill?.result.state === 'waiting-owner' &&
+      record.task
+    ) {
+      await focusBrowser(record);
+    } else {
+      await operate(id, focusBrowser);
+    }
+    return { ok: true, session: identity(get(id)) };
+  };
 
 const captureReport = async (writer, record, action, result, proposed) => {
   if (record.learning?.detached && action !== 'observe') {
@@ -560,6 +582,8 @@ export const createFormSessions = ({
     identity,
     action: action('prefill'),
   });
+  const attention = () =>
+    reviewAttention(owner.isStopping() ? [] : records.values(), now());
   return {
     open,
     close,
@@ -567,22 +591,14 @@ export const createFormSessions = ({
     detach: () => finishReviews(owner, capacity, 'detach'),
     capacity: capacity.read,
     configureCapacity: capacity.configure,
+    attention,
     list: () => ({
-      ok: true,
+      ...attention(),
       sessions: [...records.values()].map(identity),
       ...capacity.current(),
       idleMs,
     }),
-    focus: async (id) => {
-      const record = get(id);
-      check(record);
-      if (record.lastPrefill?.result.state === 'waiting-owner' && record.task) {
-        await focusBrowser(record);
-      } else {
-        await operate(id, focusBrowser);
-      }
-      return { ok: true, session: identity(get(id)) };
-    },
+    focus: reviewFocus({ get, check, operate, now }),
     plan: action('plan'),
     apply: action('apply'),
     prefill: automatic.run,

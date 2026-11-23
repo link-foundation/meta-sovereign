@@ -168,9 +168,16 @@ try {
           const record = {
             options,
             page,
+            policy: { headless: true },
+            focuses: 0,
             navigation: [],
             closed: false,
             events: [],
+          };
+          const bringToFront = page.bringToFront.bind(page);
+          page.bringToFront = async () => {
+            record.focuses++;
+            await bringToFront();
           };
           const goto = commander.goto.bind(commander);
           commander.goto = (input) => {
@@ -186,7 +193,7 @@ try {
                 ? (event) =>
                     console.log('[forms-inspection]', JSON.stringify(event))
                 : undefined,
-            policy: { headless: true },
+            policy: record.policy,
             async close() {
               for (const frame of page.frames()) {
                 record.events.push(

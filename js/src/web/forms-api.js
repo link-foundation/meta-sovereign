@@ -37,6 +37,8 @@ export const createFormsApi = ({ get, getResume, report, local }) => ({
       ok: false,
       code: 'server-required',
     },
+  formsReviewAttention: (signal) =>
+    get('/api/forms/sessions/attention', { signal }, { recover: false }),
   formsPrefillStatus: async ({ id, requestId }) =>
     (await get(
       `/api/forms/sessions/prefill?${new URLSearchParams({ id, requestId })}`
