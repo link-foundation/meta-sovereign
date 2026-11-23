@@ -1,3 +1,10 @@
+### 2026-11-23 Added requests inside a word-prefix wildcard (QA04)
+
+- [x] Reproduce inherited approval on the published matcher and browser, and record the four failing direct, shared-provider and control regressions.
+- [x] Check joined suffixes for new intent while retaining supported safe suffixes and fixed wording. Register the native guard in the hosted template scenario group.
+- [x] Verify 88 checks per runtime, both Lino encodings, six shared provider fixtures, Chromium and independent Playwright MCP. [Reproduction and screenshots](question-template-requests.md#a-word-prefix-wildcard-absorbs-a-new-request).
+- [ ] Inspect exact hosted results and verify the remaining QA04 provider contexts.
+
 ### 2026-11-23 Diagnose the isolation tool on an unconfirmed runner (VD01)
 
 - [x] Reproduce the missing backend observation with the published parent.

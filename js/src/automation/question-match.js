@@ -36,7 +36,9 @@ export const asksQuestion = isQuestion;
 
 const extraIntent = (text) =>
   text
-    .split(/[,，;；]|\s+(?:and|or|but|а|и|или|और|या)\s+/iu)
+    .split(
+      /[,，;；]|(?<=[吗呢])(?=\p{Script=Han})|\s+(?:and|or|but|а|и|или|और|या)\s+/iu
+    )
     .some(asksQuestion) ||
   questionAction.test(text) ||
   questionInvitation.test(text) ||
@@ -71,15 +73,34 @@ const templateTokens = (text, expression) => {
 };
 
 const isBoundary = (token) => token === '?' || token === '.';
+
+const prefixMatches = (stem, words, position) => {
+  const token = words[position]?.value;
+  if (!token?.startsWith(stem)) {
+    return false;
+  }
+  // A suffix may contain a complete request, including in scripts that do
+  // not put spaces between words. Token joiners can also hide a clause start.
+  const suffix = token.slice(stem.length);
+  const phrase = suffix.replace(/[./:@_-]+/gu, ' ');
+  const following = words[position + 1]?.value;
+  return (
+    !extraIntent(phrase) &&
+    (phrase === suffix ||
+      !following ||
+      isBoundary(following) ||
+      !asksQuestion(`${phrase} ${following}`))
+  );
+};
+
 const nextFixedPosition = (words, position, expected) => {
   // A plain-text question may omit the final mark after all its words.
   if (expected === '?' && position === words.length) {
     return position;
   }
-  const token = words[position]?.value;
   const matches = expected.endsWith('*')
-    ? token?.startsWith(expected.slice(0, -1))
-    : token === expected;
+    ? prefixMatches(expected.slice(0, -1), words, position)
+    : words[position]?.value === expected;
   return matches ? position + 1 : null;
 };
 

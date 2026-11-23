@@ -27,6 +27,13 @@ export const templateBoundaryExample = {
   answer: 'Five years.',
 };
 
+export const templatePrefixExample = {
+  id: 'experience-prefix-template',
+  pattern: '您有相关经验*？',
+  question: '您有相关经验请发送简历？',
+  answer: '五年。',
+};
+
 export const templateRule = (extra = {}) => ({
   id: templateExample.id,
   question: templateExample.pattern,

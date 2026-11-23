@@ -410,6 +410,7 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 - [HeadHunter recorder history](hh-recording-import.md) verifies the recorder file through CLI, both Lino encodings, production Chromium and mobile Playwright MCP. Chat preserves revisions, unknown times and unconfirmed delivery. QA02 and QA06 remain unfinished.
 - [Manual archive import](manual-archive-import.md) verifies Messenger paste and Telegram file import under the existing browser policy, with both conversations reopening from browser storage while the server API is unavailable.
 - [Added requests in templates](question-template-requests.md) preserves the original wording and punctuation of added questions or instructions, keeps ordinary approved template wording usable and requires review in the shared preview. Both Lino encodings, shared provider plans and browser evidence cover moved question marks and new clauses for QA04.
+- [Word-prefix wildcard review](question-template-requests.md#a-word-prefix-wildcard-absorbs-a-new-request) keeps added requests in joined words out of approved drafts. See before-and-after production Chromium, independent Playwright MCP and shared CLI/Lino evidence for QA04.
 
 - [solver-authentication.md](solver-authentication.md) preserves the full public sanitized session and reconstructs the November 21 solver interruption from the exact Codex refresh error and wrapper termination.
 

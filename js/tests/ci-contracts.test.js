@@ -381,6 +381,7 @@ const questionBrowserGroups = {
     'verifyApiQuestionLinks',
     'verifyVkQuestionLinks',
     'verifyMetaQuestionLinks',
+    'verifyTemplatePrefixGuards',
   ],
   'question-text-replies': ['verifyTextReplyControls'],
   'question-text-guards': ['verifyTextReplyGuards'],

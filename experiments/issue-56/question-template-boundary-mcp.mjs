@@ -1,7 +1,10 @@
 import { mcpInspectionCode } from './mcp-inspection-code.mjs';
-import { templateBoundaryExample } from './question-template-fixture.mjs';
+import {
+  templateBoundaryExample,
+  templatePrefixExample,
+} from './question-template-fixture.mjs';
 
-const inspect = async (page, { base, pattern, question, answer }) => {
+const inspect = async (page, { base, pattern, question, answer, surface }) => {
   const exceptions = [];
   page.on('pageerror', (error) => exceptions.push(error.message));
   await page.addInitScript(() => {
@@ -12,7 +15,7 @@ const inspect = async (page, { base, pattern, question, answer }) => {
     );
   });
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto(`${base}/?question-boundary-review#/automation`);
+  await page.goto(`${base}/?question-${surface}-review#/automation`);
   const panel = page.locator('[data-question-controls]');
   await panel.locator(':scope > summary').click();
   const editor = panel.locator('[data-answer-rule]');
@@ -57,4 +60,15 @@ const inspect = async (page, { base, pattern, question, answer }) => {
 };
 
 export const templateBoundaryMcpCode = (base) =>
-  mcpInspectionCode(inspect, { base, ...templateBoundaryExample });
+  mcpInspectionCode(inspect, {
+    base,
+    ...templateBoundaryExample,
+    surface: 'boundary',
+  });
+
+export const templatePrefixMcpCode = (base) =>
+  mcpInspectionCode(inspect, {
+    base,
+    ...templatePrefixExample,
+    surface: 'prefix',
+  });

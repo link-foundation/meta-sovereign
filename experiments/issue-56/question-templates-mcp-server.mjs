@@ -4,6 +4,7 @@ import {
   templateBoundaryExample,
   templateExample,
   templateLinkExample,
+  templatePrefixExample,
   templateRequestExample,
   mountTemplateQuestion,
 } from './question-template-fixture.mjs';
@@ -49,6 +50,7 @@ try {
       ['--link-guard', templateLinkExample],
       ['--request-guard', templateRequestExample],
       ['--boundary-guard', templateBoundaryExample],
+      ['--prefix-guard', templatePrefixExample],
     ].find(([flag]) => process.argv.includes(flag))?.[1] ?? templateExample;
   if (hidden) {
     await fixture.page.evaluate(mountHiddenQuestionLink, hiddenLink.first);

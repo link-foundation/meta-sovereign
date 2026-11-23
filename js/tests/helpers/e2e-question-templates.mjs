@@ -7,6 +7,7 @@ import {
   templateExample as example,
   templateBoundaryExample,
   templateLinkExample,
+  templatePrefixExample,
   templateRequestExample,
   mountTemplateQuestion,
 } from '../../../experiments/issue-56/question-template-fixture.mjs';
@@ -148,7 +149,7 @@ const verifyTemplateGuard = async (
         assert.equal(review.plan.requiresReview, !before);
         const protectedMatch = kind === 'link' ? 'approximate' : 'unanswered';
         assert.equal(review.plan.match, before ? 'template' : protectedMatch);
-        if (kind === 'boundary') {
+        if (kind === 'boundary' || kind === 'prefix') {
           const draft = ui.controls.locator('[data-browser-text-draft]');
           assert.equal(await draft.inputValue(), before ? example.answer : '');
           assert.equal(
@@ -179,6 +180,7 @@ const verifyTemplateGuard = async (
     const receipt = {
       boundary: 'separateQuestionRequiresReview',
       link: 'newLinkRequiresReview',
+      prefix: 'suffixRequestRequiresReview',
       request: 'newRequestRequiresReview',
     }[kind];
     return {
@@ -200,3 +202,6 @@ export const verifyTemplateRequestGuards = (browser, options) =>
 
 export const verifyTemplateBoundaryGuards = (browser, options) =>
   verifyTemplateGuard(browser, templateBoundaryExample, 'boundary', options);
+
+export const verifyTemplatePrefixGuards = (browser, options) =>
+  verifyTemplateGuard(browser, templatePrefixExample, 'prefix', options);

@@ -39,3 +39,22 @@ RUN_BROWSER_E2E=1 E2E_EXECUTABLE_PATH=/usr/bin/google-chrome QUESTION_SCREENSHOT
 ![After, the preview shows no matching answer and leaves the draft empty](../../screenshots/issue-56-template-boundaries/boundary-guard-after-phone.png)
 
 [Evidence archive](data/question-template-boundaries.tar.gz) · [Entry hashes](data/question-template-boundaries.tar.sha256.json). Exact hosted checks and the remaining QA04 provider contexts stay open.
+
+## A word-prefix wildcard absorbs a new request
+
+In **Automation → Questions and answers**, save `您有相关经验*？` with `五年。` approved. Inspect HeadHunter fixture conversation `7`, which contains `您有相关经验请发送简历？`. The first question asks about relevant experience. The extra words request a résumé. On `5978e619`, the preview shows **Pattern match**, displays the approved answer and enables Send. The direct matcher, CLI/offline control test, both Lino encodings and the shared-provider regression reproduce the inherited approval. [Parent matcher](https://github.com/link-foundation/meta-sovereign/blob/5978e619e28676a6a456818730be9bc59a84b6da/js/src/automation/question-match.js#L73-L86).
+
+The prefix check accepted any remaining characters within the token. Contiguous Chinese text and hyphenated words kept the new request in that token, outside the earlier checks for wildcard spans. The matcher now checks the remaining characters with the shared question, invitation and action recognizers. It recognizes an attached Chinese request after a question particle and inspects clause starts across internal joiners. Ordinary inflection, a final Chinese question particle and wording already fixed by the owner still match.
+
+The revised preview retains the full incoming text, shows **No matching answer** and **Review required before automatic sending**, leaves the draft empty and disables Send. Shared HeadHunter, Telegram, VK, email, Facebook and WhatsApp fixtures produce zero drafts for the joined request. The focused set passes 88 checks on each of Node and Deno. The production Chromium fixture passes at 1180 × 950 and 390 × 844. Independent Playwright MCP at 390 × 844 observes only the Save and Inspect POSTs, both HTTP 200, with no page exceptions or horizontal overflow. Its console reports one fixture favicon 404. Both browsers close and the synthetic provider records zero interaction clicks and zero sends.
+
+```sh
+node --test --test-concurrency=1 js/tests/{question-template-workflows,question-template-links,question-language,question-context,question-matching-options,question-notice-policy,question-automation,ci-contracts}.test.js
+RUN_BROWSER_E2E=1 E2E_EXECUTABLE_PATH=/usr/bin/google-chrome QUESTION_SCREENSHOT_DIR=docs/screenshots/issue-56-template-word-prefix node experiments/issue-56/question-template-request-browser.mjs --prefix
+```
+
+![Before, the request for a résumé inherits approval and the old reply](../../screenshots/issue-56-template-word-prefix/prefix-guard-before-phone.png)
+
+![After, the full request remains visible with an empty reply and disabled Send](../../screenshots/issue-56-template-word-prefix/prefix-guard-after-phone.png)
+
+[Evidence archive](data/question-template-word-prefix.tar.gz) · [Entry hashes](data/question-template-word-prefix.tar.sha256.json). Authenticated provider contexts and exact hosted verification remain open for QA04.

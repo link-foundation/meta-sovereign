@@ -21,6 +21,7 @@ import {
   templateExample as example,
   templateBoundaryExample,
   templateLinkExample,
+  templatePrefixExample,
   templateRequestExample,
   templateRule,
 } from '../../experiments/issue-56/question-template-fixture.mjs';
@@ -77,6 +78,28 @@ test('wildcard spans preserve extra requests and clause boundaries', () => {
     ['您有相关经验吗？ …', '您有相关经验吗？ 麻烦完成问卷。'],
   ]) {
     assert.equal(matchQuestion(pattern, question), null, question);
+  }
+});
+
+test('a word-prefix wildcard cannot absorb an additional action joined to the saved word', () => {
+  for (const [pattern, question] of [
+    [templatePrefixExample.pattern, templatePrefixExample.question],
+    ['您有相关经验*？', '您有相关经验面试？'],
+    ['您有相关经验*？', '您有相关经验吗请您发送简历？'],
+    ['у вас есть опыт*?', 'у вас есть опыт-позвоните?'],
+    ['Do you have experience*?', 'Do you have experience-can-you-start?'],
+    ['Do you have experience* …?', 'Do you have experience-can you start?'],
+    ['क्या आपको अनुभव है*?', 'क्या आपको अनुभव है-कॉल-करें?'],
+  ]) {
+    assert.equal(matchQuestion(pattern, question), null, question);
+  }
+  for (const [pattern, question] of [
+    ['Do you have experience*?', 'Do you have experiences?'],
+    ['您有相关经验*？', '您有相关经验吗？'],
+    ['Where do you live*?', 'Where do you live-work?'],
+    ['Who send* your résumé?', 'Who sends your résumé?'],
+  ]) {
+    assert.equal(matchQuestion(pattern, question), 'template', question);
   }
 });
 
@@ -161,6 +184,7 @@ test('CLI and offline controls preserve templates and hold added links or reques
   await verifyControlPlan(templateLinkExample, 'approximate', true);
   await verifyControlPlan(templateRequestExample, 'unanswered', true);
   await verifyControlPlan(templateBoundaryExample, 'unanswered', true);
+  await verifyControlPlan(templatePrefixExample, 'unanswered', true);
 });
 
 test(
@@ -188,6 +212,7 @@ test(
           [templateLinkExample, 'approximate', true],
           [templateRequestExample, 'unanswered', true],
           [templateBoundaryExample, 'unanswered', true],
+          [templatePrefixExample, 'unanswered', true],
         ]) {
           await call('PUT', '', {
             rule: {
