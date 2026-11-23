@@ -13,6 +13,7 @@ from desktop_config_incremental_review import changed_sources, check_incremental
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('revision')
 parser.add_argument('--reviewed-path', action='append', required=True)
+parser.add_argument('--review-notes', type=Path)
 args = parser.parse_args()
 root = Path(__file__).resolve().parents[2]
 prefix = root / 'ci-logs/desktop-configuration-criteria'
@@ -23,9 +24,21 @@ audit = json.loads(audit_bytes)
 sha = subprocess.check_output(['git', 'rev-parse', args.revision], cwd=root).decode().strip()
 assert audit['revision'] == sha and audit['acceptance'] is False
 changes = changed_sources(old['archives'], audit['archives'])
-assert {change['path'] for change in changes} == {
-    'js/src/cli/help.js', 'js/src/server/index.js'}, 'new changes require a fresh source review'
 assert sorted(args.reviewed_path) == [change['path'] for change in changes]
+if args.review_notes:
+    notes = args.review_notes.read_text().strip()
+    assert notes, 'changed sources require explicit review notes'
+else:
+    assert {change['path'] for change in changes} == {
+        'js/src/cli/help.js', 'js/src/server/index.js'}, 'new changes require explicit review notes'
+    notes = (
+        'Original complete source review plus an explicitly reviewed incremental '
+        'comparison. CLI help adds the separate vacancy preview without changing '
+        'configuration parsing. The shared sender receives the same selected store '
+        'already used by connection loading and its browser; fresh acknowledged '
+        'consent is checked without changing configuration precedence or logs. '
+        'Hosted behavioral acceptance remains separate.'
+    )
 delta = subprocess.check_output(['git', 'diff', '--no-ext-diff', '--no-renames',
     old['revision'], sha, '--', *args.reviewed_path], cwd=root)
 Path(f'{prefix}-incremental-source-deltas.diff').write_bytes(delta)
@@ -37,12 +50,7 @@ review = dict(revision=sha, acceptance=False,
     reviewedChangedFiles=len({path for path, _, _ in pairs}),
     auditSha256=hashlib.sha256(audit_bytes).hexdigest(),
     diffSha256=hashlib.sha256(Path(f'{prefix}-source-deltas.diff').read_bytes()).hexdigest(),
-    method='Original complete source review plus an explicitly reviewed incremental '
-        'comparison. CLI help adds the separate vacancy preview without changing '
-        'configuration parsing. The shared sender receives the same selected store '
-        'already used by connection loading and its browser; fresh acknowledged '
-        'consent is checked without changing configuration precedence or logs. '
-        'Hosted behavioral acceptance remains separate.',
+    method=notes,
     pairs=[dict(path=p, archived=a, current=c) for p, a, c in pairs],
     incrementalSourceReview=dict(revision=old['revision'],
         reviewSha256=hashlib.sha256(Path(f'{baseline}-source-review.json').read_bytes()).hexdigest(),

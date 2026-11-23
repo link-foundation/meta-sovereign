@@ -157,7 +157,27 @@ The last command still requires five complete successful exact-source workflows,
 the selected named tests and actual browser/native/packaged receipts. It cannot
 accept pending results or establish behavior from source integrity alone.
 
-**Pending:** hosted validation for production source `ef34179a`. No criterion is
-accepted by this mapping yet. The inventory remains **88 verified / 30
-unfinished**; VD01 and every other unfinished requirement remain required.
-PR57 stays draft and unmerged.
+## Review through `84ca6588`
+
+The selected source audit rehashed 1,137 entries across 19 archives and
+compared 99 distinct production paths. The complete 2,343-line delta from
+`b3364503` changes 24 audited files. Among the changes are desktop runtime and
+notification ownership, shared CLI dispatch, local/cloud admission, connection
+and settings views, and runner launcher preparation on explicit Start. The
+review confirmed that the same layers resolve in order, private defaults and
+protected local VK writes retain their acknowledgement, and the local runtime
+still owns its redacted logs and shutdown. The LinkedIn About addition in
+`84ca6588` leaves the selected configuration sources identical to the reviewed
+`853faeb2` hashes.
+
+The [updated source archive](data/desktop-config-review-84ca6588.tar.gz) and
+its [hash manifest](data/desktop-config-review-84ca6588.tar.sha256.json) preserve
+91 changed-source pairs, the earlier review, exact Git deltas and seven
+contradictory-input refusals. This supports source review. Hosted acceptance
+requires the named Node checks, configuration, logs and token browser receipts
+in both engines, the Electron authorization receipt, and the five packaged
+runner lanes on one revision.
+
+The five workflows for `84ca6588` are pending. VD07 remains unfinished and the
+inventory remains **88 verified / 30 unfinished**. PR57 stays draft and
+unmerged. [Hosted checks](https://github.com/link-foundation/meta-sovereign/pull/57/checks)

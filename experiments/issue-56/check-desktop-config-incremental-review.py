@@ -1,16 +1,20 @@
-"""Finite refusal probes for the current two-file source review chain."""
+"""Finite refusal probes for an explicitly reviewed source delta."""
+import argparse
 import copy
 import json
 from pathlib import Path
 from desktop_config_incremental_review import check_incremental_review
 
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--expected-files', type=int, default=2)
+args = parser.parse_args()
 root = Path(__file__).resolve().parents[2]
 prefix = root / 'ci-logs/desktop-configuration-criteria'
 audit = json.loads(Path(f'{prefix}-source-audit.json').read_text())
 review = json.loads(Path(f'{prefix}-source-review.json').read_text())
 entries = {}
 changes = check_incremental_review(root, audit, review, entries)
-assert len(changes) == 2 and len(entries) == 4
+assert len(changes) == args.expected_files and len(entries) == 4
 assert review['acceptance'] is False
 refused = []
 for kind in ['missing-source', 'source-hash', 'baseline-review', 'delta-hash',
