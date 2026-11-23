@@ -1,5 +1,8 @@
 import { cvWorkplaceIdentityFixture } from './cv-workplace-identity-fixture.mjs';
-import { cvSaveAttempt } from '../../js/src/jobs/cv-watch-verification.js';
+import {
+  cvSaveAttempt,
+  cvWorkplaceExportBaseline,
+} from '../../js/src/jobs/cv-watch-verification.js';
 
 /** Finite logical-clock Save/readback fixture; no browser, network or durable writes. */
 export const cvCreatedWorkplaceFixture = ({ created = true } = {}) => {
@@ -37,6 +40,12 @@ export const cvCreatedWorkplaceFixture = ({ created = true } = {}) => {
     },
     attempt,
     workplaceBaseline: ['123'],
+    workplaceBaselineJobs: cvWorkplaceExportBaseline(
+      exports.map((row, index) =>
+        index === 0 ? { ...row, cv: { ...row.cv, jobs: [] } } : row
+      ),
+      attempt.resumes
+    ),
     readExports: async () => {
       state.exports++;
       return exports;

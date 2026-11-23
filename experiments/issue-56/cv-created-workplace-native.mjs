@@ -8,8 +8,10 @@ const browser = await chromium.launch({
 try {
   const result = await verifyCvWatchCreatedWorkplace(browser, {
     before: process.argv.includes('--before'),
+    copyBefore: process.argv.includes('--copy-before'),
     screenshots: process.argv.includes('--screenshots')
-      ? 'docs/case-studies/issue-56'
+      ? (process.env.CV_CREATED_WORKPLACE_SCREENSHOTS ??
+        'docs/case-studies/issue-56')
       : undefined,
   });
   console.log(JSON.stringify(result));

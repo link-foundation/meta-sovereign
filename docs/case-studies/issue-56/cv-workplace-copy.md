@@ -65,6 +65,7 @@ without issuing another native action.
 
 The [evidence archive](data/cv-workplace-copy.tar.gz) includes parent refusal,
 focused runtime and browser logs, screenshot hashes and changed sources. The
-native exercises use an isolated HH-shaped fixture. Independent workplace Add,
-owner Save verification for identical copies, verified copy/Save/detach as a
+native exercises use an isolated HH-shaped fixture. Subsequent
+[owner Save verification](cv-copy-save.md) covers identical copies and rejects
+stale exports. Independent workplace Add, verified copy/Save/detach as a
 complete sequence and authenticated provider parity remain open.

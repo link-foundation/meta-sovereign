@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { resumeHash } from './resume-list.js';
 import { cvWatchUrl } from './cv-watch-browser.js';
 import { resumePeriod } from './resume-dates.js';
@@ -28,9 +29,8 @@ const website = (value) =>
     .replace(/\/$/u, '')
     .toLowerCase();
 export const cvSaveAttempt = (raw) => {
-  cvWatchUrl(raw.url);
   if (raw.kind === 'about') {
-    const urlHash = new URL(raw.url).pathname.match(
+    const urlHash = cvWatchUrl(raw.url).pathname.match(
       /^\/resume\/(?:edit\/)?([a-zA-Z\d_-]+)(?:\/|$)/u
     )?.[1];
     if (raw.hash !== urlHash) {
@@ -45,8 +45,8 @@ export const cvSaveAttempt = (raw) => {
   return workplaceAttempt(raw);
 };
 
-const workplaceResumes = (raw) => {
-  const url = new URL(raw.url);
+export const cvWorkplaceSaveResumes = (raw) => {
+  const url = cvWatchUrl(raw.url);
   const recordId =
     url.pathname.match(/^\/profile\/edit\/experience\/(\d+)\/?$/u)?.[1] ?? null;
   if (
@@ -75,7 +75,7 @@ const workplaceResumes = (raw) => {
 };
 
 const workplaceAttempt = (raw) => {
-  const resumes = workplaceResumes(raw);
+  const resumes = cvWorkplaceSaveResumes(raw);
   const start = resumePeriod(`${text(raw.start, 100)} — present`).start;
   const end = raw.current
     ? null
@@ -191,8 +191,82 @@ const sameAreaNames = (before, after, entries) => {
   }
 };
 
+const jobFingerprint = (job) =>
+  createHash('sha256')
+    .update(
+      JSON.stringify([
+        job.company,
+        job.position,
+        job.start,
+        job.end,
+        job.current,
+        normalize(job.description),
+        job.areaId ? [job.areaId] : normalize(job.area),
+        website(job.website),
+        job.industries.map((row) => row.id).sort(),
+      ])
+    )
+    .digest('hex');
+
+const missingExportBaseline = () =>
+  jobsFailure(
+    'cv-record',
+    'The complete pre-Save CV exports were not confirmed.'
+  );
+
+export const confirmedCvWorkplaceExportBaseline = (baseline, resumes) => {
+  if (
+    !(baseline instanceof Map) ||
+    baseline.size !== resumes.length ||
+    resumes.some(({ hash }) => !Array.isArray(baseline.get(hash)))
+  ) {
+    throw missingExportBaseline();
+  }
+  return baseline;
+};
+
+/** Keep only one opaque fingerprint per prior job, with duplicates preserved. */
+export const cvWorkplaceExportBaseline = (exports, resumes) => {
+  if (!Array.isArray(exports) || exports.length !== resumes.length) {
+    throw missingExportBaseline();
+  }
+  return confirmedCvWorkplaceExportBaseline(
+    new Map(exports.map((row) => [row.hash, row.cv.jobs.map(jobFingerprint)])),
+    resumes
+  );
+};
+
+const workplaceAddedToExport = (attempt, cv, checked, previous) => {
+  if (cv.cv.jobs.length !== previous.length + Number(checked)) {
+    return false;
+  }
+  const counts = new Map();
+  for (const key of previous) {
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  let added;
+  for (const job of cv.cv.jobs) {
+    const key = jobFingerprint(job);
+    const remaining = counts.get(key);
+    if (remaining) {
+      counts.set(key, remaining - 1);
+    } else if (!checked || added) {
+      return false;
+    } else {
+      added = job;
+    }
+  }
+  return (
+    !checked ||
+    Boolean(
+      added &&
+      cvWorkplaceMatchesJob(attempt, added, cv.industryEntries, cv.areaEntries)
+    )
+  );
+};
+
 /** Exact record membership plus fresh exports; a closed form proves nothing. */
-export const verifyCvSave = (attempt, exports, savedWorkplace) => {
+export const verifyCvSave = (attempt, exports, savedWorkplace, baseline) => {
   const one = (hash) => {
     const rows = exports.filter((row) => row.hash === hash);
     return rows.length === 1 ? rows[0] : null;
@@ -215,6 +289,9 @@ export const verifyCvSave = (attempt, exports, savedWorkplace) => {
     const cv = one(hash);
     if (!cv) {
       return false;
+    }
+    if (baseline) {
+      return workplaceAddedToExport(attempt, cv, checked, baseline.get(hash));
     }
     const matches = cv.cv.jobs.filter((job) => sameJobFields(attempt, job));
     if (!checked) {

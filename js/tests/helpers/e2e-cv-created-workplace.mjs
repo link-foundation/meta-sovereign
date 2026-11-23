@@ -7,7 +7,7 @@ import { readCvWorkplaceListDocument } from '../../src/jobs/cv-workplace-created
 
 export const verifyCvWatchCreatedWorkplace = async (
   browser,
-  { before = false, screenshots } = {}
+  { before = false, copyBefore = false, screenshots } = {}
 ) => {
   const f = await cvCreatedWorkplaceBrowserFixture(browser);
   const { page, provider, store, createdCounters: counts } = f;
@@ -44,6 +44,7 @@ export const verifyCvWatchCreatedWorkplace = async (
     assert.equal(counts.ownerSaves, 0);
     assert.equal(counts.records, 0);
     assert.equal(counts.lists, before ? 0 : 1);
+    assert.equal(counts.exports, before || copyBefore ? 0 : 2);
     await save('Owner final new workplace description');
     if (before) {
       await state('not-saved');
@@ -55,7 +56,7 @@ export const verifyCvWatchCreatedWorkplace = async (
       );
     }
     await state('saved');
-    const previous = await store.get('jobs-cv-snapshots:jobs');
+    let previous = await store.get('jobs-cv-snapshots:jobs');
     assert.equal(previous.snapshots[0].workplace.recordId, '987');
     assert.equal(
       previous.snapshots[0].cv.jobs[0].description,
@@ -69,12 +70,44 @@ export const verifyCvWatchCreatedWorkplace = async (
     assert.equal(counts.ownerSaves, 1);
     assert.equal(counts.records, 1);
     assert.equal(counts.lists, 2);
+    assert.equal(
+      previous.snapshots[0].cv.jobs[1].description,
+      'Original description'
+    );
     await capture('cv-created-workplace-after');
-    for (const mode of ['older', 'ambiguous', 'mismatch']) {
+    await open();
+    await save('Original description');
+    if (copyBefore) {
+      await state('not-saved');
+      await capture('identical-copy-refused');
+      assert.deepEqual(await store.get('jobs-cv-snapshots:jobs'), previous);
+      await open();
+      f.mode('stale-export');
+      await save('Original description');
+      await state('saved');
+      await capture('stale-copy-accepted');
+      const stale = await store.get('jobs-cv-snapshots:jobs');
+      assert.equal(stale.snapshots[0].workplace.recordId, '987');
+      assert.equal(stale.snapshots[0].cv.jobs.length, 1);
+      return { identicalCopyRefused: true, staleCopyAccepted: true, ...counts };
+    }
+    await state('saved');
+    previous = await store.get('jobs-cv-snapshots:jobs');
+    assert.equal(previous.snapshots[0].workplace.recordId, '987');
+    assert.deepEqual(
+      previous.snapshots[0].cv.jobs.map((job) => job.description),
+      ['Original description', 'Original description']
+    );
+    assert.equal(
+      previous.snapshots[1].cv.jobs[0].company,
+      'Unrelated employer retained in the other CV'
+    );
+    await capture('identical-copy-verified');
+    for (const mode of ['older', 'ambiguous', 'mismatch', 'stale-export']) {
       await open();
       f.mode(mode);
       await save(
-        mode === 'older'
+        mode === 'older' || mode === 'stale-export'
           ? 'Original description'
           : `Owner new description ${mode}`
       );
@@ -138,6 +171,8 @@ export const verifyCvWatchCreatedWorkplace = async (
     assert.deepEqual(f.errors, []);
     return {
       createdRecordVerified: true,
+      identicalCopyVerified: true,
+      staleCopyRefused: true,
       olderRecordRefused: true,
       ambiguousIdsRefused: true,
       metadataMismatchRefused: true,

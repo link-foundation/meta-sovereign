@@ -2,7 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { cvCreatedWorkplaceFixture } from '../../experiments/issue-56/cv-created-workplace-fixture.mjs';
 import { verifyOwnerCvSave } from '../src/jobs/cv-save-cycle.js';
-import { cvSaveAttempt } from '../src/jobs/cv-watch-verification.js';
+import {
+  cvSaveAttempt,
+  cvWorkplaceExportBaseline,
+} from '../src/jobs/cv-watch-verification.js';
 import {
   readCvSavedWorkplaceIds,
   createdCvWorkplaceAttempt,
@@ -36,6 +39,50 @@ test('existing known workplace readback retains its exact ID without listing any
   assert.equal(f.state.lists, 0);
   assert.equal(result.exports[0].workplace.recordId, '123');
   assert.equal(result.workplaceIds, undefined);
+});
+
+const identicalCopy = () => {
+  const fixture = cvCreatedWorkplaceFixture();
+  const existing = globalThis.structuredClone(fixture.exports[0].cv.jobs[0]);
+  fixture.options.workplaceBaselineJobs = cvWorkplaceExportBaseline(
+    fixture.exports,
+    fixture.options.attempt.resumes
+  );
+  return { ...fixture, existing };
+};
+
+test('owner Save verifies one additional fully matching copy even if the original has identical fields', async () => {
+  const f = identicalCopy();
+  f.exports[0].cv.jobs.unshift(f.existing);
+  const result = await verifyOwnerCvSave(f.options);
+  assert.equal(result.exports[0].workplace.recordId, '987');
+  assert.equal(result.exports[0].cv.jobs.length, 2);
+  assert.equal(result.exports[1].workplace.checked, false);
+});
+
+test('a fresh native copy identity cannot certify an export that still shows only the identical original', async () => {
+  const f = identicalCopy();
+  await assert.rejects(verifyOwnerCvSave(f.options), {
+    code: 'jobs-cv-mismatch',
+  });
+  assert.deepEqual(f.state.records, Array(5).fill('987'));
+});
+
+test('a created Save also checks the complete pre-Save export roster and unchecked CV', async () => {
+  const missing = identicalCopy();
+  missing.options.workplaceBaselineJobs.delete('russian');
+  missing.exports[0].cv.jobs.unshift(missing.existing);
+  await assert.rejects(verifyOwnerCvSave(missing.options), {
+    code: 'jobs-cv-record',
+  });
+  assert.equal(missing.state.exports, 0);
+
+  const extra = identicalCopy();
+  extra.exports[0].cv.jobs.unshift(extra.existing);
+  extra.exports[1].cv.jobs = [...extra.exports[1].cv.jobs, extra.existing];
+  await assert.rejects(verifyOwnerCvSave(extra.options), {
+    code: 'jobs-cv-mismatch',
+  });
 });
 
 test('a matching older record, multiple additions and a disappearing baseline record never verify a new Save', async () => {

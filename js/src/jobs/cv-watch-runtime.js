@@ -1,6 +1,10 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { monitorCvSaves } from './cv-watch-monitor.js';
-import { cvSaveAttempt } from './cv-watch-verification.js';
+import {
+  cvSaveAttempt,
+  cvWorkplaceExportBaseline,
+  cvWorkplaceSaveResumes,
+} from './cv-watch-verification.js';
 import { verifyOwnerCvSave } from './cv-save-cycle.js';
 import { cvWatchUrl } from './cv-watch-browser.js';
 import { publishCvSave } from './cv-watch-publication.js';
@@ -14,6 +18,48 @@ const stale = () =>
     'cv-changed',
     'The owner changed or cancelled this save attempt.'
   );
+
+const captureNewWorkplaceBaseline = async ({
+  session,
+  store,
+  initial,
+  signal,
+  readExports,
+  readIds = readCvSavedWorkplaceIds,
+}) => {
+  const deadline = globalThis.performance.now() + 30000;
+  const check = () => {
+    signal.throwIfAborted();
+    if (session.page.url() !== initial.url) {
+      throw stale();
+    }
+    if (globalThis.performance.now() >= deadline) {
+      throw jobsFailure(
+        'cv-readback-timeout',
+        'The pre-Save CV reads expired.'
+      );
+    }
+  };
+  const resumes = cvWorkplaceSaveResumes(initial);
+  check();
+  const ids = await readIds({ session, check, signal });
+  check();
+  const exports = await readExports({
+    session,
+    store,
+    attempt: { kind: 'workplace', resumes },
+    check,
+    signal,
+  });
+  const jobs = cvWorkplaceExportBaseline(exports, resumes);
+  check();
+  traceCvWatch('workplace-list-baseline', {
+    records: ids.length,
+    resumes: jobs.size,
+  });
+  return { ids, jobs };
+};
+
 /** Durable public state contains no final draft text; only a digest of its fields. */
 export const runCvWatch = async ({
   session,
@@ -120,14 +166,18 @@ export const runCvWatch = async ({
           signal: cycleSignal,
           readExports,
           ...verification,
-          workplaceBaseline: baseline,
+          workplaceBaseline: baseline?.ids,
+          workplaceBaselineJobs: baseline?.jobs,
         })
       )
       .then(async (result) => {
         await publish(result, current, attemptId);
         check(current);
         if (result.workplaceIds) {
-          workplaceBaseline = result.workplaceIds;
+          workplaceBaseline = {
+            ids: result.workplaceIds,
+            jobs: result.workplaceJobs,
+          };
         }
       })
       .catch((error) => {
@@ -158,15 +208,13 @@ export const runCvWatch = async ({
     });
     signal.throwIfAborted();
     if (initial?.kind === 'workplace' && initial.recordId === null) {
-      workplaceBaseline = await (
-        verification?.readWorkplaceIds ?? readCvSavedWorkplaceIds
-      )({
+      workplaceBaseline = await captureNewWorkplaceBaseline({
         session,
-        check: () => check(generation),
+        store,
+        initial,
         signal,
-      });
-      traceCvWatch('workplace-list-baseline', {
-        records: workplaceBaseline.length,
+        readExports,
+        readIds: verification?.readWorkplaceIds,
       });
     }
     monitor = await monitorCvSaves({ page: session.page, receive, failed });

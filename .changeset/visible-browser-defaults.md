@@ -1167,3 +1167,7 @@ the saved outcome without issuing a second provider send (issue #56).
 Review and prepare a target-only HeadHunter workplace copy from a shared record.
 Keep the original memberships intact and leave native Save under the owner's
 control (issue #56).
+
+Verify owner-created HeadHunter workplace records using the new native ID and
+the change in saved CV exports. Confirm identical copies and retain the previous
+snapshot while a provider export still shows only the original (issue #56).

@@ -9,10 +9,11 @@ import { cvWorkplaceListHtml } from './cv-created-workplace-fixture.mjs';
 export const cvCreatedWorkplaceBrowserFixture = async (browser) => {
   const f = await cvWorkplaceBrowserFixture(browser);
   const { provider } = f;
-  let description = 'Original description';
+  const originalDescription = 'Original description';
+  let description = originalDescription;
   let ids = ['123'];
   let mode = 'ready';
-  const counters = { lists: 0, records: 0, ownerSaves: 0 };
+  const counters = { lists: 0, records: 0, ownerSaves: 0, exports: 0 };
   const url = 'https://hh.ru/profile/edit/experience?resumeFrom=abc123';
   await provider.context().route('**/profile/edit/experience**', (route) => {
     const path = new URL(route.request().url()).pathname;
@@ -39,9 +40,11 @@ export const cvCreatedWorkplaceBrowserFixture = async (browser) => {
       body:
         cvWatchWorkplaceHtml({
           description:
-            mode === 'mismatch' && path.endsWith('/987')
+            path.endsWith('/987') && mode === 'mismatch'
               ? 'Old record description'
-              : description,
+              : path.endsWith('/987')
+                ? description
+                : originalDescription,
           secondary: true,
         }) +
         (route.request().isNavigationRequest()
@@ -60,17 +63,31 @@ export const cvCreatedWorkplaceBrowserFixture = async (browser) => {
           : ['123', '987'];
     return route.fulfill({ status: 200, body: 'Saved' });
   });
-  await provider.context().route('**/resume_converter/resume.txt?**', (route) =>
-    route.fulfill({
-      contentType: 'text/html',
-      body: cvWatchWorkplaceExport(description, false).replace(
-        'Example Labs',
-        new URL(route.request().url()).searchParams.get('hash') === 'russian'
-          ? 'Unrelated employer retained in the other CV'
-          : 'Example Labs'
-      ),
-    })
-  );
+  await provider
+    .context()
+    .route('**/resume_converter/resume.txt?**', (route) => {
+      counters.exports++;
+      const original = cvWatchWorkplaceExport(originalDescription, false);
+      const otherCv =
+        new URL(route.request().url()).searchParams.get('hash') === 'russian';
+      let body = original;
+      if (otherCv) {
+        body = original.replace(
+          'Example Labs',
+          'Unrelated employer retained in the other CV'
+        );
+      } else if (ids.includes('987') && mode !== 'stale-export') {
+        const workplace = /<div class="resume-experience">.*?<\/div>/su;
+        const added = cvWatchWorkplaceExport(description, false).match(
+          workplace
+        )[0];
+        body = original.replace(workplace, (existing) => added + existing);
+      }
+      return route.fulfill({
+        contentType: 'text/html',
+        body,
+      });
+    });
   await provider.goto(url);
   // Only inert readback responses contain the execution trap.
   await provider.evaluate(() => {
@@ -86,6 +103,7 @@ export const cvCreatedWorkplaceBrowserFixture = async (browser) => {
     reset: async () => {
       ids = ['123'];
       mode = 'ready';
+      description = originalDescription;
       await provider.goto(url);
     },
   };

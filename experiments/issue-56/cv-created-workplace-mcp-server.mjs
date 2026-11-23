@@ -1,8 +1,10 @@
 import { createServer } from 'node:http';
-import { webkit } from 'playwright';
+import { chromium, webkit } from 'playwright';
 import { cvCreatedWorkplaceBrowserFixture } from './cv-created-workplace-browser-fixture.mjs';
 
-const browser = await webkit.launch({
+const executablePath = process.env.E2E_EXECUTABLE_PATH;
+const browser = await (executablePath ? chromium : webkit).launch({
+  executablePath,
   headless: true,
   handleSIGTERM: false,
   handleSIGINT: false,
@@ -20,16 +22,23 @@ const stats = async () => ({
 const control = createServer(async (req, res) => {
   res.setHeader('content-type', 'application/json');
   try {
-    if (req.method === 'POST' && req.url === '/save') {
+    if (req.method === 'POST' && ['/save', '/copy'].includes(req.url)) {
       await fixture.provider
         .locator('textarea')
-        .fill('Independent MCP owner-created workplace');
+        .fill(
+          req.url === '/copy'
+            ? 'Original description'
+            : 'Independent MCP owner-created workplace'
+        );
       await fixture.provider
         .locator('[data-qa="profile-layout-save-button"]')
         .click();
-    } else if (req.method === 'POST' && req.url === '/mismatch') {
+    } else if (
+      req.method === 'POST' &&
+      ['/mismatch', '/stale-copy'].includes(req.url)
+    ) {
       await fixture.reset();
-      fixture.mode('mismatch');
+      fixture.mode(req.url === '/stale-copy' ? 'stale-export' : 'mismatch');
     } else if (req.method !== 'GET' || req.url !== '/') {
       res.statusCode = 404;
     }

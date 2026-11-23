@@ -1,6 +1,10 @@
 import { setTimeout as delay } from 'node:timers/promises';
 import { readCvEditorDocument } from './cv-watch-document.js';
-import { verifyCvSave } from './cv-watch-verification.js';
+import {
+  confirmedCvWorkplaceExportBaseline,
+  cvWorkplaceExportBaseline,
+  verifyCvSave,
+} from './cv-watch-verification.js';
 import { cvWatchUrl } from './cv-watch-browser.js';
 import { sanitizedResumeCv } from './resume-cv.js';
 import { jobsFailure } from './options.js';
@@ -28,12 +32,18 @@ export const verifyOwnerCvSave = async ({
   readWorkplace = readCvSavedWorkplace,
   readWorkplaceIds = readCvSavedWorkplaceIds,
   workplaceBaseline,
+  workplaceBaselineJobs,
   pollMs = 500,
   verificationMs = 30000,
   clock = systemClock,
 }) => {
-  if (attempt.kind === 'workplace' && attempt.recordId === null) {
+  const created = attempt.kind === 'workplace' && attempt.recordId === null;
+  if (created) {
     workplaceBaseline = confirmedCvWorkplaceIds(workplaceBaseline);
+    workplaceBaselineJobs = confirmedCvWorkplaceExportBaseline(
+      workplaceBaselineJobs,
+      attempt.resumes
+    );
   }
   const deadline = clock.now() + verificationMs;
   let reads = 0;
@@ -79,7 +89,7 @@ export const verifyOwnerCvSave = async ({
       confirm();
       let effectiveAttempt = attempt;
       let workplaceIds;
-      if (attempt.kind === 'workplace' && attempt.recordId === null) {
+      if (created) {
         workplaceIds = await readWorkplaceIds({
           session,
           check: confirm,
@@ -102,9 +112,24 @@ export const verifyOwnerCvSave = async ({
             })
           : undefined;
       confirm();
-      if (verifyCvSave(effectiveAttempt, exports, workplace)) {
-        return {
-          ...(workplaceIds ? { workplaceIds } : {}),
+      if (
+        verifyCvSave(
+          effectiveAttempt,
+          exports,
+          workplace,
+          created ? workplaceBaselineJobs : undefined
+        )
+      ) {
+        const result = {
+          ...(created
+            ? {
+                workplaceIds,
+                workplaceJobs: cvWorkplaceExportBaseline(
+                  exports,
+                  attempt.resumes
+                ),
+              }
+            : {}),
           exports: exports.map((row) => ({
             hash: row.hash,
             cv: sanitizedResumeCv(row.cv).cv,
@@ -122,6 +147,8 @@ export const verifyOwnerCvSave = async ({
               : {}),
           })),
         };
+        confirm();
+        return result;
       }
       code = 'jobs-cv-mismatch';
     } catch (error) {
