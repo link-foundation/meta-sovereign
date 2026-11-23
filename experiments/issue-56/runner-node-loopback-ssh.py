@@ -97,10 +97,15 @@ with TemporaryDirectory(prefix='ms-runner-node-ssh-') as directory:
         listener = Thread(target=server.serve_forever)
         listener.start()
         try:
-            image = sys.argv[1:] == ['--image']
-            script = 'runner-image-native' if image else 'runner-node-local'
-            host_env = 'RUNNER_IMAGE_PROBE_SSH_HOST' if image else 'RUNNER_PRIVATE_NODE_HOST'
-            arguments = [] if image else sys.argv[1:]
+            variants = {
+                '--image': ('runner-image-native', 'RUNNER_IMAGE_PROBE_SSH_HOST'),
+                '--graph': ('runner-graph-native', 'RUNNER_GRAPH_SSH_HOST'),
+            }
+            arguments = sys.argv[1:]
+            variant = variants.get(arguments[0]) if len(arguments) == 1 else None
+            script, host_env = variant or ('runner-node-local', 'RUNNER_PRIVATE_NODE_HOST')
+            if variant:
+                arguments = []
             subprocess.run(['node', f'experiments/issue-56/{script}.mjs', *arguments],
                            env={**os.environ, 'PATH': f'{root}:{os.environ["PATH"]}',
                                 host_env: 'runner-node-loopback'},

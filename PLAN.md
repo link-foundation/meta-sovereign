@@ -1533,3 +1533,10 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Finish the local desktop adapter and its durable process ownership. Preserve existing Screen and Docker profiles. Prepare the desktop application before stopping the peer.
 - [x] Verify the listener, stop receipt, storage release, profile editing, CLI connection and both Lino encodings. Preserve native Electron and phone Settings evidence.
 - [ ] Publish only to the prepared branch and inspect exact-source CI. Continue authenticated remote application preparation and the other unchecked issue requirements.
+
+2026-11-23 detached runner application graph (VD01 remains unfinished)
+
+- [x] Reproduce the peer interruption with a readable CLI whose Node application graph cannot load.
+- [x] Verify the product CLI and server module graph in the configured Node runtime before any stop. Use only the verified Docker image and a read-only application mount for the probe. Preserve existing custom launcher behavior.
+- [x] Check missing dependency, loaded graph, cancellation, Docker arguments, both Lino encodings, CLI and the localized Settings refusal. Replay the remote graph with actual loopback SSH.
+- [ ] Inspect exact-source hosted native Docker and Screen checks. Prepare a reviewed package and its locked dependencies on a clean execution host.

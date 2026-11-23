@@ -98,10 +98,32 @@ export const dockerRunnerObservation = (target, result) => {
       : unknown;
 };
 
-const mount = (directory) =>
-  ['type=bind', `source=${directory}`, `target=${directory}`]
+const mount = (directory, readOnly = false) =>
+  [
+    'type=bind',
+    `source=${directory}`,
+    `target=${directory}`,
+    ...(readOnly ? ['readonly'] : []),
+  ]
     .map((cell) => `"${cell.replaceAll('"', '""')}"`)
     .join(',');
+
+export const dockerRunnerApplicationCheck = (target, executable, args) => [
+  'docker',
+  'run',
+  '--rm',
+  '--pull=never',
+  '--read-only',
+  '--network=none',
+  '--mount',
+  mount(target.directory, true),
+  '--workdir',
+  target.directory,
+  '--entrypoint',
+  executable,
+  target.image,
+  ...args,
+];
 
 export const dockerRunnerLaunch = (target, command) => {
   const mounts = [target.directory];

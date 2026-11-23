@@ -14,6 +14,8 @@ const noticeKey = (code) =>
     'runner-runtime-unavailable': 'runtimeUnavailable',
     'runner-launcher-unavailable': 'launcherUnavailable',
     'runner-application-unavailable': 'applicationUnavailable',
+    'runner-application-dependencies-unavailable':
+      'applicationDependenciesUnavailable',
   })[code] ?? 'actionNotConfirmed';
 
 const RunnerMode = ({ mode, state, act }) => {

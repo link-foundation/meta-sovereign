@@ -7,8 +7,14 @@ import {
   runnerApplicationRefusalFixture,
 } from '../../experiments/issue-56/runner-api-fixture.mjs';
 import { runnerFixture } from '../../experiments/issue-56/runner-fixture.mjs';
+import {
+  runnerGraphBackend,
+  runnerGraphFixture,
+} from '../../experiments/issue-56/runner-graph-fixture.mjs';
+import { createRunnerCommand } from '../src/cli/runner-command.js';
 import { acquireStoreLock } from '../src/storage/store-lock.js';
 import {
+  decodeWire,
   encodeWire,
   readWireResponse,
   LINO_TEXT,
@@ -60,6 +66,39 @@ test(
     }
   }
 );
+
+test('an unloadable runner reports the graph refusal through both Lino encodings and CLI', async (t) => {
+  const application = await runnerGraphFixture();
+  t.after(application.close);
+  const backend = runnerGraphBackend();
+  const fixture = await runnerApiFixture({
+    overlay: { server: application.target },
+    backend,
+  });
+  t.after(fixture.close);
+  const expected = {
+    ok: false,
+    code: 'runner-application-dependencies-unavailable',
+    scope: 'isolated-session',
+    states: { local: 'running', server: 'stopped' },
+  };
+  for (const type of [LINO_TEXT, LINO_BINARY]) {
+    const response = await post(fixture, 'start', { mode: 'server' }, type);
+    assert.equal(response.status, 200);
+    assert.deepEqual(await readWireResponse(response), expected);
+  }
+  const output = [];
+  const code = await createRunnerCommand()(
+    { _: ['start', 'server'], url: fixture.base },
+    (value) => output.push(value)
+  );
+  assert.equal(code, 1);
+  assert.deepEqual(
+    output.map((value) => decodeWire(value, LINO_TEXT)),
+    [expected]
+  );
+  assert.ok(backend.calls.every(([, action]) => action === 'probe'));
+});
 
 test(
   'runner API observes and switches both directions through text and binary Lino',

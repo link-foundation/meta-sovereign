@@ -141,7 +141,11 @@ prepared or verified returns `runner-launcher-unavailable`. If discovery
 confirms the destination is stopped, Start checks that the configured
 application file is readable and prepares the launcher before requesting Stop on
 an active peer. A failed file check returns `runner-application-unavailable`
-with the freshly observed session states. Status and inspection remain read-only.
+with the freshly observed session states. For the standard product CLI path,
+Start also loads the application module graph in the selected Node runtime.
+Docker runs this check in the resolved image with a read-only application mount.
+A failed load returns `runner-application-dependencies-unavailable` before
+stopping a peer. Status and inspection remain read-only.
 Install the operating-system backend and the application with its dependencies
 before configuring the target.
 

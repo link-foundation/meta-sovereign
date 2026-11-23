@@ -75,6 +75,7 @@ const pack = (dir) => {
   );
   for (const required of [
     'js/src/server/local-key-enclave.swift',
+    'js/src/server/runner-tools/check-application.mjs',
     'js/src/server/runner-tools/prepare.mjs',
     'js/src/server/runner-tools/prepare-node.sh',
     'js/src/server/runner-tools/locked-dependencies.json',

@@ -15,6 +15,7 @@ import { stopScreenRunner } from './runner-screen.js';
 import { setTimeout as delay } from 'node:timers/promises';
 import { configuredRunnerLauncher } from './runner-dependencies.js';
 import { configuredRunnerRuntime } from './runner-node.js';
+import { verifyRunnerApplication } from './runner-application.js';
 
 const refused = (code, states) => ({ ok: false, code, states });
 const cancelled = (options) => options.signal?.aborted === true;
@@ -124,10 +125,28 @@ const createTargetActions = ({
     let destination = target;
     if (target.isolation === 'docker') {
       const image = await prepareDockerImage(target, run, pullImage, options);
-      if (!image || !(await prepareDockerRunner(target, run, options))) {
+      if (!image) {
         return { code: 'runner-state-unconfirmed' };
       }
       destination = { ...target, image };
+    }
+    const loaded = await verifyRunnerApplication(
+      destination,
+      runtime,
+      run,
+      options
+    );
+    if (cancelled(options)) {
+      return { code: 'runner-state-unconfirmed' };
+    }
+    if (!loaded) {
+      return { code: 'runner-application-dependencies-unavailable' };
+    }
+    if (
+      target.isolation === 'docker' &&
+      !(await prepareDockerRunner(target, run, options))
+    ) {
+      return { code: 'runner-state-unconfirmed' };
     }
     return { launcher, runtime, destination };
   };

@@ -1244,3 +1244,7 @@ when the destination cannot prepare its image (issue #56).
 
 Check the configured runner application file before switching sessions. Keep
 the active session running and show which application check failed (issue #56).
+
+Check that the configured Meta Sovereign CLI and server modules load before
+switching a detached runner. Preserve the active session when the destination
+application is incomplete and show the corresponding Settings message (issue #56).

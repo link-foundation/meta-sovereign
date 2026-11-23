@@ -13,6 +13,7 @@ import {
   runRunnerCommand,
 } from '../../js/src/server/runner-transport.js';
 import { createRunnerLauncherPreparation } from '../../js/src/server/runner-dependencies.js';
+import { runnerGraphFixture } from './runner-graph-fixture.mjs';
 
 const exec = promisify(execFile);
 const fixture = process.env.RUNNER_DOCKER_FIXTURE;
@@ -127,6 +128,25 @@ try {
   assert.equal(launches().length, 2);
   assert.equal(await inspectRunnerApplication(targets.local, run), 'ready');
   console.log(JSON.stringify({ missingApplicationRetainsReadyPeer: true }));
+  const incomplete = await runnerGraphFixture();
+  try {
+    const unloaded = createRunnerControl({
+      targets: { ...targets, server: { ...target, ...incomplete.target } },
+      run,
+    });
+    assert.deepEqual(await unloaded.act('start', 'server'), {
+      ok: false,
+      code: 'runner-application-dependencies-unavailable',
+      states: { local: 'running', server: 'stopped' },
+    });
+    assert.equal(launches().length, 2);
+    assert.equal(await inspectRunnerApplication(targets.local, run), 'ready');
+    console.log(
+      JSON.stringify({ incompleteApplicationRetainsReadyPeer: true })
+    );
+  } finally {
+    await incomplete.close();
+  }
   if (docker) {
     refuseCleanup = true;
     assert.deepEqual(await control.act('start', 'server'), {
