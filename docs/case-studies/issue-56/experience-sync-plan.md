@@ -49,8 +49,9 @@ writer. Generic CV sync therefore does not establish this requirement.
 - [ ] Run acquisition, comparison and native review in one automatic workflow.
       [Automatic preparation](experience-auto-preparation.md) checkpoints both
       native snapshots and the translated comparison in CLI, both Lino encodings
-      and the shared CV view. Queue progression and restart recovery after a
-      provider Save remain required.
+      and the shared CV view. [Sequential review](experience-review-queue.md)
+      exercises progression and restart recovery after a synthetic provider Save.
+      Authenticated runs remain required.
 - [ ] Retain parent-failing regressions, focused core/API checks, native browser
       and independent MCP before/after evidence. Inspect hosted checks for the
       exact published source. Complete HH21 only after every item is verified in
@@ -86,6 +87,8 @@ export's exact profile proposal and the same independent browser lease, with
 fresh export readback exercised against a synthetic provider.
 The [sequential native review](experience-review-queue.md) acquires both
 snapshots, compares and opens one supported draft at a time. A successful Save
-requires a fresh matching target export before the queue advances. LinkedIn
-About review and authenticated provider verification remain required. HH21
-remains unfinished.
+requires a fresh matching target export before the queue advances. The
+[LinkedIn About review](experience-linkedin-about-review.md) opens one existing
+About editor, preserves unconfirmed saves and verifies exact text before the
+queue records a new revision. The case of an absent About section still requires
+manual review, and authenticated provider verification remains outstanding.

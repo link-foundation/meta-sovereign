@@ -71,13 +71,14 @@ const validCurrent = (row) => {
       row.phase
     );
   }
+  const about = item.kind === 'hh-about' || item.kind === 'linkedin-about';
   return (
     item.key === row.pending[0] &&
-    ['hh-about', 'hh-workplace', 'linkedin-position'].includes(item.kind) &&
+    (about || ['hh-workplace', 'linkedin-position'].includes(item.kind)) &&
     item.input?.requestId === reviewChildId(row, 'native') &&
     digest.test(item.input.fingerprint) &&
     [null, 'save', 'skip'].includes(item.decision) &&
-    (item.kind === 'hh-about'
+    (about
       ? item.key === 'about' &&
         item.input.planRequestId === row.comparison.requestId &&
         item.input.fingerprint === row.comparison.fingerprint

@@ -4,6 +4,10 @@ import {
   confirmedHhWorkplaceJob,
   hhExperienceWorkplaceRunning,
 } from '../cv/experience-hh-workplace-receipt.js';
+import {
+  confirmedLinkedinAboutJob,
+  linkedinAboutRunning,
+} from '../cv/linkedin-about-receipt.js';
 
 const handoffKey = 'meta-sovereign:experience-workplace-review';
 const restoredHandoff = () => {
@@ -50,16 +54,22 @@ export const useExperienceWorkplaceHandoff = () => {
   return { handoff, select, dismiss: () => setHandoff(null) };
 };
 
-export const useHhWorkplaceJob = (
+export const useExperienceNativeJob = (
   api,
   sourceSlot,
   fingerprint,
-  planRequestId
+  planRequestId,
+  provider = 'Hh'
 ) => {
   const controller = useRef(null);
   const [snapshot, setSnapshot] = useState(null);
   const kind = planRequestId ? 'About' : 'Workplace';
-  const available = typeof api?.[`cvHh${kind}Start`] === 'function';
+  const prefix = `cv${provider}${kind}`;
+  const available = typeof api?.[`${prefix}Start`] === 'function';
+  const running =
+    provider === 'Linkedin'
+      ? linkedinAboutRunning
+      : hhExperienceWorkplaceRunning;
   useEffect(() => {
     if (!available || (!sourceSlot && !planRequestId) || !fingerprint) {
       return;
@@ -70,11 +80,13 @@ export const useHhWorkplaceJob = (
     const job = new PrivateCvJobState(api, setSnapshot, {
       initial,
       fields: Object.keys(initial),
-      prefix: `cvHh${kind}`,
-      pendingKey: `meta-sovereign:hh-experience-${kind.toLowerCase()}:${fingerprint}`,
+      prefix,
+      pendingKey: `meta-sovereign:${provider.toLowerCase()}-experience-${kind.toLowerCase()}:${fingerprint}`,
       checked: (row, requestId) =>
-        confirmedHhWorkplaceJob(row, requestId, initial),
-      running: hhExperienceWorkplaceRunning,
+        provider === 'Linkedin'
+          ? confirmedLinkedinAboutJob(row, { requestId, ...initial })
+          : confirmedHhWorkplaceJob(row, requestId, initial),
+      running,
     });
     controller.current = job;
     setSnapshot(job.state);
@@ -85,7 +97,17 @@ export const useHhWorkplaceJob = (
       controller.current = null;
       job.dispose();
     };
-  }, [api, available, sourceSlot, fingerprint, planRequestId, kind]);
+  }, [
+    api,
+    available,
+    sourceSlot,
+    fingerprint,
+    planRequestId,
+    kind,
+    prefix,
+    provider,
+    running,
+  ]);
   if (
     !available ||
     !fingerprint ||
@@ -96,7 +118,7 @@ export const useHhWorkplaceJob = (
   }
   return {
     ...snapshot,
-    active: hhExperienceWorkplaceRunning(snapshot.row),
+    active: running(snapshot.row),
     start: () => controller.current?.mutate('Start'),
     decide: (decision) =>
       controller.current?.mutate('Decide', {
@@ -124,7 +146,7 @@ export const useExperienceWorkplaceReview = ({
   const [failed, setFailed] = useState(null);
   const [retry, setRetry] = useState(0);
   const selectedPlan = fingerprint === plan?.fingerprint ? plan : null;
-  const native = useHhWorkplaceJob(
+  const native = useExperienceNativeJob(
     api,
     sourceSlot,
     selectedPlan?.status === 'reviewed' ? fingerprint : null

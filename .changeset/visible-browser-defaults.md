@@ -1201,3 +1201,6 @@ an explicit Save against a fresh export of the selected résumé (issue #56).
 Review directed experience changes one at a time from the automatic comparison.
 Choose Save, Skip or Leave for the current native draft, and advance after a
 fresh export confirms the target changes (issue #56).
+
+Review an existing LinkedIn About section from a directed comparison. Prepare
+one draft, choose Save, Skip or Leave, and check the saved profile (issue #56).

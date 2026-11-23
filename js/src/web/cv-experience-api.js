@@ -37,11 +37,15 @@ export const createExperienceApi = ({ get, report }) => ({
     ])
   ),
   ...Object.fromEntries(
-    ['Workplace', 'About'].flatMap((kind) =>
+    [
+      ['Hh', 'Workplace'],
+      ['Hh', 'About'],
+      ['Linkedin', 'About'],
+    ].flatMap(([provider, kind]) =>
       ['start', 'status', 'stop', 'decide'].map((operation) => [
-        `cvHh${kind}${operation[0].toUpperCase()}${operation.slice(1)}`,
+        `cv${provider}${kind}${operation[0].toUpperCase()}${operation.slice(1)}`,
         async (input) => {
-          const route = `/api/cv/experience/hh-${kind.toLowerCase()}-${operation}`;
+          const route = `/api/cv/experience/${provider.toLowerCase()}-${kind.toLowerCase()}-${operation}`;
           return experienceReply(
             await (operation === 'status'
               ? get(`${route}?${new URLSearchParams(input)}`)

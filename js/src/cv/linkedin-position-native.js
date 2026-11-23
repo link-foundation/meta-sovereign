@@ -21,15 +21,20 @@ import {
 
 const detach = (session) =>
   session?.detach ? session.detach() : session?.close();
-const signedIn = async (session) =>
+export const linkedinReviewSignedIn = async (session) =>
   (await session.page.context().cookies('https://www.linkedin.com')).some(
     ({ name }) => name === 'li_at'
   );
-const clearSlot = async (session, url, check) => {
+const clearSlot = async (
+  session,
+  url,
+  check,
+  failure = linkedinPositionFailure
+) => {
   const context = session.page.context();
   const pages = context.pages();
   if (pages.length > 20 || !pages.includes(session.page)) {
-    throw linkedinPositionFailure('session');
+    throw failure('session');
   }
   const root = url.replace(/details\/experience\/$/u, '');
   for (const page of pages) {
@@ -37,19 +42,19 @@ const clearSlot = async (session, url, check) => {
     const gate = await page.evaluate(linkedinExperienceGate);
     check();
     if (gate.draft && !gate.wall) {
-      throw linkedinPositionFailure('owner-draft');
+      throw failure('owner-draft');
     }
     if (
       page === session.page &&
       gate.url !== 'about:blank' &&
       !gate.url.startsWith(root)
     ) {
-      throw linkedinPositionFailure('session');
+      throw failure('session');
     }
   }
 };
 
-const open = (session, url, signal) =>
+export const openLinkedinReviewPage = (session, url, signal) =>
   session.commander.goto({
     url,
     signal,
@@ -69,7 +74,7 @@ export const readLinkedinPositionExperience = async ({
   now,
 }) => {
   const options = { ...plan.target, signal };
-  await open(session, options.url, signal);
+  await openLinkedinReviewPage(session, options.url, signal);
   const deadline = now() + 30000;
   for (let attempt = 0; attempt < 60; attempt++) {
     const { ready, gate } = await linkedinSessionGate(
@@ -143,16 +148,17 @@ const waitForEditor = async ({ form, check, wait, now, signal }) => {
   throw linkedinPositionFailure('form');
 };
 
-/** Native preparation holds the same isolated profile lease as experience acquisition. */
-export const createLinkedinPositionNative =
+/** Native review holds the same isolated profile lease as experience acquisition. */
+export const createLinkedinReviewSession =
   ({
     store,
     openSession = openBrowserSession,
     profileDir = defaultProfileDir('linkedin', 'linkedin-experience'),
     wait = (ms, signal) => delay(ms, undefined, { signal }),
     now = Date.now,
+    failure = linkedinPositionFailure,
   }) =>
-  async (plan, signal, withPrepared) => {
+  async (plan, signal, run) => {
     const check = () => signal?.throwIfAborted();
     check();
     const lease = await acquireStoreLock(profileDir, { exclusive: true });
@@ -176,11 +182,25 @@ export const createLinkedinPositionNative =
         locale: plan.target.language === 'ru' ? 'ru-RU' : 'en-US',
       });
       check();
-      await clearSlot(session, plan.target.url, check);
-      if (!(await signedIn(session))) {
-        throw linkedinPositionFailure('login-required');
+      await clearSlot(session, plan.target.url, check, failure);
+      if (!(await linkedinReviewSignedIn(session))) {
+        throw failure('login-required');
       }
       check();
+      return await run({ session, check, wait, now, signal });
+    } finally {
+      try {
+        await detach(session);
+      } finally {
+        lease.release();
+      }
+    }
+  };
+
+export const createLinkedinPositionNative = (options) => {
+  const withSession = createLinkedinReviewSession(options);
+  return (plan, signal, withPrepared) =>
+    withSession(plan, signal, async ({ session, check, wait, now }) => {
       const before = await confirmFreshEditor({
         session,
         plan,
@@ -231,11 +251,11 @@ export const createLinkedinPositionNative =
         };
       }
       await clearSlot(session, plan.target.url, check);
-      await open(session, plan.editor, signal);
+      await openLinkedinReviewPage(session, plan.editor, signal);
       const token = randomUUID();
       const form = linkedinPositionForm({ session, plan, token, check });
       const controls = await waitForEditor({ form, check, wait, now, signal });
-      if (!(await signedIn(session))) {
+      if (!(await linkedinReviewSignedIn(session))) {
         throw linkedinPositionFailure('login-required');
       }
       const draft = await fillLinkedinPosition(form, controls, plan);
@@ -276,11 +296,5 @@ export const createLinkedinPositionNative =
         now,
         signal,
       });
-    } finally {
-      try {
-        await detach(session);
-      } finally {
-        lease.release();
-      }
-    }
-  };
+    });
+};

@@ -20,6 +20,7 @@ import { runnerLocale } from './runner.js';
 import { cvExperienceLocale } from './cv-experience.js';
 import { linkedinExperienceLocale } from './cv-linkedin-experience.js';
 import { linkedinPositionLocale } from './cv-linkedin-position.js';
+import { linkedinAboutLocale } from './cv-linkedin-about.js';
 import { experienceFilesLocale } from './cv-experience-files.js';
 import { hhAcquisitionLocale } from './cv-hh-acquisition.js';
 import { hhWorkplaceLocale } from './cv-hh-workplace.js';
@@ -43,6 +44,7 @@ export const dictionaries = Object.fromEntries(
       ...hhWorkplaceLocale(language),
       ...linkedinExperienceLocale(language),
       ...linkedinPositionLocale(language),
+      ...linkedinAboutLocale(language),
       ...experiencePlanLocale(language),
       ...experienceAutoLocale(language),
       ...experienceReviewLocale(language),

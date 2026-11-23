@@ -13,6 +13,10 @@ import { experienceAutoRunning } from '../cv/experience-auto-record.js';
 import { createExperienceReviewNative } from '../cv/experience-review-native.js';
 import { createLinkedinPositionReviews } from '../cv/linkedin-position-review.js';
 import { createLinkedinPositionJobs } from '../cv/linkedin-position-job.js';
+import {
+  createLinkedinAboutJobs,
+  linkedinAboutPlan,
+} from '../cv/linkedin-about-job.js';
 import { createHhExperienceWorkplaceJobs } from '../cv/experience-hh-workplace-job.js';
 import { foregroundPrivateCvJob } from './private-cv-job-command.js';
 import { typedFlag } from './lino-args.js';
@@ -28,10 +32,17 @@ export const cliExperienceServices = (store, storeDir, options) => {
   let auto;
   let workplace;
   let position;
+  let linkedinAbout;
   const positionOptions = {
     artifactRoot: path.join(storeDir, 'experience-exports'),
     ...options.experience,
     ...options.experience?.position,
+    store,
+  };
+  const aboutOptions = {
+    artifactRoot: path.join(storeDir, 'experience-exports'),
+    ...options.experience,
+    ...options.experience?.about,
     store,
   };
   const getVacancies = () =>
@@ -78,12 +89,16 @@ export const cliExperienceServices = (store, storeDir, options) => {
       getLinkedinPosition: () =>
         (position ??= createLinkedinPositionJobs(positionOptions)),
       getLinkedinReviews: () => createLinkedinPositionReviews(positionOptions),
+      getLinkedinAbout: () =>
+        (linkedinAbout ??= createLinkedinAboutJobs(aboutOptions)),
+      checkLinkedinAbout: (input) => linkedinAboutPlan(aboutOptions, input),
     }),
     close: async () => {
       await Promise.allSettled([
         auto?.close(),
         workplace?.close(),
         position?.close(),
+        linkedinAbout?.close(),
       ]);
       await Promise.allSettled([
         hh?.close(),

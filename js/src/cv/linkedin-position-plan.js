@@ -44,7 +44,10 @@ const reviewReference = (input) => {
   };
 };
 
-const nativeTarget = async ({ store, artifactRoot }, target) => {
+export const nativeLinkedinExperienceTarget = async (
+  { store, artifactRoot },
+  target
+) => {
   const { provenance, document } = await storedExperienceDocument(
     store,
     target.revision
@@ -229,7 +232,10 @@ export const draftLinkedinPosition = async (
   ) {
     throw linkedinPositionFailure('conflict');
   }
-  const { document, requestId } = await nativeTarget(context, row.plan.target);
+  const { document, requestId } = await nativeLinkedinExperienceTarget(
+    context,
+    row.plan.target
+  );
   const target = document.jobs[job.targetIndex];
   if (job.kind === 'update' && !isDeepStrictEqual(target, job.target)) {
     throw linkedinPositionFailure('conflict');

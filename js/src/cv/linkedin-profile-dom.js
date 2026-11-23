@@ -1,11 +1,15 @@
-/** Read and expand only the selected About section, without field values. */
+/** Read the selected About section and, when requested, its exact edit control. */
 export const scanLinkedinProfileAbout = ({
   url,
   expand = false,
   scroll = false,
+  editor = false,
+  open,
 }) => {
   const { document, location } = globalThis;
-  const visible = (node) => Boolean(node.getClientRects().length);
+  const visible = (node) =>
+    Boolean(node.getClientRects().length) &&
+    globalThis.getComputedStyle(node).visibility === 'visible';
   if (
     location.href !== url ||
     [
@@ -64,7 +68,42 @@ export const scanLinkedinProfileAbout = ({
     if (expand && more.length) {
       more[0].click();
     }
-    return { observed: true, about, more: more.length };
+    const result = { observed: true, about, more: more.length };
+    if (!editor && !open) {
+      return result;
+    }
+    const buttons = [...section.querySelectorAll('a[href], button')].filter(
+      (node) =>
+        visible(node) &&
+        !parts[0].contains(node) &&
+        /^(?:edit about|edit summary|(?:редактировать|изменить) (?:раздел )?(?:«о себе»|о себе|общие сведения))$/iu.test(
+          (node.getAttribute('aria-label') ?? node.textContent).trim()
+        )
+    );
+    if (buttons.length !== 1) {
+      return result;
+    }
+    const [button] = buttons;
+    if (
+      button.disabled ||
+      button.getAttribute('aria-disabled') === 'true' ||
+      (button.tagName === 'A' &&
+        (button.hasAttribute('download') ||
+          !['', '_self'].includes(button.target)))
+    ) {
+      return result;
+    }
+    result.editor = button.tagName === 'A' ? button.href : 'button';
+    if (
+      open &&
+      !more.length &&
+      about === open.before &&
+      result.editor === open.editor
+    ) {
+      button.click();
+      result.opened = true;
+    }
+    return result;
   };
   const section = sections[0];
   const data = readSection(section);

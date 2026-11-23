@@ -21,6 +21,11 @@ import { experienceReviewFailure } from '../cv/experience-review-record.js';
 import { createLinkedinPositionReviews } from '../cv/linkedin-position-review.js';
 import { createLinkedinPositionJobs } from '../cv/linkedin-position-job.js';
 import {
+  createLinkedinAboutJobs,
+  linkedinAboutPlan,
+} from '../cv/linkedin-about-job.js';
+import { linkedinAboutFailure } from '../cv/linkedin-about-native.js';
+import {
   createFormalExperienceReports,
   previewFormalExperienceReport,
 } from '../cv/formal-report-service.js';
@@ -140,6 +145,20 @@ const positionJobs = (store, ctx) => {
   }));
 };
 
+const aboutOptions = (store, ctx) => ({
+  ...positionOptions(store, ctx),
+  ...ctx.cvExperienceOptions?.about,
+});
+
+const linkedinAboutJobs = (store, ctx) => {
+  if (ctx.cvExperienceClosing) {
+    throw linkedinAboutFailure('stopped');
+  }
+  return (ctx.cvLinkedinAboutJobs ??= createLinkedinAboutJobs(
+    aboutOptions(store, ctx)
+  ));
+};
+
 const experienceReview = (store, ctx) => {
   if (ctx.cvExperienceClosing) {
     throw experienceReviewFailure('stopped');
@@ -154,6 +173,9 @@ const experienceReview = (store, ctx) => {
       getVacancies: () => workspaceVacancies(store, ctx),
       getHhWorkplace: () => hhWorkplaceJobs(store, ctx),
       getLinkedinPosition: () => positionJobs(store, ctx),
+      getLinkedinAbout: () => linkedinAboutJobs(store, ctx),
+      checkLinkedinAbout: (input) =>
+        linkedinAboutPlan(aboutOptions(store, ctx), input),
       getLinkedinReviews: () =>
         createLinkedinPositionReviews(positionOptions(store, ctx)),
     }),
@@ -241,6 +263,12 @@ const actions = {
       (store, input, ctx) => positionJobs(store, ctx)[operation](input),
     ])
   ),
+  ...Object.fromEntries(
+    ['start', 'status', 'stop', 'decide'].map((operation) => [
+      `linkedin-about-${operation}`,
+      (store, input, ctx) => linkedinAboutJobs(store, ctx)[operation](input),
+    ])
+  ),
 };
 const admission = (req, operation, ctx) => {
   const read = [
@@ -255,6 +283,7 @@ const admission = (req, operation, ctx) => {
     'linkedin-evidence',
     'linkedin-position-stored',
     'linkedin-position-status',
+    'linkedin-about-status',
     'plan-status',
     'report-preview',
     'report-status',

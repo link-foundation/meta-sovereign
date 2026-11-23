@@ -26,6 +26,7 @@ const stopExperienceExport = async (ctx) => {
     traceShutdown('cvExperience', ctx.cvExperience?.close()),
     traceShutdown('cvHhAcquisition', ctx.cvHhAcquisition?.close()),
     traceShutdown('cvHhWorkplaceJobs', ctx.cvHhWorkplaceJobs?.close()),
+    traceShutdown('cvLinkedinAboutJobs', ctx.cvLinkedinAboutJobs?.close()),
     traceShutdown('cvExperiencePlans', ctx.cvExperiencePlans?.close()),
     traceShutdown(
       'cvLinkedinPositionJobs',

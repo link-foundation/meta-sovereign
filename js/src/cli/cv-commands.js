@@ -29,6 +29,7 @@ import {
 import { confirmCli } from './confirm.js';
 import { createLinkedinExperienceCommands } from './cv-linkedin-experience-command.js';
 import { createLinkedinPositionCommands } from './cv-linkedin-position-command.js';
+import { createLinkedinAboutCommands } from './cv-linkedin-about-command.js';
 import { createExperienceCommands } from './cv-experience-commands.js';
 import { createHhExperienceCommands } from './cv-hh-experience-command.js';
 import { createHhExperienceWorkplaceCommands } from './cv-hh-experience-workplace-command.js';
@@ -359,6 +360,10 @@ export const createCvCommands = ({
         live.experience
       ),
       ...createLinkedinPositionCommands(
+        { openStore, openReadOnly },
+        live.experience
+      ),
+      ...createLinkedinAboutCommands(
         { openStore, openReadOnly },
         live.experience
       ),

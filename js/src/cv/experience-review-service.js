@@ -183,7 +183,7 @@ const settleNative = (owned, result, save) => {
     waitingLogin: false,
     phase: uncertain
       ? 'unconfirmed'
-      : ['closed', 'stopped'].includes(result.phase)
+      : ['closed', 'stopped', 'left'].includes(result.phase)
         ? 'left'
         : 'failed',
     code: experienceReviewCode(

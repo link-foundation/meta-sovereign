@@ -25,4 +25,4 @@ Expand the automatic comparison controls in CV. In the previous bundle the form 
 - Independent Playwright MCP at 390 pixels verified the proposed and current About values, one explicit Save with a matching revision, and no horizontal overflow. The fixture's standalone host returned 404 for the default favicon.
 - [Previous comparison controls](../../screenshots/issue-56-experience-review/before.png), [phone review](../../screenshots/issue-56-experience-review/prepared-phone.png), [native draft](../../screenshots/issue-56-experience-review/native-draft.png) and [verified receipt](../../screenshots/issue-56-experience-review/saved-phone.png).
 
-The queue can open HeadHunter About, HeadHunter workplace and LinkedIn position drafts. LinkedIn About remains a manual review. Authenticated HeadHunter and LinkedIn acceptance is required for HH21.
+The queue can open HeadHunter About, HeadHunter workplace, LinkedIn position and [existing LinkedIn About](experience-linkedin-about-review.md) drafts. An absent or unrecognized LinkedIn About editor needs manual review. Authenticated HeadHunter and LinkedIn acceptance is required for HH21.

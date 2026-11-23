@@ -4,7 +4,7 @@ import { RecordDetails } from './cv-experience-view.js';
 import { Comparison } from './cv-translation-panel.js';
 import { CvExperienceWorkplaceStage } from './cv-experience-workplace-stage.js';
 import { HhExperienceWorkplace } from './cv-experience-hh-workplace.js';
-import { useHhWorkplaceJob } from './cv-experience-workplace-state.js';
+import { useExperienceNativeJob } from './cv-experience-workplace-state.js';
 import { linkedinPositionMediaCandidate } from '../cv/linkedin-position-media-link.js';
 
 const el = React.createElement;
@@ -120,9 +120,17 @@ const PlanItem = ({ item, profile = false, children }) => {
     ]
   );
 };
-const HeadHunterAboutReview = ({ api, row, t }) => {
-  const job = useHhWorkplaceJob(api, undefined, row.fingerprint, row.requestId);
-  return job ? el(HhExperienceWorkplace, { job, t, about: true }) : null;
+const AboutReview = ({ api, row, t, linkedin }) => {
+  const job = useExperienceNativeJob(
+    api,
+    undefined,
+    row.fingerprint,
+    row.requestId,
+    linkedin ? 'Linkedin' : 'Hh'
+  );
+  return job
+    ? el(HhExperienceWorkplace, { job, t, about: true, linkedin })
+    : null;
 };
 export const CvExperiencePlanView = ({
   row,
@@ -148,8 +156,17 @@ export const CvExperiencePlanView = ({
     nativeHh &&
     typeof api?.vacancyCvWorkplacePlan === 'function' &&
     onWorkplaceDraft;
+  const nativeLinkedin =
+    row.phase === 'completed' &&
+    plan.target.platform === 'linkedin' &&
+    exports?.some(
+      ({ revision, provenance }) =>
+        revision === plan.target.revision && provenance === 'linkedin-native'
+    );
   const allowAbout =
-    nativeHh &&
+    (nativeHh ||
+      (nativeLinkedin &&
+        plan.profile.target?.aboutAcquisition?.observed === true)) &&
     plan.profile.fields.some(
       ({ field, ready, before, after }) =>
         field === 'about' &&
@@ -160,12 +177,7 @@ export const CvExperiencePlanView = ({
         after.length <= 24000
     );
   const allowPosition =
-    row.phase === 'completed' &&
-    plan.target.platform === 'linkedin' &&
-    exports?.some(
-      ({ revision, provenance }) =>
-        revision === plan.target.revision && provenance === 'linkedin-native'
-    ) &&
+    nativeLinkedin &&
     typeof api?.cvLinkedinPositionStage === 'function' &&
     linkedinPosition;
   return el(
@@ -246,7 +258,9 @@ export const CvExperiencePlanView = ({
       el(
         PlanItem,
         { key: 'profile', item: plan.profile, profile: true },
-        allowAbout ? el(HeadHunterAboutReview, { api, row, t }) : null
+        allowAbout
+          ? el(AboutReview, { api, row, t, linkedin: nativeLinkedin })
+          : null
       ),
       el('h4', { key: 'translations' }, t('experiencePlan.translations')),
       ...plan.translations.map((comparison) =>

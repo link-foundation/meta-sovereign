@@ -16,6 +16,11 @@ import { linkedinPositionMediaUrl } from './linkedin-position-media-link.js';
 import { cvWorkplacePlanJob } from '../jobs/cv-workplace-plan.js';
 import { cvWorkplaceExportJobFingerprint } from '../jobs/cv-watch-verification.js';
 import { experienceReviewFailure } from './experience-review-record.js';
+import {
+  confirmedLinkedinAboutJob,
+  linkedinAboutRunning,
+} from './linkedin-about-receipt.js';
+import { linkedinAboutText } from './linkedin-about-native.js';
 
 const matchesReference = (value, source) =>
   value?.requestId === source.requestId &&
@@ -39,7 +44,6 @@ const planAbout = (plan, input) => {
     return { unchanged: true };
   }
   if (
-    plan.plan.target.platform !== 'hh' ||
     !about.ready ||
     typeof about.before !== 'string' ||
     typeof about.after !== 'string' ||
@@ -48,7 +52,7 @@ const planAbout = (plan, input) => {
   ) {
     return { code: experienceReviewFailure('manual-about').code };
   }
-  return { kind: 'hh-about', input };
+  return { kind: `${plan.plan.target.platform}-about`, input };
 };
 
 const reviewWorkplace = async (vacancies, reference, operation, requestId) => {
@@ -172,11 +176,28 @@ export const createExperienceReviewNative = ({
   getHhWorkplace,
   getLinkedinPosition,
   getLinkedinReviews,
+  getLinkedinAbout,
+  checkLinkedinAbout,
 }) => ({
   async prepare(plan, key, requestId) {
     const { requestId: planRequestId, fingerprint } = plan;
     if (key === 'about') {
-      return planAbout(plan, { requestId, fingerprint, planRequestId });
+      const item = planAbout(plan, { requestId, planRequestId, fingerprint });
+      if (item.kind === 'linkedin-about') {
+        try {
+          await checkLinkedinAbout(item.input);
+        } catch (error) {
+          if (
+            ['cv-linkedin-about-source', 'cv-linkedin-about-baseline'].includes(
+              error.code
+            )
+          ) {
+            return { code: error.code };
+          }
+          throw error;
+        }
+      }
+      return item;
     }
     const sourceIndex = Number(key.slice('position-'.length));
     const jobIndex = plan.plan.jobs.findIndex(
@@ -203,6 +224,20 @@ export const createExperienceReviewNative = ({
   },
 
   reviewer({ kind, input }) {
+    if (kind === 'linkedin-about') {
+      const service = getLinkedinAbout();
+      const confirm = (row) => confirmedLinkedinAboutJob(row, input);
+      return {
+        start: async () => confirm(await service.start(input)),
+        status: async () =>
+          confirm(await service.status({ requestId: input.requestId })),
+        stop: async () =>
+          confirm(await service.stop({ requestId: input.requestId })),
+        decide: async (decision) =>
+          confirm(await service.decide({ ...input, decision })),
+        running: linkedinAboutRunning,
+      };
+    }
     const linkedin = kind === 'linkedin-position';
     const service = linkedin ? getLinkedinPosition() : getHhWorkplace();
     const confirmed = (row) => {
@@ -234,6 +269,17 @@ export const createExperienceReviewNative = ({
     let matching;
     if (kind === 'linkedin-position') {
       matching = verifyPosition(document, save);
+    } else if (kind === 'linkedin-about') {
+      const about = plan.plan.profile.fields.find(
+        ({ field }) => field === 'about'
+      );
+      matching =
+        provenance.kind === 'linkedin-native' &&
+        document.source.id === save.source.id &&
+        document.source.url === save.source.url &&
+        document.profile.aboutAcquisition?.observed === true &&
+        document.profile.about === save.about &&
+        document.profile.about === linkedinAboutText(about.after);
     } else {
       const source = save.exports.find(
         ({ hash }) => hash === provenance.identity?.hash
