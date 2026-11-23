@@ -108,5 +108,27 @@ containing only an unlisted skill. Running the same fixture with
 the previous modules reaches the original prepared state and fails because
 the exact skill was never selected.
 
-Native media selection, an interactive queue and authenticated verification
-remain open in [HH21](experience-sync-plan.md).
+## Native website attachments
+
+The review recognizes an explicit company website field or a single unambiguous
+website line. It retains the path, query and fragment and shows the URL and title
+before approval. Preparation types the link and title in the owned position's
+Media preview. It verifies the attachment in the draft without using the
+position's Save button. A URL already in the fresh export or native Media list
+produces no duplicate. A preview that cannot be verified stays open for the
+owner. The console and shared CV controls distinguish the proposed attachment,
+the prepared draft and the link verified in the saved position.
+
+With the synthetic profiles, set an HH workplace's website to
+`example.test/portfolio?mode=work`. Compare the HH and native LinkedIn exports,
+then stage, approve and prepare the matched role. Observe the exact link in
+the Media preview and the position's unchanged saved export. Choose **Save**
+explicitly and check the new export for the link and its title on that role.
+The Chromium fixture in `experiments/issue-56/linkedin-position-media-native.mjs`
+checks this sequence, duplicate suppression, stale reads, a URL that appears
+only in the description, and an unresolved preview. Run the same fixture with
+`--import ./experiments/issue-56/linkedin-position-media-before.mjs` to reproduce
+the previous omission of the website-only proposal.
+
+URL-derived titles for older attachments, an interactive queue and authenticated
+verification remain open in [HH21](experience-sync-plan.md).

@@ -24,7 +24,7 @@ const reviewErrors = {
   'cv-linkedin-position-note': 'note',
   recover: 'recover',
 };
-const PositionProposal = ({ review }) => {
+const PositionProposal = ({ review, row }) => {
   const t = useT();
   const fields = Object.entries(review.fields).map(([field, after]) => ({
     field,
@@ -32,6 +32,12 @@ const PositionProposal = ({ review }) => {
     after,
     ready: true,
   }));
+  const media = [
+    ['savedMedia', row?.save?.media],
+    ['preparedMedia', row?.phase !== 'skipped' && row?.preparedMedia],
+    ['manualMedia', row?.unapplied?.includes('media') && review.media],
+    ['proposedMedia', review.media],
+  ].find(([, value]) => value);
   return el(React.Fragment, null, [
     el(
       'h4',
@@ -48,7 +54,7 @@ const PositionProposal = ({ review }) => {
           })
         )
       : null,
-    review.media
+    media
       ? el(
           'p',
           {
@@ -56,7 +62,7 @@ const PositionProposal = ({ review }) => {
             className: 'meta',
             style: { overflowWrap: 'anywhere' },
           },
-          t('linkedinPosition.manualMedia', { url: review.media.url })
+          t(`linkedinPosition.${media[0]}`, media[1])
         )
       : null,
   ]);
@@ -145,6 +151,13 @@ const PositionControls = ({ state }) => {
         })
       )
     ),
+    row?.code === 'cv-linkedin-position-media-review'
+      ? el(
+          'p',
+          { key: 'media-review', className: 'meta' },
+          t('linkedinPosition.mediaReview')
+        )
+      : null,
   ]);
 };
 
@@ -186,7 +199,9 @@ export const CvLinkedinPositionReview = ({ state }) => {
           )
         : null,
       error === 'recover' ? button('retry', state.retry, false, t) : null,
-      review ? el(PositionProposal, { key: 'proposal', review }) : null,
+      review
+        ? el(PositionProposal, { key: 'proposal', review, row: state.job?.row })
+        : null,
       review ? el(PositionControls, { key: 'controls', state }) : null,
     ]
   );

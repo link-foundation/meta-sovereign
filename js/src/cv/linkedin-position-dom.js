@@ -170,6 +170,29 @@ export const inspectLinkedinPositionForm = ({
     };
     dialog.addEventListener('input', recordOwnerEdit, true);
     dialog.addEventListener('change', recordOwnerEdit, true);
+    const recordOverlayEdit = (event) => {
+      const overlay = event.target.closest?.('dialog, [role="dialog"]');
+      if (
+        overlay &&
+        overlay !== dialog &&
+        (dialog.open || dialog.getClientRects().length)
+      ) {
+        recordOwnerEdit(event);
+      }
+    };
+    document.addEventListener('input', recordOverlayEdit, true);
+    document.addEventListener('change', recordOverlayEdit, true);
+    document.addEventListener(
+      'click',
+      (event) => {
+        if (
+          event.target.closest?.('button, [role="option"], [role="menuitem"]')
+        ) {
+          recordOverlayEdit(event);
+        }
+      },
+      true
+    );
     dialog.addEventListener(
       'click',
       (event) => {

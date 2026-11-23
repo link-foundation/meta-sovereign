@@ -46,7 +46,11 @@ const jobFrom = (item, role, grouped, url) => {
   const media = marks.filter((mark) => {
     try {
       const host = new URL(mark.href).hostname;
-      return host !== 'linkedin.com' && !host.endsWith('.linkedin.com');
+      return (
+        mark.kind !== 'description' &&
+        host !== 'linkedin.com' &&
+        !host.endsWith('.linkedin.com')
+      );
     } catch {
       return false;
     }

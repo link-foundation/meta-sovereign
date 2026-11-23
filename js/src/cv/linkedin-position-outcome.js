@@ -2,6 +2,7 @@ import { isDeepStrictEqual } from 'node:util';
 import { modelFingerprint } from '../automation/answer-model-context.js';
 import { linkedinExperienceGate } from './linkedin-experience-dom.js';
 import { readLinkedinPositionExperience } from './linkedin-position-native.js';
+import { linkedinPositionMediaUrl } from './linkedin-position-media-link.js';
 import {
   linkedinPositionSkillKey,
   linkedinPositionValues,
@@ -136,11 +137,18 @@ const freshObservation = async (context) => {
   }
 };
 
-const positionInNewExport = (plan, before, document, appliedSkills) => {
+const positionInNewExport = (
+  plan,
+  before,
+  document,
+  appliedSkills,
+  appliedMedia
+) => {
   if (
     plan.operation === 'update' &&
     !Object.keys(plan.fields).length &&
-    !appliedSkills.length
+    !appliedSkills.length &&
+    !appliedMedia
   ) {
     return null;
   }
@@ -163,11 +171,23 @@ const positionInNewExport = (plan, before, document, appliedSkills) => {
       names.has(linkedinPositionSkillKey(name))
     );
   };
+  const hasMedia = (job) =>
+    !appliedMedia ||
+    [...(previous?.media ?? []), appliedMedia].every((item) => {
+      const url = linkedinPositionMediaUrl(item.url);
+      return (job.media ?? []).some(
+        (candidate) =>
+          (url
+            ? linkedinPositionMediaUrl(candidate.url) === url
+            : candidate.url === item.url) && candidate.title === item.title
+      );
+    });
   const candidates = document.jobs.filter(
     (job) =>
       sameEditor(job.native.positionEditor) &&
       isDeepStrictEqual(linkedinPositionValues(job), plan.desired) &&
-      hasSkills(job)
+      hasSkills(job) &&
+      hasMedia(job)
   );
   return candidates.length === 1 ? candidates[0] : null;
 };
@@ -175,11 +195,13 @@ const positionInNewExport = (plan, before, document, appliedSkills) => {
 export const verifyLinkedinPositionSave = async (context) => {
   const { document, raw } = await freshObservation(context);
   const skills = context.skills?.applied ?? [];
+  const media = context.media?.applied ?? null;
   const job = positionInNewExport(
     context.plan,
     context.before,
     document,
-    skills
+    skills,
+    media
   );
   if (!job) {
     return null;
@@ -191,5 +213,6 @@ export const verifyLinkedinPositionSave = async (context) => {
     editor: job.native.positionEditor,
     values: linkedinPositionValues(job),
     ...(skills.length && { skills }),
+    ...(media && { media }),
   };
 };

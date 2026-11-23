@@ -65,7 +65,9 @@ Stop and navigation. The shared CV view shows the proposed fields, asks for
 separate approval and recovers the exact job after a lost Start reply or phone
 reload. Native Chromium tests verify selecting an exact existing skill,
 preserving other skills, a skill-only Save and a stale result that leaves the
-Save unconfirmed. Native media selection and an interactive queue remain
-required in this direction.
+Save unconfirmed. Native Chromium also covers an exact website preview with
+no position Save during preparation, duplicate suppression and confirmation
+through a fresh export. URL-derived media titles, an interactive queue and
+authenticated verification remain required in this direction.
 Authenticated provider verification, complete HH/About acquisition and every
 remaining item above stay required; HH21 remains unfinished.

@@ -10,6 +10,7 @@ import {
   linkedinExportKey,
 } from './linkedin-experience-record.js';
 import { linkedinPositionEditorUrl } from './linkedin-position-editor-url.js';
+import { linkedinPositionMediaCandidate } from './linkedin-position-media-link.js';
 
 export const linkedinPositionFailure = (reason) =>
   Object.assign(new Error('The LinkedIn position review was not confirmed.'), {
@@ -128,21 +129,6 @@ const newSkills = (proposal) => {
   return { names: add.slice(0, 100), limited: limited || add.length > 100 };
 };
 
-const mediaUrl = (value) => {
-  if (typeof value !== 'string' || value.length > 2000) {
-    return null;
-  }
-  try {
-    const url = new URL(value);
-    return ['http:', 'https:'].includes(url.protocol) &&
-      !url.username &&
-      !url.password
-      ? url.href
-      : null;
-  } catch {
-    return null;
-  }
-};
 const proposedFields = (job, notes) => {
   const fields = {};
   for (const { field, ready, after } of job.fields) {
@@ -196,20 +182,16 @@ const positionFields = (job) => {
   if (skillProposal && (!skills || skills.limited)) {
     notes.push({ field: 'skills', reason: 'manual-review' });
   }
-  const website = job.source.native?.website;
-  const url = mediaUrl(website);
-  if (website && !url) {
+  const media = linkedinPositionMediaCandidate(job);
+  if (media.review) {
     notes.push({ field: 'media', reason: 'manual-review' });
   }
-  const existingMedia = (job.target?.media ?? []).some(
-    (item) => mediaUrl(item.url) === url
-  );
   return {
     baseline,
     fields,
     desired,
     skills: skills?.names ?? [],
-    media: url && !existingMedia ? { url, title: desired.company } : null,
+    media: media.url ? { url: media.url, title: desired.company } : null,
     notes,
   };
 };

@@ -3,6 +3,7 @@ import { useT } from './i18n.js';
 import { RecordDetails } from './cv-experience-view.js';
 import { Comparison } from './cv-translation-panel.js';
 import { CvExperienceWorkplaceStage } from './cv-experience-workplace-stage.js';
+import { linkedinPositionMediaCandidate } from '../cv/linkedin-position-media-link.js';
 
 const el = React.createElement;
 const value = (input) =>
@@ -167,7 +168,8 @@ export const CvExperiencePlanView = ({
           ((item.kind === 'add' && plan.profile.target?.positionEditor) ||
             (item.kind === 'update' &&
               item.target?.native?.positionEditor &&
-              item.fields.length));
+              (item.fields.length ||
+                linkedinPositionMediaCandidate(item).url)));
         return el(
           PlanItem,
           { key: index, item },

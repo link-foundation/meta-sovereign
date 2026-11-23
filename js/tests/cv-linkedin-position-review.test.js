@@ -20,6 +20,44 @@ import {
   authorizedLinkedinPosition,
   createLinkedinPositionReviews,
 } from '../src/cv/linkedin-position-review.js';
+import { linkedinPositionMediaCandidate } from '../src/cv/linkedin-position-media-link.js';
+
+test('only an unambiguous explicit website becomes a media attachment', () => {
+  const url = 'https://example.test/portfolio?mode=work#samples';
+  assert.deepEqual(
+    linkedinPositionMediaCandidate({
+      source: {
+        description: `Prose\nWebsite: example.test/portfolio?mode=work#samples\nСайт: ${url}`,
+      },
+    }),
+    { url, review: false }
+  );
+  assert.deepEqual(
+    linkedinPositionMediaCandidate({
+      source: { native: { website: url } },
+      target: { media: [{ url }] },
+    }),
+    { url: null, review: false }
+  );
+  assert.deepEqual(
+    linkedinPositionMediaCandidate({
+      source: { description: `Website: ${url}\nСайт: https://other.test/` },
+    }),
+    { url: null, review: true }
+  );
+  assert.deepEqual(
+    linkedinPositionMediaCandidate({
+      source: { native: { website: 'https://user:pass@example.test/' } },
+    }),
+    { url: null, review: true }
+  );
+  assert.deepEqual(
+    linkedinPositionMediaCandidate({
+      source: { description: `More details at ${url}` },
+    }),
+    { url: null, review: false }
+  );
+});
 
 test('stage and approve only the selected native LinkedIn position or Add link', async () => {
   const fixture = await linkedinPositionReviewFixture();

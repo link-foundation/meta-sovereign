@@ -3,6 +3,7 @@ import { copyExperienceData } from './experience.js';
 import { PrivateCvJob } from './private-job.js';
 import { createLinkedinPositionNative } from './linkedin-position-native.js';
 import { linkedinPositionEditorUrl } from './linkedin-position-editor-url.js';
+import { linkedinPositionMediaUrl } from './linkedin-position-media-link.js';
 import { linkedinPositionPending } from './linkedin-position-receipt.js';
 import {
   linkedinPositionFingerprint,
@@ -42,6 +43,7 @@ const newRecord = (requestId, options = null) => ({
   unapplied: [],
   preparedSkills: [],
   unresolvedSkills: [],
+  preparedMedia: null,
   canSave: false,
   save: null,
   initiator: null,
@@ -75,19 +77,35 @@ const validSkillNames = (names) =>
   Array.isArray(names) &&
   names.length <= 100 &&
   names.every((name) => typeof name === 'string' && name.length <= 100);
+const validMedia = (media) =>
+  media === null ||
+  (typeof media?.url === 'string' &&
+    linkedinPositionMediaUrl(media.url) === media.url &&
+    typeof media.title === 'string' &&
+    media.title.length > 0 &&
+    media.title.length <= 500);
 const validPreparation = ({
   preparedSkills = [],
   unresolvedSkills = [],
+  preparedMedia = null,
   canSave = false,
 }) =>
   typeof canSave === 'boolean' &&
   validSkillNames(preparedSkills) &&
-  validSkillNames(unresolvedSkills);
-const validJobSave = ({ save, phase, initiator, preparedSkills = [] }) =>
+  validSkillNames(unresolvedSkills) &&
+  validMedia(preparedMedia);
+const validJobSave = ({
+  save,
+  phase,
+  initiator,
+  preparedSkills = [],
+  preparedMedia = null,
+}) =>
   phase === 'saved'
     ? verifiedSave(save) &&
       Boolean(initiator) &&
-      JSON.stringify(save.skills ?? []) === JSON.stringify(preparedSkills)
+      JSON.stringify(save.skills ?? []) === JSON.stringify(preparedSkills) &&
+      JSON.stringify(save.media ?? null) === JSON.stringify(preparedMedia)
     : save === null;
 const checked = (value, id) => {
   const row = copyExperienceData(value);
@@ -187,24 +205,29 @@ const dispatchDecision = async (
 };
 
 const observePrepared = async (owned, update, context) => {
-  const { plan, skills = { applied: [], unapplied: plan.skills } } = context;
+  const {
+    plan,
+    skills = { applied: [], unapplied: plan.skills },
+    media = { applied: null, unresolved: Boolean(plan.media) },
+  } = context;
   const unapplied = [
     ...(skills.unapplied.length ? ['skills'] : []),
-    ...(plan.media ? ['media'] : []),
+    ...(media.unresolved ? ['media'] : []),
   ];
   const canSave = Boolean(
-    Object.keys(plan.fields).length || skills.applied.length
+    Object.keys(plan.fields).length || skills.applied.length || media.applied
   );
   const preparation = {
     unapplied,
     canSave,
     preparedSkills: skills.applied,
     unresolvedSkills: skills.unapplied,
+    preparedMedia: media.applied,
   };
-  if (!canSave && !plan.media) {
+  if (!canSave) {
     const disposition = await dispatchDecision('skip', context, update, null);
     if (disposition !== 'skipped') {
-      throw linkedinPositionFailure('skill-review');
+      throw linkedinPositionFailure('owner-draft');
     }
     return {
       phase: 'no-changes',
@@ -216,6 +239,7 @@ const observePrepared = async (owned, update, context) => {
   const choice = await waitForChoice(owned, context);
   if (choice === 'save') {
     await context.skills?.confirm();
+    await media.confirm?.();
   }
   const outcome = ['save', 'skip'].includes(choice)
     ? await dispatchDecision(choice, context, update)

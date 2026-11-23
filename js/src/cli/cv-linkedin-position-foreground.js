@@ -47,6 +47,11 @@ export const foregroundLinkedinPosition = async (
             `Review these skills in LinkedIn: ${value.unresolvedSkills.join(', ')}.`
           );
         }
+        if (value.preparedMedia) {
+          notice(
+            `Prepared media: ${value.preparedMedia.title} (${value.preparedMedia.url}).`
+          );
+        }
         if (value.unapplied.length) {
           notice(`Manual review required for ${value.unapplied.join(', ')}.`);
         }

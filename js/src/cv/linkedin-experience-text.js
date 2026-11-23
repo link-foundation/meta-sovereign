@@ -66,7 +66,8 @@ const roleFrom = (raw, grouped) => {
     ],
     descriptions: body.filter(
       (line) =>
-        !skills.includes(line) && !marks.some((mark) => mark.text === line)
+        !skills.includes(line) &&
+        !marks.some((mark) => mark.kind !== 'description' && mark.text === line)
     ),
     marks,
     ...(raw.editors && { editors: raw.editors }),

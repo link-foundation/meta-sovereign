@@ -47,6 +47,8 @@ export const readLinkedinExperienceDocument = () => {
         href: node.href,
       }));
   const links = 'a[href][aria-label]';
+  const descriptionSelector =
+    '.inline-show-more-text, .pv-shared-text-with-see-more';
   const text = (node, lines = false, own = false) => {
     if (!node) {
       return '';
@@ -76,6 +78,15 @@ export const readLinkedinExperienceDocument = () => {
       (node) => node.closest(entity) === root
     );
   const first = (root, selector) => text(own(root, selector)[0]);
+  const mark = (node) => ({
+    text:
+      text(node) ||
+      node.getAttribute('aria-label') ||
+      node.querySelector('img')?.alt ||
+      '',
+    href: node.href,
+    ...(node.closest(descriptionSelector) && { kind: 'description' }),
+  });
   const read = (root) => ({
     id:
       root.getAttribute('data-entity-urn') ??
@@ -89,10 +100,7 @@ export const readLinkedinExperienceDocument = () => {
       .map((node) => text(node))
       .filter(Boolean),
     period: first(root, '.pvs-entity__caption-wrapper'),
-    descriptions: own(
-      root,
-      '.inline-show-more-text, .pv-shared-text-with-see-more'
-    )
+    descriptions: own(root, descriptionSelector)
       .filter(
         (node, index, nodes) =>
           !nodes.some((other, j) => j !== index && other.contains(node))
@@ -105,7 +113,7 @@ export const readLinkedinExperienceDocument = () => {
           node.closest(entity) === root ||
           !node.closest(entity)?.querySelector('.pvs-entity__caption-wrapper')
       )
-      .map((node) => ({ text: text(node), href: node.href })),
+      .map(mark),
     editors: editorLinks(own(root, links)),
     text: text(root),
   });
@@ -118,11 +126,7 @@ export const readLinkedinExperienceDocument = () => {
       node.getClientRects().length && !node.parentElement?.closest(cardSelector)
   );
   const fallback = (card) => {
-    const marks = (node) =>
-      [...node.querySelectorAll('a[href]')].map((link) => ({
-        text: text(link),
-        href: link.href,
-      }));
+    const marks = (node) => [...node.querySelectorAll('a[href]')].map(mark);
     const editors = (root) =>
       editorLinks(
         [...root.querySelectorAll(links)].filter((link) => {

@@ -34,6 +34,11 @@ export const linkedinPositionReviewBrowserFixture = async () => {
           unapplied: [],
           confirm: async () => {},
         },
+        media: {
+          applied: plan.media,
+          unresolved: false,
+          confirm: async () => {},
+        },
       });
     } finally {
       counters.detached++;

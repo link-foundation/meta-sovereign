@@ -8,6 +8,7 @@ import {
 import { verifyLinkedinAcquisition } from '../../../experiments/issue-56/linkedin-acquisition-native.mjs';
 import { verifyLinkedinPositionNative } from '../../../experiments/issue-56/linkedin-position-native.mjs';
 import { verifyLinkedinPositionJob } from '../../../experiments/issue-56/linkedin-position-job-native.mjs';
+import { verifyLinkedinPositionMedia } from '../../../experiments/issue-56/linkedin-position-media-native.mjs';
 import { linkedinPositionReviewBrowserFixture } from '../../../experiments/issue-56/linkedin-position-review-browser-fixture.mjs';
 import { inspectLinkedinPositionReview } from '../../../experiments/issue-56/linkedin-position-review-inspect.mjs';
 
@@ -38,6 +39,7 @@ export const verifyCvLinkedinExperience = async (browser) => {
   const native = await verifyLinkedinAcquisition(browser);
   const position = await verifyLinkedinPositionNative(browser);
   const positionJob = await verifyLinkedinPositionJob(browser);
+  const positionMedia = await verifyLinkedinPositionMedia(browser);
   const positionReview = await verifyCvLinkedinPositionReview(browser);
   const fixture = await linkedinExperienceBrowserFixture();
   const context = await browser.newContext({ acceptDownloads: true });
@@ -50,6 +52,7 @@ export const verifyCvLinkedinExperience = async (browser) => {
       native,
       position,
       positionJob,
+      positionMedia,
       positionReview,
       ui: await inspectLinkedinExperience(
         page,

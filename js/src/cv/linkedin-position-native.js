@@ -10,7 +10,9 @@ import {
   fillLinkedinPosition,
   linkedinPositionForm,
 } from './linkedin-position-fields.js';
+import { linkedinPositionMediaUrl } from './linkedin-position-media-link.js';
 import { linkedinPositionFailure } from './linkedin-position-plan.js';
+import { fillLinkedinPositionMedia } from './linkedin-position-media.js';
 import {
   fillLinkedinPositionSkills,
   readLinkedinProfileSkills,
@@ -188,11 +190,24 @@ export const createLinkedinPositionNative =
         wait,
         signal,
       });
-      if (!eligible.length && !plan.media && !Object.keys(plan.fields).length) {
+      const current = before.jobs.find(
+        (job) => job.native.positionEditor === plan.editor
+      );
+      const mediaAlreadyPresent =
+        plan.media &&
+        current?.media.some(
+          ({ url }) => linkedinPositionMediaUrl(url) === plan.media.url
+        );
+      const pendingMedia = mediaAlreadyPresent ? null : plan.media;
+      if (
+        !eligible.length &&
+        !pendingMedia &&
+        !Object.keys(plan.fields).length
+      ) {
         return {
           phase: 'no-changes',
           code: 'cv-linkedin-position-note',
-          unapplied: ['skills'],
+          unapplied: plan.skills.length ? ['skills'] : [],
           unresolvedSkills: plan.skills,
         };
       }
@@ -217,6 +232,16 @@ export const createLinkedinPositionNative =
         wait,
         signal,
       });
+      const media = await fillLinkedinPositionMedia({
+        session,
+        plan: { ...plan, media: pendingMedia },
+        token,
+        form,
+        controls: draft,
+        check,
+        wait,
+        signal,
+      });
       return await withPrepared({
         session,
         token,
@@ -224,6 +249,7 @@ export const createLinkedinPositionNative =
         controls: draft,
         before,
         skills,
+        media,
         check,
         wait,
         now,

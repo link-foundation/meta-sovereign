@@ -17,7 +17,12 @@ import {
   linkedinPositionReviewFixture,
 } from './linkedin-position-review-fixture.mjs';
 
-const until = async (jobs, input, expected, trace) => {
+export const waitForLinkedinPositionPhase = async (
+  jobs,
+  input,
+  expected,
+  trace
+) => {
   const deadline = Date.now() + 12000;
   let last;
   while (Date.now() < deadline) {
@@ -33,6 +38,8 @@ const until = async (jobs, input, expected, trace) => {
     `LinkedIn position job did not reach ${expected}. ${JSON.stringify({ last, trace })}`
   );
 };
+
+const until = waitForLinkedinPositionPhase;
 
 export const verifyLinkedinPositionJob = async (browser) => {
   const fixture = await linkedinPositionReviewFixture();

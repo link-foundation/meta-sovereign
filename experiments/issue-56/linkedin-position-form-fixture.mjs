@@ -107,7 +107,7 @@ document.querySelector('form').addEventListener('submit', async (event)=>{
   window.fixtureSaves = (window.fixtureSaves || 0) + 1;
   if (${Boolean(actions)}) {
     const description = document.querySelector('#description').innerText;
-    const body = skillInput ? JSON.stringify({description, skills: Array.from(document.querySelectorAll('#skills input:checked'), node => node.value)}) : description;
+    const body = window.fixtureMedia ? JSON.stringify({description, media: window.fixtureMedia}) : skillInput ? JSON.stringify({description, skills: Array.from(document.querySelectorAll('#skills input:checked'), node => node.value)}) : description;
     await fetch('/fixture-position-save', {method: 'POST', body});
     position.close();
     const notice = document.createElement('p');

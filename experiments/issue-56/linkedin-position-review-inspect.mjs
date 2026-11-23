@@ -74,6 +74,12 @@ export const inspectLinkedinPositionReview = async (page, config) => {
     (await panel.innerText()).includes('Reviewed description.'),
     'Shows the reviewed replacement'
   );
+  check(
+    (await panel.innerText()).includes(
+      'Proposed media link: Fixture Company (https://example.test/portfolio?mode=work)'
+    ),
+    'Shows the exact proposed media URL and title'
+  );
   await capture(panel, 'position-review');
   await control('approve').click();
   await control('start').waitFor();
@@ -96,6 +102,12 @@ export const inspectLinkedinPositionReview = async (page, config) => {
       'Selected in the LinkedIn draft: PostgreSQL'
     ),
     'The follow-up clearly distinguishes a prepared skill from a proposal'
+  );
+  check(
+    (await panel.innerText()).includes(
+      'Attached in the LinkedIn draft: Fixture Company (https://example.test/portfolio?mode=work)'
+    ),
+    'The prepared draft exposes the exact attached URL and title'
   );
   await page.unroute('**/api/cv/experience/linkedin-position-start');
   check(
