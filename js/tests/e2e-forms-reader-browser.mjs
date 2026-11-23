@@ -7,6 +7,7 @@ import {
 } from './helpers/e2e-assignment-standalone.mjs';
 import { verifyAssignmentSourceDocument } from './helpers/e2e-assignment-source-document.mjs';
 import { assignmentPublisherFixture } from '../../experiments/issue-56/assignment-publisher-fixture.mjs';
+import { vacancySnapshot } from '../../experiments/issue-56/assignment-vacancy-fixture.mjs';
 import {
   assignmentSourceBrowserFixture,
   withAssignmentSourceModel,
@@ -80,6 +81,7 @@ await seedSubjectAnswers(store);
 await seedFormPay(store);
 const owned = [];
 const sourceReads = [];
+const vacancyReads = [];
 const modelCalls = [];
 const publication = await assignmentPublisherFixture();
 const standalonePublication = await assignmentPublisherFixture();
@@ -125,6 +127,10 @@ try {
         stop: async () => {},
       },
       forms: {
+        readAssignmentVacancy: async (url) => {
+          vacancyReads.push(url);
+          return vacancySnapshot;
+        },
         readAssignmentSource: assignmentSourceBrowserFixture({
           store,
           browser: () => app.page.context().browser(),
@@ -394,6 +400,7 @@ const runFormChecks = async (checks) => {
       publication,
       standalonePublication,
       sourceReads,
+      vacancyReads,
     });
     console.log('[forms-scenario]', verify.name, Date.now() - started);
   }
@@ -454,6 +461,7 @@ const verifyCustomOnly = async ({ page, until }) => {
       publication,
       standalonePublication,
       sourceReads,
+      vacancyReads,
     });
     return true;
   }

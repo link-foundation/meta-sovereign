@@ -3,6 +3,7 @@ import { seedFormPay } from './forms-pay-fixture.mjs';
 import { savedBaselineRule } from './salary-saved-baseline-fixture.mjs';
 import { saveAnswerRule } from '../../js/src/automation/question-store.js';
 import { assignmentPublisherFixture } from './assignment-publisher-fixture.mjs';
+import { vacancySnapshot } from './assignment-vacancy-fixture.mjs';
 import {
   assignmentSourceBrowserFixture,
   withAssignmentSourceModel,
@@ -137,6 +138,7 @@ if (
 const browsers = new Set();
 const reads = [];
 const sourceReads = [];
+const vacancyReads = [];
 let server;
 try {
   server = await startServer({
@@ -161,7 +163,15 @@ try {
         browser: () => [...browsers][0],
         records: sourceReads,
       }),
-      ...(publication ? { assignmentGithub: publication.github } : {}),
+      ...(publication
+        ? {
+            assignmentGithub: publication.github,
+            readAssignmentVacancy: async (url) => {
+              vacancyReads.push(url);
+              return vacancySnapshot;
+            },
+          }
+        : {}),
       verifyAssignmentRepository: verifyAssignmentFixture,
       review: {
         learning: {
@@ -389,6 +399,7 @@ try {
         ? {
             publication: {
               calls: publication.state.calls,
+              vacancyReads,
               modelCalls: publication.state.modelCalls.length,
               repositories: publication.state.repository ? 1 : 0,
               issues: publication.state.issues.length,

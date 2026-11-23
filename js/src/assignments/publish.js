@@ -271,7 +271,11 @@ export const publishAssignment = async ({ store, github, signal }, input) => {
   }
   const current = await assertCurrent(store, draft, signal);
   checkAssignmentRestatement({
-    original: assignmentOriginal(current, source),
+    original: assignmentOriginal(
+      current,
+      source,
+      draft.vacancyEvidence.vacancy
+    ),
     employers,
     title: draft.title,
     body: draft.body,

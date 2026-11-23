@@ -6,6 +6,8 @@ Enable the local draft model in Questions/Forms settings first. GitHub publicati
 
 A vacancy URL opens a separate owned browser using the saved `assignments` browser policy and headed default. Log in manually when needed. The reader captures visible title, employer, skills and description, closes its browser and caches only a successful read. Refresh is explicit. An exact form link in actual saved HH messages can supply the vacancy, including original/redirect URL aliases. Conflicting vacancy associations require an explicit URL. No chat association means the preview discloses unavailable vacancy context and the model chooses a fitting supported stack.
 
+The vacancy field, CLI `--vacancy` and Lino `vacancyUrl` accept an HH URL or a numeric ID such as `12345`. The saved review shows the canonical HH link. Restoring or recovering the same draft keeps its reviewed vacancy and capture time. The issue copy check covers six consecutive words from the private vacancy description as well as form and linked instructions.
+
 Use **Instruction document URL** when the form links to a separate HTML or plain-text task. Its visible instructions are read in a separate owned browser using the same saved visibility policy. Review the resolved page title and capture time beside the draft. The private saved draft retains the captured text and fingerprint; restore and publication use that snapshot without rereading the page. Hidden text, editable answers and form values are excluded. Login, verification, HTTP errors, PDF/canvas/embedded documents and text exceeding the finite limits refuse before model execution. Supply a readable text version for those documents. This reader does not automatically follow further document links.
 
 The current primary **Recommended CI/CD Templates** table in Hive Mind is read before the built-in fallback. The preview identifies fallback use. An explicitly named role language takes precedence over incidental technologies. Actual GitHub templates use `gh repo create --template`; other template repositories are cloned with their history and pushed. Existing target files are preserved while missing workflows and template history are added. A target that already has a pipeline retains it. Reruns update the uniquely marked assignment issue and repair a missing pipeline after a fresh preview.
@@ -22,7 +24,7 @@ Use a saved inspection from `forms-read`, or inspect an actual form with `--url`
 
 ```sh
 meta-sovereign test-assignment task-name --file=inspection.json --vacancy=https://hh.ru/vacancy/12345 --visibility=private --employer='Employer alias' --dry-run --store=./store
-meta-sovereign test-assignment owner/task-name --file=inspection.json --vacancy=https://hh.ru/vacancy/12345 --visibility=private --store=./store
+meta-sovereign test-assignment owner/task-name --file=inspection.json --vacancy=12345 --visibility=private --store=./store
 meta-sovereign test-assignment owner/task-name --file=inspection.json --source=https://example.org/instructions --language=python --dry-run --store=./store
 meta-sovereign test-assignment owner/task-name --from=instructions.txt --dry-run --store=./store
 cat instructions.txt | meta-sovereign test-assignment owner/task-name --from=- --dry-run --store=./store
@@ -30,7 +32,7 @@ meta-sovereign test-assignment owner/task-name --source=https://example.org/inst
 meta-sovereign test-assignment --draft-id=assignment-draft:UUID --store=./store
 ```
 
-A bare name resolves the authenticated owner, or accepts `--owner`. Private visibility is the default. `--dry-run` saves and prints the preview. Without it the CLI publishes the generated draft. Recover the exact printed `draft.id` with `--draft-id`; recovery does not run the model again. An explicit `--vacancy-snapshot` accepts a bounded Lino snapshot with `title`, `description`, `company` and `skills`; choose a snapshot or URL. `--refresh-vacancy=true` rereads a URL. SIGINT/SIGTERM stop and drain owned model, browser and command work before the store closes.
+A bare name resolves the authenticated owner, or accepts `--owner`. Private visibility is the default. `--dry-run` saves and prints the preview. Without it the CLI publishes the generated draft. Recover the exact printed `draft.id` with `--draft-id`; recovery does not run the model again. `--vacancy-snapshot` accepts a bounded Lino snapshot with `title`, `description`, `company` and `skills` in place of `--vacancy`. `--refresh-vacancy=true` rereads the canonical URL for a new draft. SIGINT/SIGTERM stop and drain owned model, browser and command work before the store closes.
 
 `--from=<form-url>` is an alias for `--url`. A local file or piped `--from=-` accepts UTF-8 instructions up to 30,000 characters. An instruction `--source` used alone selects a standalone document. A `--source` used with a form records the linked document alongside the form instructions.
 

@@ -1,3 +1,10 @@
+2026-11-23 assignment vacancy evidence (QA24 remains unfinished):
+
+- [x] Compare the donor command's bare HH vacancy ID and its six-word check against assignment and vacancy text. The shared CLI accepts only URLs and freezes a vacancy fingerprint without checking it or covering its description in the public issue check.
+- [x] Reproduce across the publisher, CLI and both Lino formats, preserve existing URL and automatic provenance, and keep the source stable in the localized Forms review and recovery controls.
+- [x] Run the exact parent replay and revised checks. Six cases fail on the parent with one passing URL control. Each runtime passes 116 tests. Production Chromium and independent MCP preserve the canonical review, refuse changes and record zero employer submissions.
+- [ ] Review hosted checks on the published vacancy change. Active form slots and the remaining QA24 requirements still need evidence.
+
 2026-11-23 standalone assignment inputs (QA24 remains unfinished):
 
 - [x] Read the pinned assignment CLI and requirements B16–B22. Its `--from` accepts a selected form URL, a text file or stdin. The current command only identifies form inspections, so files and stdin never reach the shared reviewed publisher.

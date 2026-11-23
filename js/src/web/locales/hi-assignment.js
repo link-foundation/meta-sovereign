@@ -19,7 +19,7 @@ export const hiAssignment = {
   'assignment.visibility': 'रिपॉज़िटरी की दृश्यता',
   'assignment.visibility.private': 'निजी',
   'assignment.visibility.public': 'सार्वजनिक',
-  'assignment.vacancy': 'HH रिक्ति का URL (वैकल्पिक)',
+  'assignment.vacancy': 'HH रिक्ति का URL या आईडी (वैकल्पिक)',
   'assignment.refresh': 'सहेजे गए स्नैपशॉट की जगह रिक्ति फिर से पढ़ें',
   'assignment.employers':
     'हटाने के लिए नियोक्ता के अन्य नाम (हर पंक्ति में एक)',

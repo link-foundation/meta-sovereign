@@ -9,6 +9,7 @@ import { checkSavedAssignmentSource } from './source.js';
 import { assignmentFormUrl } from '../forms/assignment-recognition.js';
 import { ASSIGNMENT_LANGUAGES } from './templates.js';
 import { standaloneAssignmentId } from './standalone.js';
+import { checkAssignmentVacancyEvidence } from './vacancy-evidence.js';
 
 export const assignmentWriteIssued = (record) =>
   Boolean(
@@ -111,6 +112,7 @@ export const readAssignmentDraft = async (store, id) => {
     );
   }
   await checkSavedAssignmentSource(record);
+  await checkAssignmentVacancyEvidence(record.draft);
   assignmentTarget(record.draft.target);
   assignmentTarget(record.draft.template);
   assignmentText(record.draft.title, 200, 'saved issue title');

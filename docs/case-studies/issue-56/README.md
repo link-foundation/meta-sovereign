@@ -365,6 +365,7 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 - [assignment-language.md](assignment-language.md) verifies explicit owner template selection, reviewed language and template readback, and recovery of the same issued draft across CLI, both Lino encodings and Forms. Eight focused parent failures, a legacy control and production Chromium/MCP screenshots are preserved.
 
 - [assignment-standalone.md](assignment-standalone.md) verifies file, stdin, pasted text and document input without a form association. Six parent failures, 110 focused tests in each runtime and production Chromium/MCP preserve private source review and same-draft recovery.
+- [assignment-vacancy-evidence.md](assignment-vacancy-evidence.md) verifies numeric HH IDs, canonical vacancy restoration and copied-description refusal through CLI, both Lino encodings and Forms. Six parent failures, 116 checks per runtime, production Chromium and independent MCP preserve the reviewed source.
 
 - [solver-authentication.md](solver-authentication.md) preserves the full public sanitized session and reconstructs the November 21 solver interruption from the exact Codex refresh error and wrapper termination.
 

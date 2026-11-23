@@ -14,6 +14,7 @@ import {
   assignmentFailure,
   assignmentTarget,
   assignmentText,
+  assignmentVacancyReference,
 } from './validation.js';
 import { checkAssignmentRestatement } from './privacy.js';
 import {
@@ -26,6 +27,7 @@ import {
 import { assignmentRepositoryReceipt } from '../forms/assignment-repository.js';
 import { writeAnswerKnowledge } from '../automation/question-knowledge.js';
 import { resolveAssignmentVacancy } from './vacancy.js';
+import { assignmentVacancyReceiptFingerprint } from './vacancy-evidence.js';
 import { resolveAssignmentSource, assignmentOriginal } from './source.js';
 import {
   saveStandaloneSelection,
@@ -256,6 +258,7 @@ export const draftAssignment = async (
   input
 ) => {
   const languageOverride = assignmentLanguageOverride(input.languageOverride);
+  const vacancyUrl = assignmentVacancyReference(input.vacancyUrl);
   const context = await draftContext(store, input);
   const { inspection, assignment } = context;
   const target = await draftTarget(store, assignment, input);
@@ -270,7 +273,7 @@ export const draftAssignment = async (
   const catalog = await loadAssignmentTemplates(github.readGuide, signal);
   const vacancyEvidence = await resolveAssignmentVacancy(
     { store, readVacancy, signal },
-    input,
+    { ...input, vacancyUrl },
     inspection
   );
   const vacancy = vacancyEvidence.vacancy;
@@ -317,12 +320,13 @@ export const draftAssignment = async (
   const body = `${assignmentText(result.body, 24000, 'issue body')}\n\n${stackSection(result, template)}`;
   const title = assignmentText(result.title, 200, 'issue title');
   checkAssignmentRestatement({
-    original: assignmentOriginal(assignment, source?.source),
+    original: assignmentOriginal(assignment, source?.source, vacancy),
     employers,
     title,
     body,
     extra: target,
   });
+  const vacancyFingerprint = await modelFingerprint(vacancy);
   const draft = {
     id: `assignment-draft:${globalThis.crypto.randomUUID()}`,
     createdAt: new Date().toISOString(),
@@ -344,7 +348,11 @@ export const draftAssignment = async (
     ...formBinding(assignment),
     modelRevision: settings.revision,
     ...(source ? { sourceEvidence: source.evidence } : {}),
-    vacancyFingerprint: await modelFingerprint(vacancy),
+    vacancyFingerprint,
+    vacancyReceiptFingerprint: await assignmentVacancyReceiptFingerprint(
+      vacancyEvidence,
+      vacancyFingerprint
+    ),
     vacancyEvidence,
     repositoryId: confirmed?.id ?? null,
     templateAction: templateAction(repository, pipeline),

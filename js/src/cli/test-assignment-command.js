@@ -109,6 +109,29 @@ const commandDraft = async ({
   ).draft;
 };
 
+const checkRecoveryOptions = (args, dryRun, languageOverride) => {
+  if (dryRun) {
+    throw new Error('Choose --draft-id to recover or --dry-run to draft.');
+  }
+  if (languageOverride !== undefined) {
+    throw new Error('The saved assignment draft already fixes its language.');
+  }
+  if (
+    args.vacancy !== undefined ||
+    args['vacancy-snapshot'] !== undefined ||
+    args['refresh-vacancy'] !== undefined
+  ) {
+    throw new Error(
+      'The saved assignment draft already fixes its vacancy context.'
+    );
+  }
+  if (args.from !== undefined || args.source !== undefined) {
+    throw new Error(
+      'The saved assignment draft already fixes its instruction source.'
+    );
+  }
+};
+
 export const testAssignmentCommand =
   ({ openStore, assignmentStdin, ...options }) =>
   async (args, log) => {
@@ -116,21 +139,9 @@ export const testAssignmentCommand =
     const languageOverride = assignmentLanguageOverride(args.language);
     const source = assignmentSourceArguments(args);
     const name = args._?.[0];
-    if (args['draft-id'] && dryRun) {
-      throw new Error('Choose --draft-id to recover or --dry-run to draft.');
-    }
-    if (args['draft-id'] && languageOverride !== undefined) {
-      throw new Error('The saved assignment draft already fixes its language.');
-    }
-    if (
-      args['draft-id'] &&
-      (args.from !== undefined || args.source !== undefined)
-    ) {
-      throw new Error(
-        'The saved assignment draft already fixes its instruction source.'
-      );
-    }
-    if (!args['draft-id']) {
+    if (args['draft-id']) {
+      checkRecoveryOptions(args, dryRun, languageOverride);
+    } else {
       assignmentTarget(name?.includes('/') ? name : `owner/${name ?? ''}`);
     }
     const store = await openStore(args.store ?? defaultStoreDir());

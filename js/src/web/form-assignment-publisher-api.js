@@ -1,6 +1,6 @@
 import {
   assignmentTarget,
-  assignmentVacancyUrl,
+  assignmentVacancyReference,
   assignmentSourceUrl,
 } from '../assignments/validation.js';
 import { assignmentRepositoryConfirmed } from '../forms/assignment-repository.js';
@@ -14,6 +14,7 @@ import {
   providedAssignmentFingerprint,
 } from '../assignments/source.js';
 import { standaloneAssignmentId } from '../assignments/standalone.js';
+import { checkAssignmentVacancyEvidence } from '../assignments/vacancy-evidence.js';
 
 const unconfirmed = () =>
   Object.assign(new Error('The assignment result was not confirmed.'), {
@@ -70,25 +71,29 @@ const validDraftIdentity = async (draft, input) => {
     draft.assignmentRevision === input.revision
   );
 };
-const validDraft = async (draft, input) => {
-  if (
-    draft?.vacancyEvidence?.url &&
-    assignmentVacancyUrl(draft.vacancyEvidence.url) !==
-      draft.vacancyEvidence.url
-  ) {
-    return false;
+const validDraft = async (draft, input) =>
+  draft?.target === input.target &&
+  (await validDraftIdentity(draft, input)) &&
+  (await validSource(draft.sourceEvidence, input)) &&
+  validLanguage(draft, input.languageOverride) &&
+  draft.visibility === input.visibility &&
+  publicText(draft.title, 200) &&
+  publicText(draft.body, 24000) &&
+  ['live', 'fallback'].includes(draft.catalogSource) &&
+  ['create', 'merge', 'keep'].includes(draft.templateAction);
+const confirmVacancy = async (draft, requested) => {
+  try {
+    await checkAssignmentVacancyEvidence(draft);
+  } catch {
+    throw unconfirmed();
   }
-  return (
-    draft?.target === input.target &&
-    (await validDraftIdentity(draft, input)) &&
-    (await validSource(draft.sourceEvidence, input)) &&
-    validLanguage(draft, input.languageOverride) &&
-    draft.visibility === input.visibility &&
-    publicText(draft.title, 200) &&
-    publicText(draft.body, 24000) &&
-    ['live', 'fallback'].includes(draft.catalogSource) &&
-    ['create', 'merge', 'keep'].includes(draft.templateAction)
-  );
+  if (
+    requested !== undefined &&
+    (draft.vacancyEvidence.source !== 'url' ||
+      draft.vacancyEvidence.url !== assignmentVacancyReference(requested))
+  ) {
+    throw unconfirmed();
+  }
 };
 const confirmedDraft = async (result, input) => {
   const draft = result?.draft;
@@ -104,6 +109,7 @@ const confirmedDraft = async (result, input) => {
   }
   assignmentTarget(draft.template);
   assignmentTarget(draft.target);
+  await confirmVacancy(draft, input.vacancyUrl);
   return result;
 };
 export const draftFormAssignment = async (report, input) => {

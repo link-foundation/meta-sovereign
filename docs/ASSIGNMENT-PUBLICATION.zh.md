@@ -22,12 +22,14 @@
 
 ```sh
 meta-sovereign test-assignment task-name --file=inspection.json --vacancy=https://hh.ru/vacancy/12345 --visibility=private --employer='Employer alias' --dry-run --store=./store
-meta-sovereign test-assignment owner/task-name --file=inspection.json --vacancy=https://hh.ru/vacancy/12345 --visibility=private --store=./store
+meta-sovereign test-assignment owner/task-name --file=inspection.json --vacancy=12345 --visibility=private --store=./store
 meta-sovereign test-assignment owner/task-name --file=inspection.json --source=https://example.org/instructions --language=python --dry-run --store=./store
 meta-sovereign test-assignment --draft-id=assignment-draft:UUID --store=./store
 ```
 
-仅提供名称时解析当前已登录所有者，也可指定 `--owner`。默认私有。`--dry-run` 保存并打印预览，否则 CLI 发布生成的草稿。通过 `--draft-id` 恢复打印出的准确 `draft.id`，不会再次运行模型。可用有界 Lino `--vacancy-snapshot` 提供 `title`、`description`、`company`、`skills`，与职位 URL 二选一。`--refresh-vacancy=true` 重新读取 URL。SIGINT/SIGTERM 会停止并等待所属模型、浏览器和命令工作结束，然后关闭存储。
+仅提供名称时解析当前已登录所有者，也可指定 `--owner`。默认私有。`--dry-run` 保存并打印预览，否则 CLI 发布生成的草稿。通过 `--draft-id` 恢复打印出的准确 `draft.id`，不会再次运行模型。可用有界 Lino `--vacancy-snapshot` 提供 `title`、`description`、`company`、`skills`，与 `--vacancy` 二选一。`--refresh-vacancy=true` 为新草稿重新读取 URL。SIGINT/SIGTERM 会停止并等待所属模型、浏览器和命令工作结束，然后关闭存储。
+
+表单中的职位字段、CLI 的 `--vacancy` 和 Lino 的 `vacancyUrl` 接受 HH 职位网址或 `12345` 这样的数字编号。已保存的草稿显示规范的 HH 链接。恢复同一草稿时保留审核过的职位和采集时间。issue 文本检查也会检测私有职位描述中连续六个词的复制。
 
 `--from=<form-url>` 等同于 `--url`。`--from=<file>` 或通过管道传入的 `--from=-` 读取至多 30,000 字符的 UTF-8 说明。单独使用 `--source` 会选择独立文档，与表单同时使用时会记录关联文档。
 

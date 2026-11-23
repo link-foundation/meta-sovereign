@@ -20,7 +20,7 @@ export const ruAssignment = {
   'assignment.visibility': 'Видимость репозитория',
   'assignment.visibility.private': 'Приватный',
   'assignment.visibility.public': 'Публичный',
-  'assignment.vacancy': 'URL вакансии HH (необязательно)',
+  'assignment.vacancy': 'Ссылка или ID вакансии HH (необязательно)',
   'assignment.refresh': 'Прочитать вакансию заново вместо сохранённого снимка',
   'assignment.employers':
     'Дополнительные названия работодателя и варианты (по одному в строке)',

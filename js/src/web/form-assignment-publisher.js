@@ -185,7 +185,7 @@ const PublisherFields = ({
       ['public', t('assignment.visibility.public')],
     ]),
     input('vacancy', 'assignment.vacancy', vacancyUrl, setVacancyUrl, {
-      type: 'url',
+      spellCheck: false,
       maxLength: 4000,
     }),
     select('language', 'assignment.language', language, setLanguage, [
@@ -442,14 +442,17 @@ export const FormAssignmentPublisher = ({
       input: binding,
       busy,
       perform,
-      onRestored: (response) => {
-        setTarget(response.draft.target);
-        setVisibility(response.draft.visibility);
-        setLanguage(response.draft.languageOverride ?? '');
-        setSourceUrl(response.draft.sourceEvidence?.requestedUrl ?? '');
-        setSourceText(response.sourceText ?? '');
-        setDraft(response.draft);
-        setAttempted(response.attempted);
+      onRestored: ({ draft: saved, sourceText: text, attempted: issued }) => {
+        const vacancy = saved.vacancyEvidence;
+        setTarget(saved.target);
+        setVisibility(saved.visibility);
+        setLanguage(saved.languageOverride ?? '');
+        setVacancyUrl(vacancy.source === 'url' ? vacancy.url : '');
+        setRefresh(false);
+        setSourceUrl(saved.sourceEvidence?.requestedUrl ?? '');
+        setSourceText(text ?? '');
+        setDraft(saved);
+        setAttempted(issued);
         setResult(null);
       },
     }),

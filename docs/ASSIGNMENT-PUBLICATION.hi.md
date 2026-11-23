@@ -22,12 +22,14 @@
 
 ```sh
 meta-sovereign test-assignment task-name --file=inspection.json --vacancy=https://hh.ru/vacancy/12345 --visibility=private --employer='Employer alias' --dry-run --store=./store
-meta-sovereign test-assignment owner/task-name --file=inspection.json --vacancy=https://hh.ru/vacancy/12345 --visibility=private --store=./store
+meta-sovereign test-assignment owner/task-name --file=inspection.json --vacancy=12345 --visibility=private --store=./store
 meta-sovereign test-assignment owner/task-name --file=inspection.json --source=https://example.org/instructions --language=python --dry-run --store=./store
 meta-sovereign test-assignment --draft-id=assignment-draft:UUID --store=./store
 ```
 
-केवल नाम देने पर प्रमाणित मालिक चुना जाता है; `--owner` भी दे सकते हैं। डिफ़ॉल्ट दृश्यता निजी है। `--dry-run` पूर्वावलोकन सहेजकर प्रिंट करता है; इसके बिना CLI ड्राफ़्ट प्रकाशित करता है। प्रिंट किए सटीक `draft.id` को `--draft-id` से पुनर्प्राप्त करें; मॉडल फिर नहीं चलता। URL के बदले सीमित Lino `--vacancy-snapshot` में `title`, `description`, `company`, `skills` दे सकते हैं। `--refresh-vacancy=true` URL फिर पढ़ता है। SIGINT/SIGTERM मॉडल, ब्राउज़र और कमांड रोककर उनके समाप्त होने की प्रतीक्षा करते हैं, फिर स्टोर बंद होता है।
+केवल नाम देने पर प्रमाणित मालिक चुना जाता है; `--owner` भी दे सकते हैं। डिफ़ॉल्ट दृश्यता निजी है। `--dry-run` पूर्वावलोकन सहेजकर प्रिंट करता है; इसके बिना CLI ड्राफ़्ट प्रकाशित करता है। प्रिंट किए सटीक `draft.id` को `--draft-id` से पुनर्प्राप्त करें; मॉडल फिर नहीं चलता। `--vacancy` के बदले सीमित Lino `--vacancy-snapshot` में `title`, `description`, `company`, `skills` दे सकते हैं। `--refresh-vacancy=true` नए ड्राफ़्ट के लिए URL फिर पढ़ता है। SIGINT/SIGTERM मॉडल, ब्राउज़र और कमांड रोककर उनके समाप्त होने की प्रतीक्षा करते हैं, फिर स्टोर बंद होता है।
+
+फ़ॉर्म का रिक्ति फ़ील्ड, CLI का `--vacancy` और Lino का `vacancyUrl` HH रिक्ति का URL या `12345` जैसा संख्यात्मक आईडी स्वीकार करते हैं। सहेजे गए ड्राफ़्ट में HH का मानक लिंक दिखता है। उसी ड्राफ़्ट को पुनर्प्राप्त करने पर चुनी हुई रिक्ति और उसे पढ़ने का समय बरकरार रहते हैं। issue की जाँच में निजी रिक्ति विवरण के लगातार छह शब्दों की नकल भी पकड़ी जाती है।
 
 `--from=<form-url>` और `--url` समान हैं। `--from=<file>` या पाइप से `--from=-` अधिकतम 30,000 वर्णों के UTF-8 निर्देश लेता है। अकेला `--source` अलग निर्देश दस्तावेज़ चुनता है। फ़ॉर्म के साथ `--source` जुड़ा दस्तावेज़ भी दर्ज करता है।
 

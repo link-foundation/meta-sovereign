@@ -8,6 +8,10 @@ import {
 import { seedAssignmentAnswers } from '../../../experiments/issue-56/forms-assignment-fixture.mjs';
 import { readAnswerModel } from '../../src/automation/answer-model-config.js';
 import { instructionText } from '../../../experiments/issue-56/assignment-source-fixture.mjs';
+import {
+  vacancyId,
+  vacancyUrl,
+} from '../../../experiments/issue-56/assignment-vacancy-fixture.mjs';
 
 const layouts = async (page, state, locator) => {
   for (const [layout, width, height] of [
@@ -53,6 +57,8 @@ const layouts = async (page, state, locator) => {
     if (
       process.env.ASSIGNMENT_PUBLICATION_SCREENSHOTS === '1' ||
       process.env.ASSIGNMENT_PUBLICATION_BEFORE === '1' ||
+      (process.env.ASSIGNMENT_VACANCY_SCREENSHOTS === '1' &&
+        state.startsWith('vacancy-')) ||
       (process.env.ASSIGNMENT_LANGUAGE_SCREENSHOTS === '1' &&
         state.startsWith('language-'))
     ) {
@@ -80,6 +86,8 @@ const request = async (page, control, action) => {
   await control.locator(`[data-action="${action}-assignment"]`).click();
   return decoded(await pending);
 };
+const vacancyInput = (control) =>
+  control.locator('[data-assignment-publish-input="vacancy"]');
 
 const verifySourceDraft = (preview, publication, sourceUrl) => {
   assert(
@@ -132,9 +140,29 @@ const verifyDraftReview = async ({
   await control
     .locator('[data-assignment-publish-input="source"]')
     .fill(sourceUrl);
+  const vacancy = vacancyInput(control);
+  await vacancy.fill(vacancyId);
+  assert(
+    await vacancy.evaluate((node) => node.validity.valid),
+    'bare HH ID passes native validation'
+  );
+  if (process.env.ASSIGNMENT_VACANCY_SCREENSHOTS === '1') {
+    await layouts(page, 'vacancy-input', vacancy);
+  }
   const preview = await request(page, control, 'draft');
   await control.locator('[data-assignment-draft]').waitFor();
   verifySourceDraft(preview, publication, sourceUrl);
+  const vacancyReview = control.locator(
+    `[data-assignment-draft] a[href="${vacancyUrl}"]`
+  );
+  assert(
+    preview.draft.vacancyEvidence.url === vacancyUrl &&
+      (await vacancyReview.textContent()).includes('Python engineer'),
+    'bare ID resolves to the canonical vacancy link in the review'
+  );
+  if (process.env.ASSIGNMENT_VACANCY_SCREENSHOTS === '1') {
+    await layouts(page, 'vacancy-review', vacancyReview);
+  }
   const languageReview = control.locator('[data-assignment-language="python"]');
   assert(
     preview.draft.languageOverride === 'python' &&
@@ -159,11 +187,19 @@ const verifyDraftReview = async ({
     (await control.locator('[data-action="publish-assignment"]').count()) === 0,
     'changing the language clears the publish review'
   );
+  await request(page, page, 'restore');
+  await control.locator('[data-assignment-draft]').waitFor();
+  await vacancy.fill('123');
+  assert(
+    (await control.locator('[data-action="publish-assignment"]').count()) === 0,
+    'changing the vacancy clears the publish review'
+  );
   const savedPreview = await request(page, page, 'restore');
   assert(
     savedPreview.draft.id === preview.draft.id &&
-      (await language.inputValue()) === 'python',
-    'restoring a saved preview also restores its language control'
+      (await language.inputValue()) === 'python' &&
+      (await vacancy.inputValue()) === vacancyUrl,
+    'restoring a saved preview restores its language and canonical vacancy controls'
   );
   return preview.draft;
 };
@@ -201,7 +237,10 @@ const verifyRecovery = async ({
   assert(
     restored.attempted &&
       restored.draft.id === draft.id &&
-      restored.draft.languageOverride === 'python',
+      restored.draft.languageOverride === 'python' &&
+      restored.draft.vacancyReceiptFingerprint ===
+        draft.vacancyReceiptFingerprint &&
+      (await vacancyInput(control).inputValue()) === vacancyUrl,
     'reload restores the same issued draft'
   );
   await control.locator('[data-assignment-draft]').waitFor();
@@ -221,6 +260,7 @@ export const verifyAssignmentPublicationUi = async ({
   until,
   publication,
   sourceReads,
+  vacancyReads,
 }) => {
   if ((await readAnswerModel(store)).revision === null) {
     await seedAssignmentAnswers(store);
@@ -243,6 +283,21 @@ export const verifyAssignmentPublicationUi = async ({
   const language = control.locator(
     '[data-assignment-publish-input="language"]'
   );
+  if (process.env.ASSIGNMENT_VACANCY_BEFORE === '1') {
+    const vacancy = vacancyInput(control);
+    await vacancy.fill(vacancyId);
+    assert(
+      await vacancy.evaluate((node) => node.validity.typeMismatch),
+      'published parent rejects a numeric ID at native validation'
+    );
+    await layouts(page, 'vacancy-before', vacancy);
+    await closeFormReview(page, until, 'parent vacancy review closed');
+    assert(
+      vacancyReads.length === 0 && publication.state.calls.length === 0,
+      'parent probe has no vacancy or GitHub reads'
+    );
+    return;
+  }
   if (process.env.ASSIGNMENT_LANGUAGE_BEFORE === '1') {
     assert(
       (await language.count()) === 0,
@@ -288,6 +343,10 @@ export const verifyAssignmentPublicationUi = async ({
   );
   assert(publication.state.pipeline, 'actual fixture pipeline confirmed');
   assert(
+    vacancyReads.length === 1 && vacancyReads[0] === vacancyUrl,
+    'draft, restoration and publication share one acknowledged vacancy read'
+  );
+  assert(
     sourceReads.length === 1 && sourceReads.every((read) => read.closed),
     'restore and publication retain one owned source snapshot'
   );
@@ -318,6 +377,8 @@ export const verifyAssignmentPublicationUi = async ({
       repositories: 1,
       issues: 1,
       languageOverride: restored.draft.languageOverride,
+      vacancy: vacancyReads[0],
+      vacancyReads: vacancyReads.length,
       heldUntilReadback: true,
       submissions: 0,
     })

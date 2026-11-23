@@ -10,8 +10,8 @@ const validCapture = (value) =>
   value.length <= 40 &&
   Number.isFinite(Date.parse(value));
 
-export const assignmentOriginal = (assignment, source) =>
-  [assignment.description, source?.title, source?.text]
+export const assignmentOriginal = (assignment, source, vacancy) =>
+  [assignment.description, source?.title, source?.text, vacancy.description]
     .filter(Boolean)
     .join('\n');
 

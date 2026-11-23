@@ -66,6 +66,22 @@ export const assignmentVacancyUrl = (value) => {
   return `https://hh.ru/vacancy/${url.pathname.split('/')[2]}`;
 };
 
+export const assignmentVacancyReference = (value) => {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (typeof value === 'string') {
+    const reference = value.trim();
+    return /^\d{1,20}$/u.test(reference)
+      ? `https://hh.ru/vacancy/${reference}`
+      : assignmentVacancyUrl(reference);
+  }
+  throw assignmentFailure(
+    'vacancy-url',
+    'Use an HH vacancy URL or numeric ID.'
+  );
+};
+
 export const assignmentSourceUrl = (value) => {
   try {
     const url = new URL(formUrl(value));

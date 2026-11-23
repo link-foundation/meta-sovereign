@@ -2,6 +2,7 @@ import { modelFingerprint } from '../automation/answer-model-context.js';
 import {
   assignmentFailure,
   assignmentVacancy,
+  assignmentVacancyReference,
   assignmentVacancyUrl,
 } from './validation.js';
 import {
@@ -140,14 +141,16 @@ export const resolveAssignmentVacancy = async (
   if (input.vacancy !== undefined) {
     return { vacancy: assignmentVacancy(input.vacancy), source: 'provided' };
   }
-  const associated = input.vacancyUrl
+  const explicit = input.vacancyUrl !== undefined;
+  const associated = explicit
     ? null
     : await findAssociatedVacancy(store, inspection?.url);
-  const value = input.vacancyUrl ?? associated?.vacancyUrl;
-  if (!value) {
+  const url = explicit
+    ? assignmentVacancyReference(input.vacancyUrl)
+    : associated && assignmentVacancyUrl(associated.vacancyUrl);
+  if (!url) {
     return { vacancy: assignmentVacancy(), source: 'unknown' };
   }
-  const url = assignmentVacancyUrl(value);
   const saved = await vacancySnapshot(
     store,
     readVacancy,

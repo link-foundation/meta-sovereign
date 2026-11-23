@@ -19,7 +19,7 @@ export const zhAssignment = {
   'assignment.visibility': '仓库可见性',
   'assignment.visibility.private': '私有',
   'assignment.visibility.public': '公开',
-  'assignment.vacancy': 'HH 职位网址（可选）',
+  'assignment.vacancy': 'HH 职位网址或编号（可选）',
   'assignment.refresh': '重新读取职位，而不使用已保存的快照',
   'assignment.employers': '要移除的其他雇主名称或别名（每行一个）',
   'assignment.restore': '恢复已保存的草稿',

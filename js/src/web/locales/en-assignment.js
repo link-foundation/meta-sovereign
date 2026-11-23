@@ -15,7 +15,7 @@ export const enAssignment = {
   'assignment.visibility': 'Repository visibility',
   'assignment.visibility.private': 'Private',
   'assignment.visibility.public': 'Public',
-  'assignment.vacancy': 'HH vacancy URL (optional)',
+  'assignment.vacancy': 'HH vacancy URL or ID (optional)',
   'assignment.language': 'Template language',
   'assignment.language-auto': 'Use the vacancy or assignment',
   'assignment.language-owner': 'Selected by you: {language}',
