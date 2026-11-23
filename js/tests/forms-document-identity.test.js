@@ -13,6 +13,7 @@ const environment = () => {
     querySelectorAll: () => [],
   });
   const globals = {
+    URL,
     document: document(),
     performance: {
       get timeOrigin() {

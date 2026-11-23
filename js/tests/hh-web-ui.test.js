@@ -71,7 +71,12 @@ test('built-in HH refuses unidentified or unsupported text writes before launchi
     { code: 'unsupported-target' }
   );
   await assert.rejects(
-    sender.send({ source: 'hh', chat: '7', text: 'Unreviewed' }),
+    sender.send({
+      source: 'hh',
+      chat: '7',
+      text: 'Unreviewed',
+      automated: true,
+    }),
     { code: 'answer-choice-required' }
   );
   await assert.rejects(sender.setTyping({ source: 'hh', chat: '7' }), {

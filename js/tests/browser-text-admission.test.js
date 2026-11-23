@@ -6,7 +6,7 @@ import {
   textReplyBody,
 } from '../../experiments/issue-56/text-reply-fixture.mjs';
 
-test('public frozen text replies are available without enabling plain HH sends', async () => {
+test('frozen text replies are available while generic automated HH sends are refused', async () => {
   let opened = 0;
   const sender = createBrowserSender({
     openSession: () => {
@@ -16,7 +16,12 @@ test('public frozen text replies are available without enabling plain HH sends',
   });
   assert.equal(typeof sender.replyText, 'function');
   await assert.rejects(
-    sender.send({ source: 'hh', chat: '7', text: textReplyBody }),
+    sender.send({
+      source: 'hh',
+      chat: '7',
+      text: textReplyBody,
+      automated: true,
+    }),
     { code: 'answer-choice-required' }
   );
   await assert.rejects(

@@ -1,3 +1,5 @@
+- [Hosted Windows fixture failures](ci-hosted-fixtures.md) preserve five actual assertions and verify eighteen focused cases per runtime covering automated HH refusals, form document identity and availability reporting.
+
 - [Desktop browser-wait actions](desktop-owner-attention.md) verify Show browser and Later through real Electron and an isolated Linux notification service after the shell window closes. The same service reproduces failed system delivery and verifies the local fallback. QA24 and HH01 remain unfinished.
 - [Independent vacancy preview](application-preview.md): complete native description scrolling, separate default three-second timing, frozen CLI/Lino/UI options, Stop/change refusals and schema preservation. Twenty-five actual-parent regressions, 107 focused passes and native/MCP before/after evidence support unfinished HH03.
 - [Stop during sender preparation](dispatch-stop.md): 45 actual-parent failures and 383 focused passes cover separate dispatch ownership, SDK/browser waits, issued receipts and real autopilot drainage. Full QA19/QA20 remain required.
