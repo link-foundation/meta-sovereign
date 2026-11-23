@@ -96,6 +96,14 @@ installed Docker CLI and daemon produced the covered missing-image receipts
 through read-only inspections. [Source and logs](data/runner-image-preparation.tar.gz)
 and [checksums](data/runner-image-preparation.tar.sha256.json) preserve the
 regressions, checks and native observations. The hosted lifecycle checks both SSH
-Docker launches use the locally inspected image ID. The hosted lifecycle and
-a successful cold pull from a real registry still need exact-source evidence.
-Automatic installation of the selected application remains open for VD01.
+Docker launches use the locally inspected image ID.
+
+The [native loopback registry experiment](../../../experiments/issue-56/runner-image-native.mjs)
+serves an empty, digest-pinned OCI image over loopback. The installed Docker
+daemon pulled it once, reused the verified image ID without pulling again,
+and removed the exact fixture image before closing. Both the direct transport
+and authenticated loopback SSH passed. [Native results](data/runner-image-native.tar.gz)
+and [checksums](data/runner-image-native.tar.sha256.json) preserve the two receipts.
+The workflow runs the same fixture with OpenSSH as part of the Linux runner
+checks. Exact-source hosted results and automatic installation of the selected
+application remain open for VD01.

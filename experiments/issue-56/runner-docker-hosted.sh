@@ -65,6 +65,7 @@ sudo -n /usr/sbin/sshd -D -e -f "$runner_fixture/sshd_config" >ci-logs/runner-do
 runner_sshd_pid=$!
 export PATH="$runner_fixture/bin:$PATH"
 export RUNNER_DOCKER_FIXTURE="$runner_fixture"
+RUNNER_IMAGE_PROBE_SSH_HOST=runner-docker-fixture node experiments/issue-56/runner-image-native.mjs
 node experiments/issue-56/runner-docker-hosted.mjs
 mkdir "$runner_fixture/screen"
 RUNNER_DOCKER_FIXTURE="$runner_fixture/screen" RUNNER_SERVER_ISOLATION=screen node experiments/issue-56/runner-docker-hosted.mjs

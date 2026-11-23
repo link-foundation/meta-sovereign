@@ -3,7 +3,8 @@
 - [x] Reproduce the switch handing missing image preparation to the launcher after stopping the active Screen peer.
 - [x] Verify the configured image before the switch. Pull only after confirmed absence and launch using the inspected local image ID.
 - [x] Verify 34 focused checks on each of Node and Deno and compare native Docker diagnostics. [Docker image preparation](runner-docker.md#prepare-the-configured-docker-image-before-switching).
-- [ ] Verify the current hosted SSH lifecycle, a cold pull from a real registry, and automatic application preparation.
+- [x] Verify one cold native pull and warm reuse per transport against an owned digest-pinned loopback registry, both directly and through authenticated SSH. Confirm image removal and registry closure.
+- [ ] Verify the same experiment through hosted SSH, the existing full runner lifecycle and automatic application preparation.
 
 ### 2026-11-23 Docker cleanup refusal during a runner switch (VD01 and VD02)
 

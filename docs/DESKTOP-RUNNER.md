@@ -66,8 +66,11 @@ runner_server:
   image your-registry/your-prepared-runtime:your-version
 ```
 
-Use an image you have prepared and pulled on that host. It must contain POSIX
-`sh` and the configured Node executable. The application directory, including
+Use an image that contains POSIX `sh` and the configured Node executable.
+Explicit Start checks for the configured image on the SSH host and pulls it
+once if Docker confirms it is missing. An existing image is reused. Use a
+digest-pinned reference to select a specific release. An unavailable or
+unconfirmed image leaves an active peer running. The application directory, including
 its compatible production dependencies, is mounted at the same absolute path
 inside the container; its CLI must be inside that directory. The private store
 must already exist. A store outside the application directory gets a separate
@@ -85,9 +88,12 @@ default `$` it uses an existing working PATH launcher. When the launcher is
 absent, Start prepares the pinned [start-command](https://github.com/link-foundation/start)
 and Bun packages under `~/.meta-sovereign-runner-tools` on the execution host.
 The first preparation needs Node, npm and access to the npm registry on that
-host. A prepared version is reused without npm or a registry download. The
-cache belongs to the runner's OS user and requires a private directory. The
-preparation uses locked package integrity hashes and skips package scripts.
+host. When Node or npm is missing, a supported Linux or macOS host can prepare
+a private checksum-verified Node distribution with bundled npm. Explicit
+executable overrides are preserved. A prepared launcher is reused without npm
+or a registry download. The cache belongs to the runner's OS user and requires
+a private directory. Launcher preparation uses locked package integrity hashes
+and skips package scripts.
 SSH uses existing host-key and key authentication with batch mode;
 it does not accept unknown host keys or request passwords. Each backend
 requires a compatible host. Missing tools, refused SSH and malformed status
@@ -95,8 +101,8 @@ output report `unknown` and prevent a switch. A launcher that cannot be
 prepared or verified returns `runner-launcher-unavailable`. If discovery
 confirms the destination is stopped, launcher preparation finishes before
 requesting Stop on an active peer. Status and inspection remain read-only.
-Automatic preparation of the operating-system backend, Node, the application
-bundle and its dependencies remains under development.
+Install the operating-system backend and the application with its dependencies
+before configuring the target.
 
 Starting one mode first confirms the other is stopped, requesting its stop
 when necessary. It then rechecks the destination and starts only when its

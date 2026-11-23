@@ -1,4 +1,4 @@
-"""Run the private Node fixture over real loopback SSH without installing sshd.
+"""Run a private runner fixture over real loopback SSH without installing sshd.
 
 Requires the Paramiko wheel in the selected Python environment and OpenSSH client.
 The peer accepts one ephemeral key, no forwarding, and only the runner's stdin
@@ -97,10 +97,13 @@ with TemporaryDirectory(prefix='ms-runner-node-ssh-') as directory:
         listener = Thread(target=server.serve_forever)
         listener.start()
         try:
-            subprocess.run(['node', 'experiments/issue-56/runner-node-local.mjs',
-                            *sys.argv[1:]],
+            image = sys.argv[1:] == ['--image']
+            script = 'runner-image-native' if image else 'runner-node-local'
+            host_env = 'RUNNER_IMAGE_PROBE_SSH_HOST' if image else 'RUNNER_PRIVATE_NODE_HOST'
+            arguments = [] if image else sys.argv[1:]
+            subprocess.run(['node', f'experiments/issue-56/{script}.mjs', *arguments],
                            env={**os.environ, 'PATH': f'{root}:{os.environ["PATH"]}',
-                                'RUNNER_PRIVATE_NODE_HOST': 'runner-node-loopback'},
+                                host_env: 'runner-node-loopback'},
                            check=True)
         finally:
             server.shutdown()

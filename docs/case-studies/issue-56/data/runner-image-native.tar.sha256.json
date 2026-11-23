@@ -1,0 +1,13 @@
+{
+  "archive": "runner-image-native.tar.gz",
+  "files": {
+    "js/src/server/runner-docker.js": "d895622d50a7e514bb1f84337afaea2cb63f25d15673c8633a907ba6cedbec86",
+    "js/src/server/runner-transport.js": "b6bda1fbec2a68c5a20f92b3e27dec4c36d8977fed5ae6c6f2d3a02ce471a20f",
+    "experiments/issue-56/runner-image-native.mjs": "62b88821a55b55e7d45dc9d6ba3cc6821b5ee74db1eb2828ccf1478ba841dac6",
+    "experiments/issue-56/runner-node-loopback-ssh.py": "8a1effdb6a7fc9f0e027d3b55a1edea31046ed20593e8223967a5c25013157be",
+    "experiments/issue-56/runner-docker-hosted.sh": "5997190a46bec543864fe78d3dd66ce83ef3bbaaae959e93a393cb050c855d5a",
+    "ci-logs/runner-image-native.log": "a3e72da1a9a537cc6d2fb604966c6cb9901404542339105d7c62992145455447",
+    "ci-logs/runner-image-native-ssh.log": "4c6d27b2397d337d6d07cc9dcfb3f1d9019d464eda7cf62da65555047ca19d63",
+    "metadata.json": "3ddd1de5f90ee8e0d7a16a0d5c31b6819a2926427edfb2003549eaf0b4547b3a"
+  }
+}
