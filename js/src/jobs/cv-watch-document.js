@@ -2,7 +2,7 @@
 export const readCvEditorDocument = ({
   html,
   url: savedUrl,
-  workplaceAnchor = false,
+  editorAnchor = false,
 } = {}) => {
   const saved = typeof html === 'string';
   const doc = saved
@@ -38,9 +38,6 @@ export const readCvEditorDocument = ({
     return null;
   }
   const url = new URL(saved ? savedUrl : globalThis.location.href);
-  if (workplaceAnchor) {
-    return completeWorkplace() ? { ...workplaceIdentity(), position } : null;
-  }
   if (saved && !completeWorkplace()) {
     return { kind: 'unavailable' };
   }
@@ -52,7 +49,13 @@ export const readCvEditorDocument = ({
         /^\/resume\/(?:edit\/)?([a-zA-Z\d_-]+)(?:\/|$)/u
       )?.[1],
       about: about.value,
+      ...(editorAnchor && { anchor: about }),
     };
+  }
+  if (editorAnchor) {
+    return completeWorkplace()
+      ? { ...workplaceIdentity(), anchor: position }
+      : null;
   }
   return readWorkplace();
   function verificationActive() {
@@ -156,7 +159,7 @@ export const readCvEditorDocument = ({
 };
 
 /** Passive listeners. No event is synthesized, blocked, or treated as a receipt. */
-export const observeCvEditorDocument = (read, binding) => {
+export const observeCvEditorDocument = (read, binding, identityKey) => {
   const { document: doc } = globalThis;
   const key = `__cv_observer_${binding}`;
   if (globalThis[key]) {
@@ -173,20 +176,26 @@ export const observeCvEditorDocument = (read, binding) => {
       /* A disappearing document has no capture authority. */
     }
   };
-  let workplace;
-  const inspectWorkplace = () => {
-    const prior = workplace;
-    const visible =
-      /^\/profile\/edit\/experience(?:\/\d+)?\/?$/u.test(
-        globalThis.location.pathname
-      ) && read({ workplaceAnchor: true });
-    if (visible?.kind === 'workplace') {
-      const { position, ...form } = visible;
+  let editor;
+  const inspectEditor = () => {
+    const prior = editor;
+    const visible = read({ editorAnchor: true });
+    if (visible?.anchor) {
+      const { anchor, ...form } = visible;
+      if (
+        (form.kind === 'workplace' &&
+          !/^\/profile\/edit\/experience(?:\/\d+)?\/?$/u.test(
+            globalThis.location.pathname
+          )) ||
+        (form.kind === 'about' && (!identityKey || !form.hash))
+      ) {
+        return;
+      }
       const roster = JSON.stringify(
-        form.resumes.map(({ hash }) => hash).sort()
+        form.resumes?.map(({ hash }) => hash).sort()
       );
       if (
-        prior?.position === position &&
+        prior?.anchor === anchor &&
         prior.form.url === form.url &&
         prior.roster === roster
       ) {
@@ -194,32 +203,35 @@ export const observeCvEditorDocument = (read, binding) => {
       }
       const formId = globalThis.crypto.randomUUID();
       const entry = {
-        position,
+        anchor,
         form,
         roster,
         formId,
         ready: false,
         attempted: false,
       };
-      workplace = entry;
-      return deliver({ event: 'workplace-opened', form, formId })?.then(
+      editor = entry;
+      return deliver({ event: `${form.kind}-opened`, form, formId })?.then(
         (ready) => {
-          if (workplace === entry && !entry.attempted) {
+          if (editor === entry && !entry.attempted) {
             entry.ready = ready === true;
           }
         }
       );
     }
     if (prior) {
-      workplace = undefined;
-      return deliver({ event: 'workplace-closed', formId: prior.formId });
+      editor = undefined;
+      return deliver({
+        event: `${prior.form.kind}-closed`,
+        formId: prior.formId,
+      });
     }
   };
   let frame;
   const schedule = () => {
     frame ??= globalThis.requestAnimationFrame(() => {
       frame = undefined;
-      void inspectWorkplace();
+      void inspectEditor();
     });
   };
   const mutations = new globalThis.MutationObserver(schedule);
@@ -257,11 +269,29 @@ export const observeCvEditorDocument = (read, binding) => {
     const form = read();
     if (form) {
       const cancel = /cancel/u.test(button.getAttribute('data-qa'));
-      void inspectWorkplace();
+      if (
+        identityKey &&
+        form.kind === 'about' &&
+        !button.matches(
+          cancel
+            ? '[data-qa="resume-partial-edit-cancel"]'
+            : '[data-qa="resume-partial-edit-save"]'
+        )
+      ) {
+        return;
+      }
+      void inspectEditor();
+      const ownerAnchor = globalThis[identityKey]?.identity;
+      const exact =
+        !identityKey ||
+        (ownerAnchor?.isConnected &&
+          (form.kind === 'about'
+            ? editor?.anchor === ownerAnchor
+            : ownerAnchor === doc.querySelector('input[name="company"]')));
       const formId =
-        workplace?.ready && !workplace.attempted ? workplace.formId : undefined;
-      if (workplace) {
-        workplace.attempted = true;
+        exact && editor?.ready && !editor.attempted ? editor.formId : undefined;
+      if (editor) {
+        editor.attempted = true;
       }
       void deliver({
         event: cancel ? 'cancel' : 'save',
@@ -272,9 +302,9 @@ export const observeCvEditorDocument = (read, binding) => {
   };
   const edited = (event) => {
     if (event.isTrusted && read()) {
-      if (workplace?.attempted) {
-        workplace = undefined;
-        void inspectWorkplace();
+      if (editor?.attempted) {
+        editor = undefined;
+        void inspectEditor();
       }
       void deliver({ event: 'edit' });
     }
@@ -293,5 +323,5 @@ export const observeCvEditorDocument = (read, binding) => {
     }
     delete globalThis[key];
   };
-  return inspectWorkplace();
+  return inspectEditor();
 };

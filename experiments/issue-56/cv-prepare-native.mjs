@@ -10,6 +10,7 @@ export const NativeCvAbout = ({
 }) => {
   const [open, setOpen] = useState(initialOpen);
   const [value, setValue] = useState(about);
+  const [saved, setSaved] = useState(about);
   return el('main', null, [
     el('h1', { key: 'title' }, 'Native About editor fixture'),
     el(
@@ -52,6 +53,7 @@ export const NativeCvAbout = ({
                 onClick: () => {
                   globalThis.fixtureSaves++;
                   globalThis.fixtureSavedAbout = value;
+                  setSaved(value);
                   setOpen(false);
                 },
               },
@@ -65,6 +67,7 @@ export const NativeCvAbout = ({
                 'data-qa': 'resume-partial-edit-cancel',
                 onClick: () => {
                   globalThis.fixtureCancels++;
+                  setValue(saved);
                   setOpen(false);
                 },
               },

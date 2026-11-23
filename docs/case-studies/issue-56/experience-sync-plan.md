@@ -83,5 +83,8 @@ no position Save during preparation, duplicate suppression and confirmation
 through a fresh export. One confirmed legacy title can be changed to the URL
 title in the same reviewed draft. An interactive queue and authenticated
 verification remain required in this direction.
-Authenticated provider verification, reviewed HH About writes and every
-remaining item above stay required; HH21 remains unfinished.
+The [HeadHunter About review](experience-hh-about-review.md) uses the selected
+export's exact profile proposal and the same independent browser lease, with
+fresh export readback exercised against a synthetic provider. LinkedIn
+About review, authenticated provider verification and the remaining items above
+stay required. HH21 remains unfinished.

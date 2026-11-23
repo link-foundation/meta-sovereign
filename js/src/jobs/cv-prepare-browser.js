@@ -4,6 +4,8 @@ import { readCvAboutPreparation } from './cv-prepare-document.js';
 import { cvWatchUrl } from './cv-watch-browser.js';
 import { cvPrepareFailure } from './cv-prepare-record.js';
 import { traceCvWatch } from './cv-watch-trace.js';
+import { readCvEditorDocument } from './cv-watch-document.js';
+import { cvSaveAttempt } from './cv-watch-verification.js';
 
 const normalized = (text) =>
   text
@@ -18,6 +20,7 @@ export const prepareNativeCvAbout = async ({
   phase,
   readinessMs = 20000,
   settleMs = 750,
+  withPrepared,
 }) => {
   const { page, commander } = session;
   const read = async () => {
@@ -74,7 +77,7 @@ export const prepareNativeCvAbout = async ({
   ) {
     throw cvPrepareFailure('baseline');
   }
-  await prepareCvControlledText({
+  return await prepareCvControlledText({
     page,
     selector: 'textarea[data-qa="resume-editor-about"]',
     before: before.about,
@@ -97,6 +100,23 @@ export const prepareNativeCvAbout = async ({
     check,
     phase,
     settleMs,
+    withPrepared: async (anchor) => {
+      traceCvWatch('about-prepared', { state: 'prepared' });
+      if (withPrepared) {
+        const raw = await commander.evaluate({
+          fn: readCvEditorDocument,
+          args: [],
+        });
+        check();
+        if (
+          raw?.kind !== 'about' ||
+          raw.hash !== change.hash ||
+          raw.about !== change.after
+        ) {
+          throw cvPrepareFailure('draft');
+        }
+        return await withPrepared({ raw, after: cvSaveAttempt(raw), anchor });
+      }
+    },
   });
-  traceCvWatch('about-prepared', { state: 'prepared' });
 };

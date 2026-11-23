@@ -56,7 +56,10 @@ const inspect = (read, { key, expected, action }) => {
   const dialogs = all('[role="dialog"],dialog[open]');
   const state = globalThis[key];
   const actual = read();
-  const form = all('input[name="company"]');
+  const about = expected.kind === 'about';
+  const form = all(
+    about ? 'textarea[data-qa="resume-editor-about"]' : 'input[name="company"]'
+  );
   if (actual?.kind === 'unavailable') {
     return 'unavailable';
   }
@@ -76,11 +79,11 @@ const inspect = (read, { key, expected, action }) => {
   if (action === 'discard') {
     return 'changed';
   }
-  const selector =
-    action === 'save'
-      ? '[data-qa="profile-layout-save-button"],[data-qa="resume-partial-edit-save"]'
-      : '[data-qa="profile-layout-cancel-button"],[data-qa="resume-partial-edit-cancel"]';
-  const controls = all(selector);
+  const verb = action === 'save' ? 'save' : 'cancel';
+  const partial = `[data-qa="resume-partial-edit-${verb}"]`;
+  const controls = all(
+    about ? partial : `[data-qa="profile-layout-${verb}-button"],${partial}`
+  );
   if (controls.length !== 1 || !usable(controls[0])) {
     return 'changed';
   }
@@ -120,9 +123,10 @@ export const hhExperienceWorkplaceControls = async ({
         return 'away';
       }
       if (
-        /^\/profile\/edit\/experience\/?$/u.test(url.pathname) ||
         url.pathname === `/resume/${hash}` ||
-        url.pathname === '/applicant/resumes'
+        (raw.kind === 'workplace' &&
+          (/^\/profile\/edit\/experience\/?$/u.test(url.pathname) ||
+            url.pathname === '/applicant/resumes'))
       ) {
         const current = await page.evaluate(readCvEditorDocument);
         check();
@@ -139,9 +143,15 @@ export const hhExperienceWorkplaceControls = async ({
     return state;
   };
   if ((await read()) !== 'open') {
+    await page
+      .evaluate((property) => {
+        delete globalThis[property];
+      }, key)
+      .catch(() => {});
     throw cvPrepareFailure('draft');
   }
   return {
+    identityKey: key,
     read,
     close: () =>
       page

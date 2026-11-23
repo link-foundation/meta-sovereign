@@ -1194,3 +1194,6 @@ opening the editor (issue #56).
 
 Acquire both HeadHunter and LinkedIn experience snapshots and build their
 translated comparison in one recoverable request (issue #56).
+
+Review a proposed HeadHunter About change in the Experience browser and confirm
+an explicit Save against a fresh export of the selected résumé (issue #56).

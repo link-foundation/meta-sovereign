@@ -2,6 +2,7 @@ import { browserName } from '../browser/policy.js';
 import { resumeExportRequestId } from '../jobs/resume-export-options.js';
 import { createHhExperienceWorkplaceNative } from '../jobs/cv-experience-workplace-native.js';
 import { hhExperienceWorkplacePreparationSource } from '../jobs/cv-workplace-review-service.js';
+import { hhExperienceAboutSource } from '../jobs/cv-experience-about-source.js';
 import { traceCvWatch } from '../jobs/cv-watch-trace.js';
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
 import { PrivateCvJob } from './private-job.js';
@@ -11,13 +12,14 @@ import {
   hhWorkplaceRunningPhases,
   hhWorkplaceFinalPhases,
   verifiedHhWorkplaceSave,
+  verifiedHhAboutSave,
 } from './experience-hh-workplace-receipt.js';
 
 const sha256 = /^[a-f\d]{64}$/u;
 const codePattern = /^(?:cv-hh-workplace|jobs-cv)-[a-z-]{1,60}$/u;
 const failure = (reason) =>
   Object.assign(
-    new Error('The HeadHunter workplace review was not confirmed.'),
+    new Error('The HeadHunter experience review was not confirmed.'),
     {
       code: `cv-hh-workplace-${reason}`,
       status:
@@ -27,17 +29,22 @@ const failure = (reason) =>
     }
   );
 const key = (id) => `secret:cv-hh-workplace-job:${resumeExportRequestId(id)}`;
-const attemptKey = (fingerprint) =>
-  `secret:cv-hh-workplace-attempt:${fingerprint}`;
+const attemptKey = ({ fingerprint, planRequestId }) =>
+  `secret:cv-hh-workplace-attempt:${planRequestId ? 'about:' : ''}${fingerprint}`;
 const optionsFor = (input) => {
-  const browserSlot = browserName(input.browserSlot ?? 'jobs');
-  if (!sha256.test(input.fingerprint ?? '')) {
+  const about = input.planRequestId !== undefined;
+  if (
+    !sha256.test(input.fingerprint ?? '') ||
+    (about && input.browserSlot !== undefined)
+  ) {
     throw failure('input');
   }
   return {
     requestId: resumeExportRequestId(input.requestId),
     fingerprint: input.fingerprint,
-    browserSlot,
+    ...(about
+      ? { planRequestId: resumeExportRequestId(input.planRequestId) }
+      : { browserSlot: browserName(input.browserSlot ?? 'jobs') }),
   };
 };
 const newRecord = (requestId, options = null) => ({
@@ -54,6 +61,9 @@ const checked = (row, id) => {
   if (!row) {
     throw failure('missing');
   }
+  const verified = row.options?.planRequestId
+    ? verifiedHhAboutSave
+    : verifiedHhWorkplaceSave;
   if (
     row.id !== key(id) ||
     row.requestId !== id ||
@@ -67,7 +77,7 @@ const checked = (row, id) => {
       .includes(row.phase) ||
     ![null, 'cli-or-api', 'browser'].includes(row.initiator) ||
     (row.phase === 'saved'
-      ? !row.initiator || !verifiedHhWorkplaceSave(row.save)
+      ? !row.initiator || !verified(row.save)
       : row.save !== null) ||
     (row.code !== null && !codePattern.test(row.code))
   ) {
@@ -87,11 +97,13 @@ const view = (row, active, decisionPending = false) => ({
         exports: row.save.exports.map(({ hash, sha256, workplace }) => ({
           hash,
           sha256,
-          workplace: {
-            recordId: workplace.recordId,
-            sha256: workplace.sha256,
-            checked: workplace.checked,
-          },
+          ...(workplace && {
+            workplace: {
+              recordId: workplace.recordId,
+              sha256: workplace.sha256,
+              checked: workplace.checked,
+            },
+          }),
         })),
       }
     : null,
@@ -112,7 +124,7 @@ const runJob =
   async (owned, save) => {
     const { options } = owned.row;
     const { signal } = owned.controller;
-    const id = attemptKey(options.fingerprint);
+    const id = attemptKey(options);
     let recorded = false;
     const update = async (patch) => {
       if (['saving', 'verifying'].includes(patch.phase) && !recorded) {
@@ -177,7 +189,12 @@ export const createHhExperienceWorkplaceJobs = (context) => {
     failure,
     work: runJob({
       ...context,
-      authorize: context.authorize ?? hhExperienceWorkplacePreparationSource,
+      authorize:
+        context.authorize ??
+        ((source, input) =>
+          (input.planRequestId
+            ? hhExperienceAboutSource
+            : hhExperienceWorkplacePreparationSource)(source, input)),
       prepare: context.prepareJob ?? createHhExperienceWorkplaceNative(context),
     }),
   });
@@ -185,13 +202,15 @@ export const createHhExperienceWorkplaceJobs = (context) => {
     ...service.controls(),
     decide: (input) =>
       service.serial(async () => {
-        const { requestId, fingerprint, browserSlot } = optionsFor(input);
+        const { requestId, fingerprint, browserSlot, planRequestId } =
+          optionsFor(input);
         const active = service.current;
         if (
           !['save', 'skip'].includes(input.decision) ||
           active?.row.requestId !== requestId ||
           active.row.options.fingerprint !== fingerprint ||
           active.row.options.browserSlot !== browserSlot ||
+          active.row.options.planRequestId !== planRequestId ||
           active.row.phase !== 'prepared' ||
           active.decision
         ) {

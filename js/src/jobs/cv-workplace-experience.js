@@ -19,7 +19,7 @@ const nativeFields = new Map([
   ['location', 'areaId'],
 ]);
 
-export const confirmCurrentExperienceWorkplaces = async (options, data) => {
+export const confirmCurrentExperienceField = async (options, data, select) => {
   const { browserSlot, hash, exportId, capturedAt } = data.identity;
   const latest = await options.store.get(
     `jobs-resume-export:${browserSlot}:${hash}`
@@ -34,8 +34,8 @@ export const confirmCurrentExperienceWorkplaces = async (options, data) => {
       exportId: latest.exportId,
     });
     if (
-      (await modelFingerprint(newer.cv.jobs)) !==
-      (await modelFingerprint(data.cv.jobs))
+      (await modelFingerprint({ value: select(newer.cv) })) !==
+      (await modelFingerprint({ value: select(data.cv) }))
     ) {
       cvWorkplaceFail('conflict');
     }
@@ -49,13 +49,16 @@ export const confirmCurrentExperienceWorkplaces = async (options, data) => {
     );
     if (
       newer &&
-      (await modelFingerprint(newer.cv.jobs)) !==
-        (await modelFingerprint(data.cv.jobs))
+      (await modelFingerprint({ value: select(newer.cv) })) !==
+        (await modelFingerprint({ value: select(data.cv) }))
     ) {
       cvWorkplaceFail('conflict');
     }
   }
 };
+
+export const confirmCurrentExperienceWorkplaces = (options, data) =>
+  confirmCurrentExperienceField(options, data, (cv) => cv.jobs);
 
 const checkedWorkplaceItem = async (store, input) => {
   const { experience, recordId } = input;

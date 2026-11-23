@@ -1,5 +1,6 @@
 import { setTimeout as delay } from 'node:timers/promises';
 import { cvPrepareFailure } from './cv-prepare-record.js';
+import { prepareNativeCvAbout } from './cv-prepare-browser.js';
 import { prepareNativeCvWorkplace } from './cv-prepare-workplace.js';
 import { monitorCvSaves } from './cv-watch-monitor.js';
 import { readCvSavedExports } from './cv-watch-export.js';
@@ -26,13 +27,14 @@ const captureBaselineForChange = async (context, change) => {
   return baseline;
 };
 
-const watchDecision = async ({ page, raw, observe }) => {
+const watchDecision = async ({ page, raw, observe, identityKey }) => {
   let formId;
   return monitorCvSaves({
     page,
+    identityKey,
     receive(value) {
       if (
-        value.event === 'workplace-opened' &&
+        value.event === `${raw.kind}-opened` &&
         !formId &&
         value.form.url === raw.url
       ) {
@@ -42,7 +44,8 @@ const watchDecision = async ({ page, raw, observe }) => {
       if (['save', 'cancel', 'edit', 'overflow'].includes(value.event)) {
         observe(
           value.event,
-          value.formId === formId &&
+          Boolean(formId) &&
+            value.formId === formId &&
             JSON.stringify(value.form) === JSON.stringify(raw)
         );
       }
@@ -52,7 +55,7 @@ const watchDecision = async ({ page, raw, observe }) => {
   });
 };
 
-const discardWorkplace = async ({ page, controls, signal, wait, now }) => {
+const discardPrepared = async ({ page, controls, signal, wait, now }) => {
   let dialogPending = true;
   const handleDialog = (dialog) => {
     const operation =
@@ -111,6 +114,123 @@ const awaitChoice = async ({ controls, decision, signal, wait, now }) => {
   return 'stopped';
 };
 
+const reviewPrepared = async ({
+  session,
+  change,
+  raw,
+  after,
+  anchor,
+  baseline,
+  check,
+  signal,
+  update,
+  selection,
+  readExports,
+  verify,
+  wait,
+  now,
+  store,
+}) => {
+  const { page } = session;
+  const controls = await hhExperienceWorkplaceControls({
+    page,
+    anchor,
+    raw,
+    hash: change.hash,
+    check,
+  });
+  let ownerSave;
+  let invalidated = false;
+  let watcher;
+  try {
+    watcher = await watchDecision({
+      page,
+      raw,
+      identityKey: controls.identityKey,
+      observe(event, exact) {
+        if (event === 'save') {
+          if (ownerSave || !exact) {
+            invalidated = true;
+          }
+          ownerSave = true;
+        } else if (ownerSave) {
+          invalidated = true;
+        }
+      },
+    });
+    await update({ phase: 'prepared' });
+    const decision = await awaitChoice({
+      controls,
+      decision: () => (ownerSave ? 'browser' : selection()),
+      signal,
+      wait,
+      now,
+    });
+    if (decision === 'skip') {
+      await update({ phase: 'skipping' });
+      const phase = await discardPrepared({
+        page,
+        controls,
+        signal,
+        wait,
+        now,
+      });
+      return { phase: ownerSave ? 'unconfirmed' : phase };
+    }
+    if (decision === 'save') {
+      if (ownerSave || (await controls.read()) !== 'open') {
+        throw cvPrepareFailure('draft');
+      }
+      await update({ phase: 'saving', initiator: 'cli-or-api' });
+      if (ownerSave || (await controls.read('save')) !== 'dispatched') {
+        throw cvPrepareFailure('draft');
+      }
+    } else if (decision !== 'browser') {
+      return { phase: decision };
+    }
+    await update({
+      phase: 'verifying',
+      initiator: decision === 'browser' ? 'browser' : 'cli-or-api',
+    });
+    const confirm = () => {
+      check();
+      if (invalidated || (decision === 'save' && ownerSave)) {
+        throw cvPrepareFailure('draft');
+      }
+    };
+    confirm();
+    const result = await verify({
+      session,
+      store,
+      attempt: after,
+      check: confirm,
+      signal,
+      readExports,
+      workplaceBaseline: baseline?.ids,
+      workplaceBaselineJobs: baseline?.jobs,
+      workplaceMembership: baseline?.membership,
+    });
+    confirm();
+    return {
+      phase: 'saved',
+      save: {
+        evidence: `verified-hh-${raw.kind}-export`,
+        exports: result.exports.map(({ hash, sha256, workplace }) => ({
+          hash,
+          sha256,
+          ...(workplace && { workplace }),
+        })),
+      },
+    };
+  } finally {
+    try {
+      await watcher?.stop();
+    } finally {
+      await controls.close();
+    }
+  }
+};
+
 /** The prepared native tab, passive owner clicks and verification share one lease. */
 export const createHhExperienceWorkplaceNative =
   ({
@@ -118,6 +238,7 @@ export const createHhExperienceWorkplaceNative =
     storeDir,
     browser = withHhExperienceBrowser,
     prepare = prepareNativeCvWorkplace,
+    prepareAbout = prepareNativeCvAbout,
     readExports = readCvSavedExports,
     verify = verifyOwnerCvSave,
     wait = (ms, signal) => delay(ms, undefined, { signal }),
@@ -127,129 +248,47 @@ export const createHhExperienceWorkplaceNative =
     browser({
       store,
       storeDir,
-      sourceSlot: change.plan.browserSlot,
+      sourceSlot: change.browserSlot ?? change.plan.browserSlot,
       hash: change.hash,
       language: change.language,
       signal,
       phase: (phase) => update({ phase }),
-      run: async (session, check) =>
-        prepare({
+      run: async (session, check) => {
+        const common = {
           session,
+          check,
+          phase: (phase) => update({ phase }),
+          withPrepared: (prepared) =>
+            reviewPrepared({
+              ...prepared,
+              session,
+              change,
+              check,
+              signal,
+              update,
+              selection,
+              readExports,
+              verify,
+              wait,
+              now,
+              store,
+            }),
+        };
+        if (change.field === 'about') {
+          return prepareAbout({ ...common, change });
+        }
+        return prepare({
+          ...common,
           change: await resolveHhExperienceWorkplace({
             session,
             change,
             check,
           }),
-          check,
-          phase: (phase) => update({ phase }),
           captureBaseline: (initial) =>
             captureBaselineForChange(
               { session, store, initial, signal, readExports },
               change
             ),
-          withPrepared: async ({ raw, after, anchor, baseline }) => {
-            const { page } = session;
-            const controls = await hhExperienceWorkplaceControls({
-              page,
-              anchor,
-              raw,
-              hash: change.hash,
-              check,
-            });
-            let ownerSave;
-            let invalidated = false;
-            let watcher;
-            try {
-              watcher = await watchDecision({
-                page,
-                raw,
-                observe(event, exact) {
-                  if (event === 'save') {
-                    if (ownerSave || !exact) {
-                      invalidated = true;
-                    }
-                    ownerSave = true;
-                  } else if (ownerSave) {
-                    invalidated = true;
-                  }
-                },
-              });
-              await update({ phase: 'prepared' });
-              const decision = await awaitChoice({
-                controls,
-                decision: () => (ownerSave ? 'browser' : selection()),
-                signal,
-                wait,
-                now,
-              });
-              if (decision === 'skip') {
-                await update({ phase: 'skipping' });
-                const phase = await discardWorkplace({
-                  page,
-                  controls,
-                  signal,
-                  wait,
-                  now,
-                });
-                return { phase: ownerSave ? 'unconfirmed' : phase };
-              }
-              if (decision === 'save') {
-                if (ownerSave || (await controls.read()) !== 'open') {
-                  throw cvPrepareFailure('draft');
-                }
-                await update({ phase: 'saving', initiator: 'cli-or-api' });
-                if (
-                  ownerSave ||
-                  (await controls.read('save')) !== 'dispatched'
-                ) {
-                  throw cvPrepareFailure('draft');
-                }
-              } else if (decision !== 'browser') {
-                return { phase: decision };
-              }
-              await update({
-                phase: 'verifying',
-                initiator: decision === 'browser' ? 'browser' : 'cli-or-api',
-              });
-              const confirm = () => {
-                check();
-                if (invalidated || (decision === 'save' && ownerSave)) {
-                  throw cvPrepareFailure('draft');
-                }
-              };
-              confirm();
-              const result = await verify({
-                session,
-                store,
-                attempt: after,
-                check: confirm,
-                signal,
-                readExports,
-                workplaceBaseline: baseline.ids,
-                workplaceBaselineJobs: baseline.jobs,
-                workplaceMembership: baseline.membership,
-              });
-              confirm();
-              return {
-                phase: 'saved',
-                save: {
-                  evidence: 'verified-hh-workplace-export',
-                  exports: result.exports.map(
-                    ({ hash, sha256, workplace }) => ({
-                      hash,
-                      sha256,
-                      workplace,
-                    })
-                  ),
-                },
-              };
-            } finally {
-              try {
-                await watcher?.stop();
-              } finally {
-                await controls.close();
-              }
-            }
-          },
-        }),
+        });
+      },
     });

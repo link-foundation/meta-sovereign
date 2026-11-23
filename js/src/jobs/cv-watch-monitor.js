@@ -6,11 +6,16 @@ import {
 import { cvWatchUrl } from './cv-watch-browser.js';
 
 /** One existing main frame. Stop removes native listeners and drains bindings. */
-export const monitorCvSaves = async ({ page, receive, failed }) => {
+export const monitorCvSaves = async ({
+  page,
+  receive,
+  failed,
+  identityKey,
+}) => {
   const binding = `__cv_save_${randomUUID().replaceAll('-', '')}`;
   let stopped = false;
   const pending = new Set();
-  const content = `(${observeCvEditorDocument.toString()})(${readCvEditorDocument.toString()},${JSON.stringify(binding)});`;
+  const content = `(${observeCvEditorDocument.toString()})(${readCvEditorDocument.toString()},${JSON.stringify(binding)},${JSON.stringify(identityKey)});`;
   const run = (operation) => {
     if (stopped) {
       return Promise.resolve();

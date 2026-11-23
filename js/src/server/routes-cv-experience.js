@@ -150,10 +150,25 @@ const actions = {
     ])
   ),
   ...Object.fromEntries(
-    ['start', 'status', 'stop', 'decide'].map((operation) => [
-      `hh-workplace-${operation}`,
-      (store, input, ctx) => hhWorkplaceJobs(store, ctx)[operation](input),
-    ])
+    ['workplace', 'about'].flatMap((kind) =>
+      ['start', 'status', 'stop', 'decide'].map((operation) => [
+        `hh-${kind}-${operation}`,
+        (store, input, ctx) => {
+          if (
+            ['start', 'decide'].includes(operation) &&
+            (kind === 'about') !== (typeof input.planRequestId === 'string')
+          ) {
+            throw Object.assign(
+              new Error('The review plan was not confirmed.'),
+              {
+                code: 'cv-hh-workplace-input',
+              }
+            );
+          }
+          return hhWorkplaceJobs(store, ctx)[operation](input);
+        },
+      ])
+    )
   ),
   compare: (store, input) => compareStoredExperience(store, input),
   ...Object.fromEntries(
@@ -205,6 +220,7 @@ const admission = (req, operation, ctx) => {
     'auto-status',
     'hh-status',
     'hh-workplace-status',
+    'hh-about-status',
     'linkedin-status',
     'linkedin-evidence',
     'linkedin-position-stored',

@@ -50,20 +50,28 @@ export const useExperienceWorkplaceHandoff = () => {
   return { handoff, select, dismiss: () => setHandoff(null) };
 };
 
-const useHhWorkplaceJob = (api, sourceSlot, fingerprint) => {
+export const useHhWorkplaceJob = (
+  api,
+  sourceSlot,
+  fingerprint,
+  planRequestId
+) => {
   const controller = useRef(null);
   const [snapshot, setSnapshot] = useState(null);
-  const available = typeof api?.cvHhWorkplaceStart === 'function';
+  const kind = planRequestId ? 'About' : 'Workplace';
+  const available = typeof api?.[`cvHh${kind}Start`] === 'function';
   useEffect(() => {
-    if (!available || !sourceSlot || !fingerprint) {
+    if (!available || (!sourceSlot && !planRequestId) || !fingerprint) {
       return;
     }
-    const initial = { browserSlot: sourceSlot, fingerprint };
+    const initial = planRequestId
+      ? { planRequestId, fingerprint }
+      : { browserSlot: sourceSlot, fingerprint };
     const job = new PrivateCvJobState(api, setSnapshot, {
       initial,
       fields: Object.keys(initial),
-      prefix: 'cvHhWorkplace',
-      pendingKey: `meta-sovereign:hh-experience-workplace:${fingerprint}`,
+      prefix: `cvHh${kind}`,
+      pendingKey: `meta-sovereign:hh-experience-${kind.toLowerCase()}:${fingerprint}`,
       checked: (row, requestId) =>
         confirmedHhWorkplaceJob(row, requestId, initial),
       running: hhExperienceWorkplaceRunning,
@@ -77,8 +85,13 @@ const useHhWorkplaceJob = (api, sourceSlot, fingerprint) => {
       controller.current = null;
       job.dispose();
     };
-  }, [api, available, sourceSlot, fingerprint]);
-  if (!available || !fingerprint || snapshot?.fingerprint !== fingerprint) {
+  }, [api, available, sourceSlot, fingerprint, planRequestId, kind]);
+  if (
+    !available ||
+    !fingerprint ||
+    snapshot?.fingerprint !== fingerprint ||
+    snapshot.planRequestId !== planRequestId
+  ) {
     return null;
   }
   return {
@@ -88,7 +101,7 @@ const useHhWorkplaceJob = (api, sourceSlot, fingerprint) => {
     decide: (decision) =>
       controller.current?.mutate('Decide', {
         fingerprint,
-        browserSlot: sourceSlot,
+        ...(planRequestId ? { planRequestId } : { browserSlot: sourceSlot }),
         decision,
       }),
     stop: () => controller.current?.mutate('Stop'),

@@ -1,5 +1,8 @@
 const entries = {
   en: {
+    aboutStart: 'Prepare About in Experience window',
+    aboutSaving: 'Saving the reviewed About text…',
+    aboutSaved: 'HeadHunter saved the About text. A fresh export confirms it.',
     start: 'Prepare in Experience window',
     save: 'Save in HeadHunter',
     skip: 'Skip and discard',
@@ -29,6 +32,10 @@ const entries = {
     unknown: 'Checking the existing review request.',
   },
   ru: {
+    aboutStart: 'Подготовить раздел «О себе» в окне «Опыт работы»',
+    aboutSaving: 'Сохраняем проверенный текст «О себе»…',
+    aboutSaved:
+      'HeadHunter сохранил текст «О себе». Свежая выгрузка подтверждает это.',
     start: 'Подготовить в окне «Опыт работы»',
     save: 'Сохранить на HeadHunter',
     skip: 'Пропустить и отменить изменения',
@@ -59,6 +66,9 @@ const entries = {
     unknown: 'Проверяем существующий запрос.',
   },
   hi: {
+    aboutStart: 'अनुभव विंडो में परिचय तैयार करें',
+    aboutSaving: 'समीक्षा किया गया परिचय सहेजा जा रहा है…',
+    aboutSaved: 'HeadHunter ने परिचय सहेजा। नया निर्यात इसकी पुष्टि करता है।',
     start: 'अनुभव विंडो में तैयार करें',
     save: 'HeadHunter में सहेजें',
     skip: 'छोड़ें और बदलाव रद्द करें',
@@ -88,6 +98,9 @@ const entries = {
     unknown: 'मौजूदा समीक्षा अनुरोध जाँचा जा रहा है।',
   },
   zh: {
+    aboutStart: '在工作经历窗口中准备个人简介',
+    aboutSaving: '正在保存已审阅的个人简介…',
+    aboutSaved: 'HeadHunter 已保存个人简介。新的导出已验证结果。',
     start: '在工作经历窗口中准备',
     save: '保存到 HeadHunter',
     skip: '跳过并放弃更改',

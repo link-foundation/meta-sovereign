@@ -3,6 +3,8 @@ import { useT } from './i18n.js';
 import { RecordDetails } from './cv-experience-view.js';
 import { Comparison } from './cv-translation-panel.js';
 import { CvExperienceWorkplaceStage } from './cv-experience-workplace-stage.js';
+import { HhExperienceWorkplace } from './cv-experience-hh-workplace.js';
+import { useHhWorkplaceJob } from './cv-experience-workplace-state.js';
 import { linkedinPositionMediaCandidate } from '../cv/linkedin-position-media-link.js';
 
 const el = React.createElement;
@@ -118,6 +120,10 @@ const PlanItem = ({ item, profile = false, children }) => {
     ]
   );
 };
+const HeadHunterAboutReview = ({ api, row, t }) => {
+  const job = useHhWorkplaceJob(api, undefined, row.fingerprint, row.requestId);
+  return job ? el(HhExperienceWorkplace, { job, t, about: true }) : null;
+};
 export const CvExperiencePlanView = ({
   row,
   api,
@@ -131,15 +137,28 @@ export const CvExperiencePlanView = ({
   if (!plan) {
     return null;
   }
-  const allowWorkplace =
+  const nativeHh =
     row.phase === 'completed' &&
     plan.target.platform === 'hh' &&
     exports?.some(
       ({ revision, provenance }) =>
         revision === plan.target.revision && provenance === 'hh-export'
-    ) &&
+    );
+  const allowWorkplace =
+    nativeHh &&
     typeof api?.vacancyCvWorkplacePlan === 'function' &&
     onWorkplaceDraft;
+  const allowAbout =
+    nativeHh &&
+    plan.profile.fields.some(
+      ({ field, ready, before, after }) =>
+        field === 'about' &&
+        ready &&
+        typeof before === 'string' &&
+        typeof after === 'string' &&
+        after.trim() &&
+        after.length <= 24000
+    );
   const allowPosition =
     row.phase === 'completed' &&
     plan.target.platform === 'linkedin' &&
@@ -224,7 +243,11 @@ export const CvExperiencePlanView = ({
               : null
         );
       }),
-      el(PlanItem, { key: 'profile', item: plan.profile, profile: true }),
+      el(
+        PlanItem,
+        { key: 'profile', item: plan.profile, profile: true },
+        allowAbout ? el(HeadHunterAboutReview, { api, row, t }) : null
+      ),
       el('h4', { key: 'translations' }, t('experiencePlan.translations')),
       ...plan.translations.map((comparison) =>
         el(Comparison, { key: comparison.input.requestId, comparison, t })

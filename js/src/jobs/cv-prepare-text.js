@@ -13,6 +13,7 @@ export const prepareCvControlledText = async ({
   check,
   phase,
   settleMs,
+  withPrepared,
 }) => {
   const editor = page.locator(selector);
   const handle = await editor.elementHandle();
@@ -69,6 +70,7 @@ export const prepareCvControlledText = async ({
     await editor.blur();
     await delay(settleMs);
     await unchanged(after);
+    return await withPrepared?.(handle);
   } finally {
     await handle.dispose();
   }

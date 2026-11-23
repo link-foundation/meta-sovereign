@@ -20,6 +20,14 @@ export const hhExperienceWorkplaceRunning = (row) =>
   hhWorkplaceRunningPhases.includes(row?.phase);
 
 const sha256 = /^[a-f\d]{64}$/u;
+export const verifiedHhAboutSave = (save) =>
+  save?.evidence === 'verified-hh-about-export' &&
+  Array.isArray(save.exports) &&
+  save.exports.length === 1 &&
+  /^[a-zA-Z\d_-]{1,100}$/u.test(save.exports[0]?.hash ?? '') &&
+  sha256.test(save.exports[0]?.sha256 ?? '') &&
+  Object.keys(save.exports[0]).length === 2;
+
 export const verifiedHhWorkplaceSave = (save) =>
   save?.evidence === 'verified-hh-workplace-export' &&
   Array.isArray(save.exports) &&
@@ -41,7 +49,7 @@ export const verifiedHhWorkplaceSave = (save) =>
 export const confirmedHhWorkplaceJob = (
   row,
   requestId,
-  { fingerprint, browserSlot }
+  { fingerprint, browserSlot, planRequestId }
 ) => {
   if (
     row?.requestId !== requestId ||
@@ -52,11 +60,14 @@ export const confirmedHhWorkplaceJob = (
     (row.options
       ? row.options.fingerprint !== fingerprint ||
         row.options.requestId !== requestId ||
-        row.options.browserSlot !== browserSlot
+        row.options.browserSlot !== browserSlot ||
+        row.options.planRequestId !== planRequestId
       : row.phase !== 'stopped') ||
     row.providerSaved !== (row.phase === 'saved') ||
     (row.providerSaved
-      ? !verifiedHhWorkplaceSave(row.save)
+      ? !(planRequestId ? verifiedHhAboutSave : verifiedHhWorkplaceSave)(
+          row.save
+        )
       : row.save !== null) ||
     typeof row.decisionPending !== 'boolean'
   ) {
