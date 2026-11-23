@@ -1,3 +1,4 @@
+import { autoImportLocale } from './auto-import.js';
 import { hiSending } from './sending.js';
 import { hiCloud } from './cloud.js';
 import { hiQuestionMatching } from './hi-question-matching.js';
@@ -451,16 +452,11 @@ export const hi = {
   'connections.openDetail': 'सेट अप',
   'connections.controlsTitle': 'कनेक्शन नियंत्रण',
   'autoImport.title': 'ब्राउज़र से आयात करें',
-  'autoImport.intro':
-    '{service} को एक अलग ब्राउज़र विंडो में खोलता है। साइन इन करें, वहाँ डेटा एक्सपोर्ट शुरू करें, और डाउनलोड की गई हर फ़ाइल अपने आप आयात हो जाएगी। अगली बार के लिए आप साइन इन रहेंगे।',
-  'autoImport.introCapture':
-    '{service} को एक अलग ब्राउज़र विंडो में खोलता है। साइन इन करें, कोई चैट खोलें और "यह चैट सहेजें" दबाएँ। डाउनलोड की गई एक्सपोर्ट फ़ाइलें भी अपने आप आयात होती हैं।',
+  ...autoImportLocale.hi,
   'autoImport.start': 'ब्राउज़र खोलें',
   'autoImport.capture': 'यह चैट सहेजें',
   'autoImport.finish': 'समाप्त',
   'autoImport.state.launching': 'ब्राउज़र खुल रहा है…',
-  'autoImport.state.waiting':
-    'ब्राउज़र खुला है। आपके एक्सपोर्ट की प्रतीक्षा है…',
   'autoImport.state.importing': 'आयात हो रहा है…',
   'autoImport.state.done': 'समाप्त।',
   'autoImport.state.stopped': 'लंबे विराम के बाद रोका गया।',

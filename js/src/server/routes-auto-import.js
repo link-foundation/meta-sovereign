@@ -114,7 +114,11 @@ const availability = async (ctx) => {
 // is logged above and answered generically (R-Z1).
 const fail = (res, error) =>
   (error.status
-    ? json(res, error.status, { ok: false, error: error.message })
+    ? json(res, error.status, {
+        ok: false,
+        error: error.message,
+        ...(error.code ? { code: error.code } : {}),
+      })
     : json(res, 500, {
         ok: false,
         error: 'internal server error',

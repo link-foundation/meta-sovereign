@@ -227,3 +227,50 @@ RUN_BROWSER_E2E=1 node js/tests/e2e-inbox-pull-browser.mjs
 ![Earlier local-only deletion prompt](../../screenshots/issue-56-hh-common-delete-before.png)
 
 ![HeadHunter deletion confirmation](../../screenshots/issue-56-hh-common-delete-after.png)
+
+## Saving an open native conversation
+
+At `fddd6529`, Connections offered downloaded files for HeadHunter. No
+capture was available after opening the import browser. Open **Connections →
+hh.ru → Import with browser**, sign in, open one conversation, and choose
+**Capture this chat**. The server saves the currently loaded message window
+under the native `web:<chat>` address. Repeat captures keep the same message
+IDs. Chat shows the saved conversation and Operator uses the unread count
+when the visible HeadHunter row agrees with the captured message boundary.
+A missing or ambiguous unread observation leaves prior unread state intact.
+Opening a chat yourself can affect its read state in HeadHunter. Capture
+itself leaves the composer, scroll position and provider controls alone.
+
+The authorized local server offers the same job to the terminal. Use
+`--binary` to select binary Lino on the wire. Standard output is readable
+text Lino in either mode.
+
+```sh
+meta-sovereign auto-import start --source=hh
+job='COPY_ID_FROM_START'
+meta-sovereign auto-import status --id="$job"
+meta-sovereign auto-import capture --id="$job" --binary
+meta-sovereign auto-import stop --id="$job"
+```
+
+The exact-parent regression finds no capture button and rejects the manager
+capability assertion. The registered Chromium inbox script checks refusal
+while on the list, save without an API token, draft preservation, direct and
+embedded conversations, duplicate and ambiguous panes, and the resulting
+Chat bubble and Operator entry. Independent Playwright MCP confirmed the
+capture with no API token and the saved unread count of two. Both browser
+checks used an isolated provider fixture. Node and Deno each passed 68
+focused checks, including CLI status and capture over both Lino encodings.
+Authenticated behavior, full history traversal and the remaining native
+message actions still require evidence for HH09.
+
+```sh
+node --test --test-concurrency=1 js/tests/auto-import.test.js
+RUN_BROWSER_E2E=1 node js/tests/e2e-inbox-pull-browser.mjs
+```
+
+![Earlier HeadHunter import awaiting a download](../../screenshots/issue-56-hh-browser-import-before.png)
+
+![HeadHunter browser import with one saved message](../../screenshots/issue-56-hh-browser-import-after.png)
+
+![The captured native conversation in combined Chat](../../screenshots/issue-56-hh-browser-import-chat.png)

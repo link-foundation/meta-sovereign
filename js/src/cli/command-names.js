@@ -1,6 +1,7 @@
 /** Admission catalog; verified against every ordinary command registration. */
 export const ordinaryCommandNames = new Set([
   'audience',
+  'auto-import',
   'automations',
   'backup',
   'backup-config',

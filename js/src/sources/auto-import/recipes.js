@@ -29,6 +29,8 @@ import {
   peerFromArchivePath,
 } from '../vk-html-archive.js';
 import { xToArchive } from '../archive/x-dms.js';
+import { captureHhConversation } from './hh.js';
+import { HH_WEB_UI } from '../hh-web-ui.js';
 
 // LinkedIn headers are "CONVERSATION ID", "FROM", ...; the adapter
 // reads them as CONVERSATION_ID, FROM, ...
@@ -128,9 +130,10 @@ export const autoImportRecipes = {
     files: /\.json$/i,
   },
   hh: {
-    url: 'https://hh.ru/applicant/negotiations',
+    url: HH_WEB_UI.listUrl,
     domains: ['hh.ru'],
     files: /\.json$/i,
+    capture: captureHhConversation,
   },
   superjob: {
     url: 'https://www.superjob.ru/',
@@ -169,6 +172,9 @@ export const autoImportRecipes = {
   },
 };
 
+export const canCaptureRecipe = (recipe) =>
+  Boolean(recipe.capture ?? recipe.scrape);
+
 /** Recipe metadata safe to send to the SPA (no functions / RegExps). */
 export const describeRecipes = () =>
   Object.fromEntries(
@@ -177,7 +183,7 @@ export const describeRecipes = () =>
       {
         url: recipe.url,
         domains: recipe.domains,
-        canCapture: Boolean(recipe.scrape),
+        canCapture: canCaptureRecipe(recipe),
       },
     ])
   );

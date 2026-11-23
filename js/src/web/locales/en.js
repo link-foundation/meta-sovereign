@@ -1,3 +1,4 @@
+import { autoImportLocale } from './auto-import.js';
 import { enSending } from './sending.js';
 import { enCloud } from './cloud.js';
 import { enQuestionMatching } from './en-question-matching.js';
@@ -450,15 +451,11 @@ export const en = {
   'connections.openDetail': 'Set up',
   'connections.controlsTitle': 'Connection controls',
   'autoImport.title': 'Import with browser',
-  'autoImport.intro':
-    'Opens {service} in a separate browser window. Sign in, start the data export there, and every file you download is imported automatically. You stay signed in for next time.',
-  'autoImport.introCapture':
-    'Opens {service} in a separate browser window. Sign in, open a chat and press "Capture this chat". Downloaded export files are imported automatically too.',
+  ...autoImportLocale.en,
   'autoImport.start': 'Open browser',
   'autoImport.capture': 'Capture this chat',
   'autoImport.finish': 'Finish',
   'autoImport.state.launching': 'Opening the browser…',
-  'autoImport.state.waiting': 'The browser is open. Waiting for your export…',
   'autoImport.state.importing': 'Importing…',
   'autoImport.state.done': 'Finished.',
   'autoImport.state.stopped': 'Stopped after a long pause.',

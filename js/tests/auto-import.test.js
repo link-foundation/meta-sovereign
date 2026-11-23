@@ -29,6 +29,9 @@ import { startServer } from './helpers/legacy-server.js';
 import { isTrustedMutation } from '../src/server/routes-auto-import.js';
 import { ProviderAutoImport } from '../src/web/connections/index.js';
 import { providerCatalogue } from '../src/web/connection-guides.js';
+import { runCli } from '../src/cli/index.js';
+import { decodeWire } from '../src/transport/lino.js';
+import { startServer as startLinoServer } from '../src/server/index.js';
 
 // --- fixtures ---------------------------------------------------------
 
@@ -365,6 +368,87 @@ test('manager marks the job done when the user closes the window', async () => {
   await waitFor(() => manager.get(job.id).state === 'done');
 });
 
+test('HeadHunter capture archives and deduplicates an owned native conversation', async (t) => {
+  const store = createMemoryStore();
+  const dataDir = await tmpDir();
+  let url = 'https://hh.ru/chat';
+  let beforeRead = async () => {};
+  let release = () => {};
+  const row = { id: '101', body: 'Interview tomorrow?', outgoing: false };
+  const read = {
+    chatName: 'Example employer',
+    unreadCount: 2,
+    latestMessageId: '101',
+  };
+  const frame = {
+    url: () => url,
+    evaluate: async () => ({ key: 'tab', rows: 1 }),
+  };
+  const manager = createAutoImportManager({
+    store,
+    dataDir,
+    launcher: async ({ url: opened }) => {
+      assert.equal(opened, 'https://hh.ru/chat');
+      return {
+        page: { url: frame.url, mainFrame: () => frame, frames: () => [frame] },
+        commander: {
+          evaluate: async ({ args: [input] }) => {
+            if (input.operation === 'history') {
+              await beforeRead();
+              return { chat: '7', messages: [row] };
+            }
+            assert.equal(input.scroll, false);
+            return read;
+          },
+        },
+        close: async () => release(),
+      };
+    },
+  });
+  t.after(async () => {
+    await manager.close();
+    await fs.rm(dataDir, { recursive: true, force: true });
+  });
+  const job = manager.start('hh');
+  assert.equal(job.canCapture, true);
+  await waitFor(() => manager.get(job.id).state === 'waiting');
+  await assert.rejects(manager.capture(job.id), { status: 409 });
+  assert.equal((await store.query()).length, 0);
+  url = 'https://hh.ru/chat/7';
+  const captured = await manager.capture(job.id);
+  assert.equal(captured.state, 'waiting');
+  assert.equal(captured.imported, 1);
+  assert.equal((await manager.capture(job.id)).imported, 1);
+  const message = await store.get('msg:hh:web:7:101');
+  assert.equal(message.body, row.body);
+  assert.equal(message.chatName, read.chatName);
+  assert.equal(message.timestamp, null);
+  assert.equal((await store.get('read:hh:web:7')).unreadCount, 2);
+  url = 'https://foreign.example/chat/7';
+  await assert.rejects(manager.capture(job.id), { status: 409 });
+  assert.equal(manager.get(job.id).imported, 1);
+
+  url = 'https://hh.ru/chat/7';
+  row.id = '105';
+  const entered = Promise.withResolvers();
+  const pending = Promise.withResolvers();
+  release = pending.resolve;
+  beforeRead = () => {
+    entered.resolve();
+    return pending.promise;
+  };
+  const interrupted = assert.rejects(manager.capture(job.id), {
+    name: 'AbortError',
+  });
+  await entered.promise;
+  await assert.rejects(manager.capture(job.id), /already importing/);
+  const stopped = await manager.stop(job.id);
+  await interrupted;
+  assert.equal(stopped.state, 'done');
+  assert.equal(stopped.imported, 1);
+  assert.equal(await store.get('msg:hh:web:7:105'), null);
+});
+
 test('manager reports launch failures and unknown providers', async () => {
   const manager = createAutoImportManager({
     store: createMemoryStore(),
@@ -487,6 +571,53 @@ test('server exposes auto-import status, jobs and guards mutations', async () =>
   } finally {
     await handle.close();
   }
+});
+
+test('CLI manages the running server’s import job using text and binary Lino', async (t) => {
+  const calls = [];
+  const dataDir = await tmpDir();
+  const handle = await startLinoServer({
+    port: 0,
+    tls: false,
+    storeDir: dataDir,
+    store: createMemoryStore(),
+    enableSync: false,
+    autoImportLauncher: fakeLauncher(calls, [
+      { id: '44', chat: 'Ann', sender: 'Ann', body: 'hello' },
+    ]),
+  });
+  t.after(async () => {
+    await handle.close();
+    await fs.rm(dataDir, { recursive: true, force: true });
+  });
+  const base = `http://127.0.0.1:${handle.port}`;
+  const command = async (...args) => {
+    let output;
+    const code = await runCli(['auto-import', ...args, `--url=${base}`], {
+      log: (text) => {
+        output = text;
+      },
+    });
+    return { code, result: decodeWire(output) };
+  };
+  assert.equal((await command('status')).result.providers.hh.canCapture, true);
+  const { code, result: job } = await command(
+    'start',
+    '--source=whatsapp',
+    '--slot=capture',
+    '--binary'
+  );
+  assert.equal(code, 0);
+  assert.equal(job.slot, 'capture');
+  const id = `--id=${job.id}`;
+  await waitFor(
+    async () =>
+      (await command('status', id, '--binary')).result.state === 'waiting'
+  );
+  assert.equal((await command('capture', id)).result.imported, 1);
+  assert.equal((await command('stop', id, '--binary')).result.state, 'done');
+  assert.equal((await command('capture', id)).code, 1);
+  assert.equal(calls.length, 1);
 });
 
 // --- Connections panel ------------------------------------------------

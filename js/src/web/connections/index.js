@@ -534,11 +534,14 @@ const AUTO_IMPORT_POLL_MS = 1500;
 const autoImportStateText = (t, job) =>
   job.state === 'failed'
     ? t('autoImport.state.failed', { error: job.error ?? '' })
-    : t(`autoImport.state.${job.state}`);
+    : t(
+        `autoImport.state.${job.state === 'waiting' && job.canCapture ? 'waitingCapture' : job.state}`
+      );
 
 // Loads the server's auto-import status, adopts a job already running
 // for this provider (e.g. after a page reload) and polls it while active.
 const useAutoImportJob = (providerId, initialStatus, initialJob) => {
+  const t = useT();
   const [status, setStatus] = useState(initialStatus);
   const [job, setJob] = useState(initialJob);
   const [error, setError] = useState('');
@@ -579,7 +582,11 @@ const useAutoImportJob = (providerId, initialStatus, initialJob) => {
 
   const apply = (result) => {
     if (result?.error) {
-      setError(result.error);
+      setError(
+        result.code === 'hh-capture-open-chat'
+          ? t('autoImport.openHhChat')
+          : result.error
+      );
     } else if (result?.id) {
       setError('');
       setJob(result);
@@ -591,7 +598,16 @@ const useAutoImportJob = (providerId, initialStatus, initialJob) => {
 
 const AutoImportActions = ({ providerId, status, job, active, apply }) => {
   const t = useT();
+  const [capturing, setCapturing] = useState(false);
   const canCapture = Boolean(status?.providers?.[providerId]?.canCapture);
+  const capture = async () => {
+    setCapturing(true);
+    try {
+      apply(await api.autoImportAction(job.id, 'capture'));
+    } finally {
+      setCapturing(false);
+    }
+  };
   const button = (key, label, onClick, extra = {}) =>
     el(
       'button',
@@ -617,17 +633,18 @@ const AutoImportActions = ({ providerId, status, job, active, apply }) => {
   }
   return el('div', { className: 'row' }, [
     canCapture
-      ? button(
-          'capture',
-          'autoImport.capture',
-          async () => apply(await api.autoImportAction(job.id, 'capture')),
-          { className: 'primary', disabled: job.state !== 'waiting' }
-        )
+      ? button('capture', 'autoImport.capture', capture, {
+          className: 'primary',
+          disabled: capturing || job.state !== 'waiting',
+        })
       : null,
     button('finish', 'autoImport.finish', async () =>
       apply(await api.autoImportAction(job.id, 'stop'))
     ),
-    el(AutoImportState, { key: 'state', job }),
+    el(AutoImportState, {
+      key: 'state',
+      job: capturing ? { ...job, state: 'importing' } : job,
+    }),
   ]);
 };
 
@@ -636,7 +653,7 @@ const AutoImportState = ({ job }) => {
   const text = `${autoImportStateText(t, job)} ${t('autoImport.imported', {
     count: job.imported,
   })}`;
-  return AUTO_IMPORT_ACTIVE.has(job.state)
+  return ['launching', 'importing'].includes(job.state)
     ? el(Busy, { as: 'span' }, text)
     : el('span', { className: 'meta', role: 'status' }, text);
 };
@@ -673,6 +690,8 @@ const AutoImportIntro = ({ providerId, provider, status, job }) => {
   const { locale } = useLocaleContext();
   const service = tx(t, provider.label, provider.labelKey);
   const canCapture = Boolean(status?.providers?.[providerId]?.canCapture);
+  const captureIntro =
+    providerId === 'hh' ? 'autoImport.introHh' : 'autoImport.introCapture';
   const signIn = job ? null : status?.signIns?.[providerId];
   return el(React.Fragment, null, [
     el(RecommendedHeader, {
@@ -685,7 +704,7 @@ const AutoImportIntro = ({ providerId, provider, status, job }) => {
     el(
       'p',
       { key: 'intro' },
-      t(canCapture ? 'autoImport.introCapture' : 'autoImport.intro', {
+      t(canCapture ? captureIntro : 'autoImport.intro', {
         service,
       })
     ),

@@ -1095,14 +1095,12 @@ const rawApi = {
       (error) => ({ error: error.message })
     )) ?? { error: 'server required for Telegram dialogs' },
   autoImportAction: async (id, action) =>
-    (await serverFetch(
+    (await serverPostReport(
       `/api/auto-import/jobs/${encodeURIComponent(id)}/${action}`,
-      {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: '{}',
-      }
-    )) ?? { error: 'server required for auto-import' },
+      {}
+    ).catch((error) => ({ error: error.message }))) ?? {
+      error: 'server required for auto-import',
+    },
 
   // One link as the server's store holds it (a reply's original that
   // the page does not hold), or null.

@@ -1,3 +1,10 @@
+2026-11-23 HeadHunter browser import (HH09 and QA02):
+
+- [x] Reproduce the missing native capture control and keep the downloaded-file path available.
+- [x] Reuse verified conversation ownership and stable message IDs. Bind unread state to the visible boundary and drain capture on stop.
+- [x] Verify localized Connections, the running-server CLI and both Lino transports. Verify direct and embedded panes and the saved conversation in Chat and Operator.
+- [ ] Verify the authenticated provider, broader history and remaining actions. HH09 and QA02 stay open.
+
 2026-11-23 HeadHunter common-chat changes (HH09):
 
 - [x] Reproduce the missing edit control and misleading local-delete scope in the previous Chat bundle. Confirm the documented mutation endpoints and receipts.

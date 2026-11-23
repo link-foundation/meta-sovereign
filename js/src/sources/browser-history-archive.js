@@ -13,7 +13,7 @@ const boundedText = (value, max) =>
   typeof value === 'string' && value.length > 0 && value.length <= max;
 
 /** Save only verified, bounded native rows; missing timestamps remain unknown. */
-const project = ({ source, chat, rows }) => {
+const project = ({ source, chat, rows, chatName }) => {
   if (
     !boundedText(source, 64) ||
     !boundedText(chat, 480) ||
@@ -39,6 +39,7 @@ const project = ({ source, chat, rows }) => {
   }
   return rows.map((row) => ({
     ...toBrowserMessageLink(source, chat, row),
+    ...(chatName ? { chatName } : {}),
     service: row.service === true,
     links: messageLinkProperties(row.links).links ?? [],
   }));

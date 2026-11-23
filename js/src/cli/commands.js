@@ -42,6 +42,7 @@ import { versionCmd } from './version-command.js';
 import { createCvCommands } from './cv-commands.js';
 import { createVacancyCommands } from './vacancy-commands.js';
 import { createBrowserCommands } from './browser-commands.js';
+import { autoImportCmd } from './auto-import-command.js';
 import { createFormsCommands } from './forms-commands.js';
 import { createBroadcastCommands } from './broadcast-commands.js';
 import { createAutomationCommands } from './automation-commands.js';
@@ -781,6 +782,7 @@ const COMMANDS = {
   passcode: passcodeCmd,
   sources: sourcesCmd,
   'source-pull': sourcePullCmd,
+  'auto-import': autoImportCmd,
   'email-send': emailSendCmd,
   'github-clone': githubCloneCmd,
   'github-comment': githubCommentCmd,

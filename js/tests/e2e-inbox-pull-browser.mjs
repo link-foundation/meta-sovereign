@@ -20,6 +20,10 @@ import {
   verifyHhCommonReply,
 } from './helpers/e2e-hh-common.mjs';
 import { verifyHhProviders } from './helpers/e2e-hh-providers.mjs';
+import {
+  launchHhImportFixture,
+  verifyHhBrowserImport,
+} from './helpers/e2e-hh-browser-import.mjs';
 import { createHhLive } from '../src/sources/hh.js';
 import { createDefaultSender } from '../src/sources/browser-sender.js';
 
@@ -100,10 +104,16 @@ const send = createDefaultSender({
   browser: false,
 });
 let pullNow = Date.now();
+let importPage;
 const { page, base, until, finish } = await openChatApp('inbox-pull', {
   store,
   secure: true,
   serverOptions: {
+    autoImportLauncher: async ({ url }) => {
+      const session = await launchHhImportFixture(page.context(), url);
+      importPage = session.page;
+      return session;
+    },
     automations: {
       scheduler: false,
       send,
@@ -223,6 +233,15 @@ const mediaSteps = async () => {
 };
 
 await finish(async () => {
+  if (process.env.HH_BROWSER_IMPORT_BEFORE === '1') {
+    await verifyHhBrowserImport({
+      page,
+      base,
+      native: () => importPage,
+      store,
+    });
+    return;
+  }
   await fetchSteps();
   await mediaSteps();
   await verifyHhCommon({
@@ -238,4 +257,6 @@ await finish(async () => {
   await verifyHhProviders({ page, base, store, until, hh });
   await verifyHhCommonReply({ page, base, store, fake: hh });
   await verifyHhCommonActions({ page, store, fake: hh, until });
+  await store.delete('secret:hh:access-token');
+  await verifyHhBrowserImport({ page, base, native: () => importPage, store });
 });

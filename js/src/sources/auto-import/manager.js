@@ -21,7 +21,7 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
-import { autoImportRecipes } from './recipes.js';
+import { autoImportRecipes, canCaptureRecipe } from './recipes.js';
 import {
   importDownloadedFile,
   extractVisibleMessages,
@@ -77,7 +77,7 @@ export const probeBrowserAutomation = async (
 };
 
 /**
- * Default launcher. Returns `{ commander, downloads, onClose, close }`.
+ * Default launcher. Returns `{ commander, page, downloads, onClose, close }`.
  * Tests inject a fake with the same shape.
  */
 export const launchWithBrowserCommander = async ({
@@ -142,6 +142,7 @@ export const launchWithBrowserCommander = async ({
     .catch((error) => error.message);
   return {
     commander,
+    page,
     navigationError,
     downloads: session.downloads,
     onClose: (listener) => page.on?.('close', listener),
@@ -179,7 +180,7 @@ const newJob = (provider, slot, recipe) => {
     slot,
     state: 'launching',
     url: recipe.url,
-    canCapture: Boolean(recipe.scrape),
+    canCapture: canCaptureRecipe(recipe),
     imported: 0,
     files: [],
     error: null,
@@ -187,6 +188,7 @@ const newJob = (provider, slot, recipe) => {
     updatedAt: now,
     signedIn: false,
     session: null,
+    pendingDownloads: 0,
     idleTimer: null,
     controller: new AbortController(),
   };
@@ -270,6 +272,34 @@ const captureOpenChat = async (store, job, scrape) => {
   return { name: `page: ${chat}`, imported: links.length };
 };
 
+const captureJob = async (store, job, touch) => {
+  const recipe = autoImportRecipes[job.provider];
+  if (!job.canCapture) {
+    throw statusError(`${job.provider} has no page capture`, 400);
+  }
+  if (!job.session || !ACTIVE.has(job.state)) {
+    throw statusError('the browser for this job is not open', 409);
+  }
+  if (job.state !== 'waiting') {
+    throw statusError('the browser is already importing', 409);
+  }
+  touch(job, { state: 'importing' });
+  try {
+    job.capturing = recipe.capture
+      ? recipe.capture(store, job.session, job.controller.signal)
+      : captureOpenChat(store, job, recipe.scrape);
+    const report = await job.capturing;
+    job.files.push(report);
+    job.imported += report.imported;
+  } finally {
+    job.capturing = null;
+    if (job.state === 'importing' && !job.pendingDownloads) {
+      touch(job, { state: 'waiting' });
+    }
+  }
+  return snapshot(job);
+};
+
 // Imports one downloaded file into the job, growing its counts live and
 // surfacing an aborted (store write failed) import as the job's error.
 const importInto = async (store, dataDir, job, filePath, touch) => {
@@ -338,6 +368,7 @@ export const createAutoImportManager = ({
       const session = job.session;
       job.session = null;
       await session?.close().catch(() => {});
+      await job.capturing?.catch(() => {});
     })();
     return job.finishing;
   };
@@ -346,10 +377,19 @@ export const createAutoImportManager = ({
     if (!ACTIVE.has(job.state) || !artifact?.path) {
       return;
     }
+    job.pendingDownloads += 1;
     touch(job, { state: 'importing' });
-    await importInto(store, dataDir, job, artifact.path, touch);
-    if (job.state === 'importing') {
-      touch(job, { state: 'waiting' });
+    try {
+      await importInto(store, dataDir, job, artifact.path, touch);
+    } finally {
+      job.pendingDownloads -= 1;
+      if (
+        job.state === 'importing' &&
+        !job.capturing &&
+        !job.pendingDownloads
+      ) {
+        touch(job, { state: 'waiting' });
+      }
     }
   };
 
@@ -414,25 +454,7 @@ export const createAutoImportManager = ({
 
     /** Read the messages of the chat open in the browser right now. */
     async capture(id) {
-      const job = requireJob(id);
-      const recipe = autoImportRecipes[job.provider];
-      if (!recipe.scrape) {
-        throw statusError(`${job.provider} has no page capture`, 400);
-      }
-      if (!job.session) {
-        throw statusError('the browser for this job is not open', 409);
-      }
-      touch(job, { state: 'importing' });
-      try {
-        const report = await captureOpenChat(store, job, recipe.scrape);
-        job.files.push(report);
-        job.imported += report.imported;
-        return snapshot(job);
-      } finally {
-        if (job.state === 'importing') {
-          touch(job, { state: 'waiting' });
-        }
-      }
+      return captureJob(store, requireJob(id), touch);
     },
 
     async stop(id) {

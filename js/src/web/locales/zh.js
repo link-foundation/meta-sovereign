@@ -1,3 +1,4 @@
+import { autoImportLocale } from './auto-import.js';
 import { zhSending } from './sending.js';
 import { zhCloud } from './cloud.js';
 import { questionFinalPeriodLocale } from './question-final-period.js';
@@ -437,15 +438,11 @@ export const zh = {
   'connections.openDetail': '设置',
   'connections.controlsTitle': '连接控制',
   'autoImport.title': '通过浏览器导入',
-  'autoImport.intro':
-    '在单独的浏览器窗口中打开 {service}。登录后在那里开始数据导出，下载的每个文件都会自动导入。下次无需重新登录。',
-  'autoImport.introCapture':
-    '在单独的浏览器窗口中打开 {service}。登录并打开一个聊天，然后点击「保存此聊天」。下载的导出文件也会自动导入。',
+  ...autoImportLocale.zh,
   'autoImport.start': '打开浏览器',
   'autoImport.capture': '保存此聊天',
   'autoImport.finish': '完成',
   'autoImport.state.launching': '正在打开浏览器…',
-  'autoImport.state.waiting': '浏览器已打开，正在等待你的导出文件…',
   'autoImport.state.importing': '正在导入…',
   'autoImport.state.done': '已完成。',
   'autoImport.state.stopped': '长时间无操作，已停止。',

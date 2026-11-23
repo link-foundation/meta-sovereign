@@ -1,3 +1,4 @@
+import { autoImportLocale } from './auto-import.js';
 import { ruSending } from './sending.js';
 import { ruCloud } from './cloud.js';
 import { vkProviderJobsLocale } from './vk-provider-jobs.js';
@@ -453,15 +454,11 @@ export const ru = {
   'connections.openDetail': 'Настроить',
   'connections.controlsTitle': 'Управление подключением',
   'autoImport.title': 'Импорт через браузер',
-  'autoImport.intro':
-    'Откроет {service} в отдельном окне браузера. Войдите, запустите там выгрузку данных — каждый скачанный файл импортируется автоматически. Вход сохранится до следующего раза.',
-  'autoImport.introCapture':
-    'Откроет {service} в отдельном окне браузера. Войдите, откройте чат и нажмите «Сохранить этот чат». Скачанные файлы выгрузки тоже импортируются автоматически.',
+  ...autoImportLocale.ru,
   'autoImport.start': 'Открыть браузер',
   'autoImport.capture': 'Сохранить этот чат',
   'autoImport.finish': 'Готово',
   'autoImport.state.launching': 'Открываем браузер…',
-  'autoImport.state.waiting': 'Браузер открыт. Ждём вашу выгрузку…',
   'autoImport.state.importing': 'Импортируем…',
   'autoImport.state.done': 'Готово.',
   'autoImport.state.stopped': 'Остановлено после долгого простоя.',

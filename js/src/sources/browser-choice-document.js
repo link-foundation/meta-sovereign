@@ -44,13 +44,11 @@ const trusted = (address, origins) => {
   const url = new URL(address);
   return origins.includes(url.origin) && !url.username && !url.password;
 };
-const inChat = (frame, ui, target) => {
+const chatAt = (frame, ui) => {
   const url = new URL(frame.url());
-  return (
-    trusted(url.href, ui.location.origins) &&
-    new RegExp(ui.location.pathPattern).exec(url.pathname)?.[1] ===
-      String(target)
-  );
+  return trusted(url.href, ui.location.origins)
+    ? new RegExp(ui.location.pathPattern).exec(url.pathname)?.[1]
+    : undefined;
 };
 
 const visibleFrame = async (frame, main, ui) => {
@@ -83,6 +81,20 @@ const listIdentitySelector = (ui) =>
     .filter(Boolean)
     .join(', ');
 
+const candidateAt = async (frame, main, ui, { list, requested, selector }) => {
+  const chat = list ? undefined : chatAt(frame, ui);
+  const matching = list
+    ? inList(frame, ui)
+    : chat && (requested === undefined || chat === requested);
+  if (!matching || !(await visibleFrame(frame, main, ui))) {
+    return null;
+  }
+  const identity = await frame.evaluate(browserDocumentIdentity, selector);
+  return identity.rows
+    ? { frame, identity, frameUrl: frame.url(), chat }
+    : null;
+};
+
 export const chooseBrowserChatDocument = async (
   page,
   ui,
@@ -93,13 +105,12 @@ export const chooseBrowserChatDocument = async (
     throw failure();
   }
   const main = page.mainFrame();
-  const ownerRoute = new RegExp(ui.location.pathPattern).exec(
-    new URL(page.url()).pathname
-  );
+  const ownerChat = chatAt(main, ui);
+  const requested = target === undefined ? ownerChat : String(target);
   if (
     list
       ? !new RegExp(ui.chatScan.pathPattern).test(new URL(page.url()).pathname)
-      : ownerRoute && ownerRoute[1] !== String(target)
+      : ownerChat && ownerChat !== requested
   ) {
     throw failure();
   }
@@ -110,12 +121,13 @@ export const chooseBrowserChatDocument = async (
   const candidates = [];
   const selector = list ? listIdentitySelector(ui) : ui.messages.item;
   for (const frame of frames) {
-    const matching = list ? inList(frame, ui) : inChat(frame, ui, target);
-    if (matching && (await visibleFrame(frame, main, ui))) {
-      const identity = await frame.evaluate(browserDocumentIdentity, selector);
-      if (identity.rows) {
-        candidates.push({ frame, identity, frameUrl: frame.url() });
-      }
+    const candidate = await candidateAt(frame, main, ui, {
+      list,
+      requested,
+      selector,
+    });
+    if (candidate) {
+      candidates.push(candidate);
     }
   }
   if (candidates.length !== 1) {
@@ -160,6 +172,7 @@ const resolveBrowserDocument = async (
   };
   const ownerFrame = page.mainFrame();
   return {
+    chat: selected.chat,
     async bindHistory(token, onSnapshot) {
       await assertCurrent();
       return bindBrowserHistory(page, selected.frame, token, onSnapshot);
@@ -236,8 +249,16 @@ const resolveBrowserDocument = async (
   };
 };
 
-export const resolveBrowserChoiceDocument = (commander, page, ui, target) =>
-  resolveBrowserDocument(commander, page, ui, target);
+export const resolveBrowserChoiceDocument = (commander, page, ui, target) => {
+  if (target === undefined) {
+    throw failure();
+  }
+  return resolveBrowserDocument(commander, page, ui, target);
+};
+
+/** Infer the exact chat only when one trusted, visible native pane owns it. */
+export const resolveOpenBrowserConversation = (commander, page, ui) =>
+  resolveBrowserDocument(commander, page, ui);
 
 /** List scans use the same visible-frame and document-identity ownership. */
 export const resolveBrowserChatListDocument = (commander, page, ui) =>
