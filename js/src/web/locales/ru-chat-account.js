@@ -6,8 +6,7 @@ export const ruChatAccount = {
   'chat.versions.edited': 'Изменённые сообщения',
   'chat.versions.local':
     'Версии, сохранённые сервером, доступны и после изменения или удаления сообщения в сервисе.',
-  'chat.versions.partial':
-    'Версии до первого получения сообщения этим сервером не были сохранены.',
+  'chat.versions.partial': 'Некоторые предыдущие версии могут быть недоступны.',
   'chat.versions.mediaMissing':
     'Файл вложения для этой версии не был сохранён.',
   'chat.versions.attachment': 'Вложение',

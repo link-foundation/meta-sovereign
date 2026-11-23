@@ -62,6 +62,7 @@ const DELIVERY_ICON = {
   sent: 'check',
   read: 'check-double',
   failed: 'alert',
+  unknown: 'help',
 };
 
 const DeliveryIcon = ({ status, message }) => {

@@ -71,6 +71,17 @@ test('each day starts with its date: today, yesterday, a day, a year', () => {
   assert.equal(dayKeyOf('not a time'), null);
 });
 
+test('an undated message does not introduce a date separator', () => {
+  const date = at(2026, 10, 23);
+  assert.equal(dayKeyOf(null), null);
+  assert.equal(dayKeyOf(''), null);
+  assert.equal(dayKeyOf(0), dayKeyOf(new Date(0)));
+  assert.deepEqual(
+    [...dayBreaks([msg(1, null), msg(2, date), msg(3, null), msg(4, date)])],
+    [['msg:telegram:42:2', '2026-10-23']]
+  );
+});
+
 test('a month in the calendar starts on the week’s first day', () => {
   // October 2026 starts on a Thursday.
   const monday = monthCells(2026, 9, 1);

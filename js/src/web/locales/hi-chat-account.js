@@ -6,8 +6,7 @@ export const hiChatAccount = {
   'chat.versions.edited': 'संपादित संदेश',
   'chat.versions.local':
     'इस सर्वर पर सहेजे गए संस्करण सेवा द्वारा संदेश बदलने या हटाने के बाद भी उपलब्ध रहते हैं।',
-  'chat.versions.partial':
-    'इस सर्वर को संदेश पहली बार मिलने से पहले के संस्करण सहेजे नहीं गए थे।',
+  'chat.versions.partial': 'कुछ पुराने संस्करण उपलब्ध नहीं हो सकते हैं।',
   'chat.versions.mediaMissing': 'इस संस्करण की संलग्न फ़ाइल सहेजी नहीं गई थी।',
   'chat.versions.attachment': 'संलग्न फ़ाइल',
   'chat.versions.download': 'सहेजी गई फ़ाइल डाउनलोड करें',

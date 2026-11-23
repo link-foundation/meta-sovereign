@@ -6,7 +6,9 @@ import { createMemoryStore } from '../../js/src/storage/universal.js';
 import { seedHhAnswerRevisions } from './hh-history-fixture.mjs';
 
 const store = createMemoryStore();
-await seedHhAnswerRevisions(store);
+if (process.env.HH_IMPORT_RECORDING !== '1') {
+  await seedHhAnswerRevisions(store);
+}
 const storeDir = await mkdtemp(join(tmpdir(), 'ms-hh-revisions-ui-'));
 let server;
 try {

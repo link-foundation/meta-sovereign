@@ -181,6 +181,9 @@ export const hiChat = {
   'chat.delivery.sent': 'भेजा गया',
   'chat.delivery.read': 'पढ़ा गया',
   'chat.delivery.failed': 'नहीं भेजा गया',
+  'chat.delivery.unknown': 'डिलीवरी की पुष्टि नहीं हुई',
+  'chat.hh.recordingOnly':
+    'HeadHunter का संग्रह। संदेश भेजने के लिए इस बातचीत को HeadHunter में खोलें और रिकॉर्ड करें।',
   'chat.failure.floodWait':
     'Telegram और भेजने से पहले {seconds} सेकंड रुकने को कहता है।',
   'chat.failure.forbidden': 'आप इस चैट में नहीं लिख सकते।',

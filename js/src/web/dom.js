@@ -951,7 +951,7 @@ const rawApi = {
       `/api/archive/upload?source=${encodeURIComponent(source)}&name=${encodeURIComponent(file?.name || 'archive')}`,
       file,
       options
-    )) ?? { error: 'server required for zip imports' },
+    )) ?? { error: 'server required for archive uploads' },
   whatsappArchive: async (name, data) =>
     (await serverPostReport('/api/whatsapp/archive', { name, data }).catch(
       (error) => ({ error: error.message })

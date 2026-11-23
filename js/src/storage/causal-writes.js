@@ -67,7 +67,12 @@ export const withCausalWrites = (
   );
   Object.defineProperty(result, causalStore, { value: true });
   Object.defineProperty(result, syncRecords, {
-    value: { scan: (...args) => inner.scan(...args), size: () => inner.size() },
+    value: {
+      scan: (...args) => inner.scan(...args),
+      size: () => inner.size(),
+      has: async (id) =>
+        !privateId(id) && Boolean(await inner.get(id, () => true)),
+    },
   });
   const visible = (link) => link && !isSyncDeleted(link);
   result.get = async (id, project) => {

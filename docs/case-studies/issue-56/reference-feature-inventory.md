@@ -20,6 +20,8 @@ Partial QA24 and HH01 Forms prerequisite: [active owner notices](forms-attention
 
 Partial QA02 and QA06 include [edited answer history](question-archive-revisions.md). Saved revisions keep their original reply turn, earlier wordings count once, and missing versions are disclosed across CLI, text/binary Lino and Questions. Complete provider history and authenticated parity remain required.
 
+[HeadHunter recorder history](hh-recording-import.md) imports existing keyed conversation archives into Chat and preserves the available revisions. Unknown message times and delivery remain visible as unknown, and undated conversations are excluded from learning. The synthetic verification adds evidence for QA02 and QA06.
+
 QA19/QA20 also include [Stop during sender preparation](dispatch-stop.md):
 forty-five actual-parent failures and 383 focused passes cover separate dispatch
 ownership, native queues and real autopilot drainage while preserving issued

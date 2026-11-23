@@ -834,10 +834,10 @@ export const zh = {
   'connections.habr-career.errorHints.401':
     'career.habr.com 拒绝了令牌。请在 设置 -> Tokens 重新签发。',
   'connections.hh.label': 'hh.ru',
-  'connections.hh.archive.title': '导入 hh.ru 沟通归档',
+  'connections.hh.archive.title': '导入 hh.ru 聊天记录',
   'connections.hh.archive.hint':
-    '导入您已获取的、包含实际沟通消息的 JSON 文件。仅有沟通列表不包含消息历史。如需在线历史，请输入 API 令牌并选择立即获取。',
-  'connections.hh.archive.fileHint': 'negotiations.json',
+    '导入包含沟通消息的 JSON 文件。导入含有已保存编辑记录的 chat-history.json 时，请连接服务器。如需在线历史，请输入 API 令牌并选择立即获取。',
+  'connections.hh.archive.fileHint': 'chat-history.json / negotiations.json',
   'connections.hh.api.title': '连接 hh.ru API',
   'connections.hh.api.hint':
     '在 https://dev.hh.ru/ 注册应用，通过 OAuth 授权您的 HH 账户，并在下方粘贴用户访问令牌。聊天访问取决于应用和账户权限。',

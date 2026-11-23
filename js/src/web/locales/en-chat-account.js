@@ -6,8 +6,7 @@ export const enChatAccount = {
   'chat.versions.edited': 'Edited messages',
   'chat.versions.local':
     'Versions saved by this server remain available after the service changes or deletes the message.',
-  'chat.versions.partial':
-    'Versions from before this server first observed the message were not captured.',
+  'chat.versions.partial': 'Some earlier versions may be unavailable.',
   'chat.versions.mediaMissing':
     'No attachment bytes were retained for this version.',
   'chat.versions.attachment': 'Attachment',

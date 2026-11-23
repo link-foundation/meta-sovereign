@@ -864,10 +864,10 @@ export const en = {
   'connections.habr-career.errorHints.401':
     'career.habr.com rejected the token. Re-issue it from Settings -> Tokens.',
   'connections.hh.label': 'hh.ru',
-  'connections.hh.archive.title': 'Import an hh.ru negotiations archive',
+  'connections.hh.archive.title': 'Import hh.ru chat history',
   'connections.hh.archive.hint':
-    'Import a JSON file containing actual negotiation messages that you have already obtained. A negotiation list alone contains no message history. For live history, enter an API token and choose Fetch now.',
-  'connections.hh.archive.fileHint': 'negotiations.json',
+    'Import JSON with negotiation messages, or use a connected server to import chat-history.json with saved edits. For live history, enter an API token and choose Fetch now.',
+  'connections.hh.archive.fileHint': 'chat-history.json / negotiations.json',
   'connections.hh.api.title': 'Connect the hh.ru API',
   'connections.hh.api.hint':
     'Register an app at https://dev.hh.ru/, authorize your HH account with OAuth and paste the user access token below. Chat access depends on app and account permissions.',

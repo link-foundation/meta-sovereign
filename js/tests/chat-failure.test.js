@@ -12,7 +12,7 @@ import { LocaleContext, translate } from '../src/web/i18n.js';
 import { MessageBubble } from '../src/web/chat-message.js';
 import { ChatItem } from '../src/web/chat-list.js';
 import { pendingChatPreviews } from '../src/web/chat-pending-preview.js';
-import { summarizeChats } from '../src/web/chat-model.js';
+import { deliveryStatus, summarizeChats } from '../src/web/chat-model.js';
 
 const t = (key) => key;
 
@@ -63,6 +63,32 @@ test('a lost HeadHunter web send stays pending review after disconnect or reload
   assert.equal(loss.status, 'failed');
   assert.equal(loss.retryAt, null);
   assert.deepEqual(restoreOutbox([item]), [loss]);
+});
+
+test('a HeadHunter recording needs a native observation before Chat can send', () => {
+  const archived = {
+    id: 'msg:hh:web:7:101',
+    source: 'hh',
+    chat: 'web:7',
+    via: 'archive',
+    body: 'Archived reply',
+    outgoing: true,
+    delivery: 'unknown',
+    timestamp: null,
+    raw: { hhRecording: { historyComplete: true } },
+  };
+  const native = {
+    ...archived,
+    id: 'msg:hh:web:7:102',
+    via: 'browser',
+    timestamp: '2026-11-23T12:00:00Z',
+  };
+  assert.equal(summarizeChats([archived])[0].hhRecordingOnly, true);
+  const [chat] = summarizeChats([archived, native]);
+  assert.equal(chat.hhBrowserMessage, native.id);
+  assert.equal(chat.hhRecordingOnly, undefined);
+  assert.equal(deliveryStatus(archived, 102), 'unknown');
+  assert.equal(deliveryStatus({ ...archived, delivery: 'pending' }), 'sending');
 });
 
 test('shared failed bubbles and directory labels explain uncertain sends in every locale', () => {

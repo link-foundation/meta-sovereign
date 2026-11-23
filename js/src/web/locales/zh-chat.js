@@ -173,6 +173,9 @@ export const zhChat = {
   'chat.delivery.sent': '已发送',
   'chat.delivery.read': '已读',
   'chat.delivery.failed': '未发送',
+  'chat.delivery.unknown': '送达状态未确认',
+  'chat.hh.recordingOnly':
+    'HeadHunter 存档。要发送消息，请在 HeadHunter 中打开并记录此对话。',
   'chat.failure.floodWait': 'Telegram 要求等待 {seconds} 秒后再发送。',
   'chat.failure.forbidden': '你不能在此聊天中发言。',
   'chat.failure.unknownChat': '你的账号无法访问此聊天。',

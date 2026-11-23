@@ -182,6 +182,9 @@ export const enChat = {
   'chat.delivery.sent': 'Sent',
   'chat.delivery.read': 'Read',
   'chat.delivery.failed': 'Not sent',
+  'chat.delivery.unknown': 'Delivery unconfirmed',
+  'chat.hh.recordingOnly':
+    'HeadHunter archive. Open and capture this conversation in HeadHunter to send messages.',
   'chat.failure.floodWait':
     'Telegram asks to wait {seconds} s before sending more.',
   'chat.failure.forbidden': 'You cannot write in this chat.',

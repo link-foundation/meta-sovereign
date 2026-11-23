@@ -175,6 +175,9 @@ export const ruChat = {
   'chat.delivery.sent': 'Отправлено',
   'chat.delivery.read': 'Прочитано',
   'chat.delivery.failed': 'Не отправлено',
+  'chat.delivery.unknown': 'Доставка не подтверждена',
+  'chat.hh.recordingOnly':
+    'Архив HeadHunter. Чтобы отправлять сообщения, откройте и сохраните переписку через HeadHunter.',
   'chat.failure.floodWait':
     'Telegram просит подождать {seconds} с перед следующей отправкой.',
   'chat.failure.forbidden': 'В этот чат нельзя писать.',

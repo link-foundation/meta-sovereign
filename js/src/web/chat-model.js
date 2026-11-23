@@ -248,10 +248,24 @@ const lastPreview = (message, self) => ({
 
 const headHunterWebMessage = (messages, last) => {
   const fromWeb = (message) => message.via === 'browser';
-  if (last.source !== 'hh' || !messages.some(fromWeb)) {
+  const fromRecording = (message) =>
+    message.via === 'archive' && Boolean(message.raw?.hhRecording);
+  if (last.source !== 'hh') {
     return {};
   }
-  return { hhBrowserMessage: messages.every(fromWeb) ? last.id : null };
+  if (messages.every(fromRecording)) {
+    return { hhRecordingOnly: true };
+  }
+  if (!messages.some(fromWeb)) {
+    return {};
+  }
+  return {
+    hhBrowserMessage:
+      fromWeb(last) &&
+      messages.every((row) => fromWeb(row) || fromRecording(row))
+        ? last.id
+        : null,
+  };
 };
 
 const summarize = (key, messages, self, read, now, visibility) => {
@@ -488,7 +502,14 @@ export const cloudDraft = (links = [], key) => {
 // message, or waiting to be tried again) and the ones shown as they are.
 const ON_THE_WAY = new Set(['queued', 'sending', 'waiting']);
 const AS_IS = new Set(['failed', 'stored']);
-const NETWORK_DELIVERY = new Set(['sent', 'delivered', 'read', 'failed']);
+const NETWORK_DELIVERY = new Map([
+  ['sent', 'sent'],
+  ['delivered', 'sent'],
+  ['read', 'read'],
+  ['failed', 'failed'],
+  ['pending', 'sending'],
+  ['unknown', 'unknown'],
+]);
 
 /**
  * Where one of our messages is, as Telegram shows it:
@@ -501,8 +522,9 @@ export const deliveryStatus = (message, readMax = 0) => {
     return null;
   }
   // A network that reports it (WhatsApp, Messenger) says it outright.
-  if (NETWORK_DELIVERY.has(message.delivery) && !message.status) {
-    return message.delivery === 'delivered' ? 'sent' : message.delivery;
+  const reported = NETWORK_DELIVERY.get(message.delivery);
+  if (reported && !message.status) {
+    return reported;
   }
   if (message.status === 'waiting') {
     return 'waiting';

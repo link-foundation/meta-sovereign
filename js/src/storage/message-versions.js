@@ -7,7 +7,11 @@ import { changedLink, replicatedMutation } from './mutation.js';
 import { syncRecords } from './sync-deletions.js';
 import { isTombstone } from './soft-delete.js';
 import { SYNC_STAMP } from '../sync/register.js';
-import { VERSION_PREFIX, messageVersionPrefix } from './message-version-id.js';
+import {
+  VERSION_PREFIX,
+  importMessageVersions,
+  messageVersionPrefix,
+} from './message-version-id.js';
 
 export { VERSION_PREFIX } from './message-version-id.js';
 export const isMessageVersion = (link) => link?.kind === 'message-version';
@@ -93,6 +97,51 @@ const changeKind = (before, link) => {
   return isTombstone(link) && !isTombstone(before) ? 'delete' : null;
 };
 
+const writeVersionBatch = async (inner, records, options, single = false) => {
+  if (!records.length) {
+    return [];
+  }
+  if (single && records.length === 1) {
+    return [await inner.put(records[0], options)];
+  }
+  if (inner.putMany) {
+    return inner.putMany(records, options);
+  }
+  const output = [];
+  for (const record of records) {
+    output.push(await inner.put(record, options));
+  }
+  return output;
+};
+
+const importRecordedHistory = async (inner, link, earlierTexts, history) => {
+  // A newer observation or an explicit local hard delete takes precedence.
+  if (
+    (await inner.get(link.id)) ||
+    (await inner[syncRecords]?.has?.(link.id))
+  ) {
+    return null;
+  }
+  if (!earlierTexts.length) {
+    return link;
+  }
+  const texts = [...earlierTexts, link.body];
+  let head = null;
+  for (const body of texts) {
+    const record = version({ ...link, body }, head, null);
+    if (!(await inner.get(record.id))) {
+      history.push(record);
+    }
+    head = record.id;
+  }
+  return {
+    ...link,
+    versionHead: head,
+    versionCount: texts.length,
+    versionPartial: true,
+  };
+};
+
 const versionWriter = (inner, { now, preserve, indexVersions }) => {
   const guard = async (link) => {
     if (!String(link?.id).startsWith(VERSION_PREFIX)) {
@@ -157,7 +206,22 @@ const versionWriter = (inner, { now, preserve, indexVersions }) => {
       versionPartial: partial,
     };
   };
-  return async (links, single = false, options) => {
+  const currentMessage = async (link, state) => {
+    const before = state.pending.get(link.id) ?? (await inner.get(link.id));
+    const kind = changeKind(before, link);
+    if (kind) {
+      return changed(before, link, state, kind === 'delete');
+    }
+    return before?.versionHead
+      ? {
+          ...link,
+          versionHead: before.versionHead,
+          versionCount: before.versionCount,
+          versionPartial: Boolean(before.versionPartial),
+        }
+      : link;
+  };
+  return async (links, single = false, options, recording) => {
     const pending = new Map();
     const writes = [];
     const history = [];
@@ -173,50 +237,31 @@ const versionWriter = (inner, { now, preserve, indexVersions }) => {
         writes.push(link);
         continue;
       }
-      const before = pending.get(link.id) ?? (await inner.get(link.id));
-      let next = link;
-      if (before?.versionHead) {
-        next = {
-          ...link,
-          versionHead: before.versionHead,
-          versionCount: before.versionCount,
-          versionPartial: Boolean(before.versionPartial),
-        };
+      if (recording?.has(link.id)) {
+        if (!pending.has(link.id)) {
+          const next = await importRecordedHistory(
+            inner,
+            link,
+            recording.get(link.id),
+            history
+          );
+          if (next) {
+            pending.set(link.id, next);
+            writes.push(next);
+          }
+        }
+        continue;
       }
-      const kind = changeKind(before, link);
-      if (kind) {
-        next = await changed(
-          before,
-          link,
-          { pending, history, after },
-          kind === 'delete'
-        );
-      }
+      const next = await currentMessage(link, { pending, history, after });
       pending.set(link.id, next);
       writes.push(next);
     }
-    const write = async (records, one = false) => {
-      if (!records.length) {
-        return [];
-      }
-      if (one && records.length === 1) {
-        return [await inner.put(records[0], options)];
-      } else if (inner.putMany) {
-        return inner.putMany(records, options);
-      } else {
-        const output = [];
-        for (const record of records) {
-          output.push(await inner.put(record, options));
-        }
-        return output;
-      }
-    };
-    await write(history);
+    await writeVersionBatch(inner, history, options);
     indexVersions(history);
     for (const finish of after) {
       await finish();
     }
-    const output = await write(writes, single);
+    const output = await writeVersionBatch(inner, writes, options, single);
     indexVersions(writes);
     return output;
   };
@@ -276,6 +321,8 @@ export const withMessageVersions = (
   // retain text that its causal hard-delete has already erased.
   const originHistory = (options) =>
     inner[syncRecords] && options?.[replicatedMutation];
+  result[importMessageVersions] = (links, recording, options) =>
+    enqueue(() => prepare(links, false, options, recording));
   result.put = (link, options) =>
     originHistory(options) && isMessage(link)
       ? enqueue(() => inner.put(link, options))

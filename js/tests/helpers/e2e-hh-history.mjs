@@ -1,5 +1,10 @@
 import { assert } from './e2e-chat.mjs';
 import { hhHistoryFixture } from '../../../experiments/issue-56/hh-history-fixture.mjs';
+import {
+  hhRecordingAnswer,
+  hhRecordingChat,
+  hhRecordingFixture,
+} from '../../../experiments/issue-56/hh-recording-fixture.mjs';
 import { importInto } from '../../src/sources/index.js';
 import { openQuestionDisclosure } from './question-preview.mjs';
 
@@ -149,5 +154,125 @@ export const verifyHhAnswerRevisions = async ({
   );
   await learner
     .getByText('Incomplete edit history for 1 sent message.', { exact: false })
+    .waitFor();
+};
+
+export const verifyHhRecording = async ({
+  page,
+  base,
+  store,
+  before = false,
+}) => {
+  await page.goto(base);
+  await page.locator('button[data-view="connections"]').click();
+  await page
+    .locator(
+      'article[data-provider-id="hh"] [data-action="open-connection-detail"]'
+    )
+    .click();
+  const connection = page.locator('#conn-hh');
+  const manual = connection.locator('[data-action="connection-mode-manual"]');
+  if (await manual.count()) {
+    await manual.click();
+  }
+  const uploaded = before
+    ? null
+    : page.waitForResponse((response) =>
+        response.url().includes('/api/archive/upload?source=hh')
+      );
+  await connection.locator('input[data-action="archive-file"]').setInputFiles({
+    name: 'chat-history.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify(hhRecordingFixture())),
+  });
+  if (uploaded) {
+    assert(
+      (await uploaded).ok(),
+      'archive upload succeeded without a provider session'
+    );
+  }
+  const screenshots = process.env.HH_RECORDING_SCREENSHOTS === '1';
+  const status = connection.locator(
+    '.provider-archive-import .row > span.meta'
+  );
+  await status.filter({ hasText: /imported|import failed/i }).waitFor();
+  const result = await status.textContent();
+  console.log('[hh-recording-import]', result);
+  if (before && screenshots) {
+    await status.scrollIntoViewIfNeeded();
+    await page.screenshot({
+      path: 'docs/screenshots/issue-56-hh-recording-before.png',
+    });
+  }
+  assert(
+    result.includes(': 2 messages imported'),
+    `the recorder archive import reports two native messages. Received ${result}`
+  );
+  const paste = connection.locator('[data-action="archive-paste"]');
+  const importPasted = connection.locator('[data-action="archive-import"]');
+  await paste.fill(JSON.stringify(hhRecordingFixture()));
+  await importPasted.click();
+  await status
+    .filter({ hasText: 'chat-history.json: 0 messages imported' })
+    .waitFor();
+  await page.locator('button[data-view="chat"]').click();
+  await page.locator(`[data-chat="hh:web:${hhRecordingChat}"]`).click();
+  const answer = page.locator(`[data-row="${hhRecordingAnswer}"]`);
+  await answer.getByText('Python and JavaScript', { exact: true }).waitFor();
+  await answer
+    .locator('[data-delivery="unknown"][aria-label="Delivery unconfirmed"]')
+    .waitFor();
+  await page.locator('[data-hh-recording-only]').waitFor();
+  assert(
+    !(await page.locator('.chat-day[data-day]').count()),
+    'no invented day'
+  );
+  assert(
+    !(await page.locator('.chat-composer textarea').count()),
+    'no composer'
+  );
+  if (screenshots) {
+    await page.screenshot({
+      path: 'docs/screenshots/issue-56-hh-recording-chat.png',
+    });
+  }
+  await page.locator('[data-action="edited-open"]').click();
+  await page.locator('[data-edited-id]').first().click();
+  const dialog = page.locator('[data-dialog="message-versions"]');
+  for (const wording of ['Python and JavaScript', 'Python 3', 'Python']) {
+    await dialog.getByText(wording, { exact: true }).waitFor();
+  }
+  await dialog.getByText('Some earlier versions may be unavailable.').waitFor();
+  assert(
+    (await dialog.locator('[data-version]').count()) === 3,
+    'earlier wordings only appear in the version history'
+  );
+  if (screenshots) {
+    await page.screenshot({
+      path: 'docs/screenshots/issue-56-hh-recording-after.png',
+    });
+  }
+  await page.goto(`${base}/#/operator`);
+  await page.locator('.operator-empty').waitFor();
+  assert(
+    !(await page.locator('[data-operator-chat]').count()),
+    'archive import does not invent unread work in Operator'
+  );
+  const learner = await previewHhArchive(page, base, 'hh-recording');
+  await learner
+    .getByText('Archived messages inspected: 0 of 2.', { exact: true })
+    .waitFor();
+  await learner
+    .getByText(/lack reliable timestamps and were excluded/u)
+    .waitFor();
+  assert(
+    !(await store.query((link) => link.id.startsWith('qa-rule:'))).length,
+    'the offline recording does not create learned rules'
+  );
+  await page.goto(`${base}/#conn-hh/manual`);
+  await paste.fill(JSON.stringify(hhHistoryFixture()));
+  await importPasted.click();
+  await status
+    .filter({ hasText: 'Imported 4 messages from pasted snippet.' })
     .waitFor();
 };

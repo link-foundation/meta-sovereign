@@ -5,7 +5,7 @@ export const zhChatAccount = {
   'chat.versions.title': '编辑历史',
   'chat.versions.edited': '已编辑的消息',
   'chat.versions.local': '此服务器保存的版本在服务更改或删除消息后仍然可用。',
-  'chat.versions.partial': '此服务器首次收到该消息之前的版本未被保存。',
+  'chat.versions.partial': '部分较早的版本可能无法查看。',
   'chat.versions.mediaMissing': '此版本未保留附件内容。',
   'chat.versions.attachment': '附件',
   'chat.versions.download': '下载已保存的附件',

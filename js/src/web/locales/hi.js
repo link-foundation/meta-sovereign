@@ -862,10 +862,10 @@ export const hi = {
   'connections.habr-career.errorHints.401':
     'career.habr.com ने टोकन अस्वीकृत किया। Settings -> Tokens से फिर से जारी करें।',
   'connections.hh.label': 'hh.ru',
-  'connections.hh.archive.title': 'hh.ru वार्तालाप संग्रह आयात करें',
+  'connections.hh.archive.title': 'hh.ru चैट का इतिहास आयात करें',
   'connections.hh.archive.hint':
-    'पहले से प्राप्त वार्तालाप के वास्तविक संदेशों वाली JSON फ़ाइल आयात करें। केवल वार्तालाप सूची में संदेश इतिहास नहीं होता। लाइव इतिहास के लिए API टोकन भरें और अभी लाएँ चुनें।',
-  'connections.hh.archive.fileHint': 'negotiations.json',
+    'वार्तालाप के संदेशों वाली JSON फ़ाइल आयात करें। सहेजे गए बदलावों वाली chat-history.json फ़ाइल आयात करने के लिए सर्वर से जुड़ें। लाइव इतिहास के लिए API टोकन भरें और अभी लाएँ चुनें।',
+  'connections.hh.archive.fileHint': 'chat-history.json / negotiations.json',
   'connections.hh.api.title': 'hh.ru API जोड़ें',
   'connections.hh.api.hint':
     'https://dev.hh.ru/ पर ऐप पंजीकृत करें, OAuth से अपने HH खाते को अधिकृत करें और नीचे उपयोगकर्ता एक्सेस टोकन भरें। चैट पहुँच ऐप और खाते की अनुमतियों पर निर्भर है।',

@@ -1,3 +1,11 @@
+### 2026-11-23 Archived HeadHunter recorder imports (HH09, HH11, QA02 and QA06)
+
+- [x] Trace the pinned recorder's keyed chat file, edited wording, capture time and coverage back to its native DOM reader.
+- [x] Reuse native Chat IDs and the immutable version store. Retain unknown send timing and delivery without overwriting current messages or restoring deleted rows.
+- [x] Reproduce the empty import and the separate Connections policy error on `0a3283ab`.
+- [x] Verify 78 checks per runtime, the actual CLI, both Lino encodings, excluded learning and retry safety. Confirm Chat and Questions in production Chromium and the mobile flow in Playwright MCP. [Recorder case](hh-recording-import.md).
+- [ ] Inspect hosted workflows and continue complete authenticated provider history and parity.
+
 ### 2026-11-23 HeadHunter older-message capture (HH09, HH10, HH11 and QA02)
 
 - [x] Reproduce the missing import control and the CLI treating `--history` as a loaded-window capture.
@@ -1946,7 +1954,7 @@ Native profile persistence follow-up:
 
 - [x] Preserve the failed Windows x64 and arm64 logs at exact head `72d5a02c`. Both reach the Node debugger before the installed application times out.
 - [x] Reproduce the missing React import without the checkout and verify independent translation, locale behavior and the production bundle. Node and Deno pass 44 focused checks. [Reproduction and sources](desktop-attention-packaging.md).
-- [ ] Verify clean installed startup, one visible window, runtime drain and screenshot in the exact-head Windows x64 and arm64 jobs.
+- [x] Verify clean installed startup, one visible window, runtime drain and screenshot in both hosted Windows architecture jobs on `05366339`. [Native results](desktop-attention-packaging.md).
 
 ### Edited answers in the shared archive (QA02 and QA06)
 

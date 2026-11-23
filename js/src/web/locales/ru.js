@@ -877,10 +877,10 @@ export const ru = {
   'connections.habr-career.errorHints.401':
     'career.habr.com отклонил токен. Перевыпустите его в Настройках -> Токены.',
   'connections.hh.label': 'hh.ru',
-  'connections.hh.archive.title': 'Импорт архива откликов hh.ru',
+  'connections.hh.archive.title': 'Импорт переписки hh.ru',
   'connections.hh.archive.hint':
-    'Загрузите уже полученный JSON-файл с самими сообщениями переговоров. Один список переговоров не содержит истории сообщений. Для чтения через API введите токен и нажмите «Загрузить сейчас».',
-  'connections.hh.archive.fileHint': 'negotiations.json',
+    'Импортируйте JSON с сообщениями откликов. Для импорта chat-history.json с сохранёнными правками подключитесь к серверу. Для чтения через API введите токен и нажмите «Загрузить сейчас».',
+  'connections.hh.archive.fileHint': 'chat-history.json / negotiations.json',
   'connections.hh.api.title': 'Подключите API hh.ru',
   'connections.hh.api.hint':
     'Зарегистрируйте приложение на https://dev.hh.ru/, авторизуйте свой аккаунт HH через OAuth и вставьте пользовательский токен ниже. Доступ к чатам зависит от прав приложения и аккаунта.',

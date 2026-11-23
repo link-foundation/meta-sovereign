@@ -430,11 +430,11 @@ export const providerCatalogue = {
     label: 'hh.ru',
     labelKey: 'connections.hh.label',
     archive: {
-      title: 'Import an hh.ru negotiations archive',
+      title: 'Import hh.ru chat history',
       titleKey: 'connections.hh.archive.title',
-      hint: 'Import a JSON file containing actual negotiation messages that you have already obtained. A negotiation list alone contains no message history. For live history, enter an API token and choose Fetch now.',
+      hint: 'Import JSON with negotiation messages, or use a connected server to import chat-history.json with saved edits. For live history, enter an API token and choose Fetch now.',
       hintKey: 'connections.hh.archive.hint',
-      fileHint: 'negotiations.json',
+      fileHint: 'chat-history.json / negotiations.json',
       accept: '.json,application/json',
     },
     apiCredentials: {

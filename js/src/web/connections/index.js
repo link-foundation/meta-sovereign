@@ -62,6 +62,7 @@ import { VkStickerCatalog } from '../vk-sticker-catalog.js';
 import { MarketplaceAccounts } from '../marketplace-accounts.js';
 import { VkToken } from './vk-token.js';
 import { workspaceName } from '../cloud-workspace.js';
+import { isHhRecording, parseHhArchive } from '../../sources/hh-recording.js';
 
 const el = React.createElement;
 const VkConnectionJobs = () =>
@@ -337,34 +338,53 @@ const ProviderCredentialsForm = ({
   ]);
 };
 
+const archiveInput = (raw) => {
+  if (typeof raw !== 'string') {
+    return raw;
+  }
+  const trimmed = raw.trim();
+  if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+    try {
+      return JSON.parse(trimmed);
+    } catch {
+      return trimmed;
+    }
+  }
+  return trimmed;
+};
+
 const ProviderArchiveImport = ({ providerId, provider }) => {
   const t = useT();
   const [paste, setPaste] = useState('');
   const [status, setStatus] = useState('');
 
-  const importPayload = async (raw, label) => {
+  const importPayload = async (raw, label, file) => {
     if (!raw || (typeof raw === 'string' && raw.trim().length === 0)) {
       setStatus(t('settings.nothingToImport'));
       return;
     }
     setStatus(working(t('settings.importing', { label })));
     try {
-      const mod = await import('../../sources/index.js');
-      const adapter = mod.getSource(providerId);
-      let archive = raw;
-      if (typeof raw === 'string') {
-        const trimmed = raw.trim();
-        if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
-          try {
-            archive = JSON.parse(trimmed);
-          } catch {
-            archive = trimmed;
-          }
-        } else {
-          archive = trimmed;
-        }
+      const archive = archiveInput(raw);
+      if (providerId === 'hh' && isHhRecording(archive)) {
+        await uploadArchive(
+          file ??
+            new globalThis.File([raw], 'chat-history.json', {
+              type: 'application/json',
+            })
+        );
+        return;
       }
-      const messages = await adapter.parseArchive(archive);
+      // The legacy HH format needs only its parser. The full source registry
+      // loads native browser commands that cannot run under the browser CSP.
+      const messages =
+        providerId === 'hh'
+          ? parseHhArchive(archive)
+          : await (
+              await import('../../sources/index.js')
+            )
+              .getSource(providerId)
+              .parseArchive(archive);
       let count = 0;
       for (const message of messages ?? []) {
         await api.put(message);
@@ -378,9 +398,9 @@ const ProviderArchiveImport = ({ providerId, provider }) => {
     }
   };
 
-  // A zip export (WhatsApp with media, Facebook, X, ...) is streamed to the
-  // server, which reads it in place (R-Z9, R-Z23).
-  const importZip = async (file) => {
+  // Container exports and recordings with immutable edits use the server's
+  // archive importer so the file is admitted with its history intact.
+  const uploadArchive = async (file) => {
     setStatus(working(t('settings.importing', { label: file.name })));
     const answer = await api.archiveUpload(providerId, file, {
       onProgress: (share) =>
@@ -409,7 +429,7 @@ const ProviderArchiveImport = ({ providerId, provider }) => {
       return;
     }
     if (/\.zip$/i.test(file.name)) {
-      await importZip(file);
+      await uploadArchive(file);
       return;
     }
     // Mail is read as bytes, so every part keeps its own charset (R-Z5).
@@ -417,7 +437,7 @@ const ProviderArchiveImport = ({ providerId, provider }) => {
       providerId === 'email'
         ? new Uint8Array(await file.arrayBuffer())
         : await file.text();
-    await importPayload(content, file.name);
+    await importPayload(content, file.name, file);
   };
 
   const onPaste = async () => {

@@ -379,6 +379,7 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 - [Desktop notification packaging](desktop-attention-packaging.md) traces both Windows installer smoke failures to a checkout-only React import and verifies localized attention in an isolated copy without renderer dependencies.
 
 - [Edited answer history](question-archive-revisions.md) retains earlier observed versions of confirmed answers with original message and revision IDs. Shared archive learning deduplicates repeated wording, respects owner corrections and reports incomplete edit chains. Authenticated provider history remains required for QA02 and QA06.
+- [HeadHunter recorder history](hh-recording-import.md) verifies the recorder file through CLI, both Lino encodings, production Chromium and mobile Playwright MCP. Chat preserves revisions, unknown times and unconfirmed delivery. QA02 and QA06 remain unfinished.
 
 - [solver-authentication.md](solver-authentication.md) preserves the full public sanitized session and reconstructs the November 21 solver interruption from the exact Codex refresh error and wrapper termination.
 

@@ -38,6 +38,7 @@ import { verifyQuestionDisclosures } from './helpers/e2e-question-disclosures.mj
 import {
   verifyHhAnswerRevisions,
   verifyHhHistory,
+  verifyHhRecording,
   resetHhHistoryFixture,
 } from './helpers/e2e-hh-history.mjs';
 import { seedHhAnswerRevisions } from '../../experiments/issue-56/hh-history-fixture.mjs';
@@ -629,6 +630,15 @@ const verifyRefusedSave = async (saved) => {
 };
 
 const verifyProviderHistory = async () => {
+  await resetHhHistoryFixture(store, async () => {});
+  await traceBrowserScenario('questions', 'hh-recording-import', () =>
+    verifyHhRecording({
+      page,
+      base,
+      store,
+      before: process.env.HH_RECORDING_BEFORE === '1',
+    })
+  );
   // Archive scenarios use their own transcript and saved-rule baseline.
   await resetHhHistoryFixture(store);
   await traceBrowserScenario('questions', 'hh-history-learning', async () => {

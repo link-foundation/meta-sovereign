@@ -7,6 +7,7 @@
  */
 
 import { normalizeHhMessages } from './hh-messages.js';
+import { parseHhArchive } from './hh-recording.js';
 import { pullHhChats } from './hh-chats.js';
 import { sendHhChat } from './hh-chat-send.js';
 import { hhCommonChatId, markHhChatRead } from './hh-chat-read.js';
@@ -176,8 +177,7 @@ const live = createHhLive();
 export const hhSource = {
   name: SOURCE,
   async parseArchive(archive) {
-    const obj = typeof archive === 'string' ? JSON.parse(archive) : archive;
-    return normalizeHhMessages(obj, { legacyFlat: true });
+    return parseHhArchive(archive);
   },
   live,
   syncResume: (resume, options) => live.syncResume(resume, options),
