@@ -11,6 +11,10 @@ import {
   linkedinPositionForm,
 } from './linkedin-position-fields.js';
 import { linkedinPositionFailure } from './linkedin-position-plan.js';
+import {
+  fillLinkedinPositionSkills,
+  readLinkedinProfileSkills,
+} from './linkedin-position-skills.js';
 
 const detach = (session) =>
   session?.detach ? session.detach() : session?.close();
@@ -177,6 +181,21 @@ export const createLinkedinPositionNative =
         wait,
         now,
       });
+      const eligible = await readLinkedinProfileSkills({
+        session,
+        plan,
+        check,
+        wait,
+        signal,
+      });
+      if (!eligible.length && !plan.media && !Object.keys(plan.fields).length) {
+        return {
+          phase: 'no-changes',
+          code: 'cv-linkedin-position-note',
+          unapplied: ['skills'],
+          unresolvedSkills: plan.skills,
+        };
+      }
       await clearSlot(session, plan.target.url, check);
       await open(session, plan.editor, signal);
       const token = randomUUID();
@@ -187,12 +206,24 @@ export const createLinkedinPositionNative =
       }
       const draft = await fillLinkedinPosition(form, controls, plan);
       check();
+      const skills = await fillLinkedinPositionSkills({
+        session,
+        plan,
+        token,
+        eligible,
+        form,
+        controls: draft,
+        check,
+        wait,
+        signal,
+      });
       return await withPrepared({
         session,
         token,
         form,
         controls: draft,
         before,
+        skills,
         check,
         wait,
         now,

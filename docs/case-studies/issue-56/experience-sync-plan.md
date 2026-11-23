@@ -63,7 +63,9 @@ drafts. A single position can be saved or skipped explicitly through CLI or
 Lino. Chromium covers owner Save with fresh readback, stale readback, Skip,
 Stop and navigation. The shared CV view shows the proposed fields, asks for
 separate approval and recovers the exact job after a lost Start reply or phone
-reload. Native skill and media selection and an interactive queue remain
+reload. Native Chromium tests verify selecting an exact existing skill,
+preserving other skills, a skill-only Save and a stale result that leaves the
+Save unconfirmed. Native media selection and an interactive queue remain
 required in this direction.
 Authenticated provider verification, complete HH/About acquisition and every
 remaining item above stay required; HH21 remains unfinished.

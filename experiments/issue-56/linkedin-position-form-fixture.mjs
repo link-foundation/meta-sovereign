@@ -29,6 +29,7 @@ export const linkedinPositionFormHtml = ({
   add,
   changed,
   actions,
+  skillPicker,
 }) => `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><title>LinkedIn position fixture</title></head>
 <body><main><dialog open aria-labelledby="editor-title"><h1 id="editor-title">${add ? 'Add experience' : 'Edit experience'}</h1>
@@ -47,11 +48,49 @@ export const linkedinPositionFormHtml = ({
 <label>End year*<select name="endYear">${years('')}</select></label>
 </fieldset>
 <button type="button" role="switch" aria-label="Notify your network" aria-checked="true" onclick="this.setAttribute('aria-checked',this.getAttribute('aria-checked')==='false')">Notify network</button>
+${
+  skillPicker
+    ? `<fieldset id="skills"><legend>Skills</legend>
+<label>Rust<input type="checkbox" value="Rust" checked></label>
+<button type="button" id="add-skill">Add skill</button>
+<input type="text" placeholder="Skill" aria-controls="skill-options" hidden>
+<div id="skill-options" role="listbox" hidden></div>
+</fieldset>`
+    : ''
+}
 <button type="button" id="cancel">Cancel</button>
 <button type="submit">Save</button>
 </form></dialog></main>
 <script>
 const position = document.querySelector('dialog');
+const skillInput = document.querySelector('#skills input[type=text]');
+if (skillInput) {
+  const list = document.querySelector('#skill-options');
+  document.querySelector('#add-skill').onclick = () => { skillInput.hidden = false; };
+  skillInput.oninput = () => {
+    list.replaceChildren();
+    for (const name of ['PostgreSQL Administration', 'PostgreSQL', 'ClickUp']) {
+      if (!skillInput.value || !name.toLowerCase().startsWith(skillInput.value.toLowerCase())) continue;
+      const option = document.createElement('button');
+      option.type = 'button';
+      option.setAttribute('role', 'option');
+      option.textContent = name;
+      option.onclick = () => {
+        const label = document.createElement('label');
+        const box = document.createElement('input');
+        box.type = 'checkbox';
+        box.value = name;
+        box.checked = true;
+        label.append(name, box);
+        document.querySelector('#skills').append(label);
+        skillInput.value = '';
+        list.hidden = true;
+      };
+      list.append(option);
+    }
+    list.hidden = !list.childElementCount;
+  };
+}
 document.querySelector('#cancel').onclick = () => {
   if (${Boolean(actions)}) {
     const warning = document.createElement('dialog');
@@ -67,7 +106,9 @@ document.querySelector('form').addEventListener('submit', async (event)=>{
   event.preventDefault();
   window.fixtureSaves = (window.fixtureSaves || 0) + 1;
   if (${Boolean(actions)}) {
-    await fetch('/fixture-position-save', {method: 'POST', body: document.querySelector('#description').innerText});
+    const description = document.querySelector('#description').innerText;
+    const body = skillInput ? JSON.stringify({description, skills: Array.from(document.querySelectorAll('#skills input:checked'), node => node.value)}) : description;
+    await fetch('/fixture-position-save', {method: 'POST', body});
     position.close();
     const notice = document.createElement('p');
     notice.setAttribute('role', 'status');

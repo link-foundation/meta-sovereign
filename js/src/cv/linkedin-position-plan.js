@@ -106,9 +106,12 @@ export const linkedinPositionValues = (job) => ({
   end: job?.end ?? null,
 });
 
-const skillKey = (value) => value.normalize('NFKC').trim().toLowerCase();
+export const linkedinPositionSkillKey = (value) =>
+  value.normalize('NFKC').trim().toLowerCase();
 const newSkills = (proposal) => {
-  const current = new Set((proposal.before ?? []).map(skillKey));
+  const current = new Set(
+    (proposal.before ?? []).map(linkedinPositionSkillKey)
+  );
   const add = [];
   let limited = false;
   for (const name of proposal.after) {
@@ -116,7 +119,7 @@ const newSkills = (proposal) => {
       limited = true;
       continue;
     }
-    const key = skillKey(name);
+    const key = linkedinPositionSkillKey(name);
     if (!current.has(key) && key) {
       current.add(key);
       add.push(name);

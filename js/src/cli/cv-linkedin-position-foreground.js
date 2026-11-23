@@ -35,8 +35,18 @@ export const foregroundLinkedinPosition = async (
           return;
         }
         notice(
-          'Review the position in the LinkedIn window. Type y to Save, s to Skip, or q to leave the draft open.'
+          value.canSave === false
+            ? 'Review the position in the LinkedIn window. Type s to Skip or q to leave the draft open.'
+            : 'Review the position in the LinkedIn window. Type y to Save, s to Skip, or q to leave the draft open.'
         );
+        if (value.preparedSkills?.length) {
+          notice(`Prepared skills: ${value.preparedSkills.join(', ')}.`);
+        }
+        if (value.unresolvedSkills?.length) {
+          notice(
+            `Review these skills in LinkedIn: ${value.unresolvedSkills.join(', ')}.`
+          );
+        }
         if (value.unapplied.length) {
           notice(`Manual review required for ${value.unapplied.join(', ')}.`);
         }
@@ -44,7 +54,10 @@ export const foregroundLinkedinPosition = async (
         reader.on('line', (line) => {
           const choices = { y: 'save', s: 'skip', q: 'leave' };
           const key = line.trim().toLowerCase();
-          if (Object.hasOwn(choices, key)) {
+          if (
+            Object.hasOwn(choices, key) &&
+            (key !== 'y' || value.canSave !== false)
+          ) {
             choose(choices[key]);
           }
         });

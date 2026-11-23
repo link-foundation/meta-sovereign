@@ -38,6 +38,7 @@ export const confirmedLinkedinPositionJob = (row, requestId, fingerprint) => {
         'unconfirmed',
         'stopped',
         'failed',
+        'no-changes',
         'unknown',
         'interrupted',
       ].includes(row.phase)) ||

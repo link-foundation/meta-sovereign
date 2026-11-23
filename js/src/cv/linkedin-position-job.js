@@ -22,6 +22,7 @@ const terminal = [
   'unconfirmed',
   'stopped',
   'failed',
+  'no-changes',
 ];
 const positionCode = /^cv-linkedin-position-[a-z-]{1,60}$/u;
 export const linkedinPositionRunning = linkedinPositionPending;
@@ -39,6 +40,9 @@ const newRecord = (requestId, options = null) => ({
   phase: options ? 'opening' : 'stopped',
   code: null,
   unapplied: [],
+  preparedSkills: [],
+  unresolvedSkills: [],
+  canSave: false,
   save: null,
   initiator: null,
 });
@@ -67,6 +71,24 @@ const validOptions = ({ options, phase }, id) =>
     ? options.requestId === id &&
       JSON.stringify(optionsFor(options)) === JSON.stringify(options)
     : phase === 'stopped';
+const validSkillNames = (names) =>
+  Array.isArray(names) &&
+  names.length <= 100 &&
+  names.every((name) => typeof name === 'string' && name.length <= 100);
+const validPreparation = ({
+  preparedSkills = [],
+  unresolvedSkills = [],
+  canSave = false,
+}) =>
+  typeof canSave === 'boolean' &&
+  validSkillNames(preparedSkills) &&
+  validSkillNames(unresolvedSkills);
+const validJobSave = ({ save, phase, initiator, preparedSkills = [] }) =>
+  phase === 'saved'
+    ? verifiedSave(save) &&
+      Boolean(initiator) &&
+      JSON.stringify(save.skills ?? []) === JSON.stringify(preparedSkills)
+    : save === null;
 const checked = (value, id) => {
   const row = copyExperienceData(value);
   if (
@@ -77,15 +99,10 @@ const checked = (value, id) => {
     !running.concat(terminal).includes(row.phase) ||
     !validOptions(row, id) ||
     !validUnapplied(row.unapplied) ||
+    !validPreparation(row) ||
+    !validJobSave(row) ||
     ![null, 'cli-or-api', 'browser'].includes(row.initiator) ||
     (row.code !== null && !positionCode.test(row.code))
-  ) {
-    throw linkedinPositionFailure('job-record');
-  }
-  if (
-    row.phase === 'saved'
-      ? !verifiedSave(row.save) || !row.initiator
-      : row.save !== null
   ) {
     throw linkedinPositionFailure('job-record');
   }
@@ -128,10 +145,15 @@ const waitForChoice = async (owned, context) => {
   return 'stopped';
 };
 
-const dispatchDecision = async (choice, context, update) => {
+const dispatchDecision = async (
+  choice,
+  context,
+  update,
+  initiator = 'cli-or-api'
+) => {
   await update({
     phase: choice === 'save' ? 'saving' : 'skipping',
-    initiator: 'cli-or-api',
+    initiator,
   });
   const result = await context.form.read({
     expected: context.controls,
@@ -165,15 +187,35 @@ const dispatchDecision = async (choice, context, update) => {
 };
 
 const observePrepared = async (owned, update, context) => {
-  const { plan } = context;
+  const { plan, skills = { applied: [], unapplied: plan.skills } } = context;
   const unapplied = [
-    ...(plan.skills.length ? ['skills'] : []),
+    ...(skills.unapplied.length ? ['skills'] : []),
     ...(plan.media ? ['media'] : []),
   ];
-  await update({ phase: 'prepared', unapplied });
+  const canSave = Boolean(
+    Object.keys(plan.fields).length || skills.applied.length
+  );
+  const preparation = {
+    unapplied,
+    canSave,
+    preparedSkills: skills.applied,
+    unresolvedSkills: skills.unapplied,
+  };
+  if (!canSave && !plan.media) {
+    const disposition = await dispatchDecision('skip', context, update, null);
+    if (disposition !== 'skipped') {
+      throw linkedinPositionFailure('skill-review');
+    }
+    return {
+      phase: 'no-changes',
+      code: 'cv-linkedin-position-note',
+      ...preparation,
+    };
+  }
+  await update({ phase: 'prepared', ...preparation });
   const choice = await waitForChoice(owned, context);
-  if (choice === 'save' && !Object.keys(plan.fields).length) {
-    throw linkedinPositionFailure('note');
+  if (choice === 'save') {
+    await context.skills?.confirm();
   }
   const outcome = ['save', 'skip'].includes(choice)
     ? await dispatchDecision(choice, context, update)
@@ -254,7 +296,8 @@ export const createLinkedinPositionJobs = (context) => {
           active?.row.requestId !== requestId ||
           active.row.options.fingerprint !== fingerprint ||
           active.row.phase !== 'prepared' ||
-          active.decision
+          active.decision ||
+          (decision === 'save' && !active.row.canSave)
         ) {
           throw linkedinPositionFailure('decision');
         }

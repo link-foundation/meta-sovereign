@@ -73,7 +73,7 @@ acknowledgement before opening, and trusted Lino admission and recovery.
 ## Shared CV review
 
 In CV → Experience documents, compare an HH export with a native LinkedIn
-export and select **Review LinkedIn position** on a matching update or a
+export and select **Review this position in LinkedIn** on a matching update or a
 proposed addition. The review shows the current and proposed values and
 requires approval before **Open LinkedIn editor** becomes available. When the
 browser is prepared, the CV view offers Save, Skip or leaving the editor open.
@@ -89,5 +89,24 @@ reloads at phone width and confirms one Start, one Skip and zero saves.
 | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
 | ![Comparison before the review action](../../screenshots/issue-56-linkedin-position/position-before.png) | ![Proposed LinkedIn position changes](../../screenshots/issue-56-linkedin-position/position-review.png) | ![Prepared LinkedIn position controls on a phone](../../screenshots/issue-56-linkedin-position/position-prepared-phone.png) |
 
-Native skill and media selection, an interactive queue and authenticated
-verification remain open in [HH21](experience-sync-plan.md).
+## Native skill selection
+
+Preparation checks the current LinkedIn profile’s Skills page before opening
+the position. It uses one exact suggestion from the position’s skill picker
+and confirms the checked skill in the draft. A skill that cannot be confirmed
+in the profile or picker remains visible for manual review. If the plan only
+requests unobserved skills, preparation reports that no changes are available
+and skips opening the editor. The automation leaves existing skills selected
+and does not add to the profile’s Skills section.
+
+The native Chromium job fixture selects PostgreSQL while preserving Rust,
+ignoring a longer suggestion and leaving the unlisted ClickUp for manual
+review. It verifies one explicit skill-only Save, one unconfirmed Save when
+the fresh export lacks the requested skill, and zero form opens for a change
+containing only an unlisted skill. Running the same fixture with
+`--import ./experiments/issue-56/linkedin-position-skills-before.mjs` against
+the previous modules reaches the original prepared state and fails because
+the exact skill was never selected.
+
+Native media selection, an interactive queue and authenticated verification
+remain open in [HH21](experience-sync-plan.md).

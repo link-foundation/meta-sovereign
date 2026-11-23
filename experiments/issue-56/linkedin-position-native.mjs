@@ -36,6 +36,7 @@ export const verifyLinkedinPositionNative = async (browser) => {
     const page = await context.newPage();
     const other = await context.newPage();
     const url = fixture.linkedin.document.source.url;
+    const skillsUrl = url.replace(/experience\/$/u, 'skills/');
     const editor = linkedinPositionFixtureUrl('1101');
     const addUrl = linkedinPositionFixtureUrl('new');
     let changed = false;
@@ -44,7 +45,13 @@ export const verifyLinkedinPositionNative = async (browser) => {
       const target = route.request().url();
       nav.push(target);
       assert.equal(route.request().method(), 'GET');
-      assert.ok([url, editor, addUrl].includes(target));
+      assert.ok([url, editor, addUrl, skillsUrl].includes(target));
+      if (target === skillsUrl) {
+        return route.fulfill({
+          contentType: 'text/html',
+          body: '<main><h1>Skills</h1></main>',
+        });
+      }
       await route.fulfill({
         contentType: 'text/html; charset=utf-8',
         body:
@@ -153,7 +160,16 @@ export const verifyLinkedinPositionNative = async (browser) => {
       saves.push(await page.evaluate(() => window.fixtureSaves ?? 0));
     });
     assert.deepEqual(saves, [0, 0]);
-    assert.deepEqual(nav, [url, editor, url, editor, url, addUrl]);
+    assert.deepEqual(nav, [
+      url,
+      skillsUrl,
+      editor,
+      url,
+      skillsUrl,
+      editor,
+      url,
+      addUrl,
+    ]);
     assert.equal(detachCount, 4);
     return {
       synthetic: true,

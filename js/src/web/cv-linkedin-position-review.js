@@ -43,7 +43,7 @@ const PositionProposal = ({ review }) => {
       ? el(
           'p',
           { key: 'skills', className: 'meta' },
-          t('linkedinPosition.manualSkills', {
+          t('linkedinPosition.proposedSkills', {
             skills: review.skills.join(', '),
           })
         )
@@ -79,7 +79,7 @@ const positionButtons = (state, t) => {
       button(
         'save',
         () => state.decide('save'),
-        busy || !Object.keys(state.review.fields).length,
+        busy || !(row.canSave ?? Object.keys(state.review.fields).length),
         t
       ),
       button('skip', () => state.decide('skip'), busy, t),
@@ -106,6 +106,10 @@ const PositionControls = ({ state }) => {
   }
   const { unknown, row } = job;
   const phase = row?.phase;
+  const skillSummary = [
+    ['preparedSkills', row?.preparedSkills],
+    ['manualSkills', row?.unresolvedSkills],
+  ].filter(([, skills]) => skills?.length);
   return el(React.Fragment, null, [
     el(
       'div',
@@ -132,6 +136,15 @@ const PositionControls = ({ state }) => {
           t('linkedinPosition.login')
         )
       : null,
+    ...skillSummary.map(([name, skills]) =>
+      el(
+        'p',
+        { key: name, className: 'meta' },
+        t(`linkedinPosition.${name}`, {
+          skills: skills.join(', '),
+        })
+      )
+    ),
   ]);
 };
 

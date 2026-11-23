@@ -5,7 +5,7 @@ import { linkedinPositionReviewFixture } from './linkedin-position-review-fixtur
 export const linkedinPositionReviewBrowserFixture = async () => {
   const fixture = await linkedinPositionReviewFixture();
   const counters = { opened: 0, saved: 0, cancelled: 0, detached: 0 };
-  const open = async (_plan, signal, withPrepared) => {
+  const open = async (plan, signal, withPrepared) => {
     counters.opened++;
     let phase = 'open';
     const check = () => signal.throwIfAborted();
@@ -29,6 +29,11 @@ export const linkedinPositionReviewBrowserFixture = async () => {
         check,
         now: Date.now,
         wait: (_ms, signal) => delay(20, undefined, { signal }),
+        skills: {
+          applied: plan.skills,
+          unapplied: [],
+          confirm: async () => {},
+        },
       });
     } finally {
       counters.detached++;

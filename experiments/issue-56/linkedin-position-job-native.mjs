@@ -50,12 +50,14 @@ export const verifyLinkedinPositionJob = async (browser) => {
     const page = await browserContext.newPage();
     const { store, row, linkedin } = fixture;
     const url = linkedin.document.source.url;
+    const skillsUrl = url.replace(/experience\/$/u, 'skills/');
     const editor = linkedinPositionFixtureUrl('1101');
     const service = createLinkedinPositionReviews(fixture);
     const draft = await service.stage(linkedinPositionReference(row, 'update'));
     const approval = await service.review({ fingerprint: draft.fingerprint });
     let saved = false;
     let lags = false;
+    let skillPicker = false;
     let launches = 0;
     let detaches = 0;
     const writes = [];
@@ -75,21 +77,33 @@ export const verifyLinkedinPositionJob = async (browser) => {
         saved = !lags;
         return route.fulfill({ status: 200, body: 'ok' });
       }
+      if (target === skillsUrl && request.method() === 'GET') {
+        return route.fulfill({
+          contentType: 'text/html',
+          body: `<main><h1>Skills</h1><ul><li class="pvs-list__paged-list-item"><h3>Rust</h3></li>${skillPicker ? '<li class="pvs-list__paged-list-item"><h3>PostgreSQL</h3></li>' : ''}</ul></main>`,
+        });
+      }
       if ((target !== url && target !== editor) || request.method() !== 'GET') {
         return route.abort();
       }
-      const experience = saved
-        ? linkedinPositionExperienceHtml.replace(
-            'Worked on Rust and PostgreSQL.',
-            approval.desired.description
-          )
-        : linkedinPositionExperienceHtml;
+      let experience = linkedinPositionExperienceHtml;
+      if (saved && skillPicker) {
+        experience = experience.replace(
+          'Skills: Rust</a>',
+          'Skills: Rust</a><a href="https://www.linkedin.com/skill-associations-details/PostgreSQL/">Skills: PostgreSQL</a>'
+        );
+      } else if (saved) {
+        experience = experience.replace(
+          'Worked on Rust and PostgreSQL.',
+          approval.desired.description
+        );
+      }
       return route.fulfill({
         contentType: 'text/html; charset=utf-8',
         body:
           target === url
             ? experience
-            : linkedinPositionFormHtml({ actions: true }),
+            : linkedinPositionFormHtml({ actions: true, skillPicker }),
       });
     });
     jobs = createLinkedinPositionJobs({
@@ -167,8 +181,84 @@ export const verifyLinkedinPositionJob = async (browser) => {
       approval.desired.description,
     ]);
     assert.equal(launches, 5);
+
+    skillPicker = true;
+    lags = false;
+    saved = false;
+    const skillsOnly = async (names, id) => {
+      const source = globalThis.structuredClone(fixture.hh);
+      const original = linkedin.document.jobs.find(
+        ({ title }) => title === 'Lead engineer'
+      );
+      source.jobs = [{ ...original, native: {}, skills: names }];
+      const plan = await fixture.complete({ source });
+      const proposal = await service.stage(
+        linkedinPositionReference(plan, 'update')
+      );
+      const reviewed = await service.review({
+        fingerprint: proposal.fingerprint,
+      });
+      assert.deepEqual(reviewed.fields, {});
+      return { requestId: id, fingerprint: reviewed.fingerprint };
+    };
+    const skill = await skillsOnly(
+      ['Rust', 'PostgreSQL', 'ClickUp'],
+      'position-skill'
+    );
+    await jobs.start(skill);
+    const prepared = await until(jobs, skill, 'prepared', trace);
+    assert.deepEqual(prepared.preparedSkills, ['PostgreSQL']);
+    assert.deepEqual(prepared.unresolvedSkills, ['ClickUp']);
+    assert.equal(prepared.canSave, true);
+    assert.equal(
+      await page.getByRole('checkbox', { name: 'Rust' }).isChecked(),
+      true
+    );
+    assert.equal(
+      await page
+        .getByRole('checkbox', { name: 'PostgreSQL', exact: true })
+        .isChecked(),
+      true
+    );
+    assert.equal(
+      await page.getByRole('checkbox', { name: 'ClickUp' }).count(),
+      0
+    );
+    assert.equal(writes.length, 2);
+    assert.equal(
+      (await jobs.decide({ ...skill, decision: 'save' })).decisionPending,
+      true
+    );
+    const skillSaved = await until(jobs, skill, 'saved', trace);
+    assert.deepEqual(skillSaved.save.skills, ['PostgreSQL']);
+    assert.deepEqual(JSON.parse(writes[2]).skills, ['Rust', 'PostgreSQL']);
+
+    saved = false;
+    lags = true;
+    const staleSkill = { ...skill, requestId: 'position-skill-stale' };
+    await jobs.start(staleSkill);
+    await until(jobs, staleSkill, 'prepared', trace);
+    await jobs.decide({ ...staleSkill, decision: 'save' });
+    assert.equal(
+      (await until(jobs, staleSkill, 'unconfirmed', trace)).providerSaved,
+      false
+    );
+    assert.equal(writes.length, 4);
+
+    const notOwned = await skillsOnly(
+      ['Rust', 'ClickUp'],
+      'position-skill-unlisted'
+    );
+    const editorVisits = () =>
+      trace.filter(([, address]) => address === editor).length;
+    const before = editorVisits();
+    await jobs.start(notOwned);
+    const noChanges = await until(jobs, notOwned, 'no-changes', trace);
+    assert.deepEqual(noChanges.unresolvedSkills, ['ClickUp']);
+    assert.equal(noChanges.providerSaved, false);
+    assert.equal(editorVisits(), before);
     await jobs.close();
-    assert.equal(detaches, 5);
+    assert.equal(detaches, 8);
     return {
       synthetic: true,
       observedOwnerSaves: 1,
@@ -177,6 +267,8 @@ export const verifyLinkedinPositionJob = async (browser) => {
       leftOpen: 1,
       closeNotSave: 1,
       mutations: writes.length,
+      verifiedSkillAdds: 1,
+      unlistedSkillsClosedWithoutEditor: 1,
     };
   } finally {
     await jobs?.close();

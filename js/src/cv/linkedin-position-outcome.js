@@ -2,7 +2,10 @@ import { isDeepStrictEqual } from 'node:util';
 import { modelFingerprint } from '../automation/answer-model-context.js';
 import { linkedinExperienceGate } from './linkedin-experience-dom.js';
 import { readLinkedinPositionExperience } from './linkedin-position-native.js';
-import { linkedinPositionValues } from './linkedin-position-plan.js';
+import {
+  linkedinPositionSkillKey,
+  linkedinPositionValues,
+} from './linkedin-position-plan.js';
 
 /** A form closing alone is not an acknowledgement from LinkedIn. */
 const scanOutcome = ({ editor, profile, token, discard }) => {
@@ -133,8 +136,12 @@ const freshObservation = async (context) => {
   }
 };
 
-const positionInNewExport = (plan, before, document) => {
-  if (plan.operation === 'update' && !Object.keys(plan.fields).length) {
+const positionInNewExport = (plan, before, document, appliedSkills) => {
+  if (
+    plan.operation === 'update' &&
+    !Object.keys(plan.fields).length &&
+    !appliedSkills.length
+  ) {
     return null;
   }
   const oldEditors = new Set(
@@ -144,17 +151,36 @@ const positionInNewExport = (plan, before, document) => {
     plan.operation === 'update'
       ? editor === plan.editor
       : editor && !oldEditors.has(editor);
+  const previous = before.jobs.find(
+    (job) => job.native.positionEditor === plan.editor
+  );
+  const requiredSkills = appliedSkills.length
+    ? [...(previous?.skills ?? []), ...appliedSkills]
+    : [];
+  const hasSkills = (job) => {
+    const names = new Set((job.skills ?? []).map(linkedinPositionSkillKey));
+    return requiredSkills.every((name) =>
+      names.has(linkedinPositionSkillKey(name))
+    );
+  };
   const candidates = document.jobs.filter(
     (job) =>
       sameEditor(job.native.positionEditor) &&
-      isDeepStrictEqual(linkedinPositionValues(job), plan.desired)
+      isDeepStrictEqual(linkedinPositionValues(job), plan.desired) &&
+      hasSkills(job)
   );
   return candidates.length === 1 ? candidates[0] : null;
 };
 
 export const verifyLinkedinPositionSave = async (context) => {
   const { document, raw } = await freshObservation(context);
-  const job = positionInNewExport(context.plan, context.before, document);
+  const skills = context.skills?.applied ?? [];
+  const job = positionInNewExport(
+    context.plan,
+    context.before,
+    document,
+    skills
+  );
   if (!job) {
     return null;
   }
@@ -164,5 +190,6 @@ export const verifyLinkedinPositionSave = async (context) => {
     source: document.source,
     editor: job.native.positionEditor,
     values: linkedinPositionValues(job),
+    ...(skills.length && { skills }),
   };
 };

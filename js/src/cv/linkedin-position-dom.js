@@ -170,6 +170,17 @@ export const inspectLinkedinPositionForm = ({
     };
     dialog.addEventListener('input', recordOwnerEdit, true);
     dialog.addEventListener('change', recordOwnerEdit, true);
+    dialog.addEventListener(
+      'click',
+      (event) => {
+        if (
+          event.target.closest?.('button, [role="option"], [role="checkbox"]')
+        ) {
+          recordOwnerEdit(event);
+        }
+      },
+      true
+    );
     return { state: 'adopted' };
   }
   if (

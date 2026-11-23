@@ -91,6 +91,12 @@ export const inspectLinkedinPositionReview = async (page, config) => {
   );
   await control('start').click();
   await jobState('prepared').waitFor();
+  check(
+    (await panel.innerText()).includes(
+      'Selected in the LinkedIn draft: PostgreSQL'
+    ),
+    'The follow-up clearly distinguishes a prepared skill from a proposal'
+  );
   await page.unroute('**/api/cv/experience/linkedin-position-start');
   check(
     posts.join(',') === 'stage,review,start',
