@@ -9,6 +9,7 @@ import {
   compareStoredExperience,
 } from '../cv/experience-store.js';
 import { experienceFromHhExport } from '../cv/experience-hh.js';
+import { createHhExperienceAcquisition } from '../cv/experience-hh-acquisition.js';
 import { createLinkedinExperienceService } from '../cv/linkedin-experience-service.js';
 import { createExperiencePlanningService } from '../cv/experience-plan-service.js';
 import { createLinkedinPositionReviews } from '../cv/linkedin-position-review.js';
@@ -17,6 +18,30 @@ import {
   createFormalExperienceReports,
   previewFormalExperienceReport,
 } from '../cv/formal-report-service.js';
+import { workspaceVacancies } from './routes-vacancies.js';
+
+const hhExportOptions = (store, ctx) => ({
+  store,
+  artifactRoot:
+    ctx.vacancyOptions?.artifactRoot ??
+    path.join(ctx.storeDir ?? defaultStoreDir(), 'resume-exports'),
+});
+
+const hhAcquisition = (store, ctx) => {
+  if (ctx.cvExperienceClosing) {
+    throw Object.assign(
+      new Error('HeadHunter experience export has stopped.'),
+      {
+        code: 'cv-hh-acquisition-stopped',
+        status: 503,
+      }
+    );
+  }
+  return (ctx.cvHhAcquisition ??= createHhExperienceAcquisition({
+    ...hhExportOptions(store, ctx),
+    getVacancies: () => workspaceVacancies(store, ctx),
+  }));
+};
 
 const formalReports = (store, ctx) => {
   if (ctx.cvExperienceClosing) {
@@ -88,15 +113,13 @@ const actions = {
   document: (store, input) => storedExperienceDocument(store, input.revision),
   import: (store, input) => saveExperienceDocument(store, input.document),
   'from-hh': (store, input, ctx) =>
-    experienceFromHhExport(
-      {
-        store,
-        artifactRoot:
-          ctx.vacancyOptions?.artifactRoot ??
-          path.join(ctx.storeDir ?? defaultStoreDir(), 'resume-exports'),
-      },
-      input
-    ),
+    experienceFromHhExport(hhExportOptions(store, ctx), input),
+  ...Object.fromEntries(
+    ['start', 'status', 'stop'].map((operation) => [
+      `hh-${operation}`,
+      (store, input, ctx) => hhAcquisition(store, ctx)[operation](input),
+    ])
+  ),
   compare: (store, input) => compareStoredExperience(store, input),
   'report-preview': (store, input) =>
     previewFormalExperienceReport(store, input),
@@ -138,6 +161,7 @@ const admission = (req, operation, ctx) => {
   const read = [
     'stored',
     'document',
+    'hh-status',
     'linkedin-status',
     'linkedin-evidence',
     'linkedin-position-stored',

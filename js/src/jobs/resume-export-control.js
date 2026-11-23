@@ -45,13 +45,7 @@ export const resumeExportJob = (raw) => {
 };
 
 /** Durable IDs recover reads only; neither a restart nor a lost POST replays exports. */
-export const createResumeExportControl = ({
-  store,
-  run,
-  read,
-  cancel,
-  occupied,
-}) => {
+export const createResumeExportControl = ({ store, run, read, occupied }) => {
   let current;
   const uncertain = new Set();
   let tail = Promise.resolve();
@@ -112,9 +106,13 @@ export const createResumeExportControl = ({
       await store.put({ id, version: 1, signature, ...resumeExportJob(job) });
       await store.flush?.();
     };
-    const owned = { requestId };
+    const owned = { requestId, controller: new AbortController() };
     current = owned;
-    const task = run(async (signal) => {
+    const task = run(async (workspaceSignal) => {
+      const signal = globalThis.AbortSignal.any([
+        workspaceSignal,
+        owned.controller.signal,
+      ]);
       await save();
       admitted(resumeExportJob(job));
       try {
@@ -137,6 +135,7 @@ export const createResumeExportControl = ({
       }
       await save();
     });
+    owned.task = task;
     task.catch(rejected).finally(() => {
       if (current === owned) {
         current = null;
@@ -151,7 +150,9 @@ export const createResumeExportControl = ({
       enqueue(async () => {
         const requestId = resumeExportRequestId(input.requestId);
         if (current?.requestId === requestId) {
-          await cancel();
+          const owned = current;
+          owned.controller.abort();
+          await owned.task.catch(() => {});
           return status({ requestId });
         }
         const id = jobId(requestId);

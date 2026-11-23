@@ -18,6 +18,7 @@ const stopExperienceExport = (ctx) => {
   ctx.cvExperienceClosing = true;
   return Promise.allSettled([
     traceShutdown('cvExperience', ctx.cvExperience?.close()),
+    traceShutdown('cvHhAcquisition', ctx.cvHhAcquisition?.close()),
     traceShutdown('cvExperiencePlans', ctx.cvExperiencePlans?.close()),
     traceShutdown(
       'cvLinkedinPositionJobs',

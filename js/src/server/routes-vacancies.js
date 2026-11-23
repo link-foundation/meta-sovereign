@@ -3,6 +3,20 @@ import { isTrustedMutation } from './routes-auto-import.js';
 import { createVacancyService } from '../jobs/service.js';
 import { fromApp } from './routes-telegram-files.js';
 
+export const workspaceVacancies = (store, ctx) => {
+  if (!ctx.vacancies && ctx.vacanciesClosing) {
+    throw Object.assign(new Error('Vacancy reading has stopped.'), {
+      code: 'jobs-stopped',
+      status: 503,
+    });
+  }
+  return (ctx.vacancies ??= createVacancyService({
+    store,
+    storeDir: ctx.storeDir,
+    ...ctx.vacancyOptions,
+  }));
+};
+
 const bodyLimits = {
   'application-open': 128 * 1024,
   'application-batch-start': 256 * 1024,
@@ -182,11 +196,7 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
       : await readBody(req, {
           limit: bodyLimits[operation] ?? 8192,
         });
-    const service = (ctx.vacancies ??= createVacancyService({
-      store,
-      storeDir: ctx.storeDir,
-      ...ctx.vacancyOptions,
-    }));
+    const service = workspaceVacancies(store, ctx);
     const result = await service[operation](input);
     return replyVacancy(res, result, file, operation);
   } catch (error) {

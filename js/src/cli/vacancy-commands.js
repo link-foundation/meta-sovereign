@@ -3,6 +3,7 @@ import { createVacancyService } from '../jobs/service.js';
 import { defaultStoreDir } from '../storage/app-directory.js';
 import { encodeWire, decodeWire } from '../transport/lino.js';
 import { randomUUID } from 'node:crypto';
+import { typedFlag } from './lino-args.js';
 import { foregroundResumeExport } from './resume-export-command.js';
 import { technologyCommandInput } from './technology-command.js';
 import { foregroundCvWatch } from './cv-watch-command.js';
@@ -31,19 +32,6 @@ const vacancyCommandExit = (operation, result) =>
 
 export { VACANCY_HELP } from './help.js';
 
-const typedFlag = (args, key, kind) => {
-  const value = args[key];
-  if (value === undefined) {
-    return undefined;
-  }
-  if (kind === 'boolean' && [true, false, 'true', 'false'].includes(value)) {
-    return value === true || value === 'true';
-  }
-  if (kind === 'number' && /^\d+$/u.test(String(value))) {
-    return Number(value);
-  }
-  throw new Error(`--${key} must be a ${kind}`);
-};
 const salaryDiscoveryInput = (args) => ({
   collectVacancies:
     args['no-collect-vacancies'] === undefined

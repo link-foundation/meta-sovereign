@@ -74,3 +74,17 @@ export const parseArgs = (argv) => {
     throw invalid();
   }
 };
+
+export const typedFlag = (args, key, kind) => {
+  const value = args[key];
+  if (value === undefined) {
+    return undefined;
+  }
+  if (kind === 'boolean' && [true, false, 'true', 'false'].includes(value)) {
+    return value === true || value === 'true';
+  }
+  if (kind === 'number' && /^\d+$/u.test(String(value))) {
+    return Number(value);
+  }
+  throw new Error(`--${key} must be a ${kind}`);
+};

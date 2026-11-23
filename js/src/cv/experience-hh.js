@@ -63,6 +63,7 @@ export const experienceFromHhExport = async (context, input) => {
       )
     ),
   });
+  context.signal?.throwIfAborted();
   return saveExperienceDocument(context.store, document, {
     kind: 'hh-export',
     identity,

@@ -41,9 +41,13 @@ const receipt = (value) => {
   }
   return { ...value, document: validateExperienceDocument(value.document) };
 };
-const selectLinkedinRevision = async (api, id) => {
+const selectNativeRevision = async (api, id, platform) => {
   const answer = receipt(await api.cvExperienceDocument(id));
-  if (answer.revision !== id || answer.document.platform !== 'linkedin') {
+  if (
+    answer.revision !== id ||
+    answer.document.platform !== platform ||
+    (platform === 'hh' && answer.provenance.kind !== 'hh-export')
+  ) {
     throw new Error('The exported snapshot was not confirmed.');
   }
   return answer;
@@ -171,8 +175,8 @@ export const createExperienceState = (
           })
         )
       ),
-    selectRevision: (id) =>
-      run(async () => remember(await selectLinkedinRevision(api, id))),
+    selectRevision: (id, platform = 'linkedin') =>
+      run(async () => remember(await selectNativeRevision(api, id, platform))),
     fromHh: () =>
       run(async () => {
         const selected = state.exports?.find(

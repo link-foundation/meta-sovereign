@@ -2,28 +2,50 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { resumeHash } from './resume-list.js';
+import { jobsFailure } from './options.js';
 import {
   resumeExportId,
   resumeExportResult,
   invalidResumeExport,
 } from './resume-export-result.js';
 
-export const storedResumeExports = async (store) => ({
+const exportPointerKey = (slot, hash) => `jobs-resume-export:${slot}:${hash}`;
+const checkedExportPointer = (row) => {
+  const result = resumeExportResult(row);
+  if (
+    row.version !== 1 ||
+    row.id !== exportPointerKey(result.browserSlot, result.hash)
+  ) {
+    invalidResumeExport();
+  }
+  return result;
+};
+
+export const storedResumeExport = async (store, browserSlot, hash) => {
+  const id = exportPointerKey(browserSlot, hash);
+  const row = await store.get(id);
+  if (!row) {
+    return null;
+  }
+  if (row.id !== id) {
+    invalidResumeExport();
+  }
+  return checkedExportPointer(row);
+};
+
+export const storedResumeExports = async (store, browserSlot) => ({
   exports: (
-    await store.query((row) => row.id?.startsWith('jobs-resume-export:'))
+    await store.query((row) =>
+      row.id?.startsWith(
+        browserSlot === undefined
+          ? 'jobs-resume-export:'
+          : exportPointerKey(browserSlot, '')
+      )
+    )
   )
     .sort((a, b) => String(b.capturedAt).localeCompare(String(a.capturedAt)))
     .slice(0, 100)
-    .map((row) => {
-      const result = resumeExportResult(row);
-      if (
-        row.version !== 1 ||
-        row.id !== `jobs-resume-export:${result.browserSlot}:${result.hash}`
-      ) {
-        invalidResumeExport();
-      }
-      return result;
-    }),
+    .map(checkedExportPointer),
 });
 
 export const readResumeExportFile = async ({ store, artifactRoot }, input) => {
@@ -43,10 +65,17 @@ export const readResumeExportFile = async ({ store, artifactRoot }, input) => {
   if (!file) {
     invalidResumeExport();
   }
-  const handle = await fs.open(
-    path.join(artifactRoot, exportId, hash, file.name),
-    'r'
-  );
+  const handle = await fs
+    .open(path.join(artifactRoot, exportId, hash, file.name), 'r')
+    .catch((error) => {
+      if (error.code === 'ENOENT') {
+        throw jobsFailure(
+          'export-file-missing',
+          'The saved export file is missing.'
+        );
+      }
+      throw error;
+    });
   const bytes = Buffer.alloc(file.size);
   try {
     const stat = await handle.stat();

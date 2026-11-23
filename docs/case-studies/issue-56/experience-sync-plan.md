@@ -24,8 +24,10 @@ writer. Generic CV sync therefore does not establish this requirement.
       Partial export/import evidence: [private structured documents](experience-documents.md)
       preserves complete supplied records, reuses verified HH exports and adds CLI,
       both Lino encodings and four-language browser import/download/comparison.
-      The live LinkedIn reader, missing-export refresh and complete native metadata
-      acquisition remain unfinished; this checkbox stays open.
+      [HeadHunter acquisition](experience-hh-acquisition.md) reuses an exact
+      verified export and uses the existing Jobs reader for a cache miss or an
+      explicit refresh. Authenticated runs and complete native metadata
+      acquisition remain required.
 - [ ] Connect existing three-provider translation comparison/cache to directed
       experience planning. Retain side-by-side outputs, invalid-output refusal,
       selected-language direction and reviewed upstream failure reporting.

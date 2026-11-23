@@ -120,7 +120,6 @@ const createWorkspaceVacancyService = ({
     store,
     run,
     read: readResumeExports,
-    cancel,
     occupied: () => owners.has(store),
   });
   const preparation = createCvPrepareService({

@@ -7,6 +7,7 @@ import {
   experienceExportKey,
 } from './cv-experience-state.js';
 import { CvLinkedinExperience } from './cv-linkedin-experience.js';
+import { CvHhAcquisition } from './cv-hh-acquisition.js';
 import { CvExperienceComparison } from './cv-experience-view.js';
 import { CvExperiencePlan } from './cv-experience-plan.js';
 import { CvExperiencePublication } from './cv-experience-publication.js';
@@ -197,6 +198,14 @@ export const CvExperienceDocumentsScreen = ({
           })
         : null,
       el(ExistingHhExport, { key: 'native-hh', state, actions }),
+      typeof api?.cvHhAcquisitionStart === 'function'
+        ? el(CvHhAcquisition, {
+            key: 'acquire-hh',
+            api,
+            select: (id) => actions.selectRevision(id, 'hh'),
+            selecting: state.busy,
+          })
+        : null,
       ...['hh', 'linkedin'].map((platform) =>
         el(SnapshotChoice, { key: platform, platform, state, actions })
       ),
