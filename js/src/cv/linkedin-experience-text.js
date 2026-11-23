@@ -69,6 +69,7 @@ const roleFrom = (raw, grouped) => {
         !skills.includes(line) && !marks.some((mark) => mark.text === line)
     ),
     marks,
+    ...(raw.editors && { editors: raw.editors }),
     skills: skills.map((line) => line.replace(/^(?:skills|навыки):\s*/iu, '')),
     text: raw.text,
     acquisition: 'rendered-card-text',

@@ -1,11 +1,20 @@
 # LinkedIn card text and About acquisition
 
 This unit continues the original HH/LinkedIn workflow in
-[PR #57](https://github.com/link-foundation/meta-sovereign/pull/57). HH21 and all
-60 incomplete inventory rows remain required. It extends acquisition without
+[PR #57](https://github.com/link-foundation/meta-sovereign/pull/57). HH21 and the
+remaining inventory rows remain required. It extends acquisition without
 claiming native edits, owner-Save verification or authenticated live acceptance.
 
 ## Behavior and boundaries
+
+The reader records visible, labeled position edit links in their original
+card or nested role. It records a separate Add position link when the
+experience page exposes one. The parser checks the exact profile and
+position route, drops ambiguous or duplicated record links, and retains the
+ordinary export when a position has no verified editor. The links and raw
+observations remain in private experience evidence. A saved export with an
+editor link still requires fresh native admission and explicit review before
+it can be used to prepare a change.
 
 The reader accepts both recognized entity markup and bounded text within
 observed experience cards. Grouped roles require their own dated list item;
@@ -50,11 +59,17 @@ artifacts, unobserved absence, session/markup refusal, draft ownership, delayed
 main content, metadata validation and late Stop draining. Together with the
 existing reader and CLI/API/controller tests, 27 focused checks pass locally.
 
+The position link regression fails on the parent because the canonical job
+has no editor URL. With the reader change, 28 focused checks pass. They
+exercise separate links for nested roles, a distinct Add position link, and
+refusal of duplicated record IDs, ambiguous links and different profiles.
+
 `linkedin-acquisition-native.mjs` uses actual Chromium and browser-commander with
 synthetic routed pages: entity and fallback layouts each produce three dated
 jobs from one experience load and one profile load. Native About guards verify
 expansion, duplicate-section refusal and credential-wall refusal. These checks
-are included in the existing mandatory LinkedIn browser scenario.
+are included in the existing mandatory LinkedIn browser scenario, along with
+the position links observed in both layouts.
 
 The prior Windows/Bun HTTP fixture failure is preserved at
 `ci-logs/checks-43853402642-bun-windows.log:2658–2682`. Its 100 one-millisecond

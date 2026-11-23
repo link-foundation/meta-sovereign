@@ -9,7 +9,10 @@ export const linkedinExportInput = (requestId = 'linkedin-native-fixture') => ({
   url: 'https://www.linkedin.com/in/fixture-owner/details/experience/',
   language: 'en',
 });
-const role = (title, period) => ({
+export const linkedinPositionFixtureUrl = (id) =>
+  `${linkedinExportInput().url.replace('details/experience/', 'edit/forms/position/')}${id}/`;
+
+const role = (title, period, editorId) => ({
   id: title,
   title,
   period,
@@ -22,6 +25,14 @@ const role = (title, period) => ({
     },
     { text: 'Demo', href: 'https://example.test/demo' },
   ],
+  ...(editorId && {
+    editors: [
+      {
+        label: `Edit ${title} at Fixture Company`,
+        href: linkedinPositionFixtureUrl(editorId),
+      },
+    ],
+  }),
   text: `${title}\n${period}\nWorked on Rust and PostgreSQL.`,
 });
 export const linkedinExperienceRaw = () => ({
@@ -35,10 +46,13 @@ export const linkedinExperienceRaw = () => ({
         lines: ['Full-time'],
       },
       roles: [
-        role('Lead engineer', 'Jan 2023 - Present'),
-        role('Engineer', '2020 - Dec 2022'),
+        role('Lead engineer', 'Jan 2023 - Present', '1101'),
+        role('Engineer', '2020 - Dec 2022', '1102'),
       ],
     },
+  ],
+  addEditors: [
+    { label: 'Add position', href: linkedinPositionFixtureUrl('new') },
   ],
   more: 0,
   busy: false,

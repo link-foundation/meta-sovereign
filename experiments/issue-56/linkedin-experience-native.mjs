@@ -6,24 +6,29 @@ import { pathToFileURL } from 'node:url';
 import { createMemoryStore } from '../../js/src/storage/index.js';
 import { openBrowserSession } from '../../js/src/cv/browser.js';
 import { createLinkedinExperienceReader } from '../../js/src/cv/linkedin-experience-reader.js';
-import { linkedinExportInput } from './linkedin-experience-fixture.mjs';
+import {
+  linkedinExportInput,
+  linkedinPositionFixtureUrl,
+} from './linkedin-experience-fixture.mjs';
 
 const role = (
   title,
-  period
+  period,
+  editorId
 ) => `<li class="pvs-list__paged-list-item"><div class="pvs-entity">
 <div class="t-bold"><span aria-hidden="true">${title}</span><span class="visually-hidden">duplicate</span></div>
 <span class="pvs-entity__caption-wrapper"><span aria-hidden="true">${period}</span></span>
 <span class="t-14 t-normal"><span aria-hidden="true">London</span></span>
 <div class="inline-show-more-text">Built Rust systems.<br>Kept original descriptions.</div>
+<a aria-label="Edit ${title} at Fixture Company" href="${linkedinPositionFixtureUrl(editorId)}">✎</a>
 <ul><li><div class="pvs-entity"><a href="https://www.linkedin.com/skill-associations/Rust/">Skills: Rust</a></div></li>
 <li><div class="pvs-entity"><a href="https://example.test/demo">Demo</a></div></li></ul>
 </div></li>`;
 export const linkedinNativeHtml = `<!doctype html><html lang="en"><head><meta charset="utf-8"><style>
 body{font:16px sans-serif}li{margin:16px}.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden}
-</style></head><body><main><h1>Experience</h1><ul><li class="pvs-list__paged-list-item"><div class="pvs-entity" data-entity-urn="company:fixture">
+</style></head><body><main><h1>Experience</h1><a aria-label="Add position" href="${linkedinPositionFixtureUrl('new')}">+</a><ul><li class="pvs-list__paged-list-item"><div class="pvs-entity" data-entity-urn="company:fixture">
 <div class="t-bold"><span aria-hidden="true">Fixture Company</span></div><ul>
-${role('Lead engineer', 'Jan 2023 - Present')}${role('Engineer', '2020 - Dec 2022')}
+${role('Lead engineer', 'Jan 2023 - Present', '1101')}${role('Engineer', '2020 - Dec 2022', '1102')}
 </ul></div></li></ul><button id="expand">…see more</button><button id="more">Show more results</button></main>
 <script>
 document.getElementById('expand').onclick = (event) => event.target.remove();
@@ -100,6 +105,18 @@ export const verifyLinkedinNativeExperience = async (
     );
     assert.deepEqual(result.document.jobs[0].skills, ['Rust']);
     assert.equal(result.document.jobs[0].media[0].title, 'Demo');
+    assert.deepEqual(
+      result.document.jobs.map(({ native }) => native.positionEditor),
+      [
+        linkedinPositionFixtureUrl('1101'),
+        linkedinPositionFixtureUrl('1102'),
+        undefined,
+      ]
+    );
+    assert.equal(
+      result.document.profile.positionEditor,
+      linkedinPositionFixtureUrl('new')
+    );
     assert.equal(
       result.document.jobs[0].native.text.includes('duplicate'),
       false

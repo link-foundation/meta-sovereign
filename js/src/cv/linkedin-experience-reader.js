@@ -104,7 +104,7 @@ const traverse = async ({ session, options, check, wait, now, progress }) => {
     const count = raw.items.length;
     identities = current;
     const signature = createHash('sha256')
-      .update(JSON.stringify(raw.items))
+      .update(JSON.stringify([raw.items, raw.addEditors]))
       .digest('hex');
     stable =
       raw.bottom &&

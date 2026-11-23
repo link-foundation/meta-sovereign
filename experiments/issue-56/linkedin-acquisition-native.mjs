@@ -6,14 +6,18 @@ import {
   linkedinAboutHtml,
 } from './linkedin-experience-native.mjs';
 import { scanLinkedinProfileAbout } from '../../js/src/cv/linkedin-profile-dom.js';
+import { linkedinPositionFixtureUrl } from './linkedin-experience-fixture.mjs';
 
-const role = (title, period) => `<li><div>${title}</div><div>${period}</div>
+const editor = (label, id) =>
+  `<a aria-label="${label}" href="${linkedinPositionFixtureUrl(id)}"><svg width="18" height="18" aria-hidden="true"></svg></a>`;
+const role = (title, period, id) => `<li><div>${title}</div><div>${period}</div>
 <div>London, United Kingdom</div><div>Built Rust systems.<br>Kept original descriptions.</div>
+${editor(`Edit ${title} at Fixture Company`, id)}
 <ul><li><a href="https://www.linkedin.com/skill-associations-details/Rust/">Skills: Rust</a></li>
 <li><a href="https://example.test/demo">Demo</a></li></ul></li>`;
-const fallback = `<!doctype html><html lang="en"><body><main><h1>Experience</h1><ul>
+const fallback = `<!doctype html><html lang="en"><body><main><h1>Experience</h1>${editor('Add position', 'new')}<ul>
 <li class="pvs-list__paged-list-item" data-view-name="profile-component-entity"><div>Fixture Company</div><div>Full-time · 6 yrs</div>
-<ul>${role('Lead engineer', 'Jan 2023 - Present')}${role('Engineer', '2020 - Dec 2022')}</ul></li>
+<ul>${role('Lead engineer', 'Jan 2023 - Present', '1101')}${role('Engineer', '2020 - Dec 2022', '1102')}</ul></li>
 <li class="pvs-list__paged-list-item"><div>Earlier engineer</div><div>Earlier Company · Full-time</div>
 <div>2018 - 2020</div><div>Original earlier role.</div></li></ul></main></body></html>`;
 

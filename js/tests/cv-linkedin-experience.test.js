@@ -16,6 +16,7 @@ import {
   linkedinReaderFixture,
   linkedinExperienceRaw,
   linkedinExportInput,
+  linkedinPositionFixtureUrl,
 } from '../../experiments/issue-56/linkedin-experience-fixture.mjs';
 import { settledLinkedinFixture } from '../../experiments/issue-56/linkedin-export-settled.mjs';
 
@@ -68,6 +69,69 @@ test('public native LinkedIn parser preserves separate grouped roles, native lin
       )
     );
   }
+});
+
+test('native editor links bind one observed position or Add control to the exact profile', () => {
+  const documentFrom = (raw) =>
+    cv.linkedinExperienceDocument(
+      raw,
+      linkedinExportInput(),
+      '2026-11-16T00:00:00.000Z'
+    );
+  const raw = linkedinExperienceRaw();
+  const document = documentFrom(raw);
+  assert.equal(
+    document.jobs[0].native.positionEditor,
+    linkedinPositionFixtureUrl('1101')
+  );
+  assert.equal(
+    document.jobs[1].native.positionEditor,
+    linkedinPositionFixtureUrl('1102')
+  );
+  assert.equal(
+    document.profile.positionEditor,
+    linkedinPositionFixtureUrl('new')
+  );
+
+  for (const href of [
+    linkedinPositionFixtureUrl('1102').replace(
+      'fixture-owner',
+      'different-owner'
+    ),
+    linkedinPositionFixtureUrl('1102').replace(
+      'www.linkedin.com',
+      'example.test'
+    ),
+    linkedinPositionFixtureUrl('1102').replace('/position/', '/certification/'),
+    linkedinPositionFixtureUrl('1102').replace('/1102/', '/new/'),
+    `${linkedinPositionFixtureUrl('1102')}?redirect=https://example.test`,
+    linkedinPositionFixtureUrl('1102').replace('/1102/', '/%2F1102/'),
+  ]) {
+    const candidate = linkedinExperienceRaw();
+    candidate.items[0].roles[1].editors[0].href = href;
+    assert.equal(
+      documentFrom(candidate).jobs[1].native.positionEditor,
+      undefined
+    );
+  }
+
+  raw.items[0].roles[1].editors[0].href = linkedinPositionFixtureUrl('1101');
+  assert.ok(documentFrom(raw).jobs.every((job) => !job.native.positionEditor));
+  raw.items[0].roles[0].editors.push({
+    label: 'Edit Lead engineer at Fixture Company',
+    href: linkedinPositionFixtureUrl('1103'),
+  });
+  assert.equal(documentFrom(raw).jobs[0].native.positionEditor, undefined);
+  raw.addEditors[0].label = 'Add certification';
+  assert.equal(documentFrom(raw).profile.positionEditor, undefined);
+  const withoutControl = linkedinExperienceRaw();
+  delete withoutControl.items[0].roles[0].editors;
+  withoutControl.items[0].roles[0].positionEditor =
+    linkedinPositionFixtureUrl('1101');
+  assert.equal(
+    documentFrom(withoutControl).jobs[0].native.positionEditor,
+    undefined
+  );
 });
 
 test('native reader loads once in its separate visible persistent slot and writes four private hashed files', async () => {

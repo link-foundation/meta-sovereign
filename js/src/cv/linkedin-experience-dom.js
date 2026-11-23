@@ -33,6 +33,20 @@ export const readLinkedinExperienceDocument = () => {
     return { blocked: true };
   }
   const main = document.querySelector('main');
+  const editorLinks = (links) =>
+    links
+      .filter(
+        (node) =>
+          node.getClientRects().length &&
+          /\/(?:edit\/forms\/position|add-edit\/POSITION)\//u.test(
+            node.pathname
+          )
+      )
+      .map((node) => ({
+        label: node.getAttribute('aria-label'),
+        href: node.href,
+      }));
+  const links = 'a[href][aria-label]';
   const text = (node, lines = false, own = false) => {
     if (!node) {
       return '';
@@ -92,6 +106,7 @@ export const readLinkedinExperienceDocument = () => {
           !node.closest(entity)?.querySelector('.pvs-entity__caption-wrapper')
       )
       .map((node) => ({ text: text(node), href: node.href })),
+    editors: editorLinks(own(root, links)),
     text: text(root),
   });
   const cards = [
@@ -108,6 +123,13 @@ export const readLinkedinExperienceDocument = () => {
         text: text(link),
         href: link.href,
       }));
+    const editors = (root) =>
+      editorLinks(
+        [...root.querySelectorAll(links)].filter((link) => {
+          const nearest = link.closest('li');
+          return nearest === root || !root.contains(nearest);
+        })
+      );
     const children = [...card.querySelectorAll('li')].filter((node) =>
       /^(?:[a-zа-яё]+\.?\s+)?(?:19|20)\d{2}(?:\s*г\.)?\s+[—–-]\s+/imu.test(
         text(node, true, true)
@@ -119,9 +141,11 @@ export const readLinkedinExperienceDocument = () => {
       text: text(card, true),
       heading: text(card, true, true),
       marks: marks(card),
+      editors: editors(card),
       roles: children.map((node) => ({
         text: text(node, true),
         marks: marks(node),
+        editors: editors(node),
       })),
     };
   };
@@ -152,6 +176,9 @@ export const readLinkedinExperienceDocument = () => {
     language: document.documentElement.lang,
     text: text(main),
     items,
+    addEditors: editorLinks([...(main?.querySelectorAll(links) ?? [])]).filter(
+      ({ label }) => /^(?:add|добавить)\s/iu.test(label.trim())
+    ),
     more: more.length,
     collapsed: [...(main?.querySelectorAll('button') ?? [])].filter(
       (node) =>

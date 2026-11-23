@@ -1,5 +1,6 @@
 import { resumePeriod } from '../jobs/resume-dates.js';
 import { linkedinTextItem } from './linkedin-experience-text.js';
+import { observedLinkedinPositionEditor } from './linkedin-position-editor-url.js';
 import {
   validateExperienceDocument,
   experienceDocumentFailure,
@@ -24,8 +25,9 @@ export const linkedinExperienceUrl = (value) => {
   }
   return url.href;
 };
-const jobFrom = (item, role, grouped) => {
+const jobFrom = (item, role, grouped, url) => {
   const { parent } = item;
+  const { positionEditor: _unverifiedEditor, ...native } = role;
   const company = grouped
     ? parent.title
     : role.lines.find((line) => line !== role.period);
@@ -49,6 +51,11 @@ const jobFrom = (item, role, grouped) => {
       return false;
     }
   });
+  const positionEditor = observedLinkedinPositionEditor(
+    role.editors,
+    url,
+    'update'
+  );
   return {
     company: company.split(' · ')[0],
     title: role.title,
@@ -69,7 +76,12 @@ const jobFrom = (item, role, grouped) => {
       ]),
     ],
     media: media.map((mark) => ({ url: mark.href, title: mark.text })),
-    native: { ...role, grouped, company },
+    native: {
+      ...native,
+      grouped,
+      company,
+      ...(positionEditor && { positionEditor }),
+    },
   };
 };
 const aboutValueValid = (about) =>
@@ -115,9 +127,33 @@ export const linkedinExperienceDocument = (raw, options, capturedAt) => {
     const item = input.fallback ? linkedinTextItem(input) : input;
     const grouped = item.roles.length > 0;
     return (grouped ? item.roles : [item.parent]).map((role) =>
-      jobFrom(item, role, grouped)
+      jobFrom(item, role, grouped, options.url)
     );
   });
+  const editorIds = new Map();
+  for (const { native } of jobs) {
+    if (native.positionEditor) {
+      const id = decodeURIComponent(
+        new URL(native.positionEditor).pathname
+          .replace(/\/$/u, '')
+          .split('/')
+          .at(-1)
+      );
+      const positions = editorIds.get(id) ?? [];
+      positions.push(native);
+      editorIds.set(id, positions);
+    }
+  }
+  for (const positions of editorIds.values()) {
+    if (positions.length > 1) {
+      positions.forEach((native) => delete native.positionEditor);
+    }
+  }
+  const positionEditor = observedLinkedinPositionEditor(
+    raw.addEditors,
+    options.url,
+    'add'
+  );
   return validateExperienceDocument({
     kind: 'cv-experience',
     version: 1,
@@ -132,6 +168,7 @@ export const linkedinExperienceDocument = (raw, options, capturedAt) => {
       language: raw.language,
       acquisition: 'rendered-experience-page',
       ...profileFrom(raw, options.url),
+      ...(positionEditor && { positionEditor }),
     },
     jobs,
   });
