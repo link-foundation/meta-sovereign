@@ -2001,6 +2001,18 @@ th {
   /* Cells of different sizes in a row share the first text line. */
   vertical-align: baseline;
 }
+.cv-experience-comparison td {
+  overflow-wrap: anywhere;
+}
+@media (min-width: 641px) {
+  .cv-experience-comparison.stack-table {
+    display: table;
+    table-layout: fixed;
+  }
+  .cv-experience-comparison th:first-child {
+    width: 22%;
+  }
+}
 /* Network checkboxes: more space between choices than inside one, so
    each box reads as part of its own label. */
 .source-checks {

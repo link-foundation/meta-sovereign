@@ -150,14 +150,7 @@ export const createCvWorkplaceActions = ({
           current
         );
       }),
-    prepare: () =>
-      preparation.prepare(
-        plan,
-        { id: `${plan.source.identity.language}:workplace` },
-        plan.operation === 'add'
-          ? { operation: 'add', reviewKind: 'workplace' }
-          : { recordId: plan.recordId, reviewKind: 'workplace' }
-      ),
+    prepare: () => preparation.prepareWorkplace(plan),
     reload: () => run('cv-workplace-plan-stored', load),
   };
 };

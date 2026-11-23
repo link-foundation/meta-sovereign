@@ -118,14 +118,16 @@ export const createCvWorkplaceApi = ({ get, report, local }) => ({
         { network: true, read: false }
       )
     ),
-  vacancyCvWorkplacePlan: async (input) =>
-    confirmedCvWorkplacePlan(
-      await report('/api/vacancies/cv-workplace-plan', input, {
-        network: true,
-        read: false,
-      }),
-      input
-    ),
+  vacancyCvWorkplacePlan: async (input) => {
+    const answer = await report('/api/vacancies/cv-workplace-plan', input, {
+      network: true,
+      quiet: Boolean(input.experience),
+    });
+    if (input.experience && answer?.code?.startsWith('jobs-cv-')) {
+      cvWorkplaceFail(answer.code.slice('jobs-cv-'.length));
+    }
+    return confirmedCvWorkplacePlan(answer, input);
+  },
   vacancyCvWorkplaceReview: async (input) =>
     confirmedCvWorkplacePlan(
       await report('/api/vacancies/cv-workplace-review', input, {

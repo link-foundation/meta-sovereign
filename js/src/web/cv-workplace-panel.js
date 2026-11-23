@@ -5,6 +5,7 @@ import {
 } from '../jobs/cv-workplace-membership.js';
 import { CvWorkplaceFields } from './cv-workplace-fields.js';
 import { PreparationReceipt } from './cv-prepare-panel.js';
+import { Busy } from './spinner.js';
 import {
   cvWorkplaceValues,
   cvWorkplaceRecordId,
@@ -276,11 +277,73 @@ const Membership = ({ review, idle, capable, t }) =>
         )
       : null,
   ]);
+const ExperienceWorkplaceReview = ({ review, idle, ready, t }) => {
+  if (!review) {
+    return null;
+  }
+  return el(
+    'section',
+    {
+      className: 'col card',
+      tabIndex: -1,
+      'data-experience-workplace-review': true,
+    },
+    [
+      el('div', { key: 'heading', className: 'row wrap' }, [
+        el('h4', { key: 'title' }, t('experiencePlan.workplaceReview')),
+        el(
+          'button',
+          {
+            key: 'close',
+            type: 'button',
+            disabled: !idle,
+            onClick: review.dismiss,
+          },
+          t('experiencePlan.workplaceDismiss')
+        ),
+      ]),
+      !review.matchingSlot
+        ? el(
+            'p',
+            { key: 'slot', role: 'status' },
+            t('experiencePlan.workplaceSlot', { slot: review.browserSlot })
+          )
+        : review.loadError
+          ? el('div', { key: 'error', className: 'row wrap' }, [
+              el(
+                'p',
+                { key: 'text', role: 'alert' },
+                t('cvWorkplace.loadError')
+              ),
+              button('reload', review.reload, !idle, t),
+            ])
+          : null,
+      review.matchingSlot && !review.loadError && !review.plan
+        ? el(Busy, { key: 'load' }, t('common.loading'))
+        : null,
+      ...(review.plan?.experience.unapplied ?? []).map((field) =>
+        el(
+          'p',
+          { key: field, className: 'meta' },
+          t('experiencePlan.workplaceUnapplied', {
+            field: t(
+              field === 'media'
+                ? 'experiencePlan.media'
+                : `cvExperience.${field}`
+            ),
+          })
+        )
+      ),
+      el(Plan, { key: 'review', state: review, idle, ready, t }),
+    ]
+  );
+};
 export const CvWorkplaceReview = ({ state, t }) => {
   const review = state.cvWorkplace;
   const preparation = state.cvTechnology.preparation;
   const idle = !state.busy;
   const valid = validWorkplaceReview(review);
+  const ready = preparation.ready && state.capabilities?.cvSaveWatch === true;
   return el(
     'section',
     {
@@ -290,6 +353,13 @@ export const CvWorkplaceReview = ({ state, t }) => {
     },
     [
       el('h3', { key: 'title' }, t('cvWorkplace.title')),
+      el(ExperienceWorkplaceReview, {
+        key: 'experience',
+        review: review.experienceReview,
+        idle,
+        ready,
+        t,
+      }),
       el(
         'p',
         { key: 'hint', className: 'meta' },
@@ -347,7 +417,7 @@ export const CvWorkplaceReview = ({ state, t }) => {
         key: 'plan',
         state: review,
         idle,
-        ready: preparation.ready && state.capabilities?.cvSaveWatch === true,
+        ready,
         t,
       }),
       !preparation.ready

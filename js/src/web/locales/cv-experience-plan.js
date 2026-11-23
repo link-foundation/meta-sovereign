@@ -33,6 +33,25 @@ const entries = {
     about: 'About',
     media: 'Media',
     translations: 'Translation comparison',
+    workplaceSelect: 'Review this workplace in HeadHunter',
+    workplaceStage: 'Create workplace draft',
+    workplaceOpen: 'Open workplace review',
+    workplaceBusy: 'Checking the HeadHunter export…',
+    workplaceDraft:
+      'A workplace draft is ready for review in the {slot} browser slot.',
+    workplaceNote:
+      'This change has no fields that the HeadHunter workplace form can use. Its notes are kept above.',
+    workplaceTranslation:
+      'A field still needs a confirmed translation. Review the plan before preparing the form.',
+    workplaceConflict:
+      'The HeadHunter snapshot changed. Capture the current CV and build a new plan.',
+    workplaceError:
+      'The workplace draft could not be confirmed. The plan and input are kept.',
+    workplaceReview: 'Workplace review from experience plan',
+    workplaceDismiss: 'Close review',
+    workplaceSlot:
+      'Select the {slot} browser slot in Jobs to review and prepare this draft.',
+    workplaceUnapplied: 'Review {field} separately in the experience plan.',
     text: 'Download plan as Lino',
     binary: 'Download plan as binary Lino',
     'missing-source-kept': 'Source value is missing; keep the target value.',
@@ -84,6 +103,26 @@ const entries = {
     about: 'О себе',
     media: 'Медиа',
     translations: 'Сравнение переводов',
+    workplaceSelect: 'Проверить это место работы в HeadHunter',
+    workplaceStage: 'Создать черновик места работы',
+    workplaceOpen: 'Открыть проверку места работы',
+    workplaceBusy: 'Проверяем экспорт из HeadHunter…',
+    workplaceDraft:
+      'Черновик места работы готов к проверке в слоте браузера {slot}.',
+    workplaceNote:
+      'В этом изменении нет полей для формы места работы HeadHunter. Примечания сохранены выше.',
+    workplaceTranslation:
+      'Для одного из полей нужен подтверждённый перевод. Проверьте план перед подготовкой формы.',
+    workplaceConflict:
+      'Снимок HeadHunter изменился. Получите актуальное резюме и создайте новый план.',
+    workplaceError:
+      'Не удалось подтвердить черновик. План и введённые данные сохранены.',
+    workplaceReview: 'Проверка места работы по плану опыта',
+    workplaceDismiss: 'Закрыть проверку',
+    workplaceSlot:
+      'Выберите в разделе вакансий слот браузера {slot}, чтобы проверить и подготовить черновик.',
+    workplaceUnapplied:
+      'Поле «{field}» остаётся в плане опыта для отдельной проверки.',
     text: 'Скачать план в Lino',
     binary: 'Скачать план в двоичном Lino',
     'missing-source-kept':
@@ -136,6 +175,26 @@ const entries = {
     about: 'परिचय',
     media: 'मीडिया',
     translations: 'अनुवाद तुलना',
+    workplaceSelect: 'HeadHunter में इस कार्यस्थल की समीक्षा करें',
+    workplaceStage: 'कार्यस्थल का ड्राफ़्ट बनाएँ',
+    workplaceOpen: 'कार्यस्थल की समीक्षा खोलें',
+    workplaceBusy: 'HeadHunter एक्सपोर्ट जाँचा जा रहा है…',
+    workplaceDraft:
+      'कार्यस्थल का ड्राफ़्ट {slot} ब्राउज़र स्लॉट में समीक्षा के लिए तैयार है।',
+    workplaceNote:
+      'इस बदलाव में HeadHunter के कार्यस्थल फ़ॉर्म के लिए कोई फ़ील्ड उपलब्ध नहीं है। नोट ऊपर रखे गए हैं।',
+    workplaceTranslation:
+      'एक फ़ील्ड का अनुवाद अभी अपुष्ट है। फ़ॉर्म तैयार करने से पहले योजना की समीक्षा करें।',
+    workplaceConflict:
+      'HeadHunter स्नैपशॉट बदल गया है। मौजूदा सीवी लेकर नई योजना बनाएँ।',
+    workplaceError:
+      'कार्यस्थल के ड्राफ़्ट की पुष्टि नहीं हुई। योजना और दर्ज जानकारी सुरक्षित हैं।',
+    workplaceReview: 'अनुभव योजना से कार्यस्थल की समीक्षा',
+    workplaceDismiss: 'समीक्षा बंद करें',
+    workplaceSlot:
+      'ड्राफ़्ट की समीक्षा और तैयारी के लिए नौकरियों में {slot} ब्राउज़र स्लॉट चुनें।',
+    workplaceUnapplied:
+      '{field} अलग समीक्षा के लिए अनुभव योजना में रखा गया है।',
     text: 'योजना Lino में डाउनलोड करें',
     binary: 'योजना बाइनरी Lino में डाउनलोड करें',
     'missing-source-kept': 'स्रोत का मान नहीं है; लक्ष्य का मान रखें।',
@@ -184,6 +243,20 @@ const entries = {
     about: '关于',
     media: '媒体',
     translations: '翻译比较',
+    workplaceSelect: '在 HeadHunter 中审核此工作经历',
+    workplaceStage: '创建工作经历草稿',
+    workplaceOpen: '打开工作经历审核',
+    workplaceBusy: '正在核对 HeadHunter 导出文件…',
+    workplaceDraft: '工作经历草稿已就绪，可在 {slot} 浏览器槽位中审核。',
+    workplaceNote:
+      '这项更改没有可用于 HeadHunter 工作经历表单的字段。备注保留在上方。',
+    workplaceTranslation: '有字段的译文仍需确认。请先审核计划，再准备表单。',
+    workplaceConflict: 'HeadHunter 快照已更改。请获取当前简历并重新生成计划。',
+    workplaceError: '无法确认工作经历草稿。计划和已输入的信息均已保留。',
+    workplaceReview: '审核经历计划中的工作经历',
+    workplaceDismiss: '关闭审核',
+    workplaceSlot: '请在职位页面选择 {slot} 浏览器槽位，以审核并准备此草稿。',
+    workplaceUnapplied: '“{field}”保留在经历计划中，供单独审核。',
     text: '下载 Lino 计划',
     binary: '下载二进制 Lino 计划',
     'missing-source-kept': '来源值缺失；保留目标值。',

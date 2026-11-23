@@ -37,6 +37,7 @@ export const cvWorkplacePrepareBrowserFixture = async (
     copyMode = false,
     followupMode = false,
     addMode = false,
+    singleTarget = false,
   } = {}
 ) => {
   const changeId = 'en:jobs.0.description';
@@ -59,6 +60,7 @@ export const cvWorkplacePrepareBrowserFixture = async (
           otherHash,
           job: originalJob,
           emptyTarget: addMode,
+          singleTarget,
         })
       : null;
   bundle ??= build({

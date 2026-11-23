@@ -50,5 +50,10 @@ writer. Generic CV sync therefore does not establish this requirement.
 
 The [native LinkedIn reader](linkedin-experience.md) now drafts bounded acquisition,
 private evidence, durable recovery and shared controls with synthetic browser checks.
+The [HeadHunter workplace handoff](experience-hh-workplace-review.md) prepares
+one explicitly approved workplace from a completed directed plan. The CLI and
+both Lino encodings stage the same exact review. Chromium verifies the shared
+CV review, native preparation and an explicit owner Save with fresh synthetic
+exports. Interactive queue decisions and the LinkedIn writer remain required.
 Authenticated provider verification, complete HH/About acquisition and every
 remaining item above stay required; HH21 remains unfinished.

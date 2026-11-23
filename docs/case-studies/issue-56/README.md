@@ -99,6 +99,7 @@
 - [Reviewed Formal AI reports](formal-reports.md): exact workplace failure evidence, marker-first deduplication, preserved version comments and consented durable publication through CLI/Lino/four-language controls. Synthetic checks create no upstream issues; live acceptance and all remaining rows stay required.
 
 - [LinkedIn card text and About](linkedin-acquisition.md): bounded observed-card fallback, separately owned profile acquisition, original private evidence and native Chromium guard regressions. Live provider acceptance and native sync remain required.
+- [HeadHunter workplace review from a comparison](experience-hh-workplace-review.md): exact draft staging, explicit approval, native preparation and fresh synthetic export verification after an owner Save. Includes desktop and phone screenshots.
 - [CV initial loading](cv-loading.md): deterministic slow-catalogue regression, disabled controls and shared loading state, with before/after browser captures.
 
 - [Desktop native prebuild filtering](desktop-native-prebuilds.md): preserve the actual five-job packaging failure, reproduce it through the installed builder, and keep only target-compatible SQLite addons while retaining native verification. Exact-head hosted builds remain required.

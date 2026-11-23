@@ -61,6 +61,12 @@ QA11 is [verified against the complete pinned wording/period contract](hosted-cr
 
 Partial HH21 extension: [company/time experience comparison](experience-comparison.md) pairs translated employer/role records conservatively and retains original data, one-sided jobs and unresolved dates. CLI, both Lino encodings and four-language CV controls share the read-only report. Complete exports, translation plans, native reviewed writes and exact-head hosted acceptance remain required; all 60 rows stay unchecked. [Directed experience plans](experience-planning.md) now bind both directions to exact private snapshots, preserve originals and target-only records, and connect three-provider translation with CLI/Lino/four-language recovery; complete acquisition, native writes and authenticated acceptance remain required.
 
+The [HeadHunter workplace handoff](experience-hh-workplace-review.md) stages
+one exact comparison row through CLI, both Lino encodings and the shared CV
+view. Chromium exercises approval, native prefill and explicit owner Save with
+fresh synthetic export verification. HH21 stays unchecked pending native
+LinkedIn edits, queue decisions and authenticated provider verification.
+
 Partial HH10 extension: [application-owned chat review](application-chats.md) adds an explicit actual child, separate persistent chat slot, 120 minute default interval, independent held review and awaited Stop/completion/expiry/shutdown. Focused runtime, native Chromium and independent MCP evidence is retained. Exact-head hosted verification and full reference/provider parity remain required; all 60 rows stay unchecked.
 
 Partial VD01 prerequisite: [desktop provider packaging](desktop-provider-packaging.md) now includes the browser and Telegram runtimes and validates the staged adapters. Remote dependency preparation, readiness and every unchecked criterion remain unfinished; all 60 rows stay unchecked.

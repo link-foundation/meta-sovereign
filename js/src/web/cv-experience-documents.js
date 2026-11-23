@@ -116,7 +116,12 @@ const ExistingHhExport = ({ state, actions }) => {
     ),
   ]);
 };
-export const CvExperienceDocumentsScreen = ({ state, actions, api }) => {
+export const CvExperienceDocumentsScreen = ({
+  state,
+  actions,
+  api,
+  onWorkplaceDraft,
+}) => {
   const t = useT();
   return el(
     'details',
@@ -208,7 +213,13 @@ export const CvExperienceDocumentsScreen = ({ state, actions, api }) => {
           })
         : null,
       api
-        ? el(CvExperiencePlan, { key: 'plan', api, choices: state.choices })
+        ? el(CvExperiencePlan, {
+            key: 'plan',
+            api,
+            choices: state.choices,
+            exports: state.entries,
+            onWorkplaceDraft,
+          })
         : null,
       typeof api?.vacancyCvPublishPlan === 'function'
         ? el(CvExperiencePublication, { key: 'publication', api, state })
@@ -216,7 +227,7 @@ export const CvExperienceDocumentsScreen = ({ state, actions, api }) => {
     ]
   );
 };
-export const CvExperienceDocuments = ({ api }) => {
+export const CvExperienceDocuments = ({ api, onWorkplaceDraft }) => {
   const [state, setState] = useState(null);
   const actions = useRef(null);
   useEffect(() => {
@@ -228,6 +239,11 @@ export const CvExperienceDocuments = ({ api }) => {
     };
   }, [api]);
   return state
-    ? el(CvExperienceDocumentsScreen, { state, actions: actions.current, api })
+    ? el(CvExperienceDocumentsScreen, {
+        state,
+        actions: actions.current,
+        api,
+        onWorkplaceDraft,
+      })
     : null;
 };

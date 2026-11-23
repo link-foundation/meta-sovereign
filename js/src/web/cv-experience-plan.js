@@ -36,7 +36,13 @@ const PlanProgress = ({ state }) => {
       : null,
   ]);
 };
-export const CvExperiencePlanScreen = ({ state, actions, choices }) => {
+export const CvExperiencePlanScreen = ({
+  state,
+  actions,
+  choices,
+  exports,
+  onWorkplaceDraft,
+}) => {
   const t = useT();
   const locked = state.busy || state.attempted;
   const running = experiencePlanRunning(state.row);
@@ -105,7 +111,13 @@ export const CvExperiencePlanScreen = ({ state, actions, choices }) => {
     ]),
     el(PlanProgress, { key: 'progress', state }),
     state.row
-      ? el(CvExperiencePlanView, { key: 'result', row: state.row })
+      ? el(CvExperiencePlanView, {
+          key: state.row.requestId,
+          row: state.row,
+          api: actions.api,
+          exports,
+          onWorkplaceDraft,
+        })
       : null,
     state.row?.plan
       ? el(
@@ -132,7 +144,12 @@ export const CvExperiencePlanScreen = ({ state, actions, choices }) => {
       : null,
   ]);
 };
-export const CvExperiencePlan = ({ api, choices }) => {
+export const CvExperiencePlan = ({
+  api,
+  choices,
+  exports,
+  onWorkplaceDraft,
+}) => {
   const [state, changed] = useState(null);
   const actions = useRef(null);
   useEffect(() => {
@@ -146,6 +163,12 @@ export const CvExperiencePlan = ({ api, choices }) => {
     return () => controller.dispose();
   }, [api]);
   return state
-    ? el(CvExperiencePlanScreen, { state, actions: actions.current, choices })
+    ? el(CvExperiencePlanScreen, {
+        state,
+        actions: actions.current,
+        choices,
+        exports,
+        onWorkplaceDraft,
+      })
     : null;
 };

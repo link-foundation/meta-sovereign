@@ -57,44 +57,53 @@ export const useCvPreparation = ({ api, values, run }) => {
       generation.current++;
     };
   }, [api, browserSlot]);
+  const prepare = (review, change, options = {}) =>
+    run('cv-prepare', async () => {
+      if (!permitted.current) {
+        throw new Error('jobs-cv-recovery');
+      }
+      const current = generation.current;
+      const requestId = globalThis.crypto.randomUUID();
+      if (!globalThis.localStorage) {
+        throw new Error('jobs-cv-recovery');
+      }
+      globalThis.localStorage.setItem(key, requestId);
+      revision.current++;
+      permitted.current = false;
+      setReady(false);
+      setPreparation(null);
+      setCancellation(null);
+      setPendingId(requestId);
+      pending.current = requestId;
+      const answer = await api.vacancyCvPrepare({
+        browserSlot,
+        requestId,
+        fingerprint: review.fingerprint,
+        changeId: change.id,
+        ...(options.recordId ? { recordId: options.recordId } : {}),
+        ...(options.reviewKind ? { reviewKind: options.reviewKind } : {}),
+        ...(options.operation ? { operation: options.operation } : {}),
+      });
+      if (current === generation.current) {
+        accept(answer, requestId);
+      }
+      return answer;
+    });
   return {
     preparation,
     cancellation,
     pendingId,
     canCancel: Boolean(pendingId && !ready),
     ready,
-    prepare: (review, change, options = {}) =>
-      run('cv-prepare', async () => {
-        if (!permitted.current) {
-          throw new Error('jobs-cv-recovery');
-        }
-        const current = generation.current;
-        const requestId = globalThis.crypto.randomUUID();
-        if (!globalThis.localStorage) {
-          throw new Error('jobs-cv-recovery');
-        }
-        globalThis.localStorage.setItem(key, requestId);
-        revision.current++;
-        permitted.current = false;
-        setReady(false);
-        setPreparation(null);
-        setCancellation(null);
-        setPendingId(requestId);
-        pending.current = requestId;
-        const answer = await api.vacancyCvPrepare({
-          browserSlot,
-          requestId,
-          fingerprint: review.fingerprint,
-          changeId: change.id,
-          ...(options.recordId ? { recordId: options.recordId } : {}),
-          ...(options.reviewKind ? { reviewKind: options.reviewKind } : {}),
-          ...(options.operation ? { operation: options.operation } : {}),
-        });
-        if (current === generation.current) {
-          accept(answer, requestId);
-        }
-        return answer;
-      }),
+    prepare,
+    prepareWorkplace: (plan) =>
+      prepare(
+        plan,
+        { id: `${plan.source.identity.language}:workplace` },
+        plan.operation === 'add'
+          ? { operation: 'add', reviewKind: 'workplace' }
+          : { recordId: plan.recordId, reviewKind: 'workplace' }
+      ),
     cancel: () =>
       run('cv-prepare-cancel', async () => {
         const requestId = pending.current;

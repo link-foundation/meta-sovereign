@@ -23,6 +23,7 @@ import {
   useCvTranslation,
 } from './cv-translation-panel.js';
 import { useCvWorkplaceReview } from './cv-workplace-state.js';
+import { useExperienceWorkplaceReview } from './cv-experience-workplace-state.js';
 import { CvWorkplaceReview } from './cv-workplace-panel.js';
 import { useVacancyChoices } from './vacancy-choice-state.js';
 import { useVacancySkips } from './vacancy-skip-state.js';
@@ -139,7 +140,7 @@ const useInitialVacancies = (
   }, [api, setCapabilities, setStored, setResumeLists, setLoaded, setError]);
 };
 
-export const useVacancies = (api) => {
+export const useVacancies = (api, workplaceSelection) => {
   const [values, setValues] = useState(initialSettings);
   const [capabilities, setCapabilities] = useState(null);
   const [stored, setStored] = useState([]);
@@ -189,6 +190,13 @@ export const useVacancies = (api) => {
     values,
     run,
     preparation: cvTechnology.preparation,
+  });
+  cvWorkplace.experienceReview = useExperienceWorkplaceReview({
+    api,
+    browserSlot: values.browserSlot,
+    run,
+    preparation: cvTechnology.preparation,
+    selection: workplaceSelection,
   });
   const cvSaveWatch = useCvSaveWatch({ api, values, run });
   const cvTranslation = useCvTranslation({ api, values, run });
@@ -666,8 +674,8 @@ export const VacanciesScreen = ({ state }) => {
     ]
   );
 };
-export const VacanciesPanel = ({ api }) =>
-  el(VacanciesScreen, { state: useVacancies(api) });
+export const VacanciesPanel = ({ api, workplaceSelection }) =>
+  el(VacanciesScreen, { state: useVacancies(api, workplaceSelection) });
 
 const workspaceBusy = (
   busy,

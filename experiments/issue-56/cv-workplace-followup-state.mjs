@@ -24,9 +24,13 @@ export const cvWorkplaceFollowupState = ({
   otherHash,
   job,
   emptyTarget,
+  singleTarget,
 }) => {
   const ids = [hash, otherHash];
-  const original = { job, hashes: emptyTarget ? [otherHash] : ids };
+  const original = {
+    job,
+    hashes: emptyTarget ? [otherHash] : singleTarget ? [hash] : ids,
+  };
   const records = new Map([['123', original]]);
   let staleDetach = false;
   const localizedJob = (value, language) => {

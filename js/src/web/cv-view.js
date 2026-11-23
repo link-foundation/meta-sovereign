@@ -18,6 +18,7 @@ import { VacanciesPanel } from './vacancies-panel.js';
 import { CvExperienceComparison } from './cv-experience-view.js';
 import { CvExperienceDocuments } from './cv-experience-documents.js';
 import { workspaceName } from './cloud-workspace.js';
+import { useExperienceWorkplaceHandoff } from './cv-experience-workplace-state.js';
 
 const el = React.createElement;
 
@@ -504,10 +505,19 @@ export const CvScreen = ({ state, login = '', setLogin = () => {} }) => {
 export const CvView = ({ api = defaultApi }) => {
   const [login, setLogin] = useState('');
   const state = useCvState(api);
+  const workplaceSelection = useExperienceWorkplaceHandoff();
   const cloud = Boolean(workspaceName());
   return el('div', { className: 'col' }, [
     el(CvScreen, { key: 'cv', state, login, setLogin }),
-    cloud ? null : el(CvExperienceDocuments, { key: 'documents', api }),
-    cloud ? null : el(VacanciesPanel, { key: 'vacancies', api }),
+    cloud
+      ? null
+      : el(CvExperienceDocuments, {
+          key: 'documents',
+          api,
+          onWorkplaceDraft: workplaceSelection.select,
+        }),
+    cloud
+      ? null
+      : el(VacanciesPanel, { key: 'vacancies', api, workplaceSelection }),
   ]);
 };

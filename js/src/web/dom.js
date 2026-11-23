@@ -359,8 +359,8 @@ const serverPostReport = async (path, body, options) => {
   if (!data || data.error === 'unknown route') {
     return null;
   }
-  // Read panels own their feedback; mutation refusals retain the global toast.
-  if (!options?.read) {
+  // Panels with inline feedback can suppress the global toast independently of retry.
+  if (!options?.read && !options?.quiet) {
     reportApiFailure({ path, method: 'POST', status: response.status, data });
   }
   return { ...data, httpStatus: response.status };

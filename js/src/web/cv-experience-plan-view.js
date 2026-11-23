@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useT } from './i18n.js';
 import { RecordDetails } from './cv-experience-view.js';
 import { Comparison } from './cv-translation-panel.js';
+import { CvExperienceWorkplaceStage } from './cv-experience-workplace-stage.js';
 
 const el = React.createElement;
 const value = (input) =>
@@ -79,7 +80,7 @@ const PlannedFields = ({ fields }) => {
       ])
     : null;
 };
-const PlanItem = ({ item, profile = false }) => {
+const PlanItem = ({ item, profile = false, children }) => {
   const t = useT();
   const kind = profile ? 'profile' : item.kind;
   return el(
@@ -112,15 +113,31 @@ const PlanItem = ({ item, profile = false }) => {
             job: item.target,
           })
         : null,
+      children,
     ]
   );
 };
-export const CvExperiencePlanView = ({ row }) => {
+export const CvExperiencePlanView = ({
+  row,
+  api,
+  onWorkplaceDraft,
+  exports,
+}) => {
   const t = useT();
+  const [selected, setSelected] = useState(null);
   const { plan } = row;
   if (!plan) {
     return null;
   }
+  const allowWorkplace =
+    row.phase === 'completed' &&
+    plan.target.platform === 'hh' &&
+    exports?.some(
+      ({ revision, provenance }) =>
+        revision === plan.target.revision && provenance === 'hh-export'
+    ) &&
+    typeof api?.vacancyCvWorkplacePlan === 'function' &&
+    onWorkplaceDraft;
   return el(
     'div',
     { className: 'col', 'data-experience-plan-result': row.phase },
@@ -130,7 +147,45 @@ export const CvExperiencePlanView = ({ row }) => {
         { key: 'direction', style: { overflowWrap: 'anywhere' } },
         `${plan.source.platform.toUpperCase()} (${plan.source.language}, ${plan.source.revision.slice(0, 12)}) → ${plan.target.platform.toUpperCase()} (${plan.target.language}, ${plan.target.revision.slice(0, 12)})`
       ),
-      ...plan.jobs.map((item, index) => el(PlanItem, { key: index, item })),
+      ...plan.jobs.map((item, index) => {
+        const available =
+          allowWorkplace &&
+          ['add', 'update'].includes(item.kind) &&
+          item.fields.length;
+        return el(
+          PlanItem,
+          { key: index, item },
+          available
+            ? el('div', { key: 'workplace', className: 'col' }, [
+                el(
+                  'div',
+                  { key: 'row', className: 'row wrap' },
+                  el(
+                    'button',
+                    {
+                      type: 'button',
+                      'aria-expanded': selected === index,
+                      'data-experience-workplace-select': index,
+                      onClick: () =>
+                        setSelected(selected === index ? null : index),
+                    },
+                    t('experiencePlan.workplaceSelect')
+                  )
+                ),
+                selected === index
+                  ? el(CvExperienceWorkplaceStage, {
+                      key: 'stage',
+                      api,
+                      row,
+                      jobIndex: index,
+                      update: item.kind === 'update',
+                      onDraft: onWorkplaceDraft,
+                    })
+                  : null,
+              ])
+            : null
+        );
+      }),
       el(PlanItem, { key: 'profile', item: plan.profile, profile: true }),
       el('h4', { key: 'translations' }, t('experiencePlan.translations')),
       ...plan.translations.map((comparison) =>
