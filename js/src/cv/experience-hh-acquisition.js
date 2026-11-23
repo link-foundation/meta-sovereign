@@ -1,6 +1,5 @@
 import { createHash } from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
-import { jobsBrowserOptions } from '../jobs/options.js';
 import { resumeExportRequestId } from '../jobs/resume-export-options.js';
 import { resumeExportId } from '../jobs/resume-export-result.js';
 import {
@@ -15,33 +14,12 @@ import {
 } from '../jobs/resume-list.js';
 import { PrivateCvJob } from './private-job.js';
 import { experienceFromHhExport } from './experience-hh.js';
+import {
+  hhAcquisitionFailure as failure,
+  hhAcquisitionOptions,
+} from './experience-hh-acquisition-options.js';
 
-const failure = (reason) =>
-  Object.assign(
-    new Error('The HeadHunter experience export was not confirmed.'),
-    {
-      code: `cv-hh-acquisition-${reason}`,
-      status:
-        { missing: 404, busy: 409, conflict: 409, stopped: 503 }[reason] ?? 400,
-    }
-  );
 const key = (id) => `secret:cv-hh-acquisition:${resumeExportRequestId(id)}`;
-const optionsFor = (input) => {
-  const { browserSlot, headless } = jobsBrowserOptions(input);
-  if (input.refresh !== undefined && typeof input.refresh !== 'boolean') {
-    throw failure('input');
-  }
-  return {
-    requestId: resumeExportRequestId(input.requestId),
-    hash:
-      input.hash === undefined || input.hash === null
-        ? null
-        : resumeHash(input.hash),
-    browserSlot,
-    refresh: input.refresh === true,
-    ...(headless === undefined ? {} : { headless }),
-  };
-};
 export const hhAcquisitionRunning = (row) =>
   ['checking-cache', 'exporting'].includes(row.phase);
 
@@ -90,7 +68,7 @@ const checked = (row, id) => {
     (!row.options && row.phase !== 'stopped') ||
     (row.options &&
       (row.options.requestId !== id ||
-        JSON.stringify(optionsFor(row.options)) !==
+        JSON.stringify(hhAcquisitionOptions(row.options)) !==
           JSON.stringify(row.options))) ||
     (row.phase === 'completed') !== (row.result !== null) ||
     (row.code !== null &&
@@ -221,7 +199,7 @@ export const createHhExperienceAcquisition = ({
     store,
     failure,
     key,
-    optionsFor,
+    optionsFor: hhAcquisitionOptions,
     checked,
     view,
     newRecord,

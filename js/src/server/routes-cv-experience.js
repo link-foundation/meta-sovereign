@@ -13,6 +13,8 @@ import { createHhExperienceAcquisition } from '../cv/experience-hh-acquisition.j
 import { createHhExperienceWorkplaceJobs } from '../cv/experience-hh-workplace-job.js';
 import { createLinkedinExperienceService } from '../cv/linkedin-experience-service.js';
 import { createExperiencePlanningService } from '../cv/experience-plan-service.js';
+import { createExperienceAutoService } from '../cv/experience-auto-service.js';
+import { experienceAutoFailure } from '../cv/experience-auto-record.js';
 import { createLinkedinPositionReviews } from '../cv/linkedin-position-review.js';
 import { createLinkedinPositionJobs } from '../cv/linkedin-position-job.js';
 import {
@@ -100,6 +102,18 @@ const linkedinService = (store, ctx) => {
   }));
 };
 
+const experienceAuto = (store, ctx) => {
+  if (ctx.cvExperienceClosing) {
+    throw experienceAutoFailure('stopped');
+  }
+  return (ctx.cvExperienceAuto ??= createExperienceAutoService({
+    store,
+    getHh: () => hhAcquisition(store, ctx),
+    getLinkedin: () => linkedinService(store, ctx),
+    getPlan: () => planningService(store, ctx),
+  }));
+};
+
 const positionOptions = (store, ctx) => ({
   store,
   artifactRoot:
@@ -142,6 +156,12 @@ const actions = {
     ])
   ),
   compare: (store, input) => compareStoredExperience(store, input),
+  ...Object.fromEntries(
+    ['start', 'status', 'stop'].map((operation) => [
+      `auto-${operation}`,
+      (store, input, ctx) => experienceAuto(store, ctx)[operation](input),
+    ])
+  ),
   'report-preview': (store, input) =>
     previewFormalExperienceReport(store, input),
   ...Object.fromEntries(
@@ -182,6 +202,7 @@ const admission = (req, operation, ctx) => {
   const read = [
     'stored',
     'document',
+    'auto-status',
     'hh-status',
     'hh-workplace-status',
     'linkedin-status',

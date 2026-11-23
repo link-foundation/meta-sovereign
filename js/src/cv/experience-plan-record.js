@@ -14,12 +14,9 @@ const revision = (value) =>
 export const experiencePlanRunning = (row) =>
   ['planning', 'translating'].includes(row?.phase);
 
-export const experiencePlanOptions = (value) => {
-  const input = copyExperienceData(value);
+export const experiencePlanSettings = (input) => {
   const options = {
     requestId: resumeExportRequestId(input.requestId),
-    hh: input.hh,
-    linkedin: input.linkedin,
     to: input.to,
     asOf: input.asOf ?? new Date().toISOString().slice(0, 7),
     models: cvTranslationOptions({
@@ -31,14 +28,27 @@ export const experiencePlanOptions = (value) => {
     }).models,
   };
   if (
-    !revision(options.hh) ||
-    !revision(options.linkedin) ||
     !['hh', 'linkedin'].includes(options.to) ||
     !/^(?:19|20)\d{2}-(?:0[1-9]|1[0-2])$/u.test(options.asOf)
   ) {
     throw experiencePlanFailure('input');
   }
   return options;
+};
+export const experiencePlanOptions = (value) => {
+  const input = copyExperienceData(value);
+  const { requestId, to, asOf, models } = experiencePlanSettings(input);
+  if (!revision(input.hh) || !revision(input.linkedin)) {
+    throw experiencePlanFailure('input');
+  }
+  return {
+    requestId,
+    hh: input.hh,
+    linkedin: input.linkedin,
+    to,
+    asOf,
+    models,
+  };
 };
 export const newExperiencePlan = (requestId, options = null) => ({
   id: experiencePlanKey(requestId),

@@ -46,6 +46,11 @@ writer. Generic CV sync therefore does not establish this requirement.
 - [ ] Carry export/import, comparison, directed plan and review controls through
       CLI, both Lino encodings and all four localized UI languages. Preserve
       unsaved owner input and accurate capability states.
+- [ ] Run acquisition, comparison and native review in one automatic workflow.
+      [Automatic preparation](experience-auto-preparation.md) checkpoints both
+      native snapshots and the translated comparison in CLI, both Lino encodings
+      and the shared CV view. Queue progression and restart recovery after a
+      provider Save remain required.
 - [ ] Retain parent-failing regressions, focused core/API checks, native browser
       and independent MCP before/after evidence. Inspect hosted checks for the
       exact published source. Complete HH21 only after every item is verified in

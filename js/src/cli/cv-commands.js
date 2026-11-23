@@ -33,6 +33,7 @@ import { createExperienceCommands } from './cv-experience-commands.js';
 import { createHhExperienceCommands } from './cv-hh-experience-command.js';
 import { createHhExperienceWorkplaceCommands } from './cv-hh-experience-workplace-command.js';
 import { createExperiencePlanCommands } from './cv-experience-plan-command.js';
+import { createExperienceAutoCommands } from './cv-experience-auto-command.js';
 import { createFormalReportCommands } from './cv-formal-report-command.js';
 
 export { CV_HELP } from './help.js';
@@ -343,6 +344,10 @@ export const createCvCommands = ({
       ...createExperiencePlanCommands(
         { openStore, openReadOnly },
         live.experiencePlanning
+      ),
+      ...createExperienceAutoCommands(
+        { openStore, openReadOnly },
+        { ...live, ...live.experienceAuto }
       ),
       ...createLinkedinExperienceCommands(
         { openStore, openReadOnly },

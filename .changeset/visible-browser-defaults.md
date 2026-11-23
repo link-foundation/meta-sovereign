@@ -1191,3 +1191,6 @@ after reconnecting without replaying a provider action (issue #56).
 Find the exact saved HeadHunter workplace from an approved baseline when the
 experience review omits a native record ID. Refuse ambiguous matches before
 opening the editor (issue #56).
+
+Acquire both HeadHunter and LinkedIn experience snapshots and build their
+translated comparison in one recoverable request (issue #56).

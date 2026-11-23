@@ -103,6 +103,7 @@
 - [Dedicated HeadHunter workplace reviewer](experience-hh-workplace-slot.md): isolated Experience profile, exact Save or Skip, preserved drafts and same-request phone recovery. Includes Chromium reproduction and screenshots.
 - [LinkedIn position review from a comparison](experience-linkedin-position-review.md) covers exact native evidence, separate approval, and Chromium form preparation with zero saves.
 - [HeadHunter acquisition from Experience](experience-hh-acquisition.md) covers verified cache reuse, explicit native refresh, a missing structured artifact and same-ID recovery on a phone.
+- [Automatic experience preparation](experience-auto-preparation.md) covers both acquisitions, directed comparison and exact request recovery across the CLI, Lino and CV view.
 - [CV initial loading](cv-loading.md): deterministic slow-catalogue regression, disabled controls and shared loading state, with before/after browser captures.
 
 - [Desktop native prebuild filtering](desktop-native-prebuilds.md): preserve the actual five-job packaging failure, reproduce it through the installed builder, and keep only target-compatible SQLite addons while retaining native verification. Exact-head hosted builds remain required.

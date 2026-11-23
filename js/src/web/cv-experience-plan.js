@@ -11,9 +11,10 @@ import { CvExperiencePlanView } from './cv-experience-plan-view.js';
 import { CvFormalReport } from './cv-formal-report.js';
 import { CvLinkedinPositionReview } from './cv-linkedin-position-review.js';
 import { useLinkedinPositionReview } from './cv-linkedin-position-review-state.js';
+import { CvExperienceAuto } from './cv-experience-auto.js';
 
 const el = React.createElement;
-const PlanProgress = ({ state }) => {
+const PlanProgress = ({ state, completedRef }) => {
   const t = useT();
   return el(React.Fragment, null, [
     state.busy || experiencePlanRunning(state.row)
@@ -31,6 +32,8 @@ const PlanProgress = ({ state }) => {
           {
             key: 'state',
             role: 'status',
+            ref: state.row.phase === 'completed' ? completedRef : null,
+            tabIndex: state.row.phase === 'completed' ? -1 : undefined,
             'data-experience-plan-state': state.row.phase,
           },
           t(`experiencePlan.${state.row.phase}`)
@@ -44,9 +47,21 @@ export const CvExperiencePlanScreen = ({
   choices,
   exports,
   onWorkplaceDraft,
+  onAutoPlan,
 }) => {
   const t = useT();
   const linkedinPosition = useLinkedinPositionReview(actions.api);
+  const completed = useRef(null);
+  const requestedComparison = useRef(null);
+  useEffect(() => {
+    if (
+      requestedComparison.current &&
+      state.row?.requestId === requestedComparison.current
+    ) {
+      requestedComparison.current = null;
+      completed.current?.focus();
+    }
+  }, [state.row]);
   const locked = state.busy || state.attempted;
   const running = experiencePlanRunning(state.row);
   const button = (operation, action, disabled) =>
@@ -64,6 +79,23 @@ export const CvExperiencePlanScreen = ({
   return el('section', { className: 'col', 'data-experience-plan': true }, [
     el('h3', { key: 'title' }, t('experiencePlan.title')),
     el('p', { key: 'hint', className: 'meta' }, t('experiencePlan.hint')),
+    typeof actions.api?.cvExperienceAutoStart === 'function'
+      ? el(CvExperienceAuto, {
+          key: 'auto',
+          api: actions.api,
+          disabled: state.busy || state.unknown || running,
+          openComparison: async (row) => {
+            requestedComparison.current = row.plan.requestId;
+            const opened = await actions.openComparison(row);
+            if (opened) {
+              await onAutoPlan?.();
+            } else {
+              requestedComparison.current = null;
+            }
+            return opened;
+          },
+        })
+      : null,
     el('label', { key: 'direction', className: 'chat-form-field' }, [
       el('span', { key: 'label' }, t('experiencePlan.direction')),
       el(
@@ -112,7 +144,7 @@ export const CvExperiencePlanScreen = ({
         state.busy || running || state.unknown
       ),
     ]),
-    el(PlanProgress, { key: 'progress', state }),
+    el(PlanProgress, { key: 'progress', state, completedRef: completed }),
     el(CvLinkedinPositionReview, {
       key: 'linkedin-position',
       state: linkedinPosition,
@@ -157,6 +189,7 @@ export const CvExperiencePlan = ({
   choices,
   exports,
   onWorkplaceDraft,
+  onAutoPlan,
 }) => {
   const [state, changed] = useState(null);
   const actions = useRef(null);
@@ -177,6 +210,7 @@ export const CvExperiencePlan = ({
         choices,
         exports,
         onWorkplaceDraft,
+        onAutoPlan,
       })
     : null;
 };

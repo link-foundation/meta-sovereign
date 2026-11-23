@@ -789,7 +789,8 @@ const deviceOnlyRoutes = [
 const requiresDevice = (p) =>
   deviceOnlyRoutes.some((route) => p === route || p.startsWith(`${route}/`)) ||
   p.startsWith('/api/automations/answers/browser/') ||
-  p.startsWith('/api/cv/experience/linkedin-');
+  p.startsWith('/api/cv/experience/linkedin-') ||
+  p.startsWith('/api/cv/experience/auto-');
 
 const route = async (store, req, res, ctx) => {
   applySecurityHeaders(res, ctx.cloud);

@@ -228,6 +228,7 @@ export const CvExperienceDocumentsScreen = ({
             choices: state.choices,
             exports: state.entries,
             onWorkplaceDraft,
+            onAutoPlan: actions.reload,
           })
         : null,
       typeof api?.vacancyCvPublishPlan === 'function'

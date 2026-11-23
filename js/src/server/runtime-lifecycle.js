@@ -14,8 +14,11 @@ const stopAccounts = (ctx, handoff) =>
     )
   );
 
-const stopExperienceExport = (ctx) => {
+const stopExperienceExport = async (ctx) => {
   ctx.cvExperienceClosing = true;
+  await Promise.allSettled([
+    traceShutdown('cvExperienceAuto', ctx.cvExperienceAuto?.close()),
+  ]);
   return Promise.allSettled([
     traceShutdown('cvExperience', ctx.cvExperience?.close()),
     traceShutdown('cvHhAcquisition', ctx.cvHhAcquisition?.close()),

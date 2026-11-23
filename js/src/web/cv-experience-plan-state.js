@@ -23,6 +23,48 @@ export const createExperiencePlanState = (api, changed, options = {}) => {
     running: experiencePlanRunning,
     ...options,
   });
+  state.openComparison = async ({ plan, hh, linkedin }) => {
+    if (
+      !state.live ||
+      state.state.busy ||
+      state.state.unknown ||
+      state.running(state.state.row)
+    ) {
+      return false;
+    }
+    ++state.sequence;
+    state.clearTimer();
+    state.update({ busy: true });
+    try {
+      const { requestId, fingerprint } = plan;
+      const row = await confirmedExperiencePlan(
+        await api.cvExperiencePlanStatus({ requestId }),
+        requestId
+      );
+      if (
+        !state.live ||
+        row.phase !== 'completed' ||
+        row.fingerprint !== fingerprint ||
+        row.options.hh !== hh ||
+        row.options.linkedin !== linkedin
+      ) {
+        return false;
+      }
+      state.remember(requestId);
+      state.update({
+        requestId,
+        row,
+        to: row.options.to,
+        attempted: true,
+        error: false,
+      });
+      return true;
+    } catch {
+      return false;
+    } finally {
+      state.update({ busy: false });
+    }
+  };
   changed(state.state);
   return state;
 };
