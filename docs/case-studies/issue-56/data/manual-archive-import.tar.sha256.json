@@ -1,0 +1,27 @@
+{
+  "archive": "manual-archive-import.tar.gz",
+  "files": {
+    "docs/case-studies/issue-56/manual-archive-import.md": "ecbe001ccdf99e17ef2b247bdfae133ad96de7eee3df4cb4c8742a952db3e674",
+    "docs/screenshots/issue-56-facebook-archive-snippet-after.png": "ef34a066c1ff72794fcbde1ab1db76f77a774f82087a31e4c118f04181ec7eff",
+    "docs/screenshots/issue-56-facebook-archive-snippet-before.png": "2e4a80bb6832395c13fb3d23c672fd2aae6c775b5f8c9278450a7f82990dc8a3",
+    "docs/screenshots/issue-56-telegram-archive-snippet-after.png": "68c84a73652a71a321586ae118ad4efb8c7fa557e3cee811128262e57ef57d33",
+    "js/src/sources/github.js": "ce1cf845bfef869eb022186f68f6890ae2e1a2b7e4d7ccdfa88eeea69420b4e5",
+    "js/tests/e2e-archive-media-browser.mjs": "cdcd57195ea94e71be6606a083ad1f71902bdae59bf266a1136ec6340a0f7b0e",
+    "metadata.json": "9a4ece3dcb6dea3a6867337d90994910a55acd2a168c031b4b2ca44773fbcbe6",
+    "parent/js/src/sources/github.js": "667b9f40c8738589609d9d04a6536c2dd3080e77d53729b55928d404695ca734",
+    "verification/browser.log": "0621467ef809f59d23702a51c9306a1c4d09539fad3c406797f2652cb8af5665",
+    "verification/build.log": "c8b85e6dca68a1c92643baaa7e6df1f6e82f950e1611f18ef682d7d7260f95ab",
+    "verification/deno.log": "25f6d2a73315424c4d1b2112e2461266f9d4024ea9c1b1151169babab5c19e55",
+    "verification/diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "verification/format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "verification/lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "verification/mcp-code.js": "8def94a0c18cfff992f1d9330dd3151c6a402293bbac8283c14f6e0ac167fe6d",
+    "verification/mcp-console.log": "c8320186e864659b34810f0c23279f8db7a7720c296ce9664b7b7a0af79f7e33",
+    "verification/mcp-server.log": "51aefdb3acf0257b33f09a412e06191490a2027c390f6652fde7a8d074a184b1",
+    "verification/mcp.json": "b9708a357e4729e26d595bec4e60b85be5caa7a8238c6c82bcf08ceeec882813",
+    "verification/node.log": "216702a3ec4ea71fa5ab16ee9900d62fca8e34e3edfc5048d514b8107ca686c2",
+    "verification/parent-browser.log": "eb5c9b89fe55ee8ed47b173542da51e90be2815b6505d205c6498f3fafbc9cc4",
+    "verification/secretlint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "sha256": "9357583b2bd4d6f8daee880dcf0f14f21a02be82b21fb1be7982d1b6dc7e9627"
+}

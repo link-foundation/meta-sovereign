@@ -18,6 +18,7 @@ import path from 'node:path';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { buildMessageLink } from '../src/sources/link.js';
 import { stampSourceLink } from '../src/sources/index.js';
+import { TUTORIAL_STORAGE_KEY, TUTORIAL_VERSION } from '../src/web/tutorial.js';
 import { assert, openChatApp } from './helpers/e2e-chat.mjs';
 import { zipOf } from './helpers/zip-fixture.js';
 
@@ -94,7 +95,93 @@ const { base, page, until, finish } = await openChatApp('archive-media', {
   serverOptions: { storeDir: dir },
 });
 
+const assertSnippet = async ({ detail, label, provider }) => {
+  const status = detail.locator('.provider-archive-import .row > span.meta');
+  const receipt = await status
+    .filter({ hasText: /Import failed|Imported \d+ messages? from/i })
+    .textContent({ timeout: 10000 });
+  if (process.env.ARCHIVE_SNIPPET_SCREENSHOTS === '1') {
+    const phase = receipt.includes('Import failed') ? 'before' : 'after';
+    await status.scrollIntoViewIfNeeded();
+    await page.screenshot({
+      path: `docs/screenshots/issue-56-${provider}-archive-snippet-${phase}.png`,
+    });
+  }
+  assert(
+    receipt.includes(`Imported 1 messages from ${label}`),
+    `${provider} plain archive import receipt: ${receipt}`
+  );
+};
+
+const assertCachedSnippet = async (chat, body) => {
+  await page.goto(`${base}/#chat=${encodeURIComponent(chat)}`);
+  await page
+    .locator('[data-message]')
+    .filter({ hasText: body })
+    .waitFor({ timeout: 10000 });
+};
+
+const verifyManualArchives = async (facebook) => {
+  const body = 'One pasted Messenger message';
+  await facebook.locator('[data-action="archive-paste"]').fill(
+    JSON.stringify({
+      title: 'Manual Messenger archive',
+      thread_path: 'inbox/manual_messenger',
+      messages: [
+        {
+          sender_name: 'Messenger fixture',
+          timestamp_ms: 1760000000000,
+          content: body,
+        },
+      ],
+    })
+  );
+  await facebook.locator('[data-action="archive-import"]').click();
+  await assertSnippet({
+    detail: facebook,
+    label: 'pasted snippet',
+    provider: 'facebook',
+  });
+
+  // Serve the app shell while making the connected server API unavailable.
+  await page.route('**/api/**', (route) => route.abort());
+  await page.goto(`${base}/#conn-telegram/manual`);
+  await page.reload();
+  const telegram = page.locator('#conn-telegram');
+  const file = 'result.json';
+  const text = 'One uploaded Telegram message';
+  await telegram.locator('[data-action="archive-file"]').setInputFiles({
+    name: file,
+    mimeType: 'application/json',
+    buffer: Buffer.from(
+      JSON.stringify({
+        id: 7900,
+        name: 'Manual Telegram archive',
+        messages: [
+          { id: 7901, type: 'message', text, date: '2026-01-01T10:00:00Z' },
+        ],
+      })
+    ),
+  });
+  await assertSnippet({
+    detail: telegram,
+    label: file,
+    provider: 'telegram',
+  });
+  await page.reload();
+  await assertCachedSnippet('facebook:manual_messenger', body);
+  await assertCachedSnippet('telegram:7900', text);
+};
+
 await finish(async () => {
+  await page.addInitScript(
+    ({ key, version }) =>
+      globalThis.localStorage.setItem(
+        key,
+        JSON.stringify({ off: true, v: version })
+      ),
+    { key: TUTORIAL_STORAGE_KEY, version: TUTORIAL_VERSION }
+  );
   await page.goto(`${base}/`);
   await page.locator('[data-chat="facebook:thread1"]').click();
 
@@ -199,6 +286,7 @@ await finish(async () => {
     stored.every((l) => l.source === 'facebook'),
     'zip read as Facebook'
   );
+  await verifyManualArchives(detail);
 });
 
 await rm(dir, { recursive: true, force: true });

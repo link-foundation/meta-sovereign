@@ -1,3 +1,10 @@
+### 2026-11-23 Manual archive imports across providers (QA02 and QA06)
+
+- [x] Reproduce the shared Connections policy error with a Messenger snippet on the published bundle. Preserve the existing streamed ZIP check.
+- [x] Defer GitHub's runtime gzip import and verify Messenger paste and Telegram file import with the existing policy.
+- [x] Verify 44 Node checks, 41 Deno checks and five steps, production Chromium, and independent Playwright MCP with the API unavailable. [Manual archive case](manual-archive-import.md).
+- [ ] Inspect the exact hosted Chromium and WebKit checks and continue complete authenticated provider history and parity.
+
 ### 2026-11-23 Archived HeadHunter recorder imports (HH09, HH11, QA02 and QA06)
 
 - [x] Trace the pinned recorder's keyed chat file, edited wording, capture time and coverage back to its native DOM reader.
