@@ -1,11 +1,30 @@
 /** Private snapshot operations require an actual acknowledgement, including reads. */
 export const experienceReply = (value) => {
   if (!value || value.error || value.ok === false || value.httpStatus >= 400) {
-    throw new Error('Experience snapshot operation was not acknowledged.');
+    throw Object.assign(
+      new Error('Experience snapshot operation was not acknowledged.'),
+      { code: value?.code }
+    );
   }
-  return value;
+  const { httpStatus: _httpStatus, ...receipt } = value;
+  return receipt;
 };
 export const createExperienceApi = ({ get, report }) => ({
+  ...Object.fromEntries(
+    ['stage', 'stored', 'review', 'start', 'status', 'stop', 'decide'].map(
+      (operation) => [
+        `cvLinkedinPosition${operation[0].toUpperCase()}${operation.slice(1)}`,
+        async (input) => {
+          const route = `/api/cv/experience/linkedin-position-${operation}`;
+          return experienceReply(
+            await (['stored', 'status'].includes(operation)
+              ? get(`${route}?${new URLSearchParams(input)}`)
+              : report(route, input, { quiet: true }))
+          );
+        },
+      ]
+    )
+  ),
   cvFormalReportPreview: async (input) =>
     experienceReply(
       await get(

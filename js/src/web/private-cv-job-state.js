@@ -125,7 +125,7 @@ export class PrivateCvJobState {
         await this.api[`${this.options.prefix}${operation}`](
           operation === 'Start'
             ? { ...input, ...extra, requestId }
-            : { requestId }
+            : { ...extra, requestId }
         ),
         requestId
       );

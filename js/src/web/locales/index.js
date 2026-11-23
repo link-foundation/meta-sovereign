@@ -19,6 +19,7 @@ import { vkTokenLocale } from './vk-token.js';
 import { runnerLocale } from './runner.js';
 import { cvExperienceLocale } from './cv-experience.js';
 import { linkedinExperienceLocale } from './cv-linkedin-experience.js';
+import { linkedinPositionLocale } from './cv-linkedin-position.js';
 import { experienceFilesLocale } from './cv-experience-files.js';
 import { experiencePlanLocale } from './cv-experience-plan.js';
 import { formalReportLocale } from './cv-formal-report.js';
@@ -35,6 +36,7 @@ export const dictionaries = Object.fromEntries(
       ...cvExperienceLocale(language),
       ...experienceFilesLocale(language),
       ...linkedinExperienceLocale(language),
+      ...linkedinPositionLocale(language),
       ...experiencePlanLocale(language),
       ...formalReportLocale(language),
       ...jobLoginLocale(language),

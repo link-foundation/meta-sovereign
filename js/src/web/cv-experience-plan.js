@@ -9,6 +9,8 @@ import { experiencePlanRunning } from '../cv/experience-plan-record.js';
 import { LINO_TEXT, LINO_BINARY } from '../transport/lino.js';
 import { CvExperiencePlanView } from './cv-experience-plan-view.js';
 import { CvFormalReport } from './cv-formal-report.js';
+import { CvLinkedinPositionReview } from './cv-linkedin-position-review.js';
+import { useLinkedinPositionReview } from './cv-linkedin-position-review-state.js';
 
 const el = React.createElement;
 const PlanProgress = ({ state }) => {
@@ -44,6 +46,7 @@ export const CvExperiencePlanScreen = ({
   onWorkplaceDraft,
 }) => {
   const t = useT();
+  const linkedinPosition = useLinkedinPositionReview(actions.api);
   const locked = state.busy || state.attempted;
   const running = experiencePlanRunning(state.row);
   const button = (operation, action, disabled) =>
@@ -110,6 +113,10 @@ export const CvExperiencePlanScreen = ({
       ),
     ]),
     el(PlanProgress, { key: 'progress', state }),
+    el(CvLinkedinPositionReview, {
+      key: 'linkedin-position',
+      state: linkedinPosition,
+    }),
     state.row
       ? el(CvExperiencePlanView, {
           key: state.row.requestId,
@@ -117,6 +124,7 @@ export const CvExperiencePlanScreen = ({
           api: actions.api,
           exports,
           onWorkplaceDraft,
+          linkedinPosition,
         })
       : null,
     state.row?.plan

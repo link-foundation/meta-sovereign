@@ -70,5 +70,24 @@ unconfirmed. The same request recovers its status without submitting again.
 `cv-linkedin-position-job.test.js` checks the foreground keys and EOF,
 acknowledgement before opening, and trusted Lino admission and recovery.
 
-The shared CV review, native skill and media selection, interactive queue and
-authenticated verification remain open in [HH21](experience-sync-plan.md).
+## Shared CV review
+
+In CV → Experience documents, compare an HH export with a native LinkedIn
+export and select **Review LinkedIn position** on a matching update or a
+proposed addition. The review shows the current and proposed values and
+requires approval before **Open LinkedIn editor** becomes available. When the
+browser is prepared, the CV view offers Save, Skip or leaving the editor open.
+It recovers an acknowledged job with a status read after a lost Start reply or
+a reload. The same controls are available on desktop and phone in English,
+Russian, Chinese and Hindi.
+
+`linkedin-position-review-browser.mjs` checks the workflow in Chromium with
+synthetic exports. It drops the Start reply after the server acknowledges it,
+reloads at phone width and confirms one Start, one Skip and zero saves.
+
+| Before                                                                                                   | Review                                                                                                  | Prepared on a phone                                                                                                         |
+| -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| ![Comparison before the review action](../../screenshots/issue-56-linkedin-position/position-before.png) | ![Proposed LinkedIn position changes](../../screenshots/issue-56-linkedin-position/position-review.png) | ![Prepared LinkedIn position controls on a phone](../../screenshots/issue-56-linkedin-position/position-prepared-phone.png) |
+
+Native skill and media selection, an interactive queue and authenticated
+verification remain open in [HH21](experience-sync-plan.md).

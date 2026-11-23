@@ -30,7 +30,7 @@ const fieldLabel = (field, t) =>
           ? t('experiencePlan.media')
           : field;
 
-const PlannedFields = ({ fields }) => {
+export const PlannedFields = ({ fields }) => {
   const t = useT();
   return fields.length
     ? el('table', { className: 'cv-experience-comparison stack-table' }, [
@@ -122,6 +122,7 @@ export const CvExperiencePlanView = ({
   api,
   onWorkplaceDraft,
   exports,
+  linkedinPosition,
 }) => {
   const t = useT();
   const [selected, setSelected] = useState(null);
@@ -138,6 +139,15 @@ export const CvExperiencePlanView = ({
     ) &&
     typeof api?.vacancyCvWorkplacePlan === 'function' &&
     onWorkplaceDraft;
+  const allowPosition =
+    row.phase === 'completed' &&
+    plan.target.platform === 'linkedin' &&
+    exports?.some(
+      ({ revision, provenance }) =>
+        revision === plan.target.revision && provenance === 'linkedin-native'
+    ) &&
+    typeof api?.cvLinkedinPositionStage === 'function' &&
+    linkedinPosition;
   return el(
     'div',
     { className: 'col', 'data-experience-plan-result': row.phase },
@@ -152,6 +162,12 @@ export const CvExperiencePlanView = ({
           allowWorkplace &&
           ['add', 'update'].includes(item.kind) &&
           item.fields.length;
+        const positionAvailable =
+          allowPosition &&
+          ((item.kind === 'add' && plan.profile.target?.positionEditor) ||
+            (item.kind === 'update' &&
+              item.target?.native?.positionEditor &&
+              item.fields.length));
         return el(
           PlanItem,
           { key: index, item },
@@ -183,7 +199,27 @@ export const CvExperiencePlanView = ({
                     })
                   : null,
               ])
-            : null
+            : positionAvailable
+              ? el(
+                  'div',
+                  { className: 'row wrap' },
+                  el(
+                    'button',
+                    {
+                      type: 'button',
+                      disabled: linkedinPosition.locked,
+                      'data-experience-linkedin-position-select': index,
+                      onClick: () =>
+                        linkedinPosition.stage({
+                          requestId: row.requestId,
+                          fingerprint: row.fingerprint,
+                          jobIndex: index,
+                        }),
+                    },
+                    t('linkedinPosition.stage')
+                  )
+                )
+              : null
         );
       }),
       el(PlanItem, { key: 'profile', item: plan.profile, profile: true }),

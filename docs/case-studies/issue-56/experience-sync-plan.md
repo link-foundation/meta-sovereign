@@ -54,14 +54,16 @@ The [HeadHunter workplace handoff](experience-hh-workplace-review.md) prepares
 one explicitly approved workplace from a completed directed plan. The CLI and
 both Lino encodings stage the same exact review. Chromium verifies the shared
 CV review, native preparation and an explicit owner Save with fresh synthetic
-exports. Interactive queue decisions and the LinkedIn writer remain required.
+exports. Interactive queue decisions remain required.
 The [LinkedIn position review](experience-linkedin-position-review.md) binds
 one Add or update to the acknowledged native export and a separate approval.
 The CLI and both Lino encodings can recover the exact private review. The
 native preparation adapter rechecks the visible form and preserves owner
 drafts. A single position can be saved or skipped explicitly through CLI or
 Lino. Chromium covers owner Save with fresh readback, stale readback, Skip,
-Stop and navigation. Native skill and media selection, an interactive queue
-and the shared CV review remain required in this direction.
+Stop and navigation. The shared CV view shows the proposed fields, asks for
+separate approval and recovers the exact job after a lost Start reply or phone
+reload. Native skill and media selection and an interactive queue remain
+required in this direction.
 Authenticated provider verification, complete HH/About acquisition and every
 remaining item above stay required; HH21 remains unfinished.

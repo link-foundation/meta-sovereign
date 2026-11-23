@@ -3,6 +3,7 @@ import { copyExperienceData } from './experience.js';
 import { PrivateCvJob } from './private-job.js';
 import { createLinkedinPositionNative } from './linkedin-position-native.js';
 import { linkedinPositionEditorUrl } from './linkedin-position-editor-url.js';
+import { linkedinPositionPending } from './linkedin-position-receipt.js';
 import {
   linkedinPositionFingerprint,
   linkedinPositionFailure,
@@ -23,7 +24,7 @@ const terminal = [
   'failed',
 ];
 const positionCode = /^cv-linkedin-position-[a-z-]{1,60}$/u;
-export const linkedinPositionRunning = (row) => running.includes(row.phase);
+export const linkedinPositionRunning = linkedinPositionPending;
 const key = (id) =>
   `secret:cv-linkedin-position-job:${resumeExportRequestId(id)}`;
 const optionsFor = (input) => ({
@@ -57,6 +58,15 @@ const verifiedSave = (save) =>
       save.values[key] === null ||
       /^\d{4}(?:-(?:0[1-9]|1[0-2]))?$/u.test(save.values[key])
   );
+const validUnapplied = (fields) =>
+  Array.isArray(fields) &&
+  fields.length <= 2 &&
+  fields.every((name) => ['skills', 'media'].includes(name));
+const validOptions = ({ options, phase }, id) =>
+  options
+    ? options.requestId === id &&
+      JSON.stringify(optionsFor(options)) === JSON.stringify(options)
+    : phase === 'stopped';
 const checked = (value, id) => {
   const row = copyExperienceData(value);
   if (
@@ -65,13 +75,8 @@ const checked = (value, id) => {
     row.requestId !== id ||
     row.version !== 1 ||
     !running.concat(terminal).includes(row.phase) ||
-    (row.options
-      ? JSON.stringify(optionsFor(row.options)) !==
-          JSON.stringify(row.options) || row.options.requestId !== id
-      : row.phase !== 'stopped') ||
-    !Array.isArray(row.unapplied) ||
-    row.unapplied.length > 2 ||
-    row.unapplied.some((name) => !['skills', 'media'].includes(name)) ||
+    !validOptions(row, id) ||
+    !validUnapplied(row.unapplied) ||
     ![null, 'cli-or-api', 'browser'].includes(row.initiator) ||
     (row.code !== null && !positionCode.test(row.code))
   ) {
@@ -86,7 +91,7 @@ const checked = (value, id) => {
   }
   return row;
 };
-const view = (row, active) => {
+const view = (row, active, decisionPending = false) => {
   const { id: _id, version: _version, ...status } = copyExperienceData(row);
   if (linkedinPositionRunning(row) && !active) {
     return {
@@ -95,9 +100,10 @@ const view = (row, active) => {
       phase: active === null ? 'unknown' : 'interrupted',
       code: 'cv-linkedin-position-ownership',
       providerSaved: false,
+      decisionPending,
     };
   }
-  return { ...status, providerSaved: row.phase === 'saved' };
+  return { ...status, providerSaved: row.phase === 'saved', decisionPending };
 };
 
 const waitForChoice = async (owned, context) => {
@@ -227,7 +233,12 @@ export const createLinkedinPositionJobs = (context) => {
     optionsFor,
     newRecord,
     checked,
-    view,
+    view: (row, active) =>
+      view(
+        row,
+        active,
+        Boolean(active && row.phase === 'prepared' && service.current?.decision)
+      ),
     failure: linkedinPositionFailure,
     work: work(context, open),
   });
@@ -248,7 +259,7 @@ export const createLinkedinPositionJobs = (context) => {
           throw linkedinPositionFailure('decision');
         }
         active.decision = decision;
-        return view(active.row, true);
+        return view(active.row, true, true);
       }),
   };
 };
