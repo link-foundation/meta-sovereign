@@ -109,7 +109,7 @@ test(
     const backend = runnerFixture({ server: 'running' });
     const events = [];
     const run = (target, argv, options) => {
-      if (isLookup(argv)) {
+      if (isLookup(argv) && argv.at(-1) === '$') {
         return success('missing');
       }
       if (argv[0] === 'screen' && argv[1] === '-S') {

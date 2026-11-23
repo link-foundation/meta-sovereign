@@ -1,10 +1,11 @@
-2026-11-23 isolated runner launcher preparation (VD01 remains unfinished)
+2026-11-23 isolated runner launcher and runtime preparation (VD01 remains unfinished)
 
 - [x] Trace the pinned reference installer and identify the window before the controller stops an active peer.
 - [x] Prepare a locked launcher and runtime in a private destination cache only on explicit Start. Preserve existing wrappers, live session checks, and owner data.
 - [x] Reproduce the missing fallback and verify real cold preparation, warm reuse, unsafe paths, rejected installation and failed switches. Pass 62 focused checks in both Node and Deno.
+- [x] Reproduce missing Node and npm on the published parent. Check a corrupt archive refusal, real cold and warm Linux Screen starts, two confirmed Stops and 61 focused checks per runtime.
 - [ ] Exercise the default launcher over hosted SSH for both Screen and Docker.
-- [ ] Publish exact-source evidence and continue the remaining OS, application runtime and clean packaged-desktop preparation requirements.
+- [ ] Verify published CI and continue the operating-system, application dependency and clean packaged-desktop preparation requirements.
 
 2026-11-23 LinkedIn About review (HH21 remains unfinished)
 

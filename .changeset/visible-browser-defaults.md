@@ -1209,3 +1209,7 @@ choose Save, Skip or Leave, and check the saved profile (issue #56).
 Prepare the default isolated runner launcher privately on the selected host
 when it is missing. Reuse the verified installation and keep the active
 session running if the destination launcher cannot be prepared (issue #56).
+
+Prepare a checksum-verified private Node runtime with bundled npm on a supported
+host when the default runner runtime is missing. Reuse it for later starts and
+read-only application health, keeping preparation before a peer Stop (issue #56).

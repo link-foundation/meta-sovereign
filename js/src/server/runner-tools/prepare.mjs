@@ -73,7 +73,7 @@ const launcher = async (folder, dependencies) => {
   return [bun, start];
 };
 
-const install = async (stage, lockText, root) => {
+const install = async (stage, lockText, root, npm) => {
   await writeFile(join(stage, 'package.json'), JSON.stringify(root), {
     mode: 0o600,
   });
@@ -83,8 +83,9 @@ const install = async (stage, lockText, root) => {
     Object.entries(process.env).filter(([key]) => !/^npm_config_/i.test(key))
   );
   await execute(
-    'npm',
+    npm ? process.execPath : 'npm',
     [
+      ...(npm ? [npm] : []),
       'ci',
       '--ignore-scripts',
       '--omit=dev',
@@ -103,10 +104,10 @@ const install = async (stage, lockText, root) => {
   );
 };
 
-const publish = async (cache, destination, lockText, root) => {
+const publish = async (cache, destination, lockText, root, npm) => {
   const stage = await mkdtemp(join(cache, 'stage-'));
   try {
-    await install(stage, lockText, root);
+    await install(stage, lockText, root, npm);
     await launcher(stage, root.dependencies);
     await rm(join(stage, '.npm-cache'), { recursive: true, force: true });
     try {
@@ -122,7 +123,7 @@ const publish = async (cache, destination, lockText, root) => {
   }
 };
 
-const prepare = async (lockText) => {
+const prepare = async (lockText, npm) => {
   const root = JSON.parse(lockText).packages[''];
   const cache = await cacheDirectory();
   const revision = createHash('sha256').update(lockText).digest('hex');
@@ -136,14 +137,14 @@ const prepare = async (lockText) => {
     if (error.code !== 'ENOENT') {
       throw error;
     }
-    await publish(cache, destination, lockText, root);
+    await publish(cache, destination, lockText, root, npm);
   }
   await directory(destination);
   return launcher(destination, root.dependencies);
 };
 
 try {
-  const prefix = await prepare(process.argv[1]);
+  const prefix = await prepare(process.argv[1], process.argv[2]);
   process.stdout.write(`${JSON.stringify(prefix)}\n`);
 } catch {
   if (process.env.MS_RUNNER_CONTROL_DEBUG === '1') {

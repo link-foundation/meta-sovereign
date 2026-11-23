@@ -8,6 +8,7 @@ import { prepareDockerRunner, stopDockerRunner } from './runner-docker.js';
 import { stopScreenRunner } from './runner-screen.js';
 import { setTimeout as delay } from 'node:timers/promises';
 import { configuredRunnerLauncher } from './runner-dependencies.js';
+import { configuredRunnerRuntime } from './runner-node.js';
 
 const refused = (code, states) => ({ ok: false, code, states });
 const cancelled = (options) => options.signal?.aborted === true;
@@ -30,6 +31,7 @@ export const createRunnerControl = ({
   targets,
   run = runRunnerCommand,
   prepareLauncher = configuredRunnerLauncher,
+  prepareRuntime = configuredRunnerRuntime,
   now = () => globalThis.performance.now(),
   pause = delay,
   trace = (event) => {
@@ -87,6 +89,22 @@ export const createRunnerControl = ({
     trace(current[mode] === 'stopped' ? 'stop-stopped' : 'stop-unconfirmed');
     return current[mode] === 'stopped';
   };
+  const prepareStart = async (target, options) => {
+    const runtime = await prepareRuntime(target, {
+      ...options,
+      installMissing: true,
+    });
+    if (cancelled(options)) {
+      return { code: 'runner-state-unconfirmed' };
+    }
+    if (!runtime) {
+      return { code: 'runner-runtime-unavailable' };
+    }
+    const launcher = await prepareLauncher(target, options, runtime);
+    return launcher
+      ? { launcher, runtime }
+      : { code: 'runner-launcher-unavailable' };
+  };
   const start = async (mode, current, options) => {
     if (!['running', 'stopped'].includes(current[mode]) || cancelled(options)) {
       return refused('runner-state-unconfirmed', current);
@@ -95,11 +113,12 @@ export const createRunnerControl = ({
     if (current[other] === 'unknown') {
       return refused('other-runner-stop-unconfirmed', current);
     }
-    let launcher;
+    const target = targets[mode];
+    let prepared;
     if (current[mode] === 'stopped') {
-      launcher = await prepareLauncher(targets[mode], options);
-      if (!launcher) {
-        return refused('runner-launcher-unavailable', await states(options));
+      prepared = await prepareStart(target, options);
+      if (prepared.code) {
+        return refused(prepared.code, await states(options));
       }
     }
     if (cancelled(options)) {
@@ -129,16 +148,16 @@ export const createRunnerControl = ({
     if (current[mode] !== 'stopped' || cancelled(options)) {
       return refused('runner-state-unconfirmed', current);
     }
-    launcher ??= await prepareLauncher(targets[mode], options);
-    if (!launcher) {
-      return refused('runner-launcher-unavailable', await states(options));
+    prepared ??= await prepareStart(target, options);
+    if (prepared.code) {
+      return refused(prepared.code, await states(options));
     }
-    if (!(await prepareRunner(targets[mode], run, options))) {
+    if (!(await prepareRunner(target, run, options))) {
       return refused('runner-state-unconfirmed', await states(options));
     }
     const reply = await run(
-      targets[mode],
-      runnerLaunch(targets[mode], launcher),
+      target,
+      runnerLaunch(target, prepared.launcher, prepared.runtime),
       options
     );
     current[mode] = await observe(mode, options);

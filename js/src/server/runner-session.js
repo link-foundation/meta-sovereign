@@ -5,6 +5,7 @@ import {
 } from './runner-docker.js';
 import { screenRunnerObservation } from './runner-screen.js';
 import { configuredRunnerLauncher } from './runner-dependencies.js';
+import { configuredRunnerRuntime } from './runner-node.js';
 
 /** Live backend observations, never a launch wrapper's optimistic exit status. */
 export const runnerProbe = (target) =>
@@ -18,8 +19,8 @@ export const observedRunnerState = (target, result) =>
     : screenRunnerObservation(target, result)
   ).state;
 
-const applicationCommand = (target) => [
-  target.node ?? 'node',
+const applicationCommand = (target, runtime) => [
+  runtime.node,
   '--',
   target.cli,
   'serve',
@@ -33,7 +34,8 @@ const applicationCommand = (target) => [
 
 export const runnerLaunch = (
   target,
-  launcher = configuredRunnerLauncher(target)
+  launcher = configuredRunnerLauncher(target),
+  runtime = configuredRunnerRuntime(target)
 ) => [
   ...launcher,
   '--isolated',
@@ -42,6 +44,6 @@ export const runnerLaunch = (
   target.session,
   '--detached',
   ...(target.isolation === 'docker'
-    ? dockerRunnerLaunch(target, applicationCommand(target))
-    : ['--', ...applicationCommand(target)]),
+    ? dockerRunnerLaunch(target, applicationCommand(target, runtime))
+    : ['--', ...applicationCommand(target, runtime)]),
 ];

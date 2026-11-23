@@ -46,7 +46,11 @@ export const runnerFixture = (
   const health = { local: 'ready', server: 'ready' };
   const run = async (target, argv, { signal } = {}) => {
     const mode = target.host ? 'server' : 'local';
-    if (argv[0] === 'sh' && argv[1] === '-c' && argv.at(-1) === '$') {
+    if (
+      argv[0] === 'sh' &&
+      argv[1] === '-c' &&
+      ['$', 'node'].includes(argv.at(-1))
+    ) {
       return { code: 0, stdout: 'present' };
     }
     if (argv[0] === '$' && argv[1] === '--version') {

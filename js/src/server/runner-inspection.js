@@ -3,9 +3,14 @@ import { runnerHealthReceipt } from '../transport/runner-health-receipt.js';
 import { setTimeout, clearTimeout } from 'node:timers';
 import { runRunnerCommand } from './runner-transport.js';
 import { dockerRunnerInspection } from './runner-docker.js';
+import { configuredRunnerRuntime } from './runner-node.js';
 
 /** Execute the configured application's read-only health command on its host. */
-export const inspectRunnerApplication = async (target, run, options = {}) => {
+export const inspectRunnerApplication = async (
+  target,
+  run,
+  { resolveRuntime = configuredRunnerRuntime, ...options } = {}
+) => {
   if (!target || options.signal?.aborted) {
     return 'unknown';
   }
@@ -19,14 +24,16 @@ export const inspectRunnerApplication = async (target, run, options = {}) => {
       target.isolation === 'docker'
         ? await dockerRunnerInspection(target, run, { ...options, signal })
         : [];
-    if (!prefix) {
+    const runtime =
+      prefix && (await resolveRuntime(target, { ...options, signal }));
+    if (!runtime) {
       return 'unknown';
     }
     const result = await run(
       target,
       [
         ...prefix,
-        target.node ?? 'node',
+        runtime.node,
         '--',
         target.cli,
         'runner',
@@ -57,6 +64,7 @@ export const readRunnerInspection = async ({
   targets,
   mode,
   run = runRunnerCommand,
+  resolveRuntime,
   signal,
   code,
 }) => {
@@ -64,7 +72,10 @@ export const readRunnerInspection = async ({
   const session = current.states[mode];
   const state = ['stopped', 'unconfigured'].includes(session)
     ? session
-    : await inspectRunnerApplication(targets[mode], run, { signal });
+    : await inspectRunnerApplication(targets[mode], run, {
+        signal,
+        resolveRuntime,
+      });
   const refusal =
     code ??
     (state === 'unknown' ? 'runner-application-unconfirmed' : undefined);

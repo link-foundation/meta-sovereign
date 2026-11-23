@@ -1,15 +1,14 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import {
+  configuredRunnerRuntime,
+  createRunnerRuntimePreparation,
+  probeRunnerExecutable,
+} from './runner-node.js';
 import { createRunnerTransport, runRunnerCommand } from './runner-transport.js';
 
 export const configuredRunnerLauncher = (target) => [target.start ?? '$'];
-const defaultProbe = [
-  'sh',
-  '-c',
-  'if command -v "$1" >/dev/null 2>&1; then printf present; else printf missing; fi',
-  'sh',
-  '$',
-];
+const defaultProbe = probeRunnerExecutable('$');
 const prepareCommand = createRunnerTransport({ deadlineMs: 100000 });
 const assets = () =>
   Promise.all(
@@ -38,8 +37,15 @@ const preparedLauncher = (target, result) => {
 
 /** Preserve explicit overrides and existing PATH wrappers. Prepare only a proven absence. */
 export const createRunnerLauncherPreparation =
-  ({ probe = runRunnerCommand, run = prepareCommand } = {}) =>
-  async (target, options) => {
+  ({
+    probe = runRunnerCommand,
+    run = prepareCommand,
+    prepareHostRuntime = createRunnerRuntimePreparation({
+      probe,
+      install: run,
+    }),
+  } = {}) =>
+  async (target, options, runtime = configuredRunnerRuntime(target)) => {
     const configured = configuredRunnerLauncher(target);
     if (configured[0] !== '$') {
       return configured;
@@ -60,12 +66,27 @@ export const createRunnerLauncherPreparation =
       if (found.stdout !== 'missing') {
         return null;
       }
+      const host =
+        target.isolation === 'docker'
+          ? await prepareHostRuntime(
+              { ...target, isolation: 'screen', node: 'node' },
+              { ...options, installMissing: true }
+            )
+          : runtime;
+      if (!host) {
+        return null;
+      }
       const [program, lock] = await assets();
-      const node =
-        target.isolation === 'docker' ? 'node' : (target.node ?? 'node');
       const reply = await run(
         target,
-        [node, '--input-type=module', '--eval', program, lock],
+        [
+          host.node,
+          '--input-type=module',
+          '--eval',
+          program,
+          lock,
+          host.npm ?? '',
+        ],
         options
       );
       return preparedLauncher(target, reply);

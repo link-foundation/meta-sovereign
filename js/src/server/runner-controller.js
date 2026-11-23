@@ -13,6 +13,7 @@ import { runnerProfileOperation } from './runner-profile-store.js';
 import { readRunnerInspection } from './runner-inspection.js';
 import { readRunnerConfiguration } from '../cli/runner-configuration.js';
 import { createRunnerLauncherPreparation } from './runner-dependencies.js';
+import { createRunnerRuntimePreparation } from './runner-node.js';
 
 export const defaultRunnerDirectory = () =>
   path.dirname(
@@ -90,6 +91,7 @@ export const createRunnerController = ({
   localDirectory = () => path.join(process.cwd(), '.meta-sovereign'),
   run,
   prepareLauncher = createRunnerLauncherPreparation({ probe: run }),
+  prepareRuntime = createRunnerRuntimePreparation({ probe: run }),
   load,
   lock = acquireStoreLock,
 }) => ({
@@ -149,7 +151,12 @@ export const createRunnerController = ({
         };
       }
       const targets = mismatch ? bound : desired;
-      control = createRunnerControl({ targets, run, prepareLauncher });
+      control = createRunnerControl({
+        targets,
+        run,
+        prepareLauncher,
+        prepareRuntime,
+      });
       if (action === 'status') {
         return {
           ...(targets === (bound ?? desired)
@@ -164,6 +171,7 @@ export const createRunnerController = ({
           targets,
           mode,
           run,
+          resolveRuntime: prepareRuntime,
           signal,
           code: mismatch ? profileFailure(desired) : undefined,
         });

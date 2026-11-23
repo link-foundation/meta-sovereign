@@ -42,8 +42,47 @@ and hosted package smoke require both files.
 The hosted SSH fixture now starts with an empty private launcher home. It
 requires both native backends to prepare through SSH, reuse the exact binaries
 when switching modes, retain application data and close the owned sessions.
-Exact-source hosted checks are pending. Automatic preparation of the OS
-backend, Node and the application/runtime closure remains required for VD01.
+Exact-source hosted checks are pending.
+
+## Node and npm on a clean execution host
+
+The published parent `84ca6588` returns `runner-launcher-unavailable` when
+the selected Screen host has no Node, npm or default launcher on PATH. The
+controller now resolves the configured application runtime before launcher
+preparation. A confirmed absence of the default Node on Linux or macOS can
+prepare a private Node installation on explicit Start. Existing PATH and
+configured Node executables, and the Node inside a configured Docker image,
+retain their roles. Docker can also obtain Node on its host for the launcher.
+
+The supported downloads are the official Node 26.13.0 x64 and arm64
+archives for Linux and macOS. Their pinned SHA-256 checksums were independently
+verified from the signed release manifest with the Node release keyring. The
+host checks the archive before extraction, verifies the executable and bundled
+npm, and publishes the private directory atomically. Read-only inspection can
+use a previously prepared runtime. Status and Stop still observe the owned
+backend without installing dependencies. A failed check returns
+`runner-runtime-unavailable` before stopping a running peer.
+
+```sh
+node experiments/issue-56/runner-node-local.mjs
+node --test --test-concurrency=1 js/tests/runner-node.test.js
+```
+
+The native Linux fixture runs with a restricted PATH, a separate Screen socket
+and a private home containing literal spaces and a quote. It rejects a corrupt
+download without leaving an installed runtime, starts the real application
+from a cold cache using the official archive and bundled npm, then confirms the
+same ready state from a warm cache with archive downloads disabled. Each Stop
+is observed. Both runtimes passed 61 focused runner tests, and package dry-run
+includes the bootstrap assets. The hosted Linux job now runs this fixture.
+Exact hosted SSH, other platforms, OS backend and application closure remain
+open for VD01.
+
+[Signed release manifest](https://nodejs.org/dist/v26.13.0/SHASUMS256.txt.asc) ·
+[Pinned release keyring](https://github.com/nodejs/release-keys/tree/481637f813e912c4aa3622d7964ab426c97b8e8d)
+
+[Source and native Node preparation evidence](data/runner-node-preparation.tar.gz) ·
+[Hash manifest](data/runner-node-preparation.tar.sha256.json)
 
 [Source-bound logs and package evidence](data/runner-launcher-preparation.tar.gz) ·
 [Hash manifest](data/runner-launcher-preparation.tar.sha256.json)
