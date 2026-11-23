@@ -74,3 +74,28 @@ cleanup before a successful retry and checks that the existing local application
 stays ready. [Observed SSH lifecycle](desktop-runner-criteria-audit.md) covers
 the earlier VD02 execution proof. The newly added hosted refusal check and VD01
 automatic image and application preparation still require verification.
+
+## Prepare the configured Docker image before switching
+
+On `19e1a2e9`, a selected image never reached a controller check. A missing
+image was handed to the launcher after the running peer stopped. The parent
+regressions reproduce the missing preparation calls and the lost running peer.
+The pinned launcher can then issue a pull of its own during launch.
+
+Explicit Start now inspects the configured reference on the SSH host. Positive
+absence of that exact reference permits one quiet pull with a 90-second
+transport deadline. Fresh inspection must return a concrete image ID before
+the active peer can stop. Launch uses that ID even if the configured tag later
+moves. Daemon uncertainty, an unavailable image and cancellation keep the
+observed peer running. Status, Stop and idempotent Start do not pull images.
+
+The regression suite passes 34 checks on Node and 34 on Deno. It covers native
+Docker diagnostic normalization, a digest-pinned reference, explicit Start,
+inspection after pull, cancellation, and an unavailable destination. The
+installed Docker CLI and daemon produced the covered missing-image receipts
+through read-only inspections. [Source and logs](data/runner-image-preparation.tar.gz)
+and [checksums](data/runner-image-preparation.tar.sha256.json) preserve the
+regressions, checks and native observations. The hosted lifecycle checks both SSH
+Docker launches use the locally inspected image ID. The hosted lifecycle and
+a successful cold pull from a real registry still need exact-source evidence.
+Automatic installation of the selected application remains open for VD01.

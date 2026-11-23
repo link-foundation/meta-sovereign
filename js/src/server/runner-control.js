@@ -4,7 +4,12 @@ import {
   observedRunnerState,
 } from './runner-session.js';
 import { runRunnerCommand } from './runner-transport.js';
-import { prepareDockerRunner, stopDockerRunner } from './runner-docker.js';
+import {
+  prepareDockerImage,
+  prepareDockerRunner,
+  pullRunnerImage,
+  stopDockerRunner,
+} from './runner-docker.js';
 import { stopScreenRunner } from './runner-screen.js';
 import { setTimeout as delay } from 'node:timers/promises';
 import { configuredRunnerLauncher } from './runner-dependencies.js';
@@ -16,22 +21,13 @@ const startReceipt = (reply, mode, current, options) =>
   reply.code === 0 && current[mode] === 'running' && !cancelled(options)
     ? { ok: true, states: current }
     : refused('runner-start-unconfirmed', current);
-const prepareRunner = async (target, run, options) => {
-  if (
-    target.isolation === 'docker' &&
-    !(await prepareDockerRunner(target, run, options))
-  ) {
-    return false;
-  }
-  return !cancelled(options);
-};
-
 /** The caller owns a cross-process controller lease for each mutation. */
 export const createRunnerControl = ({
   targets,
   run = runRunnerCommand,
   prepareLauncher = configuredRunnerLauncher,
   prepareRuntime = configuredRunnerRuntime,
+  pullImage = pullRunnerImage,
   now = () => globalThis.performance.now(),
   pause = delay,
   trace = (event) => {
@@ -104,10 +100,15 @@ export const createRunnerControl = ({
     if (!launcher) {
       return { code: 'runner-launcher-unavailable' };
     }
-    if (!(await prepareRunner(target, run, options))) {
-      return { code: 'runner-state-unconfirmed' };
+    let destination = target;
+    if (target.isolation === 'docker') {
+      const image = await prepareDockerImage(target, run, pullImage, options);
+      if (!image || !(await prepareDockerRunner(target, run, options))) {
+        return { code: 'runner-state-unconfirmed' };
+      }
+      destination = { ...target, image };
     }
-    return { launcher, runtime };
+    return { launcher, runtime, destination };
   };
   const start = async (mode, current, options) => {
     if (!['running', 'stopped'].includes(current[mode]) || cancelled(options)) {
@@ -161,7 +162,7 @@ export const createRunnerControl = ({
     }
     const reply = await run(
       target,
-      runnerLaunch(target, prepared.launcher, prepared.runtime),
+      runnerLaunch(prepared.destination, prepared.launcher, prepared.runtime),
       options
     );
     current[mode] = await observe(mode, options);

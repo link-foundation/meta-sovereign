@@ -20,6 +20,7 @@
 - [Actual first-use browser preparation](browser-preparation.md): exact-source hosted cold-cache download, headed render, reuse and resource closure pass.
 - [Isolated runner launcher and runtime preparation](runner-launcher-preparation.md) stages the pinned launcher and checksum-verified Node with bundled npm privately on explicit Start. Native Linux Screen starts cold and warm locally and over loopback SSH with or without an existing Node executable. Hosted SSH, other platforms and the remaining application prerequisites still need verification.
 - [Refused Docker cleanup](runner-docker.md#refused-cleanup-keeps-the-active-screen-session) preserves a running Screen peer. An actual parent failure and 31 checks on each runtime cover the controller. The hosted SSH refusal check is pending.
+- [Docker image preparation](runner-docker.md#prepare-the-configured-docker-image-before-switching) inspects or pulls the configured image before switching and launches using the verified image ID. The real hosted lifecycle and cold registry pull remain to be verified.
 
 - [Complete generic reader contract](hosted-form-reader-5283e26a.md): all five workflows, 18 named reader/report checks and both actual native engines pass at `5283e26a`. Current acceptance is **84 of 118**, with **34 unfinished**; every remaining criterion stays required in the draft PR. Earlier counts below are historical checkpoints.
 

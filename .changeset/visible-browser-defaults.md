@@ -1229,3 +1229,7 @@ specific Forms document refusals and keep the entered URL (issue #56).
 
 Keep an active Screen runner running when the selected Docker host refuses to
 release its previously exited, owned container (issue #56).
+
+Prepare the configured Docker image on explicit Start before stopping the
+active peer. Reuse the verified image ID and keep the current runner active
+when the destination cannot prepare its image (issue #56).

@@ -1,5 +1,65 @@
 import path from 'node:path';
-import { quoteRunnerArgument } from './runner-transport.js';
+import {
+  createRunnerTransport,
+  quoteRunnerArgument,
+} from './runner-transport.js';
+
+export const pullRunnerImage = createRunnerTransport({ deadlineMs: 90000 });
+const imageId = /^sha256:[a-f0-9]{64}$/u;
+
+const inspectImage = async (target, run, options) => {
+  const { image } = target;
+  const reply = await run(
+    target,
+    ['docker', 'image', 'inspect', '--format', '{{.Id}}', image],
+    options
+  );
+  if (reply.aborted || options.signal?.aborted) {
+    return null;
+  }
+  const id = reply.stdout?.trim();
+  const error = reply.stderr?.trim();
+  if (reply.code === 0 && !error && imageId.test(id)) {
+    return id;
+  }
+  if (imageId.test(image) || /^[a-f0-9]{64}$/u.test(image)) {
+    return null;
+  }
+  const normalized = image
+    .replace(/^(?:docker\.io|index\.docker\.io)\//u, '')
+    .replace(/^library\//u, '');
+  const withTag = /[:@]/u.test(normalized.split('/').at(-1))
+    ? normalized
+    : `${normalized}:latest`;
+  return reply.code === 1 &&
+    !id &&
+    [image, withTag].some(
+      (name) => error === `Error response from daemon: No such image: ${name}`
+    )
+    ? 'missing'
+    : null;
+};
+
+/** Pull an explicitly configured image only after observing its absence. */
+export const prepareDockerImage = async (target, run, pull, options) => {
+  const current = await inspectImage(target, run, options);
+  if (current !== 'missing') {
+    return current;
+  }
+  if (options.signal?.aborted) {
+    return null;
+  }
+  const result = await pull(
+    target,
+    ['docker', 'image', 'pull', '--quiet', target.image],
+    options
+  );
+  if (result.code !== 0 || result.aborted || options.signal?.aborted) {
+    return null;
+  }
+  const installed = await inspectImage(target, run, options);
+  return installed === 'missing' ? null : installed;
+};
 
 export const dockerRunnerProbe = (target) => [
   'docker',

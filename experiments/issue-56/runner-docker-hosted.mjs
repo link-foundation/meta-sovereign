@@ -141,6 +141,20 @@ try {
     preparations.every((prefix) => prefix.join() === preparations[0].join())
   );
   if (docker) {
+    const { stdout } = await exec('docker', [
+      'image',
+      'inspect',
+      '--format',
+      '{{.Id}}',
+      target.image,
+    ]);
+    const imageId = stdout.trim();
+    const dockerLaunches = launches().filter((argv) =>
+      argv.includes('--image')
+    );
+    assert.equal(dockerLaunches.length, 2);
+    assert(dockerLaunches.every((argv) => argv.includes(imageId)));
+    console.log(JSON.stringify({ preparedImageReused: true }));
     await exec('docker', ['container', 'rm', session]);
     await exec('docker', [
       'create',

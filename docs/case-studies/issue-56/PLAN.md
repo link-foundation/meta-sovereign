@@ -1,3 +1,10 @@
+### 2026-11-23 Docker image preparation during explicit Start (VD01)
+
+- [x] Reproduce the switch handing missing image preparation to the launcher after stopping the active Screen peer.
+- [x] Verify the configured image before the switch. Pull only after confirmed absence and launch using the inspected local image ID.
+- [x] Verify 34 focused checks on each of Node and Deno and compare native Docker diagnostics. [Docker image preparation](runner-docker.md#prepare-the-configured-docker-image-before-switching).
+- [ ] Verify the current hosted SSH lifecycle, a cold pull from a real registry, and automatic application preparation.
+
 ### 2026-11-23 Docker cleanup refusal during a runner switch (VD01 and VD02)
 
 - [x] Reproduce a working local Screen session stopping after the selected SSH host refuses to remove an exited container.

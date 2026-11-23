@@ -26,6 +26,7 @@ import { formatIndented, parseIndented } from 'lino-objects-codec';
 import { runnerApiFixture } from '../../experiments/issue-56/runner-api-fixture.mjs';
 import { requestRunner } from '../src/cli/runner-client.js';
 import {
+  prepareDockerImage,
   prepareDockerRunner,
   stopDockerRunner,
 } from '../src/server/runner-docker.js';
@@ -37,7 +38,11 @@ import {
 
 const targets = () => validateRunnerProfile(dockerProfile());
 const control = (fixture) =>
-  createRunnerControl({ targets: targets(), run: fixture.run });
+  createRunnerControl({
+    targets: targets(),
+    run: fixture.run,
+    pullImage: fixture.run,
+  });
 const launches = (fixture) =>
   fixture.calls.filter((argv) => argv[1] === '--isolated');
 
@@ -303,6 +308,100 @@ test('refused Docker preparation leaves the active Screen peer running', async (
     fixture.calls.filter((argv) => argv[2] === 'rm'),
     [['docker', 'container', 'rm', 'abcdef123456']]
   );
+});
+
+test('an unavailable Docker image never stops the active Screen runner', async () => {
+  for (const [image, imageAfterPull, pullExit, expected] of [
+    ['unavailable', undefined, undefined, ['inspect']],
+    ['missing', 'missing', 1, ['inspect', 'pull']],
+    ['missing', 'missing', 0, ['inspect', 'pull', 'inspect']],
+  ]) {
+    const fixture = dockerFixture({
+      initial: { local: 'running' },
+      image,
+      imageAfterPull,
+      pullExit,
+    });
+    assert.deepEqual(await control(fixture).act('start', 'server'), {
+      ok: false,
+      code: 'runner-state-unconfirmed',
+      states: { local: 'running', server: 'stopped' },
+    });
+    assert(fixture.screen.calls.every(([, action]) => action === 'probe'));
+    assert.equal(launches(fixture).length, 0);
+    assert.deepEqual(
+      fixture.calls
+        .filter((argv) => argv[1] === 'image')
+        .map((argv) => argv[2]),
+      expected
+    );
+  }
+});
+
+test('explicit Docker Start pulls once and launches only the observed image', async () => {
+  const fixture = dockerFixture({
+    initial: { local: 'running' },
+    image: 'missing',
+  });
+  const owner = control(fixture);
+  assert.deepEqual(await owner.status(), {
+    ok: true,
+    states: { local: 'running', server: 'stopped' },
+  });
+  assert(fixture.calls.every((argv) => argv[1] !== 'image'));
+  assert.deepEqual(await owner.act('start', 'server'), {
+    ok: true,
+    states: { local: 'stopped', server: 'running' },
+  });
+  assert.deepEqual(
+    fixture.calls.filter((argv) => argv[1] === 'image').map((argv) => argv[2]),
+    ['inspect', 'pull', 'inspect']
+  );
+  assert.deepEqual(
+    fixture.calls.find((argv) => argv[1] === 'image' && argv[2] === 'pull'),
+    ['docker', 'image', 'pull', '--quiet', targets().server.image]
+  );
+  assert.equal(launches(fixture).length, 1);
+  assert(launches(fixture)[0].includes(fixture.imageId));
+  assert.equal((await owner.act('start', 'server')).ok, true);
+  assert.equal(launches(fixture).length, 1);
+});
+
+test('Docker pulls only positive absence of the exact configured reference', async () => {
+  const digest = `sha256:${'d'.repeat(64)}`;
+  for (const [reference, reported, mayPull] of [
+    ['docker.io/library/alpine', 'alpine:latest', true],
+    ['localhost:5000/test', 'localhost:5000/test:latest', true],
+    [`localhost:5000/test@${digest}`, `localhost:5000/test@${digest}`, true],
+    ['example/repository:1', 'example/other:1', false],
+    [digest, digest, false],
+  ]) {
+    const abort = new AbortController();
+    const target = { ...targets().server, image: reference };
+    let inspections = 0;
+    let pulls = 0;
+    assert.equal(
+      await prepareDockerImage(
+        target,
+        async () => {
+          inspections++;
+          return {
+            code: 1,
+            stderr: `Error response from daemon: No such image: ${reported}\n`,
+          };
+        },
+        async () => {
+          pulls++;
+          abort.abort();
+          return { code: 0 };
+        },
+        { signal: abort.signal }
+      ),
+      null
+    );
+    assert.equal(inspections, 1);
+    assert.equal(pulls, Number(mayPull));
+  }
 });
 
 test('Docker application inspection runs the private health command inside the owned container', async () => {
