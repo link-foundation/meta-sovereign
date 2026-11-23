@@ -26,6 +26,14 @@ const date = (value) => {
   return value;
 };
 
+/** Legacy exports with nonempty About text retain their content. */
+export const observedResumeAbout = ({ about, aboutObserved }) =>
+  typeof about === 'string' &&
+  (aboutObserved === true ||
+    (aboutObserved === undefined && about.trim() !== ''))
+    ? about
+    : undefined;
+
 /** An allowlist independent of raw exports and the contact-bearing canonical CV. */
 export const sanitizedResumeCv = (raw) => {
   if (!raw || !['ru', 'en'].includes(raw.language)) {
@@ -36,12 +44,24 @@ export const sanitizedResumeCv = (raw) => {
     assignmentText(value ?? '', max, 'resume content', optional);
   const scalar = (value, optional = true) =>
     sanitize.scalar(text(value, 500, optional));
+  const capturedAbout = text(raw.about, 24000);
+  if (
+    raw.aboutObserved !== undefined &&
+    (typeof raw.aboutObserved !== 'boolean' ||
+      (!raw.aboutObserved && capturedAbout))
+  ) {
+    invalid();
+  }
+  const about = sanitize.prose(capturedAbout);
   const cv = {
     language: raw.language,
     name: scalar(raw.name),
     title: scalar(raw.title, false),
     skills: list(raw.skills, 500).map((value) => scalar(value, false)),
-    about: sanitize.prose(text(raw.about, 24000)),
+    about,
+    ...(raw.aboutObserved === undefined
+      ? {}
+      : { aboutObserved: raw.aboutObserved && (!capturedAbout || !!about) }),
     jobs: list(raw.jobs, 200).map((job) => {
       if (
         typeof job.current !== 'boolean' ||

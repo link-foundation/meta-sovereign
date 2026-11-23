@@ -63,5 +63,28 @@ The screenshots show synthetic provider data.
 
 ![Fresh snapshot recovered on a phone](../../screenshots/issue-56-hh-acquisition/fresh-phone.png)
 
-HH21 remains unfinished. It still requires full About evidence and reviewed
-writes, coordinated interactive queues and authenticated provider verification.
+## About evidence
+
+A native export can present one recognized English or Russian About section,
+omit it, or contain ambiguous labels. The previous parser returned the same
+empty text in all three cases and the Save watcher accepted that value as
+confirmation of an empty About. The native parser now records whether it saw
+one unambiguous section. The watcher requires that evidence before confirming a
+clear. Private Experience documents preserve explicit empty sections and
+disclose absent content by omitting the field. They keep nonempty legacy
+exports and treat an empty legacy value as unknown. A privacy-only section
+loses its derived evidence when sanitization removes the entire text.
+
+```sh
+node --test --test-concurrency=1 js/tests/resume-about-evidence.test.js
+RUN_BROWSER_E2E=1 E2E_EXECUTABLE_PATH=/opt/google/chrome/chrome node experiments/issue-56/resume-about-browser.mjs
+```
+
+Both focused regressions fail on `72862885`. The current Node run passed 44
+checks including readback, cache reuse and text and binary Lino round trips.
+Chromium exercised the actual export parser with absent, empty, Russian,
+duplicate and ambiguous sections. It also confirmed that scripts embedded in
+the export remain inert.
+
+HH21 remains unfinished. It still requires reviewed About writes, coordinated
+interactive queues and authenticated provider verification.

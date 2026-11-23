@@ -5,6 +5,7 @@ import { resumePeriod } from './resume-dates.js';
 import { jobsFailure } from './options.js';
 import { confirmedCvIndustryIds } from './cv-watch-industries.js';
 import { resolveResumeArea } from './areas.js';
+import { observedResumeAbout } from './resume-cv.js';
 
 const invalid = () => {
   throw jobsFailure(
@@ -345,8 +346,9 @@ export const verifyCvSave = (
     return rows.length === 1 ? rows[0] : null;
   };
   if (attempt.kind === 'about') {
-    const cv = one(attempt.hash);
-    return Boolean(cv && normalize(cv.cv.about) === normalize(attempt.about));
+    const cv = one(attempt.hash)?.cv;
+    const about = cv ? observedResumeAbout(cv) : undefined;
+    return about !== undefined && normalize(about) === normalize(attempt.about);
   }
   if (
     exports.length !== attempt.resumes.length ||

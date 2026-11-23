@@ -26,8 +26,9 @@ writer. Generic CV sync therefore does not establish this requirement.
       both Lino encodings and four-language browser import/download/comparison.
       [HeadHunter acquisition](experience-hh-acquisition.md) reuses an exact
       verified export and uses the existing Jobs reader for a cache miss or an
-      explicit refresh. Authenticated runs and complete native metadata
-      acquisition remain required.
+      explicit refresh. Its export separates explicitly empty About sections
+      from absent or ambiguous sections. Authenticated runs and complete
+      native metadata acquisition remain required.
 - [ ] Connect existing three-provider translation comparison/cache to directed
       experience planning. Retain side-by-side outputs, invalid-output refusal,
       selected-language direction and reviewed upstream failure reporting.
@@ -72,5 +73,5 @@ no position Save during preparation, duplicate suppression and confirmation
 through a fresh export. One confirmed legacy title can be changed to the URL
 title in the same reviewed draft. An interactive queue and authenticated
 verification remain required in this direction.
-Authenticated provider verification, complete HH/About acquisition and every
+Authenticated provider verification, reviewed HH About writes and every
 remaining item above stay required; HH21 remains unfinished.

@@ -1,4 +1,5 @@
 import { verifiedTechnologyCv } from '../jobs/technology-cv.js';
+import { observedResumeAbout } from '../jobs/resume-cv.js';
 import { storedTechnologyCatalog } from '../jobs/technology-catalog.js';
 import {
   technologyNormalizer,
@@ -35,7 +36,8 @@ export const experienceFromHhExport = async (context, input) => {
   const names = technologyNormalizer(
     await storedTechnologyCatalog(context.store)
   );
-  const { jobs, ...profile } = cv;
+  const { jobs, about: _about, aboutObserved: _aboutObserved, ...profile } = cv;
+  const about = observedResumeAbout(cv);
   const document = validateExperienceDocument({
     kind: 'cv-experience',
     version: 1,
@@ -46,7 +48,7 @@ export const experienceFromHhExport = async (context, input) => {
       language: identity.language,
       capturedAt: identity.capturedAt,
     },
-    profile,
+    profile: about === undefined ? profile : { ...profile, about },
     jobs: jobs.map((job) =>
       Object.fromEntries(
         Object.entries({

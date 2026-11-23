@@ -35,7 +35,17 @@ export const readResumeExportHtml = ({ html }) => {
     return matches.length === 1 ? matches[0] : null;
   };
   const skills = group(['Навыки', 'Skills', 'Key skills']);
-  const about = group(['Обо мне', 'About me', 'About'])?.cloneNode(true);
+  const aboutLabels = ['Обо мне', 'About me', 'About'];
+  const aboutBlocks = groups.filter((node) =>
+    [...node.querySelectorAll('.bloko-form-hint')].some((hint) =>
+      aboutLabels.includes(text(hint))
+    )
+  );
+  const about =
+    aboutBlocks.length === 1 &&
+    aboutBlocks[0].querySelectorAll('.bloko-form-hint').length === 1
+      ? aboutBlocks[0].cloneNode(true)
+      : null;
   about?.querySelector('.bloko-form-hint')?.remove();
   const jobs = [...document.querySelectorAll('.resume-experience')].map(
     (block) => {
@@ -90,6 +100,7 @@ export const readResumeExportHtml = ({ html }) => {
       .map((node) => text(node).replace(/;$/u, '').trim())
       .filter(Boolean),
     about: text(about),
+    aboutObserved: about !== null,
     jobs,
   };
 };
