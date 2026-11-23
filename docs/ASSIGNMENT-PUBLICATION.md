@@ -10,6 +10,8 @@ Use **Instruction document URL** when the form links to a separate HTML or plain
 
 The current primary **Recommended CI/CD Templates** table in Hive Mind is read before the built-in fallback. The preview identifies fallback use. An explicitly named role language takes precedence over incidental technologies. Actual GitHub templates use `gh repo create --template`; other template repositories are cloned with their history and pushed. Existing target files are preserved while missing workflows and template history are added. A target that already has a pipeline retains it. Reruns update the uniquely marked assignment issue and repair a missing pipeline after a fresh preview.
 
+Use **Template language** to choose a supported language explicitly. The preview identifies your choice and the resulting template. Changing the selection clears the preview for a fresh review. Restoring a saved draft restores its choice, and recovery keeps the choice from the issued draft. The default uses the vacancy or assignment.
+
 English prose, known employer names/inflections/transliterations and six consecutive source words have conservative local checks across both form and linked instructions, including the document title. Review fidelity and aliases the application cannot infer. A written assignment's issue retains **Deliverable and stack** instructions and a final **Stack** section requesting Markdown under `docs/`, original-language output, source length limits, a proposed stack and a README linking to the result. Publication confirms repository, workflow files and issue readback; it does not execute the assignment, certify CI success or submit the employer's form.
 
 ## CLI
@@ -19,7 +21,7 @@ Use a saved inspection from `forms-read`, or inspect an actual form with `--url`
 ```sh
 meta-sovereign test-assignment task-name --file=inspection.json --vacancy=https://hh.ru/vacancy/12345 --visibility=private --employer='Employer alias' --dry-run --store=./store
 meta-sovereign test-assignment owner/task-name --file=inspection.json --vacancy=https://hh.ru/vacancy/12345 --visibility=private --store=./store
-meta-sovereign test-assignment owner/task-name --file=inspection.json --source=https://example.org/instructions --dry-run --store=./store
+meta-sovereign test-assignment owner/task-name --file=inspection.json --source=https://example.org/instructions --language=python --dry-run --store=./store
 meta-sovereign test-assignment --draft-id=assignment-draft:UUID --store=./store
 ```
 
@@ -29,11 +31,11 @@ A bare name resolves the authenticated owner, or accepts `--owner`. Private visi
 
 Trusted POST endpoints use the existing text/binary Lino negotiation:
 
-| Endpoint                        | Input                                                                                                                                            | Result                                                                                |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
-| `/api/forms/assignment/draft`   | `inspection`, current assignment `revision`, `target`, `visibility`, optional `vacancyUrl`/`vacancy`, `sourceUrl`, `refreshVacancy`, `employers` | Private saved `draft`, optional `sourceEvidence`, and `state: draft`                  |
-| `/api/forms/assignment/restore` | `inspection`, current assignment `revision`                                                                                                      | Saved draft and whether publication was attempted; no GitHub/model calls              |
-| `/api/forms/assignment/publish` | `draftId`                                                                                                                                        | Verified repository, issue and new assignment revision, or retained `uncertain` phase |
+| Endpoint                        | Input                                                                                                                                                                | Result                                                                                      |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `/api/forms/assignment/draft`   | `inspection`, current assignment `revision`, `target`, `visibility`, optional `vacancyUrl`/`vacancy`, `sourceUrl`, `languageOverride`, `refreshVacancy`, `employers` | Private saved `draft`, optional `sourceEvidence` and `languageOverride`, and `state: draft` |
+| `/api/forms/assignment/restore` | `inspection`, current assignment `revision`                                                                                                                          | Saved draft and whether publication was attempted; no GitHub/model calls                    |
+| `/api/forms/assignment/publish` | `draftId`                                                                                                                                                            | Verified repository, issue and new assignment revision, or retained `uncertain` phase       |
 
 Writes flush private intent before issue. Lost responses stay uncertain and keep the form held. **Recover the same publication** checks actual identity and marked-issue readback without repeating unknown creations. After reopening the form, read/plan it and choose **Restore saved draft after reopening**, then recover that draft. A changed assignment/model, another pending draft, recreated repository or owner-edited issue refuses stale publication. Unknown outcomes without a positive receipt remain unresolved for manual inspection.
 

@@ -37,6 +37,95 @@ const held = async (env) =>
     'needs-repository'
   );
 
+test('assignment language override selects one reviewed template and survives recovery', async (t) => {
+  const env = await assignmentPublisherFixture();
+  t.after(env.publisher.stop);
+  const input = {
+    ...env.input,
+    languageOverride: 'Python',
+    vacancy: { ...env.input.vacancy, title: 'TypeScript developer' },
+  };
+  const { draft: preview } = await env.publisher.draft(input);
+  assert.equal(preview.language, 'python');
+  assert.equal(preview.languageOverride, 'python');
+  assert.equal(preview.template, 'fixture-templates/python-pipeline');
+  const [request] = env.state.modelCalls;
+  const prompt = JSON.parse(request.prompt);
+  assert.deepEqual(prompt.namedLanguages, ['typescript']);
+  assert.deepEqual(prompt.preferredLanguages, ['python']);
+  assert.equal(prompt.languageOverride, 'python');
+  assert.deepEqual(request.schema.properties.language.enum, ['python']);
+  assert.equal(events(env, 'create'), 0);
+  const { draft: restored } = await env.publisher.restore({
+    inspection: env.inspection,
+    revision: env.assignment.revision,
+  });
+  assert.deepEqual(restored, preview);
+  assert.equal((await publish(env, restored)).state, 'verified');
+  assert.ok(
+    env.state.calls.includes('repository:fixture-templates/python-pipeline')
+  );
+  assert.equal(env.state.modelCalls.length, 1);
+});
+
+test('assignment language override refuses unsupported input before external work', async (t) => {
+  const env = await assignmentPublisherFixture();
+  t.after(env.publisher.stop);
+  for (const languageOverride of ['', null, true, 'unknown', '__proto__']) {
+    await assert.rejects(
+      env.publisher.draft({ ...env.input, languageOverride }),
+      {
+        code: 'assignment-language',
+      }
+    );
+  }
+  assert.deepEqual(env.state.calls, []);
+  assert.deepEqual(env.state.modelCalls, []);
+});
+
+test('assignment language override refuses inconsistent model output or saved evidence', async (t) => {
+  const env = await assignmentPublisherFixture();
+  t.after(env.publisher.stop);
+  await assert.rejects(
+    env.publisher.draft({ ...env.input, languageOverride: 'C#' }),
+    { code: 'assignment-draft' }
+  );
+  assert.equal(
+    JSON.parse(env.state.modelCalls[0].prompt).languageOverride,
+    'csharp'
+  );
+  const { draft: preview } = await env.publisher.draft({
+    ...env.input,
+    languageOverride: 'python',
+  });
+  const saved = await env.store.get(preview.id);
+  await env.store.put({
+    ...saved,
+    draft: { ...saved.draft, languageOverride: 'typescript' },
+  });
+  const callCount = env.state.calls.length;
+  await assert.rejects(publish(env, preview), { code: 'assignment-draft' });
+  assert.equal(env.state.calls.length, callCount);
+  await held(env);
+});
+
+test('assignment language override omitted keeps vacancy selection and legacy restoration', async (t) => {
+  const env = await assignmentPublisherFixture();
+  t.after(env.publisher.stop);
+  const preview = await draft(env);
+  assert.equal(preview.language, 'python');
+  assert.equal(preview.languageOverride, undefined);
+  assert.deepEqual(
+    JSON.parse(env.state.modelCalls[0].prompt).preferredLanguages,
+    ['python']
+  );
+  const { draft: restored } = await env.publisher.restore({
+    inspection: env.inspection,
+    revision: env.assignment.revision,
+  });
+  assert.deepEqual(restored, preview);
+});
+
 test('lost issue creation followed by an owner edit is never overwritten during recovery', async (t) => {
   const env = await assignmentPublisherFixture();
   t.after(env.publisher.stop);

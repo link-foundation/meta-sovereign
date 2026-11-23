@@ -1,6 +1,7 @@
 import { createAssignmentPublisher } from '../assignments/service.js';
 import { createAssignmentGithub } from '../assignments/github.js';
 import { assignmentTarget } from '../assignments/validation.js';
+import { assignmentLanguageOverride } from '../assignments/templates.js';
 import { rememberFormAssignment } from '../forms/assignment-store.js';
 import { createFormReader } from '../forms/reader.js';
 import { decodeWire } from '../transport/lino.js';
@@ -39,9 +40,13 @@ export const testAssignmentCommand =
   ({ openStore, ...options }) =>
   async (args, log) => {
     const dryRun = booleanFlag(args, 'dry-run');
+    const languageOverride = assignmentLanguageOverride(args.language);
     const name = args._?.[0];
     if (args['draft-id'] && dryRun) {
       throw new Error('Choose --draft-id to recover or --dry-run to draft.');
+    }
+    if (args['draft-id'] && languageOverride !== undefined) {
+      throw new Error('The saved assignment draft already fixes its language.');
     }
     if (!args['draft-id']) {
       assignmentTarget(name?.includes('/') ? name : `owner/${name ?? ''}`);
@@ -87,6 +92,7 @@ export const testAssignmentCommand =
               visibility: args.visibility ?? 'private',
               vacancyUrl: args.vacancy,
               sourceUrl: args.source,
+              languageOverride,
               vacancy: args['vacancy-snapshot']
                 ? decodeWire(args['vacancy-snapshot'])
                 : undefined,

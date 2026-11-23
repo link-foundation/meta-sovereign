@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useT } from './i18n.js';
+import { ASSIGNMENT_LANGUAGES } from '../assignments/templates.js';
 const el = React.createElement;
 
 const DraftReview = ({ draft }) => {
@@ -9,6 +10,16 @@ const DraftReview = ({ draft }) => {
       'p',
       { key: 'target' },
       `${draft.target} · ${t(`assignment.visibility.${draft.visibility}`)}`
+    ),
+    el(
+      'p',
+      { key: 'language', 'data-assignment-language': draft.language },
+      t(
+        draft.languageOverride
+          ? 'assignment.language-owner'
+          : 'assignment.language-reviewed',
+        { language: ASSIGNMENT_LANGUAGES[draft.language] }
+      )
     ),
     el(
       'p',
@@ -83,6 +94,8 @@ const PublisherFields = ({
   setTarget,
   visibility,
   setVisibility,
+  language,
+  setLanguage,
   vacancyUrl,
   setVacancyUrl,
   sourceUrl,
@@ -109,36 +122,41 @@ const PublisherFields = ({
         ...attributes,
       }),
     ]);
+  const select = (key, label, value, setter, options) =>
+    el('label', { key, className: 'col' }, [
+      t(label),
+      el(
+        'select',
+        {
+          key: 'input',
+          value,
+          onChange: change(setter),
+          disabled,
+          'data-assignment-publish-input': key,
+        },
+        options.map(([value, label]) =>
+          el('option', { key: value, value }, label)
+        )
+      ),
+    ]);
   return el('form', { key: 'form', className: 'col', onSubmit: preview }, [
     input('target', 'assignment.target', target, setTarget, {
       required: true,
       maxLength: 140,
       placeholder: 'owner/repository',
     }),
-    el('label', { key: 'visibility', className: 'col' }, [
-      t('assignment.visibility'),
-      el(
-        'select',
-        {
-          key: 'input',
-          value: visibility,
-          onChange: change(setVisibility),
-          disabled,
-          'data-assignment-publish-input': 'visibility',
-        },
-        ['private', 'public'].map((value) =>
-          el(
-            'option',
-            { key: value, value },
-            t(`assignment.visibility.${value}`)
-          )
-        )
-      ),
+    select('visibility', 'assignment.visibility', visibility, setVisibility, [
+      ['private', t('assignment.visibility.private')],
+      ['public', t('assignment.visibility.public')],
     ]),
     input('vacancy', 'assignment.vacancy', vacancyUrl, setVacancyUrl, {
       type: 'url',
       maxLength: 4000,
     }),
+    select('language', 'assignment.language', language, setLanguage, [
+      ['', t('assignment.language-auto')],
+      ...Object.entries(ASSIGNMENT_LANGUAGES),
+    ]),
     input('source', 'assignment.instructions', sourceUrl, setSourceUrl, {
       type: 'url',
       maxLength: 4000,
@@ -290,6 +308,7 @@ export const FormAssignmentPublisher = ({
   const t = useT();
   const [target, setTarget] = useState(assignment.repository?.fullName ?? '');
   const [visibility, setVisibility] = useState('private');
+  const [language, setLanguage] = useState('');
   const [vacancyUrl, setVacancyUrl] = useState('');
   const [sourceUrl, setSourceUrl] = useState('');
   const [employers, setEmployers] = useState('');
@@ -327,6 +346,7 @@ export const FormAssignmentPublisher = ({
         revision: assignment.revision,
         target,
         visibility,
+        languageOverride: language || undefined,
         vacancyUrl: vacancyUrl || undefined,
         sourceUrl: sourceUrl || undefined,
         employers: employers
@@ -362,6 +382,7 @@ export const FormAssignmentPublisher = ({
       onRestored: (response) => {
         setTarget(response.draft.target);
         setVisibility(response.draft.visibility);
+        setLanguage(response.draft.languageOverride ?? '');
         setSourceUrl(response.draft.sourceEvidence?.requestedUrl ?? '');
         setDraft(response.draft);
         setAttempted(response.attempted);
@@ -376,6 +397,8 @@ export const FormAssignmentPublisher = ({
       setTarget,
       visibility,
       setVisibility,
+      language,
+      setLanguage,
       vacancyUrl,
       setVacancyUrl,
       sourceUrl,

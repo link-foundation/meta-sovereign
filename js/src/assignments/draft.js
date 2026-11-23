@@ -5,6 +5,7 @@ import { recognizeFormAssignment } from '../forms/assignment-recognition.js';
 import { validateFormInspection } from '../forms/plan-validation.js';
 import {
   ASSIGNMENT_LANGUAGES,
+  assignmentLanguageOverride,
   assignmentNamedLanguages,
   assignmentPreferredLanguages,
   loadAssignmentTemplates,
@@ -34,6 +35,7 @@ export const ASSIGNMENT_DRAFT_SYSTEM =
   'Omit all employer names, inflections, transliterations, contact details and identifying URLs. ' +
   'Never copy six consecutive original words. Do not invent requirements or claim work was done. ' +
   'Choose the main named vacancy language, or the most fitting supported language if none is named. ' +
+  'When languageOverride is supplied, use that language and select a stack for it. ' +
   'Use deliverable=document only when a written concept, analysis or presentation is requested without code. ' +
   'Give the original assignment language as its English name. Return only the requested structured draft.';
 
@@ -121,7 +123,7 @@ const validateModelDraft = (value, named) => {
   ) {
     throw assignmentFailure(
       'draft',
-      'The draft does not match a supported vacancy language and deliverable.'
+      'The draft does not match the selected template language or a supported deliverable.'
     );
   }
   for (const key of ['stack', 'reason', 'originalLanguage']) {
@@ -158,11 +160,33 @@ const linkedInstructions = (source) =>
   source ? { title: source.source.title, text: source.source.text } : undefined;
 const templateAction = (repository, pipeline) =>
   repository ? (pipeline ? 'keep' : 'merge') : 'create';
+const draftLanguages = (vacancy, languageOverride) => {
+  const named = assignmentNamedLanguages(vacancy);
+  if (!languageOverride) {
+    return {
+      named,
+      preferred: assignmentPreferredLanguages(vacancy),
+      schema: ASSIGNMENT_DRAFT_SCHEMA,
+    };
+  }
+  return {
+    named,
+    preferred: [languageOverride],
+    schema: {
+      ...ASSIGNMENT_DRAFT_SCHEMA,
+      properties: {
+        ...ASSIGNMENT_DRAFT_SCHEMA.properties,
+        language: { enum: [languageOverride] },
+      },
+    },
+  };
+};
 
 export const draftAssignment = async (
   { store, modelRunner, github, readVacancy, readSource, signal },
   input
 ) => {
+  const languageOverride = assignmentLanguageOverride(input.languageOverride);
   const { inspection, assignment } = await currentAssignmentForDraft(
     store,
     input
@@ -202,11 +226,13 @@ export const draftAssignment = async (
   const pipeline = repository
     ? await github.pipeline(target, { signal })
     : false;
-  const named = assignmentNamedLanguages(vacancy);
-  const preferred = assignmentPreferredLanguages(vacancy);
+  const { named, preferred, schema } = draftLanguages(
+    vacancy,
+    languageOverride
+  );
   const result = await modelRunner({
     system: ASSIGNMENT_DRAFT_SYSTEM,
-    schema: ASSIGNMENT_DRAFT_SCHEMA,
+    schema,
     prompt: JSON.stringify({
       assignment: assignment.description,
       linkedInstructions: linkedInstructions(source),
@@ -214,6 +240,7 @@ export const draftAssignment = async (
       employers,
       namedLanguages: named,
       preferredLanguages: preferred,
+      languageOverride,
     }),
     settings,
     signal,
@@ -238,6 +265,7 @@ export const draftAssignment = async (
     title,
     body,
     language: result.language,
+    ...(languageOverride ? { languageOverride } : {}),
     template,
     catalogSource: catalog.fallbackLanguages.includes(result.language)
       ? 'fallback'

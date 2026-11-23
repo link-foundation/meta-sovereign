@@ -11,6 +11,10 @@ export const enAssignment = {
   'assignment.visibility.private': 'Private',
   'assignment.visibility.public': 'Public',
   'assignment.vacancy': 'HH vacancy URL (optional)',
+  'assignment.language': 'Template language',
+  'assignment.language-auto': 'Use the vacancy or assignment',
+  'assignment.language-owner': 'Selected by you: {language}',
+  'assignment.language-reviewed': 'Template language: {language}',
   'assignment.refresh':
     'Read the vacancy again instead of using its saved snapshot',
   'assignment.employers':

@@ -5,6 +5,10 @@ import {
 } from '../assignments/validation.js';
 import { assignmentRepositoryConfirmed } from '../forms/assignment-repository.js';
 import { assignmentFormUrl } from '../forms/assignment-recognition.js';
+import {
+  ASSIGNMENT_LANGUAGES,
+  assignmentLanguageOverride,
+} from '../assignments/templates.js';
 
 const unconfirmed = () =>
   Object.assign(new Error('The assignment result was not confirmed.'), {
@@ -31,6 +35,10 @@ const validSource = (evidence, url) => {
     /^[a-f\d]{64}$/u.test(evidence.fingerprint)
   );
 };
+const validLanguage = (draft, requested) =>
+  Object.hasOwn(ASSIGNMENT_LANGUAGES, draft.language) &&
+  draft.languageOverride === requested &&
+  (requested === undefined || requested === draft.language);
 const validDraft = (draft, input) => {
   if (
     draft?.vacancyEvidence?.url &&
@@ -42,6 +50,7 @@ const validDraft = (draft, input) => {
   return (
     draft?.target === input.target &&
     validSource(draft.sourceEvidence, input.sourceUrl) &&
+    validLanguage(draft, input.languageOverride) &&
     draft.visibility === input.visibility &&
     draft.formUrl === assignmentFormUrl(input.inspection.url) &&
     draft.assignmentRevision === input.revision &&
@@ -69,9 +78,13 @@ const confirmedDraft = (result, input) => {
 };
 export const draftFormAssignment = async (report, input) => {
   assignmentTarget(input.target);
+  const request = {
+    ...input,
+    languageOverride: assignmentLanguageOverride(input.languageOverride),
+  };
   return confirmedDraft(
-    await report('/api/forms/assignment/draft', input, { network: true }),
-    input
+    await report('/api/forms/assignment/draft', request, { network: true }),
+    request
   );
 };
 export const restoreFormAssignment = async (report, input) => {
@@ -86,6 +99,7 @@ export const restoreFormAssignment = async (report, input) => {
     target: result.draft?.target,
     visibility: result.draft?.visibility,
     sourceUrl: result.draft?.sourceEvidence?.requestedUrl,
+    languageOverride: result.draft?.languageOverride,
   });
 };
 const validAssociation = (assignment, draft) =>

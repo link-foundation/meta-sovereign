@@ -52,7 +52,9 @@ const layouts = async (page, state, locator) => {
     );
     if (
       process.env.ASSIGNMENT_PUBLICATION_SCREENSHOTS === '1' ||
-      process.env.ASSIGNMENT_PUBLICATION_BEFORE === '1'
+      process.env.ASSIGNMENT_PUBLICATION_BEFORE === '1' ||
+      (process.env.ASSIGNMENT_LANGUAGE_SCREENSHOTS === '1' &&
+        state.startsWith('language-'))
     ) {
       await page.screenshot({
         path: `docs/screenshots/issue-56-assignment-source-${state}-${layout}.png`,
@@ -60,7 +62,9 @@ const layouts = async (page, state, locator) => {
     }
     assert(
       await page.evaluate(
-        () => document.documentElement.scrollWidth <= globalThis.innerWidth
+        () =>
+          globalThis.document.documentElement.scrollWidth <=
+          globalThis.innerWidth
       ),
       'publisher fits viewport'
     );
@@ -71,6 +75,11 @@ const response = (page, action) =>
   page.waitForResponse((value) =>
     value.url().endsWith(`/api/forms/assignment/${action}`)
   );
+const request = async (page, control, action) => {
+  const pending = response(page, action);
+  await control.locator(`[data-action="${action}-assignment"]`).click();
+  return decoded(await pending);
+};
 
 const verifySourceDraft = (preview, publication, sourceUrl) => {
   assert(
@@ -90,6 +99,119 @@ const verifySourceDraft = (preview, publication, sourceUrl) => {
       preview.draft.body.includes('## Stack'),
     'written instructions and both required sections remain reviewable'
   );
+};
+
+const verifyDraftReview = async ({
+  page,
+  control,
+  target,
+  language,
+  publication,
+  sourceUrl,
+}) => {
+  await target.fill('invalid/');
+  await control.locator('[data-action="draft-assignment"]').click();
+  await control.locator('[data-assignment-publish-error]').waitFor();
+  assert(
+    (await target.inputValue()) === 'invalid/',
+    'refusal preserves target'
+  );
+  assert(
+    !publication.state.calls.includes('create'),
+    'invalid preview has no writes'
+  );
+  await target.fill('fixture-owner/reviewed-task');
+  assert(
+    (await language.inputValue()) === '',
+    'vacancy selection is the default'
+  );
+  await language.selectOption('python');
+  if (process.env.ASSIGNMENT_LANGUAGE_SCREENSHOTS === '1') {
+    await layouts(page, 'language-control', language);
+  }
+  await control
+    .locator('[data-assignment-publish-input="source"]')
+    .fill(sourceUrl);
+  const preview = await request(page, control, 'draft');
+  await control.locator('[data-assignment-draft]').waitFor();
+  verifySourceDraft(preview, publication, sourceUrl);
+  const languageReview = control.locator('[data-assignment-language="python"]');
+  assert(
+    preview.draft.languageOverride === 'python' &&
+      (await languageReview.textContent()) === 'Selected by you: Python',
+    'explicit template language is part of the review'
+  );
+  assert(
+    preview.draft.visibility === 'private' &&
+      preview.draft.body.includes('## Stack'),
+    'public prose and visibility are reviewable'
+  );
+  assert(
+    !publication.state.calls.includes('create'),
+    'preview has no GitHub mutations'
+  );
+  await layouts(page, 'review', control.locator('[data-assignment-draft]'));
+  if (process.env.ASSIGNMENT_LANGUAGE_SCREENSHOTS === '1') {
+    await layouts(page, 'language-review', languageReview);
+  }
+  await language.selectOption('typescript');
+  assert(
+    (await control.locator('[data-action="publish-assignment"]').count()) === 0,
+    'changing the language clears the publish review'
+  );
+  const savedPreview = await request(page, page, 'restore');
+  assert(
+    savedPreview.draft.id === preview.draft.id &&
+      (await language.inputValue()) === 'python',
+    'restoring a saved preview also restores its language control'
+  );
+  return preview.draft;
+};
+
+const verifyRecovery = async ({
+  page,
+  control,
+  target,
+  language,
+  url,
+  draft,
+}) => {
+  const unknown = await request(page, control, 'publish');
+  assert(
+    unknown.state === 'uncertain',
+    'lost issue response remains uncertain'
+  );
+  await control.getByRole('alert').waitFor();
+  assert(
+    await language.isDisabled(),
+    'attempted template language remains frozen'
+  );
+  assert(await target.isDisabled(), 'attempted target remains frozen');
+  assert(
+    await page
+      .locator('[data-form-assignment-state="needs-repository"]')
+      .count(),
+    'uncertain publication keeps form held'
+  );
+  await layouts(page, 'uncertain', control.getByRole('alert'));
+  await page.reload();
+  await page.locator('[data-view-content="forms"]').waitFor();
+  await openFormPlan(page, url, 'qa-profile:forms-fixture');
+  const restored = await request(page, page, 'restore');
+  assert(
+    restored.attempted &&
+      restored.draft.id === draft.id &&
+      restored.draft.languageOverride === 'python',
+    'reload restores the same issued draft'
+  );
+  await control.locator('[data-assignment-draft]').waitFor();
+  const recovered = await request(page, control, 'publish');
+  assert(
+    recovered.ok && recovered.state === 'verified',
+    'same publication recovers through positive readback'
+  );
+  await control.locator('[data-assignment-published]').waitFor();
+  return { recovered, restored };
 };
 
 export const verifyAssignmentPublicationUi = async ({
@@ -118,72 +240,43 @@ export const verifyAssignmentPublicationUi = async ({
     'server-backed assignment publisher exists'
   );
   const target = control.locator('[data-assignment-publish-input="target"]');
-  await target.fill('invalid/');
-  await control.locator('[data-action="draft-assignment"]').click();
-  await control.locator('[data-assignment-publish-error]').waitFor();
-  assert(
-    (await target.inputValue()) === 'invalid/',
-    'refusal preserves target'
+  const language = control.locator(
+    '[data-assignment-publish-input="language"]'
   );
-  assert(
-    !publication.state.calls.includes('create'),
-    'invalid preview has no writes'
-  );
-  await target.fill('fixture-owner/reviewed-task');
+  if (process.env.ASSIGNMENT_LANGUAGE_BEFORE === '1') {
+    assert(
+      (await language.count()) === 0,
+      'parent has no template language choice'
+    );
+    await layouts(
+      page,
+      'language-before',
+      control.locator('[data-assignment-publish-input="vacancy"]')
+    );
+    await closeFormReview(page, until, 'parent review closed');
+    assert(
+      publication.state.calls.length === 0,
+      'parent probe has no GitHub calls'
+    );
+    return;
+  }
   const sourceUrl = fixture.url.replace('/application', '/source-redirect');
-  await control
-    .locator('[data-assignment-publish-input="source"]')
-    .fill(sourceUrl);
-  let pending = response(page, 'draft');
-  await control.locator('[data-action="draft-assignment"]').click();
-  const preview = await decoded(await pending);
-  await control.locator('[data-assignment-draft]').waitFor();
-  verifySourceDraft(preview, publication, sourceUrl);
-  assert(
-    preview.draft.visibility === 'private' &&
-      preview.draft.body.includes('## Stack'),
-    'public prose and visibility are reviewable'
-  );
-  assert(
-    !publication.state.calls.includes('create'),
-    'preview has no GitHub mutations'
-  );
-  await layouts(page, 'review', control.locator('[data-assignment-draft]'));
-  pending = response(page, 'publish');
-  await control.locator('[data-action="publish-assignment"]').click();
-  const unknown = await decoded(await pending);
-  assert(
-    unknown.state === 'uncertain',
-    'lost issue response remains uncertain'
-  );
-  await control.getByRole('alert').waitFor();
-  assert(await target.isDisabled(), 'attempted target remains frozen');
-  assert(
-    await page
-      .locator('[data-form-assignment-state="needs-repository"]')
-      .count(),
-    'uncertain publication keeps form held'
-  );
-  await layouts(page, 'uncertain', control.getByRole('alert'));
-  await page.reload();
-  await page.locator('[data-view-content="forms"]').waitFor();
-  await openFormPlan(page, url, 'qa-profile:forms-fixture');
-  pending = response(page, 'restore');
-  await page.locator('[data-action="restore-assignment"]').click();
-  const restored = await decoded(await pending);
-  assert(
-    restored.attempted && restored.draft.id === preview.draft.id,
-    'reload restores the same issued draft'
-  );
-  await control.locator('[data-assignment-draft]').waitFor();
-  pending = response(page, 'publish');
-  await control.locator('[data-action="publish-assignment"]').click();
-  const recovered = await decoded(await pending);
-  assert(
-    recovered.ok && recovered.state === 'verified',
-    'same publication recovers through positive readback'
-  );
-  await control.locator('[data-assignment-published]').waitFor();
+  const draft = await verifyDraftReview({
+    page,
+    control,
+    target,
+    language,
+    publication,
+    sourceUrl,
+  });
+  const { recovered, restored } = await verifyRecovery({
+    page,
+    control,
+    target,
+    language,
+    url,
+    draft,
+  });
   assert(
     publication.state.calls.filter((call) => call === 'create').length === 1,
     'one repository creation'
@@ -220,10 +313,11 @@ export const verifyAssignmentPublicationUi = async ({
   console.log(
     '[assignment-publication]',
     JSON.stringify({
-      draft: preview.draft.id,
+      draft: draft.id,
       state: recovered.state,
       repositories: 1,
       issues: 1,
+      languageOverride: restored.draft.languageOverride,
       heldUntilReadback: true,
       submissions: 0,
     })

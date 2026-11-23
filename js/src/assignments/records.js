@@ -7,6 +7,7 @@ import {
 } from './validation.js';
 import { checkSavedAssignmentSource } from './source.js';
 import { assignmentFormUrl } from '../forms/assignment-recognition.js';
+import { ASSIGNMENT_LANGUAGES } from './templates.js';
 
 export const assignmentWriteIssued = (record) =>
   Boolean(
@@ -71,6 +72,9 @@ const validDraftBinding = (draft) =>
   Number.isFinite(Date.parse(draft.createdAt)) &&
   assignmentFormUrl(draft.formUrl) === draft.formUrl &&
   ['private', 'public'].includes(draft.visibility) &&
+  Object.hasOwn(ASSIGNMENT_LANGUAGES, draft.language) &&
+  (draft.languageOverride === undefined ||
+    draft.languageOverride === draft.language) &&
   ['create', 'merge', 'keep'].includes(draft.templateAction) &&
   (draft.repositoryId === null ||
     (Number.isSafeInteger(draft.repositoryId) && draft.repositoryId > 0));

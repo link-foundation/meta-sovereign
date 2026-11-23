@@ -10,6 +10,8 @@
 
 优先读取 Hive Mind 当前主要 **Recommended CI/CD Templates** 表格，再使用内置备用列表；预览标明备用来源。职位明确指定的语言优先于偶然出现的技术。GitHub 模板使用 `gh repo create --template`，其他模板仓库保留历史克隆并推送。现有用户文件保留，补充缺失的 workflow 及模板历史；已有流水线保留。重新预览后再次发布会更新唯一标记的任务 issue，并修复缺失的流水线。
 
+在**模板语言**中选择受支持的语言。预览会显示你的选择和对应模板。更改选择后需重新生成预览。恢复草稿时会恢复所选语言，恢复发布也会沿用该语言。默认根据职位或任务选择。
+
 本地保守检查覆盖英文表述、已知雇主名称及词形/音译，以及两个来源（包括文档标题）中的连续六词复制。请自行核对准确性及系统无法推断的别名。书面任务 issue 保留 **Deliverable and stack** 和末尾 **Stack**：要求在 `docs/` 中以原始语言编写 Markdown、遵守篇幅限制、提出合适技术栈，并在 README 链接结果。发布确认仓库、workflow 文件和 issue 回读结果，不代表任务已实现、CI 已通过或雇主表单已提交。
 
 ## CLI
@@ -19,7 +21,7 @@
 ```sh
 meta-sovereign test-assignment task-name --file=inspection.json --vacancy=https://hh.ru/vacancy/12345 --visibility=private --employer='Employer alias' --dry-run --store=./store
 meta-sovereign test-assignment owner/task-name --file=inspection.json --vacancy=https://hh.ru/vacancy/12345 --visibility=private --store=./store
-meta-sovereign test-assignment owner/task-name --file=inspection.json --source=https://example.org/instructions --dry-run --store=./store
+meta-sovereign test-assignment owner/task-name --file=inspection.json --source=https://example.org/instructions --language=python --dry-run --store=./store
 meta-sovereign test-assignment --draft-id=assignment-draft:UUID --store=./store
 ```
 
@@ -29,11 +31,11 @@ meta-sovereign test-assignment --draft-id=assignment-draft:UUID --store=./store
 
 可信 POST 接口使用现有文本/二进制 Lino 协商：
 
-| 接口                            | 输入                                                                                                                               | 结果                                                      |
-| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| `/api/forms/assignment/draft`   | `inspection`、当前任务 `revision`、`target`、`visibility`；可选 `vacancyUrl`/`vacancy`、`sourceUrl`、`refreshVacancy`、`employers` | 私有 `draft`、可选 `sourceEvidence`、`state: draft`       |
-| `/api/forms/assignment/restore` | `inspection`、当前任务 `revision`                                                                                                  | 已保存草稿及是否尝试发布；无 GitHub/模型调用              |
-| `/api/forms/assignment/publish` | `draftId`                                                                                                                          | 已确认的仓库、issue 和新任务修订，或保留 `uncertain` 阶段 |
+| 接口                            | 输入                                                                                                                                                   | 结果                                                                      |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------- |
+| `/api/forms/assignment/draft`   | `inspection`、当前任务 `revision`、`target`、`visibility`；可选 `vacancyUrl`/`vacancy`、`sourceUrl`、`languageOverride`、`refreshVacancy`、`employers` | 私有 `draft`、可选 `sourceEvidence` 和 `languageOverride`、`state: draft` |
+| `/api/forms/assignment/restore` | `inspection`、当前任务 `revision`                                                                                                                      | 已保存草稿及是否尝试发布；无 GitHub/模型调用                              |
+| `/api/forms/assignment/publish` | `draftId`                                                                                                                                              | 已确认的仓库、issue 和新任务修订，或保留 `uncertain` 阶段                 |
 
 发出外部写入前，先将私有意图持久化。响应丢失会保持不确定状态及表单暂停。恢复同一次发布会检查实际标识和标记 issue 的回读，不重复结果未知的创建操作。重新打开表单后读取并规划，恢复保存的草稿，再恢复该草稿的发布。任务/模型变更、另一待处理草稿、仓库重建或用户编辑 issue 会拒绝过期发布。没有明确确认的结果仍需人工检查。
 

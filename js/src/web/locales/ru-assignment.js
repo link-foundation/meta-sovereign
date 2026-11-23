@@ -1,4 +1,8 @@
 export const ruAssignment = {
+  'assignment.language': 'Язык шаблона',
+  'assignment.language-auto': 'По вакансии или заданию',
+  'assignment.language-owner': 'Ваш выбор: {language}',
+  'assignment.language-reviewed': 'Язык шаблона: {language}',
   'assignment.title': 'Опубликовать репозиторий задания',
   'assignment.hint':
     'Настроенная локальная модель подготовит задачу на английском без названия работодателя. Перед публикацией проверьте требования, стек, шаблон и видимость. Ссылка на вакансию откроется в отдельном браузере; она может быть взята из сохранённого чата HH.',

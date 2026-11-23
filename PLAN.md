@@ -1,9 +1,16 @@
+2026-11-23 assignment language selection (QA24 remains unfinished):
+
+- [x] Compare the pinned HeadHunter assignment command and current Hive Mind template catalog. The shared publisher selects from the vacancy/model and omits the donor's explicit language option.
+- [x] Bind a supported owner-selected language to the model, template and saved review across CLI and both Lino formats. Preserve automatic selection and recovery for older drafts.
+- [x] Reproduce eight failures on the published parent with one passing legacy control. Focused Node/Deno and production Chromium/MCP verify review, changing the selection, restoration, and same-draft publication with zero employer submissions.
+- [ ] Review hosted exact-source results. Other instruction formats, standalone drafting, complete handoff and authenticated execution remain required.
+
 2026-11-23 Meta message destinations (QA04 remains unfinished):
 
 - [x] Compare Meta Graph share/CTA and webhook card schemas with the current archive import paths. Follow existing question review, learning and frozen turn checks.
 - [x] Reproduce 14 failures and two passing controls on the published parent. Verify exact link bytes, incomplete metadata refusal, older archive compatibility, private learning and changed-target dispatch refusal. Focused Node passes 111 checks and Deno passes 94 checks with 27 substeps.
 - [x] Verify both Lino formats, the CLI and the existing shared preview. Chromium and independent Playwright MCP show the literal target and review state with zero sends. Preserve before/after screenshots and browser diagnostics.
-- [ ] Publish the Meta correction and review exact-source hosted checks. Authenticated Graph history and other QA04 representations and context remain unfinished.
+- [x] Publish the Meta correction as `92efe0f0`. Five exact-source hosted workflows are pending. Authenticated Graph history and other QA04 representations and context remain unfinished.
 
 2026-11-23 shared Chat CLI receipts (HH09 and QA20 remain unfinished):
 

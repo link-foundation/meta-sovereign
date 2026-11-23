@@ -10,6 +10,8 @@
 
 पहले Hive Mind की वर्तमान मुख्य **Recommended CI/CD Templates** तालिका पढ़ी जाती है, फिर अंतर्निहित वैकल्पिक सूची; पूर्वावलोकन वैकल्पिक स्रोत बताता है। पद में स्पष्ट भाषा का महत्व संयोग से लिखी तकनीकों से अधिक है। GitHub टेम्पलेट `gh repo create --template` उपयोग करते हैं; अन्य टेम्पलेट इतिहास सहित क्लोन और पुश होते हैं। मालिक की फ़ाइलें सुरक्षित रहती हैं, अनुपस्थित workflow और टेम्पलेट इतिहास जुड़ते हैं। मौजूदा पाइपलाइन बनी रहती है। नए पूर्वावलोकन के बाद फिर प्रकाशन उसी विशिष्ट चिह्नित issue को अपडेट करता है और गायब पाइपलाइन ठीक करता है।
 
+किसी समर्थित भाषा को स्पष्ट रूप से चुनने के लिए **टेम्पलेट की भाषा** उपयोग करें। पूर्वावलोकन में आपकी पसंद और चुना गया टेम्पलेट दिखते हैं। चयन बदलने पर नया पूर्वावलोकन बनाएँ। ड्राफ़्ट बहाल करने पर उसकी भाषा भी बहाल होती है। प्रकाशन की पुनर्प्राप्ति उसी भाषा का उपयोग करती है। डिफ़ॉल्ट चयन रिक्ति या कार्य से होता है।
+
 स्थानीय सावधान जाँच अंग्रेज़ी पाठ, ज्ञात नियोक्ता नाम/रूप/लिप्यंतरण तथा फ़ॉर्म और जुड़े निर्देशों (दस्तावेज़ शीर्षक सहित) के लगातार छह शब्दों की नकल जाँचती है। शुद्धता और ऐसे नामों की समीक्षा करें जो ऐप नहीं पहचान सकता। लिखित कार्य के issue में **Deliverable and stack** और अंतिम **Stack** भाग रहते हैं: `docs/` में मूल भाषा का Markdown, मूल लंबाई सीमा, प्रस्तावित स्टैक और परिणाम के लिंक वाला README। प्रकाशन रिपॉज़िटरी, workflow और issue को दोबारा पढ़कर पुष्टि करता है; कार्य का क्रियान्वयन, CI सफलता या नियोक्ता फ़ॉर्म जमा होना प्रमाणित नहीं करता।
 
 ## CLI
@@ -19,7 +21,7 @@
 ```sh
 meta-sovereign test-assignment task-name --file=inspection.json --vacancy=https://hh.ru/vacancy/12345 --visibility=private --employer='Employer alias' --dry-run --store=./store
 meta-sovereign test-assignment owner/task-name --file=inspection.json --vacancy=https://hh.ru/vacancy/12345 --visibility=private --store=./store
-meta-sovereign test-assignment owner/task-name --file=inspection.json --source=https://example.org/instructions --dry-run --store=./store
+meta-sovereign test-assignment owner/task-name --file=inspection.json --source=https://example.org/instructions --language=python --dry-run --store=./store
 meta-sovereign test-assignment --draft-id=assignment-draft:UUID --store=./store
 ```
 
@@ -29,11 +31,11 @@ meta-sovereign test-assignment --draft-id=assignment-draft:UUID --store=./store
 
 विश्वसनीय POST मार्ग मौजूदा पाठ/बाइनरी Lino नेगोशिएशन उपयोग करते हैं:
 
-| मार्ग                           | इनपुट                                                                                                                                       | परिणाम                                                                 |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| `/api/forms/assignment/draft`   | `inspection`, वर्तमान कार्य `revision`, `target`, `visibility`; वैकल्पिक `vacancyUrl`/`vacancy`, `sourceUrl`, `refreshVacancy`, `employers` | निजी `draft`, वैकल्पिक `sourceEvidence`, `state: draft`                |
-| `/api/forms/assignment/restore` | `inspection`, वर्तमान कार्य `revision`                                                                                                      | सहेजा ड्राफ़्ट और प्रकाशन प्रयास की स्थिति; GitHub/मॉडल कॉल नहीं       |
-| `/api/forms/assignment/publish` | `draftId`                                                                                                                                   | सत्यापित रिपॉज़िटरी, issue, नया कार्य संशोधन या बरकरार `uncertain` चरण |
+| मार्ग                           | इनपुट                                                                                                                                                           | परिणाम                                                                        |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `/api/forms/assignment/draft`   | `inspection`, वर्तमान कार्य `revision`, `target`, `visibility`; वैकल्पिक `vacancyUrl`/`vacancy`, `sourceUrl`, `languageOverride`, `refreshVacancy`, `employers` | निजी `draft`, वैकल्पिक `sourceEvidence` और `languageOverride`, `state: draft` |
+| `/api/forms/assignment/restore` | `inspection`, वर्तमान कार्य `revision`                                                                                                                          | सहेजा ड्राफ़्ट और प्रकाशन प्रयास की स्थिति; GitHub/मॉडल कॉल नहीं              |
+| `/api/forms/assignment/publish` | `draftId`                                                                                                                                                       | सत्यापित रिपॉज़िटरी, issue, नया कार्य संशोधन या बरकरार `uncertain` चरण        |
 
 बाहरी लिखाई से पहले निजी इरादा डिस्क पर सहेजा जाता है। उत्तर खोने पर परिणाम अनिश्चित और फ़ॉर्म रुका रहता है। उसी प्रकाशन की पुनर्प्राप्ति वास्तविक पहचान और चिह्नित issue जाँचती है, अज्ञात परिणाम वाले निर्माण दोहराती नहीं। फ़ॉर्म दोबारा खोलकर पढ़ें/योजना बनाएँ, सहेजा ड्राफ़्ट पुनर्स्थापित करें और उसी का प्रकाशन पुनर्प्राप्त करें। बदला कार्य/मॉडल, दूसरा लंबित ड्राफ़्ट, पुनर्निर्मित रिपॉज़िटरी या मालिक द्वारा संपादित issue पुराने प्रकाशन को रोकते हैं। सकारात्मक पुष्टि के बिना परिणाम को मानवीय निरीक्षण चाहिए।
 

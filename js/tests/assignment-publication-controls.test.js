@@ -29,7 +29,7 @@ const readSource = async (url) => ({
 });
 
 test(
-  'CLI drafts without mutations and recovers a saved publication without rerunning the model',
+  'CLI assignment language override is saved before publishing and recovery uses it without rerunning the model',
   { timeout: 15000 },
   async (t) => {
     const env = await assignmentPublisherFixture();
@@ -52,13 +52,20 @@ test(
     const log = (line) => output.push(JSON.parse(line));
     assert.equal(
       await command(
-        { _: [env.input.target], file, source: sourceUrl, 'dry-run': true },
+        {
+          _: [env.input.target],
+          file,
+          source: sourceUrl,
+          language: 'Python',
+          'dry-run': true,
+        },
         log
       ),
       0
     );
     const draft = output.at(-1).draft;
     assert.equal(draft.sourceEvidence.url, sourceUrl);
+    assert.equal(draft.languageOverride, 'python');
     assert.ok(
       env.state.modelCalls[0].prompt.includes(
         (await readSource(sourceUrl)).text
@@ -89,8 +96,27 @@ test('invalid CLI names and contradictory dry-run recovery refuse before opening
   }
 });
 
+test('CLI assignment language override rejects invalid settings and recovery changes before opening a store', async () => {
+  let opened = 0;
+  const command = testAssignmentCommand({
+    openStore: async () => {
+      opened++;
+      throw new Error('unexpected openStore');
+    },
+  });
+  await assert.rejects(
+    command({ _: ['owner/repository'], language: 'invalid' }, () => {}),
+    { code: 'assignment-language' }
+  );
+  await assert.rejects(
+    command({ 'draft-id': 'saved', language: 'rust' }, () => {}),
+    /fixes its language/u
+  );
+  assert.equal(opened, 0);
+});
+
 test(
-  'text and binary Lino publish through the same trusted routes and current form hold',
+  'text and binary Lino retain the assignment language override through trusted draft and publish',
   { timeout: 15000 },
   async (t) => {
     for (const media of [LINO_TEXT, LINO_BINARY]) {
@@ -119,9 +145,15 @@ test(
         );
         assert.equal(env.state.calls.length, 0);
         const preview = await readWireResponse(
-          await post('draft', { ...env.input, sourceUrl })
+          await post('draft', {
+            ...env.input,
+            sourceUrl,
+            languageOverride: 'python',
+            vacancy: { ...env.input.vacancy, title: 'TypeScript developer' },
+          })
         );
         assert.equal(preview.ok, true);
+        assert.equal(preview.draft.languageOverride, 'python');
         assert.equal(preview.draft.sourceEvidence.url, sourceUrl);
         assert.ok(
           env.state.modelCalls[0].prompt.includes(
@@ -151,6 +183,34 @@ test(
 
 const browserApi = (report) =>
   createFormsApi({ report, get: async () => null, local: {} });
+
+test('browser assignment language override requires matching draft and restored language receipts', async (t) => {
+  const env = await assignmentPublisherFixture();
+  t.after(env.publisher.stop);
+  const input = { ...env.input, languageOverride: 'python' };
+  const preview = await env.publisher.draft(input);
+  const api = browserApi(async (_route, request) => {
+    assert.equal(request.languageOverride, 'python');
+    return preview;
+  });
+  assert.equal(
+    (await api.draftFormAssignment(input)).draft.id,
+    preview.draft.id
+  );
+  const changed = {
+    ...preview,
+    attempted: false,
+    draft: { ...preview.draft, language: 'typescript' },
+  };
+  const wrongLanguageApi = browserApi(async () => changed);
+  await assert.rejects(wrongLanguageApi.draftFormAssignment(input), {
+    code: 'assignment-unconfirmed',
+  });
+  await assert.rejects(wrongLanguageApi.restoreFormAssignment(input), {
+    code: 'assignment-unconfirmed',
+  });
+});
+
 test('browser publication refuses offline, stale and malformed positive receipts', async (t) => {
   const env = await assignmentPublisherFixture();
   t.after(env.publisher.stop);
@@ -197,7 +257,7 @@ test('browser publication refuses offline, stale and malformed positive receipts
   );
 });
 
-test('assignment publishing is visible only with an actual server capability in all four languages', async (t) => {
+test('assignment language override is visible only with an actual server capability in all four languages', async (t) => {
   const env = await assignmentPublisherFixture();
   t.after(env.publisher.stop);
   const props = {
@@ -221,6 +281,12 @@ test('assignment publishing is visible only with an actual server capability in 
     assert.ok(render(true).includes('data-assignment-publish-input="source"'));
     assert.ok(
       render(true).includes(translate(locale, 'assignment.instructions'))
+    );
+    assert.ok(
+      render(true).includes('data-assignment-publish-input="language"')
+    );
+    assert.ok(
+      render(true).includes(translate(locale, 'assignment.language-auto'))
     );
     assert.ok(!render(false).includes('data-assignment-publisher'));
     assert.ok(!render(true).includes('assignment.title'));

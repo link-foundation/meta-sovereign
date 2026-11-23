@@ -1,4 +1,8 @@
 export const hiAssignment = {
+  'assignment.language': 'टेम्पलेट की भाषा',
+  'assignment.language-auto': 'रिक्ति या असाइनमेंट के आधार पर',
+  'assignment.language-owner': 'आपकी चुनी हुई भाषा: {language}',
+  'assignment.language-reviewed': 'टेम्पलेट की भाषा: {language}',
   'assignment.title': 'असाइनमेंट का रिपॉज़िटरी प्रकाशित करें',
   'assignment.hint':
     'कॉन्फ़िगर किए गए स्थानीय मॉडल से नियोक्ता के नाम के बिना अंग्रेज़ी में इश्यू का मसौदा बनाएँ। प्रकाशित करने से पहले आवश्यकताएँ, स्टैक, टेम्पलेट और दृश्यता जाँचें। रिक्ति का लिंक अलग ब्राउज़र में खुलेगा; सहेजी गई HH चैट से यह अपने आप मिल सकता है।',

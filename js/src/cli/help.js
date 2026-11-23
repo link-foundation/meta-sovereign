@@ -192,7 +192,7 @@ export const FORMS_RESUME_HELP =
   '  forms-resume  --action=status|save|delete [--file=<pdf-path>] [--revision=<saved-revision>] [--store=<dir>]';
 
 export const TEST_ASSIGNMENT_HELP =
-  '  test-assignment <name|owner/name> --file=<inspection.json>|--url=<form-url> [--vacancy=<hh-url>] [--source=<instruction-url>] [--visibility=private|public] [--employer=<name>] [--dry-run] [--draft-id=<saved-draft>] [--store=<dir>]';
+  '  test-assignment <name|owner/name> --file=<inspection.json>|--url=<form-url> [--vacancy=<hh-url>] [--source=<instruction-url>] [--language=<template-language>] [--visibility=private|public] [--employer=<name>] [--dry-run] [--draft-id=<saved-draft>] [--store=<dir>]';
 
 export const FORMS_ASSIGNMENT_HELP = `  forms-assignment-link --file=<inspection.json> --repository=<https://github.com/owner/repo> --revision=<assignment-revision> [--store=<dir>]\n${TEST_ASSIGNMENT_HELP}`;
 

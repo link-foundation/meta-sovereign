@@ -1,4 +1,5 @@
 import { assignmentRepositoryName } from '../forms/assignment-repository.js';
+import { assignmentFailure } from './validation.js';
 
 export const HIVE_MIND_GUIDE =
   'https://github.com/link-assistant/hive-mind/blob/main/docs/CI-CD-BEST-PRACTICES.md';
@@ -12,6 +13,23 @@ export const ASSIGNMENT_LANGUAGES = {
   java: 'Java',
   cpp: 'C++',
   php: 'PHP',
+};
+export const assignmentLanguageOverride = (value) => {
+  if (value === undefined) {
+    return undefined;
+  }
+  const name =
+    typeof value === 'string' && value.length <= 20
+      ? value.trim().toLowerCase()
+      : '';
+  const key = { 'c#': 'csharp', 'c++': 'cpp' }[name] ?? name;
+  if (!Object.hasOwn(ASSIGNMENT_LANGUAGES, key)) {
+    throw assignmentFailure(
+      'language',
+      'Choose a supported template language.'
+    );
+  }
+  return key;
 };
 const prefixes = {
   javascript: 'js',
