@@ -1,4 +1,8 @@
 export const hiApplication = {
+  'application.attention.waiting':
+    'जारी रखने के लिए {slot} में HeadHunter का सत्यापन पूरा करें।',
+  'application.attention.notification':
+    'HeadHunter के एक आवेदन के लिए आपका सत्यापन ज़रूरी है।',
   'application.applyFromVacancyPage': 'पद के पृष्ठ से पूरा आवेदन फ़ॉर्म खोलें',
   'application.routeHint':
     'बंद होने पर पूरे फ़ॉर्म से पहले मूल खोज पर लौटें। पूरे फ़ॉर्म की समीक्षा में Apply नहीं दबाया जाता। CV भाषा का स्वतः चयन बंद होने पर सीधा आवेदन प्रवेश प्रदाता का बटन दबाता है। रोकने, पृष्ठ बदलने या मसौदा होने पर मार्ग का नेविगेशन रुकता है।',

@@ -22,6 +22,13 @@ const confirmed = (raw, input, missing = false) => {
 };
 export const createApplicationApi = ({ get, report }) => ({
   ...createApplicationBatchApi({ get, report }),
+  vacancyApplicationAttention: (signal) =>
+    get('/api/vacancies/application-attention', { signal }, { recover: false }),
+  vacancyApplicationAttentionFocus: (input) =>
+    report('/api/vacancies/application-attention-focus', input, {
+      network: true,
+      read: false,
+    }),
   vacancyApplicationQueue: async (input) =>
     applicationQueueResult(
       await get(

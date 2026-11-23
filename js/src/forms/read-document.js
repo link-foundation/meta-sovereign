@@ -6,6 +6,7 @@ export const readFormDocument = ({
   maxFields = 200,
   maxOptions = 100,
   identityOnly = false,
+  challengeOnly = false,
   hhLimit = null,
 } = {}) => {
   const doc = globalThis.document;
@@ -69,16 +70,19 @@ export const readFormDocument = ({
     responses.length > 0 &&
     responses.length <= 20 &&
     responses.every((node) => Boolean(node.value));
-  const completed = completedResponse();
-  const challenge =
+  const challengePresent = () =>
     nativeChallenge ||
     challengeUrl(identity.url) ||
-    (!completed &&
+    (!completedResponse() &&
       (Array.from(doc.querySelectorAll(challengeRoots)).some(visible) ||
         Array.from(doc.querySelectorAll('iframe')).some(
           (node) =>
             visible(node) && challengeUrl(node.getAttribute('src') || '')
         )));
+  const challenge = challengePresent();
+  if (challengeOnly) {
+    return { challenge };
+  }
   const root = limitForm();
   if ((challenge && !hhLimit) || !root) {
     return {

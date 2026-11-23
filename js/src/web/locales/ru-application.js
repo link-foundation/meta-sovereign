@@ -1,4 +1,8 @@
 export const ruApplication = {
+  'application.attention.waiting':
+    'Чтобы продолжить, пройдите проверку HeadHunter в {slot}.',
+  'application.attention.notification':
+    'Для отклика на HeadHunter требуется ваша проверка.',
   'application.applyFromVacancyPage':
     'Открывать полную форму со страницы вакансии',
   'application.routeHint':

@@ -1,4 +1,7 @@
 export const zhApplication = {
+  'application.attention.waiting': '请在 {slot} 中完成 HeadHunter 验证以继续。',
+  'application.attention.notification':
+    '一份 HeadHunter 求职申请需要您完成验证。',
   'application.applyFromVacancyPage': '从职位页面打开完整申请表',
   'application.routeHint':
     '关闭后，先返回原搜索页面，再打开完整申请表。完整申请表审核不会点击申请按钮。关闭简历语言自动选择时，直接进入申请会使用网站按钮。停止操作、页面变化或已有草稿会阻止路径跳转。',

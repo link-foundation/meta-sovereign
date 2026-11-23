@@ -69,6 +69,7 @@ export const applicationFixture = ({
     closed: 0,
     opened: 0,
     disposed: 0,
+    focuses: 0,
   };
   const inspection = () => ({
     ...formModelInspection(globalThis.structuredClone(state.fields)),
@@ -107,7 +108,12 @@ export const applicationFixture = ({
       state.opened++;
       state.calls.push(['open', options]);
       return {
-        page: {},
+        page: {
+          bringToFront: async () => {
+            state.focuses++;
+          },
+        },
+        policy: { headless: options.headless ?? false },
         commander: {
           goto: async () => {},
           evaluate: async () => vacancy(),
@@ -123,6 +129,10 @@ export const applicationFixture = ({
       previewVacancy: async () => true,
       previewWait: async (_ms, signal) => signal.throwIfAborted(),
       readPage: async () => globalThis.structuredClone(state.page),
+      readVerification: async () => {
+        const { challenge, documentKey, bound } = state.page;
+        return { challenge, documentKey, bound };
+      },
       target: async () => ({
         dispose: async () => {
           state.disposed++;

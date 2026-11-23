@@ -7,19 +7,42 @@ const el = React.createElement;
 const REMIND_MS = 5 * 60_000;
 const ACKNOWLEDGED_MS = 15 * 60_000;
 const REFRESH = 'meta-sovereign:form-attention';
+const FORM = {
+  name: 'form',
+  kind: 'captcha',
+  event: REFRESH,
+  capabilities: 'formsCapabilities',
+  capability: 'reviewAttention',
+  attention: 'formsReviewAttention',
+  focus: 'formsFocusReview',
+  notification: 'forms.attention.notification',
+  waiting: 'forms.attention.waiting',
+};
+const APPLICATION = {
+  name: 'application',
+  kind: 'hh-application-verification',
+  event: 'meta-sovereign:application-attention',
+  capabilities: 'vacancyCapabilities',
+  capability: 'applicationAttention',
+  attention: 'vacancyApplicationAttention',
+  focus: 'vacancyApplicationAttentionFocus',
+  notification: 'application.attention.notification',
+  waiting: 'application.attention.waiting',
+};
 const keyOf = ({ id, requestId }) => JSON.stringify([id, requestId]);
-const validWait = (item) =>
-  item?.kind === 'captcha' &&
+const validWait = (item, source) =>
+  item?.kind === source.kind &&
   ['id', 'requestId', 'browserSlot'].every(
     (field) => typeof item[field] === 'string' && item[field]
   ) &&
   Number.isFinite(Date.parse(item.expiresAt)) &&
   typeof item.focusAvailable === 'boolean';
 
-export const refreshFormAttention = () =>
-  globalThis.dispatchEvent?.(new globalThis.Event(REFRESH));
+const refresh = (event) =>
+  globalThis.dispatchEvent?.(new globalThis.Event(event));
+export const refreshFormAttention = () => refresh(REFRESH);
 
-const observe = (api, update) => {
+const observe = (api, source, update) => {
   const owner = new AbortController();
   const { signal } = owner;
   let timer;
@@ -33,11 +56,11 @@ const observe = (api, update) => {
     reading = true;
     globalThis.clearTimeout(timer);
     try {
-      const result = await api.formsReviewAttention(signal);
+      const result = await api[source.attention](signal);
       if (!signal.aborted) {
         update(
           result?.ok === true && Array.isArray(result.attention)
-            ? result.attention.filter(validWait)
+            ? result.attention.filter((item) => validWait(item, source))
             : null
         );
       }
@@ -53,11 +76,10 @@ const observe = (api, update) => {
       queued = false;
     }
   };
-  api
-    .formsCapabilities()
+  api[source.capabilities]()
     .then((capabilities) => {
-      if (!signal.aborted && capabilities?.reviewAttention === true) {
-        globalThis.addEventListener(REFRESH, read, { signal });
+      if (!signal.aborted && capabilities?.[source.capability] === true) {
+        globalThis.addEventListener(source.event, read, { signal });
         read();
       }
     })
@@ -68,7 +90,7 @@ const observe = (api, update) => {
   };
 };
 
-const alertOwner = ({ api, item, t, show }) => {
+const alertOwner = ({ api, item, source, t, show }) => {
   if (readPref(SOUND_KEY, true)) {
     playNotifySound(api, 'default').catch(() => {});
   }
@@ -77,8 +99,8 @@ const alertOwner = ({ api, item, t, show }) => {
   }
   try {
     const note = new globalThis.Notification(t('appName'), {
-      body: t('forms.attention.notification'),
-      tag: `forms-attention-${keyOf(item)}`,
+      body: t(source.notification),
+      tag: `${source.name}-attention-${keyOf(item)}`,
       silent: true,
     });
     note.onclick = () => {
@@ -100,6 +122,7 @@ const alertOwner = ({ api, item, t, show }) => {
 const useNoticeTimer = ({
   api,
   item,
+  source,
   t,
   resumeAt,
   now,
@@ -122,6 +145,7 @@ const useNoticeTimer = ({
         : alertOwner({
             api,
             item: { id, requestId, focusAvailable },
+            source,
             t,
             show,
           });
@@ -139,6 +163,7 @@ const useNoticeTimer = ({
     focusAvailable,
     id,
     requestId,
+    source,
     t,
     resumeAt,
     now,
@@ -148,7 +173,7 @@ const useNoticeTimer = ({
   ]);
 };
 
-const AttentionItem = ({ api, item, available, t }) => {
+const AttentionItem = ({ api, item, available, source, t }) => {
   const { id, requestId, browserSlot, focusAvailable } = item;
   const [deferred, setDeferred] = useState({ resumeAt: 0, hideBanner: false });
   const [now, updateTime] = useState(Date.now);
@@ -166,7 +191,7 @@ const AttentionItem = ({ api, item, available, t }) => {
     focusing.current = true;
     setStatus('opening');
     try {
-      const result = await api.formsFocusReview({ id, requestId });
+      const result = await api[source.focus]({ id, requestId, browserSlot });
       if (result?.ok === true) {
         acknowledge(false);
         setStatus('');
@@ -177,12 +202,13 @@ const AttentionItem = ({ api, item, available, t }) => {
       setStatus('focusFailed');
     } finally {
       focusing.current = false;
-      refreshFormAttention();
+      refresh(source.event);
     }
-  }, [api, id, requestId, acknowledge]);
+  }, [api, id, requestId, browserSlot, source, acknowledge]);
   useNoticeTimer({
     api,
     item,
+    source,
     t,
     resumeAt: deferred.resumeAt,
     now,
@@ -201,13 +227,13 @@ const AttentionItem = ({ api, item, available, t }) => {
     'aside',
     {
       className: 'disk-banner form-attention',
-      'data-form-attention': browserSlot,
+      [`data-${source.name}-attention`]: browserSlot,
     },
     [
       el(
         'span',
         { key: 'message', role: 'status' },
-        t('forms.attention.waiting', { slot: browserSlot })
+        t(source.waiting, { slot: browserSlot })
       ),
       !focusAvailable
         ? el(
@@ -223,7 +249,7 @@ const AttentionItem = ({ api, item, available, t }) => {
               {
                 key: 'focus',
                 type: 'button',
-                'data-action': 'form-attention-focus',
+                'data-action': `${source.name}-attention-focus`,
                 'aria-busy': status === 'opening',
                 disabled: status === 'opening',
                 onClick: show,
@@ -236,7 +262,7 @@ const AttentionItem = ({ api, item, available, t }) => {
           {
             key: 'later',
             type: 'button',
-            'data-action': 'form-attention-later',
+            'data-action': `${source.name}-attention-later`,
             onClick: () => acknowledge(true),
           },
           t('forms.attention.later')
@@ -253,21 +279,26 @@ const AttentionItem = ({ api, item, available, t }) => {
   );
 };
 
-export const FormAttention = ({ api }) => {
+const OwnerAttention = ({ api, source }) => {
   const t = useT();
   const [items, setItems] = useState([]);
   const [available, setAvailable] = useState(false);
   useEffect(
     () =>
-      observe(api, (next) => {
+      observe(api, source, (next) => {
         setAvailable(next !== null);
         if (next !== null) {
           setItems(next);
         }
       }),
-    [api]
+    [api, source]
   );
   return items.map((item) =>
-    el(AttentionItem, { key: keyOf(item), api, item, available, t })
+    el(AttentionItem, { key: keyOf(item), api, item, available, source, t })
   );
 };
+
+export const FormAttention = ({ api }) =>
+  el(OwnerAttention, { api, source: FORM });
+export const ApplicationAttention = ({ api }) =>
+  el(OwnerAttention, { api, source: APPLICATION });

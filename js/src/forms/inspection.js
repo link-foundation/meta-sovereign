@@ -2,6 +2,46 @@ import { formFailure as failure, formUrl } from './options.js';
 import { readFormDocument, formFrameVisible } from './read-document.js';
 import { challengeFrameUrl } from './challenge-wait.js';
 
+/** Only verification markers in the main document and visible child frames. */
+export const inspectFormChallenge = async ({ commander, page }) => {
+  const options = { challengeOnly: true };
+  const main = await commander.evaluate({
+    fn: readFormDocument,
+    args: [options],
+  });
+  if (main.challenge) {
+    return true;
+  }
+  const root = page?.mainFrame?.();
+  const visible = new Set([root]);
+  for (const frame of (page?.frames?.() ?? [])
+    .filter((row) => row !== root)
+    .slice(0, 9)) {
+    if (!visible.has(frame.parentFrame())) {
+      continue;
+    }
+    let element;
+    try {
+      element = await frame.frameElement();
+      if (await element.evaluate(formFrameVisible)) {
+        visible.add(frame);
+        if (
+          challengeFrameUrl(frame.url()) ||
+          (await frame.evaluate(readFormDocument, options)).challenge
+        ) {
+          return true;
+        }
+      }
+    } catch {
+      // An unavailable frame supplies no current verification evidence.
+      visible.delete(frame);
+    } finally {
+      await element?.dispose();
+    }
+  }
+  return false;
+};
+
 const sameDocument = (a, b) =>
   typeof a.documentKey === 'string' &&
   a.documentKey.length > 0 &&

@@ -35,6 +35,25 @@ const fixtureNavigationDelay = () => {
   return delay;
 };
 
+const traceFocus = (page, record) => {
+  record.focuses = 0;
+  const bringToFront = page.bringToFront.bind(page);
+  page.bringToFront = async () => {
+    await bringToFront();
+    record.focuses++;
+  };
+};
+
+const fixturePreferences = ({ key, version }) => {
+  globalThis.localStorage.setItem(
+    key,
+    JSON.stringify({ off: true, v: version })
+  );
+  if (!globalThis.localStorage.getItem('metaSovereignLocale')) {
+    globalThis.localStorage.setItem('metaSovereignLocale', 'en');
+  }
+};
+
 const cardHtml = (id) =>
   `<article data-qa="vacancy-serp__vacancy"><a data-qa="serp-item__title" href="https://hh.ru/vacancy/${id}?from=search">Python engineer ${id}</a><span data-qa="vacancy-serp__vacancy-employer">Fixture employer</span><span data-qa="vacancy-serp__vacancy-compensation">от 250 000 ₽</span><span data-qa="vacancy-serp__vacancy-address">Москва</span>${id === '124' ? '<span data-qa="vacancy-serp__vacancy_responded">Already responded</span>' : ''}<button data-qa="vacancy-response-link-top">Apply</button></article>`;
 const searchHtml = (url) => {
@@ -79,7 +98,12 @@ export const vacancyBrowserFixture = async (
   let app;
   let searchSignal;
   const openSession = async (options) => {
-    const record = { options, navigation: [], closed: false, clicks: null };
+    const record = {
+      options,
+      navigation: [],
+      closed: false,
+      clicks: null,
+    };
     records.push(record);
     if (launchGate) {
       await launchGate.promise;
@@ -87,6 +111,7 @@ export const vacancyBrowserFixture = async (
     const context = await browser.newContext();
     await exports?.prepare?.(context);
     const page = await context.newPage();
+    traceFocus(page, record);
     await context.route('**/*', async (route) => {
       const url = new URL(route.request().url());
       const exported = await exports?.route(route, mode);
@@ -120,6 +145,8 @@ export const vacancyBrowserFixture = async (
     return {
       page,
       commander,
+      // The outer browser is headless in CI. Exercise a requested visible policy explicitly.
+      policy: { headless: options.headless ?? true },
       async close() {
         record.clicks = await page
           .evaluate(() => globalThis.fixtureClicks ?? 0)
@@ -163,18 +190,10 @@ export const vacancyBrowserFixture = async (
     });
     app = await context.newPage();
     watchFixturePages(context, browser, base, errors);
-    await app.addInitScript(
-      ({ key, version }) => {
-        globalThis.localStorage.setItem(
-          key,
-          JSON.stringify({ off: true, v: version })
-        );
-        if (!globalThis.localStorage.getItem('metaSovereignLocale')) {
-          globalThis.localStorage.setItem('metaSovereignLocale', 'en');
-        }
-      },
-      { key: TUTORIAL_STORAGE_KEY, version: TUTORIAL_VERSION }
-    );
+    await app.addInitScript(fixturePreferences, {
+      key: TUTORIAL_STORAGE_KEY,
+      version: TUTORIAL_VERSION,
+    });
     return {
       base,
       page: app,

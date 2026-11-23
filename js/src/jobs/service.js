@@ -240,5 +240,6 @@ const vacancyCapabilities = (browser) => ({
   cvSaveWatch: browser.available === true,
   cvSnapshotPublication: true,
   applicationReview: browser.available === true,
+  applicationAttention: true,
   apply: false,
 });

@@ -59,7 +59,7 @@ const failureReply = (error) => {
     },
   ];
 };
-const replyVacancy = (res, result, file) => {
+const replyVacancy = (res, result, file, operation) => {
   if (file) {
     res.writeHead(200, {
       'content-type': result.type,
@@ -70,6 +70,9 @@ const replyVacancy = (res, result, file) => {
     });
     res.end(result.bytes);
     return true;
+  }
+  if (operation === 'application-attention') {
+    res.setHeader('cache-control', 'no-store');
   }
   return json(res, 200, result) ?? true;
 };
@@ -84,6 +87,7 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
       'capabilities',
       'login-status',
       'application-status',
+      'application-attention',
       'application-batch-status',
       'discovery-status',
       'application-queue',
@@ -114,6 +118,7 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
       'discovery-start',
       'discovery-stop',
       'application-open',
+      'application-attention-focus',
       'application-batch-start',
       'application-batch-stop',
       'application-batch-mode',
@@ -178,7 +183,7 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
       ...ctx.vacancyOptions,
     }));
     const result = await service[operation](input);
-    return replyVacancy(res, result, file);
+    return replyVacancy(res, result, file, operation);
   } catch (error) {
     return json(res, ...failureReply(error)) ?? true;
   }

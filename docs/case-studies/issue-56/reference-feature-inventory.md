@@ -10,6 +10,8 @@ Partial QA24 and HH01 Forms prerequisite: [active owner notices](forms-attention
 
 [Foreground Forms attention](forms-cli-attention.md) keeps the console available during either prefill entry point, uses the same request-bound focus and drains pending verification when the slot or command closes. QA24 and HH01 remain unfinished.
 
+[HeadHunter application attention](application-attention.md) shows the current manual verification wait across views and in the foreground console. It focuses the exact live slot and leaves the delivery hold in place after the notice clears. Chromium covers main-document and nested verification with zero challenge-answer reads and zero submissions. Manual login, native desktop notifications and authenticated verification remain required. HH01 stays unchecked.
+
 QA19/QA20 also include [Stop during sender preparation](dispatch-stop.md):
 forty-five actual-parent failures and 383 focused passes cover separate dispatch
 ownership, native queues and real autopilot drainage while preserving issued

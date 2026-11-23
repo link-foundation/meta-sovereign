@@ -30,6 +30,7 @@ import { ApplicationDeferrals } from './application-deferrals.js';
 import { ApplicationQuestionDeferrals } from './application-question-deferrals.js';
 import { storedDeferredQuestions } from './deferred-questions.js';
 import { ApplicationHolds } from './application-holds.js';
+import { ApplicationAttention } from './application-attention.js';
 import { ApplicationRetries } from './application-retries.js';
 import { ApplicationFullForm } from './application-full-form.js';
 import { ApplicationLanguagePolicy } from './application-language-policy.js';
@@ -83,6 +84,7 @@ class ApplicationService {
     selectResume = dispatchResumeChoice,
     watchFeedback = watchApplicationFeedback,
     now = Date.now,
+    readVerification,
     limitWait,
     pacingRandom,
     questionWatchMs,
@@ -137,6 +139,7 @@ class ApplicationService {
       questionWatchMs
     );
     this.holds = new ApplicationHolds(this.trace);
+    this.attention = new ApplicationAttention({ now, readVerification });
     this.retries = new ApplicationRetries(this, now);
     this.resumes = new ApplicationResumes(this);
     this.fullForm = new ApplicationFullForm(this);
@@ -159,11 +162,16 @@ class ApplicationService {
     if (!record) {
       return;
     }
+    record.closing = true;
     try {
-      await record.stopFeedback?.();
-      await this.filling.clear(record);
+      try {
+        await record.stopFeedback?.();
+        await this.filling.clear(record);
+      } finally {
+        await record.browser?.close();
+      }
     } finally {
-      await record.browser?.close();
+      record.closing = false;
     }
     this.current = null;
     if (owners.get(this.store) === this) {
@@ -303,6 +311,24 @@ class ApplicationService {
       throw fail('changed');
     }
     return record;
+  }
+  async ownerAttention() {
+    const owner = owners.get(this.store);
+    const record = owner?.current;
+    const notice = await owner?.attention.current(
+      record,
+      () => !owner.stopped && owner.current === record
+    );
+    return { ok: true, attention: notice ? [notice] : [] };
+  }
+  focusAttention(input) {
+    const owner = owners.get(this.store) ?? this;
+    const record = owner.current;
+    return owner.attention.focus(
+      record,
+      () => !owner.stopped && owner.current === record,
+      input
+    );
   }
   status(input) {
     const key = applicationKey(input);
@@ -520,6 +546,8 @@ export const createApplicationService = (options) => {
       // Foreground CLI lifecycle only; HTTP status remains an immediate read.
       'application-batch-drain': () => service.batch.runtime?.work,
       'application-status': (input) => service.status(input),
+      'application-attention': () => service.ownerAttention(),
+      'application-attention-focus': (input) => service.focusAttention(input),
       'application-wait': (input) =>
         input.action === 'stop'
           ? service.limitWait.stop(input)

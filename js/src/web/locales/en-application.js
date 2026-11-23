@@ -1,4 +1,8 @@
 export const enApplication = {
+  'application.attention.waiting':
+    'Complete HeadHunter verification in {slot} to continue.',
+  'application.attention.notification':
+    'A HeadHunter application needs your verification.',
   'application.applyFromVacancyPage':
     'Open the full form from the vacancy page',
   'application.routeHint':

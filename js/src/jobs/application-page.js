@@ -52,6 +52,10 @@ export const applicationDocument = (target, input) => {
   );
   const bound =
     sameVacancy(current) && !current.username && !current.password && !foreign;
+  const challengePresent = () =>
+    nodes(
+      '[data-qa="captcha"], iframe[src*="captcha"], input[name="captcha"], input[data-qa="account-captcha-input"], input[name="captchaText"], .smart-captcha, .g-recaptcha, .h-captcha'
+    ).length > 0;
   const searchDestination = () => {
     if (typeof input.searchUrl !== 'string') {
       return null;
@@ -427,13 +431,15 @@ export const applicationDocument = (target, input) => {
   };
   const snapshot = () => {
     // Detect the boundary before any form value, instructions or HTML read.
+    const challenge = challengePresent();
+    if (input.verificationOnly) {
+      return { bound, documentKey: doc[key], challenge };
+    }
     const metadata = {
       bound,
       url: bound ? current.href : null,
       documentKey: doc[key],
-      challenge: marked(
-        '[data-qa="captcha"], iframe[src*="captcha"], input[name="captcha"], input[data-qa="account-captcha-input"], input[name="captchaText"], .smart-captcha, .g-recaptcha, .h-captcha'
-      ),
+      challenge,
       dailyLimit: marked(
         '[data-qa-popup-error-code="negotiations-limit-exceeded"]'
       ),
@@ -604,6 +610,12 @@ export const readApplicationPage = (browser, url) =>
   browser.commander.evaluate({
     fn: applicationDocument,
     args: [null, { url, selectors: applicationSelectors }],
+  });
+
+export const readApplicationVerification = (browser, url) =>
+  browser.commander.evaluate({
+    fn: applicationDocument,
+    args: [null, { url, verificationOnly: true }],
   });
 
 /** Bind one exact visible element; dispose every other candidate. */

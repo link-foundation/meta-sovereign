@@ -227,6 +227,7 @@ export class ApplicationReview {
     record.letterResume = null;
     record.letter = applicationLetterStatus(record);
     await this.prepare(record, signal);
+    this.service.attention.observe(record, record.page, record.state);
     this.service.holds.observe(record, record.page, record.state);
     observeApplicationResume(record);
     rememberApplicationLocation(record);
@@ -295,6 +296,7 @@ export class ApplicationReview {
     checkPolicy(record, allowHeld);
     await this.service.salary.refresh(record, signal);
     const before = await readPage(record.browser, record.url);
+    this.service.attention.observe(record, before);
     this.service.holds.observe(record, before);
     await this.service.limits.observe(record, before);
     await this.service.pacing.observe(record, signal, before);
