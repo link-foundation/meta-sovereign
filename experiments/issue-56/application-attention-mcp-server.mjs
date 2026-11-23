@@ -10,6 +10,14 @@ const terminal = createInterface({ input: process.stdin });
 let browser;
 let review;
 let closing;
+const showVerification = async () => {
+  await review.owner.evaluate(addApplicationVerification, false);
+  const held = await review.action('read', review.receipt, {
+    browserSlot: 'interview',
+  });
+  review.receipt = held;
+  console.log(JSON.stringify({ verification: held.state }));
+};
 const close = () =>
   (closing ??= (async () => {
     terminal.close();
@@ -39,8 +47,9 @@ try {
     args: ['--disable-dev-shm-usage'],
   });
   review = await openApplicationVerification(browser);
-  await review.owner.evaluate(addApplicationVerification, false);
-  await review.action('read', review.receipt, { browserSlot: 'interview' });
+  if (process.env.HH_MCP_DEFER_VERIFICATION !== '1') {
+    await showVerification();
+  }
   console.log(JSON.stringify({ base: review.fixture.base }));
   for await (const line of terminal) {
     const command = line.trim();
@@ -50,6 +59,9 @@ try {
     if (command === 'release') {
       await review.owner.evaluate(clearApplicationVerification);
       console.log(JSON.stringify({ released: true }));
+    }
+    if (command === 'verify') {
+      await showVerification();
     }
   }
 } finally {

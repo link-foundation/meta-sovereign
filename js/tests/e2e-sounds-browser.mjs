@@ -348,7 +348,10 @@ const playing = async () => {
   await store.put(message(CAT, 'Fake Cat', 5, 'meow'));
   await until(async () => (await notes()) === before + 3, 'Cat notified');
   await until(async () => (await played()).length === 2, 'the chime played');
-  assert((await played())[1].startsWith('blob:'), `chime: ${await played()}`);
+  assert(
+    new URL((await played())[1], base).pathname === '/notification-chime.wav',
+    `chime: ${await played()}`
+  );
 
   // Sounds off in Settings: still notified, nothing played.
   await page.locator('button[data-view="settings"]').click();

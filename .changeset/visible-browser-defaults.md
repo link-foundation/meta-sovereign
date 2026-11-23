@@ -2,6 +2,10 @@
 'meta-sovereign': minor
 ---
 
+Keep Forms and HeadHunter application verification visible across views, focus the exact active browser and defer reminders after confirmed focus. Foreground Forms and HeadHunter application commands expose the active waits and support guarded focus (issue #56, QA24 and HH01).
+
+Play the default notification chime from an audio asset bundled with the local server, Pages, desktop and mobile. The existing media policy permits the same-origin file, and the sound preference works independently of system notifications (issue #56, QA24 and HH01).
+
 Choose a supported assignment template language in Forms, CLI or either Lino encoding. Preserve the reviewed choice through restoration and issued publication recovery (issue #56, QA24).
 
 Draft standalone assignments from pasted instructions or a readable document in Forms, from a text file or stdin in the CLI, or through either Lino encoding. Restore the private review and recover the same repository and issue publication without creating a form association (issue #56, QA24).

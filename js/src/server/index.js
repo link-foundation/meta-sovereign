@@ -213,6 +213,7 @@ const MIME = {
   '.css': 'text/css; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
   '.svg': 'image/svg+xml',
+  '.wav': 'audio/wav',
   '.wasm': 'application/wasm',
 };
 
@@ -304,7 +305,10 @@ const handleStatic = async (req, res, p, cloud) => {
     }
     return serveStatic(req, res, path.join(webRoot, 'index.html'));
   }
-  if (/^\/[a-zA-Z0-9._-]+\.(js|css|svg|wasm)$/.test(p)) {
+  if (
+    p === '/notification-chime.wav' ||
+    /^\/[a-zA-Z0-9._-]+\.(js|css|svg|wasm)$/.test(p)
+  ) {
     return serveStatic(req, res, path.join(webRoot, p.slice(1)));
   }
   for (const [prefix, dir] of BROWSER_MOUNTS) {

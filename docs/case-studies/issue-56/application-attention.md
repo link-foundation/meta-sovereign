@@ -22,4 +22,21 @@ RUN_BROWSER_E2E=1 HH_ATTENTION_ONLY=1 node js/tests/e2e-job-application-policies
 
 ![Settings retains the active HeadHunter verification notice and focus control](../../screenshots/issue-56-hh-attention-after.png)
 
-Manual login, production chime playback, native desktop alerts while the app is closed and authenticated provider verification remain required. HH01 and QA24 remain open. [Evidence archive](data/hh-application-attention.tar.gz) · [Per-file checksums](data/hh-application-attention.tar.sha256.json).
+Manual login, native desktop alerts while the app is closed and authenticated provider verification remain required. HH01 and QA24 remain open. [Evidence archive](data/hh-application-attention.tar.gz) · [Per-file checksums](data/hh-application-attention.tar.sha256.json).
+
+## Play the notification chime through the production policy
+
+Enable notification sound, disable system notifications, interact with Settings, then make the synthetic HeadHunter browser wait for its owner. The parent at `90579d1a` creates a blob URL that the production `media-src` directive blocks. Its real audio element reports media error 4. The browser alert falls silent even though its in-app controls still work.
+
+The shared player now uses the same two-note chime as a same-origin PCM asset. The local server serves it as `audio/wav`, and Pages, desktop and mobile stage the same file. The existing media policy and chat ringtone selections are preserved. A playback refusal now reports `none` to the caller. [Player](../../../js/src/web/notify-sound.js) · [Browser regression](../../../js/tests/helpers/e2e-application-attention-chime.mjs).
+
+- Chromium reports `canplay` and `playing` with a duration of 0.36 seconds and system notifications disabled. Independent Playwright MCP at 390 pixels records `ended`, retains the active notice and records zero private answer reads and zero submissions in the owned fixture. The console records missing optional Telegram routes and favicon, a cache write failure and an event-stream disconnect at shutdown.
+- Node and Deno each pass 50 focused sound, Forms, HeadHunter and media-policy checks. Eight focused Pages and desktop packaging checks pass. Separate mobile and desktop staging runs preserve the asset byte for byte. The existing Chromium sound scenario still retrieves a configured ringtone and plays the default chime.
+
+```sh
+RUN_BROWSER_E2E=1 HH_ATTENTION_CHIME_ONLY=1 node js/tests/e2e-job-application-policies-browser.mjs
+RUN_BROWSER_E2E=1 node js/tests/e2e-sounds-browser.mjs
+node --test --test-concurrency=1 js/tests/build-pages.test.js js/tests/desktop-security-override.test.js
+```
+
+Playback tests observe the browser media element after operator interaction. Platform system sounds and alerts with a closed desktop window still require verification. [Evidence archive](data/notification-chime.tar.gz) · [Per-file checksums](data/notification-chime.tar.sha256.json).

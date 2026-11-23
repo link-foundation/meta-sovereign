@@ -10,6 +10,7 @@ const files = [
   'index.html',
   'app.css',
   'app.min.js',
+  'notification-chime.wav',
   'discovery-shell.js',
   'pattern-worker.js',
   'patterns-wasm.js',

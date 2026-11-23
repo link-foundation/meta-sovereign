@@ -64,6 +64,7 @@ export const DESKTOP_REQUIRED_FILES = Object.freeze([
   'js/src/server/index.js',
   'js/src/web/index.html',
   'js/src/web/app.min.js',
+  'js/src/web/notification-chime.wav',
 ]);
 
 /**

@@ -1,9 +1,15 @@
+2026-11-23 shared notification chime (HH01 and QA24 remain unfinished):
+
+- [x] Reproduce the production media policy rejection with a real audio element on the published parent.
+- [x] Serve the same PCM chime from the app's origin and stage it for Pages, desktop and mobile. Verify real Chromium playback with system notifications disabled, plus the existing chat sound behavior.
+- [ ] Review hosted checks and continue manual login focus and native desktop attention.
+
 2026-11-23 HeadHunter application verification attention (HH01 and QA24 remain unfinished):
 
 - [x] Keep the application’s latched delivery hold independent of the current verification notice. A live challenge check uses bounded DOM markers and never enters the application writer.
 - [x] Route the exact live browser through both Lino formats, the foreground application console and the shared cross-view banner. Refuse stale identity, closed documents and headless focus.
 - [x] Reproduce the missing controls on the published parent and verify the main and nested synthetic challenges in production Chromium and a separate 390-pixel Playwright MCP session.
-- [ ] Review hosted checks. Chromium exposed a Content Security Policy rejection of the shared notification chime. Verify actual playback through the production policy and continue native attention coverage.
+- [ ] Review hosted checks and continue native attention coverage. The separate shared chime change verifies playback through the production policy.
 
 2026-11-23 Forms reminders after browser focus (QA24 and HH01 remain unfinished):
 
