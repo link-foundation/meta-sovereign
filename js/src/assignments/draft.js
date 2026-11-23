@@ -27,6 +27,11 @@ import { assignmentRepositoryReceipt } from '../forms/assignment-repository.js';
 import { writeAnswerKnowledge } from '../automation/question-knowledge.js';
 import { resolveAssignmentVacancy } from './vacancy.js';
 import { resolveAssignmentSource, assignmentOriginal } from './source.js';
+import {
+  saveStandaloneSelection,
+  standaloneAssignment,
+  standaloneDraftSelection,
+} from './standalone.js';
 
 export const ASSIGNMENT_DRAFT_SYSTEM =
   'Restate a test assignment as a public English GitHub issue in your own words. ' +
@@ -83,7 +88,7 @@ const employerNames = (input, vacancy, inspection, source) => {
       'Use at most 20 employer names or aliases.'
     );
   }
-  const inferred = [inspection.title, source?.title]
+  const inferred = [inspection?.title, source?.title]
     .filter(Boolean)
     .flatMap((title) => {
       const prefix = title.split(/[—–|]/u)[0].trim();
@@ -137,8 +142,7 @@ const validateModelDraft = (value, named) => {
   }
 };
 
-const draftTarget = async (store, assignment, input) => {
-  const target = assignmentTarget(input.target);
+const assertNoIssuedAssignment = async (store, assignment, target) => {
   const pending = await store.get(
     await assignmentPublicationId(assignment.id, target)
   );
@@ -148,6 +152,10 @@ const draftTarget = async (store, assignment, input) => {
       'Restore the saved draft and recover its issued publication first.'
     );
   }
+};
+const draftTarget = async (store, assignment, input) => {
+  const target = assignmentTarget(input.target);
+  await assertNoIssuedAssignment(store, assignment, target);
   if (!['public', 'private'].includes(input.visibility)) {
     throw assignmentFailure(
       'input',
@@ -182,15 +190,74 @@ const draftLanguages = (vacancy, languageOverride) => {
   };
 };
 
+const draftContext = async (store, input) => {
+  const standalone = await standaloneAssignment(input);
+  if (!standalone) {
+    return currentAssignmentForDraft(store, input);
+  }
+  const selection = await standaloneDraftSelection(store, standalone.id);
+  return { assignment: standalone, selection };
+};
+
+const assertDraftContext = async (store, context, draft) => {
+  const { inspection, assignment, selection } = context;
+  if (inspection) {
+    const current = await storedFormAssignment(store, inspection.url);
+    if (current?.revision === assignment.revision) {
+      return;
+    }
+  } else {
+    const current = await standaloneDraftSelection(store, assignment.id);
+    await assertNoIssuedAssignment(store, assignment, draft.target);
+    if (current?.draftId === selection?.draftId) {
+      return;
+    }
+  }
+  throw assignmentFailure('changed', 'The assignment changed while drafting.');
+};
+
+const saveDraft = ({ store, signal }, context, draft, employers, source) =>
+  writeAnswerKnowledge(store, async () => {
+    await assertDraftContext(store, context, draft);
+    if ((await readAnswerModel(store)).revision !== draft.modelRevision) {
+      throw assignmentFailure(
+        'changed',
+        'The model settings changed while drafting.'
+      );
+    }
+    signal.throwIfAborted();
+    await store.put({
+      id: draft.id,
+      version: 1,
+      tokens: ['assignment', 'draft'],
+      children: [],
+      draft: globalThis.structuredClone(draft),
+      employers,
+      ...(source ? { source: source.source } : {}),
+    });
+    if (!context.inspection) {
+      await saveStandaloneSelection(store, draft);
+    }
+    await store.flush?.();
+  });
+
+const modelInstructions = (assignment, source) =>
+  assignment.formUrl
+    ? {
+        assignment: assignment.description,
+        linkedInstructions: linkedInstructions(source),
+      }
+    : { assignment: source.source.text };
+const formBinding = (assignment) =>
+  assignment.formUrl ? { formUrl: assignment.formUrl } : {};
+
 export const draftAssignment = async (
   { store, modelRunner, github, readVacancy, readSource, signal },
   input
 ) => {
   const languageOverride = assignmentLanguageOverride(input.languageOverride);
-  const { inspection, assignment } = await currentAssignmentForDraft(
-    store,
-    input
-  );
+  const context = await draftContext(store, input);
+  const { inspection, assignment } = context;
   const target = await draftTarget(store, assignment, input);
   const settings = await readAnswerModel(store);
   if (!settings.enabled || !modelRunner) {
@@ -234,8 +301,7 @@ export const draftAssignment = async (
     system: ASSIGNMENT_DRAFT_SYSTEM,
     schema,
     prompt: JSON.stringify({
-      assignment: assignment.description,
-      linkedInstructions: linkedInstructions(source),
+      ...modelInstructions(assignment, source),
       vacancy,
       employers,
       namedLanguages: named,
@@ -275,7 +341,7 @@ export const draftAssignment = async (
     originalLanguage: result.originalLanguage,
     assignmentId: assignment.id,
     assignmentRevision: assignment.revision,
-    formUrl: assignment.formUrl,
+    ...formBinding(assignment),
     modelRevision: settings.revision,
     ...(source ? { sourceEvidence: source.evidence } : {}),
     vacancyFingerprint: await modelFingerprint(vacancy),
@@ -284,28 +350,6 @@ export const draftAssignment = async (
     templateAction: templateAction(repository, pipeline),
     issueSnapshot: await issueSnapshot(existingIssue),
   };
-  await writeAnswerKnowledge(store, async () => {
-    const current = await storedFormAssignment(store, inspection.url);
-    if (
-      current?.revision !== assignment.revision ||
-      (await readAnswerModel(store)).revision !== settings.revision
-    ) {
-      throw assignmentFailure(
-        'changed',
-        'The assignment or model settings changed while drafting.'
-      );
-    }
-    signal.throwIfAborted();
-    await store.put({
-      id: draft.id,
-      version: 1,
-      tokens: ['assignment', 'draft'],
-      children: [],
-      draft: globalThis.structuredClone(draft),
-      employers,
-      ...(source ? { source: source.source } : {}),
-    });
-    await store.flush?.();
-  });
+  await saveDraft({ store, signal }, context, draft, employers, source);
   return { ok: true, state: 'draft', draft };
 };

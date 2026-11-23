@@ -8,6 +8,10 @@ import { decodeWire } from '../transport/lino.js';
 import { defaultStoreDir } from '../storage/app-directory.js';
 import { loadFormInspection } from './forms-inspection-file.js';
 import { withAnswerModel } from './answer-model-commands.js';
+import {
+  assignmentSourceArguments,
+  readAssignmentCommandText,
+} from './assignment-command-source.js';
 
 export { TEST_ASSIGNMENT_HELP } from './help.js';
 
@@ -20,14 +24,14 @@ const booleanFlag = (args, key) => {
   }
   return [true, 'true'].includes(args[key]);
 };
-const inspect = async (args, reader) => {
-  if (args.file && args.url) {
+const inspect = async (args, { file, url }, reader) => {
+  if (file && url) {
     throw new Error('Choose --file or --url.');
   }
-  return args.file
-    ? loadFormInspection(args.file)
+  return file
+    ? loadFormInspection(file)
     : reader.read({
-        url: args.url,
+        url,
         browserSlot: args['browser-slot'] ?? 'assignment',
         headless:
           args.headless === undefined
@@ -36,17 +40,95 @@ const inspect = async (args, reader) => {
       });
 };
 
+const commandAssignment = async ({
+  args,
+  source,
+  reader,
+  store,
+  signal,
+  stdin,
+}) => {
+  if (source.standalone) {
+    return {
+      standalone: true,
+      ...(source.from !== undefined
+        ? {
+            sourceText: await readAssignmentCommandText(
+              source.from,
+              stdin,
+              signal
+            ),
+          }
+        : {}),
+    };
+  }
+  const inspection = await inspect(args, source, reader);
+  const assignment = await rememberFormAssignment(store, inspection);
+  return { inspection, revision: args.revision ?? assignment?.revision };
+};
+
+const commandDraft = async ({
+  args,
+  source,
+  reader,
+  store,
+  signal,
+  stdin,
+  github,
+  publisher,
+  languageOverride,
+  name,
+}) => {
+  const assignment = await commandAssignment({
+    args,
+    source,
+    reader,
+    store,
+    signal,
+    stdin,
+  });
+  const target = assignmentTarget(
+    name?.includes('/')
+      ? name
+      : `${args.owner ?? (await github.owner())}/${name}`
+  );
+  return (
+    await publisher.draft({
+      ...assignment,
+      target,
+      visibility: args.visibility ?? 'private',
+      vacancyUrl: args.vacancy,
+      sourceUrl: args.source,
+      languageOverride,
+      vacancy: args['vacancy-snapshot']
+        ? decodeWire(args['vacancy-snapshot'])
+        : undefined,
+      refreshVacancy: booleanFlag(args, 'refresh-vacancy'),
+      employers: args.employer ? [args.employer] : [],
+    })
+  ).draft;
+};
+
 export const testAssignmentCommand =
-  ({ openStore, ...options }) =>
+  ({ openStore, assignmentStdin, ...options }) =>
   async (args, log) => {
     const dryRun = booleanFlag(args, 'dry-run');
     const languageOverride = assignmentLanguageOverride(args.language);
+    const source = assignmentSourceArguments(args);
     const name = args._?.[0];
     if (args['draft-id'] && dryRun) {
       throw new Error('Choose --draft-id to recover or --dry-run to draft.');
     }
     if (args['draft-id'] && languageOverride !== undefined) {
       throw new Error('The saved assignment draft already fixes its language.');
+    }
+    if (
+      args['draft-id'] &&
+      (args.from !== undefined || args.source !== undefined)
+    ) {
+      throw new Error(
+        'The saved assignment draft already fixes its instruction source.'
+      );
     }
     if (!args['draft-id']) {
       assignmentTarget(name?.includes('/') ? name : `owner/${name ?? ''}`);
@@ -63,7 +145,9 @@ export const testAssignmentCommand =
           readVacancy: options.readAssignmentVacancy,
           readSource: options.readAssignmentSource,
         });
+        const inputAbort = new AbortController();
         const stop = () => {
+          inputAbort.abort();
           publisher.stop().catch(() => {});
           reader.stop().catch(() => {});
         };
@@ -77,29 +161,18 @@ export const testAssignmentCommand =
             log(JSON.stringify(publication));
             return publication.ok ? 0 : 1;
           }
-          const inspection = await inspect(args, reader);
-          const assignment = await rememberFormAssignment(store, inspection);
-          const target = assignmentTarget(
-            name?.includes('/')
-              ? name
-              : `${args.owner ?? (await github.owner())}/${name}`
-          );
-          const draft = (
-            await publisher.draft({
-              inspection,
-              revision: args.revision ?? assignment?.revision,
-              target,
-              visibility: args.visibility ?? 'private',
-              vacancyUrl: args.vacancy,
-              sourceUrl: args.source,
-              languageOverride,
-              vacancy: args['vacancy-snapshot']
-                ? decodeWire(args['vacancy-snapshot'])
-                : undefined,
-              refreshVacancy: booleanFlag(args, 'refresh-vacancy'),
-              employers: args.employer ? [args.employer] : [],
-            })
-          ).draft;
+          const draft = await commandDraft({
+            args,
+            source,
+            reader,
+            store,
+            signal: inputAbort.signal,
+            stdin: assignmentStdin,
+            github,
+            publisher,
+            languageOverride,
+            name,
+          });
           if (dryRun) {
             log(JSON.stringify({ ok: true, state: 'draft', draft }));
             return 0;

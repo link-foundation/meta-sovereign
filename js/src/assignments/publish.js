@@ -17,14 +17,28 @@ import {
   writePublication,
   assignmentWriteIssued,
 } from './records.js';
+import { assertStandaloneSelection } from './standalone.js';
+
+const assertModelRevision = async (store, draft) => {
+  if ((await readAnswerModel(store)).revision !== draft.modelRevision) {
+    throw assignmentFailure(
+      'changed',
+      'The model settings changed. Review a new draft.'
+    );
+  }
+};
 
 const assertCurrent = async (store, draft, signal) => {
   signal.throwIfAborted();
+  await assertModelRevision(store, draft);
+  if (draft.formUrl === undefined) {
+    await assertStandaloneSelection(store, draft);
+    return { description: '' };
+  }
   const current = await storedFormAssignment(store, draft.formUrl);
   if (
     current?.id !== draft.assignmentId ||
-    current.revision !== draft.assignmentRevision ||
-    (await readAnswerModel(store)).revision !== draft.modelRevision
+    current.revision !== draft.assignmentRevision
   ) {
     throw assignmentFailure(
       'changed',
@@ -174,6 +188,76 @@ const assertPendingDraft = (previous, draft) => {
   }
 };
 
+const recoverVerified = async (store, signal, draft, previous) => {
+  if (draft.formUrl === undefined) {
+    signal.throwIfAborted();
+    await assertStandaloneSelection(store, draft);
+    await store.flush?.();
+    return previous.result;
+  }
+  const association = await storedFormAssignment(store, draft.formUrl);
+  if (
+    association?.revision === previous.result.assignment.revision &&
+    association.repository?.id === previous.result.repository.id
+  ) {
+    return previous.result;
+  }
+  // A confirmed publication may outlive a failed final local association write.
+  return writeAnswerKnowledge(store, async () => {
+    const latest = await assertCurrent(store, draft, signal);
+    await store.put({
+      ...latest,
+      revision: previous.result.assignment.revision,
+      repository: previous.result.repository,
+    });
+    await store.flush?.();
+    return previous.result;
+  });
+};
+
+const saveVerifiedPublication = (
+  { store, signal, id },
+  draft,
+  repository,
+  issue
+) =>
+  writeAnswerKnowledge(store, async () => {
+    const latest = await assertCurrent(store, draft, signal);
+    const result = {
+      ok: true,
+      state: 'verified',
+      draftId: draft.id,
+      repository,
+      issue,
+    };
+    const next =
+      draft.formUrl === undefined
+        ? null
+        : {
+            ...latest,
+            revision: globalThis.crypto.randomUUID(),
+            repository,
+          };
+    if (next) {
+      result.assignment = assignmentState(next);
+    }
+    await store.put({
+      id,
+      version: 1,
+      tokens: ['assignment', 'publication'],
+      children: [],
+      ...(await store.get(id)),
+      stage: 'verified',
+      draftId: draft.id,
+      result,
+    });
+    if (next) {
+      await store.put(next);
+    }
+    await store.flush?.();
+    return result;
+  });
+
 export const publishAssignment = async ({ store, github, signal }, input) => {
   const { draft, employers, source } = await readAssignmentDraft(
     store,
@@ -183,24 +267,7 @@ export const publishAssignment = async ({ store, github, signal }, input) => {
   const previous = await store.get(id);
   assertPendingDraft(previous, draft);
   if (previous?.stage === 'verified' && previous.draftId === draft.id) {
-    const association = await storedFormAssignment(store, draft.formUrl);
-    if (
-      association?.revision === previous.result.assignment.revision &&
-      association.repository?.id === previous.result.repository.id
-    ) {
-      return previous.result;
-    }
-    // A confirmed publication may outlive a failed final local association write.
-    return writeAnswerKnowledge(store, async () => {
-      const latest = await assertCurrent(store, draft, signal);
-      await store.put({
-        ...latest,
-        revision: previous.result.assignment.revision,
-        repository: previous.result.repository,
-      });
-      await store.flush?.();
-      return previous.result;
-    });
+    return recoverVerified(store, signal, draft, previous);
   }
   const current = await assertCurrent(store, draft, signal);
   checkAssignmentRestatement({
@@ -224,35 +291,7 @@ export const publishAssignment = async ({ store, github, signal }, input) => {
   try {
     const repository = await ensureRepository(context, draft);
     const issue = issueReceipt(await ensureIssue(context, draft), draft.target);
-    return await writeAnswerKnowledge(store, async () => {
-      const latest = await assertCurrent(store, draft, signal);
-      const next = {
-        ...latest,
-        revision: globalThis.crypto.randomUUID(),
-        repository,
-      };
-      const result = {
-        ok: true,
-        state: 'verified',
-        draftId: draft.id,
-        repository,
-        issue,
-        assignment: assignmentState(next),
-      };
-      await store.put({
-        id,
-        version: 1,
-        tokens: ['assignment', 'publication'],
-        children: [],
-        ...(await store.get(id)),
-        stage: 'verified',
-        draftId: draft.id,
-        result,
-      });
-      await store.put(next);
-      await store.flush?.();
-      return result;
-    });
+    return await saveVerifiedPublication(context, draft, repository, issue);
   } catch (error) {
     const ledger = await store.get(id);
     if (ledger) {

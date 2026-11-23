@@ -8,6 +8,7 @@ import {
 import { checkSavedAssignmentSource } from './source.js';
 import { assignmentFormUrl } from '../forms/assignment-recognition.js';
 import { ASSIGNMENT_LANGUAGES } from './templates.js';
+import { standaloneAssignmentId } from './standalone.js';
 
 export const assignmentWriteIssued = (record) =>
   Boolean(
@@ -65,12 +66,22 @@ export const issueSnapshot = async (issue) =>
 const uuid = (value) =>
   typeof value === 'string' &&
   /^[a-f\d]{8}(?:-[a-f\d]{4}){3}-[a-f\d]{12}$/u.test(value);
+const validAssignmentIdentity = async (draft) => {
+  if (draft.formUrl === undefined) {
+    return (
+      Boolean(draft.sourceEvidence) &&
+      draft.assignmentId === (await standaloneAssignmentId(draft.target))
+    );
+  }
+  return (
+    /^form-assignment:[a-f\d]{64}$/u.test(draft.assignmentId) &&
+    assignmentFormUrl(draft.formUrl) === draft.formUrl
+  );
+};
 const validDraftBinding = (draft) =>
-  /^form-assignment:[a-f\d]{64}$/u.test(draft.assignmentId) &&
   uuid(draft.assignmentRevision) &&
   uuid(draft.modelRevision) &&
   Number.isFinite(Date.parse(draft.createdAt)) &&
-  assignmentFormUrl(draft.formUrl) === draft.formUrl &&
   ['private', 'public'].includes(draft.visibility) &&
   Object.hasOwn(ASSIGNMENT_LANGUAGES, draft.language) &&
   (draft.languageOverride === undefined ||
@@ -91,7 +102,8 @@ export const readAssignmentDraft = async (store, id) => {
     record.draft?.id !== id ||
     !Array.isArray(record.employers) ||
     record.employers.length > 23 ||
-    !validDraftBinding(record.draft)
+    !validDraftBinding(record.draft) ||
+    !(await validAssignmentIdentity(record.draft))
   ) {
     throw assignmentFailure(
       'draft',

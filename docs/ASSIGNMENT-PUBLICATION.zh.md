@@ -12,6 +12,8 @@
 
 在**模板语言**中选择受支持的语言。预览会显示你的选择和对应模板。更改选择后需重新生成预览。恢复草稿时会恢复所选语言，恢复发布也会沿用该语言。默认根据职位或任务选择。
 
+如果任务指令来自表单之外，在「表单」中打开**根据任务说明起草**。填写目标仓库，再粘贴说明或填写可读文档的 URL。使用同一面板审阅和发布。输入同一目标即可恢复最新草稿。粘贴文字随私有草稿保存，恢复后可再次审阅。回执确认仓库和 issue。表单关联在相应表单的审阅流程中处理。
+
 本地保守检查覆盖英文表述、已知雇主名称及词形/音译，以及两个来源（包括文档标题）中的连续六词复制。请自行核对准确性及系统无法推断的别名。书面任务 issue 保留 **Deliverable and stack** 和末尾 **Stack**：要求在 `docs/` 中以原始语言编写 Markdown、遵守篇幅限制、提出合适技术栈，并在 README 链接结果。发布确认仓库、workflow 文件和 issue 回读结果，不代表任务已实现、CI 已通过或雇主表单已提交。
 
 ## CLI
@@ -27,6 +29,8 @@ meta-sovereign test-assignment --draft-id=assignment-draft:UUID --store=./store
 
 仅提供名称时解析当前已登录所有者，也可指定 `--owner`。默认私有。`--dry-run` 保存并打印预览，否则 CLI 发布生成的草稿。通过 `--draft-id` 恢复打印出的准确 `draft.id`，不会再次运行模型。可用有界 Lino `--vacancy-snapshot` 提供 `title`、`description`、`company`、`skills`，与职位 URL 二选一。`--refresh-vacancy=true` 重新读取 URL。SIGINT/SIGTERM 会停止并等待所属模型、浏览器和命令工作结束，然后关闭存储。
 
+`--from=<form-url>` 等同于 `--url`。`--from=<file>` 或通过管道传入的 `--from=-` 读取至多 30,000 字符的 UTF-8 说明。单独使用 `--source` 会选择独立文档，与表单同时使用时会记录关联文档。
+
 ## API 和恢复
 
 可信 POST 接口使用现有文本/二进制 Lino 协商：
@@ -36,6 +40,8 @@ meta-sovereign test-assignment --draft-id=assignment-draft:UUID --store=./store
 | `/api/forms/assignment/draft`   | `inspection`、当前任务 `revision`、`target`、`visibility`；可选 `vacancyUrl`/`vacancy`、`sourceUrl`、`languageOverride`、`refreshVacancy`、`employers` | 私有 `draft`、可选 `sourceEvidence` 和 `languageOverride`、`state: draft` |
 | `/api/forms/assignment/restore` | `inspection`、当前任务 `revision`                                                                                                                      | 已保存草稿及是否尝试发布；无 GitHub/模型调用                              |
 | `/api/forms/assignment/publish` | `draftId`                                                                                                                                              | 已确认的仓库、issue 和新任务修订，或保留 `uncertain` 阶段                 |
+
+独立草稿在相同接口传入 `standalone: true`、`target`、`visibility`，以及 `sourceText` 或 `sourceUrl` 其中一项。传入 `standalone: true` 和 `target` 可恢复草稿、发布尝试状态和粘贴文字。用 `draftId` 发布后可确认仓库和 issue。私有 `standalone-assignment:` 记录保存每个目标的最新草稿选择。
 
 发出外部写入前，先将私有意图持久化。响应丢失会保持不确定状态及表单暂停。恢复同一次发布会检查实际标识和标记 issue 的回读，不重复结果未知的创建操作。重新打开表单后读取并规划，恢复保存的草稿，再恢复该草稿的发布。任务/模型变更、另一待处理草稿、仓库重建或用户编辑 issue 会拒绝过期发布。没有明确确认的结果仍需人工检查。
 

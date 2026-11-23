@@ -1,4 +1,9 @@
 export const zhAssignment = {
+  'assignment.standalone': '根据任务说明起草',
+  'assignment.standalone-hint':
+    '粘贴任务说明或填写文档网址，然后在发布前审阅英文议题。',
+  'assignment.instructions-text': '任务说明',
+  'assignment.instructions-pasted': '使用的说明：粘贴的文字',
   'assignment.language': '模板语言',
   'assignment.language-auto': '根据职位或任务选择',
   'assignment.language-owner': '你选择的语言：{language}',

@@ -1,3 +1,10 @@
+2026-11-23 standalone assignment inputs (QA24 remains unfinished):
+
+- [x] Read the pinned assignment CLI and requirements B16–B22. Its `--from` accepts a selected form URL, a text file or stdin. The current command only identifies form inspections, so files and stdin never reach the shared reviewed publisher.
+- [x] Give owner-provided instructions their own saved draft and recovery identity. Reuse the existing publication pipeline, preserve the form path and verify both Lino encodings and the shared Forms controls.
+- [x] Reproduce six failures and one passing form control on the exact published parent. Pass 110 focused checks in each runtime, all four production Chromium scenarios and independent Playwright MCP. Capture the private review, lost issue response and confirmed readback with zero employer submissions.
+- [ ] Review hosted checks for the exact published source. Vacancy IDs, active form-slot input, other document formats, handoff, notifications and authenticated use remain required.
+
 2026-11-23 assignment language selection (QA24 remains unfinished):
 
 - [x] Compare the pinned HeadHunter assignment command and current Hive Mind template catalog. The shared publisher selects from the vacancy/model and omits the donor's explicit language option.

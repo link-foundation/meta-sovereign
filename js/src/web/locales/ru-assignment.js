@@ -1,4 +1,10 @@
 export const ruAssignment = {
+  'assignment.standalone': 'Подготовить черновик из инструкций',
+  'assignment.standalone-hint':
+    'Вставьте инструкции или укажите URL документа, затем проверьте задачу на английском перед публикацией.',
+  'assignment.instructions-text': 'Инструкции к заданию',
+  'assignment.instructions-pasted':
+    'Использованные инструкции: вставленный текст',
   'assignment.language': 'Язык шаблона',
   'assignment.language-auto': 'По вакансии или заданию',
   'assignment.language-owner': 'Ваш выбор: {language}',

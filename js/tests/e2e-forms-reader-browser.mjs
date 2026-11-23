@@ -1,5 +1,10 @@
 import { verifyFormCaptchaUi } from './helpers/e2e-form-captcha.mjs';
 import { verifyAssignmentPublicationUi } from './helpers/e2e-assignment-publication.mjs';
+import {
+  verifyStandaloneAssignmentUi,
+  standaloneTarget,
+  standaloneInstructions,
+} from './helpers/e2e-assignment-standalone.mjs';
 import { verifyAssignmentSourceDocument } from './helpers/e2e-assignment-source-document.mjs';
 import { assignmentPublisherFixture } from '../../experiments/issue-56/assignment-publisher-fixture.mjs';
 import {
@@ -77,18 +82,36 @@ const owned = [];
 const sourceReads = [];
 const modelCalls = [];
 const publication = await assignmentPublisherFixture();
+const standalonePublication = await assignmentPublisherFixture();
 publication.modelRunner = withAssignmentSourceModel(publication.modelRunner);
 const formModel = modelRunnerFixture(modelCalls);
-const writeAssignmentIssue = publication.github.writeIssue;
-let loseAssignmentIssueResponse = true;
-publication.github.writeIssue = async (...args) => {
-  const issue = await writeAssignmentIssue(...args);
-  if (loseAssignmentIssueResponse) {
-    loseAssignmentIssueResponse = false;
-    throw new Error('Synthetic lost issue response');
-  }
-  return issue;
-};
+for (const { github } of [publication, standalonePublication]) {
+  const writeIssue = github.writeIssue;
+  let loseResponse = true;
+  github.writeIssue = async (...args) => {
+    const issue = await writeIssue(...args);
+    if (loseResponse) {
+      loseResponse = false;
+      throw new Error('Synthetic lost issue response');
+    }
+    return issue;
+  };
+}
+const assignmentGithub = Object.fromEntries(
+  Object.keys(publication.github).map((operation) => [
+    operation,
+    (first, ...rest) => {
+      const target = typeof first === 'string' ? first : first?.target;
+      const env =
+        target === standaloneTarget ? standalonePublication : publication;
+      return env.github[operation](first, ...rest);
+    },
+  ])
+);
+const assignmentModel = (input) =>
+  JSON.parse(input.prompt).assignment === standaloneInstructions
+    ? standalonePublication.modelRunner(input)
+    : publication.modelRunner(input);
 let app;
 try {
   app = await openChatApp('forms-reader', {
@@ -97,7 +120,7 @@ try {
       answerModel: {
         draft: (input) =>
           input.schema.properties.deliverable
-            ? publication.modelRunner(input)
+            ? assignmentModel(input)
             : formModel(input),
         stop: async () => {},
       },
@@ -107,7 +130,7 @@ try {
           browser: () => app.page.context().browser(),
           records: sourceReads,
         }),
-        assignmentGithub: publication.github,
+        assignmentGithub,
         verifyAssignmentRepository: verifyAssignmentFixture,
         review: {
           learn: process.env.FORMS_LEARNING_BEFORE !== '1',
@@ -335,6 +358,7 @@ const formGroups = {
     verifyFormAssignmentUi,
     verifyAssignmentSourceDocument,
     verifyAssignmentPublicationUi,
+    verifyStandaloneAssignmentUi,
   ],
   'forms-learning': [
     verifyFormJournalUi,
@@ -368,6 +392,7 @@ const runFormChecks = async (checks) => {
       store,
       modelCalls,
       publication,
+      standalonePublication,
       sourceReads,
     });
     console.log('[forms-scenario]', verify.name, Date.now() - started);
@@ -407,6 +432,7 @@ const verifyCustomOnly = async ({ page, until }) => {
     ['QUESTIONNAIRE_LEARNING', verifyFormQuestionnaireLearningUi],
     ['QUESTIONNAIRE', verifyFormQuestionnaireUi],
     ['PUBLICATION', verifyAssignmentPublicationUi],
+    ['STANDALONE', verifyStandaloneAssignmentUi],
     ['ASSIGNMENT', verifyFormAssignmentUi],
     ['CAPTCHA', verifyFormCaptchaUi],
     ['AUTOMATIC', verifyFormAutomaticUi],
@@ -426,6 +452,7 @@ const verifyCustomOnly = async ({ page, until }) => {
       store,
       modelCalls,
       publication,
+      standalonePublication,
       sourceReads,
     });
     return true;
@@ -632,6 +659,7 @@ await app.finish(async () => {
       .waitFor();
   } finally {
     await publication.publisher.stop();
+    await standalonePublication.publisher.stop();
     await fixture.close();
   }
 });

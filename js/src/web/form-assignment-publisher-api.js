@@ -9,6 +9,11 @@ import {
   ASSIGNMENT_LANGUAGES,
   assignmentLanguageOverride,
 } from '../assignments/templates.js';
+import {
+  PROVIDED_ASSIGNMENT_SCOPE,
+  providedAssignmentFingerprint,
+} from '../assignments/source.js';
+import { standaloneAssignmentId } from '../assignments/standalone.js';
 
 const unconfirmed = () =>
   Object.assign(new Error('The assignment result was not confirmed.'), {
@@ -19,27 +24,53 @@ const uuid = (value) =>
   /^[a-f\d]{8}(?:-[a-f\d]{4}){3}-[a-f\d]{12}$/u.test(value);
 const publicText = (value, limit) =>
   typeof value === 'string' && Boolean(value.trim()) && value.length <= limit;
-const validSource = (evidence, url) => {
+const validSourceBinding = (evidence) =>
+  typeof evidence?.capturedAt === 'string' &&
+  evidence.capturedAt.length <= 40 &&
+  Number.isFinite(Date.parse(evidence.capturedAt)) &&
+  typeof evidence.fingerprint === 'string' &&
+  /^[a-f\d]{64}$/u.test(evidence.fingerprint);
+const validSource = async (evidence, { sourceUrl: url, sourceText: text }) => {
+  if (text !== undefined) {
+    return (
+      validSourceBinding(evidence) &&
+      evidence.scope === PROVIDED_ASSIGNMENT_SCOPE &&
+      evidence.url === undefined &&
+      evidence.requestedUrl === undefined &&
+      evidence.fingerprint === (await providedAssignmentFingerprint(text))
+    );
+  }
   if (url === undefined) {
     return evidence === undefined;
   }
   return (
-    evidence?.requestedUrl === assignmentSourceUrl(url) &&
+    validSourceBinding(evidence) &&
+    evidence.requestedUrl === assignmentSourceUrl(url) &&
     evidence.url === assignmentSourceUrl(evidence.url) &&
     typeof evidence.title === 'string' &&
     evidence.title.length <= 500 &&
-    typeof evidence.capturedAt === 'string' &&
-    evidence.capturedAt.length <= 40 &&
-    Number.isFinite(Date.parse(evidence.capturedAt)) &&
-    evidence.scope === 'visible-document-text' &&
-    /^[a-f\d]{64}$/u.test(evidence.fingerprint)
+    evidence.scope === 'visible-document-text'
   );
 };
 const validLanguage = (draft, requested) =>
   Object.hasOwn(ASSIGNMENT_LANGUAGES, draft.language) &&
   draft.languageOverride === requested &&
   (requested === undefined || requested === draft.language);
-const validDraft = (draft, input) => {
+const validDraftIdentity = async (draft, input) => {
+  if (input.standalone === true) {
+    return (
+      draft.formUrl === undefined &&
+      Boolean(draft.sourceEvidence) &&
+      uuid(draft.assignmentRevision) &&
+      draft.assignmentId === (await standaloneAssignmentId(input.target))
+    );
+  }
+  return (
+    draft.formUrl === assignmentFormUrl(input.inspection.url) &&
+    draft.assignmentRevision === input.revision
+  );
+};
+const validDraft = async (draft, input) => {
   if (
     draft?.vacancyEvidence?.url &&
     assignmentVacancyUrl(draft.vacancyEvidence.url) !==
@@ -49,18 +80,17 @@ const validDraft = (draft, input) => {
   }
   return (
     draft?.target === input.target &&
-    validSource(draft.sourceEvidence, input.sourceUrl) &&
+    (await validDraftIdentity(draft, input)) &&
+    (await validSource(draft.sourceEvidence, input)) &&
     validLanguage(draft, input.languageOverride) &&
     draft.visibility === input.visibility &&
-    draft.formUrl === assignmentFormUrl(input.inspection.url) &&
-    draft.assignmentRevision === input.revision &&
     publicText(draft.title, 200) &&
     publicText(draft.body, 24000) &&
     ['live', 'fallback'].includes(draft.catalogSource) &&
     ['create', 'merge', 'keep'].includes(draft.templateAction)
   );
 };
-const confirmedDraft = (result, input) => {
+const confirmedDraft = async (result, input) => {
   const draft = result?.draft;
   if (
     result?.ok !== true ||
@@ -68,7 +98,7 @@ const confirmedDraft = (result, input) => {
     !/^assignment-draft:[a-f\d]{8}(?:-[a-f\d]{4}){3}-[a-f\d]{12}$/u.test(
       draft?.id
     ) ||
-    !validDraft(draft, input)
+    !(await validDraft(draft, input))
   ) {
     throw unconfirmed();
   }
@@ -94,11 +124,20 @@ export const restoreFormAssignment = async (report, input) => {
   if (typeof result?.attempted !== 'boolean') {
     throw unconfirmed();
   }
+  const target = result.draft?.target;
+  if (
+    input.standalone === true &&
+    assignmentTarget(target).toLowerCase() !==
+      assignmentTarget(input.target).toLowerCase()
+  ) {
+    throw unconfirmed();
+  }
   return confirmedDraft(result, {
     ...input,
-    target: result.draft?.target,
+    target,
     visibility: result.draft?.visibility,
     sourceUrl: result.draft?.sourceEvidence?.requestedUrl,
+    sourceText: result.sourceText,
     languageOverride: result.draft?.languageOverride,
   });
 };
@@ -109,6 +148,11 @@ const validAssociation = (assignment, draft) =>
   uuid(assignment.revision) &&
   assignment.revision !== draft.assignmentRevision &&
   assignmentRepositoryConfirmed(assignment.repository, draft.target);
+const validPublishedAssignment = (result, draft) =>
+  draft.formUrl === undefined
+    ? result.assignment === undefined
+    : validAssociation(result.assignment, draft) &&
+      result.assignment.repository.id === result.repository.id;
 const validIssue = (issue, draft) =>
   Number.isSafeInteger(issue?.number) &&
   issue.number > 0 &&
@@ -129,14 +173,12 @@ export const publishFormAssignment = async (report, draft) => {
   ) {
     return result;
   }
-  const assignment = result?.assignment;
   const issue = result?.issue;
   if (
     result?.ok !== true ||
     result.state !== 'verified' ||
     !assignmentRepositoryConfirmed(result.repository, draft.target) ||
-    !validAssociation(assignment, draft) ||
-    assignment.repository.id !== result.repository.id ||
+    !validPublishedAssignment(result, draft) ||
     !validIssue(issue, draft)
   ) {
     throw unconfirmed();

@@ -4,6 +4,8 @@
 
 Choose a supported assignment template language in Forms, CLI or either Lino encoding. Preserve the reviewed choice through restoration and issued publication recovery (issue #56, QA24).
 
+Draft standalone assignments from pasted instructions or a readable document in Forms, from a text file or stdin in the CLI, or through either Lino encoding. Restore the private review and recover the same repository and issue publication without creating a form association (issue #56, QA24).
+
 Open saved HeadHunter web conversations in Chat with a receipt-checked native send. Retain pending messages when delivery is uncertain, and use provider unread counts and filters in Chat and Operator (issue #56, HH09).
 
 Read saved conversations and send explicitly confirmed drafts from the CLI through text or binary Lino. Reject changed drafts that reuse an existing send ID (issue #56, HH09/QA20).

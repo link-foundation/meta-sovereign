@@ -4,6 +4,12 @@ import {
   assignmentSourceUrl,
   assignmentText,
 } from './validation.js';
+export const PROVIDED_ASSIGNMENT_SCOPE = 'owner-provided-text';
+const validCapture = (value) =>
+  typeof value === 'string' &&
+  value.length <= 40 &&
+  Number.isFinite(Date.parse(value));
+
 export const assignmentOriginal = (assignment, source) =>
   [assignment.description, source?.title, source?.text]
     .filter(Boolean)
@@ -17,9 +23,7 @@ export const assignmentSourceReceipt = async (value, requestedUrl) => {
     value.blocked ||
     value.scope !== 'visible-document-text' ||
     value.requestedUrl !== assignmentSourceUrl(requestedUrl) ||
-    typeof value.capturedAt !== 'string' ||
-    value.capturedAt.length > 40 ||
-    !Number.isFinite(Date.parse(value.capturedAt))
+    !validCapture(value.capturedAt)
   ) {
     throw assignmentFailure(
       'source-unreadable',
@@ -49,11 +53,50 @@ export const assignmentSourceReceipt = async (value, requestedUrl) => {
   };
 };
 
+export const providedAssignmentText = (text) =>
+  assignmentText(text, 30000, 'assignment instructions');
+
+export const providedAssignmentFingerprint = (text) =>
+  modelFingerprint([PROVIDED_ASSIGNMENT_SCOPE, providedAssignmentText(text)]);
+
+const providedAssignmentSource = async (value, capturedAt) => {
+  if (!validCapture(capturedAt)) {
+    throw assignmentFailure(
+      'source-changed',
+      'The instruction capture time is invalid.'
+    );
+  }
+  const text = providedAssignmentText(value);
+  const provenance = { scope: PROVIDED_ASSIGNMENT_SCOPE, capturedAt };
+  return {
+    source: { ...provenance, text },
+    evidence: {
+      ...provenance,
+      fingerprint: await providedAssignmentFingerprint(text),
+    },
+  };
+};
+
 export const resolveAssignmentSource = async (
   { readSource, signal },
   input
 ) => {
+  if (input.sourceText !== undefined) {
+    if (!input.standalone || input.sourceUrl !== undefined) {
+      throw assignmentFailure(
+        'input',
+        'Use one standalone instruction source.'
+      );
+    }
+    return providedAssignmentSource(input.sourceText, new Date().toISOString());
+  }
   if (input.sourceUrl === undefined) {
+    if (input.standalone) {
+      throw assignmentFailure(
+        'input',
+        'Provide instructions or a readable document URL.'
+      );
+    }
     return null;
   }
   const url = assignmentSourceUrl(input.sourceUrl);
@@ -66,14 +109,18 @@ export const checkSavedAssignmentSource = async (record) => {
   if (!record.source && !record.draft.sourceEvidence) {
     return;
   }
-  const { evidence } = await assignmentSourceReceipt(
-    record.source,
-    record.draft.sourceEvidence?.requestedUrl
-  );
   const saved = record.draft.sourceEvidence;
+  const { evidence } =
+    record.source?.scope === PROVIDED_ASSIGNMENT_SCOPE
+      ? await providedAssignmentSource(
+          record.source.text,
+          record.source.capturedAt
+        )
+      : await assignmentSourceReceipt(record.source, saved?.requestedUrl);
   if (
     !saved ||
     evidence.fingerprint !== saved.fingerprint ||
+    evidence.requestedUrl !== saved.requestedUrl ||
     evidence.url !== saved.url ||
     evidence.title !== saved.title ||
     evidence.capturedAt !== saved.capturedAt ||

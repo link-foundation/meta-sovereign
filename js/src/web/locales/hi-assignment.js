@@ -1,4 +1,9 @@
 export const hiAssignment = {
+  'assignment.standalone': 'असाइनमेंट निर्देशों से ड्राफ़्ट बनाएँ',
+  'assignment.standalone-hint':
+    'निर्देश चिपकाएँ या दस्तावेज़ का URL दें, फिर प्रकाशन से पहले अंग्रेज़ी इश्यू की समीक्षा करें।',
+  'assignment.instructions-text': 'असाइनमेंट के निर्देश',
+  'assignment.instructions-pasted': 'प्रयुक्त निर्देश: चिपकाया गया पाठ',
   'assignment.language': 'टेम्पलेट की भाषा',
   'assignment.language-auto': 'रिक्ति या असाइनमेंट के आधार पर',
   'assignment.language-owner': 'आपकी चुनी हुई भाषा: {language}',

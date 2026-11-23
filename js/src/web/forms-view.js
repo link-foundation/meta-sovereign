@@ -14,6 +14,7 @@ import { FormReviewJournal } from './form-review-journal.js';
 import { FormResumeSettings } from './form-resume-settings.js';
 import { FormModelSettings } from './answer-model-settings.js';
 import { FormAssignmentControl } from './form-assignment.js';
+import { StandaloneAssignmentPublisher } from './form-assignment-publisher.js';
 export { downloadFormReport } from './form-report-download.js';
 
 const el = React.createElement;
@@ -415,6 +416,13 @@ export const FormsView = ({ api = defaultApi }) => {
         reading,
         capability,
         read,
+      }),
+      el(StandaloneAssignmentPublisher, {
+        key: 'standalone-assignment',
+        available: capability?.assignmentPublish === true,
+        api,
+        busy,
+        setBusy,
       }),
       error
         ? el(

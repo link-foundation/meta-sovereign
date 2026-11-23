@@ -109,6 +109,17 @@ export const ownedVacancySnapshot = async ({
   return saved;
 };
 
+const findAssociatedVacancy = async (store, formUrl) => {
+  if (!formUrl) {
+    return null;
+  }
+  const previous = await storedAssignmentVacancy(store, formUrl);
+  return (
+    (await rememberAssignmentVacancy(store, previous?.aliases ?? [formUrl])) ??
+    previous
+  );
+};
+
 export const resolveAssignmentVacancy = async (
   { store, readVacancy, signal },
   input,
@@ -129,15 +140,9 @@ export const resolveAssignmentVacancy = async (
   if (input.vacancy !== undefined) {
     return { vacancy: assignmentVacancy(input.vacancy), source: 'provided' };
   }
-  const previous = input.vacancyUrl
-    ? null
-    : await storedAssignmentVacancy(store, inspection.url);
   const associated = input.vacancyUrl
     ? null
-    : ((await rememberAssignmentVacancy(
-        store,
-        previous?.aliases ?? [inspection.url]
-      )) ?? previous);
+    : await findAssociatedVacancy(store, inspection?.url);
   const value = input.vacancyUrl ?? associated?.vacancyUrl;
   if (!value) {
     return { vacancy: assignmentVacancy(), source: 'unknown' };

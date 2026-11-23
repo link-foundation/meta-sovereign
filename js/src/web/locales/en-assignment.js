@@ -1,4 +1,9 @@
 export const enAssignment = {
+  'assignment.standalone': 'Draft from assignment instructions',
+  'assignment.standalone-hint':
+    'Paste the instructions or enter a document URL, then review the English issue before publishing.',
+  'assignment.instructions-text': 'Assignment instructions',
+  'assignment.instructions-pasted': 'Instructions used: pasted text',
   'assignment.title': 'Publish an assignment repository',
   'assignment.hint':
     'Use the configured local model to draft an English issue without employer names. Review its requirements, stack, template and visibility before publishing. A vacancy link opens a separate browser; saved HH chat links can supply it automatically.',
