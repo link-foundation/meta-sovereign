@@ -1152,16 +1152,9 @@ jobs:
           mkdir -p ci-logs
           set -o pipefail
           bash experiments/issue-56/runner-docker-hosted.sh 2>&1 | tee ci-logs/runner-docker-hosted.log
-      - name: Verify native Screen startup without Node or npm on PATH
+      - name: Verify native Screen dependency preparation
         if: runner.os == 'Linux'
-        run: |
-          set -o pipefail
-          node experiments/issue-56/runner-node-local.mjs 2>&1 | tee ci-logs/runner-docker-private-node.log
-      - name: Verify private npm preparation with the existing application Node
-        if: runner.os == 'Linux'
-        run: |
-          set -o pipefail
-          node experiments/issue-56/runner-node-local.mjs --node-on-path 2>&1 | tee ci-logs/runner-docker-private-npm.log
+        run: bash experiments/issue-56/runner-dependency-hosted.sh
       - name: Preserve remote runner diagnostics
         if: always() && runner.os == 'Linux'
         uses: actions/upload-artifact@v7.0.2

@@ -157,6 +157,13 @@ The Linux hosted job now checks both the clean PATH and the preinstalled Node.js
 cases. Hosted acceptance and the remaining application closure still need
 verification for VD01.
 
+The 1,500-line source gate reports 1,503 lines in the parent release workflow.
+The Linux job delegates both scenarios to one helper and retains the separate
+diagnostics. The shell contract verifies both success paths and confirms that
+each command failure still fails the job with its original status.
+[Hosted helper](../../../experiments/issue-56/runner-dependency-hosted.sh) ·
+[Shell contract](../../../experiments/issue-56/check-runner-dependency-hosted.py)
+
 [Source and native npm preparation evidence](data/runner-npm-preparation.tar.gz) ·
 [Hash manifest](data/runner-npm-preparation.tar.sha256.json)
 
