@@ -58,6 +58,8 @@ For a standalone draft, pass `standalone: true`, `target`, `visibility` and exac
 
 Writes flush private intent before issue. Lost responses stay uncertain and keep the form held. **Recover the same publication** checks actual identity and marked-issue readback without repeating unknown creations. After reopening the form, read/plan it and choose **Restore saved draft after reopening**, then recover that draft. A changed assignment/model, another pending draft, recreated repository or owner-edited issue refuses stale publication. Unknown outcomes without a positive receipt remain unresolved for manual inspection.
 
+After successful publication, the Forms review links to both the repository and its confirmed issue. Reading and planning the same assignment again restores both links from the saved receipt. The CLI `forms-plan` and both Lino encodings expose the issue in `planning.assignment.issue`. The employer's link field still gets the repository URL. Complete and review the assignment before submitting. A manually verified repository has only its URL. Changed instructions require a new review.
+
 Private version-1 namespaces are `assignment-draft:` (reviewed prose/context), `assignment-publication:` (issued effects/receipts), `assignment-vacancy:` (successful snapshots) and `form-vacancy:` (exact aliases and HH message provenance). Existing record shapes are unchanged. These records can contain private assignment and vacancy text; ordinary backup/storage policy applies. Optional identifier/state tracing uses the existing default-off question diagnostics.
 
 See [implementation and verification evidence](case-studies/issue-56/assignment-publication.md). Complete provider workflows and the other open requirements in issue 56 remain unfinished.

@@ -7,6 +7,7 @@ import {
 } from './e2e-form-review.mjs';
 import { seedAssignmentAnswers } from '../../../experiments/issue-56/forms-assignment-fixture.mjs';
 import { readAnswerModel } from '../../src/automation/answer-model-config.js';
+import { verifyAssignmentHandoff } from './e2e-assignment-handoff.mjs';
 import { encodeWire, LINO_TEXT } from '../../src/transport/lino.js';
 import { instructionText } from '../../../experiments/issue-56/assignment-source-fixture.mjs';
 import {
@@ -483,7 +484,7 @@ export const verifyAssignmentPublicationUi = async ({
     'specific result field gets published repository'
   );
   assert(fixture.submits === 0, 'publication never submits the employer form');
-  await closeFormReview(page, until, 'publication review closed');
+  await verifyAssignmentHandoff({ page, url, until, recovered, publication });
   console.log(
     '[assignment-publication]',
     JSON.stringify({

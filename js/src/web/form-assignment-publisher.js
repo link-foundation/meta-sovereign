@@ -427,7 +427,7 @@ export const FormAssignmentPublisher = ({
           setDraft(null);
           setAttempted(false);
         } else {
-          onLinked(response.assignment);
+          onLinked({ ...response.assignment, issue: response.issue });
         }
       }
     });

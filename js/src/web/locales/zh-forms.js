@@ -5,6 +5,8 @@ export const zhForms = {
   'forms.assignment.needs-repository':
     '填写任何答案或附加文件前，请先创建任务仓库。',
   'forms.assignment.verified': '仓库已确认存在。请重新规划当前页面以使用链接。',
+  'forms.assignment.handoff': '已验证仓库和议题。请先完成并检查任务，再提交。',
+  'forms.assignment.issue': '任务议题 #{number}',
   'forms.assignment.hint':
     '如果仓库已存在，请输入其 GitHub URL 并验证。链接仅为此表单和任务私密保存。',
   'forms.assignment.scope':

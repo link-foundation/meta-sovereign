@@ -1,3 +1,10 @@
+2026-11-23 assignment issue handoff after reopening Forms (QA24 remains unfinished):
+
+- [x] Compare B17/B18 and the donor's durable form-to-repository and issue mapping. The shared publisher remembers both receipts, but the reopened Forms plan, CLI and Lino plan expose only the repository.
+- [x] Reproduce the missing issue handoff on the previous published source. Project the matching verified publication into the existing answer plan and localized review without changing field selection or inferring implementation completion.
+- [x] Verify earlier saved publications, changed tasks and failed/uncertain publications. Sixty-five Node tests and 62 Deno tests with three substeps pass across the shared plan, CLI and both Lino formats. Production Chromium and Playwright MCP capture the restored issue with zero employer submissions.
+- [ ] Verify hosted checks on the published change. Additional instruction formats, actionable notifications and authenticated execution remain required.
+
 2026-11-23 active Forms slots for assignment drafting (QA24 remains unfinished):
 
 - [x] Compare the pinned donor's active form-slot read with the shared Forms owner. The standalone CLI opens a new browser or needs a saved inspection. The current review read clears a pending fill plan, so assignment drafting needs the existing read-only inspector under the review's operation ownership.

@@ -1,10 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import { useT } from './i18n.js';
 import { FormAssignmentPublisher } from './form-assignment-publisher.js';
+import { assignmentIssueConfirmed } from '../forms/assignment-repository.js';
 const el = React.createElement;
+
+const assignmentLink = (key, url, label) =>
+  el(
+    'a',
+    {
+      key,
+      href: url,
+      target: '_blank',
+      rel: 'noreferrer',
+      style: { overflowWrap: 'anywhere' },
+    },
+    label
+  );
 
 export const FormAssignmentStatus = ({ assignment }) => {
   const t = useT();
+  const repository = assignment?.repository;
+  const issue = assignment?.issue;
+  const showIssue =
+    repository && assignmentIssueConfirmed(issue, repository.fullName);
   return assignment
     ? el(
         'div',
@@ -14,18 +32,23 @@ export const FormAssignmentStatus = ({ assignment }) => {
           'data-form-assignment-state': assignment.state,
         },
         [
-          el('p', { key: 'status' }, t(`forms.assignment.${assignment.state}`)),
-          assignment.repository
-            ? el(
-                'a',
-                {
-                  key: 'repo',
-                  href: assignment.repository.url,
-                  target: '_blank',
-                  rel: 'noreferrer',
-                  style: { overflowWrap: 'anywhere' },
-                },
-                assignment.repository.url
+          el(
+            'p',
+            { key: 'status' },
+            t(
+              showIssue
+                ? 'forms.assignment.handoff'
+                : `forms.assignment.${assignment.state}`
+            )
+          ),
+          repository
+            ? assignmentLink('repo', repository.url, repository.url)
+            : null,
+          showIssue
+            ? assignmentLink(
+                'issue',
+                issue.url,
+                t('forms.assignment.issue', { number: issue.number })
               )
             : null,
         ]
@@ -77,7 +100,13 @@ export const FormAssignmentControl = ({
     el('h2', { key: 'title' }, t('forms.assignment.title')),
     el(FormAssignmentStatus, { key: 'status', assignment }),
     el('p', { key: 'hint', className: 'meta' }, t('forms.assignment.hint')),
-    el('p', { key: 'scope', className: 'meta' }, t('forms.assignment.scope')),
+    assignment.issue
+      ? null
+      : el(
+          'p',
+          { key: 'scope', className: 'meta' },
+          t('forms.assignment.scope')
+        ),
     publishing && api.draftFormAssignment && api.publishFormAssignment
       ? el(FormAssignmentPublisher, {
           key: 'publisher',

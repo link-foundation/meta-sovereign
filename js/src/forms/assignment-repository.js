@@ -9,6 +9,14 @@ export const assignmentRepositoryConfirmed = (repository, name) =>
   repository.url.toLowerCase() === `https://github.com/${name.toLowerCase()}` &&
   Number.isFinite(Date.parse(repository.verifiedAt));
 
+export const assignmentIssueConfirmed = (issue, name) =>
+  typeof name === 'string' &&
+  Number.isSafeInteger(issue?.number) &&
+  issue.number > 0 &&
+  typeof issue.url === 'string' &&
+  issue.url.toLowerCase() ===
+    `https://github.com/${name.toLowerCase()}/issues/${issue.number}`;
+
 export const assignmentRepositoryName = (value) => {
   let url;
   try {

@@ -8,6 +8,7 @@ import { proposalFor } from './proposals.js';
 import { formModelDrafts } from './model-drafts.js';
 import { formPayProfile } from './pay-profile.js';
 import { formFailure } from './options.js';
+import { formAssignmentIssue } from './assignment-handoff.js';
 import {
   currentFormAssignment,
   rememberFormAssignment,
@@ -193,6 +194,8 @@ export const planFormAnswers = async (store, input = {}, modelOptions = {}) => {
   const assignment = await (
     modelOptions.frozen ? currentFormAssignment : rememberFormAssignment
   )(store, inspection);
+  const issue = await formAssignmentIssue(store, assignment);
+  const assignmentWithIssue = issue ? { ...assignment, issue } : assignment;
   const held = assignment?.state === 'needs-repository';
   const prepared = await prepareFormAnswerPreview(
     store,
@@ -233,7 +236,7 @@ export const planFormAnswers = async (store, input = {}, modelOptions = {}) => {
     planning: {
       readOnly: true,
       requiresReview: true,
-      ...(assignment ? { assignment } : {}),
+      ...(assignmentWithIssue ? { assignment: assignmentWithIssue } : {}),
       profileSource: prepared.context.profileSource ?? null,
       proposed: fields.filter((field) => field.answer.proposal).length,
       unresolved: fields.filter((field) => !field.answer.proposal).length,

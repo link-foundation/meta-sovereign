@@ -1,0 +1,29 @@
+{
+  "archive": "assignment-handoff.tar.gz",
+  "files": {
+    "implementation/assignment-handoff-mcp.mjs": "5317effa6cafd7e1d6b2fcb0bed2be8ff170329b153fc0fc798f9a041421a57f",
+    "implementation/assignment-handoff-parent.py": "5fa1e34101b6953ce2f1f0545b4adf3e7c9aeb6d47ce0c792c3be0e2520c80d9",
+    "implementation/assignment-handoff.js": "e18531b32a445650e8e4ec002cbfcc48d31e5d44f9681412cc3cc1935ec092e6",
+    "implementation/assignment-handoff.test.js": "084bc185fab6d73ff88d08172079de72b0092fef3876f240cd0133ccd17acf62",
+    "implementation/bundle.sha256": "325f725f24e019914f0aca1303b9801b724b39c504ec87b73420950389142d04",
+    "implementation/changes.patch": "0b0035673f0f612c198795dd3a9b72efc5c339375784da234d667133f454dcf9",
+    "implementation/e2e-assignment-handoff.mjs": "77932281872edf02097f266530cbf8e9ae53d3ced1d33648d16ce9830a505f44",
+    "screenshots/issue-56-assignment-handoff-after-desktop.png": "a6306fb3d1c22730efe5b5df43bec1c1e2d9655b53f19c3df9affbb8128d5e54",
+    "screenshots/issue-56-assignment-handoff-after-mobile.png": "97acc81cf97b004a40c1723721899d8ec21e0a4560185d28021a44d0ee76f681",
+    "screenshots/issue-56-assignment-handoff-before-desktop.png": "18811b0ae02f31e8518b19e39596e31e821d17568fe87739b0050f20de253a32",
+    "screenshots/issue-56-assignment-handoff-before-mobile.png": "e6947c2cce732316a94e8cf51a4241d422c7556b0e440ec420e863e334b23038",
+    "screenshots/issue-56-assignment-handoff-mcp.png": "838eda1755145db634b3d7747629ab79c0ad3d3c8819ba38b120359c67832f29",
+    "verification/assignment-handoff-browser-capture.log": "371b5490523b345a652ccdab60961f8024251b0dfe3d78de5e0de4120bdc1b45",
+    "verification/assignment-handoff-browser-parent.log": "8e05094646984344ae58392e00621e18283c989f2cfef32878af64c96c9e408a",
+    "verification/assignment-handoff-browser.log": "15de6ff149c9fb6e8107d1b7c4a9972aaf4bde389c3bf5940d7e0b5e6f4022e5",
+    "verification/assignment-handoff-build.log": "14786bef5cbb769c5698b4ee3a0a4bcbf6a3e99021c8d3fb71fb3e90070d0785",
+    "verification/assignment-handoff-deno.log": "0aa3a220a002a39aa23f8e4be5e2033396bad5248cbf4f6adf2e4fd08c537a7a",
+    "verification/assignment-handoff-eslint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "verification/assignment-handoff-format.log": "6384e612e95fb3b133eab91134dd616aeb38849ef1f2c2c05c4a5492a2e4d421",
+    "verification/assignment-handoff-mcp-fixture.log": "00c87423fec0dacfba1ee97b23c7d26ae2c5cc0ff881a6bdb70d2472aa5939d9",
+    "verification/assignment-handoff-mcp.json": "831182df1c2ac1c6348134741c0e334ee39e8fe30bc32360127195678b67b211",
+    "verification/assignment-handoff-node.log": "1656ab174a7aca754383860f91a7d52c62cf2df9ba4d17a25055892f0811ffb2",
+    "verification/assignment-handoff-parent.log": "69c8c930323fa3428160d9cf125bf40ea8ad0c312b69c794d67d196561d8cdde",
+    "verification/console-2026-11-23T07-48-18-298Z.log": "a50a1d959c701766edd91340b8afbabb7615a71094094699a14ab9b0c493d358"
+  }
+}

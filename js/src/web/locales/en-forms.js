@@ -6,6 +6,9 @@ export const enForms = {
     'Create the assignment repository before prefilling any answers or attaching files.',
   'forms.assignment.verified':
     'Repository existence was verified. Plan the current page again to use its link.',
+  'forms.assignment.handoff':
+    'Repository and issue verified. Complete and review the assignment before submitting.',
+  'forms.assignment.issue': 'Assignment issue #{number}',
   'forms.assignment.hint':
     'If the repository already exists, enter its GitHub URL and verify it. The link is saved privately for this form and assignment.',
   'forms.assignment.scope':
