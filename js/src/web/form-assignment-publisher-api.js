@@ -112,21 +112,25 @@ const confirmedDraft = async (result, input) => {
   await confirmVacancy(draft, input.vacancyUrl);
   return result;
 };
+const requestDraft = async (report, action, input) => {
+  const result = await report(`/api/forms/assignment/${action}`, input, {
+    network: true,
+  });
+  if (result?.ok === false && result.code === 'assignment-review-changed') {
+    throw Object.assign(unconfirmed(), { code: result.code });
+  }
+  return result;
+};
 export const draftFormAssignment = async (report, input) => {
   assignmentTarget(input.target);
   const request = {
     ...input,
     languageOverride: assignmentLanguageOverride(input.languageOverride),
   };
-  return confirmedDraft(
-    await report('/api/forms/assignment/draft', request, { network: true }),
-    request
-  );
+  return confirmedDraft(await requestDraft(report, 'draft', request), request);
 };
 export const restoreFormAssignment = async (report, input) => {
-  const result = await report('/api/forms/assignment/restore', input, {
-    network: true,
-  });
+  const result = await requestDraft(report, 'restore', input);
   if (typeof result?.attempted !== 'boolean') {
     throw unconfirmed();
   }

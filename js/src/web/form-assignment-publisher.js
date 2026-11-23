@@ -324,7 +324,9 @@ const PublicationFeedback = ({ result, error }) => {
             role: 'alert',
             'data-assignment-publish-error': error,
           },
-          t('assignment.error', { code: error })
+          error === 'assignment-review-changed'
+            ? t('assignment.review-changed')
+            : t('assignment.error', { code: error })
         )
       : null,
   ]);
@@ -360,7 +362,7 @@ export const FormAssignmentPublisher = ({
   const [target, setTarget] = useState(assignment?.repository?.fullName ?? '');
   const binding = standalone
     ? { standalone: true, target }
-    : { inspection, revision };
+    : { inspection, revision, reviewId: inspection.reviewSession?.id };
   const [visibility, setVisibility] = useState('private');
   const [language, setLanguage] = useState('');
   const [vacancyUrl, setVacancyUrl] = useState('');

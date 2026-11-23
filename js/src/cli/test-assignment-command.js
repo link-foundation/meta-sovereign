@@ -12,6 +12,10 @@ import {
   assignmentSourceArguments,
   readAssignmentCommandText,
 } from './assignment-command-source.js';
+import {
+  activeAssignmentCommand,
+  usesActiveAssignmentServer,
+} from './assignment-active-command.js';
 
 export { TEST_ASSIGNMENT_HELP } from './help.js';
 
@@ -24,6 +28,23 @@ const booleanFlag = (args, key) => {
   }
   return [true, 'true'].includes(args[key]);
 };
+const assignmentOptions = (args, languageOverride) => ({
+  visibility: args.visibility ?? 'private',
+  vacancyUrl: args.vacancy,
+  sourceUrl: args.source,
+  languageOverride,
+  vacancy: args['vacancy-snapshot']
+    ? decodeWire(args['vacancy-snapshot'])
+    : undefined,
+  refreshVacancy: booleanFlag(args, 'refresh-vacancy'),
+  employers: args.employer ? [args.employer] : [],
+});
+const resolveTarget = async (name, args, github) =>
+  assignmentTarget(
+    name?.includes('/')
+      ? name
+      : `${args.owner ?? (await github.owner())}/${name}`
+  );
 const inspect = async (args, { file, url }, reader) => {
   if (file && url) {
     throw new Error('Choose --file or --url.');
@@ -87,24 +108,12 @@ const commandDraft = async ({
     signal,
     stdin,
   });
-  const target = assignmentTarget(
-    name?.includes('/')
-      ? name
-      : `${args.owner ?? (await github.owner())}/${name}`
-  );
+  const target = await resolveTarget(name, args, github);
   return (
     await publisher.draft({
       ...assignment,
       target,
-      visibility: args.visibility ?? 'private',
-      vacancyUrl: args.vacancy,
-      sourceUrl: args.source,
-      languageOverride,
-      vacancy: args['vacancy-snapshot']
-        ? decodeWire(args['vacancy-snapshot'])
-        : undefined,
-      refreshVacancy: booleanFlag(args, 'refresh-vacancy'),
-      employers: args.employer ? [args.employer] : [],
+      ...assignmentOptions(args, languageOverride),
     })
   ).draft;
 };
@@ -143,6 +152,21 @@ export const testAssignmentCommand =
       checkRecoveryOptions(args, dryRun, languageOverride);
     } else {
       assignmentTarget(name?.includes('/') ? name : `owner/${name ?? ''}`);
+    }
+    if (usesActiveAssignmentServer(args, source)) {
+      return activeAssignmentCommand({
+        args,
+        source,
+        dryRun,
+        context: () => assignmentOptions(args, languageOverride),
+        target: () =>
+          resolveTarget(
+            name,
+            args,
+            options.assignmentGithub ?? createAssignmentGithub()
+          ),
+        log,
+      });
     }
     const store = await openStore(args.store ?? defaultStoreDir());
     try {

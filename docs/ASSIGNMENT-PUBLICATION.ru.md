@@ -27,13 +27,19 @@ meta-sovereign test-assignment task-name --file=inspection.json --vacancy=https:
 meta-sovereign test-assignment owner/task-name --file=inspection.json --vacancy=12345 --visibility=private --store=./store
 meta-sovereign test-assignment owner/task-name --file=inspection.json --source=https://example.org/instructions --language=python --dry-run --store=./store
 meta-sovereign test-assignment --draft-id=assignment-draft:UUID --store=./store
+meta-sovereign test-assignment owner/task-name --review-slot=form-1 --dry-run
+meta-sovereign test-assignment --draft-id=assignment-draft:UUID --server=http://127.0.0.1:8787
 ```
 
 Для простого имени используется текущий авторизованный владелец либо `--owner`. По умолчанию видимость закрытая. `--dry-run` сохраняет и выводит просмотр; без него CLI публикует созданный черновик. `--draft-id` восстанавливает напечатанный `draft.id` без повторного запуска модели. Вместо URL вакансии можно передать ограниченный Lino-снимок `--vacancy-snapshot` с `title`, `description`, `company`, `skills`. `--refresh-vacancy=true` перечитывает URL. SIGINT/SIGTERM останавливают и дожидаются управляемых модели, браузера и команд до закрытия хранилища.
 
 `--from=<form-url>` равнозначен `--url`. `--from=<file>` или `--from=-` при передаче через конвейер принимает инструкции UTF-8 до 30 000 символов. Отдельный `--source` выбирает самостоятельный документ, а вместе с формой добавляет связанный документ.
 
+Для активной проверки Forms укажите имя открытого слота браузера в `--review-slot`. Без источника и слота сервер выбирает единственную открытую проверку с видимыми инструкциями задания. При нескольких совпадениях укажите слот. Текущая страница и подготовленный план заполнения сохраняются. Сервер по умолчанию — `http://127.0.0.1:8787`. Используйте `--server` для другого адреса и `--binary` для двоичного Lino. Восстановите напечатанный `--draft-id` на том же сервере.
+
 ## API и восстановление
+
+Для активной проверки `/draft` и `/restore` принимают `reviewSlot` с именем слота или `null` для единственного совпадения. Интерфейс Forms передаёт `reviewId`, отчёт и его ревизию. При изменении задания прочитайте страницу и составьте новый план.
 
 Доверенные POST-маршруты используют существующее согласование текстового/бинарного Lino:
 

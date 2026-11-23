@@ -433,6 +433,24 @@ const reviewOperator =
     }
   };
 
+const inspectionActions = ({ operate, get, check, filling, reportWriter }) => ({
+  snapshot: (id, signal) =>
+    operate(id, (record) =>
+      inspectCurrentFormSession(record.browser, {
+        check: () => {
+          signal.throwIfAborted();
+          check(record);
+        },
+      })
+    ),
+  read: async (id) => {
+    const report = await operate(id, (record) =>
+      readReviewReport({ record, filling, check, reportWriter })
+    );
+    return { ...report, reviewSession: identity(get(id)) };
+  },
+});
+
 export const createFormSessions = ({
   store,
   openSession = openBrowserSession,
@@ -575,11 +593,6 @@ export const createFormSessions = ({
       ...(await operate(id, reviewHistory)),
       reviewSession: identity(get(id)),
     }),
-    read: async (id) => {
-      const report = await operate(id, (record) =>
-        readReviewReport({ record, filling, check, reportWriter })
-      );
-      return { ...report, reviewSession: identity(get(id)) };
-    },
+    ...inspectionActions({ operate, get, check, filling, reportWriter }),
   };
 };

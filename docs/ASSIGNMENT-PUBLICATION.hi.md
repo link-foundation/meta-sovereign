@@ -25,6 +25,8 @@ meta-sovereign test-assignment task-name --file=inspection.json --vacancy=https:
 meta-sovereign test-assignment owner/task-name --file=inspection.json --vacancy=12345 --visibility=private --store=./store
 meta-sovereign test-assignment owner/task-name --file=inspection.json --source=https://example.org/instructions --language=python --dry-run --store=./store
 meta-sovereign test-assignment --draft-id=assignment-draft:UUID --store=./store
+meta-sovereign test-assignment owner/task-name --review-slot=form-1 --dry-run
+meta-sovereign test-assignment --draft-id=assignment-draft:UUID --server=http://127.0.0.1:8787
 ```
 
 केवल नाम देने पर प्रमाणित मालिक चुना जाता है; `--owner` भी दे सकते हैं। डिफ़ॉल्ट दृश्यता निजी है। `--dry-run` पूर्वावलोकन सहेजकर प्रिंट करता है; इसके बिना CLI ड्राफ़्ट प्रकाशित करता है। प्रिंट किए सटीक `draft.id` को `--draft-id` से पुनर्प्राप्त करें; मॉडल फिर नहीं चलता। `--vacancy` के बदले सीमित Lino `--vacancy-snapshot` में `title`, `description`, `company`, `skills` दे सकते हैं। `--refresh-vacancy=true` नए ड्राफ़्ट के लिए URL फिर पढ़ता है। SIGINT/SIGTERM मॉडल, ब्राउज़र और कमांड रोककर उनके समाप्त होने की प्रतीक्षा करते हैं, फिर स्टोर बंद होता है।
@@ -33,7 +35,11 @@ meta-sovereign test-assignment --draft-id=assignment-draft:UUID --store=./store
 
 `--from=<form-url>` और `--url` समान हैं। `--from=<file>` या पाइप से `--from=-` अधिकतम 30,000 वर्णों के UTF-8 निर्देश लेता है। अकेला `--source` अलग निर्देश दस्तावेज़ चुनता है। फ़ॉर्म के साथ `--source` जुड़ा दस्तावेज़ भी दर्ज करता है।
 
+सक्रिय Forms समीक्षा के लिए `--review-slot` खुले ब्राउज़र स्लॉट का नाम है। स्रोत और स्लॉट दोनों न देने पर सर्वर दृश्यमान असाइनमेंट निर्देशों वाली अकेली खुली समीक्षा चुनता है। कई समीक्षाएँ मिलने पर स्लॉट चुनें। वर्तमान पेज और लंबित भरने की योजना यथावत रहती है। डिफ़ॉल्ट सर्वर `http://127.0.0.1:8787` है। अलग मूल के लिए `--server` और बाइनरी Lino के लिए `--binary` दें। मुद्रित `--draft-id` को उसी `--server` के साथ पुनर्प्राप्त करें।
+
 ## API और पुनर्प्राप्ति
+
+सक्रिय समीक्षा के लिए `/draft` और `/restore` नाम वाला `reviewSlot` (या एकमात्र चयन के लिए `null`) लेते हैं। Forms UI `reviewId`, निरीक्षण और संशोधन भेजता है। निर्देश बदलने पर पेज दोबारा पढ़कर योजना बनाएँ।
 
 विश्वसनीय POST मार्ग मौजूदा पाठ/बाइनरी Lino नेगोशिएशन उपयोग करते हैं:
 

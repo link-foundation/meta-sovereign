@@ -25,6 +25,8 @@ meta-sovereign test-assignment task-name --file=inspection.json --vacancy=https:
 meta-sovereign test-assignment owner/task-name --file=inspection.json --vacancy=12345 --visibility=private --store=./store
 meta-sovereign test-assignment owner/task-name --file=inspection.json --source=https://example.org/instructions --language=python --dry-run --store=./store
 meta-sovereign test-assignment --draft-id=assignment-draft:UUID --store=./store
+meta-sovereign test-assignment owner/task-name --review-slot=form-1 --dry-run
+meta-sovereign test-assignment --draft-id=assignment-draft:UUID --server=http://127.0.0.1:8787
 ```
 
 仅提供名称时解析当前已登录所有者，也可指定 `--owner`。默认私有。`--dry-run` 保存并打印预览，否则 CLI 发布生成的草稿。通过 `--draft-id` 恢复打印出的准确 `draft.id`，不会再次运行模型。可用有界 Lino `--vacancy-snapshot` 提供 `title`、`description`、`company`、`skills`，与 `--vacancy` 二选一。`--refresh-vacancy=true` 为新草稿重新读取 URL。SIGINT/SIGTERM 会停止并等待所属模型、浏览器和命令工作结束，然后关闭存储。
@@ -33,7 +35,11 @@ meta-sovereign test-assignment --draft-id=assignment-draft:UUID --store=./store
 
 `--from=<form-url>` 等同于 `--url`。`--from=<file>` 或通过管道传入的 `--from=-` 读取至多 30,000 字符的 UTF-8 说明。单独使用 `--source` 会选择独立文档，与表单同时使用时会记录关联文档。
 
+草拟活动 Forms 审查中的任务时，用 `--review-slot` 指定已打开的浏览器槽位。省略来源和槽位时，服务器选择唯一包含可见任务说明的活动审查。有多个匹配时请指定槽位。读取会保留当前页面和待执行的填写计划。默认服务器是 `http://127.0.0.1:8787`。通过 `--server` 选择其他地址，通过 `--binary` 选择二进制 Lino。在同一服务器用打印的 `--draft-id` 恢复发布。
+
 ## API 和恢复
+
+对于活动审查，`/draft` 和 `/restore` 接受命名的 `reviewSlot`，或用 `null` 选择唯一的审查。Forms 界面发送 `reviewId`、检查结果和修订号。说明更改后，请重新读取当前页面并生成计划。
 
 可信 POST 接口使用现有文本/二进制 Lino 协商：
 

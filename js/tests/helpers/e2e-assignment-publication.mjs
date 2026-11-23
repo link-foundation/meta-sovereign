@@ -7,6 +7,7 @@ import {
 } from './e2e-form-review.mjs';
 import { seedAssignmentAnswers } from '../../../experiments/issue-56/forms-assignment-fixture.mjs';
 import { readAnswerModel } from '../../src/automation/answer-model-config.js';
+import { encodeWire, LINO_TEXT } from '../../src/transport/lino.js';
 import { instructionText } from '../../../experiments/issue-56/assignment-source-fixture.mjs';
 import {
   vacancyId,
@@ -60,7 +61,9 @@ const layouts = async (page, state, locator) => {
       (process.env.ASSIGNMENT_VACANCY_SCREENSHOTS === '1' &&
         state.startsWith('vacancy-')) ||
       (process.env.ASSIGNMENT_LANGUAGE_SCREENSHOTS === '1' &&
-        state.startsWith('language-'))
+        state.startsWith('language-')) ||
+      (process.env.ASSIGNMENT_ACTIVE_REVIEW_SCREENSHOTS === '1' &&
+        state.startsWith('active-review-'))
     ) {
       await page.screenshot({
         path: `docs/screenshots/issue-56-assignment-source-${state}-${layout}.png`,
@@ -89,6 +92,101 @@ const request = async (page, control, action) => {
 const vacancyInput = (control) =>
   control.locator('[data-assignment-publish-input="vacancy"]');
 
+const verifyPendingPlan = async (page, { sessionId, id }) => {
+  const response = await page.request.post(
+    new URL('/api/forms/sessions/apply', page.url()).href,
+    {
+      headers: { accept: LINO_TEXT, 'content-type': LINO_TEXT },
+      data: Buffer.from(
+        encodeWire({ id: sessionId, planId: id, fields: [] }, LINO_TEXT)
+      ),
+    }
+  );
+  const { code } = await decoded(response);
+  assert(
+    code === 'form-selection',
+    `the existing plan reaches selection validation after assignment drafting (${response.status()} ${code})`
+  );
+};
+
+const verifyActiveReviewSource = async ({
+  page,
+  control,
+  target,
+  owner,
+  publication,
+  fixture,
+  until,
+}) => {
+  const instructions = owner.page.locator('form p').first();
+  const original = await instructions.textContent();
+  const change = (text) =>
+    instructions.evaluate((node, value) => {
+      node.textContent = value;
+    }, text);
+  await change(
+    'New test assignment: document the current warehouse stock check.'
+  );
+  await target.fill('fixture-owner/reviewed-task');
+  const preview = await request(page, control, 'draft');
+  assert(
+    owner.navigation.length === 1,
+    'draft read leaves the owner on the same page'
+  );
+  if (process.env.ASSIGNMENT_ACTIVE_REVIEW_BEFORE === '1') {
+    assert(
+      preview.ok && publication.state.modelCalls.length === 1,
+      'parent drafts the stale instructions'
+    );
+    await layouts(
+      page,
+      'active-review-before',
+      control.locator('[data-assignment-draft]')
+    );
+    assert(
+      !publication.state.calls.includes('create') && fixture.submits === 0,
+      'parent probe does not publish or submit'
+    );
+    await closeFormReview(
+      page,
+      until,
+      'parent assignment source review closed'
+    );
+    console.log(
+      '[assignment-active-review-parent]',
+      JSON.stringify({ state: preview.state, models: 1, navigations: 1 })
+    );
+    return false;
+  }
+  assert(
+    preview.code === 'assignment-review-changed',
+    'changed live instructions block stale drafting'
+  );
+  assert(
+    publication.state.modelCalls.length === 0 &&
+      publication.state.calls.length === 0,
+    'stale refusal does no model or GitHub work'
+  );
+  await layouts(
+    page,
+    'active-review-after',
+    control.locator(
+      '[data-assignment-publish-error="assignment-review-changed"]'
+    )
+  );
+  await change(original);
+  console.log(
+    '[assignment-active-review]',
+    JSON.stringify({
+      code: preview.code,
+      models: 0,
+      githubCalls: 0,
+      navigations: 1,
+    })
+  );
+  return true;
+};
+
 const verifySourceDraft = (preview, publication, sourceUrl) => {
   assert(
     preview.draft.sourceEvidence.requestedUrl === sourceUrl &&
@@ -116,6 +214,7 @@ const verifyDraftReview = async ({
   language,
   publication,
   sourceUrl,
+  reviewPlan,
 }) => {
   await target.fill('invalid/');
   await control.locator('[data-action="draft-assignment"]').click();
@@ -150,6 +249,7 @@ const verifyDraftReview = async ({
     await layouts(page, 'vacancy-input', vacancy);
   }
   const preview = await request(page, control, 'draft');
+  await verifyPendingPlan(page, reviewPlan);
   await control.locator('[data-assignment-draft]').waitFor();
   verifySourceDraft(preview, publication, sourceUrl);
   const vacancyReview = control.locator(
@@ -258,6 +358,7 @@ export const verifyAssignmentPublicationUi = async ({
   fixture,
   store,
   until,
+  owned,
   publication,
   sourceReads,
   vacancyReads,
@@ -315,6 +416,19 @@ export const verifyAssignmentPublicationUi = async ({
     );
     return;
   }
+  if (
+    !(await verifyActiveReviewSource({
+      page,
+      control,
+      target,
+      owner: owned.at(-1),
+      publication,
+      fixture,
+      until,
+    }))
+  ) {
+    return;
+  }
   const sourceUrl = fixture.url.replace('/application', '/source-redirect');
   const draft = await verifyDraftReview({
     page,
@@ -323,6 +437,7 @@ export const verifyAssignmentPublicationUi = async ({
     language,
     publication,
     sourceUrl,
+    reviewPlan: held.reviewPlan,
   });
   const { recovered, restored } = await verifyRecovery({
     page,

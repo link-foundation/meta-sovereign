@@ -14,6 +14,7 @@ export const createAssignmentPublisher = ({
   github = createAssignmentGithub(),
   readVacancy = createAssignmentVacancyReader({ store }),
   readSource = createAssignmentSourceReader({ store }),
+  resolveReview,
 }) => {
   let active;
   let stopping = false;
@@ -50,9 +51,16 @@ export const createAssignmentPublisher = ({
       owners.delete(store);
     }
   };
+  const withReview = (operation, name) =>
+    resolveReview
+      ? async (context, input) =>
+          operation(context, await resolveReview(input, name, context.signal))
+      : operation;
+  const draft = withReview(draftAssignment, 'draft');
+  const restore = withReview(restoreAssignmentDraft, 'restore');
   return {
-    draft: (input) => perform(draftAssignment, input),
-    restore: (input) => perform(restoreAssignmentDraft, input),
+    draft: (input) => perform(draft, input),
+    restore: (input) => perform(restore, input),
     publish: (input) => perform(publishAssignment, input),
     stop: async () => {
       stopping = true;

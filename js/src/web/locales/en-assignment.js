@@ -43,6 +43,8 @@ export const enAssignment = {
     'Repository, pipeline and issue were confirmed. The assignment implementation still needs to be completed and reviewed.',
   'assignment.uncertain':
     'Publication is unconfirmed ({code}; stage {stage}). Recover the same publication to inspect receipts; an uncertain creation is not repeated.',
+  'assignment.review-changed':
+    'The form has changed. Read and plan the current page before drafting again.',
   'assignment.error':
     'No confirmed result ({code}). Your inputs and any attempted publication are retained.',
 };

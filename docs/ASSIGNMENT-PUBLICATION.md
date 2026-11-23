@@ -30,15 +30,23 @@ meta-sovereign test-assignment owner/task-name --from=instructions.txt --dry-run
 cat instructions.txt | meta-sovereign test-assignment owner/task-name --from=- --dry-run --store=./store
 meta-sovereign test-assignment owner/task-name --source=https://example.org/instructions --dry-run --store=./store
 meta-sovereign test-assignment --draft-id=assignment-draft:UUID --store=./store
+meta-sovereign test-assignment owner/task-name --review-slot=form-1 --dry-run
+meta-sovereign test-assignment --draft-id=assignment-draft:UUID --server=http://127.0.0.1:8787
 ```
 
 A bare name resolves the authenticated owner, or accepts `--owner`. Private visibility is the default. `--dry-run` saves and prints the preview. Without it the CLI publishes the generated draft. Recover the exact printed `draft.id` with `--draft-id`; recovery does not run the model again. `--vacancy-snapshot` accepts a bounded Lino snapshot with `title`, `description`, `company` and `skills` in place of `--vacancy`. `--refresh-vacancy=true` rereads the canonical URL for a new draft. SIGINT/SIGTERM stop and drain owned model, browser and command work before the store closes.
 
 `--from=<form-url>` is an alias for `--url`. A local file or piped `--from=-` accepts UTF-8 instructions up to 30,000 characters. An instruction `--source` used alone selects a standalone document. A `--source` used with a form records the linked document alongside the form instructions.
 
+With an active Forms review, the command can read the current page in its existing browser slot. `--review-slot` identifies the open slot. Without a source argument or slot, the server selects a single open review containing visible assignment instructions. Choose a slot if several qualify, or retry when the review becomes available. The reader keeps the current page and any pending fill plan in place. Add `--source` alongside `--review-slot` to include linked instructions.
+
+Active review drafts use the running Forms server at `http://127.0.0.1:8787` by default. Select a different origin with `--server` and binary Lino with `--binary`. Recover the printed draft ID with `--draft-id` and the same `--server`. The server owns the draft, model settings and publication ledger. A bare repository name uses the CLI's signed-in GitHub owner. Use `owner/repository` to specify the target explicitly.
+
 ## API and recovery
 
 Trusted POST endpoints use the existing text/binary Lino negotiation:
+
+For a current Forms review, `/draft` and `/restore` accept a `reviewSlot` (named slot, or `null` for a unique match), or a `reviewId` with the Forms UI inspection and revision. A changed instruction set requires a fresh read and plan before the UI drafts again.
 
 | Endpoint                        | Input                                                                                                                                                                | Result                                                                                      |
 | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |

@@ -38,5 +38,7 @@ export const zhAssignment = {
   'assignment.verified': '已确认仓库、流水线和议题。任务实现仍需完成并审核。',
   'assignment.uncertain':
     '发布尚未确认（{code}；阶段 {stage}）。请恢复同一次发布来检查回执；不会重复结果不确定的创建操作。',
+  'assignment.review-changed':
+    '表单已更改。请先读取当前页面并生成计划，再起草。',
   'assignment.error': '结果尚未确认（{code}）。已保留输入和发布尝试。',
 };

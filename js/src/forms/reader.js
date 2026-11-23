@@ -9,6 +9,7 @@ import path from 'node:path';
 import { createFormKnowledgeBridge } from './knowledge-bridge.js';
 import { createAssignmentRepositoryService } from './assignment-service.js';
 import { createAssignmentPublisher } from '../assignments/service.js';
+import { activeAssignmentReview } from './assignment-review.js';
 import { rememberAssignmentRedirect } from '../assignments/vacancy-association.js';
 export { planFormAnswers } from './answer-plan.js';
 export { formUrl } from './options.js';
@@ -99,6 +100,7 @@ const assignmentServices = ({
   assignmentGithub,
   readAssignmentVacancy,
   readAssignmentSource,
+  resolveReview,
 }) => {
   const assignments = createAssignmentRepositoryService({
     store,
@@ -110,6 +112,7 @@ const assignmentServices = ({
     github: assignmentGithub,
     readVacancy: readAssignmentVacancy,
     readSource: readAssignmentSource,
+    resolveReview,
   });
   return { assignments, publisher };
 };
@@ -137,14 +140,6 @@ export const createFormReader = ({
   readAssignmentVacancy,
   readAssignmentSource,
 } = {}) => {
-  const { assignments, publisher } = assignmentServices({
-    store,
-    modelRunner,
-    verifyAssignmentRepository,
-    assignmentGithub,
-    readAssignmentVacancy,
-    readAssignmentSource,
-  });
   let active = null;
   let stopping = false;
   const planning = new Set();
@@ -157,6 +152,15 @@ export const createFormReader = ({
     modelRunner,
     ...review,
     ready: bridge,
+  });
+  const { assignments, publisher } = assignmentServices({
+    store,
+    modelRunner,
+    verifyAssignmentRepository,
+    assignmentGithub,
+    readAssignmentVacancy,
+    readAssignmentSource,
+    resolveReview: activeAssignmentReview(store, reviews),
   });
   return {
     registerAssignmentRepository: assignments.register,

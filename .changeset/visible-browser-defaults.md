@@ -8,6 +8,8 @@ Draft standalone assignments from pasted instructions or a readable document in 
 
 Accept an HH vacancy URL or numeric ID when drafting an assignment. Restore the reviewed canonical vacancy and check publication for copied vacancy descriptions (issue #56, QA24).
 
+Draft from an active Forms slot through either Lino encoding or the CLI. Recheck the current instructions before using a Forms preview and preserve the reviewed fill plan (issue #56, QA24).
+
 Open saved HeadHunter web conversations in Chat with a receipt-checked native send. Retain pending messages when delivery is uncertain, and use provider unread counts and filters in Chat and Operator (issue #56, HH09).
 
 Read saved conversations and send explicitly confirmed drafts from the CLI through text or binary Lino. Reject changed drafts that reuse an existing send ID (issue #56, HH09/QA20).

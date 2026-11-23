@@ -1,3 +1,10 @@
+2026-11-23 active Forms slots for assignment drafting (QA24 remains unfinished):
+
+- [x] Compare the pinned donor's active form-slot read with the shared Forms owner. The standalone CLI opens a new browser or needs a saved inspection. The current review read clears a pending fill plan, so assignment drafting needs the existing read-only inspector under the review's operation ownership.
+- [x] Reproduce missing named and automatic slot selection and stale visible form evidence. Reuse the owning server and its private draft and publication ledger. Preserve local file/URL, standalone and recovery inputs.
+- [x] Verify the active browser remains on its current page, retains pending reviewed controls and never submits. Cover CLI, text/binary Lino, the production Forms UI and independent Playwright MCP.
+- [ ] Verify hosted checks on the published source. Additional instruction formats, handoff, notifications and authenticated execution remain required.
+
 2026-11-23 assignment vacancy evidence (QA24 remains unfinished):
 
 - [x] Compare the donor command's bare HH vacancy ID and its six-word check against assignment and vacancy text. The shared CLI accepts only URLs and freezes a vacancy fingerprint without checking it or covering its description in the public issue check.
