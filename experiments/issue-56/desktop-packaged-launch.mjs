@@ -8,6 +8,11 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { decodeWire, LINO_TEXT } from '../../js/src/transport/lino.js';
+import {
+  stagePackagedRunner,
+  verifyPackagedRunner,
+  verifyPackagedRunnerClosed,
+} from './desktop-packaged-runner.mjs';
 
 const closeApplication = async (application) => {
   const kill = setTimeout(() => application.process().kill('SIGKILL'), 10000);
@@ -97,6 +102,7 @@ export const launchPackagedDesktop = async (binary, screenshot) => {
   });
   let application;
   try {
+    const runner = await stagePackagedRunner(directory);
     await new Promise((accept) => feed.listen(0, '127.0.0.1', accept));
     application = await electron.launch({
       executablePath: resolve(binary),
@@ -130,8 +136,10 @@ export const launchPackagedDesktop = async (binary, screenshot) => {
     if (screenshot) {
       await page.screenshot({ path: screenshot });
     }
+    await verifyPackagedRunner(new URL(page.url()).origin, runner);
     await closeApplication(application);
     application = null;
+    await verifyPackagedRunnerClosed(runner);
     assert.equal(drained, true, 'packaged runtime must finish draining');
     assert.equal(child.exitCode, 0, 'packaged application must exit cleanly');
     assert.equal(
@@ -146,6 +154,8 @@ export const launchPackagedDesktop = async (binary, screenshot) => {
         arch: process.arch,
         ...native,
         backendReady: true,
+        desktopRunnerReady: true,
+        desktopRunnerDrained: true,
         cleanExit: true,
         runtimeDrained: true,
         liveProvider: false,

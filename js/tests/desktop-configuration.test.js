@@ -28,7 +28,7 @@ const fixture = async (run) => {
     await rm(cwd, { recursive: true, force: true });
   }
 };
-const shell = () => {
+const shell = (utilityProcess) => {
   const app = new EventEmitter();
   app.getPath = () => '/unused-desktop-fixture';
   app.whenReady = async () => {};
@@ -54,7 +54,11 @@ const shell = () => {
     app,
     Window,
     calls,
-    electronLoader: async () => ({ app, BrowserWindow: Window }),
+    electronLoader: async () => ({
+      app,
+      BrowserWindow: Window,
+      utilityProcess,
+    }),
     updaterLoader: async () => null,
     serverLoader: async () => ({
       startServer: async (options) => {
@@ -146,6 +150,38 @@ test(
         lifecycle.dispose();
       }
       assert.equal(s.calls.closed, 1);
+    })
+);
+
+test(
+  'desktop startup exposes the native runner without starting a process',
+  { timeout: 5000 },
+  async () =>
+    fixture(async (configuration) => {
+      let forks = 0;
+      const s = shell({ fork: () => forks++ });
+      const lifecycle = await startDesktop({
+        ...s,
+        argv: [],
+        configuration,
+      });
+      try {
+        const { desktopRunner } = s.calls.options.runnerSessions;
+        for (const action of [
+          'prepare',
+          'inspect',
+          'status',
+          'stop',
+          'close',
+        ]) {
+          assert.equal(typeof desktopRunner[action], 'function');
+        }
+        await desktopRunner.close();
+        assert.equal(forks, 0);
+      } finally {
+        await lifecycle.close();
+        lifecycle.dispose();
+      }
     })
 );
 

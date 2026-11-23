@@ -1446,6 +1446,7 @@ const serverHandle = (
   activate: lifecycle.activate,
   drain: server.requestGate.drain,
   passcodeState: () => ctx.passcode.status(),
+  storeHealth: ctx.storeHealth,
   ownerAttention: serverOwnerAttention(ctx),
   inheritUnlock: () => ctx.passcode.inheritUnlock(),
   close: (options) => {

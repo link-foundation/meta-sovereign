@@ -398,6 +398,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 - [Desktop notification packaging](desktop-attention-packaging.md) traces both Windows installer smoke failures to a checkout-only React import and verifies localized attention in an isolated copy without renderer dependencies.
 
+- [Bundled local runner in Electron](desktop-local-runner.md) verifies a private loopback runner using Electron's bundled runtime, Lino and CLI control, durable process ownership and the shared Settings flow. The installer smoke runs on hosted CI. Remote application preparation and VD01 remain open.
+
 - [Edited answer history](question-archive-revisions.md) retains earlier observed versions of confirmed answers with original message and revision IDs. Shared archive learning deduplicates repeated wording, respects owner corrections and reports incomplete edit chains. Authenticated provider history remains required for QA02 and QA06.
 - [HeadHunter recorder history](hh-recording-import.md) verifies the recorder file through CLI, both Lino encodings, production Chromium and mobile Playwright MCP. Chat preserves revisions, unknown times and unconfirmed delivery. QA02 and QA06 remain unfinished.
 - [Manual archive import](manual-archive-import.md) verifies Messenger paste and Telegram file import under the existing browser policy, with both conversations reopening from browser storage while the server API is unavailable.

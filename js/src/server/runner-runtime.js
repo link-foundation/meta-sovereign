@@ -23,6 +23,7 @@ export const createRunnerRuntime = (options = {}) => {
         abort.abort();
       }
       await Promise.allSettled([...owned.values()]);
+      await options.desktopRunner?.close();
     },
   };
 };

@@ -18,6 +18,8 @@ import { openVkAuthorization } from './vk-authorization.js';
 import { desktopConfiguration } from './configuration.js';
 import { DesktopOwnerAttention } from './owner-attention.js';
 import { createAttentionPrompt } from './attention-prompt.js';
+import { createDesktopLocalRunner } from './local-runner.js';
+import { defaultRunnerDirectory } from '../src/server/runner-controller.js';
 
 import { createMainWindow } from './window.js';
 export { createMainWindow, MIN_WINDOW } from './window.js';
@@ -145,6 +147,7 @@ export const startDesktop = async ({
       clipboard,
       Notification,
       shell,
+      utilityProcess,
     },
     autoUpdater,
   ] = await Promise.all([electronLoader(), updaterLoader()]);
@@ -157,6 +160,23 @@ export const startDesktop = async ({
   const handle = await startServer({
     storeDir: resolveDesktopStoreDir({ app }),
     ...options,
+    ...(utilityProcess
+      ? {
+          runnerSessions: {
+            ...options.runnerSessions,
+            desktopRunner: createDesktopLocalRunner({
+              utilityProcess,
+              ownershipDirectory: path.join(
+                defaultRunnerDirectory(),
+                'runner-control',
+                'desktop'
+              ),
+              automationDefaults: options.automationDefaults,
+              secretPassphrase: options.secretPassphrase,
+            }),
+          },
+        }
+      : {}),
     vkToken: {
       openAuthorization: async ({ signal }) => {
         await app.whenReady();

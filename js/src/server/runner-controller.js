@@ -92,6 +92,7 @@ export const createRunnerController = ({
   run,
   prepareLauncher = createRunnerLauncherPreparation({ probe: run }),
   prepareRuntime = createRunnerRuntimePreparation({ probe: run }),
+  desktopRunner,
   load,
   lock = acquireStoreLock,
 }) => ({
@@ -139,7 +140,11 @@ export const createRunnerController = ({
         bound,
         profile === undefined
       );
-      let control = createRunnerControl({ targets: bound ?? desired, run });
+      let control = createRunnerControl({
+        targets: bound ?? desired,
+        run,
+        desktopRunner,
+      });
       const observed = await control.status({ signal });
       const mismatch = profileMismatch(bound, desired, observed.states);
       if (mismatch && !['stop', 'inspect'].includes(action)) {
@@ -156,6 +161,7 @@ export const createRunnerController = ({
         run,
         prepareLauncher,
         prepareRuntime,
+        desktopRunner,
       });
       if (action === 'status') {
         return {
@@ -172,6 +178,7 @@ export const createRunnerController = ({
           mode,
           run,
           resolveRuntime: prepareRuntime,
+          desktopRunner,
           signal,
           code: mismatch ? profileFailure(desired) : undefined,
         });

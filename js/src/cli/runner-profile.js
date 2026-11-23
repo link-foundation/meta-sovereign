@@ -32,7 +32,10 @@ const optionalTextValid = (target) =>
     (key) => target[key] === undefined || text(target[key])
   );
 const pathsValid = (target, mode, partial) =>
-  ['directory', 'cli', 'store'].every(
+  (target.isolation === 'desktop'
+    ? ['store']
+    : ['directory', 'cli', 'store']
+  ).every(
     (key) =>
       (partial && target[key] === undefined) ||
       (text(target[key]) &&
@@ -52,6 +55,14 @@ const imageValid = (value) =>
   (!value.includes('@') || /@sha256:[a-f0-9]{64}$/.test(value));
 const isolationValid = (target, mode, partial) => {
   const isolation = target.isolation ?? 'screen';
+  if (isolation === 'desktop') {
+    return (
+      mode === 'local' &&
+      ['directory', 'cli', 'start', 'node', 'image'].every(
+        (key) => target[key] === undefined
+      )
+    );
+  }
   if (
     !['screen', 'docker'].includes(isolation) ||
     (mode === 'local' && (isolation === 'docker' || target.image !== undefined))
@@ -90,6 +101,9 @@ const validateTarget = (target, mode, session, partial) => {
   const isolation = target.isolation ?? 'screen';
   if (partial) {
     return { ...target };
+  }
+  if (isolation === 'desktop') {
+    return { ...target, session };
   }
   return {
     ...target,

@@ -1526,3 +1526,10 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Read bounded PDF text through the same browser profile. Require one positive source receipt for every page and keep the existing private draft, CLI and Lino review paths.
 - [x] Verify the final source in focused Node, Deno and Bun checks, native Chromium and WebKit, and an independent Playwright MCP phone check. Preserve the output and both Forms states.
 - [ ] Publish only to the prepared branch and inspect exact-source CI. Continue the remaining document formats, notifications, authenticated provider acceptance and all other unchecked issue requirements.
+
+2026-11-23 bundled desktop runner (VD01 remains unfinished)
+
+- [x] Confirm the pinned desktop donor runs locally through its bundled runtime. Reproduce the missing profile mode and validate Electron utility process startup from ASAR.
+- [x] Finish the local desktop adapter and its durable process ownership. Preserve existing Screen and Docker profiles. Prepare the desktop application before stopping the peer.
+- [x] Verify the listener, stop receipt, storage release, profile editing, CLI connection and both Lino encodings. Preserve native Electron and phone Settings evidence.
+- [ ] Publish only to the prepared branch and inspect exact-source CI. Continue authenticated remote application preparation and the other unchecked issue requirements.

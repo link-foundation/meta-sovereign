@@ -4,6 +4,7 @@ import { readReadableConfiguration } from './readable-configuration.js';
 import { runnerProfileData, validateRunnerProfile } from './runner-profile.js';
 
 const invalid = () => new Error('Runner profile unavailable or invalid.');
+const sharedTargetFields = ({ store, port } = {}) => ({ store, port });
 
 const readLayer = async (file, optional) => {
   try {
@@ -32,7 +33,11 @@ export const mergeRunnerConfiguration = (...layers) => {
       if (value[mode] === false) {
         delete merged[mode];
       } else if (value[mode] !== undefined) {
-        merged[mode] = { ...previous[mode], ...value[mode] };
+        const base =
+          value[mode].isolation === 'desktop'
+            ? sharedTargetFields(previous[mode])
+            : previous[mode];
+        merged[mode] = { ...base, ...value[mode] };
       }
     }
   }

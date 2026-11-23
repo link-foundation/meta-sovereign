@@ -977,6 +977,10 @@ CLI field overrides. Share effective revision-checked editing across CLI, Lino a
 Settings, preserve global files and retain running targets through configuration
 changes (issue #56 VD07).
 
+Run a local session from the installed desktop app's bundled runtime with a
+separate loopback port and store. Start, inspect and stop it from Settings,
+connected CLI or either Lino transport (issue #56 VD01).
+
 Add owner-selectable weighted character/keyword question rewording across saved actions, CLI, both Lino transports and translated answer/Forms controls. Retain ordered matching defaults, subject protection, finite work and mandatory review for approximate suggestions (issue #56, QA02).
 
 Bound standalone weighted question matching before tokenization, preserving the

@@ -60,6 +60,8 @@ export const DESKTOP_SOURCE_DIRS = Object.freeze([
 // Entry points and assets the staged application needs at runtime.
 export const DESKTOP_REQUIRED_FILES = Object.freeze([
   'js/electron/main.js',
+  'js/electron/local-runner.js',
+  'js/electron/local-runner-worker.js',
   'js/electron/preload.cjs',
   'js/electron/attention-prompt.cjs',
   'js/electron/attention-prompt.html',

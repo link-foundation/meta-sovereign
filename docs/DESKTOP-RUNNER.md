@@ -53,6 +53,45 @@ Directories, CLI entry points and stores must be absolute paths. Server paths
 refer to the SSH host. Omit either target to leave that mode unconfigured.
 The optional `node` and `start` fields select executable names or absolute
 paths; their defaults are `node` and `$`. Both targets default to `isolation screen`.
+
+## Bundled desktop runner
+
+In the desktop app, set the local target to `isolation desktop` to run it with
+the bundled application and Node runtime. Use a separate absolute store directory
+and a free loopback port for the runner. The desktop target takes `isolation`,
+`store` and `port`.
+
+```text
+runner:
+  local runner_local
+
+runner_local:
+  isolation desktop
+  store /absolute/path/to/runner-store
+  port 8788
+```
+
+Save this profile in **Settings → Runner sessions → Edit session targets**.
+Use **Start** to open the worker. **Check application** reads its current store
+and passcode state. **Stop** waits for that worker to exit. Quitting the desktop
+app requests the same shutdown. A second controller that sees another
+process's active desktop lease reports `unknown` and holds the switch.
+
+The CLI controls the bundled runner through the desktop app's listening origin.
+
+```sh
+meta-sovereign runner start local --url=http://127.0.0.1:8787
+meta-sovereign runner inspect local --url=http://127.0.0.1:8787
+meta-sovereign runner stop local --url=http://127.0.0.1:8787
+```
+
+These commands show port `8787` for a desktop app started with `--port=8787`.
+A shell controller or standalone server reports a configured desktop target
+as `unknown`. Switching a local profile layer to `isolation desktop` retains
+an inherited `store` and `port` and discards the inherited launcher fields.
+
+## Detached sessions
+
 The server also accepts `isolation docker` with an explicit `image`:
 
 ```text
@@ -78,9 +117,9 @@ read/write mount. Both mounts retain data after Stop and restart. Choose an imag
 whose runtime, architecture and native dependencies match those files.
 Credentials do not belong in this file.
 
-Each target needs the project's supported Node version, the application and its
-production dependencies, and its selected isolation backend. Local execution
-uses GNU Screen without Docker. A remote Screen target needs GNU Screen. A
+Each detached target needs the project's supported Node version, the application
+and its production dependencies, and its selected isolation backend. A local or
+remote Screen target needs GNU Screen. A
 remote Docker target needs a working Docker daemon and permission to use it.
 
 Explicit Start uses the configured `start` command when supplied. For the
