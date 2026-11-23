@@ -52,5 +52,5 @@ attachments. All provider operations use the isolated fixture.
 The [evidence archive](data/cv-copy-save.tar.gz) preserves exact-parent source
 and refusal logs, focused verification and screenshot hashes. This covers part of
 HH14–HH16 and HH18 in [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57).
-The complete reviewed copy/Save/detach sequence, independent Add and authenticated
-HeadHunter parity remain open.
+The [complete reviewed copy/Save/detach fixture](cv-workplace-followup.md) builds
+on this evidence. Independent Add and authenticated HeadHunter parity remain open.

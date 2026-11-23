@@ -9,6 +9,7 @@ export const NativeCvWorkplaceList = ({
   otherHash,
   screen,
   list = {},
+  captureSave,
 }) => {
   const [adding, setAdding] = useState(false);
   if (adding) {
@@ -29,6 +30,7 @@ export const NativeCvWorkplaceList = ({
       fieldsMode: true,
       membershipMode: true,
       newWorkplace: true,
+      captureSave,
     });
   }
   const jobs = [

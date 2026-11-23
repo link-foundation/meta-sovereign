@@ -1171,3 +1171,7 @@ control (issue #56).
 Verify owner-created HeadHunter workplace records using the new native ID and
 the change in saved CV exports. Confirm identical copies and retain the previous
 snapshot while a provider export still shows only the original (issue #56).
+
+Verify a separately reviewed HeadHunter workplace detach against the exact
+saved membership and the prior CV exports. Preserve the target-only copy,
+unrelated jobs and the prior snapshot while the detach export is stale (issue #56).

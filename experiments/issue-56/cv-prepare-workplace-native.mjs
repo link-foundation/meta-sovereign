@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { readCvEditorDocument } from '../../js/src/jobs/cv-watch-document.js';
 import {
   NativeDates,
   NativeArea,
@@ -22,8 +23,10 @@ export const NativeCvWorkplace = ({
   fieldsMode = false,
   membershipMode = false,
   newWorkplace = false,
+  target = !newWorkplace,
+  captureSave = false,
 }) => {
-  const [targetChecked, setTargetChecked] = useState(!newWorkplace);
+  const [targetChecked, setTargetChecked] = useState(target);
   const [description, setDescription] = useState(job.description);
   const [company, setCompany] = useState(job.company);
   const [checked, setChecked] = useState(shared);
@@ -35,7 +38,10 @@ export const NativeCvWorkplace = ({
   );
   const save = async () => {
     globalThis.fixtureSaves++;
-    await fetch('/fixture/save', { method: 'POST', body: description });
+    await fetch('/fixture/save', {
+      method: 'POST',
+      body: captureSave ? JSON.stringify(readCvEditorDocument()) : description,
+    });
     globalThis.location.href = `/resume/${hash}`;
   };
   return el('main', null, [

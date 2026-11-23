@@ -3,6 +3,7 @@ import { readCvEditorDocument } from './cv-watch-document.js';
 import {
   confirmedCvWorkplaceExportBaseline,
   cvWorkplaceExportBaseline,
+  cvWorkplaceMembershipBaseline,
   verifyCvSave,
 } from './cv-watch-verification.js';
 import { cvWatchUrl } from './cv-watch-browser.js';
@@ -33,6 +34,7 @@ export const verifyOwnerCvSave = async ({
   readWorkplaceIds = readCvSavedWorkplaceIds,
   workplaceBaseline,
   workplaceBaselineJobs,
+  workplaceMembership,
   pollMs = 500,
   verificationMs = 30000,
   clock = systemClock,
@@ -117,7 +119,8 @@ export const verifyOwnerCvSave = async ({
           effectiveAttempt,
           exports,
           workplace,
-          created ? workplaceBaselineJobs : undefined
+          created ? workplaceBaselineJobs : undefined,
+          workplaceMembership
         )
       ) {
         const result = {
@@ -130,6 +133,12 @@ export const verifyOwnerCvSave = async ({
                 ),
               }
             : {}),
+          ...(workplace && {
+            workplaceMembership: cvWorkplaceMembershipBaseline(
+              workplace,
+              exports
+            ),
+          }),
           exports: exports.map((row) => ({
             hash: row.hash,
             cv: sanitizedResumeCv(row.cv).cv,

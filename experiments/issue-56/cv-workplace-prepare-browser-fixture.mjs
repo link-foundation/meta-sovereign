@@ -8,6 +8,7 @@ import { cvPrepareFixture } from './cv-prepare-fixture.mjs';
 import { vacancyBrowserFixture } from './vacancy-browser-fixture.mjs';
 import { prepareNativeCvWorkplace } from '../../js/src/jobs/cv-prepare-workplace.js';
 import { cvWorkplaceDictionaryRows } from './cv-workplace-fields-fixture.mjs';
+import { cvWorkplaceFollowupState } from './cv-workplace-followup-state.mjs';
 
 let bundle;
 const attachProvider = (provider, counters) => async () => {
@@ -30,7 +31,7 @@ const attachProvider = (provider, counters) => async () => {
 
 export const cvWorkplacePrepareBrowserFixture = async (
   browser,
-  { fieldsMode = false, copyMode = false } = {}
+  { fieldsMode = false, copyMode = false, followupMode = false } = {}
 ) => {
   const data = await cvPrepareFixture({ selected: ['en:jobs.0.description'] });
   const change = data.review.report.changes.find(
@@ -39,6 +40,13 @@ export const cvWorkplacePrepareBrowserFixture = async (
   const source = data.review.sources.find((row) => row.cv.language === 'en');
   const otherHash = data.review.sources.find((row) => row.cv.language === 'ru')
     .identity.hash;
+  const followup = followupMode
+    ? cvWorkplaceFollowupState({
+        hash: change.hash,
+        otherHash,
+        job: source.cv.jobs[0],
+      })
+    : null;
   bundle ??= build({
     stdin: {
       contents:
@@ -71,11 +79,13 @@ export const cvWorkplacePrepareBrowserFixture = async (
     shared: options.shared ?? false,
     maxLength: options.maxLength ?? 24000,
     fieldsMode,
-    membershipMode: options.membershipMode ?? false,
+    membershipMode: options.membershipMode ?? followupMode,
+    captureSave: followupMode,
   });
-  const html = (saved = false, screen) => {
+  const html = (saved = false, screen, record) => {
     const value = {
       ...props(saved),
+      ...record,
       ...(screen
         ? { screen, list: { allowAdd: copyMode, ...options.list } }
         : {}),
@@ -95,8 +105,13 @@ export const cvWorkplacePrepareBrowserFixture = async (
     }
     if (url.pathname === '/fixture/save') {
       counters.saves++;
+      followup?.save(route.request().postData());
       return route.fulfill({ body: 'saved fixture' });
     }
+    const recordId = url.pathname.match(
+      /^\/profile\/edit\/experience\/(\d+)$/u
+    )?.[1];
+    const record = followup?.record(recordId);
     if (route.request().isNavigationRequest()) {
       counters.navigations++;
       counters.destinations.push(url.href);
@@ -108,7 +123,7 @@ export const cvWorkplacePrepareBrowserFixture = async (
             : undefined;
       return route.fulfill({
         contentType: 'text/html',
-        body: html(false, screen),
+        body: html(false, screen, record),
       });
     }
     counters.reads++;
@@ -119,7 +134,13 @@ export const cvWorkplacePrepareBrowserFixture = async (
     }
     return route.fulfill({
       contentType: 'text/html',
-      body: options.challenge ? '<input name="captcha">' : html(true),
+      body: options.challenge
+        ? '<input name="captcha">'
+        : followup && url.pathname === '/profile/edit/experience'
+          ? followup.list()
+          : followup && url.pathname === '/resume_converter/resume.txt'
+            ? followup.export(url.searchParams.get('hash'))
+            : html(true, undefined, record),
     });
   });
   const open = async (next = {}) => {
@@ -142,6 +163,12 @@ export const cvWorkplacePrepareBrowserFixture = async (
       exports: {
         service: () => ({
           artifactRoot: data.artifactRoot,
+          ...(followup && {
+            cvWatch: {
+              attach,
+              verification: { pollMs: 50, verificationMs: 2500 },
+            },
+          }),
           cvPrepare: {
             attach,
             prepare: (input) =>
@@ -163,6 +190,7 @@ export const cvWorkplacePrepareBrowserFixture = async (
       provider,
       change,
       counters,
+      followup,
       open,
       beforeRead: (work) => {
         beforeRead = work;

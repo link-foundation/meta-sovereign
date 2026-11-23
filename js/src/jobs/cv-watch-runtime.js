@@ -3,6 +3,7 @@ import { monitorCvSaves } from './cv-watch-monitor.js';
 import {
   cvSaveAttempt,
   cvWorkplaceExportBaseline,
+  cvWorkplaceMembershipBaseline,
   cvWorkplaceSaveResumes,
 } from './cv-watch-verification.js';
 import { verifyOwnerCvSave } from './cv-save-cycle.js';
@@ -12,6 +13,7 @@ import { jobsFailure } from './options.js';
 import { traceCvWatch } from './cv-watch-trace.js';
 import { readCvEditorDocument } from './cv-watch-document.js';
 import { readCvSavedWorkplaceIds } from './cv-workplace-created.js';
+import { readCvSavedWorkplace } from './cv-workplace-readback.js';
 
 const stale = () =>
   jobsFailure(
@@ -19,13 +21,14 @@ const stale = () =>
     'The owner changed or cancelled this save attempt.'
   );
 
-const captureNewWorkplaceBaseline = async ({
+const captureWorkplaceBaseline = async ({
   session,
   store,
   initial,
   signal,
   readExports,
   readIds = readCvSavedWorkplaceIds,
+  readWorkplace = readCvSavedWorkplace,
 }) => {
   const deadline = globalThis.performance.now() + 30000;
   const check = () => {
@@ -40,8 +43,30 @@ const captureNewWorkplaceBaseline = async ({
       );
     }
   };
-  const resumes = cvWorkplaceSaveResumes(initial);
   check();
+  if (initial.recordId !== null) {
+    const saved = await readWorkplace({
+      session,
+      attempt: { recordId: initial.recordId },
+      check,
+      signal,
+    });
+    check();
+    const exports = await readExports({
+      session,
+      store,
+      attempt: saved,
+      check,
+      signal,
+    });
+    const membership = cvWorkplaceMembershipBaseline(saved, exports);
+    check();
+    traceCvWatch('workplace-membership-baseline', {
+      resumes: membership.resumes.size,
+    });
+    return { membership };
+  }
+  const resumes = cvWorkplaceSaveResumes(initial);
   const ids = await readIds({ session, check, signal });
   check();
   const exports = await readExports({
@@ -168,6 +193,7 @@ export const runCvWatch = async ({
           ...verification,
           workplaceBaseline: baseline?.ids,
           workplaceBaselineJobs: baseline?.jobs,
+          workplaceMembership: baseline?.membership,
         })
       )
       .then(async (result) => {
@@ -177,6 +203,12 @@ export const runCvWatch = async ({
           workplaceBaseline = {
             ids: result.workplaceIds,
             jobs: result.workplaceJobs,
+          };
+        }
+        if (result.workplaceMembership) {
+          workplaceBaseline = {
+            ...workplaceBaseline,
+            membership: result.workplaceMembership,
           };
         }
       })
@@ -207,14 +239,15 @@ export const runCvWatch = async ({
       args: [],
     });
     signal.throwIfAborted();
-    if (initial?.kind === 'workplace' && initial.recordId === null) {
-      workplaceBaseline = await captureNewWorkplaceBaseline({
+    if (initial?.kind === 'workplace') {
+      workplaceBaseline = await captureWorkplaceBaseline({
         session,
         store,
         initial,
         signal,
         readExports,
         readIds: verification?.readWorkplaceIds,
+        readWorkplace: verification?.readWorkplace,
       });
     }
     monitor = await monitorCvSaves({ page: session.page, receive, failed });

@@ -149,12 +149,15 @@ export const cvWorkplaceMatchesJob = (
   industryEntries,
   areaEntries
 ) => {
-  if (!attempt.metadataEditable || attempt.industryText === null) {
+  if (
+    !attempt.metadataEditable ||
+    attempt.industryText === null ||
+    !sameJobFields(attempt, job)
+  ) {
     return false;
   }
   const ids = confirmedCvIndustryIds(attempt.industryText, industryEntries);
   return (
-    sameJobFields(attempt, job) &&
     sameArea(attempt, job, areaEntries) &&
     website(job.website) === website(attempt.website) &&
     ids !== null &&
@@ -236,6 +239,34 @@ export const cvWorkplaceExportBaseline = (exports, resumes) => {
   );
 };
 
+/** Capture saved membership and the exported fingerprint of just this record. */
+export const cvWorkplaceMembershipBaseline = (saved, exports) => {
+  const jobs = cvWorkplaceExportBaseline(exports, saved.resumes);
+  return {
+    recordId: saved.recordId,
+    resumes: new Map(
+      exports.map((row) => {
+        const { checked } = saved.resumes.find(({ hash }) => hash === row.hash);
+        const matching = new Set(
+          checked
+            ? row.cv.jobs
+                .filter((job) =>
+                  cvWorkplaceMatchesJob(
+                    saved,
+                    job,
+                    row.industryEntries,
+                    row.areaEntries
+                  )
+                )
+                .map(jobFingerprint)
+            : []
+        );
+        return [row.hash, { checked, jobs: jobs.get(row.hash), matching }];
+      })
+    ),
+  };
+};
+
 const workplaceAddedToExport = (attempt, cv, checked, previous) => {
   if (cv.cv.jobs.length !== previous.length + Number(checked)) {
     return false;
@@ -265,8 +296,46 @@ const workplaceAddedToExport = (attempt, cv, checked, previous) => {
   );
 };
 
+const cvWorkplaceMembershipDelta = (attempt, baseline) => {
+  if (baseline?.recordId !== attempt.recordId) {
+    return null;
+  }
+  const { resumes } = baseline;
+  if (
+    resumes.size !== attempt.resumes.length ||
+    attempt.resumes.some(({ hash }) => !resumes.has(hash))
+  ) {
+    throw missingExportBaseline();
+  }
+  if (
+    attempt.resumes.every(
+      ({ hash, checked }) => resumes.get(hash).checked === checked
+    )
+  ) {
+    return null;
+  }
+  return new Map(
+    [...resumes].map(([hash, { checked, jobs, matching }]) => {
+      if (!checked) {
+        return [hash, jobs];
+      }
+      if (matching.size !== 1) {
+        throw missingExportBaseline();
+      }
+      const index = jobs.indexOf(matching.values().next().value);
+      return [hash, [...jobs.slice(0, index), ...jobs.slice(index + 1)]];
+    })
+  );
+};
+
 /** Exact record membership plus fresh exports; a closed form proves nothing. */
-export const verifyCvSave = (attempt, exports, savedWorkplace, baseline) => {
+export const verifyCvSave = (
+  attempt,
+  exports,
+  savedWorkplace,
+  baseline,
+  membership
+) => {
   const one = (hash) => {
     const rows = exports.filter((row) => row.hash === hash);
     return rows.length === 1 ? rows[0] : null;
@@ -285,13 +354,14 @@ export const verifyCvSave = (attempt, exports, savedWorkplace, baseline) => {
   ) {
     return false;
   }
+  const previous = baseline ?? cvWorkplaceMembershipDelta(attempt, membership);
   return attempt.resumes.every(({ hash, checked }) => {
     const cv = one(hash);
     if (!cv) {
       return false;
     }
-    if (baseline) {
-      return workplaceAddedToExport(attempt, cv, checked, baseline.get(hash));
+    if (previous) {
+      return workplaceAddedToExport(attempt, cv, checked, previous.get(hash));
     }
     const matches = cv.cv.jobs.filter((job) => sameJobFields(attempt, job));
     if (!checked) {

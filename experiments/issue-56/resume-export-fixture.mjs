@@ -54,10 +54,14 @@ const escapeHtml = (value) =>
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;');
-export const resumeExportHtml = (language = 'en') => {
+export const resumeExportHtml = (language = 'en', jobs) => {
   const cv = resumeCvFixture(language);
-  const job = cv.jobs[0];
   const paragraphs = (text) => escapeHtml(text).replaceAll('\n', '<br>');
+  const workplace = (job) =>
+    `<div class="resume-experience"><p class="bloko-form-hint">${escapeHtml(job.period)}</p>
+      <h3 class="resume-experience__company">${escapeHtml(job.company)}</h3><p class="info">${escapeHtml(job.area)}, ${escapeHtml(job.website)}</p>
+      ${job.industries.map((industry) => `<p>${escapeHtml(industry.parent)}</p><ul><li>${escapeHtml(industry.name)}</li></ul>`).join('')}
+      <h4 class="resume-experience__position">${escapeHtml(job.position)}</h4><p>${paragraphs(job.description)}</p></div>`;
   return `<!doctype html><html><body>
     <h1 class="resume__title">${cv.name}</h1><h2 class="resume__position">${cv.title}</h2>
     <p>${language === 'ru' ? 'Резюме обновлено' : 'Resume updated'} 12 November 2026</p>
@@ -65,10 +69,7 @@ export const resumeExportHtml = (language = 'en') => {
     <div class="resume-skils"><p class="bloko-form-hint">${language === 'ru' ? 'Навыки' : 'Skills'}</p>
       <div class="resume-skils__item"><span>JavaScript;</span><span>SQL;</span></div></div>
     <div class="resume-skils"><p class="bloko-form-hint">${language === 'ru' ? 'Обо мне' : 'About me'}</p>${paragraphs(cv.about)}</div>
-    <div class="resume-experience"><p class="bloko-form-hint">${job.period}</p>
-      <h3 class="resume-experience__company">${job.company}</h3><p class="info">${job.area}, ${job.website}</p>
-      <p>${job.industries[0].parent}</p><ul><li>${job.industries[0].name}</li></ul>
-      <h4 class="resume-experience__position">${job.position}</h4><p>${paragraphs(job.description)}</p></div>
+    ${(jobs ?? cv.jobs).map(workplace).join('')}
     <script>globalThis.nativeExportScriptExecuted=true;</script></body></html>`;
 };
 export const nativeResumeBytes = (format, language = 'en') =>
