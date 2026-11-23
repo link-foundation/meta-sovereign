@@ -1204,3 +1204,7 @@ fresh export confirms the target changes (issue #56).
 
 Review an existing LinkedIn About section from a directed comparison. Prepare
 one draft, choose Save, Skip or Leave, and check the saved profile (issue #56).
+
+Prepare the default isolated runner launcher privately on the selected host
+when it is missing. Reuse the verified installation and keep the active
+session running if the destination launcher cannot be prepared (issue #56).

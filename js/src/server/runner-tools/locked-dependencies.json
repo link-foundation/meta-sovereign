@@ -1,13 +1,14 @@
 {
-  "name": "meta-sovereign-runner-fixture-tools",
+  "name": "meta-sovereign-runner-tools",
   "version": "0.0.0",
   "lockfileVersion": 3,
   "requires": true,
   "packages": {
     "": {
-      "name": "meta-sovereign-runner-fixture-tools",
+      "name": "meta-sovereign-runner-tools",
       "version": "0.0.0",
       "dependencies": {
+        "bun": "1.4.4",
         "start-command": "0.44.0"
       }
     },
@@ -51,6 +52,118 @@
         "node": ">=22.13.0"
       }
     },
+    "node_modules/@oven/bun-darwin-aarch64": {
+      "version": "1.4.4",
+      "resolved": "https://registry.npmjs.org/@oven/bun-darwin-aarch64/-/bun-darwin-aarch64-1.4.4.tgz",
+      "integrity": "sha512-zW/hxwc8sJAILGwB5eTC4i48ouGXf0V4lrxmEOk3JIE6JkYVW1TZh1E2pIempqsezgW1sckTIIDudFON8bJ2Mw==",
+      "cpu": ["arm64"],
+      "license": "MIT",
+      "optional": true,
+      "os": ["darwin"]
+    },
+    "node_modules/@oven/bun-darwin-x64": {
+      "version": "1.4.4",
+      "resolved": "https://registry.npmjs.org/@oven/bun-darwin-x64/-/bun-darwin-x64-1.4.4.tgz",
+      "integrity": "sha512-oKGcxLsvh4oHjAo28nPm8c/xN0o/OmGyj1IHYc94vprkWsW2hNg2keEZt5f40cI5Hvu4jDlSRTR0UNpv1UIAxw==",
+      "cpu": ["x64"],
+      "license": "MIT",
+      "optional": true,
+      "os": ["darwin"]
+    },
+    "node_modules/@oven/bun-freebsd-aarch64": {
+      "version": "1.4.4",
+      "resolved": "https://registry.npmjs.org/@oven/bun-freebsd-aarch64/-/bun-freebsd-aarch64-1.4.4.tgz",
+      "integrity": "sha512-klvA9FlwLxZj3JYIOPQA4bbnHIC3uas8kBE4GaGGkeVgAQP/k8hAzYkOqkSaqHBDbxLrTyFEQArEAevJq6NJzg==",
+      "cpu": ["arm64"],
+      "license": "MIT",
+      "optional": true,
+      "os": ["freebsd"]
+    },
+    "node_modules/@oven/bun-freebsd-x64": {
+      "version": "1.4.4",
+      "resolved": "https://registry.npmjs.org/@oven/bun-freebsd-x64/-/bun-freebsd-x64-1.4.4.tgz",
+      "integrity": "sha512-sF1xS/scbyN94P2d0eTiarO6JHxrIvhZNT9hnWjQXW5nwKRtfuP+UYnIMNyvW1BQPcZFP/cvfLBNUIe1ea4zPA==",
+      "cpu": ["x64"],
+      "license": "MIT",
+      "optional": true,
+      "os": ["freebsd"]
+    },
+    "node_modules/@oven/bun-linux-aarch64": {
+      "version": "1.4.4",
+      "resolved": "https://registry.npmjs.org/@oven/bun-linux-aarch64/-/bun-linux-aarch64-1.4.4.tgz",
+      "integrity": "sha512-ZTVtpf9zmHSBVPX1sBwe5agGb/rN34yPGg/Hby8e2Ax2uCUA2URZKlZH7qLntK7qaFJCMXh9v0GWNYN2zINz1w==",
+      "cpu": ["arm64"],
+      "libc": ["glibc"],
+      "license": "MIT",
+      "optional": true,
+      "os": ["linux"]
+    },
+    "node_modules/@oven/bun-linux-aarch64-android": {
+      "version": "1.4.4",
+      "resolved": "https://registry.npmjs.org/@oven/bun-linux-aarch64-android/-/bun-linux-aarch64-android-1.4.4.tgz",
+      "integrity": "sha512-5lvn3at5vRC0GxvmiqEiV2/e23tnRi0q5pzR40yfDvDA3OW7PSkt4chF1nA9vnAJhro4/l+ol1FmNP6D3cf/oA==",
+      "cpu": ["arm64"],
+      "license": "MIT",
+      "optional": true,
+      "os": ["android"]
+    },
+    "node_modules/@oven/bun-linux-aarch64-musl": {
+      "version": "1.4.4",
+      "resolved": "https://registry.npmjs.org/@oven/bun-linux-aarch64-musl/-/bun-linux-aarch64-musl-1.4.4.tgz",
+      "integrity": "sha512-QFd0P+mHJxbZFbUla4MgiE5OwxysHaUIYxL2pPNkpWtaI7v4ShOpr8OhBmsuyB0xn5rv/ZJnPsj2y8+bB9+g/A==",
+      "cpu": ["arm64"],
+      "libc": ["musl"],
+      "license": "MIT",
+      "optional": true,
+      "os": ["linux"]
+    },
+    "node_modules/@oven/bun-linux-x64": {
+      "version": "1.4.4",
+      "resolved": "https://registry.npmjs.org/@oven/bun-linux-x64/-/bun-linux-x64-1.4.4.tgz",
+      "integrity": "sha512-CHbbkmHVM28T1GFq+6GL4Ao4ujwwYwj1CxFFwEFzLanPfNsId9AhbIP0Q4reWuWBkGimUkoQygrK7Rgjtj3vog==",
+      "cpu": ["x64"],
+      "libc": ["glibc"],
+      "license": "MIT",
+      "optional": true,
+      "os": ["linux"]
+    },
+    "node_modules/@oven/bun-linux-x64-android": {
+      "version": "1.4.4",
+      "resolved": "https://registry.npmjs.org/@oven/bun-linux-x64-android/-/bun-linux-x64-android-1.4.4.tgz",
+      "integrity": "sha512-3dMicj9C1DhaIfDkwt/9GtpU0W+q+GazbG9OIlEyL3Q1BBEz2e6ZRz/JiO8D/ECC0caXAqvnpFudehcLlgIwWQ==",
+      "cpu": ["x64"],
+      "license": "MIT",
+      "optional": true,
+      "os": ["android"]
+    },
+    "node_modules/@oven/bun-linux-x64-musl": {
+      "version": "1.4.4",
+      "resolved": "https://registry.npmjs.org/@oven/bun-linux-x64-musl/-/bun-linux-x64-musl-1.4.4.tgz",
+      "integrity": "sha512-lEEjNOJJrbGZu2NVcPI4uXdILcpspezWkA8R/Jr0RCGhM6zQd0Y7JBIIKNAmbX59EeWpeEz7Q78iLbpcAUypUA==",
+      "cpu": ["x64"],
+      "libc": ["musl"],
+      "license": "MIT",
+      "optional": true,
+      "os": ["linux"]
+    },
+    "node_modules/@oven/bun-windows-aarch64": {
+      "version": "1.4.4",
+      "resolved": "https://registry.npmjs.org/@oven/bun-windows-aarch64/-/bun-windows-aarch64-1.4.4.tgz",
+      "integrity": "sha512-n0ep5ZRPCZY1+dqFJpnnRUZB1wy4GYU6At8RF+pyzySCLjkN9R4rFh2PtBHAgF/lg1vOl3/CeER3pDM+p40ATA==",
+      "cpu": ["arm64"],
+      "license": "MIT",
+      "optional": true,
+      "os": ["win32"]
+    },
+    "node_modules/@oven/bun-windows-x64": {
+      "version": "1.4.4",
+      "resolved": "https://registry.npmjs.org/@oven/bun-windows-x64/-/bun-windows-x64-1.4.4.tgz",
+      "integrity": "sha512-a3LNctBVO8PjePsFZfwDleF2JXYf2BfQ1u/PLRnBDLnC2Riml+4+LgJpKj4xRGhB92KweGyQI5PXaTkP9qypMQ==",
+      "cpu": ["x64"],
+      "license": "MIT",
+      "optional": true,
+      "os": ["win32"]
+    },
     "node_modules/@peggyjs/from-mem": {
       "version": "3.1.3",
       "resolved": "https://registry.npmjs.org/@peggyjs/from-mem/-/from-mem-3.1.3.tgz",
@@ -90,14 +203,10 @@
       "version": "2.6.2",
       "resolved": "https://registry.npmjs.org/@resvg/resvg-js-android-arm-eabi/-/resvg-js-android-arm-eabi-2.6.2.tgz",
       "integrity": "sha512-FrJibrAk6v29eabIPgcTUMPXiEz8ssrAk7TXxsiZzww9UTQ1Z5KAbFJs+Z0Ez+VZTYgnE5IQJqBcoSiMebtPHA==",
-      "cpu": [
-        "arm"
-      ],
+      "cpu": ["arm"],
       "license": "MPL-2.0",
       "optional": true,
-      "os": [
-        "android"
-      ],
+      "os": ["android"],
       "engines": {
         "node": ">= 10"
       }
@@ -106,14 +215,10 @@
       "version": "2.6.2",
       "resolved": "https://registry.npmjs.org/@resvg/resvg-js-android-arm64/-/resvg-js-android-arm64-2.6.2.tgz",
       "integrity": "sha512-VcOKezEhm2VqzXpcIJoITuvUS/fcjIw5NA/w3tjzWyzmvoCdd+QXIqy3FBGulWdClvp4g+IfUemigrkLThSjAQ==",
-      "cpu": [
-        "arm64"
-      ],
+      "cpu": ["arm64"],
       "license": "MPL-2.0",
       "optional": true,
-      "os": [
-        "android"
-      ],
+      "os": ["android"],
       "engines": {
         "node": ">= 10"
       }
@@ -122,14 +227,10 @@
       "version": "2.6.2",
       "resolved": "https://registry.npmjs.org/@resvg/resvg-js-darwin-arm64/-/resvg-js-darwin-arm64-2.6.2.tgz",
       "integrity": "sha512-nmok2LnAd6nLUKI16aEB9ydMC6Lidiiq2m1nEBDR1LaaP7FGs4AJ90qDraxX+CWlVuRlvNjyYJTNv8qFjtL9+A==",
-      "cpu": [
-        "arm64"
-      ],
+      "cpu": ["arm64"],
       "license": "MPL-2.0",
       "optional": true,
-      "os": [
-        "darwin"
-      ],
+      "os": ["darwin"],
       "engines": {
         "node": ">= 10"
       }
@@ -138,14 +239,10 @@
       "version": "2.6.2",
       "resolved": "https://registry.npmjs.org/@resvg/resvg-js-darwin-x64/-/resvg-js-darwin-x64-2.6.2.tgz",
       "integrity": "sha512-GInyZLjgWDfsVT6+SHxQVRwNzV0AuA1uqGsOAW+0th56J7Nh6bHHKXHBWzUrihxMetcFDmQMAX1tZ1fZDYSRsw==",
-      "cpu": [
-        "x64"
-      ],
+      "cpu": ["x64"],
       "license": "MPL-2.0",
       "optional": true,
-      "os": [
-        "darwin"
-      ],
+      "os": ["darwin"],
       "engines": {
         "node": ">= 10"
       }
@@ -154,14 +251,10 @@
       "version": "2.6.2",
       "resolved": "https://registry.npmjs.org/@resvg/resvg-js-linux-arm-gnueabihf/-/resvg-js-linux-arm-gnueabihf-2.6.2.tgz",
       "integrity": "sha512-YIV3u/R9zJbpqTTNwTZM5/ocWetDKGsro0SWp70eGEM9eV2MerWyBRZnQIgzU3YBnSBQ1RcxRZvY/UxwESfZIw==",
-      "cpu": [
-        "arm"
-      ],
+      "cpu": ["arm"],
       "license": "MPL-2.0",
       "optional": true,
-      "os": [
-        "linux"
-      ],
+      "os": ["linux"],
       "engines": {
         "node": ">= 10"
       }
@@ -170,17 +263,11 @@
       "version": "2.6.2",
       "resolved": "https://registry.npmjs.org/@resvg/resvg-js-linux-arm64-gnu/-/resvg-js-linux-arm64-gnu-2.6.2.tgz",
       "integrity": "sha512-zc2BlJSim7YR4FZDQ8OUoJg5holYzdiYMeobb9pJuGDidGL9KZUv7SbiD4E8oZogtYY42UZEap7dqkkYuA91pg==",
-      "cpu": [
-        "arm64"
-      ],
-      "libc": [
-        "glibc"
-      ],
+      "cpu": ["arm64"],
+      "libc": ["glibc"],
       "license": "MPL-2.0",
       "optional": true,
-      "os": [
-        "linux"
-      ],
+      "os": ["linux"],
       "engines": {
         "node": ">= 10"
       }
@@ -189,17 +276,11 @@
       "version": "2.6.2",
       "resolved": "https://registry.npmjs.org/@resvg/resvg-js-linux-arm64-musl/-/resvg-js-linux-arm64-musl-2.6.2.tgz",
       "integrity": "sha512-3h3dLPWNgSsD4lQBJPb4f+kvdOSJHa5PjTYVsWHxLUzH4IFTJUAnmuWpw4KqyQ3NA5QCyhw4TWgxk3jRkQxEKg==",
-      "cpu": [
-        "arm64"
-      ],
-      "libc": [
-        "musl"
-      ],
+      "cpu": ["arm64"],
+      "libc": ["musl"],
       "license": "MPL-2.0",
       "optional": true,
-      "os": [
-        "linux"
-      ],
+      "os": ["linux"],
       "engines": {
         "node": ">= 10"
       }
@@ -208,17 +289,11 @@
       "version": "2.6.2",
       "resolved": "https://registry.npmjs.org/@resvg/resvg-js-linux-x64-gnu/-/resvg-js-linux-x64-gnu-2.6.2.tgz",
       "integrity": "sha512-IVUe+ckIerA7xMZ50duAZzwf1U7khQe2E0QpUxu5MBJNao5RqC0zwV/Zm965vw6D3gGFUl7j4m+oJjubBVoftw==",
-      "cpu": [
-        "x64"
-      ],
-      "libc": [
-        "glibc"
-      ],
+      "cpu": ["x64"],
+      "libc": ["glibc"],
       "license": "MPL-2.0",
       "optional": true,
-      "os": [
-        "linux"
-      ],
+      "os": ["linux"],
       "engines": {
         "node": ">= 10"
       }
@@ -227,17 +302,11 @@
       "version": "2.6.2",
       "resolved": "https://registry.npmjs.org/@resvg/resvg-js-linux-x64-musl/-/resvg-js-linux-x64-musl-2.6.2.tgz",
       "integrity": "sha512-UOf83vqTzoYQO9SZ0fPl2ZIFtNIz/Rr/y+7X8XRX1ZnBYsQ/tTb+cj9TE+KHOdmlTFBxhYzVkP2lRByCzqi4jQ==",
-      "cpu": [
-        "x64"
-      ],
-      "libc": [
-        "musl"
-      ],
+      "cpu": ["x64"],
+      "libc": ["musl"],
       "license": "MPL-2.0",
       "optional": true,
-      "os": [
-        "linux"
-      ],
+      "os": ["linux"],
       "engines": {
         "node": ">= 10"
       }
@@ -246,14 +315,10 @@
       "version": "2.6.2",
       "resolved": "https://registry.npmjs.org/@resvg/resvg-js-win32-arm64-msvc/-/resvg-js-win32-arm64-msvc-2.6.2.tgz",
       "integrity": "sha512-7C/RSgCa+7vqZ7qAbItfiaAWhyRSoD4l4BQAbVDqRRsRgY+S+hgS3in0Rxr7IorKUpGE69X48q6/nOAuTJQxeQ==",
-      "cpu": [
-        "arm64"
-      ],
+      "cpu": ["arm64"],
       "license": "MPL-2.0",
       "optional": true,
-      "os": [
-        "win32"
-      ],
+      "os": ["win32"],
       "engines": {
         "node": ">= 10"
       }
@@ -262,14 +327,10 @@
       "version": "2.6.2",
       "resolved": "https://registry.npmjs.org/@resvg/resvg-js-win32-ia32-msvc/-/resvg-js-win32-ia32-msvc-2.6.2.tgz",
       "integrity": "sha512-har4aPAlvjnLcil40AC77YDIk6loMawuJwFINEM7n0pZviwMkMvjb2W5ZirsNOZY4aDbo5tLx0wNMREp5Brk+w==",
-      "cpu": [
-        "ia32"
-      ],
+      "cpu": ["ia32"],
       "license": "MPL-2.0",
       "optional": true,
-      "os": [
-        "win32"
-      ],
+      "os": ["win32"],
       "engines": {
         "node": ">= 10"
       }
@@ -278,14 +339,10 @@
       "version": "2.6.2",
       "resolved": "https://registry.npmjs.org/@resvg/resvg-js-win32-x64-msvc/-/resvg-js-win32-x64-msvc-2.6.2.tgz",
       "integrity": "sha512-ZXtYhtUr5SSaBrUDq7DiyjOFJqBVL/dOBN7N/qmi/pO0IgiWW/f/ue3nbvu9joWE5aAKDoIzy/CxsY0suwGosQ==",
-      "cpu": [
-        "x64"
-      ],
+      "cpu": ["x64"],
       "license": "MPL-2.0",
       "optional": true,
-      "os": [
-        "win32"
-      ],
+      "os": ["win32"],
       "engines": {
         "node": ">= 10"
       }
@@ -353,9 +410,7 @@
       "resolved": "https://registry.npmjs.org/@xterm/headless/-/headless-6.0.0.tgz",
       "integrity": "sha512-5Yj1QINYCyzrZtf8OFIHi47iQtI+0qYFPHmouEfG8dHNxbZ9Tb9YGSuLcsEwj9Z+OL75GJqPyJbyoFer80a2Hw==",
       "license": "MIT",
-      "workspaces": [
-        "addons/*"
-      ]
+      "workspaces": ["addons/*"]
     },
     "node_modules/acorn": {
       "version": "8.19.0",
@@ -374,6 +429,33 @@
       "resolved": "https://registry.npmjs.org/boundary/-/boundary-2.0.0.tgz",
       "integrity": "sha512-rJKn5ooC9u8q13IMCrW0RSp31pxBCHE3y9V/tp3TdWSLf8Em3p6Di4NBpfzbJge9YjjFEsD0RtFEjtvHL5VyEA==",
       "license": "BSD-2-Clause"
+    },
+    "node_modules/bun": {
+      "version": "1.4.4",
+      "resolved": "https://registry.npmjs.org/bun/-/bun-1.4.4.tgz",
+      "integrity": "sha512-hj0ASdG6PNjLZGFAXktWb3Uaj/dcv/1wCsIttoEXADNIQBsGjTr+5uLKYbrDkuc7NT0Tkj4yPIqJI2jDxXdvVg==",
+      "cpu": ["arm64", "x64"],
+      "hasInstallScript": true,
+      "license": "MIT",
+      "os": ["darwin", "linux", "android", "freebsd", "win32"],
+      "bin": {
+        "bun": "bin/bun.exe",
+        "bunx": "bin/bunx.exe"
+      },
+      "optionalDependencies": {
+        "@oven/bun-darwin-aarch64": "1.4.4",
+        "@oven/bun-darwin-x64": "1.4.4",
+        "@oven/bun-freebsd-aarch64": "1.4.4",
+        "@oven/bun-freebsd-x64": "1.4.4",
+        "@oven/bun-linux-aarch64": "1.4.4",
+        "@oven/bun-linux-aarch64-android": "1.4.4",
+        "@oven/bun-linux-aarch64-musl": "1.4.4",
+        "@oven/bun-linux-x64": "1.4.4",
+        "@oven/bun-linux-x64-android": "1.4.4",
+        "@oven/bun-linux-x64-musl": "1.4.4",
+        "@oven/bun-windows-aarch64": "1.4.4",
+        "@oven/bun-windows-x64": "1.4.4"
+      }
     },
     "node_modules/command-stream": {
       "version": "2.6.0",

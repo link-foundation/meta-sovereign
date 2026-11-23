@@ -7,6 +7,7 @@ import { runRunnerCommand } from './runner-transport.js';
 import { prepareDockerRunner, stopDockerRunner } from './runner-docker.js';
 import { stopScreenRunner } from './runner-screen.js';
 import { setTimeout as delay } from 'node:timers/promises';
+import { configuredRunnerLauncher } from './runner-dependencies.js';
 
 const refused = (code, states) => ({ ok: false, code, states });
 const cancelled = (options) => options.signal?.aborted === true;
@@ -28,6 +29,7 @@ const prepareRunner = async (target, run, options) => {
 export const createRunnerControl = ({
   targets,
   run = runRunnerCommand,
+  prepareLauncher = configuredRunnerLauncher,
   now = () => globalThis.performance.now(),
   pause = delay,
   trace = (event) => {
@@ -90,6 +92,19 @@ export const createRunnerControl = ({
       return refused('runner-state-unconfirmed', current);
     }
     const other = mode === 'local' ? 'server' : 'local';
+    if (current[other] === 'unknown') {
+      return refused('other-runner-stop-unconfirmed', current);
+    }
+    let launcher;
+    if (current[mode] === 'stopped') {
+      launcher = await prepareLauncher(targets[mode], options);
+      if (!launcher) {
+        return refused('runner-launcher-unavailable', await states(options));
+      }
+    }
+    if (cancelled(options)) {
+      return refused('runner-state-unconfirmed', current);
+    }
     if (
       current[other] !== 'unconfigured' &&
       !(await stop(other, current, options))
@@ -114,12 +129,16 @@ export const createRunnerControl = ({
     if (current[mode] !== 'stopped' || cancelled(options)) {
       return refused('runner-state-unconfirmed', current);
     }
+    launcher ??= await prepareLauncher(targets[mode], options);
+    if (!launcher) {
+      return refused('runner-launcher-unavailable', await states(options));
+    }
     if (!(await prepareRunner(targets[mode], run, options))) {
       return refused('runner-state-unconfirmed', await states(options));
     }
     const reply = await run(
       targets[mode],
-      runnerLaunch(targets[mode]),
+      runnerLaunch(targets[mode], launcher),
       options
     );
     current[mode] = await observe(mode, options);

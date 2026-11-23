@@ -3,37 +3,31 @@ import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { writeFile, readFile, mkdir } from 'node:fs/promises';
-import { resolve, join } from 'node:path';
+import { dirname, resolve, join } from 'node:path';
 import { setTimeout as pause } from 'node:timers/promises';
 import { validateRunnerProfile } from '../../js/src/cli/runner-profile.js';
 import { createRunnerControl } from '../../js/src/server/runner-control.js';
 import { inspectRunnerApplication } from '../../js/src/server/runner-inspection.js';
 import {
+  createRunnerTransport,
   runRunnerCommand,
-  quoteRunnerArgument,
 } from '../../js/src/server/runner-transport.js';
+import { createRunnerLauncherPreparation } from '../../js/src/server/runner-dependencies.js';
 
 const exec = promisify(execFile);
 const fixture = process.env.RUNNER_DOCKER_FIXTURE;
 const isolation = process.env.RUNNER_SERVER_ISOLATION ?? 'docker';
 assert(['docker', 'screen'].includes(isolation));
 const docker = isolation === 'docker';
-assert(
-  fixture && process.env.RUNNER_START_PACKAGE && process.env.RUNNER_DOCKER_IMAGE
-);
+assert(fixture && process.env.RUNNER_DOCKER_IMAGE);
 const root = resolve('.');
 const session = `ms-runner-${isolation}-${process.pid}`;
-const start = join(fixture, 'start');
+const home = join(fixture, 'launcher home');
 const store = join(fixture, 'private store, "quoted"');
 await mkdir(store);
 const localStore = join(fixture, 'local store');
 await mkdir(localStore);
-const bun = (await exec('which', ['bun'])).stdout.trim();
-await writeFile(
-  start,
-  `#!/bin/sh\nexec ${quoteRunnerArgument(bun)} ${quoteRunnerArgument(join(process.env.RUNNER_START_PACKAGE, 'node_modules/start-command/src/bin/cli.js'))} "$@"\n`,
-  { mode: 0o700 }
-);
+await mkdir(home, { mode: 0o700 });
 const targets = validateRunnerProfile({
   session,
   local: {
@@ -42,7 +36,6 @@ const targets = validateRunnerProfile({
     store: localStore,
     port: 18787,
     node: process.execPath,
-    start,
   },
   server: {
     host: 'runner-docker-fixture',
@@ -54,11 +47,22 @@ const targets = validateRunnerProfile({
     ...(docker
       ? { image: process.env.RUNNER_DOCKER_IMAGE }
       : { node: process.execPath }),
-    start,
   },
 });
 const target = targets.server;
 const calls = [];
+const preparations = [];
+const isolatedEnvironment = [
+  'env',
+  `HOME=${home}`,
+  `PATH=${dirname(process.execPath)}:/usr/bin:/bin`,
+];
+const withEnvironment = (transport) => (selected, argv, options) =>
+  transport(selected, [...isolatedEnvironment, ...argv], options);
+const prepareLauncher = createRunnerLauncherPreparation({
+  probe: withEnvironment(runRunnerCommand),
+  run: withEnvironment(createRunnerTransport({ deadlineMs: 100000 })),
+});
 const run = async (selected, argv, options) => {
   calls.push(argv);
   const result = await runRunnerCommand(selected, argv, options);
@@ -69,7 +73,17 @@ const run = async (selected, argv, options) => {
   }
   return result;
 };
-const control = createRunnerControl({ targets, run });
+const control = createRunnerControl({
+  targets,
+  run,
+  async prepareLauncher(selected, options) {
+    const prefix = await prepareLauncher(selected, options);
+    assert.equal(prefix?.length, 2);
+    preparations.push(prefix);
+    return prefix;
+  },
+});
+const launches = () => calls.filter((argv) => argv.includes('--isolated'));
 const poll = async (read, expected) => {
   for (let attempt = 0; attempt < 40; attempt++) {
     if ((await read()) === expected) {
@@ -82,12 +96,14 @@ const poll = async (read, expected) => {
 try {
   // Readiness polling belongs only to this finite server fixture.
   await poll(async () => (await control.status()).states.server, 'stopped');
-  assert.equal(calls.filter((argv) => argv[1] === '--isolated').length, 0);
+  assert.equal(launches().length, 0);
+  assert.deepEqual(preparations, []);
   assert.equal((await control.act('start', 'server')).ok, true);
   await poll(() => inspectRunnerApplication(target, run), 'ready');
   await writeFile(join(store, 'owner-marker'), 'retained private data\n');
   assert.equal((await control.act('start', 'server')).ok, true);
-  assert.equal(calls.filter((argv) => argv[1] === '--isolated').length, 1);
+  assert.equal(launches().length, 1);
+  assert.equal(preparations.length, 1);
   assert.equal((await control.act('stop', 'server')).states.server, 'stopped');
   assert.equal((await control.act('start', 'local')).ok, true);
   await poll(() => inspectRunnerApplication(targets.local, run), 'ready');
@@ -103,6 +119,10 @@ try {
   assert.equal((await control.status()).states.server, 'stopped');
   assert.equal((await control.act('stop', 'local')).ok, true);
   assert.equal((await control.act('stop', 'server')).states.server, 'stopped');
+  assert.equal(preparations.length, 4);
+  assert.ok(
+    preparations.every((prefix) => prefix.join() === preparations[0].join())
+  );
   if (docker) {
     await exec('docker', ['container', 'rm', session]);
     await exec('docker', [
@@ -139,6 +159,7 @@ try {
       privateDataRetained: true,
       foreignContainerRefused: docker,
       mutuallyExclusiveModes: true,
+      privateLauncherPreparedAndReused: true,
       liveProvider: false,
     })
   );

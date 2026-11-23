@@ -4,6 +4,7 @@ import {
   dockerRunnerProbe,
 } from './runner-docker.js';
 import { screenRunnerObservation } from './runner-screen.js';
+import { configuredRunnerLauncher } from './runner-dependencies.js';
 
 /** Live backend observations, never a launch wrapper's optimistic exit status. */
 export const runnerProbe = (target) =>
@@ -30,8 +31,11 @@ const applicationCommand = (target) => [
   '--local-ui=true',
 ];
 
-export const runnerLaunch = (target) => [
-  target.start ?? '$',
+export const runnerLaunch = (
+  target,
+  launcher = configuredRunnerLauncher(target)
+) => [
+  ...launcher,
   '--isolated',
   target.isolation ?? 'screen',
   '--session',

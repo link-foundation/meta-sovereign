@@ -64,6 +64,8 @@ export const DESKTOP_REQUIRED_FILES = Object.freeze([
   'js/electron/attention-prompt.cjs',
   'js/electron/attention-prompt.html',
   'js/src/server/index.js',
+  'js/src/server/runner-tools/prepare.mjs',
+  'js/src/server/runner-tools/locked-dependencies.json',
   'js/src/web/index.html',
   'js/src/web/app.min.js',
   'js/src/web/notification-chime.wav',

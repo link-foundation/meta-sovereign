@@ -12,6 +12,7 @@ import { defaultStoreDir } from '../storage/app-directory.js';
 import { runnerProfileOperation } from './runner-profile-store.js';
 import { readRunnerInspection } from './runner-inspection.js';
 import { readRunnerConfiguration } from '../cli/runner-configuration.js';
+import { createRunnerLauncherPreparation } from './runner-dependencies.js';
 
 export const defaultRunnerDirectory = () =>
   path.dirname(
@@ -88,6 +89,7 @@ export const createRunnerController = ({
   directory = defaultRunnerDirectory,
   localDirectory = () => path.join(process.cwd(), '.meta-sovereign'),
   run,
+  prepareLauncher = createRunnerLauncherPreparation({ probe: run }),
   load,
   lock = acquireStoreLock,
 }) => ({
@@ -147,7 +149,7 @@ export const createRunnerController = ({
         };
       }
       const targets = mismatch ? bound : desired;
-      control = createRunnerControl({ targets, run });
+      control = createRunnerControl({ targets, run, prepareLauncher });
       if (action === 'status') {
         return {
           ...(targets === (bound ?? desired)

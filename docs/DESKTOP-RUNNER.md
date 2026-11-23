@@ -75,19 +75,28 @@ read/write mount. Both mounts retain data after Stop and restart. Choose an imag
 whose runtime, architecture and native dependencies match those files.
 Credentials do not belong in this file.
 
-Each target currently needs the project's supported Node version, the
-application and its production dependencies, its selected isolation backend and
-[`link-foundation/start`](https://github.com/link-foundation/start) already
-installed. The JavaScript distribution of `start-command` also requires Bun (a supported
-Rust installation is an alternative). Install the chosen distribution's
-documented prerequisites on each execution host. Local execution uses GNU screen
-without Docker. A remote Screen target needs GNU screen; a remote Docker target
-needs a working Docker daemon and permission to use it.
+Each target needs the project's supported Node version, the application and its
+production dependencies, and its selected isolation backend. Local execution
+uses GNU Screen without Docker. A remote Screen target needs GNU Screen. A
+remote Docker target needs a working Docker daemon and permission to use it.
+
+Explicit Start uses the configured `start` command when supplied. For the
+default `$` it uses an existing working PATH launcher. When the launcher is
+absent, Start prepares the pinned [start-command](https://github.com/link-foundation/start)
+and Bun packages under `~/.meta-sovereign-runner-tools` on the execution host.
+The first preparation needs Node, npm and access to the npm registry on that
+host. A prepared version is reused without npm or a registry download. The
+cache belongs to the runner's OS user and requires a private directory. The
+preparation uses locked package integrity hashes and skips package scripts.
 SSH uses existing host-key and key authentication with batch mode;
 it does not accept unknown host keys or request passwords. Each backend
 requires a compatible host. Missing tools, refused SSH and malformed status
-output report `unknown` and prevent a switch. Automatic dependency preparation
-and full independent desktop workflow integration remain under development.
+output report `unknown` and prevent a switch. A launcher that cannot be
+prepared or verified returns `runner-launcher-unavailable`. If discovery
+confirms the destination is stopped, launcher preparation finishes before
+requesting Stop on an active peer. Status and inspection remain read-only.
+Automatic preparation of the operating-system backend, Node, the application
+bundle and its dependencies remains under development.
 
 Starting one mode first confirms the other is stopped, requesting its stop
 when necessary. It then rechecks the destination and starts only when its

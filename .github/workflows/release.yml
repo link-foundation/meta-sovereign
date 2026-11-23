@@ -1141,19 +1141,12 @@ jobs:
         with:
           node-version: '26.13.0'
           package-manager-cache: false
-      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+      - name: Install the remote runner fixture application
         if: runner.os == 'Linux'
-        with:
-          bun-version: '1.4.4'
-      - name: Install pinned remote runner fixture dependencies
-        if: runner.os == 'Linux'
-        run: |
-          npm ci --omit=dev --ignore-scripts
-          npm ci --prefix experiments/issue-56/runner-tools --ignore-scripts
-      - name: Verify actual remote Docker session and application lifecycle
+        run: npm ci --omit=dev --ignore-scripts
+      - name: Verify remote launcher preparation and native session lifecycle
         if: runner.os == 'Linux'
         env:
-          RUNNER_START_PACKAGE: ${{ github.workspace }}/experiments/issue-56/runner-tools
           RUNNER_DOCKER_IMAGE: meta-sovereign-web
         run: |
           mkdir -p ci-logs

@@ -1,0 +1,28 @@
+{
+  "archive": "runner-launcher-preparation.tar.gz",
+  "files": {
+    ".github/workflows/release.yml": "88d27567ff9ccfeaa8b8ffc9edd0e31ed3dd19fd6392a3c17285e4334cbf581e",
+    "ci-logs/runner-launcher-preparation-before.log": "d746f15249c0fa071bbb511f0f57c04041c78ac2b5a01a86fc1758de40f18541",
+    "ci-logs/runner-launcher-preparation-deno.log": "b571e576a1f30577f2792855c2860a2e802ddd1bd5ce5d486ff03a607caa55fd",
+    "ci-logs/runner-launcher-preparation-lint.log": "22c12bd8bacdd91654b05c37e3e00f560c24adb975db2250d4901c10680bc1c4",
+    "ci-logs/runner-launcher-preparation-native.log": "c7633a87c65b07ab244df7ab0a7532cc127c7589ad14fdba9be7f4d9d8fd1df7",
+    "ci-logs/runner-launcher-preparation-node.log": "4980def30ba633e2ac77da13e6efb97381349bec202324e836dc4fbc224c1e1f",
+    "ci-logs/runner-launcher-preparation-packlist.json": "cb4357dbd82efbc002bb0a1700e24be8a18c37123923036e293168482a5bf057",
+    "ci-logs/runner-launcher-preparation-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/case-studies/issue-56/runner-launcher-preparation.md": "2d0c1b36994501af60299637fdc840a3026714b3a2cc6e9d957b95fc66cd683c",
+    "experiments/issue-56/runner-docker-hosted.mjs": "053d98da475edb1e2a43d7cc4140140aae951c9552913c3a747fba91ae279eb6",
+    "experiments/issue-56/runner-fixture.mjs": "5e00aec753e1efa903e225c99c5f2c25340f7f553ccecabac73c039d70ebb00a",
+    "experiments/issue-56/runner-launcher-local.mjs": "026d98784fbf25e55fb5a71550958af6d214dc1e6f3cca684d8b6b9dab90724b",
+    "js/scripts/prepare-desktop.mjs": "ecc66ec3026f9d39181d04222c402555a8e20dd2da7a7f7790480ce946a04908",
+    "js/src/server/runner-control.js": "fbb12eaea8f279f1ff9fe7455623bd981dcfdc8407d1e8368d35822f87a860ae",
+    "js/src/server/runner-controller.js": "a913e33ea0894975705c8da0a53028cb80dff34cbd165066db70f7689db94478",
+    "js/src/server/runner-dependencies.js": "658f3427b8eadcf826b33d291361c387ca2abb06da31bbddbfc64f9661b2597c",
+    "js/src/server/runner-session.js": "b23c08e641380745b21294dc167ff64bedb0b12ff80701bdbe51cbf176ac307f",
+    "js/src/server/runner-tools/locked-dependencies.json": "9b179b36a5004029d0cb541241aa98197e640a1add5231c2ddd6e65d9f51f983",
+    "js/src/server/runner-tools/prepare.mjs": "d823fc28b32e3cab5fae20c7b270ae29a9c874969e2086ba7769ed8da8d800de",
+    "js/src/transport/runner-receipt.js": "293b383c58ccb052355ededafa6b8500338e4f54e1efa9f8d0728f95b6657661",
+    "js/tests/pack-smoke.mjs": "c167c440500d1a8a57887bc6a29fd84bd001c26517fc23aa1b257e4a706f83c7",
+    "js/tests/runner-dependencies.test.js": "8fdf94dc264610321aa34c311bb9f5aa66f85ddee07a066ab004e82279c5fa3c",
+    "metadata.json": "eba41d530529f29a620bfde0f1915fa12912e38e270fc3a71513d352f46857d3"
+  }
+}

@@ -17,7 +17,8 @@
 - [Persistent browser exit and close-wait ownership](browser-closure.md): reproduce premature Close acknowledgement and an unobserved native wait; retain process drainage, failure diagnostics and the unexplained hosted timing limits.
 - [Snapshot diagnostic ownership](ci-snapshot-observers.md): preserve the exact macOS Bun failure and two finite parent regressions; owner-specific cleanup assertions retain unrelated workers and all acknowledgement/workspace checks.
 - [Shared automation file defaults](automation-defaults.md): six native VK policies share global/local readable Lino, CLI overrides, saved-owner precedence and rolling configuration removal. Focused before/after evidence supports unfinished VD07.
-- [Actual first-use browser preparation](browser-preparation.md): exact-source hosted cold-cache download, headed render, reuse and resource closure pass; remote tools and system prerequisites keep VD01 unfinished.
+- [Actual first-use browser preparation](browser-preparation.md): exact-source hosted cold-cache download, headed render, reuse and resource closure pass.
+- [Isolated runner launcher preparation](runner-launcher-preparation.md): explicit Start stages pinned tools privately on the target, with real local cold and warm Screen evidence. Native SSH and the remaining operating-system and application prerequisites still need verification.
 
 - [Complete generic reader contract](hosted-form-reader-5283e26a.md): all five workflows, 18 named reader/report checks and both actual native engines pass at `5283e26a`. Current acceptance is **84 of 118**, with **34 unfinished**; every remaining criterion stays required in the draft PR. Earlier counts below are historical checkpoints.
 
