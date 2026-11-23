@@ -6,10 +6,12 @@ import {
 } from '../../../experiments/issue-56/linkedin-experience-inspect.mjs';
 import { verifyLinkedinAcquisition } from '../../../experiments/issue-56/linkedin-acquisition-native.mjs';
 import { verifyLinkedinPositionNative } from '../../../experiments/issue-56/linkedin-position-native.mjs';
+import { verifyLinkedinPositionJob } from '../../../experiments/issue-56/linkedin-position-job-native.mjs';
 
 export const verifyCvLinkedinExperience = async (browser) => {
   const native = await verifyLinkedinAcquisition(browser);
   const position = await verifyLinkedinPositionNative(browser);
+  const positionJob = await verifyLinkedinPositionJob(browser);
   const fixture = await linkedinExperienceBrowserFixture();
   const context = await browser.newContext({ acceptDownloads: true });
   const errors = [];
@@ -20,6 +22,7 @@ export const verifyCvLinkedinExperience = async (browser) => {
     return {
       native,
       position,
+      positionJob,
       ui: await inspectLinkedinExperience(
         page,
         linkedinInspectionConfig({ base: fixture.base }),

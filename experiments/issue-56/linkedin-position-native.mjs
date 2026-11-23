@@ -12,7 +12,7 @@ import {
   linkedinPositionReviewFixture,
 } from './linkedin-position-review-fixture.mjs';
 
-const experience = linkedinNativeHtml
+export const linkedinPositionExperienceHtml = linkedinNativeHtml
   .replaceAll(
     'Built Rust systems.<br>Kept original descriptions.',
     'Worked on Rust and PostgreSQL.'
@@ -49,7 +49,7 @@ export const verifyLinkedinPositionNative = async (browser) => {
         contentType: 'text/html; charset=utf-8',
         body:
           target === url
-            ? experience
+            ? linkedinPositionExperienceHtml
             : linkedinPositionFormHtml({ add: target === addUrl, changed }),
       });
     });

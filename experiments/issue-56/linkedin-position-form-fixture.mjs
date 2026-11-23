@@ -25,7 +25,11 @@ const years = (selected) =>
     selected
   );
 
-export const linkedinPositionFormHtml = ({ add, changed }) => `<!doctype html>
+export const linkedinPositionFormHtml = ({
+  add,
+  changed,
+  actions,
+}) => `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><title>LinkedIn position fixture</title></head>
 <body><main><dialog open aria-labelledby="editor-title"><h1 id="editor-title">${add ? 'Add experience' : 'Edit experience'}</h1>
 <form>
@@ -43,13 +47,33 @@ export const linkedinPositionFormHtml = ({ add, changed }) => `<!doctype html>
 <label>End year*<select name="endYear">${years('')}</select></label>
 </fieldset>
 <button type="button" role="switch" aria-label="Notify your network" aria-checked="true" onclick="this.setAttribute('aria-checked',this.getAttribute('aria-checked')==='false')">Notify network</button>
-<button type="button" onclick="document.querySelector('dialog').close()">Cancel</button>
+<button type="button" id="cancel">Cancel</button>
 <button type="submit">Save</button>
 </form></dialog></main>
 <script>
-document.querySelector('form').addEventListener('submit', (event)=>{
+const position = document.querySelector('dialog');
+document.querySelector('#cancel').onclick = () => {
+  if (${Boolean(actions)}) {
+    const warning = document.createElement('dialog');
+    warning.innerHTML = '<h2>Discard changes?</h2><button type="button">Discard</button>';
+    document.body.append(warning);
+    warning.showModal();
+    warning.querySelector('button').onclick = () => { warning.close(); position.close(); };
+  } else {
+    position.close();
+  }
+};
+document.querySelector('form').addEventListener('submit', async (event)=>{
   event.preventDefault();
   window.fixtureSaves = (window.fixtureSaves || 0) + 1;
+  if (${Boolean(actions)}) {
+    await fetch('/fixture-position-save', {method: 'POST', body: document.querySelector('#description').innerText});
+    position.close();
+    const notice = document.createElement('p');
+    notice.setAttribute('role', 'status');
+    notice.textContent = 'Your experience is saved';
+    document.querySelector('main').append(notice);
+  }
 });
 document.querySelector('[name=current]').addEventListener('change', (event)=>{
   document.querySelector('#end').hidden=event.currentTarget.checked;

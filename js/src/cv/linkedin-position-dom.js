@@ -154,6 +154,7 @@ export const inspectLinkedinPositionForm = ({
     return {
       state: 'ready',
       owned: dialog.__metaSovereignPosition === token,
+      ownerChanged: dialog.__metaSovereignPositionEdited === true,
       controls: result,
     };
   }
@@ -162,11 +163,49 @@ export const inspectLinkedinPositionForm = ({
   }
   if (action.kind === 'adopt' && !dialog.__metaSovereignPosition) {
     dialog.__metaSovereignPosition = token;
+    const recordOwnerEdit = (event) => {
+      if (event.isTrusted && !dialog.__metaSovereignPositionApplying) {
+        dialog.__metaSovereignPositionEdited = true;
+      }
+    };
+    dialog.addEventListener('input', recordOwnerEdit, true);
+    dialog.addEventListener('change', recordOwnerEdit, true);
     return { state: 'adopted' };
+  }
+  if (
+    dialog.__metaSovereignPosition !== token ||
+    dialog.__metaSovereignPositionEdited
+  ) {
+    return { state: 'conflict' };
+  }
+  if (action.kind === 'save' || action.kind === 'skip') {
+    const text =
+      action.kind === 'save'
+        ? /^(?:save|сохранить)$/iu
+        : /^(?:cancel|отмена|отменить)$/iu;
+    const buttons = [...dialog.querySelectorAll('button')].filter(
+      (button) =>
+        onScreen(button) &&
+        !button.disabled &&
+        button.getAttribute('aria-disabled') !== 'true' &&
+        text.test(
+          (button.getAttribute('aria-label') ?? button.textContent).trim()
+        )
+    );
+    if (
+      buttons.length !== 1 ||
+      (action.kind === 'skip' && buttons[0].type !== 'button')
+    ) {
+      return { state: 'unsupported' };
+    }
+    if (action.kind === 'skip') {
+      document.__metaSovereignPositionDiscard = dialog;
+    }
+    buttons[0].click();
+    return { state: 'dispatched' };
   }
   const control = records[action.name];
   if (
-    dialog.__metaSovereignPosition !== token ||
     !control ||
     control.kind !== action.kind ||
     !result[action.name].editable
@@ -180,7 +219,12 @@ export const inspectLinkedinPositionForm = ({
       return { state: 'unsupported' };
     }
     if (result[action.name].value !== value) {
-      node.click();
+      dialog.__metaSovereignPositionApplying = true;
+      try {
+        node.click();
+      } finally {
+        dialog.__metaSovereignPositionApplying = false;
+      }
     }
   } else {
     const limit = result[action.name].maxLength;

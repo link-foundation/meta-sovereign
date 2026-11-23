@@ -59,7 +59,9 @@ The [LinkedIn position review](experience-linkedin-position-review.md) binds
 one Add or update to the acknowledged native export and a separate approval.
 The CLI and both Lino encodings can recover the exact private review. The
 native preparation adapter rechecks the visible form and preserves owner
-drafts. Native skill/media selection, Save verification and the shared CV
-review remain required in this direction.
+drafts. A single position can be saved or skipped explicitly through CLI or
+Lino. Chromium covers owner Save with fresh readback, stale readback, Skip,
+Stop and navigation. Native skill and media selection, an interactive queue
+and the shared CV review remain required in this direction.
 Authenticated provider verification, complete HH/About acquisition and every
 remaining item above stay required; HH21 remains unfinished.

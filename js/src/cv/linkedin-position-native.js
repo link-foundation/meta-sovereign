@@ -47,10 +47,13 @@ const open = (session, url, signal) =>
     url,
     signal,
     waitUntil: 'domcontentloaded',
+    waitForStableUrlBefore: false,
+    waitForStableUrlAfter: false,
+    waitForNetworkIdle: false,
     timeout: 30000,
   });
 
-const confirmFreshEditor = async ({
+export const readLinkedinPositionExperience = async ({
   session,
   plan,
   signal,
@@ -79,31 +82,48 @@ const confirmFreshEditor = async ({
         now,
         progress: async () => {},
       });
-      const document = linkedinExperienceDocument(
+      return {
+        document: linkedinExperienceDocument(
+          raw,
+          options,
+          new Date(now()).toISOString()
+        ),
         raw,
-        options,
-        new Date(now()).toISOString()
-      );
-      const match =
-        plan.operation === 'add'
-          ? document.profile.positionEditor === plan.editor
-          : document.jobs.some(
-              ({ native }) => native.positionEditor === plan.editor
-            );
-      if (!match) {
-        throw linkedinPositionFailure('editor');
-      }
-      return;
+      };
     }
     await wait(500, signal);
   }
   throw linkedinPositionFailure('session');
 };
 
+const confirmFreshEditor = async (context) => {
+  const { plan } = context;
+  const { document } = await readLinkedinPositionExperience(context);
+  const match =
+    plan.operation === 'add'
+      ? document.profile.positionEditor === plan.editor &&
+        !document.jobs.some(
+          (job) =>
+            job.company === plan.desired.company &&
+            job.title === plan.desired.title &&
+            job.start === plan.desired.start
+        )
+      : document.jobs.some(
+          ({ native }) => native.positionEditor === plan.editor
+        );
+  if (!match) {
+    throw linkedinPositionFailure('editor');
+  }
+  return document;
+};
+
 const waitForEditor = async ({ form, check, wait, now, signal }) => {
   const deadline = now() + 30000;
   for (let attempt = 0; attempt < 60; attempt++) {
     const state = await form.read();
+    if (attempt === 0 && process.env.MS_CV_LINKEDIN_DEBUG === '1') {
+      console.error({ event: 'linkedin-position-form', state: state.state });
+    }
     if (state.state === 'ready') {
       return state.controls;
     }
@@ -149,7 +169,14 @@ export const createLinkedinPositionNative =
         throw linkedinPositionFailure('login-required');
       }
       check();
-      await confirmFreshEditor({ session, plan, signal, check, wait, now });
+      const before = await confirmFreshEditor({
+        session,
+        plan,
+        signal,
+        check,
+        wait,
+        now,
+      });
       await clearSlot(session, plan.target.url, check);
       await open(session, plan.editor, signal);
       const token = randomUUID();
@@ -165,7 +192,11 @@ export const createLinkedinPositionNative =
         token,
         form,
         controls: draft,
+        before,
         check,
+        wait,
+        now,
+        signal,
       });
     } finally {
       try {

@@ -19,6 +19,10 @@ const stopExperienceExport = (ctx) => {
   return Promise.allSettled([
     traceShutdown('cvExperience', ctx.cvExperience?.close()),
     traceShutdown('cvExperiencePlans', ctx.cvExperiencePlans?.close()),
+    traceShutdown(
+      'cvLinkedinPositionJobs',
+      ctx.cvLinkedinPositionJobs?.close()
+    ),
     traceShutdown('cvFormalReports', ctx.cvFormalReports?.close()),
   ]);
 };

@@ -96,7 +96,7 @@ const textLimits = {
   description: 2000,
 };
 const dateFields = new Set(['start', 'end', 'current']);
-const baselineFor = (job) => ({
+export const linkedinPositionValues = (job) => ({
   company: job?.company ?? '',
   title: job?.title ?? '',
   location: job?.location ?? '',
@@ -181,9 +181,12 @@ const desiredFields = (baseline, fields, operation) => {
 };
 
 const positionFields = (job) => {
-  const baseline = baselineFor(job.target);
+  const baseline = linkedinPositionValues(job.target);
   const notes = [...job.notes];
   const fields = proposedFields(job, notes);
+  if (job.kind === 'add' && fields.end && !Object.hasOwn(fields, 'current')) {
+    fields.current = false;
+  }
   const desired = desiredFields(baseline, fields, job.kind);
   const skillProposal = job.fields.find((item) => item.field === 'skills');
   const skills = skillProposal?.ready ? newSkills(skillProposal) : null;

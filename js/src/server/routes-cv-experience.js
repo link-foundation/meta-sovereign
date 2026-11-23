@@ -12,6 +12,7 @@ import { experienceFromHhExport } from '../cv/experience-hh.js';
 import { createLinkedinExperienceService } from '../cv/linkedin-experience-service.js';
 import { createExperiencePlanningService } from '../cv/experience-plan-service.js';
 import { createLinkedinPositionReviews } from '../cv/linkedin-position-review.js';
+import { createLinkedinPositionJobs } from '../cv/linkedin-position-job.js';
 import {
   createFormalExperienceReports,
   previewFormalExperienceReport,
@@ -59,13 +60,28 @@ const linkedinService = (store, ctx) => {
   }));
 };
 
-const positionReviews = (store, ctx) =>
-  createLinkedinPositionReviews({
-    store,
-    artifactRoot:
-      ctx.cvExperienceOptions?.artifactRoot ??
-      path.join(ctx.storeDir ?? defaultStoreDir(), 'experience-exports'),
-  });
+const positionOptions = (store, ctx) => ({
+  store,
+  artifactRoot:
+    ctx.cvExperienceOptions?.artifactRoot ??
+    path.join(ctx.storeDir ?? defaultStoreDir(), 'experience-exports'),
+});
+
+const positionJobs = (store, ctx) => {
+  if (ctx.cvExperienceClosing) {
+    throw Object.assign(
+      new Error('LinkedIn position preparation has stopped.'),
+      {
+        code: 'cv-linkedin-position-stopped',
+        status: 503,
+      }
+    );
+  }
+  return (ctx.cvLinkedinPositionJobs ??= createLinkedinPositionJobs({
+    ...positionOptions(store, ctx),
+    ...ctx.cvExperienceOptions?.position,
+  }));
+};
 
 const actions = {
   stored: (store) => storedExperienceDocuments(store),
@@ -105,7 +121,16 @@ const actions = {
   ...Object.fromEntries(
     ['stage', 'stored', 'review'].map((operation) => [
       `linkedin-position-${operation}`,
-      (store, input, ctx) => positionReviews(store, ctx)[operation](input),
+      (store, input, ctx) =>
+        createLinkedinPositionReviews(positionOptions(store, ctx))[operation](
+          input
+        ),
+    ])
+  ),
+  ...Object.fromEntries(
+    ['start', 'status', 'stop', 'decide'].map((operation) => [
+      `linkedin-position-${operation}`,
+      (store, input, ctx) => positionJobs(store, ctx)[operation](input),
     ])
   ),
 };
@@ -116,6 +141,7 @@ const admission = (req, operation, ctx) => {
     'linkedin-status',
     'linkedin-evidence',
     'linkedin-position-stored',
+    'linkedin-position-status',
     'plan-status',
     'report-preview',
     'report-status',

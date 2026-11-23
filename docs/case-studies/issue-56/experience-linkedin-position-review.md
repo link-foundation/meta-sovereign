@@ -45,5 +45,30 @@ description and a concurrent owner edit, then verifies both are preserved.
 Two preparations complete and neither clicks Save. The fixture runs in the
 existing LinkedIn browser scenario. It uses synthetic provider pages.
 
-The shared CV review, native skill and media selection, interactive decisions
-and fresh provider Save verification remain open in [HH21](experience-sync-plan.md).
+## Interactive decisions and save verification
+
+`cv-experience-linkedin-position-start --fingerprint <approved-fingerprint>`
+opens the reviewed position in the separate LinkedIn window. Once it is
+prepared, `y` requests Save, `s` requests Skip, and `q` or closed stdin leaves
+the draft open. The corresponding Lino start, status, decide and stop routes
+use the exact operation request ID. A separate `status` command reads the
+durable record, and starting an existing request returns its status.
+
+The native decision checks that the form still belongs to the reviewed action
+and that the owner has made no intervening input. A verified Save requires a
+positive provider indication and a fresh export that matches the exact role
+and approved fields. An owner Save is recorded separately from an explicit
+CLI or API decision. Navigation away, an ordinary close and stale readback
+leave `providerSaved` false. The job leaves any provider follow-up for the
+owner, including invitations.
+
+`linkedin-position-job-native.mjs` uses Chromium and intercepted provider
+pages. It exercises Skip with the native discard confirmation, Stop with the
+draft open, navigation without Save, an owner Save verified by a fresh
+export, and an explicit Save where stale readback leaves the result
+unconfirmed. The same request recovers its status without submitting again.
+`cv-linkedin-position-job.test.js` checks the foreground keys and EOF,
+acknowledgement before opening, and trusted Lino admission and recovery.
+
+The shared CV review, native skill and media selection, interactive queue and
+authenticated verification remain open in [HH21](experience-sync-plan.md).
