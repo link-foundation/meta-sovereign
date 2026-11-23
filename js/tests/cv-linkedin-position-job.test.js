@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import path from 'node:path';
 import { Readable } from 'node:stream';
 import { setTimeout as delay } from 'node:timers/promises';
 import test from 'node:test';
@@ -7,6 +8,8 @@ import {
   linkedinPositionReviewFixture,
 } from '../../experiments/issue-56/linkedin-position-review-fixture.mjs';
 import { foregroundLinkedinPosition } from '../src/cli/cv-linkedin-position-foreground.js';
+import { saveBrowserPolicy } from '../src/browser/policy.js';
+import { createLinkedinPositionNative } from '../src/cv/linkedin-position-native.js';
 import {
   createLinkedinPositionJobs,
   readLinkedinPositionJob,
@@ -19,6 +22,39 @@ import {
   encodeWire,
   readWireResponse,
 } from '../src/transport/lino.js';
+
+test('LinkedIn position review honors the configured persistent browser slot visibility', async () => {
+  const fixture = await linkedinPositionReviewFixture();
+  const ended = new Error('Stop before opening a provider page');
+  const launches = [];
+  const prepare = createLinkedinPositionNative({
+    store: fixture.store,
+    profileDir: path.join(fixture.dir, 'visibility'),
+    openSession: async (options) => {
+      launches.push([options.slot, options.persistent, options.headless]);
+      throw ended;
+    },
+  });
+  const plan = {
+    browserSlot: 'linkedin-experience',
+    target: { language: 'en' },
+  };
+  try {
+    await assert.rejects(prepare(plan), ended);
+    await saveBrowserPolicy(fixture.store, {
+      scope: 'slot',
+      key: 'linkedin/linkedin-experience',
+      headless: true,
+    });
+    await assert.rejects(prepare(plan), ended);
+    assert.deepEqual(launches, [
+      ['linkedin-experience', true, false],
+      ['linkedin-experience', true, true],
+    ]);
+  } finally {
+    await fixture.close();
+  }
+});
 
 test('LinkedIn foreground requires an explicit choice and leaves the draft open on EOF', async () => {
   const input = { requestId: 'fixture-job', fingerprint: 'a'.repeat(64) };

@@ -31,7 +31,10 @@ browser starts and confirms that staging and approval never add one.
 ## Native form preparation
 
 The preparation adapter takes the same persistent `linkedin-experience` slot
-lease as acquisition. It observes the selected link again on the current
+lease and visibility policy as acquisition. It opens a visible window by
+default and honors a configured headless slot for an already signed-in
+profile. The focused job regression fails on `d90ef3aa`, which forced visible
+mode even with the slot override. It observes the selected link again on the current
 profile, requires one labeled native dialog and checks the editor baseline
 before changing any fields. It preserves existing owner drafts in the slot,
 checks the current draft before each field change, and leaves the browser

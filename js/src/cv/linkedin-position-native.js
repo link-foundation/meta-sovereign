@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
 import { acquireStoreLock } from '../storage/store-lock.js';
+import { resolveBrowserPolicy } from '../browser/policy.js';
 import { defaultProfileDir, openBrowserSession } from './browser.js';
 import { linkedinExperienceGate } from './linkedin-experience-dom.js';
 import { linkedinExperienceDocument } from './linkedin-experience-parse.js';
@@ -157,13 +158,18 @@ export const createLinkedinPositionNative =
     const lease = await acquireStoreLock(profileDir, { exclusive: true });
     let session;
     try {
+      const { headless } = await resolveBrowserPolicy(store, {
+        platform: 'linkedin',
+        slot: plan.browserSlot,
+        useCase: 'cv',
+      });
       check();
       session = await openSession({
         store,
         platform: 'linkedin',
         slot: plan.browserSlot,
         useCase: 'cv',
-        headless: false,
+        headless,
         persistent: true,
         profileDir,
         signal,
