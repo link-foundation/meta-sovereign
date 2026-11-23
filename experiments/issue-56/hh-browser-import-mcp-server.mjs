@@ -55,11 +55,21 @@ try {
           .waitFor();
       }
       console.log(`Opened the isolated conversation with a ${command} frame`);
+    } else if (command === 'read' || command === 'other-read') {
+      const chat = command === 'read' ? 7 : 8;
+      await session.page.goto(`https://hh.ru/chat/${chat}?read-import`);
+      await session.page
+        .getByRole('textbox', { name: 'Provider composer' })
+        .fill('Unsent owner draft');
+      console.log(`Opened isolated conversation ${chat} with a read receipt`);
     } else if (command === 'status') {
       console.log(
         JSON.stringify({
           archived: Boolean(await store.get('msg:hh:web:7:101')),
           olderReply: (await store.get('msg:hh:web:7:92'))?.body,
+          reads: session.page.isClosed()
+            ? undefined
+            : await session.page.evaluate(() => globalThis.fixture?.reads),
           unread: (await store.get('read:hh:web:7'))?.unreadCount,
           token: Boolean(await store.get('secret:hh:access-token')),
           closed: session.page.isClosed(),

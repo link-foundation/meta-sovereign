@@ -1912,3 +1912,10 @@ Native profile persistence follow-up:
 - [ ] Pass scoped static checks, preserve source-bound evidence, commit and publish only to the prepared branch. Verify all exact-head hosted workflows; the 36 full-scope criteria remain unfinished.
 
 2026-11-18 durable question deferrals (HH05): the [unit plan](deferred-questions-plan.md) and [case study](deferred-questions.md) preserve two exact-parent failures, 110 focused checks, actual native form preservation and independent four-language MCP evidence. Private revisioned policy, waiting-form observation and answer-aware search/discovery/batch exclusions share CLI, both Lino encodings and UI. The separate worker queue remains unchanged. Publish this atomic unit and require exact-source hosted checks; complete HH05 parity and all 30 unchecked original criteria remain unfinished. PR57 stays draft and unmerged.
+
+### HeadHunter imported conversation receipts (HH09)
+
+- [x] Reproduce HTTP 502 when Operator acknowledges a chat captured in the still-open import browser. Trace the separate browser pool and the missing archive prefix on the receipt.
+- [x] Guard the current import browser by workspace slot and unique provider pane. Require the saved message boundary and provider confirmation. Drain admitted reads before Finish.
+- [x] Verify the exact-parent failure, 60 focused checks in each runtime, and registered Chromium and independent MCP against the isolated provider. Preserve before/after evidence and attach it to PR #57. [Read receipt evidence](hh-common-history.md#confirming-read-receipts-in-the-import-browser)
+- [ ] Verify exact-source hosted checks and complete the remaining native messaging contract.

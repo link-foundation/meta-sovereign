@@ -368,6 +368,46 @@ test('manager marks the job done when the user closes the window', async () => {
   await waitFor(() => manager.get(job.id).state === 'done');
 });
 
+test('an imported HeadHunter read stays in its slot and drains before Stop', async (t) => {
+  const calls = [];
+  const dataDir = await tmpDir();
+  const entered = Promise.withResolvers();
+  const held = Promise.withResolvers();
+  const manager = createAutoImportManager({
+    store: createMemoryStore(),
+    dataDir,
+    launcher: fakeLauncher(calls),
+  });
+  t.after(async () => {
+    held.resolve();
+    await manager.close();
+    await fs.rm(dataDir, { recursive: true, force: true });
+  });
+  const job = manager.start('hh', { slot: 'recruiting' });
+  await waitFor(() => manager.get(job.id).state === 'waiting');
+  const read = () =>
+    manager.withOpenHhImport('recruiting', async (session) => {
+      assert.equal(session, calls.sessions[0]);
+      entered.resolve();
+      await held.promise;
+      return 'confirmed';
+    });
+  assert.equal(await manager.withOpenHhImport('main', assert.fail), undefined);
+  const active = read();
+  await entered.promise;
+  await assert.rejects(read(), { code: 'hh-import-busy', read: false });
+  await assert.rejects(manager.capture(job.id), /already importing/u);
+  const stopped = manager.stop(job.id);
+  await assert.rejects(read(), { code: 'hh-import-busy', read: false });
+  assert.equal(calls.sessions[0].closed, undefined);
+  assert.equal(manager.start('hh', { slot: 'recruiting' }).id, job.id);
+  held.resolve();
+  assert.equal(await active, 'confirmed');
+  assert.equal((await stopped).state, 'done');
+  assert.equal(calls.sessions[0].closed, true);
+  assert.equal(await read(), undefined);
+});
+
 test('HeadHunter capture archives and deduplicates an owned native conversation', async (t) => {
   const store = createMemoryStore();
   const dataDir = await tmpDir();

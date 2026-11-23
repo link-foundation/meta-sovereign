@@ -11,6 +11,15 @@ export const hhApplicationHtml = (
 ) =>
   `<!doctype html><html lang="en"><meta charset="utf-8"><title>HH application fixture</title><style>body{font:17px system-ui;background:#edf1f7;color:#20252b;padding:16px}h1{font-size:22px}iframe{width:100%;height:680px;border:1px solid #ccd2dc;background:white;border-radius:12px}</style><nav data-qa="mainmenu_applicantProfile">Applicant profile · isolated fixture</nav><h1>Application · embedded employer conversation</h1>${frames}</html>`;
 
+const readReceipt = `<script>
+const latest = document.querySelector('[data-qa="chatik-chat-message-101"]');
+window.fixture.reads = 0;
+latest.scrollIntoView = () => {
+  window.fixture.reads += 1;
+  document.querySelector('[data-qa="chat-unread-count"]')?.remove();
+};
+</script>`;
+
 export const hhBrowserImportHtml = (url) => {
   if (
     /^\/chat\/[78]$/u.test(url.pathname) &&
@@ -24,10 +33,13 @@ export const hhBrowserImportHtml = (url) => {
     const extra = url.searchParams.has('second-chat')
       ? `<iframe ${url.searchParams.has('hidden') ? 'hidden' : ''} src="https://chatik.hh.ru/chat/8"></iframe>`
       : '';
-    return hhChoiceHtml.replace(
+    const html = hhChoiceHtml.replace(
       '<main id="history">',
       `<aside data-qa="chatik-open-chat-${url.pathname.at(-1)}"><span data-qa="chat-cell-title">Example employer</span><span data-qa="chat-unread-count">2</span></aside>${extra}<main id="history">`
     );
+    return url.searchParams.has('read-import')
+      ? html.replace('</html>', `${readReceipt}</html>`)
+      : html;
   }
   if (url.pathname === '/chat' && url.searchParams.has('embedded')) {
     return hhApplicationHtml(

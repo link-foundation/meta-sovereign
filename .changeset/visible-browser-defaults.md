@@ -1103,3 +1103,7 @@ Record disabled native Apply/Send controls and clicks explicitly refused before 
 Give native application salary checks a separate mandatory browser budget while
 retaining every answer, language and refusal scenario, both engines, existing
 entry deadlines and shard limits.
+
+Confirm HeadHunter read receipts in the open import browser for matching
+archived conversations in Chat and Operator. Keep drafts and selections,
+refuse ambiguous panes, and drain admitted receipts before closing.

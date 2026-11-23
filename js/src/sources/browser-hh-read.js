@@ -1,8 +1,12 @@
 /* global document */
 
 import { setTimeout as sleep } from 'node:timers/promises';
-import { resolveBrowserChoiceDocument } from './browser-choice-document.js';
+import {
+  resolveBrowserChoiceDocument,
+  resolveOpenBrowserConversation,
+} from './browser-choice-document.js';
 import { hhReadRecord } from './hh-chat-read.js';
+import { isHhWebTarget } from './hh-web-ui.js';
 
 // The provider can acknowledge opening a conversation. Inspect and scroll
 // only an already-open, verified pane with the requested visible boundary.
@@ -81,8 +85,78 @@ const waitForRead = async (observe, before, deadline) => {
   return state;
 };
 
-export const readHhBrowserChat = (ctx, ui, { chat, id }) => {
+const confirmRead = async (document, ui, { chat, target, id }) => {
+  const observe = async (scroll) => {
+    const checkedAt = new Date().toISOString();
+    const read = await document.evaluate({
+      fn: observeHhRead,
+      args: [
+        { chat: target, chats: ui.chats, messages: ui.messages, id, scroll },
+      ],
+    });
+    return read ? { ...read, checkedAt } : null;
+  };
+  const before = await observe(true);
+  if (!before) {
+    throw failure(
+      'HeadHunter has not reported the unread state here',
+      'read-unconfirmed'
+    );
+  }
+  if (id !== undefined && id !== before.latestMessageId) {
+    throw failure(
+      'HeadHunter has newer history. Refresh the chat before marking it read.',
+      'history-changed'
+    );
+  }
+  if (!before.unreadCount) {
+    return {
+      read: true,
+      readState: hhReadRecord({ chat, ...before }),
+    };
+  }
+  const after = await waitForRead(
+    observe,
+    before,
+    globalThis.performance.now() + 2500
+  );
+  if (!after) {
+    throw failure(
+      'HeadHunter did not confirm a read state',
+      'read-unconfirmed'
+    );
+  }
+  return {
+    read:
+      after.unreadCount === 0 &&
+      after.latestMessageId === before.latestMessageId,
+    readState: hhReadRecord({ chat, ...after }),
+  };
+};
+
+export const readHhBrowserChat = async (ctx, ui, { chat, id }) => {
   const target = ui.target({ chat });
+  const importedTarget = isHhWebTarget(chat);
+  const boundary = { chat: importedTarget ? chat : target, target, id };
+  if (importedTarget && id !== undefined) {
+    const result = await ctx.withOpenHhImport?.(async ({ commander, page }) => {
+      const document = await resolveOpenBrowserConversation(
+        commander,
+        page,
+        ui
+      );
+      if (document.chat !== target) {
+        throw failure(
+          'Open the selected HeadHunter conversation in the import browser',
+          'answer-chat-unverified'
+        );
+      }
+      return confirmRead(document, ui, boundary);
+    });
+    if (result !== undefined) {
+      return result;
+    }
+  }
   return ctx.inExisting('hh', async (commander, page) => {
     const document = await resolveBrowserChoiceDocument(
       commander,
@@ -90,51 +164,6 @@ export const readHhBrowserChat = (ctx, ui, { chat, id }) => {
       ui,
       target
     );
-    const observe = async (scroll) => {
-      const checkedAt = new Date().toISOString();
-      const read = await document.evaluate({
-        fn: observeHhRead,
-        args: [
-          { chat: target, chats: ui.chats, messages: ui.messages, id, scroll },
-        ],
-      });
-      return read ? { ...read, checkedAt } : null;
-    };
-    const before = await observe(true);
-    if (!before) {
-      throw failure(
-        'HeadHunter has not reported the unread state here',
-        'read-unconfirmed'
-      );
-    }
-    if (!before.unreadCount) {
-      return {
-        read: true,
-        readState: hhReadRecord({ chat: target, ...before }),
-      };
-    }
-    if (id !== undefined && id !== before.latestMessageId) {
-      throw failure(
-        'HeadHunter has newer history. Refresh the chat before marking it read.',
-        'history-changed'
-      );
-    }
-    const after = await waitForRead(
-      observe,
-      before,
-      globalThis.performance.now() + 2500
-    );
-    if (!after) {
-      throw failure(
-        'HeadHunter did not confirm a read state',
-        'read-unconfirmed'
-      );
-    }
-    return {
-      read:
-        after.unreadCount === 0 &&
-        after.latestMessageId === before.latestMessageId,
-      readState: hhReadRecord({ chat: target, ...after }),
-    };
+    return confirmRead(document, ui, boundary);
   });
 };

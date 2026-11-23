@@ -294,6 +294,7 @@ const FAILURE_STATUS = {
   'unsupported-action': 501,
   'no-external-id': 409,
   'history-changed': 409,
+  'hh-import-busy': 409,
 };
 
 const actionFailure = (res, error) =>

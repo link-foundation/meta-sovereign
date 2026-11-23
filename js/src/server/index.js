@@ -1095,19 +1095,22 @@ const withStoreProfiles = (
   storeDir,
   front,
   providedStore,
-  cloud
+  cloud,
+  withOpenHhImport
 ) => ({
   ...automations,
   ...(!providedStore
     ? { vkFriends: { storeDir, ...automations.vkFriends } }
     : {}),
   ...(front?.warming ? { deferRecovery: true } : {}),
-  browser: cloud
-    ? false
-    : {
-        profileDirFor: (source) => profileDirIn(storeDir, source),
-        ...automations.browser,
-      },
+  browser:
+    cloud || automations.browser === false
+      ? false
+      : {
+          profileDirFor: (source) => profileDirIn(storeDir, source),
+          withOpenHhImport,
+          ...automations.browser,
+        },
 });
 
 // The open connections of `server`, so a shutdown can end them.
@@ -1339,7 +1342,8 @@ const startServerRuntime = async ({
     storeDir,
     front,
     providedStore,
-    cloud
+    cloud,
+    (slot, work) => ctx.autoImport?.withOpenHhImport(slot, work)
   );
   const chatIndex = createChatIndex(store, { log });
   const telegramAccount = telegramAccountFor(

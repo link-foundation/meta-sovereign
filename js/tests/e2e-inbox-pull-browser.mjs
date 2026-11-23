@@ -26,6 +26,7 @@ import {
 } from './helpers/e2e-hh-browser-import.mjs';
 import { createHhLive } from '../src/sources/hh.js';
 import { createDefaultSender } from '../src/sources/browser-sender.js';
+import { verifyHhImportRead } from './helpers/e2e-hh-import-read.mjs';
 
 const store = createMemoryStore();
 await store.put({
@@ -233,6 +234,10 @@ const mediaSteps = async () => {
 };
 
 await finish(async () => {
+  if (process.env.HH_IMPORT_READ_BEFORE === '1') {
+    await verifyHhImportRead(page);
+    return;
+  }
   if (process.env.HH_BROWSER_IMPORT_BEFORE === '1') {
     await verifyHhBrowserImport({
       page,
@@ -259,4 +264,5 @@ await finish(async () => {
   await verifyHhCommonActions({ page, store, fake: hh, until });
   await store.delete('secret:hh:access-token');
   await verifyHhBrowserImport({ page, base, native: () => importPage, store });
+  await verifyHhImportRead(page);
 });

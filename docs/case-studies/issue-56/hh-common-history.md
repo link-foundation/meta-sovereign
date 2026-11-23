@@ -334,3 +334,34 @@ Lino encodings.
 ![Prior capture response after opening two visible conversations](../../screenshots/issue-56-hh-browser-import-mixed-before.png)
 
 ![The import now requests one visible conversation](../../screenshots/issue-56-hh-browser-import-mixed-after.png)
+
+## Confirming read receipts in the import browser
+
+Start a HeadHunter import and capture the open conversation. Leave that
+conversation open in the import browser. In Operator, choose **Done** on
+the captured chat. Chat also requests a receipt when you open the unread
+conversation with read receipts enabled and the app in the foreground.
+
+At `b80b61da`, the message handler looked only in the separate message
+sender's browser pool. Operator showed an error and kept its unread card.
+The browser read record also discarded the `web:` prefix expected by the
+archive. The handler can now use the open import browser for the matching
+workspace slot and save the confirmed state under the archived chat
+identity. The receipt uses the saved latest message ID and a fresh badge
+observation. A different or ambiguous pane is refused without navigation.
+Capture cannot take over during a receipt, and **Finish** drains an admitted
+receipt before closing the browser.
+
+The registered Chromium inbox scenario reports HTTP 502 on the preceding
+revision and HTTP 200 after the fix. It verifies the provider scroll
+request, the canonical unread count, unchanged draft and selection,
+refusal with two visible panes or a different conversation, and the
+independent Chat read. Node and Deno each passed 60 focused checks,
+including slot isolation and shutdown ordering. Independent Playwright MCP
+confirmed HTTP 200 through both views, with no HeadHunter API token, and
+verified that Finish closed the provider page. Authenticated live provider
+acceptance and the remaining native messaging actions remain open.
+
+![Operator retains the unread card before the fix](../../screenshots/issue-56-hh-browser-import-read-before.png)
+
+![Operator finishes the conversation after the native receipt](../../screenshots/issue-56-hh-browser-import-read-after.png)
