@@ -99,8 +99,10 @@ it does not accept unknown host keys or request passwords. Each backend
 requires a compatible host. Missing tools, refused SSH and malformed status
 output report `unknown` and prevent a switch. A launcher that cannot be
 prepared or verified returns `runner-launcher-unavailable`. If discovery
-confirms the destination is stopped, launcher preparation finishes before
-requesting Stop on an active peer. Status and inspection remain read-only.
+confirms the destination is stopped, Start checks that the configured
+application file is readable and prepares the launcher before requesting Stop on
+an active peer. A failed file check returns `runner-application-unavailable`
+with the freshly observed session states. Status and inspection remain read-only.
 Install the operating-system backend and the application with its dependencies
 before configuring the target.
 

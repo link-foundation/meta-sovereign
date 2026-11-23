@@ -1,6 +1,7 @@
 import {
   runnerLaunch,
   runnerProbe,
+  runnerApplicationAvailable,
   observedRunnerState,
 } from './runner-session.js';
 import { runRunnerCommand } from './runner-transport.js';
@@ -86,6 +87,13 @@ export const createRunnerControl = ({
     return current[mode] === 'stopped';
   };
   const prepareStart = async (target, options) => {
+    const application = await runnerApplicationAvailable(target, run, options);
+    if (cancelled(options)) {
+      return { code: 'runner-state-unconfirmed' };
+    }
+    if (!application) {
+      return { code: 'runner-application-unavailable' };
+    }
     const runtime = await prepareRuntime(target, {
       ...options,
       installMissing: true,

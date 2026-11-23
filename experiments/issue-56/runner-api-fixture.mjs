@@ -65,3 +65,9 @@ export const runnerDependencyRefusalFixture = () => {
     },
   });
 };
+
+export const runnerApplicationRefusalFixture = () => {
+  const backend = runnerFixture({ local: 'running' });
+  backend.application.server = false;
+  return runnerApiFixture({ backend });
+};

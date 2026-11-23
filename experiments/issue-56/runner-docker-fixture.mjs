@@ -22,24 +22,27 @@ export const dockerFixture = ({ container = 'missing', ...options } = {}) => {
   const imageId = `sha256:${'a'.repeat(64)}`;
   let image = options.image ?? 'present';
   let keepContainer = true;
+  const runImage = (target, action) => {
+    if (action === 'pull') {
+      image = options.imageAfterPull ?? 'present';
+      return { code: options.pullExit ?? 0 };
+    }
+    if (image === 'present') {
+      return { code: 0, stdout: `${imageId}\n` };
+    }
+    const stderr =
+      image === 'missing'
+        ? `Error response from daemon: No such image: ${target.image}\n`
+        : 'Docker daemon unavailable';
+    return { code: 1, stdout: '\n', stderr };
+  };
   const run = async (target, argv, supplied) => {
     calls.push(argv);
-    if (target.isolation !== 'docker') {
+    if (target.isolation !== 'docker' || argv[3] === 'runner-application') {
       return screen.run(target, argv, supplied);
     }
     if (argv[1] === 'image') {
-      if (argv[2] === 'pull') {
-        image = options.imageAfterPull ?? 'present';
-        return { code: options.pullExit ?? 0 };
-      }
-      if (image === 'present') {
-        return { code: 0, stdout: `${imageId}\n` };
-      }
-      const stderr =
-        image === 'missing'
-          ? `Error response from daemon: No such image: ${target.image}\n`
-          : 'Docker daemon unavailable';
-      return { code: 1, stdout: '\n', stderr };
+      return runImage(target, argv[2]);
     }
     if (argv[2] === 'ls') {
       return dockerResult(container, target.session);

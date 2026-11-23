@@ -1233,3 +1233,6 @@ release its previously exited, owned container (issue #56).
 Prepare the configured Docker image on explicit Start before stopping the
 active peer. Reuse the verified image ID and keep the current runner active
 when the destination cannot prepare its image (issue #56).
+
+Check the configured runner application file before switching sessions. Keep
+the active session running and show which application check failed (issue #56).

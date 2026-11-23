@@ -77,9 +77,10 @@ const profile = validateRunnerProfile({
   },
 });
 const transport = withEnvironment(runRunnerCommand);
+let configured = profile;
 const controller = createRunnerController({
   directory: () => fixture,
-  load: async () => profile,
+  load: async () => configured,
   ...(host
     ? {
         prepareRuntime: createRunnerRuntimePreparation({
@@ -193,6 +194,17 @@ exec ${quoteRunnerArgument(await command('curl'))} "$@"
     (await controller.execute({ action: 'inspect', mode })).application.state,
     'stopped'
   );
+  await assert.rejects(stat(cache), { code: 'ENOENT' });
+  await assert.rejects(stat(downloads), { code: 'ENOENT' });
+
+  configured = {
+    [mode]: { ...profile[mode], cli: join(fixture, "missing owner's CLI.js") },
+  };
+  const missing = await start();
+  assert.equal(missing.code, 'runner-application-unavailable');
+  assert.equal(missing.states[mode], 'stopped');
+  configured = profile;
+  console.log(JSON.stringify({ missingApplicationBeforeDownload: true }));
   await assert.rejects(stat(cache), { code: 'ENOENT' });
   await assert.rejects(stat(downloads), { code: 'ENOENT' });
 

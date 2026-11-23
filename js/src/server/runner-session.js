@@ -13,6 +13,26 @@ export const runnerProbe = (target) =>
     ? dockerRunnerProbe(target)
     : ['screen', '-ls'];
 
+export const runnerApplicationAvailable = async (target, run, options) => {
+  const result = await run(
+    target,
+    [
+      'sh',
+      '-c',
+      'test -f "$1" && test -r "$1" && printf readable',
+      'runner-application',
+      target.cli,
+    ],
+    options
+  );
+  return (
+    result.code === 0 &&
+    result.stdout === 'readable' &&
+    !result.stderr?.trim() &&
+    !result.aborted
+  );
+};
+
 export const observedRunnerState = (target, result) =>
   (target.isolation === 'docker'
     ? dockerRunnerObservation(target, result)

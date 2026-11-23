@@ -171,3 +171,48 @@ verification for VD01.
 
 [Source-bound logs and package evidence](data/runner-launcher-preparation.tar.gz) ·
 [Hash manifest](data/runner-launcher-preparation.tar.sha256.json)
+
+## Check the application file before switching
+
+In Settings, expand **Runner sessions** and Start a stopped SSH target whose
+profile points at a missing application file while the local session is running.
+On `3c1cf860`, the controller stops the local session before issuing Start for the
+missing file. Both sessions end up stopped. The focused API regression reproduces
+the lost local session on that parent.
+
+Start now checks for a readable regular application file on the selected host
+before preparing dependencies or stopping its peer. A refused file check keeps
+the local session running and returns a specific receipt in both Lino encodings.
+The fixture then supplies the file and verifies that an explicit second Start
+completes the switch. The same receipt reaches the CLI and Settings. Profile
+paths and raw transport errors stay out of the notice.
+
+```sh
+node --test --test-concurrency=1 --test-name-pattern='a missing runner application' js/tests/runner-api.test.js
+node experiments/issue-56/runner-application-browser.mjs --parent
+node experiments/issue-56/runner-application-browser.mjs
+python3 -B experiments/issue-56/runner-node-loopback-ssh.py --node-on-path
+```
+
+Node and Deno each passed 79 focused runner checks. Native Linux Screen over
+authenticated loopback SSH refused an absent path containing a quote and spaces
+before any cache or download appeared. A later explicit Start reached application
+readiness from both the cold and warm cache. The hosted Screen and Docker lifecycle
+now checks that a genuinely missing remote path preserves a ready local peer.
+That hosted check and automatic preparation of the application and its package
+dependencies remain open under VD01.
+
+Playwright MCP verified the old and rebuilt production bundles at a 390-pixel
+viewport. Settings retained the file notice through Refresh in English, Russian,
+Hindi and Chinese, with both observed states visible and no horizontal overflow
+or uncaught page errors. The old fixture received Stop and Start. The corrected
+fixture performed no session mutations. Both owned browser and server fixtures
+closed.
+
+![Before, both sessions stopped](../../screenshots/issue-56-runner-application/before-phone.png)
+
+![After, the file error and running local session](../../screenshots/issue-56-runner-application/after-phone.png)
+
+[Desktop view](../../screenshots/issue-56-runner-application/after-desktop.png) ·
+[Source and verification evidence](data/runner-application-preflight.tar.gz) ·
+[Hash manifest](data/runner-application-preflight.tar.sha256.json)

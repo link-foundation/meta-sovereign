@@ -44,8 +44,12 @@ export const runnerFixture = (
   const calls = [];
   const targets = [];
   const health = { local: 'ready', server: 'ready' };
+  const application = { local: true, server: true };
   const run = async (target, argv, { signal } = {}) => {
     const mode = target.host ? 'server' : 'local';
+    if (argv[0] === 'sh' && argv[3] === 'runner-application') {
+      return application[mode] ? { code: 0, stdout: 'readable' } : { code: 1 };
+    }
     if (
       argv[0] === 'sh' &&
       argv[1] === '-c' &&
@@ -91,8 +95,11 @@ export const runnerFixture = (
       }
       return { code: 0 };
     }
+    if (!application[mode]) {
+      return { code: 1 };
+    }
     state[mode] = launchState;
     return { code: launchCode };
   };
-  return { run, state, health, calls, targets };
+  return { run, state, health, application, calls, targets };
 };

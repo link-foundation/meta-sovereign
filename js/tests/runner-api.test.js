@@ -2,7 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { stat } from 'node:fs/promises';
 import { join } from 'node:path';
-import { runnerApiFixture } from '../../experiments/issue-56/runner-api-fixture.mjs';
+import {
+  runnerApiFixture,
+  runnerApplicationRefusalFixture,
+} from '../../experiments/issue-56/runner-api-fixture.mjs';
 import { runnerFixture } from '../../experiments/issue-56/runner-fixture.mjs';
 import { acquireStoreLock } from '../src/storage/store-lock.js';
 import {
@@ -18,6 +21,45 @@ const post = (fixture, action, body, type = LINO_TEXT, extra = {}) =>
     headers: { 'content-type': type, accept: type, ...extra },
     body: encodeWire(body, type),
   });
+
+test(
+  'a missing runner application keeps the working peer and allows an explicit retry',
+  { timeout: 10000 },
+  async () => {
+    for (const type of [LINO_TEXT, LINO_BINARY]) {
+      const fixture = await runnerApplicationRefusalFixture();
+      try {
+        const refused = await readWireResponse(
+          await post(fixture, 'start', { mode: 'server' }, type)
+        );
+        assert.deepEqual(refused.states, {
+          local: 'running',
+          server: 'stopped',
+        });
+        assert.deepEqual(refused, {
+          ok: false,
+          code: 'runner-application-unavailable',
+          scope: 'isolated-session',
+          states: { local: 'running', server: 'stopped' },
+        });
+        assert.ok(
+          fixture.backend.calls.every(([, action]) => action === 'probe')
+        );
+        fixture.backend.application.server = true;
+        const retried = await readWireResponse(
+          await post(fixture, 'start', { mode: 'server' }, type)
+        );
+        assert.deepEqual(retried, {
+          ok: true,
+          scope: 'isolated-session',
+          states: { local: 'stopped', server: 'running' },
+        });
+      } finally {
+        await fixture.close();
+      }
+    }
+  }
+);
 
 test(
   'runner API observes and switches both directions through text and binary Lino',

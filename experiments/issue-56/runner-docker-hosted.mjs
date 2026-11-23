@@ -112,6 +112,21 @@ try {
   assert.equal((await control.act('stop', 'server')).states.server, 'stopped');
   assert.equal((await control.act('start', 'local')).ok, true);
   await poll(() => inspectRunnerApplication(targets.local, run), 'ready');
+  const missing = createRunnerControl({
+    targets: {
+      ...targets,
+      server: { ...target, cli: join(root, session, "missing owner's CLI") },
+    },
+    run,
+  });
+  assert.deepEqual(await missing.act('start', 'server'), {
+    ok: false,
+    code: 'runner-application-unavailable',
+    states: { local: 'running', server: 'stopped' },
+  });
+  assert.equal(launches().length, 2);
+  assert.equal(await inspectRunnerApplication(targets.local, run), 'ready');
+  console.log(JSON.stringify({ missingApplicationRetainsReadyPeer: true }));
   if (docker) {
     refuseCleanup = true;
     assert.deepEqual(await control.act('start', 'server'), {

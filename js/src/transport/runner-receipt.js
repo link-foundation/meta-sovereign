@@ -15,6 +15,7 @@ const refusals = new Set([
   'runner-start-unconfirmed',
   'runner-launcher-unavailable',
   'runner-runtime-unavailable',
+  'runner-application-unavailable',
   'runner-unconfigured',
   'runner-stop-unconfirmed',
   'runner-control-unconfirmed',
