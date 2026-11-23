@@ -11,7 +11,7 @@ Enter the synthetic HeadHunter application form in the `interview` slot, show th
 ```sh
 node --test --test-concurrency=1 js/tests/job-application-attention.test.js js/tests/job-application-holds.test.js js/tests/job-application-hold-controls.test.js js/tests/forms-attention.test.js js/tests/i18n.test.js js/tests/hh-captcha-boundaries.test.js
 deno test --no-check -A js/tests/job-application-attention.test.js js/tests/job-application-holds.test.js js/tests/job-application-hold-controls.test.js js/tests/forms-attention.test.js js/tests/i18n.test.js js/tests/hh-captcha-boundaries.test.js
-RUN_BROWSER_E2E=1 HH_ATTENTION_ONLY=1 node js/tests/e2e-job-application-policies-browser.mjs
+RUN_BROWSER_E2E=1 HH_ATTENTION_ONLY=1 node js/tests/e2e-job-application-attention-browser.mjs
 ```
 
 - Seven focused regressions fail on the parent. The revised checks cover the live receipt, exact identity, headless focus refusal, expiry, close races, no journal writes, both Lino encodings and the existing origin check. [Focused regression](../../../js/tests/job-application-attention.test.js).
@@ -34,9 +34,13 @@ The shared player now uses the same two-note chime as a same-origin PCM asset. T
 - Node and Deno each pass 50 focused sound, Forms, HeadHunter and media-policy checks. Eight focused Pages and desktop packaging checks pass. Separate mobile and desktop staging runs preserve the asset byte for byte. The existing Chromium sound scenario still retrieves a configured ringtone and plays the default chime.
 
 ```sh
-RUN_BROWSER_E2E=1 HH_ATTENTION_CHIME_ONLY=1 node js/tests/e2e-job-application-policies-browser.mjs
+RUN_BROWSER_E2E=1 HH_ATTENTION_CHIME_ONLY=1 node js/tests/e2e-job-application-attention-browser.mjs
 RUN_BROWSER_E2E=1 node js/tests/e2e-sounds-browser.mjs
 node --test --test-concurrency=1 js/tests/build-pages.test.js js/tests/desktop-security-override.test.js
 ```
 
 Playback tests observe the browser media element after operator interaction. Platform system sounds and alerts with a closed desktop window still require verification. [Evidence archive](data/notification-chime.tar.gz) · [Per-file checksums](data/notification-chime.tar.sha256.json).
+
+## Browser CI coverage
+
+The hosted contract on `580a2012` reported four policy scenarios missing. The registration scanner saw only the first of three conditional arrays, while the normal entry actually ran six checks and exceeded the four-scenario limit. Both attention scenarios now have their own mandatory browser entry. The four policy checks keep their existing entry. Chromium and WebKit retain the same shard counts and deadlines. The focused contract suite passed 32 checks, and the new Chromium entry exercised the main and nested verification gates, exact browser focus, and the audible chime. [Hosted failure, log lines 653–680](https://github.com/link-foundation/meta-sovereign/actions/runs/45167662299/job/137670167026#step:15:111) · [Registration contract](../../../js/tests/ci-browser-shards.test.js).

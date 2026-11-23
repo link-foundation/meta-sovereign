@@ -114,6 +114,8 @@ test('native application scenarios remain registered once in bounded groups', ()
       'verifyNativeApplicationRetries',
       'verifyNativeApplicationSupervised',
       'verifyNativeApplicationPopup',
+      'verifyNativeApplicationAttention',
+      'verifyApplicationAttentionChime',
       'verifyNativeResumeVisibility',
       'verifyPopupResumeVisibility',
       'verifyNativeVacancySkips',
@@ -146,6 +148,10 @@ test('native application scenarios remain registered once in bounded groups', ()
 
 test('long application workflows have separate registered budgets without nesting preview refusals', () => {
   for (const [group, scenarios] of [
+    [
+      'job-application-attention',
+      ['verifyNativeApplicationAttention', 'verifyApplicationAttentionChime'],
+    ],
     ['job-application-feedback', ['verifyNativeApplicationFeedback']],
     [
       'job-application-collection',
