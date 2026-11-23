@@ -134,6 +134,7 @@ export const autoImportRecipes = {
     domains: ['hh.ru'],
     files: /\.json$/i,
     capture: captureHhConversation,
+    canCaptureHistory: true,
   },
   superjob: {
     url: 'https://www.superjob.ru/',
@@ -184,6 +185,7 @@ export const describeRecipes = () =>
         url: recipe.url,
         domains: recipe.domains,
         canCapture: canCaptureRecipe(recipe),
+        ...(recipe.canCaptureHistory ? { canCaptureHistory: true } : {}),
       },
     ])
   );

@@ -6,7 +6,17 @@ import {
 } from '../transport/lino.js';
 
 const usage =
-  'Use auto-import status [--id=<job>] | start --source=<provider> [--slot=<slot>] | capture --id=<job> | stop --id=<job> [--url=<server-origin>] [--binary]';
+  'Use auto-import status [--id=<job>] | start --source=<provider> [--slot=<slot>] | capture --id=<job> [--history] | stop --id=<job> [--url=<server-origin>] [--binary]';
+
+const bodyFor = (action, args) => {
+  if (action === 'start') {
+    return { provider: args.source, browserSlot: args.slot };
+  }
+  return action === 'capture' && args.history === true ? { history: true } : {};
+};
+
+const validHistoryFlag = (action, history) =>
+  history === undefined || (action === 'capture' && history === true);
 
 const commandFor = (args) => {
   const action = args._?.join(' ') || 'status';
@@ -14,7 +24,8 @@ const commandFor = (args) => {
     !['status', 'start', 'capture', 'stop'].includes(action) ||
     (action === 'start' && (!args.source || args.id !== undefined)) ||
     (['capture', 'stop'].includes(action) && !args.id) ||
-    (args.id !== undefined && !/^[a-z0-9-]+$/i.test(args.id))
+    (args.id !== undefined && !/^[a-z0-9-]+$/i.test(args.id)) ||
+    !validHistoryFlag(action, args.history)
   ) {
     return null;
   }
@@ -25,10 +36,7 @@ const commandFor = (args) => {
   return {
     path: args.id && !read ? `${path}/${action}` : path,
     read,
-    body:
-      action === 'start'
-        ? { provider: args.source, browserSlot: args.slot }
-        : {},
+    body: bodyFor(action, args),
   };
 };
 
@@ -73,6 +81,9 @@ export const autoImportCmd = async (args, log) => {
     });
     const result = await readWireResponse(response);
     log(encodeWire(result, LINO_TEXT));
+    if (args.history && result?.historyCapture?.coverage?.complete !== true) {
+      return 1;
+    }
     return response.ok && result?.state !== 'failed' ? 0 : 1;
   } catch {
     log(

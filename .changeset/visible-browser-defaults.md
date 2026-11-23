@@ -8,6 +8,8 @@ Keep verified HeadHunter common-chat replies and original message IDs in Chat, a
 
 Edit and delete individually selected HeadHunter common-chat messages with confirmed provider receipts and preserve saved messages when the provider cannot confirm a change (issue #56, HH09).
 
+Capture older messages from an open HeadHunter conversation through Connections or the CLI. Save each verified window, report partial coverage and restore the original scroll position when it remains under browser import's control (issue #56, HH09/HH10/HH11).
+
 Show the reviewed full HH vacancy description for a separately configurable three-second preview before entry or full-form navigation. Preserve Stop, native-change guards, preview mode, frozen batch timing and legacy signatures across CLI, Lino and four-language controls; reserve schema 25 without replaying work (issue #56, HH03, R-Z17).
 
 Wait for the Windows uninstaller to remove its complete installation tree before

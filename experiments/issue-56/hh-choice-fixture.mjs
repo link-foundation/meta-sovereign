@@ -1,4 +1,5 @@
 import { providerChoiceHtml } from './provider-choice-fixture.mjs';
+import { conversationHistoryHtml } from './conversation-history-fixture.mjs';
 
 /** HH-shaped native controls at routed official origins; never contacts an account. */
 export const hhChoiceHtml = providerChoiceHtml.replace(
@@ -11,6 +12,14 @@ export const hhApplicationHtml = (
   `<!doctype html><html lang="en"><meta charset="utf-8"><title>HH application fixture</title><style>body{font:17px system-ui;background:#edf1f7;color:#20252b;padding:16px}h1{font-size:22px}iframe{width:100%;height:680px;border:1px solid #ccd2dc;background:white;border-radius:12px}</style><nav data-qa="mainmenu_applicantProfile">Applicant profile · isolated fixture</nav><h1>Application · embedded employer conversation</h1>${frames}</html>`;
 
 export const hhBrowserImportHtml = (url) => {
+  if (
+    /^\/chat\/[78]$/u.test(url.pathname) &&
+    url.searchParams.has('history-import')
+  ) {
+    return conversationHistoryHtml({
+      marker: !url.searchParams.has('no-start'),
+    });
+  }
   if (url.pathname === '/chat/7' || url.pathname === '/chat/8') {
     return hhChoiceHtml.replace(
       '<main id="history">',

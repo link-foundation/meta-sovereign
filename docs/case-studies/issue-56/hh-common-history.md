@@ -274,3 +274,44 @@ RUN_BROWSER_E2E=1 node js/tests/e2e-inbox-pull-browser.mjs
 ![HeadHunter browser import with one saved message](../../screenshots/issue-56-hh-browser-import-after.png)
 
 ![The captured native conversation in combined Chat](../../screenshots/issue-56-hh-browser-import-chat.png)
+
+## Capturing older messages
+
+Start a HeadHunter import and open one native conversation. Choose **Capture
+older messages** and leave the provider window alone while it scrolls. The
+same operation is available on the running server through either Lino
+encoding.
+
+```sh
+meta-sovereign auto-import capture --id="$job" --history --binary
+```
+
+The scanner starts at the latest rendered window and archives overlapping
+windows under the same native message IDs before moving on. It attempts to
+restore the original scroll anchor and stops if the owner interacts with the
+provider window or its identity changes. The scan is bounded and reports
+complete coverage only when it observes the provider's recognized start
+marker. A repeating rendered edge alone produces an incomplete receipt. The
+CLI exits with status 1 for incomplete coverage and prints the saved count,
+stop reason and restoration result. Completed archive windows remain saved
+after an interruption. The scan retains drafts and does not write a separate
+unread acknowledgement.
+
+At `98271718`, the Connections panel has no older-message action and the
+terminal silently ignores `--history`, even for providers limited to one
+loaded window. The registered Chromium inbox scenario uses a 12-row
+virtualized fixture to verify the earlier manual reply, the restored draft,
+selection and scroll anchor, and an incomplete receipt for a second chat
+without a start marker. The focused API check also cancels a scan while a
+provider read is in progress and verifies that releasing scroll ownership
+precedes closing its window.
+
+Node and Deno each passed 64 focused checks. Independent Playwright MCP
+verified both receipts against the same isolated provider fixture and
+read back the saved manual reply without an API token.
+
+![HeadHunter browser import before the older-message action](../../screenshots/issue-56-hh-browser-import-history-before.png)
+
+![HeadHunter browser import after verifying the conversation start](../../screenshots/issue-56-hh-browser-import-history-after.png)
+
+![HeadHunter browser import with saved messages and an unverified starting point](../../screenshots/issue-56-hh-browser-import-history-partial.png)

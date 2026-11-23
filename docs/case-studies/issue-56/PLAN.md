@@ -1,3 +1,10 @@
+### 2026-11-23 HeadHunter older-message capture (HH09, HH10, HH11 and QA02)
+
+- [x] Reproduce the missing import control and the CLI treating `--history` as a loaded-window capture.
+- [x] Reuse the existing bounded conversation traversal and archive verified windows under the native chat ID. Retain coverage, durable counts and restoration in the receipt.
+- [x] Verify both Lino encodings, partial coverage and cancellation drainage in 64 Node and 64 Deno checks. Verify the registered Chromium scenario and independent Playwright MCP.
+- [ ] Verify an authenticated provider, the wider criteria and exact-source hosted checks.
+
 2026-11-23 HeadHunter browser import (HH09 and QA02):
 
 - [x] Reproduce the missing native capture control and keep the downloaded-file path available.

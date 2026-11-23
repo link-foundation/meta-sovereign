@@ -4,7 +4,7 @@
  *   GET  /api/auto-import                   -> { available, reason, providers, jobs }
  *   POST /api/auto-import        {provider} -> job (opens the browser)
  *   GET  /api/auto-import/jobs/:id          -> job
- *   POST /api/auto-import/jobs/:id/capture  -> job (reads the open chat)
+ *   POST /api/auto-import/jobs/:id/capture {history?} -> job (reads the open chat)
  *   POST /api/auto-import/jobs/:id/stop     -> job (closes the browser)
  *
  * Sign-ins from the user's own browsers (./sign-ins.js):
@@ -131,7 +131,9 @@ const handleJobRoute = async (manager, req, res, id, action) => {
   }
   if (action && req.method === 'POST') {
     const job =
-      action === 'capture' ? await manager.capture(id) : await manager.stop(id);
+      action === 'capture'
+        ? await manager.capture(id, await readBody(req))
+        : await manager.stop(id);
     return json(res, 200, job) ?? true;
   }
   return false;

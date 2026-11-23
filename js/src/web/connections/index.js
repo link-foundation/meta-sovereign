@@ -599,11 +599,11 @@ const useAutoImportJob = (providerId, initialStatus, initialJob) => {
 const AutoImportActions = ({ providerId, status, job, active, apply }) => {
   const t = useT();
   const [capturing, setCapturing] = useState(false);
-  const canCapture = Boolean(status?.providers?.[providerId]?.canCapture);
-  const capture = async () => {
+  const capabilities = status?.providers?.[providerId];
+  const capture = async (options) => {
     setCapturing(true);
     try {
-      apply(await api.autoImportAction(job.id, 'capture'));
+      apply(await api.autoImportAction(job.id, 'capture', options));
     } finally {
       setCapturing(false);
     }
@@ -631,12 +631,21 @@ const AutoImportActions = ({ providerId, status, job, active, apply }) => {
       job ? el(AutoImportState, { key: 'state', job }) : null,
     ]);
   }
+  const disabled = capturing || job.state !== 'waiting';
   return el('div', { className: 'row' }, [
-    canCapture
-      ? button('capture', 'autoImport.capture', capture, {
+    capabilities?.canCapture
+      ? button('capture', 'autoImport.capture', () => capture({}), {
           className: 'primary',
-          disabled: capturing || job.state !== 'waiting',
+          disabled,
         })
+      : null,
+    capabilities?.canCaptureHistory
+      ? button(
+          'history',
+          'autoImport.history',
+          () => capture({ history: true }),
+          { disabled }
+        )
       : null,
     button('finish', 'autoImport.finish', async () =>
       apply(await api.autoImportAction(job.id, 'stop'))
@@ -645,6 +654,17 @@ const AutoImportActions = ({ providerId, status, job, active, apply }) => {
       key: 'state',
       job: capturing ? { ...job, state: 'importing' } : job,
     }),
+  ]);
+};
+
+const AutoImportHistoryState = ({ report }) => {
+  const t = useT();
+  const status = report.coverage.complete
+    ? 'autoImport.historyComplete'
+    : 'autoImport.historyPartial';
+  return el('p', { className: 'meta', role: 'status' }, [
+    t(status, { count: report.saved }),
+    report.restored ? null : ` ${t('autoImport.historyPositionUnconfirmed')}`,
   ]);
 };
 
@@ -758,6 +778,12 @@ export const ProviderAutoImport = ({
       }),
       error
         ? el('p', { key: 'error', className: 'meta', role: 'alert' }, error)
+        : null,
+      job?.historyCapture
+        ? el(AutoImportHistoryState, {
+            key: 'history',
+            report: job.historyCapture,
+          })
         : null,
       job?.files?.length
         ? el(AutoImportFiles, { key: 'files', files: job.files })

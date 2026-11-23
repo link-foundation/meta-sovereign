@@ -561,6 +561,11 @@ test('server exposes auto-import status, jobs and guards mutations', async () =>
     assert.equal(captured.imported, 1);
     const links = await (await fetch(`${base}/links`)).json();
     assert.ok(links.some((l) => l.id === 'msg:whatsapp:web-Ann-1'));
+    const invalid = await post(`/api/auto-import/jobs/${job.id}/capture`, {
+      history: 'true',
+    });
+    assert.equal(invalid.status, 400);
+    assert.equal((await invalid.json()).code, 'auto-import-history-invalid');
 
     const done = await (
       await post(`/api/auto-import/jobs/${job.id}/stop`, {})
@@ -614,10 +619,168 @@ test('CLI manages the running server’s import job using text and binary Lino',
     async () =>
       (await command('status', id, '--binary')).result.state === 'waiting'
   );
+  const history = await command('capture', id, '--history', '--binary');
+  assert.equal(
+    history.code,
+    1,
+    'unsupported history never runs a page capture'
+  );
+  assert.equal(history.result.code, 'auto-import-history-unavailable');
+  assert.equal((await command('status', id)).result.imported, 0);
   assert.equal((await command('capture', id)).result.imported, 1);
   assert.equal((await command('stop', id, '--binary')).result.state, 'done');
   assert.equal((await command('capture', id)).code, 1);
   assert.equal(calls.length, 1);
+});
+
+test('HeadHunter history reports durable windows through both Lino encodings and drains before closing', async (t) => {
+  const store = createMemoryStore();
+  const dataDir = await tmpDir();
+  const url = () => 'https://hh.ru/chat/7';
+  let startMarker = true;
+  let failAfterMove = false;
+  let moved = false;
+  let closed = false;
+  let released = false;
+  let duringRead = async () => {};
+  const frame = {
+    url,
+    evaluate: async (_fn, input) => {
+      if (input?.operation === 'release') {
+        assert.equal(closed, false);
+        released = true;
+        return { restored: input.restore };
+      }
+      return { key: 'tab', rows: 1 };
+    },
+  };
+  const handle = await startLinoServer({
+    port: 0,
+    tls: false,
+    storeDir: dataDir,
+    store,
+    enableSync: false,
+    autoImportLauncher: async () => ({
+      page: { url, mainFrame: () => frame, frames: () => [frame] },
+      commander: {
+        async evaluate({ args: [input] }) {
+          if (input.operation === 'history') {
+            await duringRead();
+            return failAfterMove && moved
+              ? { code: 'answer-chat-unverified' }
+              : {
+                  chat: '7',
+                  messages: [
+                    {
+                      id: '44',
+                      body: 'Provider row',
+                      outgoing: false,
+                      service: startMarker,
+                    },
+                  ],
+                };
+          }
+          if (input.scroll === false) {
+            return null;
+          }
+          assert.equal(
+            closed,
+            false,
+            'scroll ownership is released before the window closes'
+          );
+          if (input.operation === 'open') {
+            moved = false;
+            released = false;
+          } else if (input.operation === 'move') {
+            moved = true;
+          }
+          return {
+            state: 'ready',
+            oldest: true,
+            loading: false,
+            top: 0,
+            view: 240,
+          };
+        },
+      },
+      close: async () => {
+        assert.equal(released, true);
+        closed = true;
+      },
+    }),
+  });
+  t.after(async () => {
+    await handle.close();
+    await fs.rm(dataDir, { recursive: true, force: true });
+  });
+  const command = async (...args) => {
+    let output;
+    const code = await runCli(
+      ['auto-import', ...args, `--url=http://127.0.0.1:${handle.port}`],
+      {
+        log: (text) => {
+          output = text;
+        },
+      }
+    );
+    return { code, result: decodeWire(output) };
+  };
+  const job = (await command('start', '--source=hh')).result;
+  const id = `--id=${job.id}`;
+  await waitFor(
+    async () => (await command('status', id)).result.state === 'waiting'
+  );
+  const complete = await command('capture', id, '--history', '--binary');
+  assert.equal(complete.code, 0);
+  assert.deepEqual(complete.result.historyCapture.coverage, {
+    complete: true,
+    scope: 'conversation',
+    reason: 'provider-start',
+    passes: 1,
+  });
+  assert.equal(complete.result.historyCapture.saved, 1);
+  assert.equal(complete.result.historyCapture.restored, true);
+  assert.equal(complete.result.imported, 1);
+  assert.equal((await store.get('msg:hh:web:7:44')).body, 'Provider row');
+
+  startMarker = false;
+  failAfterMove = true;
+  const partial = await command('capture', id, '--history');
+  assert.equal(partial.code, 1);
+  assert.equal(
+    partial.result.historyCapture.coverage.reason,
+    'document-changed'
+  );
+  assert.equal(partial.result.historyCapture.saved, 1);
+
+  const entered = Promise.withResolvers();
+  const held = Promise.withResolvers();
+  duringRead = () => {
+    entered.resolve();
+    return held.promise;
+  };
+  const capture = command('capture', id, '--history');
+  await Promise.race([
+    entered.promise,
+    capture.then(() =>
+      assert.fail('capture ended before reaching the provider')
+    ),
+  ]);
+  const stop = command('stop', id);
+  try {
+    await waitFor(
+      async () => (await command('status', id)).result.state === 'done'
+    );
+    assert.equal(closed, false);
+  } finally {
+    held.resolve();
+  }
+  assert.equal(
+    (await capture).result.historyCapture.coverage.reason,
+    'cancelled'
+  );
+  assert.equal((await stop).result.historyCapture.restored, true);
+  assert.equal(closed, true);
 });
 
 // --- Connections panel ------------------------------------------------

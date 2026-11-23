@@ -5,7 +5,14 @@ export const autoImportLocale = {
     'autoImport.introCapture':
       'Opens {service} in a separate browser window. Sign in, open a chat and press "Capture this chat". Downloaded export files are imported automatically too.',
     'autoImport.introHh':
-      'Opens {service} in a separate browser window. Sign in, open a conversation, then press “Capture this chat” to save the messages currently loaded there.',
+      'Opens {service} in a separate browser window. Sign in and open a conversation. “Capture this chat” saves loaded messages. For older messages, let the window scroll without interacting with it.',
+    'autoImport.history': 'Capture older messages',
+    'autoImport.historyComplete':
+      'Conversation start verified. Messages saved: {count}.',
+    'autoImport.historyPartial':
+      'Conversation start unverified. Messages saved: {count}.',
+    'autoImport.historyPositionUnconfirmed':
+      'The previous scroll position could not be verified.',
     'autoImport.openHhChat':
       'Open one HeadHunter conversation with visible messages in the import browser and try again.',
     'autoImport.state.waiting': 'The browser is open. Waiting for your export…',
@@ -18,7 +25,14 @@ export const autoImportLocale = {
     'autoImport.introCapture':
       '{service} को एक अलग ब्राउज़र विंडो में खोलता है। साइन इन करें, कोई चैट खोलें और "यह चैट सहेजें" दबाएँ। डाउनलोड की गई एक्सपोर्ट फ़ाइलें भी अपने आप आयात होती हैं।',
     'autoImport.introHh':
-      '{service} को एक अलग ब्राउज़र विंडो में खोलता है। साइन इन करें, बातचीत खोलें और लोड किए गए संदेश सहेजने के लिए “यह चैट सहेजें” दबाएँ।',
+      '{service} एक अलग ब्राउज़र विंडो में खुलता है। साइन इन करके बातचीत खोलें। “यह चैट सहेजें” लोड किए गए संदेश सहेजता है। पुराने संदेशों के लिए विंडो को अपने आप स्क्रॉल करने दें।',
+    'autoImport.history': 'पुराने संदेश सहेजें',
+    'autoImport.historyComplete':
+      'बातचीत की शुरुआत सत्यापित हुई। सहेजे गए संदेश: {count}।',
+    'autoImport.historyPartial':
+      'बातचीत की शुरुआत सत्यापित नहीं हो सकी। सहेजे गए संदेश: {count}।',
+    'autoImport.historyPositionUnconfirmed':
+      'पिछली स्क्रॉल स्थिति की पुष्टि नहीं हो सकी।',
     'autoImport.openHhChat':
       'आयात वाले ब्राउज़र में एक HeadHunter बातचीत खोलें जिसमें संदेश दिख रहे हों, फिर कोशिश करें।',
     'autoImport.state.waiting':
@@ -32,7 +46,14 @@ export const autoImportLocale = {
     'autoImport.introCapture':
       'Откроет {service} в отдельном окне браузера. Войдите, откройте чат и нажмите «Сохранить этот чат». Скачанные файлы выгрузки тоже импортируются автоматически.',
     'autoImport.introHh':
-      'Откроет {service} в отдельном окне браузера. Войдите, откройте переписку и нажмите «Сохранить этот чат», чтобы сохранить уже загруженные сообщения.',
+      'Откроет {service} в отдельном окне браузера. Войдите и откройте переписку. «Сохранить этот чат» сохраняет загруженные сообщения. Для сохранения более ранних сообщений дождитесь окончания прокрутки.',
+    'autoImport.history': 'Сохранить ранние сообщения',
+    'autoImport.historyComplete':
+      'Начало переписки подтверждено. Сохранено сообщений: {count}.',
+    'autoImport.historyPartial':
+      'Начало переписки не подтверждено. Сохранено сообщений: {count}.',
+    'autoImport.historyPositionUnconfirmed':
+      'Не удалось подтвердить восстановление позиции прокрутки.',
     'autoImport.openHhChat':
       'Откройте одну переписку HeadHunter с видимыми сообщениями в окне импорта и попробуйте ещё раз.',
     'autoImport.state.waiting': 'Браузер открыт. Ждём вашу выгрузку…',
@@ -45,7 +66,12 @@ export const autoImportLocale = {
     'autoImport.introCapture':
       '在单独的浏览器窗口中打开 {service}。登录并打开一个聊天，然后点击「保存此聊天」。下载的导出文件也会自动导入。',
     'autoImport.introHh':
-      '在单独的浏览器窗口中打开 {service}。登录并打开一个会话，然后点击「保存此聊天」来保存已加载的消息。',
+      '在单独的浏览器窗口中打开 {service}。登录并打开一个会话。「保存此聊天」保存已加载的消息。保存更早的消息时，请让窗口自动滚动。',
+    'autoImport.history': '保存更早的消息',
+    'autoImport.historyComplete': '已确认会话起点。已保存 {count} 条消息。',
+    'autoImport.historyPartial': '未能确认会话起点。已保存 {count} 条消息。',
+    'autoImport.historyPositionUnconfirmed':
+      '未能确认是否已恢复原来的滚动位置。',
     'autoImport.openHhChat':
       '请在用于导入的浏览器中打开一个有可见消息的 HeadHunter 会话，然后重试。',
     'autoImport.state.waiting': '浏览器已打开，正在等待你的导出文件…',

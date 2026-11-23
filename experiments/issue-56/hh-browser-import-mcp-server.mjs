@@ -38,10 +38,18 @@ try {
         .getByRole('link', { name: 'Example employer' })
         .click();
       console.log('Opened the isolated native conversation');
+    } else if (command === 'older' || command === 'no-start') {
+      await session.page.goto(
+        command === 'no-start'
+          ? 'https://hh.ru/chat/8?history-import&no-start'
+          : 'https://hh.ru/chat/7?history-import'
+      );
+      console.log('Opened the isolated virtualized history');
     } else if (command === 'status') {
       console.log(
         JSON.stringify({
           archived: Boolean(await store.get('msg:hh:web:7:101')),
+          olderReply: (await store.get('msg:hh:web:7:92'))?.body,
           unread: (await store.get('read:hh:web:7'))?.unreadCount,
           token: Boolean(await store.get('secret:hh:access-token')),
           closed: session.page.isClosed(),

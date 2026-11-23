@@ -1094,10 +1094,10 @@ const rawApi = {
     (await serverPostReport('/api/telegram/dialogs', { priority }).catch(
       (error) => ({ error: error.message })
     )) ?? { error: 'server required for Telegram dialogs' },
-  autoImportAction: async (id, action) =>
+  autoImportAction: async (id, action, body = {}) =>
     (await serverPostReport(
       `/api/auto-import/jobs/${encodeURIComponent(id)}/${action}`,
-      {}
+      body
     ).catch((error) => ({ error: error.message }))) ?? {
       error: 'server required for auto-import',
     },

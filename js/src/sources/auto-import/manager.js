@@ -166,6 +166,7 @@ const snapshot = (job) => ({
   canCapture: job.canCapture,
   signedIn: job.signedIn,
   imported: job.imported,
+  ...(job.historyCapture ? { historyCapture: job.historyCapture } : {}),
   files: job.files.slice(),
   error: job.error,
   startedAt: job.startedAt,
@@ -194,8 +195,8 @@ const newJob = (provider, slot, recipe) => {
   };
 };
 
-const statusError = (message, status) =>
-  Object.assign(new Error(message), { status });
+const statusError = (message, status, code) =>
+  Object.assign(new Error(message), { status, code });
 
 // Never throws: a broken file becomes an error row in the job report.
 const importArtifact = async (store, provider, filePath, options = {}) => {
@@ -272,8 +273,22 @@ const captureOpenChat = async (store, job, scrape) => {
   return { name: `page: ${chat}`, imported: links.length };
 };
 
-const captureJob = async (store, job, touch) => {
+const captureJob = async (store, job, touch, { history = false }) => {
   const recipe = autoImportRecipes[job.provider];
+  if (typeof history !== 'boolean') {
+    throw statusError(
+      'history must be true or false',
+      400,
+      'auto-import-history-invalid'
+    );
+  }
+  if (history && !recipe.canCaptureHistory) {
+    throw statusError(
+      'This provider cannot capture older messages',
+      400,
+      'auto-import-history-unavailable'
+    );
+  }
   if (!job.canCapture) {
     throw statusError(`${job.provider} has no page capture`, 400);
   }
@@ -283,15 +298,23 @@ const captureJob = async (store, job, touch) => {
   if (job.state !== 'waiting') {
     throw statusError('the browser is already importing', 409);
   }
+  job.scanningHistory = history;
   touch(job, { state: 'importing' });
   try {
     job.capturing = recipe.capture
-      ? recipe.capture(store, job.session, job.controller.signal)
+      ? recipe.capture(store, job.session, {
+          signal: job.controller.signal,
+          history,
+        })
       : captureOpenChat(store, job, recipe.scrape);
     const report = await job.capturing;
+    if (history) {
+      job.historyCapture = report;
+    }
     job.files.push(report);
     job.imported += report.imported;
   } finally {
+    job.scanningHistory = false;
     job.capturing = null;
     if (job.state === 'importing' && !job.pendingDownloads) {
       touch(job, { state: 'waiting' });
@@ -366,10 +389,15 @@ export const createAutoImportManager = ({
     job.finishing = (async () => {
       await job.ready;
       const session = job.session;
+      if (job.scanningHistory) {
+        await job.capturing?.catch(() => {});
+      }
       job.session = null;
       await session?.close().catch(() => {});
       await job.capturing?.catch(() => {});
-    })();
+    })().finally(() => {
+      job.finishing = null;
+    });
     return job.finishing;
   };
 
@@ -419,7 +447,9 @@ export const createAutoImportManager = ({
   const activeFor = (provider, slot) =>
     [...jobs.values()].find(
       (job) =>
-        job.provider === provider && job.slot === slot && ACTIVE.has(job.state)
+        job.provider === provider &&
+        job.slot === slot &&
+        (ACTIVE.has(job.state) || job.finishing)
     );
 
   const requireJob = (id) => {
@@ -453,8 +483,8 @@ export const createAutoImportManager = ({
     list: () => [...jobs.values()].map(snapshot),
 
     /** Read the messages of the chat open in the browser right now. */
-    async capture(id) {
-      return captureJob(store, requireJob(id), touch);
+    async capture(id, options = {}) {
+      return captureJob(store, requireJob(id), touch, options);
     },
 
     async stop(id) {

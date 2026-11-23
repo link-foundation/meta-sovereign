@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { makeBrowserCommander } from 'browser-commander';
 import { hhBrowserImportHtml } from '../../../experiments/issue-56/hh-choice-fixture.mjs';
+import { conversationHistoryIds } from '../../../experiments/issue-56/conversation-history-fixture.mjs';
 
 export const launchHhImportFixture = async (context, url) => {
   const page = await context.newPage();
@@ -33,6 +34,55 @@ const screenshot = (page, state) =>
         path: `docs/screenshots/issue-56-hh-browser-import-${state}.png`,
       })
     : Promise.resolve();
+
+const nativeHistoryState = (provider) =>
+  provider.evaluate(() => {
+    const root = globalThis.document.querySelector('#history');
+    const composer = globalThis.document.querySelector('textarea');
+    return {
+      top: root.scrollTop,
+      draft: composer.value,
+      selection: [composer.selectionStart, composer.selectionEnd],
+      sends: globalThis.fixture.sends,
+    };
+  });
+
+const verifyHistoryCapture = async ({ page, panel, provider, store }) => {
+  await provider.goto('https://hh.ru/chat/7?history-import');
+  const history = panel.getByRole('button', { name: 'Capture older messages' });
+  if (process.env.HH_BROWSER_IMPORT_HISTORY_BEFORE === '1') {
+    await screenshot(page, 'history-before');
+    assert.equal(
+      await history.count(),
+      1,
+      'older message capture is available'
+    );
+    return;
+  }
+  const original = await nativeHistoryState(provider);
+  await history.click();
+  await panel
+    .getByText('Conversation start verified', { exact: false })
+    .waitFor();
+  await panel.getByText('Messages imported: 13').waitFor();
+  await screenshot(page, 'history-after');
+  assert.deepEqual(await nativeHistoryState(provider), original);
+  const rows = await Promise.all(
+    conversationHistoryIds.map((id) => store.get(`msg:hh:web:7:${id}`))
+  );
+  assert.equal(rows.filter(Boolean).length, 12);
+  assert.equal(rows[2].body, 'I already replied manually.');
+  assert.equal(rows[2].sender, 'me');
+  assert.equal((await store.get('read:hh:web:7')).unreadCount, 2);
+
+  await provider.goto('https://hh.ru/chat/8?history-import&no-start');
+  await history.click();
+  await panel
+    .getByText('Conversation start unverified', { exact: false })
+    .waitFor();
+  assert.equal((await store.get('msg:hh:web:8:92')).outgoing, true);
+  await screenshot(page, 'history-partial');
+};
 
 export const verifyHhBrowserImport = async ({ page, base, native, store }) => {
   assert.equal(await store.get('secret:hh:access-token'), null);
@@ -83,6 +133,8 @@ export const verifyHhBrowserImport = async ({ page, base, native, store }) => {
   await capture.click();
   assert.equal((await captured).status(), 200);
   await panel.getByText('Messages imported: 1').waitFor();
+
+  await verifyHistoryCapture({ page, panel, provider, store });
 
   await provider.goto('https://hh.ru/chat?embedded&ambiguous');
   await provider

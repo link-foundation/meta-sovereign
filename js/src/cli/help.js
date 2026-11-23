@@ -273,7 +273,7 @@ ${TELEGRAM_GREETINGS_HELP}
 ${TELEGRAM_LOGIN_HELP}
   sources
   source-pull   --source=<name> [--protocol=<p>] [--host=<mail-host>] [--owner=<o>] [--repo=<r>] [--state=<s>] [--offset=<n>] [--limit=<n>] [--max-requests=<n>] [--restart-history] [--store=<dir>]
-  auto-import   status [--id=<job>] | start --source=<provider> [--slot=<name>] | capture --id=<job> | stop --id=<job>
+  auto-import   status [--id=<job>] | start --source=<provider> [--slot=<name>] | capture --id=<job> [--history] | stop --id=<job>
                 use the running server's browser import [--url=http://127.0.0.1:8787] [--binary]
   email-send    --protocol=<gmail|microsoft-graph|jmap|smtp> --to=<email> --subject=<s> --text=<body> [--host=<mail-host>]
   github-clone  --owner=<o> --repo=<r> [--ref=<branch>] --token=<pat> [--store=<dir>]
