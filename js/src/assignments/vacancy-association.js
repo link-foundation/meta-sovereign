@@ -1,6 +1,6 @@
 import { assignmentFormUrl } from '../forms/assignment-recognition.js';
 import { modelFingerprint } from '../automation/answer-model-context.js';
-import { hhVacancyId } from '../sources/hh-context.js';
+import { hhVacancyId, isHhBrowserMessage } from '../sources/hh-context.js';
 import { sourceMessageLinkProperties } from '../sources/message-text-links.js';
 import { assignmentFailure, assignmentVacancyUrl } from './validation.js';
 
@@ -20,7 +20,10 @@ const messageVacancies = (message) => {
     typeof evidence === 'string'
       ? evidence.match(/^vacancy:hh:(\d{1,20})$/u)?.[1]
       : undefined;
-  return [message.raw?.vacancy?.id, context, commonId]
+  const browserId = isHhBrowserMessage(message)
+    ? message.hhBrowserVacancyId
+    : null;
+  return [message.raw?.vacancy?.id, context, commonId, browserId]
     .map(hhVacancyId)
     .filter(Boolean);
 };

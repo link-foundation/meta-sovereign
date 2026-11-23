@@ -7,6 +7,7 @@ import {
   messageVersions,
 } from '../src/storage/message-versions.js';
 import { archiveBrowserHistoryWindow } from '../src/sources/browser-history-archive.js';
+import { rememberAssignmentVacancy } from '../src/assignments/vacancy-association.js';
 import { learnArchivedAnswers } from '../src/automation/question-archive.js';
 import { createQuestionBrowser } from '../src/automation/question-browser.js';
 import {
@@ -125,6 +126,75 @@ test('chat identities, service barriers, private links and unknown chronology st
   assert.equal(service.timestamp, null);
   assert.equal(service.service, true);
   assert.equal((await store.get('msg:hh:8:101')).body, rows()[0].body);
+});
+
+test('only a verified native HH message can associate its exact form link and vacancy', async () => {
+  const store = wrappedStore();
+  const vacancyId = '12345678901234567890';
+  const formUrl = 'https://forms.gle/fixture-native-assignment?part=1';
+  const row = {
+    ...rows()[0],
+    body: 'Application form',
+    links: [formUrl],
+    hhVacancyUrl: `https://www.hh.ru/vacancy/${vacancyId}/?from=chat`,
+  };
+  const chat = 'web:8';
+  const save = (next, extra = {}) =>
+    archiveBrowserHistoryWindow(store, input({ chat, rows: [next], ...extra }));
+  for (const target of [
+    { source: 'web' },
+    { chat: 'chat:8' },
+    { chat: 'web:80', rows: [{ ...row, id: 'imported' }] },
+  ]) {
+    await save(row, target);
+  }
+  await store.put({
+    id: 'msg:hh:web:81:101',
+    source: 'hh',
+    chat: 'web:81',
+    via: 'file',
+    links: [formUrl],
+    hhBrowserVacancyId: vacancyId,
+  });
+  assert.equal(await rememberAssignmentVacancy(store, [formUrl]), null);
+  await save(row);
+  assert.equal(
+    (await store.get('msg:hh:web:8:101')).hhBrowserVacancyId,
+    vacancyId
+  );
+  assert.equal(
+    await rememberAssignmentVacancy(store, [formUrl.replace('=1', '=2')]),
+    null
+  );
+  assert.equal(
+    (await rememberAssignmentVacancy(store, [formUrl])).vacancyUrl,
+    `https://hh.ru/vacancy/${vacancyId}`
+  );
+});
+
+test('a new complete native observation replaces missing or invalid vacancy evidence', async () => {
+  const store = wrappedStore();
+  const formUrl = 'https://forms.gle/fixture-native-replacement';
+  const row = { ...rows()[0], links: [formUrl] };
+  const save = (hhVacancyUrl) =>
+    archiveBrowserHistoryWindow(
+      store,
+      input({ rows: [{ ...row, hhVacancyUrl }] })
+    );
+  for (const invalid of [
+    null,
+    'https://hh.ru.example.invalid/vacancy/42',
+    'https://person@hh.ru/vacancy/42',
+    'https://hh.ru/vacancy/123456789012345678901',
+  ]) {
+    await save('https://hh.ru/vacancy/42');
+    assert.equal((await store.get('msg:hh:8:101')).hhBrowserVacancyId, '42');
+    await archiveBrowserHistoryWindow(store, input({ rows: [row] }));
+    assert.equal((await store.get('msg:hh:8:101')).hhBrowserVacancyId, '42');
+    assert.equal((await save(invalid)).changed, 1);
+    assert.equal((await store.get('msg:hh:8:101')).hhBrowserVacancyId, null);
+    assert.equal(await rememberAssignmentVacancy(store, [formUrl]), null);
+  }
 });
 
 test('a corrected native service classification replaces stale archive metadata', async () => {

@@ -7,6 +7,20 @@ export const hhVacancyId = (value) => {
   return typeof id === 'string' && /^\d{1,20}$/u.test(id) ? id : null;
 };
 
+export const isHhBrowserMessage = ({ source, via, chat, id }) => {
+  if (
+    source !== 'hh' ||
+    via !== 'browser' ||
+    typeof chat !== 'string' ||
+    !/^(?:web:)?\d{1,30}$/u.test(chat) ||
+    typeof id !== 'string'
+  ) {
+    return false;
+  }
+  const prefix = `msg:hh:${chat}:`;
+  return id.startsWith(prefix) && /^\d{1,480}$/u.test(id.slice(prefix.length));
+};
+
 export const hhAnswerContext = (vacancy) => {
   const id = vacancy?.id;
   if (

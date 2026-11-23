@@ -1,6 +1,9 @@
 /* global document, location, getComputedStyle */
 import { browserPendingTurn } from './browser-pending-turn.js';
-import { browserNoticeContext } from './browser-notice-context.js';
+import {
+  browserNoticeContext,
+  browserVacancyHeader,
+} from './browser-notice-context.js';
 import { messageLinkProperties } from '../message-link-targets.js';
 import { browserMessageState } from './browser-message-state.js';
 import { browserPaneIdentity } from './browser-pane-identity.js';
@@ -190,6 +193,29 @@ export const browserVisibleAnswerControls = (spec, latest, visible, text) => {
   };
 };
 
+export const browserHistoryResponse = (spec, history, visible, text) => {
+  const { chat, latest, questionAvailable } = history;
+  let { messages } = history;
+  if (spec.noticeContext) {
+    const hhVacancyUrl = browserVacancyHeader(spec)?.vacancyUrl ?? null;
+    messages = messages.map((row) => ({ ...row, hhVacancyUrl }));
+  }
+  if (!questionAvailable) {
+    return { chat, messages };
+  }
+  const options = browserVisibleAnswerControls(spec, latest, visible, text);
+  if (options.code) {
+    return options;
+  }
+  const { strictOptions, answerOptions } = options;
+  return {
+    chat,
+    messages: messages.map((row) =>
+      row.id === latest.id ? { ...row, strictOptions, answerOptions } : row
+    ),
+  };
+};
+
 /** Composed with static helpers; provider text stays data. */
 export const readBrowserChoices = (
   spec,
@@ -229,25 +255,18 @@ export const readBrowserChoices = (
   if (history.code) {
     return history;
   }
+  if (historyOnly) {
+    return browserHistoryResponse(spec, history, visible, text);
+  }
   const { chat, latest, messages, pendingTurn, questionAvailable } = history;
   if (!questionAvailable && !(manual && latest)) {
-    return historyOnly
-      ? { chat, messages }
-      : unavailable('answer-question-unavailable');
+    return unavailable('answer-question-unavailable');
   }
   const options = browserVisibleAnswerControls(spec, latest, visible, text);
   if (options.code) {
     return options;
   }
   const { strictOptions, answerOptions, controls, enabled } = options;
-  if (historyOnly) {
-    return {
-      chat,
-      messages: messages.map((row) =>
-        row.id === latest.id ? { ...row, strictOptions, answerOptions } : row
-      ),
-    };
-  }
   const composers = [...document.querySelectorAll(spec.composer)].filter(
     visible
   );

@@ -20,21 +20,22 @@ export const noticeVacancyUrl = (link) => {
   return `${url.origin}${url.pathname}`;
 };
 
+export const visibleNoticeElement = (selector) => {
+  const nodes = [...document.querySelectorAll(selector)].filter(
+    browserFrameVisible
+  );
+  return nodes.length === 1 ? nodes[0] : null;
+};
+
 /** Positive job-chat evidence excludes support and incomplete SPA transitions. */
-export const browserNoticeContext = (spec) => {
+export const browserVacancyHeader = (spec) => {
   const selectors = spec.noticeContext;
   if (!selectors) {
     return null;
   }
-  const one = (selector) => {
-    const nodes = [...document.querySelectorAll(selector)].filter(
-      browserFrameVisible
-    );
-    return nodes.length === 1 ? nodes[0] : null;
-  };
-  const company = one(selectors.company)?.textContent?.trim();
-  const vacancy = one(selectors.vacancy)?.textContent?.trim();
-  const link = one(selectors.link);
+  const company = visibleNoticeElement(selectors.company)?.textContent?.trim();
+  const vacancy = visibleNoticeElement(selectors.vacancy)?.textContent?.trim();
+  const link = visibleNoticeElement(selectors.link);
   if (
     !company ||
     company.length > 600 ||
@@ -45,15 +46,18 @@ export const browserNoticeContext = (spec) => {
     return null;
   }
   const vacancyUrl = noticeVacancyUrl(link);
-  if (!vacancyUrl) {
+  return vacancyUrl ? { company, vacancy, vacancyUrl } : null;
+};
+
+export const browserNoticeContext = (spec) => {
+  const header = browserVacancyHeader(spec);
+  if (!header) {
     return null;
   }
-  const composer = one(spec.composer);
+  const composer = visibleNoticeElement(spec.composer);
   return {
     noticeContext: {
-      company,
-      vacancy,
-      vacancyUrl,
+      ...header,
       canReply: Boolean(
         composer &&
         !composer.matches(

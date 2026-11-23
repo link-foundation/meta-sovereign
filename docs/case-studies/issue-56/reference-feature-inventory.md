@@ -34,7 +34,7 @@ Partial QA02 and QA06 include [edited answer history](question-archive-revisions
 
 [WhatsApp Cloud question destinations](question-whatsapp-links.md) preserve referral and contact-card URLs and nested media captions from supplied native payloads. Nine parent failures, the CLI, both Lino encodings and production browser receipts verify the shared review. Authenticated receipt and the complete QA04 scope remain open.
 
-[Assignment vacancy from HeadHunter chat](assignment-chat-vacancy.md) uses the exact common-chat or negotiation vacancy with the verified form destination and redirect. The CLI, both Lino formats, production Chromium and Playwright MCP verify review without a manual vacancy override. Native web-chat capture, authenticated B20 and the complete QA24 scope remain open.
+[Assignment vacancy from HeadHunter chat](assignment-chat-vacancy.md) uses the exact common-chat or negotiation vacancy with the verified form destination and redirect. [Native HeadHunter capture](assignment-native-chat-vacancy.md) also retains the vacancy from the verified browser pane through current-window capture, older history and owner watch. Chromium and independent phone Playwright verify the review without a manual vacancy override. Authenticated B20 and the complete QA24 scope remain open.
 
 QA19/QA20 also include [Stop during sender preparation](dispatch-stop.md):
 forty-five actual-parent failures and 383 focused passes cover separate dispatch

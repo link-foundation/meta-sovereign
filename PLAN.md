@@ -1,10 +1,19 @@
+2026-11-23 native HeadHunter form-vacancy capture (QA24 remains unfinished)
+
+- [x] Reproduce the dropped vacancy at the previous source and in the Forms review after the form redirects.
+- [x] Save the vacancy from the verified native header with the exact form destination through current-window capture, older history and owner watch.
+- [x] Pass 56 targeted tests per runtime, including prior shared CLI and Lino vacancy behavior.
+- [x] Verify Chromium and independent phone Playwright MCP with a routed employer conversation, no vacancy override, unchanged forms and zero employer submissions.
+- [ ] Review exact-source hosted checks and continue authenticated B20, the shared pay context and the remaining QA24 requirements.
+
 2026-11-23 HeadHunter form links and vacancy evidence (QA24 remains unfinished)
 
 - [x] Trace pinned B20 and reproduce missing or stale vacancy evidence on the published parent.
 - [x] Reuse the exact vacancy ID from common chats and legacy negotiations. Match actual form destinations, keep the observed redirect, and refuse conflicting or stale evidence.
 - [x] Verify the CLI, both Lino formats, 49 focused tests per runtime, Chromium and independent Playwright MCP for the shared review.
 - [ ] Review exact-source hosted runs.
-- [ ] Capture the verified vacancy header in native HeadHunter conversation import and the owner watcher. Run authenticated B20 verification and continue the other QA24 requirements.
+- [x] Capture the verified vacancy header in native HeadHunter conversation import and the owner watcher.
+- [ ] Run authenticated B20 verification and continue the other QA24 requirements.
 
 2026-11-23 WhatsApp Cloud question evidence (QA04 remains unfinished)
 

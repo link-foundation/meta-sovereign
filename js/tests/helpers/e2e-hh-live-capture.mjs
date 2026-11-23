@@ -1,10 +1,11 @@
-/* global history */
+/* global DOMParser, history */
 import assert from 'node:assert/strict';
 import { makeBrowserCommander } from 'browser-commander';
 import { createBrowserSender } from '../../src/sources/browser-sender.js';
 import { readBrowserHistory } from '../../src/sources/browser-choices.js';
 import { HH_WEB_UI } from '../../src/sources/hh-web-ui.js';
 import { archiveBrowserHistoryWindow } from '../../src/sources/browser-history-archive.js';
+import { rememberAssignmentVacancy } from '../../src/assignments/vacancy-association.js';
 import { createMemoryStore } from '../../src/storage/universal.js';
 import {
   withMessageVersions,
@@ -12,6 +13,8 @@ import {
 } from '../../src/storage/message-versions.js';
 import { hhChoiceHtml } from '../../../experiments/issue-56/hh-choice-fixture.mjs';
 import { transientMessageFixture } from '../../../experiments/issue-56/transient-message-fixture.mjs';
+import { nativeAssignmentChatHtml } from '../../../experiments/issue-56/assignment-native-chat-fixture.mjs';
+import { vacancyUrl } from '../../../experiments/issue-56/assignment-vacancy-fixture.mjs';
 
 const fixture = async (browser) => {
   const context = await browser.newContext();
@@ -71,6 +74,42 @@ const runFixture = async (browser, name, work, failures, collectFailures) => {
     await env.sender.close();
   }
 };
+
+export const verifyHhAssignmentVacancyWatch = (browser) =>
+  runFixture(
+    browser,
+    'associates a form when its native header mounts',
+    async ({ page, sender, args }) => {
+      const store = createMemoryStore();
+      const formUrl = 'https://forms.gle/fixture-native-watch';
+      const markup = nativeAssignmentChatHtml(formUrl);
+      await page.evaluate((html) => {
+        const parsed = new DOMParser().parseFromString(html, 'text/html');
+        const selector = '[data-qa="chat-bubble-text"]';
+        document
+          .querySelector(selector)
+          .replaceWith(parsed.querySelector(selector));
+      }, markup);
+      const watch = await sender.openAnswerWatch({
+        ...args,
+        onHistoryWindow: (window) =>
+          archiveBrowserHistoryWindow(store, { ...window, source: 'hh' }),
+      });
+      try {
+        assert.equal(await rememberAssignmentVacancy(store, [formUrl]), null);
+        await page.evaluate((html) => {
+          const parsed = new DOMParser().parseFromString(html, 'text/html');
+          document.body.prepend(parsed.querySelector('header'));
+        }, markup);
+      } finally {
+        await watch.close();
+      }
+      const association = await rememberAssignmentVacancy(store, [formUrl]);
+      assert.equal(association?.vacancyUrl, vacancyUrl);
+      assert.equal(association?.sourceMessageId, 'msg:hh:7:101');
+      assert.equal(await page.locator('textarea').inputValue(), '');
+    }
+  );
 
 /** Finite actual DOM mutations between polls; every provider request is routed. */
 export const verifyHhLiveCapture = async (

@@ -3,6 +3,8 @@ import { toBrowserMessageLink } from './browser-message.js';
 import { storeSourceMessages } from './store-messages.js';
 import { messageLinkProperties } from '../message-link-targets.js';
 import { browserDeliveryStates } from './browser-message-state.js';
+import { noticeVacancyUrl } from './browser-notice-context.js';
+import { hhVacancyId, isHhBrowserMessage } from './hh-context.js';
 
 const invalid = () =>
   Object.assign(new Error('The observed browser history could not be saved.'), {
@@ -37,12 +39,23 @@ const project = ({ source, chat, rows, chatName }) => {
   ) {
     throw invalid();
   }
-  return rows.map((row) => ({
-    ...toBrowserMessageLink(source, chat, row),
-    ...(chatName ? { chatName } : {}),
-    service: row.service === true,
-    links: messageLinkProperties(row.links).links ?? [],
-  }));
+  return rows.map((row) => {
+    const message = toBrowserMessageLink(source, chat, row);
+    if (row.hhVacancyUrl !== undefined && isHhBrowserMessage(message)) {
+      const url = boundedText(row.hhVacancyUrl, 2000)
+        ? noticeVacancyUrl({ href: row.hhVacancyUrl })
+        : null;
+      message.hhBrowserVacancyId = url
+        ? hhVacancyId(new URL(url).pathname.split('/')[2])
+        : null;
+    }
+    return {
+      ...message,
+      ...(chatName ? { chatName } : {}),
+      service: row.service === true,
+      links: messageLinkProperties(row.links).links ?? [],
+    };
+  });
 };
 
 /** A window must flush before scrolling away. Unchanged overlap creates no writes. */

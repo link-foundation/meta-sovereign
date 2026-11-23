@@ -18,6 +18,7 @@ import {
 import { setTimeout as sleep } from 'node:timers/promises';
 import {
   readBrowserChoices,
+  browserHistoryResponse,
   browserChoiceSuggestions,
   browserChoiceHistory,
   browserMessageLinks,
@@ -37,7 +38,9 @@ import {
 import { answerChoiceState } from '../automation/question-options.js';
 import {
   browserNoticeContext,
+  browserVacancyHeader,
   noticeVacancyUrl,
+  visibleNoticeElement,
 } from './browser-notice-context.js';
 import { checkedPendingMessages } from '../automation/question-pending-plan.js';
 import {
@@ -91,11 +94,14 @@ const source = `(input) => {
   const textReplyButtons = (${textReplyButtons.toString()});
   const textReplyOpen = (${textReplyOpen.toString()});
   const noticeVacancyUrl = (${noticeVacancyUrl.toString()});
+  const visibleNoticeElement = (${visibleNoticeElement.toString()});
+  const browserVacancyHeader = (${browserVacancyHeader.toString()});
   const browserNoticeContext = (${browserNoticeContext.toString()});
   const browserPendingTurn = (${browserPendingTurn.toString()});
   const browserChoiceSuggestions = (${browserChoiceSuggestions.toString()});
   const browserChoiceHistory = (${browserChoiceHistory.toString()});
   const browserVisibleAnswerControls = (${browserVisibleAnswerControls.toString()});
+  const browserHistoryResponse = (${browserHistoryResponse.toString()});
   const context = (${createChoiceContext.toString()})(input, readBrowserChoices);
   const methods = {${Object.entries(methods)
     .map(([name, method]) => `${name}: ${method.toString()}`)

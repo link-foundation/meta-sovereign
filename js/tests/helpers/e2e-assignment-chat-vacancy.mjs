@@ -3,8 +3,9 @@ import { openFormPlan, closeFormReview, decoded } from './e2e-form-review.mjs';
 import { seedAssignmentAnswers } from '../../../experiments/issue-56/forms-assignment-fixture.mjs';
 import { vacancyUrl } from '../../../experiments/issue-56/assignment-vacancy-fixture.mjs';
 import { importAssignmentChat } from '../../../experiments/issue-56/assignment-chat-vacancy-fixture.mjs';
+import { captureNativeAssignmentChat } from '../../../experiments/issue-56/assignment-native-chat-fixture.mjs';
 
-const capture = async (page, review, state) => {
+const capture = async (page, review, state, native) => {
   for (const [layout, width, height] of [
     ['desktop', 1200, 800],
     ['mobile', 390, 844],
@@ -21,7 +22,7 @@ const capture = async (page, review, state) => {
     await review.evaluate((node) => node.scrollIntoView({ block: 'center' }));
     if (process.env.FORMS_ASSIGNMENT_CHAT_SCREENSHOTS === '1') {
       await page.screenshot({
-        path: `docs/screenshots/issue-56-assignment-chat-vacancy-${state}-${layout}.png`,
+        path: `docs/screenshots/issue-56-assignment-${native ? 'native-' : ''}chat-vacancy-${state}-${layout}.png`,
       });
     }
   }
@@ -39,7 +40,18 @@ export const verifyAssignmentChatVacancy = async ({
 }) => {
   const formUrl = new URL('/assignment-chat-link', fixture.url).href;
   await seedAssignmentAnswers(store);
-  await importAssignmentChat(store, formUrl);
+  const native = process.env.FORMS_ASSIGNMENT_NATIVE_CHAT === '1';
+  if (native) {
+    const { counters, errors } = await captureNativeAssignmentChat(
+      page.context().browser(),
+      store,
+      formUrl,
+      { nested: true }
+    );
+    assert(!counters.sends && !errors.length, 'native capture is read-only');
+  } else {
+    await importAssignmentChat(store, formUrl);
+  }
   const priorReads = vacancyReads.length;
   const before = process.env.FORMS_ASSIGNMENT_CHAT_PARENT === '1';
   await openFormPlan(page, formUrl, 'qa-profile:forms-fixture');
@@ -86,7 +98,12 @@ export const verifyAssignmentChatVacancy = async ({
         'draft binds the exact chat vacancy'
       );
     }
-    await capture(page, before ? review : link, before ? 'before' : 'after');
+    await capture(
+      page,
+      before ? review : link,
+      before ? 'before' : 'after',
+      native
+    );
     const formValue = await owner.page.locator('[name="english"]').inputValue();
     assert(
       !formValue && fixture.submits === 0,

@@ -5,6 +5,7 @@ import { startServer } from '../../js/src/server/index.js';
 import { createMemoryStore } from '../../js/src/storage/universal.js';
 import { assignmentPublisherFixture } from './assignment-publisher-fixture.mjs';
 import { importAssignmentChat } from './assignment-chat-vacancy-fixture.mjs';
+import { captureNativeAssignmentChat } from './assignment-native-chat-fixture.mjs';
 import { vacancySnapshot } from './assignment-vacancy-fixture.mjs';
 import {
   assignmentSourceBrowserFixture,
@@ -26,13 +27,23 @@ const owned = [];
 const sources = [];
 let browser;
 let server;
+let nativeCapture;
 try {
-  if (chat) {
-    await importAssignmentChat(store, chatFormUrl);
-  }
   browser = await chromium.launch({
     executablePath: process.env.E2E_EXECUTABLE_PATH,
   });
+  if (chat) {
+    if (process.env.FORMS_ASSIGNMENT_NATIVE_CHAT === '1') {
+      nativeCapture = await captureNativeAssignmentChat(
+        browser,
+        store,
+        chatFormUrl,
+        { nested: true }
+      );
+    } else {
+      await importAssignmentChat(store, chatFormUrl);
+    }
+  }
   server = await startServer({
     store,
     port: 0,
@@ -119,6 +130,7 @@ try {
       sources: sources.map(({ closed }) => closed),
       modelCalls: publication.state.modelCalls.length,
       ...(chat && { vacancyReads }),
+      ...(nativeCapture && { nativeCapture }),
       externalWrites: Boolean(
         publication.state.repository || publication.state.issues.length
       ),
