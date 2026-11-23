@@ -24,6 +24,11 @@ if "--vk" in sys.argv:
     FILES = [f"js/src/automation/question-{name}.js" for name in [
         "archive", "chat-turn", "context", "learning", "store", "summary-choice"]]
     FILES += ["js/src/replies/history-order.js", "js/src/sources/message-text-links.js"]
+if "--meta" in sys.argv:
+    kind = "meta"
+    PARENT = "b616c88066727b41baaf1363353e01c88eb60941"
+    FILES = [f"js/src/sources/{name}.js" for name in [
+        "facebook", "message-text-links", "archive/meta-thread"]]
 if "--browser" in sys.argv:
     FILES.append("js/src/web/app.min.js")
 saved = {name: (ROOT / name).read_bytes() for name in FILES}

@@ -157,6 +157,8 @@
 
 - [VK greeting recognition and catalogs](vk-greeting-catalog.md): actual-parent outgoing/group and missing phrase-editor regressions, shared personal-dialog guards, durable per-language CLI/UI catalogs, reference sticker/text audit and focused Lino/native/MCP evidence. VK01 is [verified](hosted-verification-727.md).
 
+- [Meta question destinations](question-meta-links.md): published-parent regressions and shared review for Messenger Graph and webhook destinations and Facebook and Instagram archive links. See CLI, Lino and Chromium evidence. QA04 remains incomplete.
+
 - [VK question destinations and chronology](question-vk-links.md): actual four-adapter parent regressions, bounded direct destinations, consistent native time, frozen final admission and private learning, with CLI/Lino/native/MCP evidence. QA04 remains incomplete.
 - [Layered runner configuration](runner-configuration.md): local/global precedence, ephemeral CLI fields, shared revision-checked editing and retained Stop addresses, with exact-parent and actual browser evidence. Full VD07 remains required.
 

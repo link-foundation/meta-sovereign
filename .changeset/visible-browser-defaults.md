@@ -937,6 +937,11 @@ history and final admission. Compare native Unix timestamps with ISO history
 consistently and preserve private destination exclusions during answer learning
 (issue #56 QA04).
 
+Retain Messenger shares and action destinations, as well as Facebook and
+Instagram archive links, in saved-answer review and dispatch checks. Preserve
+the exact target in CLI, Lino and shared previews and hold unverified metadata
+for review (issue #56 QA04).
+
 Merge app-folder runner profiles over global settings and accept ephemeral local
 CLI field overrides. Share effective revision-checked editing across CLI, Lino and
 Settings, preserve global files and retain running targets through configuration

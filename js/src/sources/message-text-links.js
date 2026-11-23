@@ -1,4 +1,5 @@
 import { messageLinkProperties } from '../message-link-targets.js';
+import { metaMessageTargets } from './meta-message-links.js';
 import { vkMessageTargets } from './vk-message-links.js';
 
 const invalid = () => {
@@ -178,6 +179,9 @@ const sourceLinks = (message) => {
   }
   if (message.source === 'vk') {
     return vkMessageTargets(message)?.map(target);
+  }
+  if (message.source === 'facebook' || message.source === 'instagram') {
+    return metaMessageTargets(message);
   }
   return message.source === 'email' ? emailLinks(message.bodyTree) : undefined;
 };

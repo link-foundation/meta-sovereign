@@ -380,6 +380,7 @@ const questionBrowserGroups = {
     'verifyHiddenQuestionLinks',
     'verifyApiQuestionLinks',
     'verifyVkQuestionLinks',
+    'verifyMetaQuestionLinks',
   ],
   'question-text-replies': ['verifyTextReplyControls'],
   'question-text-guards': ['verifyTextReplyGuards'],

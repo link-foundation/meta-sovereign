@@ -11,6 +11,7 @@
  */
 
 import { buildMessageLink } from '../link.js';
+import { sourceMessageLinkProperties } from '../message-text-links.js';
 import { withLegacy } from './legacy.js';
 import {
   fixDeep,
@@ -130,10 +131,19 @@ const chatTypeOf = (participants) => {
   return participants.length > 2 ? 'group' : 'private';
 };
 
+const linkAttachments = (message, attachments) => {
+  if (message.share !== undefined && message.share !== null) {
+    return [{ kind: 'link', url: message.share.link }];
+  }
+  return message._externalLinks ?? attachments;
+};
+
 const linkOf = async ({ network, ctx, thread, header, message }) => {
   const sender = message.sender_name ?? 'unknown';
   const ts = message.timestamp_ms ?? message.timestamp ?? 'nots';
   const n = ctx.ordinal(`${thread}|${ts}|${sender}`);
+  const attachments =
+    message._attachments ?? (await attachmentsOf(ctx, network, message));
   const link = buildMessageLink({
     source: network,
     externalId: `${thread}:${ts}:${shortHash(sender)}:${n}`,
@@ -145,7 +155,11 @@ const linkOf = async ({ network, ctx, thread, header, message }) => {
     chatName: header.title,
     chatType: chatTypeOf(header.participants),
     participants: header.participants,
-    attachments: await attachmentsOf(ctx, network, message),
+    attachments,
+    ...sourceMessageLinkProperties({
+      source: network,
+      attachments: linkAttachments(message, attachments),
+    }),
     reactions: reactionsOf(message.reactions),
     deleted: message.is_unsent === true ? true : null,
   });
@@ -216,8 +230,10 @@ const REACTION = /^(\P{L}+?)\s*(\p{L}.*)$/su;
 const firstOf = (node, names) =>
   findAll(node, (n) => hasClass(n, names))[0] ?? null;
 
-const htmlAttachments = async (ctx, network, body) => {
-  const out = [];
+const htmlAttachments = async (ctx, network, body, reactions) => {
+  const attachments = [];
+  const externalLinks = [];
+  const reactionLinks = new Set(findAll(reactions, (n) => n.tag === 'a'));
   const media = findAll(body, (n) =>
     ['img', 'video', 'audio', 'source', 'a'].includes(n.tag)
   );
@@ -229,15 +245,25 @@ const htmlAttachments = async (ctx, network, body) => {
     a: 'file',
   };
   for (const node of media) {
+    const href = node.attrs.href;
+    if (
+      node.tag === 'a' &&
+      /^(?:[a-z][a-z\d+.-]*:|\/\/)/iu.test(href?.trim())
+    ) {
+      if (!reactionLinks.has(node)) {
+        externalLinks.push({ kind: 'link', url: href });
+      }
+      continue;
+    }
     const uri = node.attrs.src ?? node.attrs.href;
     if (uri && !/^[a-z]+:/i.test(uri)) {
       const att = await attachmentOf(ctx, network, kinds[node.tag], uri);
       if (att) {
-        out.push(att);
+        attachments.push(att);
       }
     }
   }
-  return out;
+  return { _attachments: attachments, _externalLinks: externalLinks };
 };
 
 const htmlMessage = async (ctx, network, node) => {
@@ -257,7 +283,7 @@ const htmlMessage = async (ctx, network, node) => {
     timestamp_ms: htmlDateToMs(textOf(firstOf(node, WHEN) ?? '').trim()),
     content,
     reactions: likes.filter(Boolean),
-    _attachments: body ? await htmlAttachments(ctx, network, body) : [],
+    ...(body ? await htmlAttachments(ctx, network, body, reactions) : {}),
   };
 };
 
@@ -270,9 +296,7 @@ export const metaHtmlToLinks = async ({ network, html, ctx, entryName }) => {
   const links = [];
   for (const node of findAll(tree, (n) => hasClass(n, MESSAGE))) {
     const message = await htmlMessage(ctx, network, node);
-    const link = await linkOf({ network, ctx, thread, header, message });
-    const attachments = message._attachments;
-    links.push(attachments.length ? { ...link, attachments } : link);
+    links.push(await linkOf({ network, ctx, thread, header, message }));
   }
   return links;
 };

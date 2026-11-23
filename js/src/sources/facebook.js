@@ -10,6 +10,7 @@
  */
 
 import { buildMessageLink } from './link.js';
+import { sourceMessageLinkProperties } from './message-text-links.js';
 import {
   authHeaders,
   compact,
@@ -23,6 +24,8 @@ import { createArchiveContext } from './archive/context.js';
 import { metaHtmlToLinks, metaJsonToLinks } from './archive/meta-thread.js';
 
 const SOURCE = 'facebook';
+const DEFAULT_HISTORY_FIELDS =
+  'messages.limit(50){id,message,created_time,from,to,is_unsupported,shares{url},attachments{generic_template}}';
 
 // Per-type attachment builders — split out so `fbAttachmentItem` stays
 // under the cyclomatic-complexity limit.
@@ -44,28 +47,29 @@ const fbLocationAtt = (payload) => ({
 
 /** Map a single Messenger attachment object to our normalized shape. */
 const fbAttachmentItem = (att) => {
-  if (att.type === 'image') {
+  if (att?.type === 'image') {
     return fbImageAtt(att.payload);
   }
-  if (att.type === 'video') {
+  if (att?.type === 'video') {
     return fbVideoAtt(att.payload);
   }
-  if (att.type === 'audio') {
+  if (att?.type === 'audio') {
     return fbAudioAtt(att.payload);
   }
-  if (att.type === 'file') {
+  if (att?.type === 'file') {
     return fbFileAtt(att.payload);
   }
-  if (att.type === 'location') {
+  if (att?.type === 'location') {
     return fbLocationAtt(att.payload);
   }
   return null;
 };
 
 const fbAttachments = (message) => {
-  const items = (message.attachments ?? [])
-    .map(fbAttachmentItem)
-    .filter(Boolean);
+  if (!Array.isArray(message.attachments)) {
+    return null;
+  }
+  const items = message.attachments.map(fbAttachmentItem).filter(Boolean);
   return items.length > 0 ? items : null;
 };
 
@@ -84,13 +88,20 @@ const fbChatId = (message, conversationId) =>
 const fbReplyTo = (message) =>
   message.reply_to?.mid ?? message.reply_to?.id ?? null;
 
+const fbBody = (message) => message.message ?? message.text ?? '';
+
 const graphMessageToLink = (message, conversationId = null) =>
   buildMessageLink({
     source: SOURCE,
     externalId: fbExternalId(message),
     sender: fbSenderId(message),
     chat: fbChatId(message, conversationId),
-    body: message.message ?? message.text ?? '',
+    body: fbBody(message),
+    ...sourceMessageLinkProperties({
+      source: SOURCE,
+      body: fbBody(message),
+      raw: message,
+    }),
     timestamp: message.created_time ?? message.timestamp ?? null,
     raw: message,
     replyTo: fbReplyTo(message),
@@ -200,9 +211,7 @@ export const createFacebookLive = ({
         {
           headers: headers(options.token),
           search: {
-            fields:
-              options.fields ??
-              'messages.limit(50){id,message,created_time,from,to}',
+            fields: options.fields ?? DEFAULT_HISTORY_FIELDS,
             limit: options.limit ?? 25,
             after: options.offset ?? options.after,
           },

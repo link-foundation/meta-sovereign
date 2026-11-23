@@ -1,8 +1,16 @@
+2026-11-23 Meta message destinations (QA04 remains unfinished):
+
+- [x] Compare Meta Graph share/CTA and webhook card schemas with the current archive import paths. Follow existing question review, learning and frozen turn checks.
+- [x] Reproduce 14 failures and two passing controls on the published parent. Verify exact link bytes, incomplete metadata refusal, older archive compatibility, private learning and changed-target dispatch refusal. Focused Node passes 111 checks and Deno passes 94 checks with 27 substeps.
+- [x] Verify both Lino formats, the CLI and the existing shared preview. Chromium and independent Playwright MCP show the literal target and review state with zero sends. Preserve before/after screenshots and browser diagnostics.
+- [ ] Publish the Meta correction and review exact-source hosted checks. Authenticated Graph history and other QA04 representations and context remain unfinished.
+
 2026-11-23 shared Chat CLI receipts (HH09 and QA20 remain unfinished):
 
 - [x] Add confirmed CLI read and plain send through the existing Chat Lino routes. Reproduce the absent CLI on `adc224f6` and the previous send route returning a stale receipt for changed text under a reused ID.
 - [x] Bind each in-memory receipt to its exact confirmed draft. Check both encodings in an isolated HeadHunter conversation and a portable VK fixture. Confirm one provider dispatch, private draft output, and refusal of changed text.
-- [ ] Publish the atomic change and review exact-source hosted checks. Complete the remaining authenticated provider, native action and delivery recovery requirements.
+- [x] Publish the atomic change as `b616c880`. The five exact-source workflows have not completed.
+- [ ] Review exact-source hosted checks and complete the remaining authenticated provider, native action and delivery recovery requirements.
 
 2026-11-18 CV watch fixture scheduling:
 
