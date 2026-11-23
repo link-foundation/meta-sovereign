@@ -88,7 +88,8 @@ fresh export readback exercised against a synthetic provider.
 The [sequential native review](experience-review-queue.md) acquires both
 snapshots, compares and opens one supported draft at a time. A successful Save
 requires a fresh matching target export before the queue advances. The
-[LinkedIn About review](experience-linkedin-about-review.md) opens one existing
-About editor, preserves unconfirmed saves and verifies exact text before the
-queue records a new revision. The case of an absent About section still requires
-manual review, and authenticated provider verification remains outstanding.
+[LinkedIn About review](experience-linkedin-about-review.md) opens the exact
+edit or Add About action, preserves drafts and unconfirmed saves, and verifies
+the text before the queue records a new revision. The Add path requires the
+owner's menu action and a blank native editor. Authenticated provider
+verification remains outstanding.

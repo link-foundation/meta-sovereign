@@ -88,10 +88,19 @@ const jobFrom = (item, role, grouped, url) => {
     },
   };
 };
-const aboutValueValid = (about) =>
-  about.observed
-    ? typeof about.about === 'string' && about.about.length <= 24000
-    : about.reason === 'section-not-rendered' && about.about === undefined;
+const aboutValueValid = ({ observed, about, boundary, reason }) => {
+  if (!observed) {
+    return (
+      boundary === 'rendered-bottom' &&
+      reason === 'section-not-rendered' &&
+      about === undefined
+    );
+  }
+  if (boundary === 'rendered-about-section') {
+    return typeof about === 'string' && about.length <= 24000;
+  }
+  return boundary === 'owner-add-about' && about === '' && reason === undefined;
+};
 const profileFrom = (raw, url) => {
   const about = raw.profileAbout;
   if (about === undefined) {
@@ -105,8 +114,6 @@ const profileFrom = (raw, url) => {
     !Number.isInteger(about.passes) ||
     about.passes < 3 ||
     about.passes > 30 ||
-    about.boundary !==
-      (observed ? 'rendered-about-section' : 'rendered-bottom') ||
     !aboutValueValid(about)
   ) {
     throw experienceDocumentFailure();

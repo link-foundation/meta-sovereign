@@ -9,8 +9,8 @@
 2026-11-23 LinkedIn About review (HH21 remains unfinished)
 
 - [x] Reproduce the absent native review action in the published production bundle.
-- [x] Bind an existing About editor to the exact reviewed LinkedIn profile and text. Confirm the owner decision against a fresh profile before recording Save or advancing the queue.
-- [x] Pass focused Node checks, the production Chromium scenario and independent phone Playwright MCP. Cover Skip, Leave, terminal EOF, owner edits, stale readback and one-item queue progression.
+- [x] Bind the exact About editor or the owner's Add About menu to the reviewed profile and baseline. Confirm the owner decision against a fresh profile before recording Save or advancing the queue.
+- [x] Pass focused checks, production Chromium scenarios and independent phone Playwright MCP. Cover Skip, Leave, terminal EOF, owner edits, stale readback, a foreign Add editor and one-item queue progression.
 - [ ] Review exact-source hosted checks and continue wider native and authenticated verification.
 
 2026-11-23 sequential native CV review (HH21 remains unfinished)

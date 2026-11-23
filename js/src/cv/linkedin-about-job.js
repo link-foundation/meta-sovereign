@@ -123,6 +123,10 @@ export const linkedinAboutPlan = async (
   return {
     browserSlot: 'linkedin-experience',
     target: { url, id, language },
+    operation:
+      document.profile.aboutAcquisition.boundary === 'owner-add-about'
+        ? 'add'
+        : 'update',
     before: field.before,
     after,
   };
@@ -241,6 +245,13 @@ export const createLinkedinAboutJobs = (context) => {
         );
       } catch (error) {
         result = failureResult(owned, error);
+        if (process.env.MS_CV_LINKEDIN_DEBUG === '1' && result.code) {
+          console.error({
+            event: 'linkedin-about-review',
+            phase: owned.row.phase,
+            code: result.code,
+          });
+        }
       }
       await update({ ...result, canSave: false });
     },

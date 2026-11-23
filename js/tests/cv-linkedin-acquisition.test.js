@@ -185,6 +185,69 @@ test('an unrendered About section remains unobserved rather than authorizing an 
   }
 });
 
+test('a unique owner Add About offer records an empty baseline without opening an editing form', async () => {
+  const url = linkedinExportInput().url.replace(/details\/experience\/$/u, '');
+  const fixture = await linkedinReaderFixture({
+    profileRaw: () => ({
+      url,
+      observed: false,
+      reason: 'section-not-rendered',
+      bottom: true,
+    }),
+    profileMenu: ({ action }) => {
+      const steps = {
+        open: { state: 'opened' },
+        read: { state: 'offered', editor: `${url}add-edit/ABOUT/` },
+        close: { state: 'closed' },
+      };
+      assert.ok(Object.hasOwn(steps, action));
+      return steps[action];
+    },
+  });
+  try {
+    const { document } = await fixture.read(linkedinExportInput());
+    assert.equal(document.profile.about, '');
+    assert.equal(document.profile.aboutAcquisition.boundary, 'owner-add-about');
+    assert.deepEqual(
+      fixture.calls
+        .filter(([name]) => name === 'inspectLinkedinAboutMenu')
+        .map(([, { action }]) => action),
+      ['open', 'read', 'read', 'close']
+    );
+  } finally {
+    await fixture.close();
+  }
+});
+
+test('LinkedIn export rejects a claimed Add About observation with unknown or nonempty text', () => {
+  for (const patch of [
+    { observed: false },
+    { about: 'Unverified biography.' },
+    { reason: 'section-not-rendered' },
+  ]) {
+    const options = linkedinExportInput();
+    assert.throws(
+      () =>
+        linkedinExperienceDocument(
+          {
+            ...linkedinExperienceRaw(),
+            profileAbout: {
+              url: options.url.replace(/details\/experience\/$/u, ''),
+              observed: true,
+              about: '',
+              boundary: 'owner-add-about',
+              passes: 3,
+              ...patch,
+            },
+          },
+          options,
+          '2026-11-16T00:00:00.000Z'
+        ),
+      { code: 'cv-experience-document' }
+    );
+  }
+});
+
 test('profile walls, markup replacement and unfinished traversal cannot acknowledge an export', async () => {
   for (const patch of [
     {

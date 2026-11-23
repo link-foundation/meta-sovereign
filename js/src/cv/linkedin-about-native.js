@@ -8,6 +8,10 @@ import {
   openLinkedinReviewPage,
 } from './linkedin-position-native.js';
 import { inspectLinkedinAboutForm } from './linkedin-about-dom.js';
+import {
+  linkedinAboutMenu,
+  linkedinAboutNavigating,
+} from './linkedin-about-menu.js';
 import { scanLinkedinProfileAbout } from './linkedin-profile-dom.js';
 
 export const linkedinAboutFailure = (reason) =>
@@ -47,11 +51,6 @@ const editorUrl = (href, profile) => {
 
 const profileOf = ({ target }) =>
   target.url.replace(/details\/experience\/$/u, '');
-
-const navigating = (error) =>
-  /execution context was destroyed|cannot find context with specified id/iu.test(
-    error.message
-  );
 
 const readProfile = async ({ session, now, check, wait, signal }, url) => {
   const { page } = session;
@@ -116,10 +115,10 @@ const freshProfile = async (context, profile) => {
   }
 };
 
-const createForm = (context, profile, editor) => {
+const createForm = (context, profile, { editor, menuUrl }, operation) => {
   const { session, check } = context;
   const token = randomUUID();
-  return async (expected, action) => {
+  return async (expected, action, opening = false) => {
     check();
     const { page } = session;
     if (page.isClosed()) {
@@ -130,25 +129,28 @@ const createForm = (context, profile, editor) => {
       url !== profile &&
       (editor === 'button' ? !editorUrl(url, profile) : url !== editor)
     ) {
-      return { state: 'away' };
+      return { state: opening && url === menuUrl ? 'navigating' : 'away' };
     }
     if (!(await linkedinReviewSignedIn(session))) {
       throw linkedinAboutFailure('login-required');
     }
     check();
     try {
-      return await page.evaluate(inspectLinkedinAboutForm, {
+      const result = await page.evaluate(inspectLinkedinAboutForm, {
         url,
         token,
         expected,
         action,
+        operation,
       });
+      check();
+      return result;
     } catch (error) {
       check();
       if (page.isClosed()) {
         return { state: 'closed' };
       }
-      if (navigating(error)) {
+      if (linkedinAboutNavigating(error)) {
         return { state: 'navigating' };
       }
       throw error;
@@ -171,13 +173,7 @@ const waitForForm = async ({ wait, now, signal }, read) => {
   throw linkedinAboutFailure('form');
 };
 
-const prepare = async (context, plan, profile) => {
-  const { session, signal, check } = context;
-  await openLinkedinReviewPage(session, profile, signal);
-  const before = await readProfile(context, profile);
-  if (!before.observed || before.about !== plan.before) {
-    throw linkedinAboutFailure('baseline');
-  }
+const openUpdate = async ({ session, check }, profile, plan, before) => {
   const editor =
     before.editor === 'button'
       ? before.editor
@@ -185,17 +181,13 @@ const prepare = async (context, plan, profile) => {
   if (!editor) {
     throw linkedinAboutFailure('editor');
   }
-  check();
-  if (!(await linkedinReviewSignedIn(session))) {
-    throw linkedinAboutFailure('login-required');
-  }
   const opened = await session.page
     .evaluate(scanLinkedinProfileAbout, {
       url: profile,
       open: { before: plan.before, editor },
     })
     .catch((error) => {
-      if (!navigating(error)) {
+      if (!linkedinAboutNavigating(error)) {
         throw error;
       }
       // The click may replace the document before its result reaches us.
@@ -205,8 +197,48 @@ const prepare = async (context, plan, profile) => {
   if (!opened.opened) {
     throw linkedinAboutFailure('editor');
   }
-  const read = createForm(context, profile, editor);
-  const form = await waitForForm(context, read);
+  return { editor };
+};
+
+const openAdd = async (context, profile) => {
+  const menu = await linkedinAboutMenu(context, profile);
+  if (!menu) {
+    throw linkedinAboutFailure('editor');
+  }
+  const { session } = context;
+  if (!(await linkedinReviewSignedIn(session))) {
+    throw linkedinAboutFailure('login-required');
+  }
+  const result = await menu.call('select', menu.editor);
+  if (!['selected', 'navigating'].includes(result.state)) {
+    throw linkedinAboutFailure('editor');
+  }
+  return menu;
+};
+
+const prepare = async (context, plan, profile) => {
+  const { session, signal, check } = context;
+  await openLinkedinReviewPage(session, profile, signal);
+  const before = await readProfile(context, profile);
+  const adding = plan.operation === 'add';
+  if (
+    adding
+      ? before.observed || plan.before !== ''
+      : !before.observed || before.about !== plan.before
+  ) {
+    throw linkedinAboutFailure('baseline');
+  }
+  check();
+  if (!(await linkedinReviewSignedIn(session))) {
+    throw linkedinAboutFailure('login-required');
+  }
+  const destination = adding
+    ? await openAdd(context, profile)
+    : await openUpdate(context, profile, plan, before);
+  const read = createForm(context, profile, destination, plan.operation);
+  const form = await waitForForm(context, () =>
+    read(undefined, undefined, true)
+  );
   if (
     linkedinAboutText(form.value) !== plan.before ||
     (form.limit >= 0 && plan.after.length > form.limit)

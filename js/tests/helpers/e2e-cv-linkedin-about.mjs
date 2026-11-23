@@ -255,3 +255,123 @@ export const verifyCvLinkedinAbout = async (browser) => {
     await fixture.close();
   }
 };
+
+export const verifyCvLinkedinAddAbout = async (browser) => {
+  const fixture = await linkedinAboutBrowserFixture(browser, { empty: true });
+  const { page, provider, state, plan, input, request, source } = fixture;
+  const section = page.locator('[data-experience-plan-kind="profile"]');
+  const job = section.locator('[data-linkedin-about-phase]');
+  const action = (name) => job.locator(`[data-hh-workplace-action="${name}"]`);
+  const phase = (name) =>
+    job.and(page.locator(`[data-linkedin-about-phase="${name}"]`)).waitFor();
+  const field = provider.locator('#summary');
+  const directed = {
+    planRequestId: plan.requestId,
+    fingerprint: plan.fingerprint,
+  };
+  const screenshots = process.env.LINKEDIN_ADD_ABOUT_SCREENSHOTS;
+  const capture = async (name, locator) => {
+    if (screenshots) {
+      await mkdir(screenshots, { recursive: true });
+      await locator.scrollIntoViewIfNeeded();
+      await locator
+        .page()
+        .screenshot({ path: join(screenshots, `${name}.png`) });
+    }
+  };
+  const startAndRefuse = async (requestId, code) => {
+    await request('linkedin-about-start', LINO_BINARY, {
+      ...directed,
+      requestId,
+    });
+    for (let pass = 0; pass < 100; pass++) {
+      const { row } = await request('linkedin-about-status', LINO_BINARY, {
+        requestId,
+      });
+      if (row.phase === 'failed') {
+        assert.equal(row.code, `cv-linkedin-about-${code}`);
+        assert.equal(row.providerSaved, false);
+        return;
+      }
+      assert.ok(['opening'].includes(row.phase), JSON.stringify(row));
+      await new Promise((resolve) => setTimeout(resolve, 25));
+    }
+    assert.fail('LinkedIn Add About did not refuse the changed baseline.');
+  };
+  try {
+    page.setDefaultTimeout(10000);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`${fixture.base}/#/cv`);
+    await page.locator('[data-experience-documents] summary').first().click();
+    const panel = page.locator('[data-experience-plan]');
+    await panel.locator('[data-experience-plan-request]').fill(plan.requestId);
+    await panel.locator('[data-experience-plan-action="status"]').click();
+    await section.waitFor();
+    if (process.env.LINKEDIN_ADD_ABOUT_BEFORE === '1') {
+      await capture('before', section);
+    }
+    assert.equal(
+      plan.plan.profile.target.aboutAcquisition.boundary,
+      'owner-add-about'
+    );
+    assert.equal(
+      plan.plan.profile.fields.find(({ field }) => field === 'about').before,
+      ''
+    );
+    assert.equal(await action('start').count(), 1);
+    assert.match(await section.innerText(), /No About text/u);
+    assert.deepEqual(
+      [state.menuOpens, state.editorOpens, state.saves],
+      [1, 0, 0]
+    );
+
+    state.about = 'Owner added a biography after export.';
+    await startAndRefuse('about-now-exists', 'baseline');
+    assert.deepEqual(
+      [state.menuOpens, state.editorOpens, state.saves],
+      [1, 0, 0]
+    );
+    assert.equal(state.about, 'Owner added a biography after export.');
+
+    state.about = null;
+    state.hostile = true;
+    await startAndRefuse('about-wrong-profile', 'editor');
+    assert.deepEqual(
+      [state.menuOpens, state.editorOpens, state.saves],
+      [2, 0, 0]
+    );
+    state.hostile = false;
+
+    state.draft = 'Owner wrote an unsaved biography.';
+    await startAndRefuse('about-owner-draft', 'baseline');
+    assert.equal(await field.inputValue(), state.draft);
+    assert.deepEqual([state.editorOpens, state.saves], [1, 0]);
+    await provider.goto(input.url);
+    state.draft = null;
+
+    await action('start').click();
+    await phase('prepared');
+    assert.equal(await field.inputValue(), source.cv.about);
+    assert.equal(state.saves, 0);
+    await capture('prepared-phone', job);
+    await capture('native-draft', field);
+    await action('skip').click();
+    await phase('skipped');
+    assert.deepEqual([state.about, state.saves, state.discards], [null, 0, 1]);
+    await action('reset').click();
+    await action('start').click();
+    await phase('prepared');
+    await action('save').click();
+    await phase('saved');
+    assert.equal(state.about, source.cv.about);
+    assert.deepEqual(
+      [state.editorOpens, state.saves, state.discards],
+      [3, 1, 1]
+    );
+    assert.equal(state.attached, state.detached);
+    assert.deepEqual(fixture.errors, []);
+    await capture('saved-phone', job);
+  } finally {
+    await fixture.close();
+  }
+};

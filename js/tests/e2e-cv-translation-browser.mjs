@@ -3,7 +3,10 @@ import { verifyCvExperiencePlans } from './helpers/e2e-cv-experience-plan.mjs';
 import { verifyCvExperienceAuto } from './helpers/e2e-cv-experience-auto.mjs';
 import { verifyCvExperienceReview } from './helpers/e2e-cv-experience-review.mjs';
 import { verifyHhAboutJob } from './helpers/e2e-cv-hh-about-job.mjs';
-import { verifyCvLinkedinAbout } from './helpers/e2e-cv-linkedin-about.mjs';
+import {
+  verifyCvLinkedinAbout,
+  verifyCvLinkedinAddAbout,
+} from './helpers/e2e-cv-linkedin-about.mjs';
 import { verifyCvFormalReports } from './helpers/e2e-cv-formal-report.mjs';
 import { runBrowserScenarios } from './helpers/e2e-browser-scenarios.mjs';
 import { verifyCvTranslation } from './helpers/e2e-cv-translation.mjs';
@@ -23,5 +26,6 @@ await runBrowserScenarios('cv-translation', [
   verifyCvExperienceReview,
   verifyHhAboutJob,
   verifyCvLinkedinAbout,
+  verifyCvLinkedinAddAbout,
   verifyCvFormalReports,
 ]);

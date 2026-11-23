@@ -2,6 +2,7 @@ import { linkedinExportFailure } from './linkedin-experience-record.js';
 import { linkedinExperienceGate } from './linkedin-experience-dom.js';
 import { linkedinSessionGate } from './linkedin-experience-session.js';
 import { scanLinkedinProfileAbout } from './linkedin-profile-dom.js';
+import { linkedinAboutMenu } from './linkedin-about-menu.js';
 
 const profileReady = async ({ original, session, options, check }, url) => {
   const source = await linkedinSessionGate(original, options.url, check);
@@ -40,6 +41,21 @@ const profileScan = async (context, url) => {
         ? stable + 1
         : 0;
     if (stable >= 2) {
+      if (!raw.observed) {
+        const menu = await linkedinAboutMenu(
+          { session, check, now, wait, signal: options.signal },
+          url
+        );
+        if (menu && (await menu.call('close')).state === 'closed') {
+          return {
+            url,
+            observed: true,
+            about: '',
+            boundary: 'owner-add-about',
+            passes: pass + 1,
+          };
+        }
+      }
       return {
         url,
         observed: raw.observed,

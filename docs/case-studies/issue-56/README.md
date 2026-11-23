@@ -106,7 +106,7 @@
 - [HeadHunter acquisition from Experience](experience-hh-acquisition.md) covers verified cache reuse, explicit native refresh, a missing structured artifact and same-ID recovery on a phone.
 - [Automatic experience preparation](experience-auto-preparation.md) covers both acquisitions, directed comparison and exact request recovery across the CLI, Lino and CV view.
 - [HeadHunter About review](experience-hh-about-review.md) covers one exact profile draft, explicit Save or Skip, and a fresh export receipt.
-- [LinkedIn About review](experience-linkedin-about-review.md) covers the existing owner editor, per-draft decisions and a matching profile readback.
+- [LinkedIn About review](experience-linkedin-about-review.md) covers edits and additions, per-draft decisions and a matching profile readback.
 - [Sequential native experience review](experience-review-queue.md) covers one acquisition and comparison command, explicit per-item decisions, fresh export checkpoints and recovery.
 - [CV initial loading](cv-loading.md): deterministic slow-catalogue regression, disabled controls and shared loading state, with before/after browser captures.
 

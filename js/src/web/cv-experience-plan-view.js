@@ -61,7 +61,9 @@ export const PlannedFields = ({ fields }) => {
                 el(
                   'td',
                   { key: 'before', 'data-label': t('experiencePlan.before') },
-                  value(field.before)
+                  field.field === 'about' && field.before === ''
+                    ? t('experiencePlan.emptyAbout')
+                    : value(field.before)
                 ),
                 el(
                   'td',

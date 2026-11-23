@@ -87,6 +87,9 @@ export const linkedinReaderFixture = async (options = {}) => {
         },
         evaluate: async (fn, args) => {
           calls.push([fn.name, args]);
+          if (fn.name === 'inspectLinkedinAboutMenu') {
+            return options.profileMenu?.(args) ?? { state: 'unavailable' };
+          }
           return fn.name === 'linkedinExperienceGate'
             ? (options.profileGate?.() ?? {
                 url: profileUrl,

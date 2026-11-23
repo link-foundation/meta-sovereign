@@ -1,5 +1,11 @@
 /** Operate on the About control opened by the current review, in one evaluation. */
-export const inspectLinkedinAboutForm = ({ url, token, expected, action }) => {
+export const inspectLinkedinAboutForm = ({
+  url,
+  token,
+  expected,
+  action,
+  operation,
+}) => {
   const { document, location, HTMLTextAreaElement, Event } = globalThis;
   const visible = (node) =>
     Boolean(node.getClientRects().length) &&
@@ -12,8 +18,10 @@ export const inspectLinkedinAboutForm = ({ url, token, expected, action }) => {
     !node.disabled && node.getAttribute('aria-disabled') !== 'true';
   const owns = (row, dialog, field) =>
     row?.token === token && row.dialog === dialog && row.field === field;
+  if (location.href !== url) {
+    return { state: 'navigating' };
+  }
   if (
-    location.href !== url ||
     onPage(
       document,
       'input[type="password"], input[name="session_key"], [data-test-id="authwall"]'
@@ -64,13 +72,17 @@ export const inspectLinkedinAboutForm = ({ url, token, expected, action }) => {
   }
   const aboutHeading =
     /^(?:edit (?:about|summary)|(?:редактировать|изменить) (?:раздел )?(?:«о себе»|о себе|общие сведения))$/iu;
+  const addHeading =
+    /^(?:add (?:about|summary)|добавить (?:раздел )?(?:«о себе»|о себе|общие сведения))$/iu;
+  const isAbout = (name) =>
+    aboutHeading.test(name) || (operation === 'add' && addHeading.test(name));
   const headings = onPage(dialog, 'h1, h2, h3, [role="heading"]');
   const fields = onPage(dialog, 'textarea, [contenteditable="true"]');
   const [field] = fields;
   if (
     !(
-      aboutHeading.test(dialog.getAttribute('aria-label')?.trim() ?? '') ||
-      headings.some((heading) => aboutHeading.test(label(heading)))
+      isAbout(dialog.getAttribute('aria-label')?.trim() ?? '') ||
+      headings.some((heading) => isAbout(label(heading)))
     ) ||
     fields.length !== 1 ||
     !(field instanceof HTMLTextAreaElement) ||

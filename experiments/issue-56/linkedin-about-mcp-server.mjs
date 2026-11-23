@@ -4,11 +4,15 @@ import { waitForCvFixtureShutdown } from './cv-fixture-server.mjs';
 
 const browser = await chromium.launch({
   headless: true,
+  handleSIGINT: false,
+  handleSIGTERM: false,
   executablePath: process.env.E2E_EXECUTABLE_PATH || undefined,
 });
 let fixture;
 try {
-  fixture = await linkedinAboutBrowserFixture(browser);
+  fixture = await linkedinAboutBrowserFixture(browser, {
+    empty: process.env.LINKEDIN_ADD_ABOUT_EMPTY === '1',
+  });
   console.log(JSON.stringify({ planRequestId: fixture.plan.requestId }));
   await waitForCvFixtureShutdown(fixture);
   fixture = null;
