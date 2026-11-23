@@ -16,12 +16,15 @@ export const storedCvWorkplacePlan = async (store, input) => {
   const fingerprint =
     input.fingerprint ??
     (await store.get(`jobs-cv-workplace-latest:${browserSlot}`))?.fingerprint;
-  const row = fingerprint
-    ? await store.get(cvWorkplacePlanKey(fingerprint))
-    : null;
+  const key = fingerprint ? cvWorkplacePlanKey(fingerprint) : null;
+  const privateRow =
+    input.fingerprint && key ? await store.get(`secret:${key}`) : null;
+  const row = privateRow ?? (key ? await store.get(key) : null);
   if (
     row &&
-    (row.version !== 1 || row.id !== cvWorkplacePlanKey(fingerprint))
+    (row.version !== 1 ||
+      row.id !== (privateRow ? `secret:${key}` : key) ||
+      Boolean(row.plan?.experience) !== Boolean(privateRow))
   ) {
     cvWorkplaceFail();
   }
@@ -33,13 +36,15 @@ export const storedCvWorkplacePlan = async (store, input) => {
 export const saveCvWorkplacePlan = async (store, plan) => {
   await confirmedCvWorkplacePlan({ plan });
   await saveTechnologyRecord(store, {
-    id: cvWorkplacePlanKey(plan.fingerprint),
+    id: `${plan.experience ? 'secret:' : ''}${cvWorkplacePlanKey(plan.fingerprint)}`,
     version: 1,
     plan,
   });
-  await saveTechnologyRecord(store, {
-    id: `jobs-cv-workplace-latest:${plan.browserSlot}`,
-    fingerprint: plan.fingerprint,
-  });
+  if (!plan.experience) {
+    await saveTechnologyRecord(store, {
+      id: `jobs-cv-workplace-latest:${plan.browserSlot}`,
+      fingerprint: plan.fingerprint,
+    });
+  }
   return { plan };
 };

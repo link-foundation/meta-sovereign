@@ -2,6 +2,7 @@ import { browserName } from '../browser/policy.js';
 import { modelFingerprint } from '../automation/answer-model-context.js';
 import { resumeExportId } from './resume-export-result.js';
 import { resumeHash } from './resume-list.js';
+import { resumeExportRequestId } from './resume-export-options.js';
 import {
   cvWorkplaceMembership,
   cvWorkplaceUsesMembership,
@@ -274,6 +275,15 @@ const validateFieldBindings = (plan, fields) => {
 };
 const validateInputBindings = (plan, input) => {
   validateFieldBindings(plan, input.fields);
+  if (
+    input.experience &&
+    (plan.status !== 'draft' ||
+      ['requestId', 'fingerprint', 'jobIndex'].some(
+        (key) => input.experience[key] !== plan.experience?.[key]
+      ))
+  ) {
+    cvWorkplaceFail('conflict');
+  }
   for (const field of ['browserSlot', 'recordId', 'operation']) {
     if (input[field] !== undefined && input[field] !== plan[field]) {
       cvWorkplaceFail('conflict');
@@ -308,6 +318,24 @@ const validateInputBindings = (plan, input) => {
     cvWorkplaceFail('conflict');
   }
 };
+const validateExperienceBinding = (experience) => {
+  if (
+    !experience ||
+    Object.keys(experience).length !== 4 ||
+    !/^[a-f\d]{64}$/u.test(experience.fingerprint ?? '') ||
+    !Number.isInteger(experience.jobIndex) ||
+    experience.jobIndex < 0 ||
+    !Array.isArray(experience.unapplied) ||
+    experience.unapplied.length > 3 ||
+    new Set(experience.unapplied).size !== experience.unapplied.length ||
+    experience.unapplied.some(
+      (field) => !['location', 'skills', 'media'].includes(field)
+    )
+  ) {
+    cvWorkplaceFail();
+  }
+  resumeExportRequestId(experience.requestId);
+};
 const validatePlanEnvelope = (plan) => {
   if (
     !plan ||
@@ -325,11 +353,17 @@ const validatePlanEnvelope = (plan) => {
   ) {
     cvWorkplaceFail();
   }
+  if (plan.experience !== undefined) {
+    if (plan.operation !== undefined && plan.operation !== 'add') {
+      cvWorkplaceFail();
+    }
+    validateExperienceBinding(plan.experience);
+  }
 };
 /** Recompute every report and identity; a server reply is never implicit approval. */
 export const confirmedCvWorkplacePlan = async (answer, input = {}) => {
   const plan = answer?.plan;
-  if (plan === null && !input.fingerprint) {
+  if (plan === null && !input.fingerprint && !input.experience) {
     return { plan: null };
   }
   validatePlanEnvelope(plan);

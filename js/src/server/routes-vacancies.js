@@ -71,7 +71,10 @@ const replyVacancy = (res, result, file, operation) => {
     res.end(result.bytes);
     return true;
   }
-  if (['login-attention', 'application-attention'].includes(operation)) {
+  if (
+    ['login-attention', 'application-attention'].includes(operation) ||
+    operation.startsWith('cv-workplace-')
+  ) {
     res.setHeader('cache-control', 'no-store');
   }
   return json(res, 200, result) ?? true;

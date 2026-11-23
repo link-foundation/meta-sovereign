@@ -30,6 +30,11 @@ import {
   cvAreaIdentity,
   cvLocalizedEntry,
 } from './cv-workplace-dictionaries.js';
+import {
+  confirmCurrentExperienceWorkplaces,
+  cvWorkplaceExperienceFields,
+  cvWorkplaceExperienceSource,
+} from './cv-workplace-experience.js';
 
 const cvWorkplaceSource = (data, jobIndex) => ({
   identity: data.identity,
@@ -45,6 +50,9 @@ const currentSource = async (options, plan) => {
     )) !== (await modelFingerprint(plan.source))
   ) {
     cvWorkplaceFail('conflict');
+  }
+  if (plan.experience) {
+    await confirmCurrentExperienceWorkplaces(options, source);
   }
 };
 /** The exact original export is checked again immediately before browser admission. */
@@ -68,7 +76,7 @@ export const cvWorkplacePreparationSource = async (options, input) => {
     plan,
   };
 };
-const propose = async (options, input, signal) => {
+const propose = async (options, input, signal, derived = {}) => {
   const browserSlot = browserName(input.browserSlot ?? 'jobs');
   const adding = input.operation === 'add';
   if (!adding) {
@@ -93,15 +101,19 @@ const propose = async (options, input, signal) => {
   ) {
     cvWorkplaceFail('options');
   }
-  const data = await verifiedTechnologyCv(options, { ...input, browserSlot });
+  const data =
+    derived.data ??
+    (await verifiedTechnologyCv(options, { ...input, browserSlot }));
   const source = cvWorkplaceSource(data, adding ? null : input.jobIndex);
   if (!adding && !source.job) {
     cvWorkplaceFail('options');
   }
-  const dictionaries = await loadCvWorkplaceDictionaries({
-    store: options.store,
-    signal,
-  });
+  const dictionaries =
+    derived.dictionaries ??
+    (await loadCvWorkplaceDictionaries({
+      store: options.store,
+      signal,
+    }));
   const baseline = adding
     ? blankCvWorkplaceValues()
     : cvWorkplaceJobValues(
@@ -130,6 +142,7 @@ const propose = async (options, input, signal) => {
     baseline,
     desired,
     metadata,
+    ...(derived.experience ? { experience: derived.experience } : {}),
     ...(input.operation ? { operation: input.operation } : {}),
     ...(cvWorkplaceUsesMembership(input.operation)
       ? {
@@ -141,14 +154,42 @@ const propose = async (options, input, signal) => {
         }
       : {}),
     status: 'draft',
-    createdAt: new Date().toISOString(),
+    createdAt: derived.createdAt ?? new Date().toISOString(),
   };
+  const changes = cvWorkplacePlanDifferences(content);
+  if (derived.experience && !changes.length) {
+    cvWorkplaceFail('experience-note');
+  }
   const plan = await fingerprintCvWorkplacePlan({
     ...content,
-    changes: cvWorkplacePlanDifferences(content),
+    changes,
   });
   signal.throwIfAborted();
   return saveCvWorkplacePlan(options.store, plan);
+};
+const proposeExperience = async (options, input, signal) => {
+  const { data, job, recordId, createdAt, reference } =
+    await cvWorkplaceExperienceSource(options, input);
+  const dictionaries = await loadCvWorkplaceDictionaries({
+    store: options.store,
+    signal,
+  });
+  const { fields, unapplied } = cvWorkplaceExperienceFields(job, dictionaries);
+  const proposal =
+    job.kind === 'add'
+      ? { operation: 'add', fields: { ...blankCvWorkplaceValues(), ...fields } }
+      : { jobIndex: job.targetIndex, recordId, fields };
+  return propose(
+    options,
+    { ...proposal, browserSlot: data.identity.browserSlot },
+    signal,
+    {
+      data,
+      dictionaries,
+      createdAt,
+      experience: { ...reference, unapplied },
+    }
+  );
 };
 const inspectMembership = async ({ options, input, signal, attach }) => {
   const { store } = options;
@@ -265,7 +306,11 @@ export const createCvWorkplaceReviewService = ({
     'cv-workplace-dictionaries': () =>
       write((signal) => loadCvWorkplaceDictionaries({ store, signal })),
     'cv-workplace-plan': (input) =>
-      write((signal) => propose(options, input, signal)),
+      write((signal) =>
+        input.experience === undefined
+          ? propose(options, input, signal)
+          : proposeExperience(options, input, signal)
+      ),
     'cv-workplace-plan-stored': (input) =>
       read(() => storedCvWorkplacePlan(store, input)),
     'cv-workplace-review': (input) =>
@@ -277,7 +322,7 @@ export const createCvWorkplaceReviewService = ({
         if (plan.status === 'reviewed') {
           return { plan };
         }
-        const approvalId = `jobs-cv-workplace-approval:${plan.fingerprint}`;
+        const approvalId = `${plan.experience ? 'secret:' : ''}jobs-cv-workplace-approval:${plan.fingerprint}`;
         const previous = await store.get(approvalId);
         if (previous) {
           const answer = await storedCvWorkplacePlan(store, {
