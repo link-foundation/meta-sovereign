@@ -4,9 +4,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
+import { runCli } from '../src/cli/index.js';
 import { createMemoryStore } from '../src/storage/index.js';
 import { DAY_MS } from '../src/crm/reengage.js';
 import { buildMessageLink } from '../src/sources/link.js';
+import { decodeWire, LINO_TEXT } from '../src/transport/lino.js';
 import { startServer } from './helpers/legacy-server.js';
 
 const daysAgo = (n) => new Date(Date.now() - n * DAY_MS).toISOString();
@@ -224,6 +226,45 @@ test('the composer sends through /api/send and stores the message', async () => 
     assert.equal(failed.body.code, 'captcha');
     const bad = await call('POST', '/api/send', { source: 'vk' });
     assert.equal(bad.status, 400);
+  } finally {
+    await server.close();
+  }
+});
+
+test('chat CLI confirms the same draft and rejects a changed draft under its send ID', async () => {
+  const { server, sent } = await boot();
+  try {
+    const argv = [
+      'chat',
+      'send',
+      '--source=vk',
+      '--chat=101',
+      '--client-id=manual-message',
+      `--url=http://127.0.0.1:${server.port}`,
+    ];
+    const run = async (...flags) => {
+      const output = [];
+      const exit = await runCli([...argv, ...flags], {
+        log: (value) => output.push(value),
+      });
+      return { exit, output: output.at(-1) };
+    };
+    const text = '--text=The exact message';
+    assert.equal((await run(text)).exit, 1);
+    assert.equal(sent.length, 0);
+    const first = await run(text, '--confirm');
+    const second = await run(text, '--confirm', '--binary');
+    assert.equal(first.exit, 0);
+    assert.deepEqual(second, first);
+    assert.equal(sent.length, 1);
+    assert.equal(first.output.includes('The exact message'), false);
+    const changed = await run('--text=Different message', '--confirm');
+    assert.equal(changed.exit, 1);
+    assert.equal(
+      decodeWire(changed.output, LINO_TEXT).code,
+      'send-id-conflict'
+    );
+    assert.equal(sent.length, 1);
   } finally {
     await server.close();
   }

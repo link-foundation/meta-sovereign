@@ -1,3 +1,9 @@
+2026-11-23 shared Chat CLI receipts (HH09 and QA20 remain unfinished):
+
+- [x] Add confirmed CLI read and plain send through the existing Chat Lino routes. Reproduce the absent CLI on `adc224f6` and the previous send route returning a stale receipt for changed text under a reused ID.
+- [x] Bind each in-memory receipt to its exact confirmed draft. Check both encodings in an isolated HeadHunter conversation and a portable VK fixture. Confirm one provider dispatch, private draft output, and refusal of changed text.
+- [ ] Publish the atomic change and review exact-source hosted checks. Complete the remaining authenticated provider, native action and delivery recovery requirements.
+
 2026-11-18 CV watch fixture scheduling:
 
 - [x] Preserve exact 623a144c Windows/Deno job 135175316364. Log lines 17320–17330 show the real 40ms fixture budget expires before the mismatch test's expected result; production correctly refuses the deadline.

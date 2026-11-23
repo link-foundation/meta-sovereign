@@ -275,6 +275,9 @@ ${TELEGRAM_LOGIN_HELP}
   source-pull   --source=<name> [--protocol=<p>] [--host=<mail-host>] [--owner=<o>] [--repo=<r>] [--state=<s>] [--offset=<n>] [--limit=<n>] [--max-requests=<n>] [--restart-history] [--store=<dir>]
   auto-import   status [--id=<job>] | start --source=<provider> [--slot=<name>] | capture --id=<job> [--history] | stop --id=<job>
                 use the running server's browser import [--url=http://127.0.0.1:8787] [--binary]
+  chat          read --id=<saved-message>
+                send --source=<provider> --chat=<address> (--text=<message> | --text-file=<path>) --confirm [--reference=<saved-hh-message>] [--client-id=<id>]
+                use the running server's Chat receipts [--url=http://127.0.0.1:8787] [--binary]
   email-send    --protocol=<gmail|microsoft-graph|jmap|smtp> --to=<email> --subject=<s> --text=<body> [--host=<mail-host>]
   github-clone  --owner=<o> --repo=<r> [--ref=<branch>] --token=<pat> [--store=<dir>]
   github-comment --owner=<o> --repo=<r> --issue-number=<n> --text=<body> --token=<pat>

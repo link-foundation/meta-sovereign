@@ -43,7 +43,7 @@
 
 import { createLiveSubset } from './live-subset.js';
 import { bodyFailure, json, readBody } from './util.js';
-import { confirmed } from './confirmations.js';
+import { confirmationDigest, confirmed } from './confirmations.js';
 import { previewFields } from '../sources/telegram-link-preview.js';
 import { hhCommonChatId, validHhMessageId } from '../sources/hh-chat-read.js';
 import { isHhWebTarget } from '../sources/hh-web-ui.js';
@@ -189,16 +189,16 @@ const buildDraft = (body) => {
   };
 };
 
-// A draft (one `clientId`) is sent at most once per server: a second
-// request — a double click, a retry after a lost answer — shares the
-// first one's outcome instead of sending again. Keep uncertain web sends
-// in memory for the same draft. Definite failures can be retried.
+// While a send ID is in memory, an exact retry shares the first outcome.
+// Refuse changed drafts and retain uncertain web sends. Definite failures
+// can be retried.
 const sendOnce = (ctx, draft, send) => {
   if (!draft.clientId) {
     return send();
   }
   const sends = (ctx.sends ??= new Map());
-  const key = `${draft.source}:${draft.chat}:${draft.clientId}`;
+  const key = JSON.stringify([draft.source, draft.chat, draft.clientId]);
+  const digest = confirmationDigest('message.send', draft);
   const now = Date.now();
   for (const [k, entry] of sends) {
     if (now - entry.at > SEND_MEMORY_MS) {
@@ -207,15 +207,23 @@ const sendOnce = (ctx, draft, send) => {
   }
   const known = sends.get(key);
   if (known) {
+    if (known.digest !== digest) {
+      throw Object.assign(new Error('This send ID belongs to another draft.'), {
+        code: 'send-id-conflict',
+      });
+    }
     return known.promise;
   }
   const promise = send().catch((error) => {
-    if (!(draft.hhBrowserMessage && error.ambiguous === true)) {
+    if (
+      !(draft.hhBrowserMessage && error.ambiguous === true) &&
+      sends.get(key)?.promise === promise
+    ) {
       sends.delete(key);
     }
     throw error;
   });
-  sends.set(key, { at: now, promise });
+  sends.set(key, { at: now, digest, promise });
   return promise;
 };
 
@@ -417,8 +425,12 @@ const currentDelivery = async (store, sent) => {
   return { ...sent, link, links: link ? [link] : [] };
 };
 
+const SEND_FAILURE_STATUS = new Map([
+  ['flood-wait', 429],
+  ['send-id-conflict', 409],
+]);
 const sendFailure = (res, error) =>
-  json(res, error.code === 'flood-wait' ? 429 : 502, {
+  json(res, SEND_FAILURE_STATUS.get(error.code) ?? 502, {
     error: error.message,
     code: error.code ?? 'send-failed',
     ...(error.retryAfter ? { retryAfter: error.retryAfter } : {}),

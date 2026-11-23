@@ -18,6 +18,7 @@ export const ordinaryCommandNames = new Set([
   'broadcast-test',
   'browser-configure',
   'browser-policies',
+  'chat',
   'contacts-import',
   'cv-diff',
   'cv-experience-import',

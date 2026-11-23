@@ -395,3 +395,42 @@ the remaining browser message actions are open.
 ![Chat previously recorded an unverified conversation error](../../screenshots/issue-56-hh-browser-import-send-before.png)
 
 ![Chat shows the message in the same conversation after a confirmed delivery](../../screenshots/issue-56-hh-browser-import-send-after.png)
+
+## Using the same receipts from the CLI
+
+After capturing an open HeadHunter conversation, use the saved message ID
+from Chat and the address it belongs to. The CLI connects to the same
+running server that produced the capture. These commands use the IDs from
+the isolated regression fixture.
+
+```sh
+node js/bin/meta-sovereign.js chat read --id=msg:hh:web:8:101 --binary
+node js/bin/meta-sovereign.js chat send --source=hh --chat=web:8 \
+  --reference=msg:hh:web:8:101 --text-file=./message.txt \
+  --client-id=cli-review-1 --confirm
+```
+
+Before this change the CLI showed its generic help for `chat read`. Sending
+through Lino with an earlier send ID and newly confirmed text returned the
+old success receipt. The CLI now checks that the server preview matches all
+the submitted draft fields before confirming. It prints the receipt without
+the draft text or confirmation token. An exact retry within the server's
+in-memory receipt window returns the earlier result. A different draft with
+the same ID reports `send-id-conflict` and exits unsuccessfully. The shared
+server keeps receipts for ten minutes in the current process.
+
+The registered Chromium scenario reads and sends via the CLI in the same
+isolated provider conversation. It confirms one native send for a multiline
+file across text and binary Lino, verifies the saved text and native message
+ID, and refuses a different message with that ID. A VK transport fixture
+exercises the same controls, including zero dispatch without `--confirm`.
+Node and Deno each passed 40 focused checks including the confirmation
+cache. [Archived reproduction and test logs](data/hh-chat-cli.tar.gz).
+
+The shared read action still uses the selected message boundary and the send
+receipt retains the provider message identity. These behavior choices follow
+the pinned client references for visible read boundaries and local pending
+messages. [Telegram Web K visible read boundary](https://github.com/morethanwords/tweb/blob/579e5590d5db93e6ef39a5bbe1900257cb594cc2/src/components/chat/bubbles.ts#L3384-L3418) · [Telegram Web A pending message](https://github.com/Ajaxy/telegram-tt/blob/f67a40879a7d78c2683ec5a296cf55bc22417d56/src/api/gramjs/methods/messages.ts#L364-L405).
+
+Authenticated HeadHunter browser checks, the remaining native message
+actions and cross-restart send receipt recovery remain required.

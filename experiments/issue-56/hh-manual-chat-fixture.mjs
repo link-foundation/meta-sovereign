@@ -22,6 +22,7 @@ export const installHhComposer = (page, delivery = 'delivered') =>
       row.dataset.time = new Date().toISOString();
       const body = document.createElement('p');
       body.dataset.qa = 'chat-bubble-text';
+      body.style.whiteSpace = 'pre-wrap';
       body.textContent = composer.value;
       const status = document.createElement('span');
       status.dataset.qa = `status-icon-${delivery}`;

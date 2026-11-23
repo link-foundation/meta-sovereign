@@ -1,9 +1,5 @@
-import {
-  LINO_BINARY,
-  LINO_TEXT,
-  encodeWire,
-  readWireResponse,
-} from '../transport/lino.js';
+import { LINO_TEXT, encodeWire } from '../transport/lino.js';
+import { cliServerClient, localOrSecureOrigin } from './server-lino-client.js';
 
 const usage =
   'Use auto-import status [--id=<job>] | start --source=<provider> [--slot=<slot>] | capture --id=<job> [--history] | stop --id=<job> [--url=<server-origin>] [--binary]';
@@ -18,6 +14,14 @@ const bodyFor = (action, args) => {
 const validHistoryFlag = (action, history) =>
   history === undefined || (action === 'capture' && history === true);
 
+const pathFor = (id, action) => {
+  if (!id) {
+    return '/api/auto-import';
+  }
+  const job = `/api/auto-import/jobs/${id}`;
+  return action === 'status' ? job : `${job}/${action}`;
+};
+
 const commandFor = (args) => {
   const action = args._?.join(' ') || 'status';
   if (
@@ -29,31 +33,10 @@ const commandFor = (args) => {
   ) {
     return null;
   }
-  const path = args.id
-    ? `/api/auto-import/jobs/${args.id}`
-    : '/api/auto-import';
-  const read = action === 'status';
   return {
-    path: args.id && !read ? `${path}/${action}` : path,
-    read,
-    body: bodyFor(action, args),
+    path: pathFor(args.id, action),
+    body: action === 'status' ? undefined : bodyFor(action, args),
   };
-};
-
-const serverOrigin = (value) => {
-  const url = new URL(value ?? 'http://127.0.0.1:8787');
-  const loopback = ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname);
-  if (
-    !(url.protocol === 'https:' || (url.protocol === 'http:' && loopback)) ||
-    url.username ||
-    url.password ||
-    url.pathname !== '/' ||
-    url.search ||
-    url.hash
-  ) {
-    return null;
-  }
-  return url;
 };
 
 export const autoImportCmd = async (args, log) => {
@@ -63,28 +46,18 @@ export const autoImportCmd = async (args, log) => {
     return 1;
   }
   try {
-    const origin = serverOrigin(args.url);
+    const origin = localOrSecureOrigin(args.url);
     if (!origin) {
       log('Use an HTTPS or loopback HTTP server origin.');
       return 1;
     }
-    const type = args.binary === true ? LINO_BINARY : LINO_TEXT;
-    const response = await fetch(new URL(command.path, origin), {
-      redirect: 'error',
-      headers: {
-        accept: type,
-        ...(!command.read ? { 'content-type': type } : {}),
-      },
-      ...(!command.read
-        ? { method: 'POST', body: encodeWire(command.body, type) }
-        : {}),
-    });
-    const result = await readWireResponse(response);
+    const request = cliServerClient(origin, args.binary === true);
+    const { ok, answer: result } = await request(command.path, command.body);
     log(encodeWire(result, LINO_TEXT));
     if (args.history && result?.historyCapture?.coverage?.complete !== true) {
       return 1;
     }
-    return response.ok && result?.state !== 'failed' ? 0 : 1;
+    return ok && result?.state !== 'failed' ? 0 : 1;
   } catch {
     log(
       'Browser import could not reach the server or read its response. Check status before retrying.'

@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { installHhComposer } from '../../../experiments/issue-56/hh-manual-chat-fixture.mjs';
+import { runCli } from '../../src/cli/index.js';
 import { startServer } from '../../src/server/index.js';
 import { createMemoryStore } from '../../src/storage/universal.js';
 import {
@@ -192,6 +193,57 @@ const chatRead = async ({ page, provider, store }) => {
   assert.equal(await provider.evaluate(() => globalThis.fixture.reads), 1);
 };
 
+const verifyChatCli = async ({ page, base, provider, store }, dir) => {
+  await capture(page, base, provider, 'https://hh.ru/chat/8?read-import');
+  const argsFor = (args) => ['chat', ...args, `--url=${base}`];
+  const run = async (args, exit = 0) => {
+    const output = [];
+    assert.equal(
+      await runCli(argsFor(args), { log: (value) => output.push(value) }),
+      exit,
+      output.join('\n')
+    );
+    return output.at(-1);
+  };
+  const inbound = 'msg:hh:web:8:101';
+  const read = await run(['read', `--id=${inbound}`, '--binary']);
+  assert.deepEqual(decodeWire(read, LINO_TEXT), {
+    id: inbound,
+    read: true,
+    via: 'browser',
+    unreadCount: 0,
+  });
+  assert.equal(await provider.evaluate(() => globalThis.fixture.reads), 1);
+  const file = path.join(dir, 'chat-reply.txt');
+  const body = 'Thank you.\nI will bring the requested documents.';
+  await writeFile(file, body);
+  const send = [
+    'send',
+    '--source=hh',
+    '--chat=web:8',
+    `--reference=${inbound}`,
+    '--client-id=confirmed-cli-chat',
+    `--text-file=${file}`,
+  ];
+  await installHhComposer(provider);
+  await run(send, 1);
+  assert.equal(await provider.evaluate(() => globalThis.fixture.textSends), 0);
+  for (const flags of [[], ['--binary']]) {
+    const output = await run([...send, '--confirm', ...flags]);
+    assert.equal(output.includes('requested documents'), false);
+    const result = decodeWire(output, LINO_TEXT);
+    assert.equal(result.status, 'sent');
+    assert.equal(result.id, 'msg:hh:web:8:102');
+    assert.equal(result.delivery, 'delivered');
+  }
+  assert.equal(await provider.evaluate(() => globalThis.fixture.textSends), 1);
+  assert.equal((await store.get('msg:hh:web:8:102')).body, body);
+  await writeFile(file, 'A different message');
+  const changed = await run([...send, '--confirm'], 1);
+  assert.equal(decodeWire(changed, LINO_TEXT).code, 'send-id-conflict');
+  assert.equal(await provider.evaluate(() => globalThis.fixture.textSends), 1);
+};
+
 export const verifyHhImportRead = async (page) => {
   const store = createMemoryStore();
   const dir = await mkdtemp(path.join(os.tmpdir(), 'hh-import-read-'));
@@ -238,6 +290,7 @@ export const verifyHhImportRead = async (page) => {
     await chatRead(state);
     await sendFromChat(state);
     await verifySendRefusals(state);
+    await verifyChatCli(state, dir);
     assert.equal(opens, 0);
     assert.equal(await store.get('secret:hh:access-token'), null);
   } finally {

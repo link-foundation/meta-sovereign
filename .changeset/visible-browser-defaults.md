@@ -4,6 +4,8 @@
 
 Open saved HeadHunter web conversations in Chat with a receipt-checked native send. Retain pending messages when delivery is uncertain, and use provider unread counts and filters in Chat and Operator (issue #56, HH09).
 
+Read saved conversations and send explicitly confirmed drafts from the CLI through text or binary Lino. Reject changed drafts that reuse an existing send ID (issue #56, HH09/QA20).
+
 Keep verified HeadHunter common-chat replies and original message IDs in Chat, and retain reply references when refreshing history (issue #56, HH09).
 
 Edit and delete individually selected HeadHunter common-chat messages with confirmed provider receipts and preserve saved messages when the provider cannot confirm a change (issue #56, HH09).
