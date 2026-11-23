@@ -1,7 +1,15 @@
 async (page) => {
   const location = new URL(page.url());
   const form = location.searchParams.get('fixture');
-  const url = new URL('/source-redirect', form).href;
+  const markdown = location.searchParams.get('source') === 'markdown';
+  const url = new URL(
+    markdown ? '/markdown-source-redirect' : '/source-redirect',
+    form
+  ).href;
+  const finalUrl = new URL(
+    markdown ? '/markdown-instructions' : '/instructions',
+    form
+  ).href;
   const requests = [];
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.message));
@@ -72,7 +80,7 @@ async (page) => {
     choices.join('|') !== `|${url}` ||
     selected !== url ||
     requestsBeforeDraft ||
-    resolved !== new URL('/instructions', form).href ||
+    resolved !== finalUrl ||
     requests.join(',') !== 'draft' ||
     width.content > width.viewport ||
     errors.length

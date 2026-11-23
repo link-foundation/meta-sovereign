@@ -39,9 +39,13 @@ export const readAssignmentSourceDocument = () => {
     return result;
   }
   const supported =
-    ['text/html', 'text/plain', 'application/xhtml+xml'].includes(
-      doc.contentType
-    ) && !doc.querySelector('canvas,embed,object,iframe');
+    [
+      'text/html',
+      'text/plain',
+      'text/markdown',
+      'application/xhtml+xml',
+    ].includes(doc.contentType) &&
+    !doc.querySelector('canvas,embed,object,iframe');
   const root =
     doc.querySelector('article,[role="document"],main,pre') ?? doc.body;
   result.title = doc.title;

@@ -2,6 +2,7 @@ import { verifyFormCaptchaUi } from './helpers/e2e-form-captcha.mjs';
 import {
   verifyAssignmentPublicationUi,
   verifyLinkedAssignmentInstructions,
+  verifyLinkedMarkdownInstructions,
 } from './helpers/e2e-assignment-publication.mjs';
 import {
   verifyStandaloneAssignmentUi,
@@ -380,6 +381,7 @@ const formGroups = {
     verifyAssignmentPublicationUi,
     verifyStandaloneAssignmentUi,
     verifyLinkedAssignmentInstructions,
+    verifyLinkedMarkdownInstructions,
   ],
   'forms-learning': [
     verifyFormJournalUi,
@@ -458,6 +460,7 @@ const verifyCustomOnly = async ({ page, until }) => {
     ['ASSIGNMENT', verifyFormAssignmentUi],
     ['ASSIGNMENT_SECTION', verifyFormAssignmentSectionUi],
     ['ASSIGNMENT_LINKED', verifyLinkedAssignmentInstructions],
+    ['ASSIGNMENT_MARKDOWN', verifyLinkedMarkdownInstructions],
     ['CAPTCHA', verifyFormCaptchaUi],
     ['AUTOMATIC', verifyFormAutomaticUi],
     ['MATCHING', verifyFormMatchingUi],

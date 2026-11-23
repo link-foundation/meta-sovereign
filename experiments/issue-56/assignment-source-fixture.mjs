@@ -3,6 +3,18 @@ import { createAssignmentSourceReader } from '../../js/src/assignments/source-re
 
 export const instructionText =
   'Account for damaged packages. Describe the daily reconciliation process. Keep the written proposal within three pages.';
+export const assignmentSourceMarkdown = [
+  '# Warehouse instructions',
+  '',
+  instructionText,
+  'Record the dépôt name in the report.',
+  '',
+  '[Example](/unopened-markdown-example)',
+  '',
+  '```html',
+  '<img src="/unopened-markdown-image" alt="Example">',
+  '```',
+].join('\n');
 export const assignmentSourceHtml = `<!doctype html><html lang="en"><title>Warehouse instructions</title>
 <main><h1>Warehouse instructions</h1><p>${instructionText}</p>
 <p hidden>Hidden owner information</p><p style="display:none">Invisible information</p>

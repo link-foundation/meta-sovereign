@@ -313,3 +313,24 @@ test('browser draft receipts require matching bounded source evidence', async (t
   const receipt = await assignmentSourceReceipt(source(), sourceUrl);
   assert.equal(Object.hasOwn(receipt.evidence, 'text'), false);
 });
+
+test('browser drafts retain confirmed document refusals and reject unknown outcomes', async (t) => {
+  const env = await environment(t);
+  const input = { ...env.input, sourceUrl };
+  for (const code of [
+    'assignment-source-unreadable',
+    'assignment-source-unavailable',
+    'assignment-source-timeout',
+    'assignment-review-changed',
+    'unknown-provider-failure',
+  ]) {
+    const api = createFormsApi({
+      report: async () => ({ ok: false, code }),
+      get: async () => null,
+      local: {},
+    });
+    await assert.rejects(api.draftFormAssignment(input), {
+      code: code.startsWith('assignment-') ? code : 'assignment-unconfirmed',
+    });
+  }
+});

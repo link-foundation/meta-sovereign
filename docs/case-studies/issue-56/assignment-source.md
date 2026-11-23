@@ -24,3 +24,15 @@ Before and after (phone):
 ![Reviewed source and written deliverable](../../screenshots/issue-56-assignment-source-mcp-review-desktop.png)
 
 The [archive](data/assignment-source.tar.gz) and SHA-256 manifest preserve source snapshots, four failing-before assertions, focused outputs and browser/MCP evidence. This unit does not complete assignment implementation, full handoff/notifications, live authenticated provider/model execution, or any other unchecked requirement. PR 57 remains draft and unmerged.
+
+## Linked Markdown instructions
+
+The same reader accepts inline `text/markdown` documents. To reproduce the original failure, open a Forms review with a task link whose HTTP redirect ends at a Markdown document, choose that link and request a draft. The Chromium fixture returns `assignment-source-unreadable` on `d48ef4e2` even though the browser displays the source. The revised reader freezes the literal Markdown, requested and resolved URLs, and capture time. Links and HTML examples stay literal, and no example URLs are requested.
+
+The browser regression runs in the normal assignment group. Focused Chromium and WebKit runs verify one successful owned read and one model call, then a challenge refusal with no further model call. Forms retains the entered URL and displays the unreadable status instead of an unknown publication outcome. Source and review browsers close with the form untouched. The API regression first fails on `d48ef4e2`, then passes as part of 27 focused checks in Node and 27 in Deno. [Browser regression](../../../js/tests/helpers/e2e-assignment-publication.mjs) · [Browser API regression](../../../js/tests/assignment-source.test.js)
+
+Independent Playwright MCP verifies source selection, draft-only requests, the resolved link and phone layout. The document-type probe confirms visible plain text and records that the PDF viewer still lacks complete source text. PDF and other non-text sources, complete notification delivery and authenticated provider verification remain open under QA24. [Document-type probe](../../../experiments/issue-56/assignment-document-types.mjs) · [Evidence archive](data/assignment-linked-markdown.tar.gz)
+
+![Before, Markdown source refused](../../screenshots/issue-56-assignment-source-linked-markdown-refused-mobile.png)
+
+![After, the draft shows the resolved Markdown source](../../screenshots/issue-56-assignment-source-linked-markdown-accepted-mobile.png)

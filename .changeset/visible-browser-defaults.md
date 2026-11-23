@@ -1222,3 +1222,7 @@ session launcher. Keep both observed session states visible in Settings (issue #
 Prepare private npm for a cold isolated launcher when the host has Node.js
 and npm is missing. Preserve the application's Node command and allow warm
 launcher reuse without npm or network downloads (issue #56).
+
+Read inline Markdown assignment links as literal text, preserving the reviewed
+redirect evidence without loading the Markdown's links or images. Report
+specific Forms document refusals and keep the entered URL (issue #56).

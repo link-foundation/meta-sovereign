@@ -9,7 +9,10 @@ import { seedAssignmentAnswers } from '../../../experiments/issue-56/forms-assig
 import { readAnswerModel } from '../../src/automation/answer-model-config.js';
 import { verifyAssignmentHandoff } from './e2e-assignment-handoff.mjs';
 import { encodeWire, LINO_TEXT } from '../../src/transport/lino.js';
-import { instructionText } from '../../../experiments/issue-56/assignment-source-fixture.mjs';
+import {
+  assignmentSourceMarkdown,
+  instructionText,
+} from '../../../experiments/issue-56/assignment-source-fixture.mjs';
 import {
   vacancyId,
   vacancyUrl,
@@ -64,7 +67,9 @@ const layouts = async (page, state, locator) => {
       (process.env.ASSIGNMENT_LANGUAGE_SCREENSHOTS === '1' &&
         state.startsWith('language-')) ||
       (process.env.ASSIGNMENT_ACTIVE_REVIEW_SCREENSHOTS === '1' &&
-        state.startsWith('active-review-'))
+        state.startsWith('active-review-')) ||
+      (process.env.FORMS_ASSIGNMENT_LINKED_SCREENSHOTS === 'markdown' &&
+        state.startsWith('linked-markdown-'))
     ) {
       await page.screenshot({
         path: `docs/screenshots/issue-56-assignment-source-${state}-${layout}.png`,
@@ -93,6 +98,78 @@ const request = async (page, control, action) => {
 const vacancyInput = (control) =>
   control.locator('[data-assignment-publish-input="vacancy"]');
 
+const captureLinkedSelection = async ({
+  page,
+  control,
+  source,
+  draft,
+  pick,
+  sourceUrl,
+  mode,
+}) => {
+  if (mode === 'before' && (await draft.isEnabled())) {
+    const result = await request(page, control, 'draft');
+    assert(
+      result.ok && !result.draft.sourceEvidence,
+      'parent drafts without reading the linked task'
+    );
+  }
+  if (mode === 'after') {
+    await pick.selectOption(sourceUrl);
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
+  await source.evaluate((node) =>
+    node.scrollIntoView({ block: 'center', behavior: 'instant' })
+  );
+  await page.screenshot({
+    path: `docs/screenshots/issue-56-assignment-linked-${mode}.png`,
+  });
+  await page.setViewportSize({ width: 1200, height: 800 });
+  if (mode === 'after') {
+    await source.fill('');
+  }
+};
+
+const captureLinkedMarkdown = async (page, control, accepted) => {
+  const status = accepted
+    ? control.locator('[data-assignment-source-evidence]')
+    : control.getByRole('alert');
+  await status.waitFor();
+  await layouts(
+    page,
+    `linked-markdown-${accepted ? 'accepted' : 'refused'}`,
+    status
+  );
+};
+
+const rejectUnreadableInstructions = async (page, control, source, url) => {
+  const unreadable = new URL('/challenge', url).href;
+  await source.fill(unreadable);
+  const refused = await request(page, control, 'draft');
+  const alert = control.locator(
+    '[data-assignment-publish-error="assignment-source-unreadable"]'
+  );
+  await alert.waitFor();
+  assert(
+    refused.code === 'assignment-source-unreadable' &&
+      (await alert.textContent()).includes('could not be read') &&
+      (await source.inputValue()) === unreadable,
+    'unreadable instructions retain the URL and show a definite refusal'
+  );
+};
+
+const checkLinkedRead = ({ result, sourceUrl, resolved, receipt, added }) => {
+  assert(
+    result.ok && result.draft.sourceEvidence.requestedUrl === sourceUrl,
+    `explicit draft uses the chosen document (${result.code ?? 'ok'})`
+  );
+  assert(
+    result.draft.sourceEvidence.url === resolved,
+    'real redirect is recorded'
+  );
+  assert(added === 1 && receipt.closed, 'one owned document browser closes');
+};
+
 export const verifyLinkedAssignmentInstructions = async ({
   page,
   fixture,
@@ -101,10 +178,19 @@ export const verifyLinkedAssignmentInstructions = async ({
   sourceReads,
   publication,
   until,
+  markdown = false,
 }) => {
   await seedAssignmentAnswers(store);
-  const url = new URL('/assignment-linked', fixture.url).href;
-  const sourceUrl = new URL('/source-redirect', url).href;
+  const paths = markdown
+    ? [
+        '/assignment-linked-markdown',
+        '/markdown-source-redirect',
+        '/markdown-instructions',
+      ]
+    : ['/assignment-linked', '/source-redirect', '/instructions'];
+  const [url, sourceUrl, resolved] = paths.map(
+    (path) => new URL(path, fixture.url).href
+  );
   const reads = sourceReads.length;
   const modelCalls = publication.state.modelCalls.length;
   const plan = await openFormPlan(page, url, 'qa-profile:forms-fixture');
@@ -122,28 +208,16 @@ export const verifyLinkedAssignmentInstructions = async ({
     await control
       .locator('[data-assignment-publish-input="target"]')
       .fill('fixture-owner/linked-task');
-    if (mode === 'before' && (await draft.isEnabled())) {
-      const result = await request(page, control, 'draft');
-      assert(
-        result.ok && !result.draft.sourceEvidence,
-        'parent drafts without reading the linked task'
-      );
-    }
-    if (mode === 'before' || mode === 'after') {
-      if (mode === 'after') {
-        await pick.selectOption(sourceUrl);
-      }
-      await page.setViewportSize({ width: 390, height: 844 });
-      await source.evaluate((node) =>
-        node.scrollIntoView({ block: 'center', behavior: 'instant' })
-      );
-      await page.screenshot({
-        path: `docs/screenshots/issue-56-assignment-linked-${mode}.png`,
+    if (['before', 'after'].includes(mode)) {
+      await captureLinkedSelection({
+        page,
+        control,
+        source,
+        draft,
+        pick,
+        sourceUrl,
+        mode,
       });
-      await page.setViewportSize({ width: 1200, height: 800 });
-      if (mode === 'after') {
-        await source.fill('');
-      }
     }
     assert(
       JSON.stringify(plan.planning.assignment.instructionLinks) ===
@@ -160,23 +234,43 @@ export const verifyLinkedAssignmentInstructions = async ({
       'choosing the URL causes no navigation'
     );
     const result = await request(page, control, 'draft');
+    if (markdown && mode === 'markdown') {
+      await captureLinkedMarkdown(page, control, result.ok);
+    }
+    checkLinkedRead({
+      result,
+      sourceUrl,
+      resolved,
+      receipt: sourceReads.at(-1),
+      added: sourceReads.length - reads,
+    });
     assert(
-      result.ok && result.draft.sourceEvidence.requestedUrl === sourceUrl,
-      'explicit draft uses the chosen document'
+      publication.state.modelCalls.length === modelCalls + 1,
+      'exactly one model call follows the selected read'
+    );
+    const prompt = publication.state.modelCalls.at(-1).prompt;
+    assert(
+      markdown
+        ? JSON.parse(prompt).linkedInstructions.text ===
+            assignmentSourceMarkdown
+        : prompt.includes(instructionText),
+      'full document requirements reach the model'
     );
     assert(
-      result.draft.sourceEvidence.url === new URL('/instructions', url).href,
-      'real redirect is recorded'
+      !fixture.requests.some(({ url }) =>
+        url.startsWith('/unopened-markdown-')
+      ),
+      'Markdown examples stay literal without loading their targets'
     );
-    assert(
-      sourceReads.length === reads + 1 && sourceReads.at(-1).closed,
-      'one owned document browser closes'
-    );
-    assert(
-      publication.state.modelCalls.length === modelCalls + 1 &&
-        publication.state.modelCalls.at(-1).prompt.includes(instructionText),
-      'full document requirements reach exactly one model request'
-    );
+    if (markdown) {
+      await rejectUnreadableInstructions(page, control, source, url);
+      assert(
+        sourceReads.length === reads + 2 &&
+          sourceReads.at(-1).closed &&
+          publication.state.modelCalls.length === modelCalls + 1,
+        'unreadable instructions close before additional model execution'
+      );
+    }
     assert(
       (await owner.page.locator('[name="english"]').inputValue()) === '' &&
         fixture.submits === 0,
@@ -185,9 +279,11 @@ export const verifyLinkedAssignmentInstructions = async ({
     console.log(
       '[assignment-linked-instructions]',
       JSON.stringify({
+        format: markdown ? 'markdown' : 'html',
         links: 1,
         reads: 1,
         modelCalls: 1,
+        unreadableRefusals: Number(markdown),
         submissions: 0,
         sourceClosed: true,
       })
@@ -197,6 +293,9 @@ export const verifyLinkedAssignmentInstructions = async ({
   }
   assert(owner.closed, 'the owned form browser closes');
 };
+
+export const verifyLinkedMarkdownInstructions = (options) =>
+  verifyLinkedAssignmentInstructions({ ...options, markdown: true });
 
 const verifyPendingPlan = async (page, { sessionId, id }) => {
   const response = await page.request.post(

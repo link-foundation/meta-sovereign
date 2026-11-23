@@ -20,6 +20,13 @@ const unconfirmed = () =>
   Object.assign(new Error('The assignment result was not confirmed.'), {
     code: 'assignment-unconfirmed',
   });
+const draftRefusals = new Map([
+  ['assignment-review-changed', 'assignment.review-changed'],
+  ['assignment-source-unreadable', 'assignment.instructions-unreadable'],
+  ['assignment-source-unavailable', 'assignment.instructions-unavailable'],
+  ['assignment-source-timeout', 'assignment.instructions-timeout'],
+]);
+export const assignmentDraftRefusalKey = (code) => draftRefusals.get(code);
 const uuid = (value) =>
   typeof value === 'string' &&
   /^[a-f\d]{8}(?:-[a-f\d]{4}){3}-[a-f\d]{12}$/u.test(value);
@@ -116,7 +123,7 @@ const requestDraft = async (report, action, input) => {
   const result = await report(`/api/forms/assignment/${action}`, input, {
     network: true,
   });
-  if (result?.ok === false && result.code === 'assignment-review-changed') {
+  if (result?.ok === false && assignmentDraftRefusalKey(result.code)) {
     throw Object.assign(unconfirmed(), { code: result.code });
   }
   return result;

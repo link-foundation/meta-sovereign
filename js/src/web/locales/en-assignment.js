@@ -12,7 +12,13 @@ export const enAssignment = {
   'assignment.instructions-select': 'Choose a link or enter a URL',
   'assignment.instructions-required': 'Instruction document URL',
   'assignment.instructions-hint':
-    'Read visible text from an HTML or plain-text page in a separate browser. Login, verification, PDF and canvas documents need a readable text version.',
+    'Read an HTML, plain-text or inline Markdown page in a separate browser. For PDF or canvas, use a readable text version.',
+  'assignment.instructions-unreadable':
+    'The complete instructions could not be read. If the page asks you to sign in or verify, complete that step first. You can also use a readable text version.',
+  'assignment.instructions-unavailable':
+    'The instruction document could not be loaded. Check the URL and your access, then try again.',
+  'assignment.instructions-timeout':
+    'Reading the instruction document timed out. Try again or use a readable text version.',
   'assignment.instructions-used': 'Instructions used: {title}',
   'assignment.target': 'GitHub owner/repository',
   'assignment.visibility': 'Repository visibility',

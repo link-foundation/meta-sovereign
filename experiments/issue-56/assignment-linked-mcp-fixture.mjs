@@ -79,7 +79,17 @@ try {
     },
   });
   const url = new URL(`http://127.0.0.1:${server.port}/`);
-  url.searchParams.set('fixture', new URL('/assignment-linked', fixture.url));
+  const markdown = process.env.FORMS_ASSIGNMENT_MARKDOWN_ONLY === '1';
+  url.searchParams.set(
+    'fixture',
+    new URL(
+      markdown ? '/assignment-linked-markdown' : '/assignment-linked',
+      fixture.url
+    )
+  );
+  if (markdown) {
+    url.searchParams.set('source', 'markdown');
+  }
   console.log(JSON.stringify({ url }));
   process.stdin.resume();
   await once(process.stdin, 'data');

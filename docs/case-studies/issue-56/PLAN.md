@@ -1971,6 +1971,12 @@ Native profile persistence follow-up:
 - [x] Verify 48 focused tests in each runtime and the browser and Playwright MCP receipts. Preserve the before and after screenshots. [Reproduction and sources](assignment-sections.md).
 - [ ] Verify the hosted Forms group and the remaining QA24 instruction and desktop notification behavior.
 
+### Linked Markdown instructions (QA24)
+
+- [x] Reproduce `assignment-source-unreadable` for a selected Markdown link whose redirect correctly loads the document.
+- [x] Keep exact literal text and the redirected source receipt. Verify one owned read in Chromium, WebKit and phone-width Playwright MCP, with no embedded requests, employer submits or GitHub writes. [Reproduction and screenshots](assignment-source.md#linked-markdown-instructions).
+- [ ] Verify the hosted assignment group and the remaining document, notification and provider workflows.
+
 ### Desktop notification packaging
 
 - [x] Preserve the failed Windows x64 and arm64 logs at exact head `72d5a02c`. Both reach the Node debugger before the installed application times out.

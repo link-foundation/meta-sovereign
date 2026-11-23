@@ -2,6 +2,7 @@ import React, { useEffect, useId, useState } from 'react';
 import { useT } from './i18n.js';
 import { ASSIGNMENT_LANGUAGES } from '../assignments/templates.js';
 import { PROVIDED_ASSIGNMENT_SCOPE } from '../assignments/source.js';
+import { assignmentDraftRefusalKey } from './form-assignment-publisher-api.js';
 const el = React.createElement;
 
 const SourceEvidence = ({ evidence }) => {
@@ -309,6 +310,7 @@ const RestoreAssignment = ({ api, input, busy, perform, onRestored }) => {
 
 const PublicationFeedback = ({ result, error }) => {
   const t = useT();
+  const refusal = assignmentDraftRefusalKey(error);
   return el(React.Fragment, null, [
     result?.ok
       ? el(
@@ -345,9 +347,7 @@ const PublicationFeedback = ({ result, error }) => {
             role: 'alert',
             'data-assignment-publish-error': error,
           },
-          error === 'assignment-review-changed'
-            ? t('assignment.review-changed')
-            : t('assignment.error', { code: error })
+          refusal ? t(refusal) : t('assignment.error', { code: error })
         )
       : null,
   ]);

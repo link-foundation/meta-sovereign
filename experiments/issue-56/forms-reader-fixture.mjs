@@ -7,7 +7,10 @@ import {
   assignmentSectionHtml,
   linkedTaskSection,
 } from './form-assignment-section-fixture.mjs';
-import { assignmentSourceHtml } from './assignment-source-fixture.mjs';
+import {
+  assignmentSourceHtml,
+  assignmentSourceMarkdown,
+} from './assignment-source-fixture.mjs';
 import { captchaFixtureHtml } from './forms-captcha-fixture.mjs';
 import { matchingFixtureHtml } from './question-matching-fixture.mjs';
 import {
@@ -45,7 +48,11 @@ const simplePages = {
   '/questionnaire-learning': questionnaireLearningHtml,
   '/questionnaire': formQuestionnaireHtml,
   '/instructions': assignmentSourceHtml,
+  '/markdown-instructions': assignmentSourceMarkdown,
   '/assignment-section': assignmentSectionHtml(),
+  '/assignment-linked-markdown': assignmentSectionHtml(
+    linkedTaskSection.replace('/source-redirect', '/markdown-source-redirect')
+  ),
   '/assignment-linked': assignmentSectionHtml(linkedTaskSection),
   '/assignment': assignmentFixtureHtml,
   '/captcha': captchaFixtureHtml,
@@ -56,6 +63,14 @@ const simplePages = {
   '/links': linksFixtureHtml,
   '/model': modelFixtureHtml,
 };
+const assignmentRedirects = new Map([
+  ['/source-redirect', '/instructions'],
+  ['/markdown-source-redirect', '/markdown-instructions'],
+]);
+const formsFixtureMediaType = (url) =>
+  url.startsWith('/markdown-instructions')
+    ? 'text/markdown; charset=utf-8'
+    : 'text/html';
 
 export const startFormsFixture = async () => {
   const requests = [];
@@ -100,9 +115,10 @@ export const startFormsFixture = async () => {
     if (req.method !== 'GET') {
       submits++;
     }
-    res.setHeader('content-type', 'text/html');
-    if (req.url.startsWith('/source-redirect')) {
-      res.writeHead(302, { location: '/instructions' });
+    res.setHeader('content-type', formsFixtureMediaType(req.url));
+    const redirect = assignmentRedirects.get(req.url.split('?')[0]);
+    if (redirect) {
+      res.writeHead(302, { location: redirect });
       res.end();
       return;
     }
