@@ -85,7 +85,7 @@ const profileReader =
           overrides,
         });
 
-/** Serialize all callers and retain target identity across profile edits/crashes. */
+/** Serialize runner control and edits while retaining the bound target identity. */
 export const createRunnerController = ({
   directory = defaultRunnerDirectory,
   localDirectory = () => path.join(process.cwd(), '.meta-sovereign'),
@@ -109,18 +109,27 @@ export const createRunnerController = ({
     if (!validAction(action, mode, overrides)) {
       return { ok: false, code: 'invalid-runner-action' };
     }
-    const dir = path.join(directory(), 'runner-control');
+    const root = directory();
+    const profileFile = profile ?? path.join(root, 'runner.lino');
+    const read = profileReader({
+      load,
+      file: profileFile,
+      profile,
+      localDirectory,
+      overrides,
+    });
+    if (action === 'profile') {
+      return runnerProfileOperation(
+        profileFile,
+        { action, signal },
+        undefined,
+        read
+      );
+    }
+    const dir = path.join(root, 'runner-control');
     const lease = await lock(dir, { exclusive: true });
     try {
-      const profileFile = profile ?? path.join(directory(), 'runner.lino');
-      const read = profileReader({
-        load,
-        file: profileFile,
-        profile,
-        localDirectory,
-        overrides,
-      });
-      if (['profile', 'configure'].includes(action)) {
+      if (action === 'configure') {
         return await runnerProfileOperation(
           profileFile,
           {

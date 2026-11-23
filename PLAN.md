@@ -1547,3 +1547,9 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Verify staged production imports and publish only a missing dependency link. Preserve owner dependencies and active sessions when approval or installation fails.
 - [x] Reproduce the rejected profile on the parent. Verify cold and warm installs with the production lock, native SSH, both Lino encodings, CLI and Settings.
 - [ ] Review native hosted Screen and Docker evidence. Continue reviewed application transfer and operating-system preparation.
+
+2026-11-23 saved runner profile read during control (VD01 remains unfinished)
+
+- [x] Reproduce the profile HTTP 409 and disabled Settings editor under the held control lease.
+- [x] Serve the saved read from the configuration snapshot while keeping the write lease and revision check.
+- [x] Verify both Lino encodings, phone and desktop Chromium, and independent Playwright MCP on the published UI.

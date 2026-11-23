@@ -1252,3 +1252,7 @@ application is incomplete and show the corresponding Settings message (issue #56
 Prepare production dependencies when an explicitly started runner selects a
 reviewed lockfile. Verify the installed modules before switching sessions and
 reuse the prepared tree on later starts (issue #56).
+
+Read saved runner targets in Settings while a session command is active.
+Saving still requires the runner control lock and current profile revision
+(issue #56).

@@ -26,7 +26,7 @@ const storedDocument = (previous, targets, document) => {
   return stored;
 };
 
-/** Called under the same lease as process control; never probes or launches. */
+/** Reads use atomic file snapshots. Callers hold the control lease for writes. */
 export const runnerProfileOperation = async (
   file,
   input,

@@ -8,6 +8,7 @@ import { runnerProfile } from '../../experiments/issue-56/runner-fixture.mjs';
 import { readRunnerProfile } from '../src/cli/runner-profile.js';
 import { requestRunner } from '../src/cli/runner-client.js';
 import { runCli } from '../src/cli/index.js';
+import { acquireStoreLock } from '../src/storage/store-lock.js';
 import {
   encodeWire,
   readWireResponse,
@@ -22,6 +23,38 @@ const post = (fixture, input, type = LINO_TEXT, extra = {}) =>
     headers: { 'content-type': type, accept: type, ...extra },
     body: encodeWire(input, type),
   });
+
+test('profile reads stay available while the runner control lease blocks edits', async (t) => {
+  const fixture = await runnerApiFixture();
+  t.after(fixture.close);
+  const expected = await requestRunner({
+    url: fixture.base,
+    action: 'profile',
+  });
+  const input = { document: expected.document, revision: expected.revision };
+  const lease = await acquireStoreLock(join(fixture.dir, 'runner-control'), {
+    exclusive: true,
+  });
+  try {
+    for (const type of [LINO_TEXT, LINO_BINARY]) {
+      const response = await fetch(endpoint(fixture, 'profile'), {
+        headers: { accept: type },
+      });
+      assert.equal(response.status, 200);
+      assert.deepEqual(await readWireResponse(response), expected);
+      const refused = await post(fixture, input, type);
+      assert.equal(refused.status, 409);
+      assert.equal(
+        (await readWireResponse(refused)).code,
+        'runner-controller-busy'
+      );
+    }
+  } finally {
+    await lease.release();
+  }
+  assert.equal((await post(fixture, input)).status, 200);
+  assert.deepEqual(fixture.backend.calls, []);
+});
 
 test(
   'text and binary profile API saves without probing, rejects stale writes and preserves a separate owner edit',
