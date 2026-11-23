@@ -7,7 +7,10 @@ import {
   verifyDockerRunnerProfile,
 } from './helpers/e2e-runner-profile.mjs';
 import { verifyRunnerHealth } from './helpers/e2e-runner-health.mjs';
-import { verifyRunnerFeedback } from './helpers/e2e-runner-feedback.mjs';
+import {
+  verifyRunnerDependencyRefusals,
+  verifyRunnerFeedback,
+} from './helpers/e2e-runner-feedback.mjs';
 await runBrowserScenarios('vk-token', [
   verifyVkToken,
   verifyRunnerSessions,
@@ -16,4 +19,5 @@ await runBrowserScenarios('vk-token', [
   verifyDockerRunnerProfile,
   verifyRunnerHealth,
   verifyRunnerFeedback,
+  verifyRunnerDependencyRefusals,
 ]);

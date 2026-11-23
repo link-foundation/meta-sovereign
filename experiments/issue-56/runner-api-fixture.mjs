@@ -50,3 +50,18 @@ export const runnerApiFixture = async (options = {}) => {
     },
   };
 };
+
+export const runnerDependencyRefusalFixture = () => {
+  let attempts = 0;
+  return runnerApiFixture({
+    initial: { local: 'running' },
+    control: {
+      async prepareRuntime() {
+        return ++attempts % 2 === 1 ? null : { node: 'node' };
+      },
+      async prepareLauncher() {
+        return null;
+      },
+    },
+  });
+};

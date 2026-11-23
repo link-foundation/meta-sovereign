@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
-import { runnerApiFixture } from '../../../experiments/issue-56/runner-api-fixture.mjs';
+import {
+  runnerApiFixture,
+  runnerDependencyRefusalFixture,
+} from '../../../experiments/issue-56/runner-api-fixture.mjs';
 import {
   vkAutomationBrowser,
   captureVkAutomationLayouts,
@@ -149,6 +152,89 @@ export const verifyRunnerFeedback = async (
     };
   } finally {
     release?.();
+    await context?.close();
+    await fixture.close();
+  }
+};
+
+export const verifyRunnerDependencyRefusals = async (
+  browser,
+  { beforeBundle, screenshots } = {}
+) => {
+  const fixture = await runnerDependencyRefusalFixture();
+  let context;
+  try {
+    const view = await vkAutomationBrowser(browser, '', fixture.base);
+    context = view.context;
+    context.setDefaultTimeout(10000);
+    const { page, errors } = view;
+    if (beforeBundle) {
+      await page.route('**/app.min.js', (route) =>
+        route.fulfill({ contentType: 'text/javascript', body: beforeBundle })
+      );
+    }
+    await page.goto(`${fixture.base}/#settings`);
+    const panel = page.locator('[data-runner-settings]');
+    await panel.locator('[data-runner-open]').click();
+    const local = panel.locator('[data-runner-mode=local]');
+    const server = panel.locator('[data-runner-mode=server]');
+    const start = server.locator('[data-runner-action=start]');
+    await local.locator('[data-runner-state=running]').waitFor();
+    await server.locator('[data-runner-state=stopped]').waitFor();
+    const refusals = [
+      [
+        'Could not prepare Node.js on the selected host. Check its Node.js installation and try again.',
+        'runtime',
+      ],
+      [
+        'Could not prepare the isolated session launcher on the selected host. Check its launcher installation and try again.',
+        'launcher',
+      ],
+    ];
+    const messages = [];
+    for (const [, dependency] of refusals) {
+      const pending = page.waitForResponse(
+        (response) =>
+          response.url().endsWith('/api/runner/start') &&
+          response.request().method() === 'POST'
+      );
+      await start.click();
+      assert.equal((await pending).status(), 200);
+      await panel.locator('details > [aria-busy=false]').waitFor();
+      const notice = panel.getByRole('status').filter({
+        hasText: /^(Could not prepare|The action was not confirmed)/,
+      });
+      await notice.waitFor();
+      await captureVkAutomationLayouts(
+        page,
+        panel,
+        screenshots,
+        `${dependency}-${beforeBundle ? 'before' : 'after'}`,
+        true
+      );
+      const message = await notice.innerText();
+      messages.push(message);
+      await panel.locator('[data-runner-action=refresh]').click();
+      await panel.locator('details > [aria-busy=false]').waitFor();
+      assert.equal(await notice.innerText(), message);
+      assert.equal(
+        await local.locator('[data-runner-state=running]').count(),
+        1
+      );
+      assert.equal(
+        await server.locator('[data-runner-state=stopped]').count(),
+        1
+      );
+      assert.equal(await page.locator('[data-runner-feedback]').count(), 0);
+    }
+    assert.ok(fixture.backend.calls.every(([, action]) => action === 'probe'));
+    assert.deepEqual(errors, []);
+    assert.deepEqual(
+      messages,
+      refusals.map(([message]) => message)
+    );
+    return { dependencyRefusals: 2, peerStillRunning: true, pageErrors: 0 };
+  } finally {
     await context?.close();
     await fixture.close();
   }

@@ -11,6 +11,8 @@ const noticeKey = (code) =>
     'runner-profile-unavailable': 'profileUnavailable',
     'runner-unconfigured': 'unconfigured',
     'runner-application-unconfirmed': 'health_unknown',
+    'runner-runtime-unavailable': 'runtimeUnavailable',
+    'runner-launcher-unavailable': 'launcherUnavailable',
   })[code] ?? 'actionNotConfirmed';
 
 const RunnerMode = ({ mode, state, act }) => {

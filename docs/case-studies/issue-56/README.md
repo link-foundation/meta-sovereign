@@ -850,3 +850,4 @@ Optional persistent collection with full current-run context: [collection eviden
 
 - [Bounded native vacancy retries](vacancy-skip-retries.md): retain one later-run attempt for four definitive native refusals, stable reads, unknown-write reservations and revisioned clearing. HH05 remains unfinished.
 - [Application answer and salary budgets](application-answer-budgets.md): preserve the exact WebKit aggregate deadline, separate the salary group and retain every native scenario once with unchanged deadlines and shard limits.
+- [Runner dependency preparation](runner-launcher-preparation.md): verify cold and warm native Screen runs locally and over SSH, and retain distinct localized dependency refusals in Settings. VD01 remains unfinished.

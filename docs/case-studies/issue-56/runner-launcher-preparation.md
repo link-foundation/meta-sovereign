@@ -93,6 +93,40 @@ The hosted OpenSSH server fixture now exercises the same private runtime path.
 Hosted SSH and packaged checks, other platforms, the OS backend and application
 closure remain open for VD01.
 
+## Dependency refusals in Settings
+
+Open Settings, expand **Runner sessions**, then start the stopped SSH session
+while the local session is running. The owned test API runs the production
+controller and alternates two preparation failures. The published
+`2810a508` bundle shows the same generic warning for both. It also treats the
+runtime refusal as a transport error because its bundled receipt reader lacked
+the new code. The rebuilt bundle keeps the connection usable and shows which
+dependency could not be prepared. Refresh retains the explanation. The local
+session stays running, the SSH session stays stopped, and no success message
+appears. The backing fixture observes sessions and receives neither Stop nor
+Start.
+
+```sh
+node experiments/issue-56/runner-dependencies-browser.mjs --parent
+node experiments/issue-56/runner-dependencies-browser.mjs
+```
+
+The Chromium test exercises the old and rebuilt bundles at 1180 and 390 pixels.
+The hosted browser group runs the same regression. An independent Playwright
+MCP check saw both notices in English, Russian, Hindi and Chinese at 390 pixels,
+with both observed states retained and no horizontal overflow. MCP logged
+unrelated Settings errors for the Telegram endpoints disabled in the fixture,
+the favicon and Chromium's asset cache. Both browser contexts and the temporary
+server closed after verification. The copy follows the existing grouped
+Settings controls and distinguishes a known failure from an unavailable view,
+as in the pinned [T3 Code Settings controls](https://github.com/pingdotgg/t3code/blob/08a463e29976617134de01e9341f898bc881d0eb/apps/web/src/components/settings/AppearanceSettingsPanel.tsx)
+and [Telegram Web A conversation states](https://github.com/Ajaxy/telegram-tt/blob/6002824b6532f3d913997ce496d9ab5f9b86bc22/src/components/middle/MessageListAccountInfo.tsx).
+
+[Node before](../../screenshots/issue-56-runner-dependencies/runtime-before-phone.png) ·
+[Node after](../../screenshots/issue-56-runner-dependencies/runtime-after-phone.png) ·
+[Launcher before](../../screenshots/issue-56-runner-dependencies/launcher-before-phone.png) ·
+[Launcher after](../../screenshots/issue-56-runner-dependencies/launcher-after-phone.png)
+
 [Signed release manifest](https://nodejs.org/dist/v26.13.0/SHASUMS256.txt.asc) ·
 [Pinned release keyring](https://github.com/nodejs/release-keys/tree/481637f813e912c4aa3622d7964ab426c97b8e8d)
 

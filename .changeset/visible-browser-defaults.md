@@ -1213,3 +1213,6 @@ session running if the destination launcher cannot be prepared (issue #56).
 Prepare a checksum-verified private Node runtime with bundled npm on a supported
 host when the default runner runtime is missing. Reuse it for later starts and
 read-only application health, keeping preparation before a peer Stop (issue #56).
+
+Show whether the selected runner host could prepare Node.js or the isolated
+session launcher. Keep both observed session states visible in Settings (issue #56).
