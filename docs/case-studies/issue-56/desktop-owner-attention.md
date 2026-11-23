@@ -26,4 +26,22 @@ Both HeadHunter sign-in scenarios pass in Chromium with a freshly built producti
 
 ![Settings with the shared HeadHunter sign-in notice and an active desktop bridge](../../screenshots/issue-56-desktop-owner-attention-mobile.png)
 
-QA24 and HH01 remain unfinished. Signed macOS and Windows notification delivery, behavior under Focus or unavailable system alerts, suppression when the exact browser is already frontmost, and authenticated provider acceptance still require evidence. [Electron notification platform behavior](https://www.electronjs.org/docs/latest/tutorial/notifications).
+## When the system cannot display the alert
+
+The desktop shell opens a small local prompt if system notifications are unavailable, report a failure, or provide no display receipt within two seconds. It rechecks the case, request, browser slot and expiry before replacing a failed alert. The prompt carries the same localized text, **Show browser** when focus is available, and **Later**. The optional chime is issued once per reminder. On desktop environments that support inactive windows, the prompt appears without taking focus. [Electron notification events](https://www.electronjs.org/docs/latest/api/notification) · [Electron inactive window behavior](https://www.electronjs.org/docs/latest/api/browser-window#winshowinactive).
+
+Run the same private D-Bus service with `--reject` so Electron receives a real delivery error. This experiment compares the published `8646590a` controller with the updated one. The parent receives the error and displays zero prompts. The updated controller receives two real errors, displays two prompts, and produces one chime per wait. Show browser focuses only the active sign-in window. Later closes the second prompt and defers the reminder through the five-minute cutoff. The normal notification-delivery experiment still passes.
+
+```sh
+dbus-run-session -- python3.12 experiments/issue-56/desktop-owner-attention-bus.py --reject \
+  xvfb-run -a -s '-screen 0 720x480x24' npm exec --yes --package=electron@45.3.2 -- \
+  electron --no-sandbox experiments/issue-56/desktop-attention-prompt-electron.mjs
+```
+
+Set `META_SOVEREIGN_ATTENTION_SCREENSHOT` to save the private Xvfb screen. To run the parent controller, save `git show 8646590a:js/electron/owner-attention.js` in an isolated copy at `js/electron/owner-attention.js`, supply the shared `js/src` and root `package.json`, and set `META_SOVEREIGN_ATTENTION_PARENT_CONTROLLER` to its absolute path. A separate Playwright MCP run renders the same HTML and preload with fixture IPC in dark mode. It verifies keyboard focus for both buttons, activation with Enter, dismissal with Escape, and zero page exceptions. [Fallback evidence archive](data/desktop-attention-prompt.tar.gz) · [Entry hashes](data/desktop-attention-prompt.tar.sha256.json).
+
+![Published parent after the isolated Linux notification daemon rejects delivery](../../screenshots/issue-56-desktop-attention-prompt-before.png)
+
+![Desktop fallback with Show browser and Later after the same rejection](../../screenshots/issue-56-desktop-attention-prompt-after.png)
+
+QA24 and HH01 remain unfinished. Signed macOS and Windows delivery, Wayland display, silent suppression by Focus after an OS display receipt, suppression when the exact browser is already frontmost, and authenticated provider acceptance still require evidence. [Electron notification platform behavior](https://www.electronjs.org/docs/latest/tutorial/notifications).

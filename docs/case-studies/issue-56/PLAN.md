@@ -1920,3 +1920,10 @@ Native profile persistence follow-up:
 - [x] Verify the exact-parent failure, 60 focused checks in each runtime, and registered Chromium and independent MCP against the isolated provider. Preserve before/after evidence and attach it to PR #57. [Read receipt evidence](hh-common-history.md#confirming-read-receipts-in-the-import-browser)
 - [x] Reproduce a plain send failing in the newly imported conversation. Confirm the receipt through the open provider browser, keep the same archive identity, and verify owner draft protection and uncertain delivery against a one-click native fixture. [Send receipt evidence](hh-common-history.md#sending-in-the-open-import-browser)
 - [ ] Verify exact-source hosted checks and complete the remaining native messaging contract.
+
+### Desktop alert delivery recovery (QA24 and HH01)
+
+- [x] Reproduce a rejected system notification that leaves the active sign-in wait without a desktop prompt on the published parent.
+- [x] Preserve the exact owner, private text, actions and reminder schedule when replacing a failed or unavailable notification.
+- [x] Verify normal and failed OS delivery, replacement and expiry paths, and keyboard actions. Preserve before and after screenshots and the source-bound evidence. [Desktop alert delivery recovery](desktop-owner-attention.md#when-the-system-cannot-display-the-alert).
+- [ ] Verify exact-head hosted checks, signed OS delivery, Focus behavior and authenticated provider acceptance. QA24 and HH01 remain unfinished.

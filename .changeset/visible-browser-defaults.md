@@ -1138,3 +1138,6 @@ Chat history and hold uncertain sends for review.
 Give local desktop Forms verification and HeadHunter verification and sign-in
 alerts Show browser and Later actions. Reminders and optional sound stay tied to
 the exact waiting browser while the desktop runtime is active.
+
+Show the same owner actions in a local desktop prompt when the system alert
+cannot be displayed. Keep the reminder and chime tied to the current wait.

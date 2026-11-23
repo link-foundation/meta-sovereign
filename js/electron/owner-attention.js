@@ -9,12 +9,7 @@ import { availableLocales, translate } from '../src/web/i18n.js';
 const itemKey = ({ kind, id, requestId, browserSlot }) =>
   JSON.stringify([kind, id, requestId, browserSlot]);
 
-const actionButtons = (locale, focus) => [
-  ...(focus
-    ? [{ type: 'button', text: translate(locale, 'forms.attention.show') }]
-    : []),
-  { type: 'button', text: translate(locale, 'forms.attention.later') },
-];
+const SHOW_WAIT_MS = 2000;
 
 const traceAttention = () => {
   if (process.env.MS_LIFECYCLE_DEBUG === '1') {
@@ -27,22 +22,28 @@ export class DesktopOwnerAttention {
   constructor({
     Notification,
     beep,
+    prompt,
     owner,
     showWindow,
     platform = process.platform,
     now = Date.now,
     setInterval = globalThis.setInterval,
     clearInterval = globalThis.clearInterval,
+    setTimeout = globalThis.setTimeout,
+    clearTimeout = globalThis.clearTimeout,
   }) {
     Object.assign(this, {
       Notification,
       beep,
+      prompt,
       owner,
       showWindow,
       platform,
       now,
       setInterval,
       clearInterval,
+      setTimeout,
+      clearTimeout,
     });
     this.entries = new Map();
     this.visual = false;
@@ -65,23 +66,23 @@ export class DesktopOwnerAttention {
       return { visual: false, audio: false };
     }
     this.locale = locale;
-    this.visual = Boolean(enabled && this.Notification?.isSupported?.());
+    this.systemVisual = Boolean(enabled && this.Notification?.isSupported?.());
+    this.visual = enabled && Boolean(this.systemVisual || this.prompt);
     this.audio = sound && typeof this.beep === 'function';
     if (!this.enabled) {
       this.stop();
     } else if (this.timer === undefined) {
-      this.timer = this.setInterval(
-        () => void this.refresh(),
-        ATTENTION_POLL_MS
-      );
-      this.timer.unref?.();
-      void this.refresh();
+      this.start();
     } else if (!this.visual) {
-      for (const entry of this.entries.values()) {
-        this.dismiss(entry);
-      }
+      this.entries.forEach((entry) => this.dismiss(entry));
     }
     return { visual: this.visual, audio: this.audio };
+  }
+
+  start() {
+    this.timer = this.setInterval(() => void this.refresh(), ATTENTION_POLL_MS);
+    this.timer.unref?.();
+    void this.refresh();
   }
 
   stop() {
@@ -89,9 +90,7 @@ export class DesktopOwnerAttention {
     this.audio = false;
     this.clearInterval(this.timer);
     this.timer = undefined;
-    for (const entry of this.entries.values()) {
-      this.dismiss(entry);
-    }
+    this.entries.forEach((entry) => this.dismiss(entry));
     this.entries.clear();
   }
 
@@ -107,7 +106,8 @@ export class DesktopOwnerAttention {
     const key = itemKey(item);
     const generation = this.timer;
     const alive = (await this.owner.read()).some(
-      (current) => itemKey(current) === key
+      (current) =>
+        itemKey(current) === key && Date.parse(current.expiresAt) > this.now()
     );
     if (!alive || !this.enabled || generation !== this.timer) {
       return { ok: false };
@@ -130,6 +130,10 @@ export class DesktopOwnerAttention {
   }
 
   async select(entry, focus) {
+    if (Date.parse(entry.item.expiresAt) <= this.now()) {
+      this.dismiss(entry);
+      return;
+    }
     this.delay(entry, ATTENTION_ACKNOWLEDGED_MS);
     if (focus) {
       try {
@@ -155,15 +159,114 @@ export class DesktopOwnerAttention {
     if (!this.visual) {
       return;
     }
+    if (this.systemVisual) {
+      this.postSystemAlert(entry);
+    } else {
+      this.postPrompt(entry);
+    }
+  }
+
+  labels(entry) {
     const { kind, focusAvailable } = entry.item;
     const { locale } = this;
-    const notification = new this.Notification({
+    return {
+      locale,
       title: translate(locale, 'appName'),
       body: translate(locale, attentionNotification[kind]),
-      silent: true,
-      timeoutType: 'never',
-      actions: actionButtons(locale, focusAvailable),
-    });
+      show: focusAvailable ? translate(locale, 'forms.attention.show') : null,
+      later: translate(locale, 'forms.attention.later'),
+    };
+  }
+
+  postPrompt(entry) {
+    let dispose;
+    const release = () => dispose?.();
+    entry.release = release;
+    try {
+      dispose = this.prompt({
+        ...this.labels(entry),
+        onChoice: (focus) => {
+          if (entry.release === release) {
+            void this.select(entry, focus);
+          }
+        },
+      });
+      if (entry.release !== release) {
+        dispose?.();
+      }
+    } catch {
+      this.dismiss(entry);
+      traceAttention();
+    }
+  }
+
+  async recoverAlert(entry, release, shouldRecover) {
+    traceAttention();
+    let current;
+    if (this.prompt) {
+      try {
+        const key = itemKey(entry.item);
+        current = (await this.owner.read()).find(
+          (item) =>
+            itemKey(item) === key && Date.parse(item.expiresAt) > this.now()
+        );
+      } catch {
+        // A failed read cannot establish that the same owner still needs a prompt.
+      }
+    }
+    if (entry.release === release && shouldRecover()) {
+      this.dismiss(entry);
+      if (this.visual && current) {
+        entry.item = current;
+        this.postPrompt(entry);
+      }
+    }
+  }
+
+  postSystemAlert(entry) {
+    const { body, title, show, later } = this.labels(entry);
+    const focusAvailable = Boolean(show);
+    let notification;
+    try {
+      notification = new this.Notification({
+        title,
+        body,
+        silent: true,
+        timeoutType: 'never',
+        actions: [show, later]
+          .filter(Boolean)
+          .map((text) => ({ type: 'button', text })),
+      });
+    } catch {
+      traceAttention();
+      if (this.prompt) {
+        this.postPrompt(entry);
+      }
+      return;
+    }
+    let deadline;
+    let shown = false;
+    let failedToShow = false;
+    let checking = false;
+    const clearDeadline = () => this.clearTimeout(deadline);
+    const displayed = () => {
+      shown = true;
+      clearDeadline();
+    };
+    const shouldRecover = () => failedToShow || !shown;
+    const recover = () => {
+      if (entry.release === release && !checking && shouldRecover()) {
+        checking = true;
+        void this.recoverAlert(entry, release, shouldRecover).finally(() => {
+          checking = false;
+        });
+      }
+    };
+    const failed = () => {
+      failedToShow = true;
+      clearDeadline();
+      recover();
+    };
     const select = (focus) => {
       if (entry.release === release) {
         void this.select(entry, focus);
@@ -192,18 +295,29 @@ export class DesktopOwnerAttention {
       }
     };
     const release = () => {
+      clearDeadline();
+      notification.off('show', displayed);
       notification.off('click', click);
       notification.off('action', action);
       notification.off('close', close);
-      notification.off('failed', traceAttention);
+      notification.off('failed', failed);
       notification.close();
     };
     entry.release = release;
+    notification.on('show', displayed);
     notification.on('click', click);
     notification.on('action', action);
     notification.on('close', close);
-    notification.on('failed', traceAttention);
-    notification.show();
+    notification.on('failed', failed);
+    if (this.prompt) {
+      deadline = this.setTimeout(recover, SHOW_WAIT_MS);
+      deadline.unref?.();
+    }
+    try {
+      notification.show();
+    } catch {
+      failed();
+    }
   }
 
   async refresh() {

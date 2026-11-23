@@ -26,8 +26,14 @@ const ownerWait = (kind = 'captcha', extra = {}) => ({
 });
 const preferences = { enabled: true, sound: true, locale: 'en' };
 
-const desktopFixture = ({ supported = true, platform = 'linux' } = {}) => {
+const desktopFixture = ({
+  supported = true,
+  platform = 'linux',
+  fallback = false,
+} = {}) => {
   const notices = [];
+  const prompts = [];
+  const deadlines = new Map();
   const focused = [];
   let beepCount = 0;
   let shellWindows = 0;
@@ -60,6 +66,15 @@ const desktopFixture = ({ supported = true, platform = 'linux' } = {}) => {
   };
   const controller = new DesktopOwnerAttention({
     Notification,
+    prompt: fallback
+      ? (options) => {
+          const prompt = { ...options, closed: false };
+          prompts.push(prompt);
+          return () => {
+            prompt.closed = true;
+          };
+        }
+      : undefined,
     owner,
     platform,
     beep: () => beepCount++,
@@ -74,12 +89,26 @@ const desktopFixture = ({ supported = true, platform = 'linux' } = {}) => {
         canceled++;
       }
     },
+    setTimeout: (task, ms) => {
+      assert.equal(ms, 2000);
+      const deadline = {};
+      deadlines.set(deadline, task);
+      return deadline;
+    },
+    clearTimeout: (deadline) => deadlines.delete(deadline),
   });
   return {
     controller,
     owner,
     notices,
+    prompts,
     focused,
+    expireDisplayDeadlines() {
+      for (const [deadline, task] of deadlines) {
+        deadlines.delete(deadline);
+        task();
+      }
+    },
     setWaits: (...waits) => {
       current = waits;
     },
@@ -241,6 +270,126 @@ test(
     assert.equal(f.notices.length, 0);
     await f.advance(ATTENTION_REMIND_MS);
     assert.equal(f.canceled, 1);
+  }
+);
+
+test(
+  'an unavailable notification system uses a private prompt with live actions',
+  { timeout: 5000 },
+  async () => {
+    const f = desktopFixture({ supported: false, fallback: true });
+    const signin = ownerWait('hh-manual-login');
+    const headless = ownerWait('hh-application-verification', {
+      focusAvailable: false,
+    });
+    f.setWaits(signin, headless);
+    assert.deepEqual(f.controller.configure(preferences), {
+      visual: true,
+      audio: true,
+    });
+    await settled();
+    assert.equal(f.notices.length, 0);
+    assert.equal(f.beeps, 2);
+    const [active, background] = f.prompts;
+    assert.equal(active.show, 'Show browser');
+    assert.equal(background.show, null);
+    assert.equal(background.later, 'Later');
+    assert.doesNotMatch(
+      JSON.stringify(f.prompts),
+      /private-review|private-request|private-browser-slot/u
+    );
+    active.onChoice(true);
+    active.onChoice(true);
+    background.onChoice(false);
+    await settled();
+    assert.deepEqual(f.focused, [signin]);
+    assert.ok(f.prompts.every(({ closed }) => closed));
+    await f.advance(ATTENTION_REMIND_MS);
+    assert.equal(f.prompts.length, 2);
+    await f.advance(ATTENTION_ACKNOWLEDGED_MS - ATTENTION_REMIND_MS);
+    assert.equal(f.prompts.length, 4);
+    f.controller.close();
+  }
+);
+
+test(
+  'a failed system alert swaps to the prompt without another chime',
+  { timeout: 5000 },
+  async () => {
+    const f = desktopFixture({ fallback: true });
+    const wait = ownerWait();
+    f.setWaits(wait);
+    f.controller.configure(preferences);
+    await settled();
+    f.notices[0].emit('failed');
+    f.notices[0].emit('failed');
+    f.expireDisplayDeadlines();
+    await settled();
+    assert.equal(f.notices[0].closed, true);
+    assert.equal(f.prompts.length, 1);
+    assert.equal(f.beeps, 1);
+    f.notices[0].emit('action', { actionIndex: 0 });
+    f.setWaits();
+    await f.advance(1);
+    assert.equal(f.prompts[0].closed, true);
+    f.prompts[0].onChoice(true);
+    assert.deepEqual(f.focused, []);
+    f.controller.close();
+  }
+);
+
+test(
+  'a missing show receipt falls back unless the notification appears during verification',
+  { timeout: 5000 },
+  async () => {
+    const f = desktopFixture({ fallback: true });
+    const silent = ownerWait();
+    const late = ownerWait('hh-manual-login');
+    const shown = ownerWait('hh-application-verification');
+    f.setWaits(silent, late, shown);
+    f.controller.configure(preferences);
+    await settled();
+    f.notices[2].emit('show');
+    f.expireDisplayDeadlines();
+    f.notices[1].emit('show');
+    await settled();
+    assert.equal(f.prompts.length, 1);
+    assert.equal(f.notices[0].closed, true);
+    assert.equal(f.notices[1].closed, undefined);
+    assert.equal(f.notices[2].closed, undefined);
+    f.notices[1].emit('failed');
+    await settled();
+    assert.equal(f.prompts.length, 2);
+    assert.equal(f.beeps, 3);
+    f.controller.close();
+  }
+);
+
+test(
+  'a pending fallback is discarded when the active wait disappears',
+  { timeout: 5000 },
+  async () => {
+    const f = desktopFixture({ fallback: true });
+    const wait = ownerWait();
+    f.setWaits(wait);
+    f.controller.configure(preferences);
+    await settled();
+    const read = f.owner.read;
+    let resume;
+    f.owner.read = () =>
+      new Promise((resolve) => {
+        resume = resolve;
+      });
+    f.notices[0].emit('failed');
+    f.owner.read = read;
+    f.setWaits();
+    await f.advance(1);
+    resume([wait]);
+    await settled();
+    assert.equal(f.notices[0].closed, true);
+    assert.deepEqual(f.prompts, []);
+    assert.equal(f.beeps, 1);
+    f.controller.close();
   }
 );
 

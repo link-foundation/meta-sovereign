@@ -14,6 +14,8 @@ Partial QA24 and HH01 Forms prerequisite: [active owner notices](forms-attention
 
 [HeadHunter sign-in attention](jobs-manual-login.md#return-to-the-current-sign-in-window) routes the exact current manual slot through both Lino formats, the owning console and shared views. [Desktop browser-wait actions](desktop-owner-attention.md) deliver Show browser and Later for the live Forms and HeadHunter notices through the desktop owner. Linux native Electron delivers both actions after renderer destruction. macOS and Windows native verification, Focus recovery, and authenticated provider acceptance remain required. QA24 and HH01 stay unchecked.
 
+[Desktop alert fallback](desktop-owner-attention.md#when-the-system-cannot-display-the-alert) recovers a rejected or unavailable OS alert with the same exact browser action and reminder. Real Linux Electron and an isolated D-Bus server verify the parent failure, recovery and successful OS delivery control. Silent Focus suppression, frontmost browser handling and authenticated parity remain open.
+
 QA19/QA20 also include [Stop during sender preparation](dispatch-stop.md):
 forty-five actual-parent failures and 383 focused passes cover separate dispatch
 ownership, native queues and real autopilot drainage while preserving issued

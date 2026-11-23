@@ -102,6 +102,34 @@ test('non-macOS last-window closure uses the same draining Quit path', async () 
   lifecycle.dispose();
 });
 
+test(
+  'activation opens the main window even when an attention prompt already exists',
+  { timeout: 5000 },
+  async () => {
+    const f = fixture();
+    let main;
+    let promptShown = false;
+    const prompt = {
+      show: () => {
+        promptShown = true;
+      },
+    };
+    const lifecycle = await attachDesktopLifecycle({
+      ...f,
+      BrowserWindow: { getAllWindows: () => [prompt] },
+      getWindow: () => main,
+      createWindow: async () => {
+        main = await f.createWindow();
+        return main;
+      },
+    });
+    assert.equal(await lifecycle.show(), main);
+    assert.equal(f.calls.creates, 1);
+    assert.equal(promptShown, false);
+    lifecycle.dispose();
+  }
+);
+
 test('failed drain reports an error and never claims the runtime has stopped', async () => {
   const drain = deferred();
   const f = fixture({ drain });

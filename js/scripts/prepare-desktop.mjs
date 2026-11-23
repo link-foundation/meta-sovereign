@@ -57,10 +57,12 @@ export const DESKTOP_SOURCE_DIRS = Object.freeze([
   'vendor/picomatch',
 ]);
 
-// Built web assets the SPA needs at runtime.
+// Entry points and assets the staged application needs at runtime.
 export const DESKTOP_REQUIRED_FILES = Object.freeze([
   'js/electron/main.js',
   'js/electron/preload.cjs',
+  'js/electron/attention-prompt.cjs',
+  'js/electron/attention-prompt.html',
   'js/src/server/index.js',
   'js/src/web/index.html',
   'js/src/web/app.min.js',

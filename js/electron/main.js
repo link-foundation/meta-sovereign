@@ -17,6 +17,7 @@ import { attachDesktopLifecycle } from './lifecycle.js';
 import { openVkAuthorization } from './vk-authorization.js';
 import { desktopConfiguration } from './configuration.js';
 import { DesktopOwnerAttention } from './owner-attention.js';
+import { createAttentionPrompt } from './attention-prompt.js';
 
 import { createMainWindow } from './window.js';
 export { createMainWindow, MIN_WINDOW } from './window.js';
@@ -171,6 +172,7 @@ export const startDesktop = async ({
   const attention = new DesktopOwnerAttention({
     Notification,
     beep: typeof shell?.beep === 'function' ? () => shell.beep() : undefined,
+    prompt: createAttentionPrompt({ BrowserWindow, nativeTheme }),
     owner: handle.ownerAttention,
     showWindow: () => lifecycle?.show(),
   });
@@ -187,6 +189,7 @@ export const startDesktop = async ({
       app,
       BrowserWindow,
       handle: { close },
+      getWindow: () => mainWindow,
       createWindow: async () => {
         mainWindow = await createMainWindow({
           app,

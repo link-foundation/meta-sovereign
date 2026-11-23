@@ -5,12 +5,14 @@ import json
 import sys
 
 from dbus_next.aio import MessageBus
+from dbus_next.errors import DBusError
 from dbus_next.service import ServiceInterface, method, signal
 
 
 class Notifications(ServiceInterface):
-    def __init__(self):
+    def __init__(self, reject):
         super().__init__('org.freedesktop.Notifications')
+        self.reject = reject
         self.notices = []
         self.closed = []
 
@@ -26,6 +28,8 @@ class Notifications(ServiceInterface):
     def Notify(self, _app: 's', _replaces: 'u', _icon: 's', title: 's', body: 's',
                actions: 'as', _hints: 'a{sv}', expires: 'i') -> 'u':
         self.notices.append({'title': title, 'body': body, 'actions': actions, 'expires': expires})
+        if self.reject:
+            raise DBusError('org.freedesktop.Notifications.Error.Failed', 'Fixture rejects delivery')
         notice_id = len(self.notices)
         action = '0' if notice_id == 1 else '1'
         asyncio.get_running_loop().call_later(0.1, self.ActionInvoked, notice_id, action)
@@ -41,7 +45,10 @@ class Notifications(ServiceInterface):
 
 
 async def main(command):
-    interface = Notifications()
+    reject = command[0] == '--reject'
+    interface = Notifications(reject)
+    if reject:
+        command = command[1:]
     bus = await MessageBus().connect()
     bus.export('/org/freedesktop/Notifications', interface)
     await bus.request_name(interface.name)
@@ -56,7 +63,7 @@ async def main(command):
             assert notice['actions'][2:] == ['0', 'Show browser', '1', 'Later']
             assert notice['expires'] == 0
             assert 'fixture-private' not in json.dumps(notice)
-        assert interface.closed == [1, 2]
+        assert interface.closed == ([] if reject else [1, 2])
         return 0
     finally:
         bus.disconnect()

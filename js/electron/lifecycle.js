@@ -4,6 +4,7 @@ export const attachDesktopLifecycle = async ({
   BrowserWindow,
   createWindow,
   handle,
+  getWindow = () => BrowserWindow.getAllWindows()[0],
   platform = process.platform,
   report = (error) => console.error('[electron] lifecycle failed', error),
 }) => {
@@ -35,8 +36,8 @@ export const attachDesktopLifecycle = async ({
     if (opening) {
       return opening;
     }
-    const existing = BrowserWindow.getAllWindows()[0];
-    if (existing) {
+    const existing = getWindow();
+    if (existing && !existing.isDestroyed?.()) {
       existing.show();
       existing.focus?.();
       return Promise.resolve(existing);

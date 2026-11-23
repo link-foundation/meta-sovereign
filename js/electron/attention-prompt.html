@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; style-src 'unsafe-inline'; frame-src 'none'; form-action 'none'; base-uri 'none'"
+    />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #fff;
+        color: #17202c;
+        font:
+          15px/1.45 system-ui,
+          sans-serif;
+      }
+      main {
+        display: grid;
+        align-content: center;
+        min-height: 100vh;
+        gap: 18px;
+        padding: 20px 24px;
+      }
+      p {
+        margin: 0;
+        overflow-wrap: anywhere;
+      }
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      button {
+        appearance: none;
+        padding: 7px 13px;
+        border: 1px solid #ced7e2;
+        border-radius: 9px;
+        background: #e8edf2;
+        color: inherit;
+        font: inherit;
+        cursor: pointer;
+      }
+      button:focus-visible {
+        outline: 2px solid #16723d;
+        outline-offset: 2px;
+      }
+      button:hover {
+        background: #dbe4ec;
+      }
+      @media (prefers-color-scheme: dark) {
+        body {
+          background: #171e28;
+          color: #eef2f7;
+        }
+        button {
+          border-color: #445165;
+          background: #252f3e;
+        }
+        button:focus-visible {
+          outline-color: #70d39a;
+        }
+        button:hover {
+          background: #364356;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main aria-labelledby="message">
+      <p id="message"></p>
+      <div class="actions">
+        <button id="show" type="button" hidden></button>
+        <button id="later" type="button" hidden></button>
+      </div>
+    </main>
+  </body>
+</html>
