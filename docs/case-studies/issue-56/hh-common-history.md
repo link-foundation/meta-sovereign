@@ -315,3 +315,22 @@ read back the saved manual reply without an API token.
 ![HeadHunter browser import after verifying the conversation start](../../screenshots/issue-56-hh-browser-import-history-after.png)
 
 ![HeadHunter browser import with saved messages and an unverified starting point](../../screenshots/issue-56-hh-browser-import-history-partial.png)
+
+## Refusing multiple visible panes
+
+Open `/chat/7?second-chat` in the isolated HeadHunter import fixture. The
+top-level page shows conversation 7, and its visible embedded pane shows
+conversation 8. At `6efbdadc` the top-level route silently limited capture to
+conversation 7 and the endpoint returned HTTP 200. The import now checks
+every visible native pane before choosing a conversation and returns HTTP
+409 when more than one qualifies. The top-level ID must still agree with
+the sole selected pane. An iframe hidden by the page does not block capture
+of its visible conversation.
+
+This is covered by `verifyMixedPanes` in the registered Chromium inbox
+scenario. The underlying capture check serves both capture modes and both
+Lino encodings.
+
+![Prior capture response after opening two visible conversations](../../screenshots/issue-56-hh-browser-import-mixed-before.png)
+
+![The import now requests one visible conversation](../../screenshots/issue-56-hh-browser-import-mixed-after.png)

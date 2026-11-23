@@ -21,9 +21,12 @@ export const hhBrowserImportHtml = (url) => {
     });
   }
   if (url.pathname === '/chat/7' || url.pathname === '/chat/8') {
+    const extra = url.searchParams.has('second-chat')
+      ? `<iframe ${url.searchParams.has('hidden') ? 'hidden' : ''} src="https://chatik.hh.ru/chat/8"></iframe>`
+      : '';
     return hhChoiceHtml.replace(
       '<main id="history">',
-      `<aside data-qa="chatik-open-chat-${url.pathname.at(-1)}"><span data-qa="chat-cell-title">Example employer</span><span data-qa="chat-unread-count">2</span></aside><main id="history">`
+      `<aside data-qa="chatik-open-chat-${url.pathname.at(-1)}"><span data-qa="chat-cell-title">Example employer</span><span data-qa="chat-unread-count">2</span></aside>${extra}<main id="history">`
     );
   }
   if (url.pathname === '/chat' && url.searchParams.has('embedded')) {

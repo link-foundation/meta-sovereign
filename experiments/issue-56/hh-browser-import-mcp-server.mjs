@@ -45,6 +45,16 @@ try {
           : 'https://hh.ru/chat/7?history-import'
       );
       console.log('Opened the isolated virtualized history');
+    } else if (command === 'mixed' || command === 'hidden') {
+      const query = command === 'hidden' ? 'second-chat&hidden' : 'second-chat';
+      await session.page.goto(`https://hh.ru/chat/7?${query}`);
+      if (command === 'mixed') {
+        await session.page
+          .frameLocator('iframe')
+          .getByText('Recruiter bot')
+          .waitFor();
+      }
+      console.log(`Opened the isolated conversation with a ${command} frame`);
     } else if (command === 'status') {
       console.log(
         JSON.stringify({

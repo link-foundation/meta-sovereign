@@ -81,6 +81,9 @@ const listIdentitySelector = (ui) =>
     .filter(Boolean)
     .join(', ');
 
+const conflictingChat = (ownerChat, chat) =>
+  ownerChat && chat !== undefined && ownerChat !== chat;
+
 const candidateAt = async (frame, main, ui, { list, requested, selector }) => {
   const chat = list ? undefined : chatAt(frame, ui);
   const matching = list
@@ -106,11 +109,11 @@ export const chooseBrowserChatDocument = async (
   }
   const main = page.mainFrame();
   const ownerChat = chatAt(main, ui);
-  const requested = target === undefined ? ownerChat : String(target);
+  const requested = target === undefined ? undefined : String(target);
   if (
     list
       ? !new RegExp(ui.chatScan.pathPattern).test(new URL(page.url()).pathname)
-      : ownerChat && ownerChat !== requested
+      : conflictingChat(ownerChat, requested)
   ) {
     throw failure();
   }
@@ -130,11 +133,15 @@ export const chooseBrowserChatDocument = async (
       candidates.push(candidate);
     }
   }
-  if (candidates.length !== 1) {
+  const [selected] = candidates;
+  if (
+    candidates.length !== 1 ||
+    (!list && conflictingChat(ownerChat, selected.chat))
+  ) {
     throw failure();
   }
   const owner = await main.evaluate(browserDocumentIdentity, selector);
-  return { ...candidates[0], owner: owner.key, url: page.url() };
+  return { ...selected, owner: owner.key, url: page.url() };
 };
 
 /** Commander has no frame target; use the connected Playwright frame narrowly. */

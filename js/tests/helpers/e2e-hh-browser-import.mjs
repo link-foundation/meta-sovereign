@@ -84,6 +84,32 @@ const verifyHistoryCapture = async ({ page, panel, provider, store }) => {
   await screenshot(page, 'history-partial');
 };
 
+const captureStatus = async (page, button) => {
+  const [response] = await Promise.all([
+    page.waitForResponse((res) => res.url().endsWith('/capture')),
+    button.click(),
+  ]);
+  return response.status();
+};
+
+const verifyMixedPanes = async ({ page, panel, provider, capture }) => {
+  await provider.goto('https://hh.ru/chat/7?second-chat');
+  await provider.frameLocator('iframe').getByText('Recruiter bot').waitFor();
+  const status = await captureStatus(page, capture);
+  if (process.env.HH_BROWSER_IMPORT_MIXED_BEFORE === '1') {
+    await panel.getByText('Messages imported: 1').waitFor();
+    await screenshot(page, 'mixed-before');
+  }
+  assert.equal(status, 409, 'capture refuses two visible conversations');
+  await panel
+    .getByRole('alert')
+    .filter({ hasText: 'Open one HeadHunter conversation' })
+    .waitFor();
+  await screenshot(page, 'mixed-after');
+  await provider.goto('https://hh.ru/chat/7?second-chat&hidden');
+  assert.equal(await captureStatus(page, capture), 200);
+};
+
 export const verifyHhBrowserImport = async ({ page, base, native, store }) => {
   assert.equal(await store.get('secret:hh:access-token'), null);
   await page.goto(`${base}/#conn-hh`);
@@ -127,12 +153,10 @@ export const verifyHhBrowserImport = async ({ page, base, native, store }) => {
 
   await provider.goto('https://hh.ru/chat?embedded');
   await provider.frameLocator('iframe').getByText('Recruiter bot').waitFor();
-  const captured = page.waitForResponse((response) =>
-    response.url().endsWith('/capture')
-  );
-  await capture.click();
-  assert.equal((await captured).status(), 200);
+  assert.equal(await captureStatus(page, capture), 200);
   await panel.getByText('Messages imported: 1').waitFor();
+
+  await verifyMixedPanes({ page, panel, provider, capture });
 
   await verifyHistoryCapture({ page, panel, provider, store });
 
