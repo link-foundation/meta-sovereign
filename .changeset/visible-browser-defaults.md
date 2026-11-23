@@ -26,6 +26,8 @@ Import HeadHunter recorder archives through CLI, Lino and Connections. Chat keep
 
 Restore manual Messenger and Telegram archive import in Connections under the existing browser content security policy. Imported conversations remain accessible from browser storage when the server API is unavailable (issue #56, QA02 and QA06).
 
+Keep added questions, bookings and other requests in review when an approved question template contains wildcards. The shared matcher inspects the original clause punctuation and preserves ordinary variations (issue #56, QA04).
+
 Restore the verified GitHub repository and issue together when reopening the same Forms assignment. Both Lino formats and CLI plans expose the same receipt, and the assignment still requires owner review before submission (issue #56, QA24).
 
 Open saved HeadHunter web conversations in Chat with a receipt-checked native send. Retain pending messages when delivery is uncertain, and use provider unread counts and filters in Chat and Operator (issue #56, HH09).

@@ -1,3 +1,10 @@
+### 2026-11-23 Added requests inside an approved template (QA04)
+
+- [x] Reproduce the matcher granting template approval when a wildcard absorbs an added request. Preserve four failing parent assertions and the published-browser review.
+- [x] Keep the original clause punctuation inside wildcard spans. Share the existing question recognizer and cover conventional invitation, call, assignment and form wording in the four supported locales.
+- [x] Verify ordinary wording and added-request refusal through shared provider plans, both Lino encodings, production Chromium and mobile Playwright MCP. [Template request case](question-template-requests.md).
+- [ ] Verify exact hosted workflows and the remaining provider contexts for QA04.
+
 ### 2026-11-23 Manual archive imports across providers (QA02 and QA06)
 
 - [x] Reproduce the shared Connections policy error with a Messenger snippet on the published bundle. Preserve the existing streamed ZIP check.

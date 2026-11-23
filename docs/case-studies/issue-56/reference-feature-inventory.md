@@ -24,6 +24,8 @@ Partial QA02 and QA06 include [edited answer history](question-archive-revisions
 
 [Manual archive import](manual-archive-import.md) restores shared browser parsing under the production content security policy. Messenger paste, Telegram file import and subsequent offline Chat access are verified with synthetic archives for QA02 and QA06.
 
+[Added requests in templates](question-template-requests.md) guards wildcard expansions against extra clauses, calls, invitations, assignments and forms. Localized regression fixtures retain ordinary approved variations and verify zero drafts for the extra request across shared provider plans. QA04 remains open.
+
 QA19/QA20 also include [Stop during sender preparation](dispatch-stop.md):
 forty-five actual-parent failures and 383 focused passes cover separate dispatch
 ownership, native queues and real autopilot drainage while preserving issued

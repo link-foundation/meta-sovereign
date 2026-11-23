@@ -8,6 +8,10 @@ import { splitQuestionBlocks } from './question-lists.js';
 import { sameQuestionSubjects } from './question-subjects.js';
 import { textLinks } from '../message-links.js';
 import { weightedQuestionSimilarity } from './question-weighted.js';
+import {
+  questionAction,
+  questionInvitation,
+} from './question-action-intent.js';
 
 export { MAX_QUESTION_LENGTH } from '../crm/question-recognition.js';
 const MAX_WORDS = 256;
@@ -18,40 +22,50 @@ const fold = (text, { caseSensitive = false } = {}) => {
     .replace(/Ё/g, 'Е');
   return caseSensitive ? value : value.toLowerCase();
 };
+const WORD =
+  /[$€£₽₹¥]|\.?[\p{L}\p{N}][\p{L}\p{M}\p{N}\u200c\u200d]*(?:[+#]{1,2}|(?:[./:@_-][\p{L}\p{N}][\p{L}\p{M}\p{N}\u200c\u200d]*)+)?/gu;
 export const questionWords = (text, options) =>
-  fold(text, options).match(
-    /[$€£₽₹¥]|\.?[\p{L}\p{N}][\p{L}\p{M}\p{N}\u200c\u200d]*(?:[+#]{1,2}|(?:[./:@_-][\p{L}\p{N}][\p{L}\p{M}\p{N}\u200c\u200d]*)+)?/gu
-  ) ?? [];
+  fold(text, options).match(WORD) ?? [];
 export const questionKey = (text, options) =>
   questionWords(text, options).join(' ');
 export const asksQuestion = isQuestion;
 
 const extraIntent = (text) =>
   asksQuestion(text) ||
-  /[?？]|https?:|www\.|(?:^|\s)(?:когда|почему|сколько|какая|какие|пришлите|укажите|созвон|встреч|анкет|задани|приглаш|when|why|which|send|call|interview|form|assignment|invite)[\p{L}]*/iu.test(
+  questionAction.test(text) ||
+  questionInvitation.test(text) ||
+  /(?<!\p{L})(?:когда|почему|сколько|какая|какие|укажите|созвон\p{L}*|встреч\p{L}*|when|why|which)(?!\p{L})/iu.test(
     text
   );
 
-const advancePattern = (states, token, input, maxGap) => {
+const advancePattern = (states, token, { words, text, tail }, maxGap) => {
   const next = new Map();
   for (const [position, skipped] of states) {
     if (token === '…') {
       for (
         let size = 0;
-        size <= maxGap - skipped && position + size <= input.length;
+        size <= maxGap - skipped && position + size <= words.length;
         size++
       ) {
-        if (extraIntent(input.slice(position, position + size).join(' '))) {
+        const end = position + size;
+        // Keep punctuation between words so a skipped clause cannot look like
+        // a continuation of the approved question. Leave terminal punctuation
+        // to the whole-template check when a wildcard ends the message.
+        if (
+          size > 0 &&
+          extraIntent(
+            text.slice(words[position].index, words[end]?.index ?? tail)
+          )
+        ) {
           break;
         }
-        const end = position + size;
         next.set(end, Math.min(next.get(end) ?? Infinity, skipped + size));
       }
     } else if (
-      position < input.length &&
+      position < words.length &&
       (token.endsWith('*')
-        ? input[position].startsWith(token.slice(0, -1))
-        : input[position] === token)
+        ? words[position][0].startsWith(token.slice(0, -1))
+        : words[position][0] === token)
     ) {
       next.set(
         position + 1,
@@ -85,16 +99,11 @@ const invalidTemplateExpansion = (pattern, text, options) =>
     (pattern.match(/[?？]/gu)?.length ?? 0) ||
   !(options?.templateSubjects ?? sameQuestionSubjects)(pattern, text);
 
-export const matchQuestion = (pattern, text, options) => {
-  if (invalidInputs(pattern, text)) {
+const matchTemplate = (pattern, text, options) => {
+  const folded = fold(text, options);
+  const words = [...folded.matchAll(WORD)];
+  if (!words.length || words.length > MAX_WORDS) {
     return null;
-  }
-  const input = questionWords(text, options);
-  if (!input.length || input.length > MAX_WORDS) {
-    return null;
-  }
-  if (!/…|\*|\.\.\./u.test(pattern)) {
-    return questionKey(pattern, options) === input.join(' ') ? 'exact' : null;
   }
   const tokens =
     fold(pattern, options)
@@ -111,6 +120,8 @@ export const matchQuestion = (pattern, text, options) => {
     return null;
   }
   const maxGap = Math.min(40, fixed * 3);
+  const last = words.at(-1);
+  const input = { words, text: folded, tail: last.index + last[0].length };
   // Keep one cheapest path per input position: O(pattern * words * maxGap).
   let states = new Map([[0, 0]]);
   for (const token of tokens) {
@@ -123,7 +134,22 @@ export const matchQuestion = (pattern, text, options) => {
   if (/https?:|www\./iu.test(text) && !/https?:|www\./iu.test(pattern)) {
     return null;
   }
-  return states.has(input.length) ? 'template' : null;
+  return states.has(words.length) ? 'template' : null;
+};
+
+export const matchQuestion = (pattern, text, options) => {
+  if (invalidInputs(pattern, text)) {
+    return null;
+  }
+  if (/…|\*|\.\.\./u.test(pattern)) {
+    return matchTemplate(pattern, text, options);
+  }
+  const words = questionWords(text, options);
+  return words.length &&
+    words.length <= MAX_WORDS &&
+    questionKey(pattern, options) === words.join(' ')
+    ? 'exact'
+    : null;
 };
 
 const invalidWeightedInputs = (left, right, options) =>

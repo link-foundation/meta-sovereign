@@ -6,6 +6,7 @@ import { assertViewportFits } from './e2e-viewport.mjs';
 import {
   templateExample as example,
   templateLinkExample,
+  templateRequestExample,
   mountTemplateQuestion,
 } from '../../../experiments/issue-56/question-template-fixture.mjs';
 
@@ -116,13 +117,14 @@ export const verifyQuestionTemplates = async (browser, options = {}) => {
   }
 };
 
-/** A second link never inherits approval from the template's existing URL. */
-export const verifyTemplateLinkGuards = async (
+const verifyTemplateGuard = async (
   browser,
+  example,
+  kind,
   { screenshots, before = false } = {}
 ) => {
   const ui = await questionBrowserUi(browser, {
-    group: 'question-template-links',
+    group: `question-template-${kind}s`,
     screenshots,
   });
   const { fixture, page } = ui;
@@ -130,50 +132,45 @@ export const verifyTemplateLinkGuards = async (
     await fixture.store.delete('qa-rule:experience');
     await fixture.reset({ freeText: true });
     await fixture.send.readAnswerChoices({ source: 'hh', chat: '7' });
-    await fixture.page.evaluate(
-      mountTemplateQuestion,
-      templateLinkExample.question
-    );
+    await fixture.page.evaluate(mountTemplateQuestion, example.question);
     await ui.open();
-    await saveQuestionTemplate(ui, templateLinkExample);
+    await saveQuestionTemplate(ui, example);
     await ui.run(
-      'an additional native question link requires fresh review',
+      `an additional native question ${kind} requires fresh review`,
       async () => {
         const pending = page.waitForResponse((response) =>
           response.url().endsWith('/api/automations/answers/browser/inspect')
         );
         await ui.inspect();
         const review = await decoded(await pending);
-        assert.equal(review.plan.question, templateLinkExample.question);
+        assert.equal(review.plan.question, example.question);
         assert.equal(review.plan.requiresReview, !before);
-        if (before) {
-          assert.equal(review.plan.match, 'template');
-        } else {
-          assert.notEqual(review.plan.match, 'template');
-          assert.notEqual(review.plan.match, 'exact');
-        }
+        const protectedMatch = kind === 'link' ? 'approximate' : 'unanswered';
+        assert.equal(review.plan.match, before ? 'template' : protectedMatch);
         assert.deepEqual(await fixture.stats(), {
           clicks: 0,
           textSends: 0,
           draft: '',
         });
-        const matchLabel = ui.controls.getByText(
-          before ? 'Pattern match' : 'Approximate match',
-          { exact: true }
-        );
+        const label = {
+          template: 'Pattern match',
+          approximate: 'Approximate match',
+          unanswered: 'No matching answer',
+        }[review.plan.match];
+        const matchLabel = ui.controls.getByText(label, { exact: true });
         await matchLabel.scrollIntoViewIfNeeded();
-        await ui.shot(before ? 'link-guard-before' : 'link-guard-after');
+        const phase = before ? 'before' : 'after';
+        await ui.shot(`${kind}-guard-${phase}`);
         await page.setViewportSize({ width: 390, height: 844 });
         await matchLabel.scrollIntoViewIfNeeded();
         await assertViewportFits(page);
-        await ui.shot(
-          before ? 'link-guard-before-phone' : 'link-guard-after-phone'
-        );
+        await ui.shot(`${kind}-guard-${phase}-phone`);
       }
     );
     return {
       ...ui.result(),
-      newLinkRequiresReview: !before,
+      [kind === 'link' ? 'newLinkRequiresReview' : 'newRequestRequiresReview']:
+        !before,
       nativeSends: 0,
       liveProvider: false,
     };
@@ -181,3 +178,9 @@ export const verifyTemplateLinkGuards = async (
     await ui.close();
   }
 };
+
+export const verifyTemplateLinkGuards = (browser, options) =>
+  verifyTemplateGuard(browser, templateLinkExample, 'link', options);
+
+export const verifyTemplateRequestGuards = (browser, options) =>
+  verifyTemplateGuard(browser, templateRequestExample, 'request', options);

@@ -97,6 +97,8 @@ test('four-language notice intents distinguish acknowledgements, declines and ad
     `${rejectionText} Complete this assignment.`,
     `${noticeText} https://example.test`,
     `${noticeText} 请填写表单。`,
+    `${noticeText} 麻烦完成问卷。`,
+    `${noticeText} Заодно пройдите тест.`,
   ]) {
     assert.equal(noticeAddsTask(text), true, text);
   }

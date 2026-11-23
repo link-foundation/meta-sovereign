@@ -13,6 +13,13 @@ export const templateLinkExample = {
   answer: 'Five years.',
 };
 
+export const templateRequestExample = {
+  id: 'experience-request-template',
+  pattern: 'Do you have experience? …',
+  question: 'Do you have experience? Please book a time.',
+  answer: 'Five years.',
+};
+
 export const templateRule = (extra = {}) => ({
   id: templateExample.id,
   question: templateExample.pattern,

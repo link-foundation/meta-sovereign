@@ -3,6 +3,7 @@ import { questionBrowserServer } from './question-browser-server.mjs';
 import {
   templateExample,
   templateLinkExample,
+  templateRequestExample,
   mountTemplateQuestion,
 } from './question-template-fixture.mjs';
 import {
@@ -42,9 +43,11 @@ try {
     await fixture.reset({ freeText: true });
   }
   await fixture.send.readAnswerChoices({ source: 'hh', chat: '7' });
-  const example = process.argv.includes('--link-guard')
-    ? templateLinkExample
-    : templateExample;
+  const example =
+    [
+      ['--link-guard', templateLinkExample],
+      ['--request-guard', templateRequestExample],
+    ].find(([flag]) => process.argv.includes(flag))?.[1] ?? templateExample;
   if (hidden) {
     await fixture.page.evaluate(mountHiddenQuestionLink, hiddenLink.first);
   } else {

@@ -20,6 +20,7 @@ import {
 import {
   templateExample as example,
   templateLinkExample,
+  templateRequestExample,
   templateRule,
 } from '../../experiments/issue-56/question-template-fixture.mjs';
 
@@ -61,6 +62,35 @@ test('suffix and ordered bounded gaps cannot swallow another task or link', () =
   }
 });
 
+test('wildcard spans preserve extra requests and clause boundaries', () => {
+  for (const [pattern, question] of [
+    [templateRequestExample.pattern, templateRequestExample.question],
+    ['Do you … have experience?', 'Do you understand? have experience'],
+    ['Where … live?', 'Where exactly. How old you live?'],
+    ['Есть ли у вас опыт? …', 'Есть ли у вас опыт? Заодно заполните профиль.'],
+    ['Есть ли у вас опыт? …', 'Есть ли у вас опыт? Пожалуйста, пройдите тест.'],
+    ['Есть ли у вас опыт? …', 'Есть ли у вас опыт? И позвоните нам завтра.'],
+    ['क्या आपको अनुभव है? …', 'क्या आपको अनुभव है? साथ ही फ़ॉर्म भरें।'],
+    ['क्या आपको अनुभव है? …', 'क्या आपको अनुभव है? कल एक कॉल करें।'],
+    ['您有相关经验吗？ …', '您有相关经验吗？ 也请预约面试。'],
+    ['您有相关经验吗？ …', '您有相关经验吗？ 麻烦完成问卷。'],
+  ]) {
+    assert.equal(matchQuestion(pattern, question), null, question);
+  }
+});
+
+test('ordinary wording and the saved request retain template approval', () => {
+  for (const [pattern, question] of [
+    ['Do you have … experience?', 'Do you have formal experience?'],
+    ['Do you have … experience?', 'Do you have hands-on experience?'],
+    ['Do you have experience? …', 'Do you have experience? Thanks.'],
+    ['Please book … time', 'Please book some time'],
+    ['Где … живёт*?', 'Где вы сейчас живете?'],
+  ]) {
+    assert.equal(matchQuestion(pattern, question), 'template', question);
+  }
+});
+
 const verifyControlPlan = async (example, match, requiresReview) => {
   const store = createMemoryStore();
   const cli = createAutomationCommands({ openStore: async () => store });
@@ -83,7 +113,7 @@ const verifyControlPlan = async (example, match, requiresReview) => {
   assert.equal((await api.answerRules())[0].question, example.pattern);
   const plan = await api.previewAnswer({ question: example.question });
   assert.equal(plan.match, match);
-  assert.equal(plan.text, example.answer);
+  assert.equal(plan.text, match === 'unanswered' ? '' : example.answer);
   assert.equal(plan.requiresReview, requiresReview);
   assert.equal(
     await run({ _: ['answers', 'plan'], question: example.question }),
@@ -96,9 +126,10 @@ const verifyControlPlan = async (example, match, requiresReview) => {
   assert.equal(cliPlan.requiresReview, requiresReview);
 };
 
-test('CLI and offline controls preserve templates and review new links', async () => {
+test('CLI and offline controls preserve templates and hold added links or requests', async () => {
   await verifyControlPlan(example, 'template', false);
   await verifyControlPlan(templateLinkExample, 'approximate', true);
+  await verifyControlPlan(templateRequestExample, 'unanswered', true);
 });
 
 test(
@@ -124,6 +155,7 @@ test(
         for (const [sample, match, requiresReview] of [
           [example, 'template', false],
           [templateLinkExample, 'approximate', true],
+          [templateRequestExample, 'unanswered', true],
         ]) {
           await call('PUT', '', {
             rule: {
@@ -136,7 +168,7 @@ test(
             question: sample.question,
           });
           assert.equal(plan.match, match);
-          assert.equal(plan.text, sample.answer);
+          assert.equal(plan.text, match === 'unanswered' ? '' : sample.answer);
           assert.equal(plan.requiresReview, requiresReview);
         }
       }

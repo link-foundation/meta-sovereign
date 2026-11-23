@@ -4,7 +4,10 @@ import { matchQuestion } from '../src/automation/question-match.js';
 import { planAnswer } from '../src/automation/question-answers.js';
 import { textLinks, linkOf } from '../src/message-links.js';
 import { planAutomation } from '../src/automation/automations.js';
-import { templateLinkExample as example } from '../../experiments/issue-56/question-template-fixture.mjs';
+import {
+  templateLinkExample as example,
+  templateRequestExample,
+} from '../../experiments/issue-56/question-template-fixture.mjs';
 
 const rule = {
   id: example.id,
@@ -78,41 +81,51 @@ test('unchanged targets and ordinary technical filenames retain matching', () =>
   );
 });
 
-test('all shared provider plans keep changed template links out of automatic reuse', () => {
-  for (const source of ['hh', 'telegram', 'vk', 'email', 'whatsapp']) {
-    const plan = planAutomation(
-      [
-        { ...rule, id: `qa-rule:${rule.id}` },
+for (const [sample, expectedDrafts, name] of [
+  [example, 1, 'changed destinations require review'],
+  [templateRequestExample, 0, 'an added request holds the old answer'],
+]) {
+  test(`shared provider plans: ${name}`, () => {
+    for (const source of [
+      'hh',
+      'telegram',
+      'vk',
+      'email',
+      'facebook',
+      'whatsapp',
+    ]) {
+      const plan = planAutomation(
+        [
+          {
+            id: `qa-rule:${sample.id}`,
+            question: sample.pattern,
+            answers: [{ text: sample.answer, approved: true }],
+          },
+          {
+            id: `msg:${source}:7:1`,
+            source,
+            chat: '7',
+            sender: 'them',
+            body: sample.question,
+            timestamp: new Date().toISOString(),
+          },
+        ],
         {
-          id: `msg:${source}:7:1`,
-          source,
-          chat: '7',
-          sender: 'them',
-          body: example.question,
-          timestamp: new Date().toISOString(),
+          id: sample.id,
+          mode: 'auto',
+          action: { kind: 'answer-questions' },
+          conditions: { mutual: false, cooldownDays: 0 },
         },
-      ],
-      {
-        id: 'template-links',
-        mode: 'auto',
-        action: { kind: 'answer-questions' },
-        conditions: { mutual: false, cooldownDays: 0 },
-      },
-      { self: ['me'], targets: [{ source, chat: '7' }] }
-    );
-    assert.equal(plan.drafts.length, 1, source);
-    assert.equal(
-      plan.drafts.every((draft) => draft.answer.requiresReview),
-      true,
-      source
-    );
-    assert.equal(
-      plan.drafts.every((draft) => draft.answer.match !== 'template'),
-      true,
-      source
-    );
-  }
-});
+        { self: ['me'], targets: [{ source, chat: '7' }] }
+      );
+      assert.equal(plan.drafts.length, expectedDrafts, source);
+      for (const draft of plan.drafts) {
+        assert.equal(draft.answer.requiresReview, true, source);
+        assert.notEqual(draft.answer.match, 'template', source);
+      }
+    }
+  });
+}
 
 test('shared link scanning retains every target while HTTP previews skip action schemes', () => {
   const input =
