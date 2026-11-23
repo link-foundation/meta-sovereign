@@ -8,4 +8,10 @@ The desktop controller now imports translation and locale metadata directly. The
 
 ## Reproduction and verification
 
-Use the [packaging regression](../../../js/tests/desktop-runtime-packaging.test.js) with the two source files from `72d5a02c` to reproduce the missing React import. The corrected isolated copy loads the notification controller and returns translated browser actions. Node and Deno each pass 44 focused packaging, native attention and browser translation checks. The production web bundle builds successfully. The installed Windows launch and screenshot require the hosted runners. [Evidence archive](data/desktop-attention-packaging.tar.gz) · [Entry hashes](data/desktop-attention-packaging.tar.sha256.json).
+Use the [packaging regression](../../../js/tests/desktop-runtime-packaging.test.js) with the two source files from `72d5a02c` to reproduce the missing React import. The corrected isolated copy loads the notification controller and returns translated browser actions. Node and Deno each pass 44 focused packaging, native attention and browser translation checks. The production web bundle builds successfully. [Evidence archive](data/desktop-attention-packaging.tar.gz) · [Entry hashes](data/desktop-attention-packaging.tar.sha256.json).
+
+The release workflow for `053663392ae9e0e0ac31885851e89bbe08671207` passed the clean installed-application launch on Windows x64 and arm64. Both jobs reached the local backend, captured the native window and shut down. The runners uploaded their screenshots as artifacts `14810238373` and `14809199349`, respectively. Signed interactive notifications and operating-system Focus behavior still require separate verification. [Windows x64 job](https://github.com/link-foundation/meta-sovereign/actions/runs/45156539879/job/137635093856) · [Windows arm64 job](https://github.com/link-foundation/meta-sovereign/actions/runs/45156539879/job/137635093979).
+
+![Windows x64 installed application on the hosted runner](../../screenshots/issue-56-desktop-packaged-windows-x64.png)
+
+![Windows arm64 installed application on the hosted runner](../../screenshots/issue-56-desktop-packaged-windows-arm64.png)
