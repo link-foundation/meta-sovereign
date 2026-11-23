@@ -286,6 +286,25 @@ test('refused cleanup, missing daemon and optimistic Docker launch cannot author
   }
 });
 
+test('refused Docker preparation leaves the active Screen peer running', async () => {
+  const fixture = dockerFixture({
+    initial: { local: 'running' },
+    container: 'exited',
+    refuseRemove: true,
+  });
+  assert.deepEqual(await control(fixture).act('start', 'server'), {
+    ok: false,
+    code: 'runner-state-unconfirmed',
+    states: { local: 'running', server: 'stopped' },
+  });
+  assert(fixture.screen.calls.every(([, action]) => action === 'probe'));
+  assert.equal(launches(fixture).length, 0);
+  assert.deepEqual(
+    fixture.calls.filter((argv) => argv[2] === 'rm'),
+    [['docker', 'container', 'rm', 'abcdef123456']]
+  );
+});
+
 test('Docker application inspection runs the private health command inside the owned container', async () => {
   const target = targets().server;
   const calls = [];

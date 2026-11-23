@@ -1,3 +1,9 @@
+### 2026-11-23 Docker cleanup refusal during a runner switch (VD01 and VD02)
+
+- [x] Reproduce a working local Screen session stopping after the selected SSH host refuses to remove an exited container.
+- [x] Require positively observed target preparation before stopping the active peer. Verify 31 focused Node and 31 Deno checks. [Runner switch evidence](runner-docker.md#refused-cleanup-keeps-the-active-screen-session).
+- [ ] Verify the new refusal step in the exact hosted SSH lifecycle and continue automatic application and image preparation for VD01.
+
 ### 2026-11-23 Question marks that move between clauses (QA04)
 
 - [x] Reproduce the old approval in the direct matcher, CLI preview, Lino API and native browser review.

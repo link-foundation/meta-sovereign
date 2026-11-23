@@ -101,9 +101,13 @@ export const createRunnerControl = ({
       return { code: 'runner-runtime-unavailable' };
     }
     const launcher = await prepareLauncher(target, options, runtime);
-    return launcher
-      ? { launcher, runtime }
-      : { code: 'runner-launcher-unavailable' };
+    if (!launcher) {
+      return { code: 'runner-launcher-unavailable' };
+    }
+    if (!(await prepareRunner(target, run, options))) {
+      return { code: 'runner-state-unconfirmed' };
+    }
+    return { launcher, runtime };
   };
   const start = async (mode, current, options) => {
     if (!['running', 'stopped'].includes(current[mode]) || cancelled(options)) {
@@ -152,7 +156,7 @@ export const createRunnerControl = ({
     if (prepared.code) {
       return refused(prepared.code, await states(options));
     }
-    if (!(await prepareRunner(target, run, options))) {
+    if (cancelled(options)) {
       return refused('runner-state-unconfirmed', await states(options));
     }
     const reply = await run(

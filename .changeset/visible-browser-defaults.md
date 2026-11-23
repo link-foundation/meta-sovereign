@@ -1226,3 +1226,6 @@ launcher reuse without npm or network downloads (issue #56).
 Read inline Markdown assignment links as literal text, preserving the reviewed
 redirect evidence without loading the Markdown's links or images. Report
 specific Forms document refusals and keep the entered URL (issue #56).
+
+Keep an active Screen runner running when the selected Docker host refuses to
+release its previously exited, owned container (issue #56).

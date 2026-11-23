@@ -52,6 +52,7 @@ const targets = validateRunnerProfile({
 const target = targets.server;
 const calls = [];
 const preparations = [];
+let refuseCleanup = false;
 const isolatedEnvironment = [
   'env',
   `HOME=${home}`,
@@ -65,7 +66,11 @@ const prepareLauncher = createRunnerLauncherPreparation({
 });
 const run = async (selected, argv, options) => {
   calls.push(argv);
-  const result = await runRunnerCommand(selected, argv, options);
+  const command =
+    refuseCleanup && argv[0] === 'docker' && argv[2] === 'rm'
+      ? argv.slice(0, 3)
+      : argv;
+  const result = await runRunnerCommand(selected, command, options);
   if (result.code !== 0 && !['screen'].includes(argv[0])) {
     console.log(
       JSON.stringify({ command: argv[0], operation: argv[2], ...result })
@@ -107,6 +112,18 @@ try {
   assert.equal((await control.act('stop', 'server')).states.server, 'stopped');
   assert.equal((await control.act('start', 'local')).ok, true);
   await poll(() => inspectRunnerApplication(targets.local, run), 'ready');
+  if (docker) {
+    refuseCleanup = true;
+    assert.deepEqual(await control.act('start', 'server'), {
+      ok: false,
+      code: 'runner-state-unconfirmed',
+      states: { local: 'running', server: 'stopped' },
+    });
+    assert.equal(launches().length, 2);
+    assert.equal(await inspectRunnerApplication(targets.local, run), 'ready');
+    console.log(JSON.stringify({ cleanupRefusalRetainsReadyPeer: true }));
+    refuseCleanup = false;
+  }
   assert.equal((await control.act('start', 'server')).ok, true);
   assert.equal((await control.status()).states.local, 'stopped');
   await poll(() => inspectRunnerApplication(target, run), 'ready');
@@ -114,12 +131,12 @@ try {
     await readFile(join(store, 'owner-marker'), 'utf8'),
     'retained private data\n'
   );
-  assert.equal(calls.filter((argv) => argv[2] === 'rm').length, Number(docker));
+  assert.equal(calls.filter((argv) => argv[2] === 'rm').length, docker ? 2 : 0);
   assert.equal((await control.act('start', 'local')).ok, true);
   assert.equal((await control.status()).states.server, 'stopped');
   assert.equal((await control.act('stop', 'local')).ok, true);
   assert.equal((await control.act('stop', 'server')).states.server, 'stopped');
-  assert.equal(preparations.length, 4);
+  assert.equal(preparations.length, docker ? 5 : 4);
   assert.ok(
     preparations.every((prefix) => prefix.join() === preparations[0].join())
   );

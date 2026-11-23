@@ -52,3 +52,25 @@ VD02 remains unfinished until the full mapped contract and hosted proof pass.
 The inventory remains 86 verified / 32 unfinished; PR57 stays draft and unmerged.
 
 ![Saved Docker profile](../../screenshots/issue-56-runner-docker/issue-56-runner-profile-after.png)
+
+## Refused cleanup keeps the active Screen session
+
+With a local Screen runner active and an exited container on the selected SSH
+host, Start server used to stop Screen before asking Docker to release its
+container name. A failed removal left both modes stopped. On `064e2abb`, the
+focused controller regression fails with `local: 'stopped'` instead of
+`local: 'running'`.
+
+The controller now prepares the selected backend before stopping its peer. A
+failed removal returns the observed local and server states without sending a
+Screen Stop or starting another container. It still removes only the observed
+owned, exited container by ID and requires a free-name readback before proceeding.
+
+The Docker, Screen drain, exclusion and controller suites pass 31 checks on
+Node and 31 on Deno. [Source and focused logs](data/runner-docker-preparation.tar.gz)
+and their [checksums](data/runner-docker-preparation.tar.sha256.json) preserve
+the failing parent and passing regression. The hosted SSH fixture asks the Docker CLI to refuse
+cleanup before a successful retry and checks that the existing local application
+stays ready. [Observed SSH lifecycle](desktop-runner-criteria-audit.md) covers
+the earlier VD02 execution proof. The newly added hosted refusal check and VD01
+automatic image and application preparation still require verification.
