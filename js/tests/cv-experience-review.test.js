@@ -5,6 +5,7 @@ import { PassThrough } from 'node:stream';
 import { setTimeout as delay } from 'node:timers/promises';
 import { foregroundExperienceReview } from '../src/cli/cv-experience-review-command.js';
 import { LINO_BINARY, LINO_TEXT } from '../src/transport/lino.js';
+import { createExperienceReviewNative } from '../src/cv/experience-review-native.js';
 import { createExperienceReviewService } from '../src/cv/experience-review-service.js';
 import {
   newExperienceReview,
@@ -14,9 +15,11 @@ import {
 import { createExperienceAutoService } from '../src/cv/experience-auto-service.js';
 import { experienceAutoOptions } from '../src/cv/experience-auto-record.js';
 import { createHhExperienceAcquisition } from '../src/cv/experience-hh-acquisition.js';
+import { hhAcquisitionOptions } from '../src/cv/experience-hh-acquisition-options.js';
 import { createExperiencePlanningService } from '../src/cv/experience-plan-service.js';
 import { newExperiencePlan } from '../src/cv/experience-plan-record.js';
 import { createLinkedinExperienceService } from '../src/cv/linkedin-experience-service.js';
+import { linkedinExportOptions } from '../src/cv/linkedin-experience-record.js';
 import { saveExperienceDocument } from '../src/cv/experience-store.js';
 import {
   experienceReviewFixture,
@@ -52,6 +55,29 @@ const requestFor = (row, decision) => ({
   decision,
 });
 const wait = (signal) => delay(15, null, { signal });
+const afterAboutSave = (row, auto, plan) => ({
+  ...row,
+  auto,
+  comparison: {
+    requestId: plan.requestId,
+    fingerprint: plan.fingerprint,
+    hh: plan.options.hh,
+    linkedin: plan.options.linkedin,
+    to: plan.options.to,
+  },
+  pending: ['about'],
+  current: {
+    key: 'about',
+    kind: `${plan.options.to}-about`,
+    canSave: false,
+    decision: 'save',
+    input: {
+      requestId: reviewChildId(row, 'native'),
+      planRequestId: plan.requestId,
+      fingerprint: plan.fingerprint,
+    },
+  },
+});
 
 const runNative = (calls) => async (change, signal, update, decision) => {
   calls.push('open');
@@ -81,6 +107,7 @@ test(
     const calls = [];
     let stale = true;
     let reads = 0;
+    const refreshRequests = [];
     const server = await startCvFixtureServer({
       store: fixture.store,
       cv: {
@@ -95,6 +122,10 @@ test(
           assert.equal(resume, fixture.input.hash);
           signal.throwIfAborted();
           reads++;
+          const review = await fixture.store.get(
+            experienceReviewKey('review-0')
+          );
+          refreshRequests.push(review.refreshRequestId);
           const receipt = await saveFreshReviewExport(fixture, resume, {
             ...fixture.cv,
             about: stale ? fixture.cv.about : fixture.source.profile.about,
@@ -148,8 +179,10 @@ test(
         if (index === 0) {
           const blocked = await until(status, phaseIs('interrupted'));
           assert.equal(blocked.lastPhase, 'refreshing');
+          assert.equal(blocked.code, 'cv-experience-review-readback');
           assert.equal(blocked.history.length, 0);
           assert.equal(reads, 1);
+          assert.match(refreshRequests[0], /^cv-review-refresh-/u);
           assert.deepEqual(calls, ['open', 'save']);
           stale = false;
           assert.equal(
@@ -183,6 +216,8 @@ test(
           assert.deepEqual(finished.comparison, first.comparison);
           assert.deepEqual(calls, ['open', 'save', 'open', 'skip']);
           assert.equal(reads, 2);
+          assert.match(refreshRequests[1], /^cv-review-refresh-/u);
+          assert.notEqual(refreshRequests[0], refreshRequests[1]);
         }
         const saved = await fixture.store.get(
           experienceReviewKey(request.requestId)
@@ -388,13 +423,6 @@ test(
         ...hh.document,
         profile: { ...hh.document.profile, about: linkedin.profile.about },
       });
-      const comparison = {
-        requestId: old.requestId,
-        fingerprint: old.fingerprint,
-        hh: hh.revision,
-        linkedin: old.options.linkedin,
-        to: 'hh',
-      };
       await planner.start({
         ...old.options,
         requestId: replanRequestId,
@@ -405,22 +433,8 @@ test(
         phaseIs('completed')
       );
       const checkpoint = {
-        ...row,
+        ...afterAboutSave(row, auto, old),
         phase: 'replanning',
-        auto,
-        comparison,
-        pending: ['about'],
-        current: {
-          key: 'about',
-          kind: 'hh-about',
-          canSave: false,
-          decision: 'save',
-          input: {
-            requestId: reviewChildId(row, 'native'),
-            planRequestId: old.requestId,
-            fingerprint: old.fingerprint,
-          },
-        },
         freshRevision: fresh.revision,
         replanRequestId,
       };
@@ -477,6 +491,142 @@ test(
     }
   }
 );
+
+for (const to of ['hh', 'linkedin']) {
+  test(
+    `CV Save recovery reuses a completed ${to} export before replanning`,
+    { timeout: 10000 },
+    async () => {
+      const fixture = await experienceReviewFixture();
+      const { store } = fixture;
+      const requestId = `recover-${to}-refresh`;
+      const auto = experienceAutoOptions({ ...fixture.input, to, requestId });
+      const row = newExperienceReview(requestId, auto, 'e'.repeat(32));
+      const refreshRequestId = reviewChildId(row, 'refresh', 'f'.repeat(16));
+      const request = { requestId: refreshRequestId };
+      const planner = createExperiencePlanningService({ store });
+      const started = [];
+      const { hh, linkedin } = await seedWorkplaceExperience(fixture);
+      const biography = 'An approved LinkedIn biography.';
+      linkedin.jobs = hh.document.jobs;
+      linkedin.profile.about = biography;
+      const old = await completeWorkplaceExperience(store, hh, linkedin, to);
+      const hhInput = hhAcquisitionOptions({
+        ...auto,
+        ...request,
+        refresh: true,
+      });
+      const linkedinInput = linkedinExportOptions({ ...auto, ...request });
+      const freshAbout = to === 'hh' ? biography : hh.document.profile.about;
+      const hhReader = createHhExperienceAcquisition({
+        store,
+        artifactRoot: fixture.artifactRoot,
+        wait,
+        getVacancies: () => ({
+          'resume-export': async ({ requestId, resume }) => {
+            const receipt = await saveFreshReviewExport(fixture, resume, {
+              ...fixture.cv,
+              about: freshAbout,
+            });
+            return { requestId, state: 'completed', results: [receipt] };
+          },
+        }),
+      });
+      const linkedinReader = createLinkedinExperienceService({
+        store,
+        read: async (input, progress) => ({
+          ...(await fixture.read(input, progress)),
+          document: {
+            ...linkedin,
+            profile: {
+              about: freshAbout,
+              aboutAcquisition: {
+                observed: true,
+                boundary: 'rendered-about-section',
+              },
+            },
+          },
+        }),
+      });
+      const reader = to === 'hh' ? hhReader : linkedinReader;
+      const getReader = () => ({
+        ...reader,
+        start: async (input) => {
+          started.push(input.requestId);
+          return reader.start(input);
+        },
+      });
+      const evidence = `verified-${to}-about-export`;
+      const native = {
+        ...createExperienceReviewNative({}),
+        reviewer: () => ({
+          status: async () => ({
+            phase: 'saved',
+            providerSaved: true,
+            save: {
+              evidence,
+              exports: [{ hash: auto.hash }],
+              source: linkedin.source,
+              about: freshAbout,
+            },
+          }),
+        }),
+      };
+      const service = createExperienceReviewService({
+        store,
+        getPlan: () => planner,
+        getHh: getReader,
+        getLinkedin: getReader,
+        wait,
+        native,
+      });
+      try {
+        await reader.start(to === 'hh' ? hhInput : linkedinInput);
+        const prior = await until(
+          () => reader.status(request),
+          phaseIs('completed')
+        );
+        const revision = to === 'hh' ? prior.result.revision : prior.revision;
+        const checkpoint = {
+          ...afterAboutSave(row, auto, old),
+          phase: 'refreshing',
+          refreshRequestId,
+        };
+        await store.put(checkpoint);
+        await service.resume({ requestId });
+        const completed = await until(
+          () => service.status({ requestId }),
+          phaseIs('completed')
+        );
+        assert.deepEqual(started, []);
+        assert.equal(completed.comparison[to], revision);
+        assert.deepEqual(
+          completed.history.map(({ outcome, revision, evidence }) => [
+            outcome,
+            revision,
+            evidence,
+          ]),
+          [['saved', revision, evidence]]
+        );
+        assert.equal((await store.get(row.id)).refreshRequestId, null);
+        assert.equal(completed.refreshRequestId, undefined);
+        await store.put({
+          ...checkpoint,
+          refreshRequestId: 'unrelated-export',
+        });
+        await assert.rejects(service.resume({ requestId }), {
+          code: 'cv-experience-review-record',
+        });
+      } finally {
+        await service.close();
+        await planner.close();
+        await hhReader.close();
+        await linkedinReader.close();
+        await fixture.close();
+      }
+    }
+  );
+}
 
 test(
   'the queue retains an exact fresh target before opening a second editor and EOF drains it without replay',

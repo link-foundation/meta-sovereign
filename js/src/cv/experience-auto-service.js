@@ -36,7 +36,7 @@ const newRecord = (requestId, options = null) => ({
   code: null,
 });
 
-const sameChild = (row, input) =>
+export const sameExperienceChild = (row, input) =>
   row?.requestId === input.requestId &&
   JSON.stringify(row.options) === JSON.stringify(input);
 
@@ -54,21 +54,21 @@ export const workExperienceChild = async (
   let current;
   try {
     current = await service.start(input);
-    while (sameChild(current, input) && running(current)) {
+    while (sameExperienceChild(current, input) && running(current)) {
       signal.throwIfAborted();
       await progress(current.phase, current);
       await wait(signal);
       const next = await service.status(request);
-      if (!sameChild(next, input)) {
+      if (!sameExperienceChild(next, input)) {
         throw experienceAutoFailure('child-mismatch');
       }
       current = next;
     }
     signal.throwIfAborted();
-    if (!sameChild(current, input) || current.phase !== 'completed') {
+    if (!sameExperienceChild(current, input) || current.phase !== 'completed') {
       throw Object.assign(experienceAutoFailure('child-unavailable'), {
         code:
-          sameChild(current, input) && current.code
+          sameExperienceChild(current, input) && current.code
             ? current.code
             : experienceAutoFailure('child-unavailable').code,
       });
@@ -79,7 +79,7 @@ export const workExperienceChild = async (
     if (!current) {
       current = await service.status(request).catch(() => null);
     }
-    if (sameChild(current, input) && running(current)) {
+    if (sameExperienceChild(current, input) && running(current)) {
       await service.stop(request);
     }
     throw error;

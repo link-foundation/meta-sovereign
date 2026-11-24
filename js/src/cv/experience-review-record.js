@@ -60,6 +60,7 @@ export const newExperienceReview = (
   history: [],
   current: null,
   freshRevision: null,
+  refreshRequestId: null,
   replanRequestId: null,
   waitingLogin: false,
   code: null,
@@ -127,21 +128,22 @@ const validComparisonCheckpoint = (row) =>
       !row.history.length &&
       row.current === null &&
       ['acquiring', 'left', 'failed'].includes(row.phase);
-const validReplanRequest = (row) => {
-  const requestId = row.replanRequestId ?? null;
+const validChildRequest = (row, phase, child, requestId = null) => {
   if (requestId === null) {
     return true;
   }
-  const prefix = reviewChildId(row, 'plan', '');
+  const prefix = reviewChildId(row, child, '');
   return (
-    row.phase === 'replanning' &&
+    row.phase === phase &&
     typeof requestId === 'string' &&
     requestId.startsWith(prefix) &&
     /^[a-f0-9]{16}$/u.test(requestId.slice(prefix.length))
   );
 };
 const validCheckpoints = (row) =>
-  validComparisonCheckpoint(row) && validReplanRequest(row);
+  validComparisonCheckpoint(row) &&
+  validChildRequest(row, 'refreshing', 'refresh', row.refreshRequestId) &&
+  validChildRequest(row, 'replanning', 'plan', row.replanRequestId);
 const validItems = (row) => {
   if (!Array.isArray(row.pending) || !Array.isArray(row.history)) {
     return false;
@@ -184,6 +186,7 @@ export const experienceReviewView = (
     version: _version,
     token: _token,
     auto: _auto,
+    refreshRequestId: _refreshRequestId,
     replanRequestId: _replanRequestId,
     ...row
   },

@@ -20,6 +20,7 @@ import {
 import {
   checkHhSnapshot,
   checkLinkedinSnapshot,
+  sameExperienceChild,
   workExperienceChild,
 } from './experience-auto-service.js';
 import { confirmedExperiencePlan } from './experience-plan-receipt.js';
@@ -195,48 +196,93 @@ const settleNative = (owned, result, save) => {
   });
 };
 
-const readFresh = async (context, row, plan, result, run) => {
-  const target = plan.plan.target;
-  const before = await storedExperienceDocument(context.store, target.revision);
-  const requestId = reviewChildId(
-    row,
-    'refresh',
-    randomBytes(8).toString('hex')
-  );
-  let revision;
-  if (target.platform === 'hh') {
-    const input = hhAcquisitionOptions({
-      ...row.auto,
-      requestId,
-      hash: before.provenance.identity.hash,
-      browserSlot: before.provenance.identity.browserSlot,
-      refresh: true,
-    });
-    revision = await checkHhSnapshot(
-      context.store,
-      await run(context.getHh, input, hhAcquisitionRunning),
-      input
-    );
-  } else {
-    const input = linkedinExportOptions({
-      requestId,
-      url: target.url,
-      language: target.language,
-    });
-    revision = await checkLinkedinSnapshot(
-      context.store,
-      await run(context.getLinkedin, input, linkedinExportRunning),
-      input
-    );
+const postSaveChild = async ({
+  row,
+  child,
+  checkpoint,
+  inputFor,
+  getService,
+  running,
+  run,
+  save,
+}) => {
+  let requestId = row[checkpoint];
+  if (requestId) {
+    const status = await getService()
+      .status({ requestId })
+      .catch(() => null);
+    if (sameExperienceChild(status, inputFor(requestId))) {
+      if (status.phase === 'completed') {
+        return status;
+      }
+      if (['failed', 'stopped', 'interrupted'].includes(status.phase)) {
+        requestId = null;
+      }
+    }
   }
-  await context.native.confirmFresh(
-    row.current,
-    plan,
-    result,
-    before,
-    await storedExperienceDocument(context.store, revision)
-  );
-  return revision;
+  if (!requestId) {
+    requestId = reviewChildId(row, child, randomBytes(8).toString('hex'));
+    await save({ [checkpoint]: requestId });
+  }
+  return run(getService, inputFor(requestId), running);
+};
+
+const readFresh = async (context, row, plan, result, run, save) => {
+  const target = plan.plan.target;
+  const { store } = context;
+  const before = await storedExperienceDocument(store, target.revision);
+  const hh = target.platform === 'hh';
+  const inputFor = (requestId) =>
+    hh
+      ? hhAcquisitionOptions({
+          ...row.auto,
+          requestId,
+          hash: before.provenance.identity.hash,
+          browserSlot: before.provenance.identity.browserSlot,
+          refresh: true,
+        })
+      : linkedinExportOptions({
+          requestId,
+          url: target.url,
+          language: target.language,
+        });
+  const receipt = await postSaveChild({
+    row,
+    child: 'refresh',
+    checkpoint: 'refreshRequestId',
+    inputFor,
+    getService: hh ? context.getHh : context.getLinkedin,
+    running: hh ? hhAcquisitionRunning : linkedinExportRunning,
+    run,
+    save,
+  });
+  const checkSnapshot = hh ? checkHhSnapshot : checkLinkedinSnapshot;
+  try {
+    const revision = await checkSnapshot(
+      store,
+      receipt,
+      inputFor(receipt.requestId)
+    );
+    await context.native.confirmFresh(
+      row.current,
+      plan,
+      result,
+      before,
+      await storedExperienceDocument(store, revision)
+    );
+    return revision;
+  } catch (error) {
+    if (
+      [
+        'cv-experience-review-readback',
+        'cv-experience-auto-hh-snapshot',
+        'cv-experience-auto-linkedin-snapshot',
+      ].includes(error.code)
+    ) {
+      await save({ refreshRequestId: null });
+    }
+    throw error;
+  }
 };
 
 const startComparison = async (context, row, run, signal) => {
@@ -271,38 +317,22 @@ const startComparison = async (context, row, run, signal) => {
 };
 
 const replan = async (context, row, plan, run, save) => {
-  const inputFor = (requestId) =>
-    experiencePlanOptions({
-      ...plan.options,
-      requestId,
-      [plan.options.to]: row.freshRevision,
-    });
-  let requestId = row.replanRequestId;
-  if (requestId) {
-    const status = await context
-      .getPlan()
-      .status({ requestId })
-      .catch(() => null);
-    if (
-      status?.requestId === requestId &&
-      JSON.stringify(status.options) === JSON.stringify(inputFor(requestId))
-    ) {
-      if (status.phase === 'completed') {
-        return confirmedExperiencePlan(status, requestId);
-      }
-      if (['failed', 'stopped', 'interrupted'].includes(status.phase)) {
-        requestId = null;
-      }
-    }
-  }
-  if (!requestId) {
-    requestId = reviewChildId(row, 'plan', randomBytes(8).toString('hex'));
-    await save({ replanRequestId: requestId });
-  }
-  return confirmedExperiencePlan(
-    await run(context.getPlan, inputFor(requestId), experiencePlanRunning),
-    requestId
-  );
+  const receipt = await postSaveChild({
+    row,
+    child: 'plan',
+    checkpoint: 'replanRequestId',
+    inputFor: (requestId) =>
+      experiencePlanOptions({
+        ...plan.options,
+        requestId,
+        [plan.options.to]: row.freshRevision,
+      }),
+    getService: context.getPlan,
+    running: experiencePlanRunning,
+    run,
+    save,
+  });
+  return confirmedExperiencePlan(receipt, receipt.requestId);
 };
 
 const snapshotAfterSave = async (context, row, plan, run, save) => {
@@ -311,8 +341,20 @@ const snapshotAfterSave = async (context, row, plan, run, save) => {
     throw failure('native-receipt');
   }
   if (row.phase === 'refreshing') {
-    const freshRevision = await readFresh(context, row, plan, result, run);
-    return { phase: 'replanning', freshRevision, waitingLogin: false };
+    const freshRevision = await readFresh(
+      context,
+      row,
+      plan,
+      result,
+      run,
+      save
+    );
+    return {
+      phase: 'replanning',
+      freshRevision,
+      refreshRequestId: null,
+      waitingLogin: false,
+    };
   }
   const next = await replan(context, row, plan, run, save);
   return {
@@ -388,7 +430,15 @@ const workFor = (context) => async (owned, save) => {
         owned.choice?.reject(failure('decision'));
         owned.choice = null;
       } else {
-        await save(await snapshotAfterSave(context, row, plan, run, save));
+        const checkpoint = await snapshotAfterSave(
+          context,
+          row,
+          plan,
+          run,
+          save
+        );
+        signal.throwIfAborted();
+        await save(checkpoint);
       }
     }
     if (
