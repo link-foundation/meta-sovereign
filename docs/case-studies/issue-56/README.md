@@ -353,6 +353,7 @@
 - [notice-link.md](notice-link.md) verifies that native anchors and text destinations keep acknowledgements, rejections and linked handovers in owner review in both current-chat and unread notice handling. The before and after screenshots show the routed provider and the phone review.
 - [Recognized application updates](notice-recognized.md) covers the saved-thanks policy, the completed bot handover example, a native reply receipt and phone controls.
 - [Selected chat before unread](notice-selected.md) covers the already-read selected conversation, the one-chat limit, the next repeating pass and the confirmed reply on a phone viewport.
+- [Visibility of individual-watch replies](notice-reply-view.md) covers confirmed outgoing bubbles in ordinary and reversed panes, with owner focus, scrolling and drafts preserved after dispatch.
 
 Issue: <https://github.com/link-foundation/meta-sovereign/issues/56>. Draft implementation: <https://github.com/link-foundation/meta-sovereign/pull/57>.
 

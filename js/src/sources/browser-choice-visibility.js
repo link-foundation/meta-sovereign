@@ -4,12 +4,11 @@
 export const watchChoiceView = (attempt, stop = false) => {
   if (!stop) {
     attempt.viewChanged = (event) => {
-      if (
-        event.type !== 'pointerdown' ||
-        (event.target !== attempt.node && !attempt.node.contains(event.target))
-      ) {
-        attempt.preserveView = true;
-      }
+      const sendPointer =
+        event.type === 'pointerdown' &&
+        (event.target === attempt.node || attempt.node.contains(event.target));
+      attempt.preserveView ||=
+        !sendPointer && !attempt.expectedReplyClear?.(event);
     };
   }
   for (const type of [

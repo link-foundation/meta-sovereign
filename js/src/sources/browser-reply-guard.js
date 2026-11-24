@@ -20,7 +20,7 @@ export const browserReplyAdmission = (state, reservation) => {
 
 /** Guard every native pointer stage against a replaced question or composer. */
 export const armBrowserReply = (input, context, current, node, valid) => {
-  const { state, identity, snapshot } = context;
+  const { state, identity, snapshot, inactive, valueOf } = context;
   const reservation = identity(current);
   const code = browserReplyAdmission(state, reservation);
   if (code) {
@@ -34,6 +34,29 @@ export const armBrowserReply = (input, context, current, node, valid) => {
     allowed: false,
     clicked: false,
   };
+  const composer = current.composer;
+  if (input.text !== undefined && composer) {
+    let observedClear;
+    // The provider may emit one synthetic input when clearing the sent text.
+    // Both observers recognize the same event, after the guarded click only.
+    attempt.expectedReplyClear = (event) => {
+      if (
+        !attempt.clicked ||
+        event.type !== 'input' ||
+        event.isTrusted ||
+        event.target !== composer ||
+        (observedClear && observedClear !== event) ||
+        valueOf(composer)
+      ) {
+        return false;
+      }
+      observedClear = event;
+      return true;
+    };
+    if (inactive) {
+      inactive.expectedReplyClear = attempt.expectedReplyClear;
+    }
+  }
   const selector = `[data-meta-answer-choice="${input.token}"]`;
   attempt.guard = (event) => {
     const tagged = event.target.closest?.(selector);

@@ -1301,3 +1301,7 @@ Saving still requires the runner control lock and current profile revision
 Reuse the current HeadHunter application sign-in in an untouched signed-out
 chat slot. Keep the two browser profiles scoped to the workspace, and confirm
 the chat list before reporting session reuse (issue #56).
+
+Reveal the confirmed HeadHunter reply in an inactive conversation after the
+provider clears the sent text. Keep the owner’s view and draft if they return
+while delivery is pending (issue #56).

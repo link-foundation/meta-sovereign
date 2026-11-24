@@ -54,7 +54,10 @@ const runNoticeCase = async (
 ) =>
   withHhBrowserScanFixture(
     engine,
-    { html: noticePolicyHtml(fixture), choiceReceiptMs: 100 },
+    {
+      html: noticePolicyHtml(fixture),
+      choiceReceiptMs: fixture.choiceReceiptMs ?? 100,
+    },
     async ({ sender, page }) => {
       const store = createMemoryStore();
       await saveAnswerRule(store, noticeRule());
@@ -204,6 +207,7 @@ export const verifyNoticePolicies = async (engine, { screenshots } = {}) => {
   await verifyNoticeLink(engine, { screenshots, outcomes });
   await verifyNoticeEmployerChange(engine, { screenshots, outcomes });
   await verifyRecognizedNotice(engine, { screenshots, outcomes });
+  await verifyNoticeReplyVisibility(engine, { screenshots, outcomes });
   await run(
     'unknown-no-retry',
     {},
@@ -221,6 +225,123 @@ export const verifyNoticePolicies = async (engine, { screenshots } = {}) => {
       assert.equal((await browser.watchStart(input)).state, 'paused');
       assert.equal((await counts(page)).sends, 1);
     }
+  );
+  return { cases: outcomes.length, outcomes, liveProvider: false };
+};
+
+const frameNotice = (page, reverse = false) =>
+  page.addStyleTag({
+    content: `#history { height: 140px; overflow-anchor: none; ${reverse ? 'display: flex; flex-direction: column-reverse;' : ''} } #history article { box-sizing: border-box; flex: none; min-height: 112px; }`,
+  });
+
+const outgoingInNoticePane = (page) =>
+  page.locator('[data-qa="chatik-chat-message-102"] p').evaluate((node) => {
+    const text = node.getBoundingClientRect();
+    const pane = node.closest('#history').getBoundingClientRect();
+    return text.top >= pane.top && text.bottom <= pane.bottom;
+  });
+
+const checkedNoticeReceipt = async (status, page, store) => {
+  const sent = await until(
+    status,
+    (s) => s.outbox?.receipt?.messageId === '102'
+  );
+  assert.equal(sent.outbox.receipt.text, noticeReply);
+  assert.equal((await counts(page)).sends, 1);
+  assert.equal((await listOutbox(store)).length, 1);
+};
+
+const verifyOwnerViewDuringNoticeReceipt = (
+  engine,
+  screenshots,
+  outcomes,
+  draft
+) =>
+  runNoticeCase(
+    engine,
+    screenshots,
+    outcomes,
+    draft
+      ? 'owner-scroll-and-draft-during-receipt'
+      : 'owner-focus-during-receipt',
+    { choiceReceiptMs: 3000 },
+    async ({ browser, input, status, page, store }) => {
+      await frameNotice(page);
+      await page.evaluate(() => {
+        window.fixture.receipt = 'held';
+      });
+      await inactive(page);
+      await browser.watchStart(input);
+      await page.waitForFunction(() => Boolean(window.fixture.completeReceipt));
+      await page.bringToFront();
+      await page.waitForFunction(() => document.hasFocus());
+      const history = page.locator('#history');
+      if (draft) {
+        await page.locator('textarea').fill(draft);
+        await history.hover();
+        await page.mouse.wheel(0, 35);
+        await page.waitForFunction(
+          () => document.querySelector('#history').scrollTop > 0
+        );
+      }
+      const anchor = await history.evaluate((node) => node.scrollTop);
+      await page.evaluate(() => window.fixture.completeReceipt());
+      await checkedNoticeReceipt(status, page, store);
+      assert.equal(await history.evaluate((node) => node.scrollTop), anchor);
+      assert.equal(await page.locator('textarea').inputValue(), draft);
+      assert.equal(await outgoingInNoticePane(page), false);
+      await browser.watchStop(input);
+      assert.equal((await counts(page)).sends, 1);
+    }
+  );
+
+export const verifyNoticeReplyVisibility = async (
+  engine,
+  { screenshots, outcomes = [], before = false } = {}
+) => {
+  const clipped = [];
+  for (const reverse of [false, true]) {
+    const layout = reverse ? 'reversed' : 'ordinary';
+    await runNoticeCase(
+      engine,
+      screenshots,
+      outcomes,
+      `receipt-visible-${layout}`,
+      {},
+      async ({ browser, input, status, page, store }) => {
+        await frameNotice(page, reverse);
+        const owner = await inactive(page);
+        await browser.watchStart(input);
+        await checkedNoticeReceipt(status, page, store);
+        const inPane = await outgoingInNoticePane(page);
+        if (screenshots) {
+          await mkdir(screenshots, { recursive: true });
+          await page.screenshot({
+            path: join(
+              screenshots,
+              `${layout}-${before ? 'before' : 'after'}.png`
+            ),
+            fullPage: true,
+          });
+        }
+        if (!inPane) {
+          clipped.push(layout);
+        }
+        assert.equal(
+          await owner.locator('textarea').inputValue(),
+          'Owner unfinished draft'
+        );
+        await browser.watchStop(input);
+      }
+    );
+  }
+  assert.deepEqual(clipped, [], 'Confirmed outgoing text is clipped');
+  await verifyOwnerViewDuringNoticeReceipt(engine, screenshots, outcomes, '');
+  await verifyOwnerViewDuringNoticeReceipt(
+    engine,
+    screenshots,
+    outcomes,
+    'Owner edited while delivery was pending'
   );
   return { cases: outcomes.length, outcomes, liveProvider: false };
 };

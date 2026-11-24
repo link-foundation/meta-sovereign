@@ -116,6 +116,13 @@ export const createChoiceContext = (input, read) => {
   };
   const clean = (attempt) => {
     attempt.clearDraft?.();
+    if (
+      attempt.expectedReplyClear &&
+      inactive?.expectedReplyClear === attempt.expectedReplyClear
+    ) {
+      delete inactive.expectedReplyClear;
+    }
+    delete attempt.expectedReplyClear;
     watchChoiceView(attempt, true);
     attempt.node.removeAttribute('data-meta-answer-choice');
     for (const node of document.querySelectorAll('[data-meta-answer-choice]')) {
@@ -129,6 +136,8 @@ export const createChoiceContext = (input, read) => {
   };
   return {
     state,
+    inactive,
+    inactiveReady,
     snapshot,
     identity,
     ownershipIdentity,
@@ -222,7 +231,7 @@ export const matchingChoiceReplies = (input, current, attempt) => {
 };
 
 export const readChoiceReceipt = (input, context) => {
-  const { state, snapshot, clean } = context;
+  const { state, snapshot, clean, inactiveReady } = context;
   const attempt = [...state.attempts.values()].find(
     (entry) => entry.token === input.token
   );
@@ -239,12 +248,9 @@ export const readChoiceReceipt = (input, context) => {
   }
   if (confirmed) {
     if (!attempt.confirmed) {
-      attempt.reveal = revealChoiceReply(
-        input.spec,
-        attempt,
-        current,
-        matches[0]
-      );
+      attempt.reveal = inactiveReady()
+        ? revealChoiceReply(input.spec, attempt, current, matches[0])
+        : 'owner-activity';
     }
     attempt.confirmed = true;
     return {

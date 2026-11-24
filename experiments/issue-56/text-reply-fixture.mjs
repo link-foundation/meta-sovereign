@@ -10,6 +10,9 @@ document.querySelector('#send').onclick=()=>{
  const body=document.querySelector('textarea').value;
  document.querySelector('#status').textContent='Native send dispatched; receipt pending';
  if(fixture.receipt==='none')return;
+ const clear=()=>{
+  const input=document.querySelector('textarea');input.value='';input.dispatchEvent(new Event('input',{bubbles:true}));
+ };
  const append=()=>{
   const row=document.createElement('article');row.dataset.qa='chatik-chat-message-102';
   const text=document.createElement('p');text.dataset.qa='chat-bubble-text';text.textContent=body;row.append(text);
@@ -19,9 +22,10 @@ document.querySelector('#send').onclick=()=>{
   const history=document.querySelector('#history');
   if(fixture.receipt==='historical')history.prepend(row);else history.append(row);
   if(fixture.receipt==='duplicate'){const copy=row.cloneNode(true);copy.dataset.qa='chatik-chat-message-103';history.append(copy);}
-  const input=document.querySelector('textarea');input.value='';input.dispatchEvent(new Event('input',{bubbles:true}));
+  if(fixture.receipt!=='held')clear();
   document.querySelector('#status').textContent='Provider bubble added: '+body;
  };
+ if(fixture.receipt==='held'){clear();fixture.completeReceipt=append;return;}
  if(fixture.receipt==='delayed')setTimeout(append,50);else append();
 };
 window.textReplyState=()=>({

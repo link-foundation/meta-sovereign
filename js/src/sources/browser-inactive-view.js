@@ -26,6 +26,7 @@ export const browserInactiveView = ({ operation, token }) => {
     state.mark = (event) => {
       if (
         (!event.isTrusted && event === state.ownedInput) ||
+        state.expectedReplyClear?.(event) ||
         (state.ownedFilterControl &&
           event.type === 'input' &&
           event.target === state.ownedFilterControl)
