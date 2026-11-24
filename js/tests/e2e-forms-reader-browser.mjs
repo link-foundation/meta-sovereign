@@ -23,10 +23,16 @@ import {
   verifyFormAssignmentSectionUi,
 } from './helpers/e2e-form-assignment.mjs';
 import { verifyAssignmentFixture } from '../../experiments/issue-56/forms-assignment-fixture.mjs';
-import { seedFormPay } from '../../experiments/issue-56/forms-pay-fixture.mjs';
+import {
+  formPayVacancyReader,
+  seedFormPay,
+} from '../../experiments/issue-56/forms-pay-fixture.mjs';
 import { verifyFormMatchingUi } from './helpers/e2e-form-matching.mjs';
 import { verifyFormAutomaticUi } from './helpers/e2e-form-automatic.mjs';
-import { verifyFormPayUi } from './helpers/e2e-form-pay.mjs';
+import {
+  verifyFormPayUi,
+  verifyFormVacancyPayUi,
+} from './helpers/e2e-form-pay.mjs';
 import { verifyFormSalaryOptions } from './helpers/e2e-form-salary-options.mjs';
 import { verifyFormNearestBases } from './helpers/e2e-form-nearest-bases.mjs';
 import { modelRunnerFixture } from '../../experiments/issue-56/forms-model-fixture.mjs';
@@ -91,6 +97,7 @@ await seedFormPay(store);
 const owned = [];
 const sourceReads = [];
 const vacancyReads = [];
+const payVacancyReads = [];
 const modelCalls = [];
 const publication = await assignmentPublisherFixture();
 const standalonePublication = await assignmentPublisherFixture();
@@ -141,7 +148,14 @@ try {
         stop: async () => {},
       },
       forms: {
-        readAssignmentVacancy: async (url) => {
+        readAssignmentVacancy: async (url, options) => {
+          if (options.useCase === 'forms') {
+            return formPayVacancyReader({
+              store,
+              browser: () => app.page.context().browser(),
+              reads: payVacancyReads,
+            })(url, options);
+          }
           vacancyReads.push(url);
           return vacancySnapshot;
         },
@@ -405,6 +419,7 @@ const formGroups = {
     verifyFormTimezoneUi,
     verifyFormSubjectsUi,
     verifyFormPayUi,
+    verifyFormVacancyPayUi,
     verifyFormSalaryOptions,
     verifyFormNearestBases,
     verifyFormMatchingUi,
@@ -428,6 +443,7 @@ const runFormChecks = async (checks) => {
       chatPublication,
       sourceReads,
       vacancyReads,
+      payVacancyReads,
     });
     console.log('[forms-scenario]', verify.name, Date.now() - started);
   }
@@ -477,6 +493,7 @@ const verifyCustomOnly = async ({ page, until }) => {
     ['AUTOMATIC', verifyFormAutomaticUi],
     ['MATCHING', verifyFormMatchingUi],
     ['PAY', verifyFormPayUi],
+    ['VACANCY_PAY', verifyFormVacancyPayUi],
     ['SALARY_OPTIONS', verifyFormSalaryOptions],
     ['NEAREST_BASES', verifyFormNearestBases],
     ['SUBJECTS', verifyFormSubjectsUi],
@@ -495,6 +512,7 @@ const verifyCustomOnly = async ({ page, until }) => {
       chatPublication,
       sourceReads,
       vacancyReads,
+      payVacancyReads,
     });
     return true;
   }

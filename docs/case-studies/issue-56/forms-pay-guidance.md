@@ -51,3 +51,5 @@ The [verified archive](data/forms-pay-guidance.tar.gz) and [manifest](data/forms
 ## Remaining required work
 
 This verifies a bounded shared B26/B27 planning and reviewed-application mechanism. Automatic provider vacancy discovery, complete pay-expression/form parity, automatic filling, live provider execution and every unchecked issue criterion remain required. No live employer form or model account was used. The earlier hosted model-name reload, valid-refusal edit and Contacts-navigation failures remain unexplained. PR 57 stays draft and unmerged; this unit does not complete issue 56.
+
+The later [HeadHunter vacancy pay evidence](forms-vacancy-pay.md) covers automatic discovery from exact chat and redirect evidence, including a native browser capture and a selected field readback. Its source and verification are recorded separately.

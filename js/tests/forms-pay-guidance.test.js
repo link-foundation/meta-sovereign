@@ -22,6 +22,13 @@ import { createMemoryStore } from '../src/storage/universal.js';
 import { saveAnswerProfile } from '../src/automation/question-profiles.js';
 import { learnFormAnswerPairs } from '../src/forms/answer-learning.js';
 import { validateFormInspection } from '../src/forms/plan-validation.js';
+import { rememberAssignmentRedirect } from '../src/assignments/vacancy-association.js';
+import { importAssignmentChat } from '../../experiments/issue-56/assignment-chat-vacancy-fixture.mjs';
+import {
+  vacancyId,
+  vacancySnapshot,
+  vacancyUrl,
+} from '../../experiments/issue-56/assignment-vacancy-fixture.mjs';
 import {
   formModelField as field,
   formModelInspection as inspection,
@@ -30,6 +37,7 @@ import {
   formPayProfile,
   formPayIntro,
   formPayAnswer,
+  vacancyPay,
 } from '../../experiments/issue-56/forms-pay-fixture.mjs';
 
 const salary = {
@@ -56,6 +64,12 @@ const form = (intro, fields = [field(hourly)]) => {
   const report = inspection(fields);
   report.frames[0].intro = intro;
   return report;
+};
+const formLink = 'https://forms.gle/pay';
+const payEvidence = `vacancy:hh:${vacancyId}`;
+const seedPayVacancy = async (store, report) => {
+  await importAssignmentChat(store, formLink);
+  await rememberAssignmentRedirect(store, formLink, report.url);
 };
 
 test('vacancy pay uses the top of its range or from amount with a separate comfortable rate', () => {
@@ -245,6 +259,118 @@ test('vacancy-specific Russian and English pay answers are excluded from reusabl
   assert.equal(delivery.saved, 1, 'delivery experience remains learnable');
 });
 
+test('planning uses the exact vacancy behind a recorded form redirect and rechecks current chat evidence at apply', async () => {
+  const store = createMemoryStore();
+  const report = form('');
+  await seedPayVacancy(store, report);
+  const calls = [];
+  const readVacancy = async (url) => {
+    calls.push(url);
+    return { ...vacancySnapshot, salary: vacancyPay };
+  };
+  const profile = await saveAnswerProfile(store, {
+    id: 'pay',
+    name: 'Pay',
+    values: formPayProfile,
+  });
+  const input = { inspection: report, profileId: profile.id };
+  const result = await planFormAnswers(store, input, { readVacancy });
+  const guidance = result.fields[0].answer.salary.guidance;
+  assert.equal(guidance.minimum, 476.19);
+  assert.equal(guidance.evidence, payEvidence);
+  assert.deepEqual(calls, [vacancyUrl]);
+  const frozen = await planFormAnswers(store, input, { frozen: result });
+  assert.deepEqual(frozen.fields, result.fields);
+  assert.deepEqual(frozen.planning.vacancy, result.planning.vacancy);
+  const notice = await store.get('msg:hh:chat:41:1');
+  await store.put({ ...notice, deleted: true });
+  const after = await planFormAnswers(store, input, { frozen: result });
+  assert.equal(after.fields[0].answer.salary.guidance.source, 'owner-target');
+  assert.equal(after.planning.vacancy, undefined);
+  assert.deepEqual(calls, [vacancyUrl]);
+});
+
+test('automatic vacancy pay is scoped to eligible fields, respects an intro or override and cannot select conflicting evidence', async () => {
+  const store = createMemoryStore();
+  await seedPayVacancy(store, form(''));
+  const options = {
+    readVacancy: () => assert.fail('no automatic vacancy read expected'),
+  };
+  for (const input of [
+    { inspection: form('', [field('Describe payroll database design')]) },
+    { inspection: form('', [field(hourly, { disabled: true })]) },
+    { inspection: form(formPayIntro) },
+    { inspection: form('Pay 3 000 ₽ per lesson, duration unknown') },
+    { inspection: form(''), vacancy: {} },
+  ]) {
+    const result = await planFormAnswers(store, { salary, ...input }, options);
+    assert.equal(result.planning.vacancy, undefined);
+    assert.notEqual(
+      result.fields[0].answer.salary?.guidance?.source,
+      'vacancy-pay'
+    );
+  }
+  const report = form('');
+  await store.put({
+    id: 'msg:hh:legacy-conflicting-pay',
+    source: 'hh',
+    chat: 'legacy-pay',
+    body: report.url,
+    raw: { vacancy: { id: '123' } },
+  });
+  const ambiguous = await planFormAnswers(
+    store,
+    { inspection: report, salary },
+    options
+  );
+  assert.equal(ambiguous.planning.vacancy.state, 'ambiguous');
+  assert.equal(ambiguous.fields[0].answer.proposal, null);
+  assert.equal(ambiguous.fields[0].answer.reason, 'vacancy-pay-unavailable');
+});
+
+test('an unreadable associated vacancy is reviewable without inventing pay or opening a browser at apply', async () => {
+  const store = createMemoryStore();
+  const report = form('');
+  await seedPayVacancy(store, report);
+  let reads = 0;
+  const plan = await planFormAnswers(
+    store,
+    { inspection: report, salary },
+    {
+      readVacancy: async () => {
+        reads++;
+        throw Object.assign(new Error('Private provider information'), {
+          code: 'assignment-vacancy-unavailable',
+        });
+      },
+    }
+  );
+  assert.equal(plan.planning.vacancy.state, 'unavailable');
+  assert.equal(plan.fields[0].answer.proposal, null);
+  assert.equal(plan.fields[0].answer.reason, 'vacancy-pay-unavailable');
+  assert.ok(!JSON.stringify(plan).includes('Private provider information'));
+  const frozen = await planFormAnswers(
+    store,
+    { inspection: report, salary },
+    { frozen: plan, readVacancy: () => assert.fail('apply is cache-only') }
+  );
+  assert.deepEqual(frozen.fields, plan.fields);
+  assert.deepEqual(frozen.planning.vacancy, plan.planning.vacancy);
+  assert.equal(reads, 1);
+
+  const unlisted = await planFormAnswers(
+    store,
+    { inspection: report, salary },
+    { readVacancy: async () => ({ ...vacancySnapshot, salary: '' }) }
+  );
+  assert.equal(unlisted.planning.vacancy.state, 'observed');
+  assert.equal(
+    unlisted.fields[0].answer.salary.guidance.source,
+    'owner-target',
+    'a verified page with no advertised amount can use the owner target'
+  );
+});
+
 test(
   'CLI and both Lino transports carry explicit vacancy guidance without a browser or knowledge writes',
   { timeout: 15000 },
@@ -300,6 +426,69 @@ test(
         );
       }
       assert.deepEqual(await store.query(() => true), []);
+    } finally {
+      await server.close();
+      await rm(directory, { recursive: true, force: true });
+    }
+  }
+);
+
+test(
+  'CLI and both Lino transports use the associated vacancy across the same production planner',
+  { timeout: 15000 },
+  async () => {
+    const store = createMemoryStore();
+    const report = form('');
+    await seedPayVacancy(store, report);
+    const directory = await mkdtemp(join(tmpdir(), 'form-pay-vacancy-'));
+    const calls = [];
+    const readAssignmentVacancy = async (url, { useCase }) => {
+      calls.push({ url, useCase });
+      return { ...vacancySnapshot, salary: vacancyPay };
+    };
+    const server = await startServer({
+      store,
+      port: 0,
+      telegramAccount: false,
+      enableSync: false,
+      enableHandlers: false,
+      automations: { scheduler: false },
+      forms: { reportWriter: null, readAssignmentVacancy },
+      log: null,
+    });
+    try {
+      const file = join(directory, 'inspection.json');
+      await writeFile(file, JSON.stringify(report));
+      const commands = createFormsCommands({
+        openStore: async () => store,
+        reportWriter: null,
+        readAssignmentVacancy,
+      });
+      const check = (result) => {
+        assert.equal(result.fields[0].answer.salary.guidance.minimum, 476.19);
+        assert.equal(
+          result.fields[0].answer.salary.guidance.evidence,
+          payEvidence
+        );
+        assert.equal(result.planning.vacancy.state, 'observed');
+      };
+      await commands['forms-plan'](
+        { file, salary: encodeWire(salary) },
+        (text) => check(JSON.parse(text))
+      );
+      for (const type of [LINO_TEXT, LINO_BINARY]) {
+        const response = await fetch(
+          `http://127.0.0.1:${server.port}/api/forms/plan`,
+          {
+            method: 'POST',
+            headers: { accept: type, 'content-type': type },
+            body: encodeWire({ inspection: report, salary }, type),
+          }
+        );
+        assert.equal(response.status, 200);
+        check(await readWireResponse(response));
+      }
+      assert.deepEqual(calls, [{ url: vacancyUrl, useCase: 'forms' }]);
     } finally {
       await server.close();
       await rm(directory, { recursive: true, force: true });

@@ -27,6 +27,20 @@ const checkSavedIdentity = (saved, id, url) => {
     );
   }
 };
+const snapshotId = async (url) =>
+  `assignment-vacancy:${await modelFingerprint(url)}`;
+
+/** Recheck observed evidence without opening a browser or migrating storage. */
+export const currentVacancySnapshot = async (store, url) => {
+  const temporary = runVacancy(store, url);
+  if (temporary) {
+    return temporary;
+  }
+  const id = await snapshotId(url);
+  const saved = await store.get(id);
+  checkSavedIdentity(saved, id, url);
+  return saved ? vacancyContent(saved, url) : null;
+};
 
 export const vacancySnapshot = async (
   store,
@@ -79,7 +93,7 @@ export const ownedVacancySnapshot = async ({
   const collect = browserOptions.collectVacancies !== false;
   await prepareCache(store, collect);
   signal?.throwIfAborted();
-  const id = `assignment-vacancy:${await modelFingerprint(url)}`;
+  const id = await snapshotId(url);
   let saved = await store.get(id);
   checkSavedIdentity(saved, id, url);
   if (!saved || refresh === true) {

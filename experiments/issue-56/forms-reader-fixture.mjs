@@ -1,4 +1,4 @@
-import { payFixtureHtml } from './forms-pay-fixture.mjs';
+import { payFixtureHtml, vacancyPayFixtureHtml } from './forms-pay-fixture.mjs';
 import { salaryOptionHtml } from './salary-option-fixture.mjs';
 import { formQuestionnaireHtml } from './form-questionnaire-fixture.mjs';
 import { questionnaireLearningHtml } from './forms-questionnaire-learning-fixture.mjs';
@@ -61,6 +61,7 @@ const simplePages = {
   '/assignment': assignmentFixtureHtml,
   '/captcha': captchaFixtureHtml,
   '/matching': matchingFixtureHtml,
+  '/vacancy-pay': vacancyPayFixtureHtml,
   '/pay': payFixtureHtml,
   '/subjects': subjectFixtureHtml,
   '/timezone': timezoneFixtureHtml,
@@ -69,6 +70,7 @@ const simplePages = {
 };
 const assignmentRedirects = new Map([
   ['/assignment-chat-link', '/assignment?from=chat'],
+  ['/vacancy-pay-chat-link', '/vacancy-pay?from=chat'],
   ['/source-redirect', '/instructions'],
   ['/markdown-source-redirect', '/markdown-instructions'],
   ['/pdf-source-redirect', '/pdf-instructions'],

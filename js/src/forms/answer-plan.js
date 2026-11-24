@@ -7,6 +7,8 @@ import { formProfileFields } from './profile-fields.js';
 import { proposalFor } from './proposals.js';
 import { formModelDrafts } from './model-drafts.js';
 import { formPayProfile } from './pay-profile.js';
+import { resolveFormPayVacancy } from './pay-vacancy.js';
+import { statesSalaryPay } from '../automation/salary-offer.js';
 import { formFailure } from './options.js';
 import { formAssignmentIssue } from './assignment-handoff.js';
 import {
@@ -47,6 +49,8 @@ const questionFor = (field) =>
   ['radio', 'checkbox'].includes(field.type) && field.group?.label
     ? field.group.label
     : field.label;
+const frameIntro = (inspection, field) =>
+  inspection.frames.find((frame) => frame.id === field.frame)?.intro ?? '';
 const profileRule = (question, keys) => ({
   id: 'qa-rule:form-profile',
   question,
@@ -134,9 +138,7 @@ const planField = (field, fields, prepared) => {
   const answer = withSalaryExchangeEvidence(
     planAnswer(question, {
       ...context,
-      intro:
-        prepared.inspection.frames.find((frame) => frame.id === field.frame)
-          ?.intro ?? '',
+      intro: frameIntro(prepared.inspection, field),
       questionMode: 'field',
       ...(keys.length ? { rules: [profileRule(question, keys)] } : {}),
       options: options
@@ -188,7 +190,55 @@ const planningInspection = (input) => {
   return inspection;
 };
 
-/** Browser-read-only proposals; persist only the private assignment prerequisite. */
+const hasSalaryAnswer = ({ salary, parts }) =>
+  Boolean(salary || parts?.some((part) => part.salary));
+
+const withFormVacancyPay = async (store, fields, prepared, input, options) => {
+  const { inspection, context } = prepared;
+  if (
+    input.vacancy !== undefined ||
+    !context.salary?.enabled ||
+    !context.salary.vacancyGuidance
+  ) {
+    return { fields };
+  }
+  const payFields = new Set(
+    fields
+      .filter(
+        (field) =>
+          hasSalaryAnswer(field.answer) &&
+          !statesSalaryPay(frameIntro(inspection, field), context.salary)
+      )
+      .map((field) => field.id)
+  );
+  if (!payFields.size) {
+    return { fields };
+  }
+  const vacancy = await resolveFormPayVacancy(store, inspection.url, options);
+  if (!vacancy) {
+    return { fields };
+  }
+  const { pay, evidence, ...receipt } = vacancy;
+  const withPay = {
+    ...prepared,
+    context: { ...context, vacancy: { pay, evidence } },
+  };
+  return {
+    vacancy: receipt,
+    fields: fields.map((field, index) => {
+      if (!payFields.has(field.id)) {
+        return field;
+      }
+      const original = inspection.fields[index];
+      if (vacancy.state !== 'observed') {
+        return unresolvedField(original, 'vacancy-pay-unavailable');
+      }
+      return pay ? planField(original, inspection.fields, withPay) : field;
+    }),
+  };
+};
+
+/** Propose answers without writing to the form. */
 export const planFormAnswers = async (store, input = {}, modelOptions = {}) => {
   const inspection = planningInspection(input);
   const assignment = await (
@@ -216,6 +266,15 @@ export const planFormAnswers = async (store, input = {}, modelOptions = {}) => {
           assignmentLinkField(field, assignment) ??
           planField(field, inspection.fields, prepared)
       );
+  const payPlan = held
+    ? { fields: deterministic }
+    : await withFormVacancyPay(
+        store,
+        deterministic,
+        prepared,
+        input,
+        modelOptions
+      );
   const { fields, model } = held
     ? {
         fields: deterministic,
@@ -224,7 +283,7 @@ export const planFormAnswers = async (store, input = {}, modelOptions = {}) => {
     : await formModelDrafts({
         store,
         input,
-        fields: deterministic,
+        fields: payPlan.fields,
         context: prepared.context,
         ...modelOptions,
       });
@@ -237,6 +296,7 @@ export const planFormAnswers = async (store, input = {}, modelOptions = {}) => {
       readOnly: true,
       requiresReview: true,
       ...(assignmentWithIssue ? { assignment: assignmentWithIssue } : {}),
+      ...(payPlan.vacancy ? { vacancy: payPlan.vacancy } : {}),
       profileSource: prepared.context.profileSource ?? null,
       proposed: fields.filter((field) => field.answer.proposal).length,
       unresolved: fields.filter((field) => !field.answer.proposal).length,

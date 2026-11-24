@@ -273,6 +273,8 @@ export const ruForms = {
   'forms.plan.reason.field-format':
     'Проверьте соответствие ответа формату или вариантам поля.',
   'forms.plan.reason.no-answer': 'Подходящий сохранённый ответ не найден.',
+  'forms.plan.reason.vacancy-pay-unavailable':
+    'Не удалось проверить оплату в связанной вакансии. Введите ответ в форме или повторите подготовку.',
   'forms.plan.reason.current-value':
     'Текущее значение сохранено. Сравните его с предложением.',
   'forms.plan.reason.review': 'Проверьте предложение перед изменением формы.',

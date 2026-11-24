@@ -46,7 +46,7 @@ export const createFormsCommands = ({ openStore, ...readerOptions }) => ({
               vacancy: args.vacancy ? decodeWire(args.vacancy) : undefined,
               modelDraft: modelDraftFlag(args['model-draft']),
             },
-            { runner }
+            { runner, readVacancy: readerOptions.readAssignmentVacancy }
           )
       );
       const writer =

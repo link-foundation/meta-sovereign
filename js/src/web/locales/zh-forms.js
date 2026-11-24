@@ -236,6 +236,8 @@ export const zhForms = {
   'forms.plan.reason.choice-mismatch': '答案无法唯一对应一个可用选项。',
   'forms.plan.reason.field-format': '请检查答案是否符合此字段的格式或选项。',
   'forms.plan.reason.no-answer': '未找到可用的已保存答案。',
+  'forms.plan.reason.vacancy-pay-unavailable':
+    '无法核实关联职位的薪资。请在表单中填写答案或重新生成建议。',
   'forms.plan.reason.current-value': '已保留当前值。请与建议进行比较。',
   'forms.plan.reason.review': '修改前请审核此建议。',
   'forms.plan.reason.planning-limit': '已达到匹配上限。此字段仍需补充答案。',

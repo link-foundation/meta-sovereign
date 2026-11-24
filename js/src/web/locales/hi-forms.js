@@ -273,6 +273,8 @@ export const hiForms = {
   'forms.plan.reason.field-format':
     'इस फ़ील्ड के प्रारूप या विकल्पों के लिए उत्तर की समीक्षा चाहिए।',
   'forms.plan.reason.no-answer': 'कोई उपयोग योग्य सहेजा गया उत्तर नहीं मिला।',
+  'forms.plan.reason.vacancy-pay-unavailable':
+    'लिंक की गई नौकरी का वेतन सत्यापित नहीं हो सका। फ़ॉर्म में अपना उत्तर भरें या फिर से योजना बनाएँ।',
   'forms.plan.reason.current-value':
     'मौजूदा मान सुरक्षित है। उसे प्रस्ताव से मिलाएँ।',
   'forms.plan.reason.review': 'बदलाव करने से पहले इस प्रस्ताव की समीक्षा करें।',

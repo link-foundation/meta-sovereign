@@ -1,5 +1,6 @@
 // Isolated MCP fixture: synthetic forms, owned review/inspection browsers, no account or scheduler.
-import { seedFormPay } from './forms-pay-fixture.mjs';
+import { formPayVacancyReader, seedFormPay } from './forms-pay-fixture.mjs';
+import { importAssignmentChat } from './assignment-chat-vacancy-fixture.mjs';
 import { savedBaselineRule } from './salary-saved-baseline-fixture.mjs';
 import { saveAnswerRule } from '../../js/src/automation/question-store.js';
 import { assignmentPublisherFixture } from './assignment-publisher-fixture.mjs';
@@ -80,6 +81,8 @@ const captureAutomaticFrames = async (page, read) => {
 
 const fixture = await startFormsFixture();
 const store = createMemoryStore();
+const vacancyPayMode = process.env.FORMS_VACANCY_PAY_MCP === '1';
+const vacancyPayLink = new URL('/vacancy-pay-chat-link', fixture.url).href;
 const publication =
   process.env.ASSIGNMENT_PUBLICATION_MCP === '1'
     ? await assignmentPublisherFixture()
@@ -104,8 +107,11 @@ if (process.env.FORMS_ASSIGNMENT_MCP === '1' || publication) {
 if (process.env.FORMS_MATCHING_MCP === '1') {
   await seedMatchingAnswers(store);
 }
-if (process.env.FORMS_PAY_MCP === '1') {
+if (process.env.FORMS_PAY_MCP === '1' || vacancyPayMode) {
   await seedFormPay(store);
+}
+if (vacancyPayMode) {
+  await importAssignmentChat(store, vacancyPayLink);
 }
 if (process.env.FORMS_SALARY_BASELINE_MCP === '1') {
   await saveAnswerRule(store, savedBaselineRule());
@@ -162,6 +168,13 @@ try {
         store,
         browser: () => [...browsers][0],
         records: sourceReads,
+      }),
+      ...(vacancyPayMode && {
+        readAssignmentVacancy: formPayVacancyReader({
+          store,
+          browser: () => [...browsers][0],
+          reads: vacancyReads,
+        }),
       }),
       ...(publication
         ? {
@@ -298,6 +311,7 @@ try {
                 '/timezone',
                 '/subjects',
                 '/pay',
+                '/vacancy-pay',
                 '/matching',
                 '/automatic',
               ].includes(new URL(page.url()).pathname)
@@ -333,8 +347,9 @@ try {
   console.log(
     JSON.stringify({
       app: `http://127.0.0.1:${server.port}/#/forms`,
-      form:
-        process.env.FORMS_ASSIGNMENT_MCP === '1' || publication
+      form: vacancyPayMode
+        ? vacancyPayLink
+        : process.env.FORMS_ASSIGNMENT_MCP === '1' || publication
           ? fixture.url.replace('/application', '/assignment')
           : process.env.FORMS_CAPTCHA_MCP === '1'
             ? fixture.url.replace('/application', '/captcha')
@@ -394,6 +409,7 @@ try {
     JSON.stringify({
       reads,
       sourceReads,
+      ...(vacancyPayMode ? { vacancyReads } : {}),
       ...(modelMode ? { modelCalls: modelCalls.length } : {}),
       ...(publication
         ? {

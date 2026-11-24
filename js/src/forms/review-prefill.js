@@ -20,6 +20,20 @@ import { finalPeriodOverride } from '../automation/question-final-period.js';
 
 const answerKey = (plan) =>
   JSON.stringify(plan.fields.map((field) => field.answer));
+const requireCurrentAnswers = (current, reviewed) => {
+  if (
+    current.planning.assignment?.revision !==
+      reviewed.planning.assignment?.revision ||
+    JSON.stringify(current.planning.vacancy) !==
+      JSON.stringify(reviewed.planning.vacancy) ||
+    answerKey(current) !== answerKey(reviewed)
+  ) {
+    throw failure(
+      'form-answers-changed',
+      'The answer context changed. Review a new plan.'
+    );
+  }
+};
 const planOptions = (input) => ({
   ...finalPeriodOverride(input),
   profileId: input.profileId ?? '',
@@ -56,6 +70,7 @@ export const createReviewedPrefill = ({
   capture = captureReviewTargets,
   write = writeReviewTarget,
   modelRunner,
+  readVacancy,
 } = {}) => {
   const clear = async (record) => {
     const state = record.reviewPlan;
@@ -88,6 +103,7 @@ export const createReviewedPrefill = ({
         { inspection, ...options },
         {
           runner: modelRunner,
+          readVacancy,
           signal: record.operationAbort?.signal,
         }
       )
@@ -157,19 +173,10 @@ export const createReviewedPrefill = ({
             inspection: state.inspection,
             ...state.options,
           },
-          { frozen: state.proposed }
+          { frozen: state.proposed, signal: record.operationAbort?.signal }
         )
       );
-      if (
-        current.planning.assignment?.revision !==
-          state.proposed.planning.assignment?.revision ||
-        answerKey(current) !== answerKey(state.proposed)
-      ) {
-        throw failure(
-          'form-answers-changed',
-          'Saved answers or profile changed. Review a new plan.'
-        );
-      }
+      requireCurrentAnswers(current, state.proposed);
     };
     try {
       return await applyReviewedFields({

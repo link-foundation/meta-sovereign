@@ -270,6 +270,8 @@ export const enForms = {
   'forms.plan.reason.field-format':
     'The answer needs review for this field’s format or choices.',
   'forms.plan.reason.no-answer': 'No usable saved answer was found.',
+  'forms.plan.reason.vacancy-pay-unavailable':
+    'Pay for the linked vacancy could not be verified. Enter your answer in the form or try planning again.',
   'forms.plan.reason.current-value':
     'The current value is preserved. Compare it with the proposal.',
   'forms.plan.reason.review': 'Review this proposal before making any change.',

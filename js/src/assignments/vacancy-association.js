@@ -49,8 +49,8 @@ const containsFormUrl = (message, wanted) => {
   );
 };
 
-/** Link exact original/redirect aliases only from actual stored HH messages. */
-export const rememberAssignmentVacancy = async (store, urls) => {
+/** Resolve exact original/redirect aliases only from current HH messages. */
+const findAssignmentVacancy = async (store, urls) => {
   if (!Array.isArray(urls) || !urls.length || urls.length > 10) {
     throw assignmentFailure('input', 'Use at most ten form URL aliases.');
   }
@@ -86,11 +86,15 @@ export const rememberAssignmentVacancy = async (store, urls) => {
       'This form appears in chats for different vacancies. Choose a vacancy URL.'
     );
   }
-  const association = [...found.values()][0];
+  return [...found.values()][0] ?? null;
+};
+
+export const rememberAssignmentVacancy = async (store, urls) => {
+  const association = await findAssignmentVacancy(store, urls);
   if (!association) {
     return null;
   }
-  for (const formUrl of wanted) {
+  for (const formUrl of association.aliases) {
     await store.put({
       id: await associationId(formUrl),
       version: 1,
@@ -125,6 +129,11 @@ export const storedAssignmentVacancy = async (store, url) => {
     );
   }
   return { ...record, vacancyUrl: assignmentVacancyUrl(record.vacancyUrl) };
+};
+
+export const currentFormVacancy = async (store, formUrl) => {
+  const previous = await storedAssignmentVacancy(store, formUrl);
+  return findAssignmentVacancy(store, previous?.aliases ?? [formUrl]);
 };
 
 export const rememberAssignmentRedirect = async (store, original, resolved) => {

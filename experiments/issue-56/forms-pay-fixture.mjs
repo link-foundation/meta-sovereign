@@ -1,4 +1,7 @@
 import { saveAnswerProfile } from '../../js/src/automation/question-profiles.js';
+import { createAssignmentVacancyReader } from '../../js/src/assignments/vacancy-reader.js';
+import { makeBrowserCommander } from 'browser-commander';
+import { vacancySnapshot, vacancyUrl } from './assignment-vacancy-fixture.mjs';
 
 export const formPayProfile = {
   salary: '450 000 ₽ net per month',
@@ -8,6 +11,9 @@ export const formPayIntro =
   'Стоимость за занятие 3000р. на руки. Продолжительность занятия — 1,5 часа.';
 export const formPayAnswer =
   'Минимум — 2 000 ₽ в час на руки. Комфортная ставка — 2 700 ₽ в час на руки.';
+export const vacancyPay = '60 000–80 000 ₽ net per month';
+export const formVacancyPayAnswer =
+  'Минимум — 476.19 ₽ в час на руки. Комфортная ставка — 2 700 ₽ в час на руки.';
 export const seedFormPay = (store) =>
   saveAnswerProfile(store, {
     id: 'form-pay',
@@ -25,3 +31,41 @@ export const payFixtureHtml = `<!doctype html><html lang="ru"><meta charset="utf
 <label>Describe payroll database design<textarea name="technical"></textarea></label>
 <button type="submit">Submit</button></form>
 <script>globalThis.events=[];for(const name of ['input','change','click','submit'])document.addEventListener(name,e=>events.push(name));</script>`;
+export const vacancyPayFixtureHtml = payFixtureHtml.replace(formPayIntro, '');
+
+export const formPayVacancyReader = ({ store, browser, reads }) =>
+  createAssignmentVacancyReader({
+    store,
+    openSession: async ({ useCase, slot }) => {
+      const context = await browser().newContext();
+      const record = { useCase, slot, urls: [], methods: [], closed: false };
+      reads.push(record);
+      await context.route('**/*', (route) => {
+        const request = route.request();
+        record.urls.push(request.url());
+        record.methods.push(request.method());
+        return request.url() === vacancyUrl
+          ? route.fulfill({
+              contentType: 'text/html; charset=utf-8',
+              body: `<main><h1 data-qa="vacancy-title">${vacancySnapshot.title}</h1><p data-qa="vacancy-salary">${vacancyPay}</p><div data-qa="vacancy-description">${vacancySnapshot.description}</div></main>`,
+            })
+          : route.abort();
+      });
+      const page = await context.newPage();
+      const commander = makeBrowserCommander({
+        page,
+        enableNetworkTracking: false,
+        enableNavigationManager: false,
+        enableDialogManager: false,
+      });
+      return {
+        page,
+        commander,
+        async close() {
+          await commander.destroy();
+          await context.close();
+          record.closed = true;
+        },
+      };
+    },
+  });

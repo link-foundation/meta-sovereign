@@ -1,3 +1,11 @@
+2026-11-24 HeadHunter vacancy pay in Forms (QA13 and QA24 remain unfinished)
+
+- [x] Reproduce the owner-target fallback on the published parent in four focused regressions and the production Forms phone review.
+- [x] Use exact current chat and redirect evidence, honor visible introduction and explicit vacancy precedence, and recheck the association before any reviewed write.
+- [x] Pass 53 targeted checks per runtime, including CLI, both Lino encodings and existing reviewed application behavior.
+- [x] Verify Chromium native capture and independent Playwright MCP with one public vacancy GET, a selected hourly field receipt, a stale-association refusal and zero employer submissions.
+- [ ] Review exact-source hosted checks and verify authenticated providers, wider pay expressions and automatic form coverage.
+
 2026-11-23 native HeadHunter form-vacancy capture (QA24 remains unfinished)
 
 - [x] Reproduce the dropped vacancy at the previous source and in the Forms review after the form redirects.

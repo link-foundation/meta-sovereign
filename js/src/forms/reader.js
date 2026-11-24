@@ -119,7 +119,13 @@ const assignmentServices = ({
   return { assignments, publisher };
 };
 
-const readerOptions = (options) => {
+const readerOptions = (options, stopping, active) => {
+  if (stopping) {
+    throw failure('form-stopped', 'Form inspection is stopping.');
+  }
+  if (active) {
+    throw failure('form-busy', 'Another form inspection is still running.');
+  }
   const url = formUrl(options.url);
   const slot = browserName(options.browserSlot ?? 'forms');
   if (options.headless !== undefined && typeof options.headless !== 'boolean') {
@@ -153,6 +159,7 @@ export const createFormReader = ({
     reportWriter,
     modelRunner,
     ...review,
+    prefill: { readVacancy: readAssignmentVacancy, ...review.prefill },
     ready: bridge,
   });
   const { assignments, publisher } = assignmentServices({
@@ -183,6 +190,7 @@ export const createFormReader = ({
       checkPlanning(stopping, planning);
       const task = planFormAnswers(store, input, {
         runner: modelRunner,
+        readVacancy: readAssignmentVacancy,
         signal: modelAbort.signal,
       }).then((result) => withFormReportFile(reportWriter, result));
       planning.add(task);
@@ -193,13 +201,7 @@ export const createFormReader = ({
       }
     },
     async read(options = {}) {
-      if (stopping) {
-        throw failure('form-stopped', 'Form inspection is stopping.');
-      }
-      if (active) {
-        throw failure('form-busy', 'Another form inspection is still running.');
-      }
-      const { url, slot } = readerOptions(options);
+      const { url, slot } = readerOptions(options, stopping, active);
       let session;
       let closing;
       let cancelled = false;
