@@ -15,7 +15,9 @@ import { createExperienceAutoService } from '../src/cv/experience-auto-service.j
 import { experienceAutoOptions } from '../src/cv/experience-auto-record.js';
 import { createHhExperienceAcquisition } from '../src/cv/experience-hh-acquisition.js';
 import { createExperiencePlanningService } from '../src/cv/experience-plan-service.js';
+import { newExperiencePlan } from '../src/cv/experience-plan-record.js';
 import { createLinkedinExperienceService } from '../src/cv/linkedin-experience-service.js';
+import { saveExperienceDocument } from '../src/cv/experience-store.js';
 import {
   experienceReviewFixture,
   saveFreshReviewExport,
@@ -329,6 +331,148 @@ test(
       ]);
     } finally {
       await service.close();
+      await fixture.close();
+    }
+  }
+);
+
+test(
+  'review recovery adopts an existing post-Save comparison at the exact acknowledged child request',
+  { timeout: 10000 },
+  async () => {
+    const fixture = await experienceReviewFixture();
+    const requestId = 'recover-post-save-comparison';
+    const auto = experienceAutoOptions({ ...fixture.input, requestId });
+    const row = newExperienceReview(requestId, auto, 'b'.repeat(32));
+    const replanRequestId = reviewChildId(row, 'plan', 'c'.repeat(16));
+    const planner = createExperiencePlanningService({ store: fixture.store });
+    const attempts = [];
+    let statusUnavailable = false;
+    const plan = {
+      ...planner,
+      status: async (input) => {
+        if (statusUnavailable) {
+          throw new Error('The stored comparison could not be read yet.');
+        }
+        return planner.status(input);
+      },
+      start: async (input) => {
+        attempts.push(input.requestId);
+        return planner.start(input);
+      },
+    };
+    const service = createExperienceReviewService({
+      store: fixture.store,
+      getPlan: () => plan,
+      wait,
+      native: {
+        reviewer: () => ({
+          status: async () => ({
+            phase: 'saved',
+            providerSaved: true,
+            save: { evidence: 'verified-hh-about-export' },
+          }),
+        }),
+      },
+    });
+    try {
+      const { hh, linkedin } = await seedWorkplaceExperience(fixture);
+      linkedin.jobs = hh.document.jobs;
+      linkedin.profile.about = 'A reviewed biography.';
+      const old = await completeWorkplaceExperience(
+        fixture.store,
+        hh,
+        linkedin
+      );
+      const fresh = await saveExperienceDocument(fixture.store, {
+        ...hh.document,
+        profile: { ...hh.document.profile, about: linkedin.profile.about },
+      });
+      const comparison = {
+        requestId: old.requestId,
+        fingerprint: old.fingerprint,
+        hh: hh.revision,
+        linkedin: old.options.linkedin,
+        to: 'hh',
+      };
+      await planner.start({
+        ...old.options,
+        requestId: replanRequestId,
+        hh: fresh.revision,
+      });
+      const prior = await until(
+        () => planner.status({ requestId: replanRequestId }),
+        phaseIs('completed')
+      );
+      const checkpoint = {
+        ...row,
+        phase: 'replanning',
+        auto,
+        comparison,
+        pending: ['about'],
+        current: {
+          key: 'about',
+          kind: 'hh-about',
+          canSave: false,
+          decision: 'save',
+          input: {
+            requestId: reviewChildId(row, 'native'),
+            planRequestId: old.requestId,
+            fingerprint: old.fingerprint,
+          },
+        },
+        freshRevision: fresh.revision,
+        replanRequestId,
+      };
+      await fixture.store.put(checkpoint);
+      await service.resume({ requestId });
+      const completed = await until(
+        () => service.status({ requestId }),
+        phaseIs('completed')
+      );
+      assert.deepEqual(attempts, []);
+      assert.equal(completed.comparison.requestId, replanRequestId);
+      assert.equal(completed.comparison.fingerprint, prior.fingerprint);
+      assert.equal(completed.comparison.hh, fresh.revision);
+      assert.deepEqual(
+        completed.history.map(({ outcome, revision }) => [outcome, revision]),
+        [['saved', fresh.revision]]
+      );
+
+      await fixture.store.put(checkpoint);
+      statusUnavailable = true;
+      await service.resume({ requestId });
+      assert.deepEqual(
+        await until(() => service.status({ requestId }), phaseIs('completed')),
+        completed
+      );
+      assert.deepEqual(attempts, [replanRequestId]);
+      statusUnavailable = false;
+
+      // A definitively failed child permits a new comparison on explicit recovery.
+      const failedId = reviewChildId(row, 'plan', 'd'.repeat(16));
+      const failed = newExperiencePlan(failedId, {
+        ...prior.options,
+        requestId: failedId,
+      });
+      await fixture.store.put({
+        ...failed,
+        phase: 'failed',
+        code: 'cv-experience-plan-unavailable',
+      });
+      await fixture.store.put({ ...checkpoint, replanRequestId: failedId });
+      await service.resume({ requestId });
+      const retried = await until(
+        () => service.status({ requestId }),
+        phaseIs('completed')
+      );
+      assert.equal(attempts.length, 2);
+      assert.notEqual(attempts[1], failedId);
+      assert.equal(retried.comparison.requestId, attempts[1]);
+      assert.deepEqual(retried.history, completed.history);
+    } finally {
+      await service.close();
+      await planner.close();
       await fixture.close();
     }
   }

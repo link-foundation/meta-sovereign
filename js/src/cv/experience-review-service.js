@@ -80,6 +80,7 @@ const finishItem = (row, outcome, info = {}) => ({
   pending: row.pending.slice(1),
   current: null,
   freshRevision: null,
+  replanRequestId: null,
   code: null,
   history: [
     ...row.history,
@@ -269,7 +270,42 @@ const startComparison = async (context, row, run, signal) => {
   };
 };
 
-const snapshotAfterSave = async (context, row, plan, run) => {
+const replan = async (context, row, plan, run, save) => {
+  const inputFor = (requestId) =>
+    experiencePlanOptions({
+      ...plan.options,
+      requestId,
+      [plan.options.to]: row.freshRevision,
+    });
+  let requestId = row.replanRequestId;
+  if (requestId) {
+    const status = await context
+      .getPlan()
+      .status({ requestId })
+      .catch(() => null);
+    if (
+      status?.requestId === requestId &&
+      JSON.stringify(status.options) === JSON.stringify(inputFor(requestId))
+    ) {
+      if (status.phase === 'completed') {
+        return confirmedExperiencePlan(status, requestId);
+      }
+      if (['failed', 'stopped', 'interrupted'].includes(status.phase)) {
+        requestId = null;
+      }
+    }
+  }
+  if (!requestId) {
+    requestId = reviewChildId(row, 'plan', randomBytes(8).toString('hex'));
+    await save({ replanRequestId: requestId });
+  }
+  return confirmedExperiencePlan(
+    await run(context.getPlan, inputFor(requestId), experiencePlanRunning),
+    requestId
+  );
+};
+
+const snapshotAfterSave = async (context, row, plan, run, save) => {
   const result = await context.native.reviewer(row.current).status();
   if (!result.providerSaved || result.phase !== 'saved') {
     throw failure('native-receipt');
@@ -278,15 +314,7 @@ const snapshotAfterSave = async (context, row, plan, run) => {
     const freshRevision = await readFresh(context, row, plan, result, run);
     return { phase: 'replanning', freshRevision, waitingLogin: false };
   }
-  const input = experiencePlanOptions({
-    ...plan.options,
-    requestId: reviewChildId(row, 'plan', randomBytes(8).toString('hex')),
-    [plan.options.to]: row.freshRevision,
-  });
-  const next = await confirmedExperiencePlan(
-    await run(context.getPlan, input, experiencePlanRunning),
-    input.requestId
-  );
+  const next = await replan(context, row, plan, run, save);
   return {
     ...finishItem(row, 'saved', {
       revision: row.freshRevision,
@@ -360,7 +388,7 @@ const workFor = (context) => async (owned, save) => {
         owned.choice?.reject(failure('decision'));
         owned.choice = null;
       } else {
-        await save(await snapshotAfterSave(context, row, plan, run));
+        await save(await snapshotAfterSave(context, row, plan, run, save));
       }
     }
     if (

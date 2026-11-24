@@ -16,6 +16,8 @@ After a provider confirms Save, the queue performs a new native export for the t
 
 Recover review can also continue after the queue records a verified Save or Skip and before the next editor opens. It uses the recorded comparison and opens only the remaining draft. If the last decision finished the queue, recovery completes it using the stored receipt. [Checkpoint reproduction](experience-review-checkpoint.md)
 
+The queue records the post-Save comparison request before starting it. If the comparison finished before an interruption, recovery uses the recorded result and preserves both the saved CV revision and comparison fingerprint. [Comparison recovery](experience-review-replan.md)
+
 The local-device UI and JSON commands use the same service as the text and binary Lino routes under `/api/cv/experience/review-*`. Status reads never launch a browser. The active decision checks the parent request, selected change and native request together. Requests and receipts remain private. No automatic model decision submits a provider form.
 
 ## Reproduction and validation
