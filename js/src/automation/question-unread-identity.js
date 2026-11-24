@@ -6,3 +6,6 @@ export const browserUnreadId = (id) =>
 
 export const unreadFailure = (code, message) =>
   Object.assign(new Error(message), { code, fallback: false });
+
+export const unreadCoverageScope = (watchWaiting) =>
+  watchWaiting ? 'waiting-conversations' : 'unread-conversations';

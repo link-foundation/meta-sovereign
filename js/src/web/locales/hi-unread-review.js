@@ -1,4 +1,19 @@
 export const hiUnreadReview = {
+  'browserUnread.waitingHint':
+    'जब तक आप जवाब नहीं देते या सवाल नहीं छोड़ते, चैट खुली रहती है। चैट पहले से पढ़ी हुई हो सकती है। अगली जाँच के लिए इस ब्राउज़र टैब को निष्क्रिय रखें।',
+  'browserUnread.watch.visiting': 'बातचीत की जाँच जारी है।',
+  'browserUnread.watch.waiting': 'अगली जाँच की प्रतीक्षा है।',
+  'browserUnread.watch.starting': 'बार-बार जाँच शुरू हो रही है।',
+  'browserUnread.watchWaiting':
+    'आपके जवाब की प्रतीक्षा कर रही पढ़ी गई HeadHunter चैट भी शामिल करें',
+  'browserUnread.startWaiting': 'जवाब की प्रतीक्षा कर रही HeadHunter चैट देखें',
+  'browserUnread.heldWaiting':
+    'चैट {chat} समीक्षा के लिए खुली है। आगे बढ़ने के लिए HeadHunter में जवाब दें या यह सवाल छोड़ें।',
+  'browserUnread.skip': 'यह सवाल छोड़ें',
+  'browserUnread.skipConfirmed': 'चैट {chat} का सवाल छोड़ दिया गया।',
+  'browserUnread.waitingCoverage':
+    'दिखाई देने वाली {observed} चैट में से {visited} खोली गईं। पूरी सूची में और चैट हो सकती हैं।',
+  'browserUnread.answer.skipped': 'सवाल छोड़ दिया गया।',
   'browserUnread.reviewChoices': 'बॉट के विकल्प खुद चुनें',
   'browserUnread.activeReviewChoices':
     'अपठित सवालों की जाँच हो रही है। बॉट के विकल्प और ड्राफ़्ट आपकी समीक्षा के लिए खुले रहेंगे।',

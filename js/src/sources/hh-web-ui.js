@@ -142,6 +142,7 @@ export const HH_WEB_UI = {
     linkPattern: '^/chat/(\\d{1,30})(?:[/?#]|$)',
     title: '[data-qa="chat-cell-title"], [data-qa="chat-title"]',
     preview: '[class*="last-message-color_"], [data-qa="chat-last-message"]',
+    lastOutgoing: '[data-qa^="status-icon"]',
     unread:
       '[data-qa="chat-unread-count"], [data-qa*="badge"], [data-qa*="counter"]',
   },

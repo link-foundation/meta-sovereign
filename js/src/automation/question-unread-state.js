@@ -6,12 +6,16 @@ import { validUnreadNotice } from './question-unread-notice-state.js';
 import { validUnreadAnswer } from './question-unread-answer-state.js';
 import { unreadFormTransfer, validUnreadForm } from './question-unread-form.js';
 import { validUnreadPolling } from './question-unread-polling-state.js';
-import { browserUnreadId, unreadFailure } from './question-unread-identity.js';
+import {
+  browserUnreadId,
+  unreadFailure,
+  unreadCoverageScope,
+} from './question-unread-identity.js';
 export { browserUnreadId, unreadFailure } from './question-unread-identity.js';
 
-export const validUnreadCoverage = (value) =>
+export const validUnreadCoverage = (value, watchWaiting) =>
   value?.complete === false &&
-  value.scope === 'unread-conversations' &&
+  value.scope === unreadCoverageScope(watchWaiting) &&
   boundedBrowserText(value.reason, 120) &&
   Number.isInteger(value.observed) &&
   value.observed >= 0 &&
@@ -101,6 +105,13 @@ const validUnreadIdentity = (value, id) =>
   (value.reviewChoices === undefined ||
     typeof value.reviewChoices === 'boolean') &&
   (!value.reviewChoices || value.answerChats === true) &&
+  (value.watchWaiting === undefined ||
+    typeof value.watchWaiting === 'boolean') &&
+  (!value.watchWaiting ||
+    (value.source === 'hh' &&
+      value.answerChats === true &&
+      value.reviewChoices === true)) &&
+  (!value.polling?.lastSkip || value.watchWaiting === true) &&
   (value.prefillForms === undefined ||
     typeof value.prefillForms === 'boolean') &&
   (!value.prefillForms || value.answerChats === true) &&
@@ -117,7 +128,8 @@ const invalidUnreadEntries = (value) =>
   value.entries.some(
     (entry) =>
       (value.reviewChoices && entry?.answer?.selection) ||
-      (!value.reviewChoices && entry?.answer?.phase === 'choice-review')
+      (!value.reviewChoices && entry?.answer?.phase === 'choice-review') ||
+      (!value.watchWaiting && entry?.answer?.phase === 'skipped')
   ) ||
   (!value.prefillForms &&
     value.entries.some((entry) => entry.form !== undefined)) ||
@@ -126,7 +138,8 @@ const invalidUnreadEntries = (value) =>
     value.entries.length;
 
 const invalidUnreadCompletion = (value) =>
-  (value.coverage !== null && !validUnreadCoverage(value.coverage)) ||
+  (value.coverage !== null &&
+    !validUnreadCoverage(value.coverage, value.watchWaiting)) ||
   (value.restoration !== null && !validUnreadRestoration(value.restoration)) ||
   (value.state === 'completed' && (!value.coverage || !value.restoration)) ||
   (value.state === 'completed' &&

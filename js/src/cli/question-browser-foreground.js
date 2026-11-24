@@ -7,6 +7,7 @@ export const ownBrowserCommand = async ({
   status,
   stop,
   progress,
+  observe = () => {},
 }) => {
   let cancelled = false;
   const cancel = () => {
@@ -19,9 +20,11 @@ export const ownBrowserCommand = async ({
     let current = await start();
     started = true;
     progress(current);
+    observe(current);
     while (!cancelled && current.owned && current.state === 'active') {
       await delay(250);
       current = await status({ id });
+      observe(current);
     }
     return cancelled ? await stop({ id }) : current;
   } finally {

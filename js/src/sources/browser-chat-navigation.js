@@ -70,8 +70,17 @@ class ChatNavigation {
     signal,
     waitMs = 50,
     navigationMs = 5000,
+    showAllChats = false,
   }) {
-    Object.assign(this, { commander, page, ui, signal, waitMs, navigationMs });
+    Object.assign(this, {
+      commander,
+      page,
+      ui,
+      signal,
+      waitMs,
+      navigationMs,
+      showAllChats,
+    });
     this.spec = {
       composer: ui.composer,
       chats: ui.chats,
@@ -434,6 +443,10 @@ class ChatNavigation {
     try {
       await this.verify();
       if (this.review) {
+        if (this.showAllChats) {
+          await this.view('settle-filter');
+          await this.verify();
+        }
         const current = await readBrowserAnswerChoices(
           this.adapter,
           this.ui,
@@ -462,7 +475,7 @@ class ChatNavigation {
         };
       }
       await this.restoreRoutes();
-      await this.view('restore-filter');
+      await this.view(this.showAllChats ? 'settle-filter' : 'restore-filter');
       await sleep(this.waitMs);
       await this.view('restore-position');
       await sleep(this.waitMs);
@@ -537,6 +550,12 @@ class ChatNavigation {
           await this.view('open');
           let result;
           try {
+            if (this.showAllChats) {
+              this.signal?.throwIfAborted();
+              await this.view('show-all');
+              await sleep(this.waitMs);
+              await this.verify();
+            }
             result = await work({
               document: this.adapter,
               visit: (chat, read) => this.visit(chat, read),

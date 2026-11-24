@@ -5,6 +5,7 @@ import { normalizeChatScanOptions } from './browser-scan-options.js';
 import { withBrowserConversationTail } from './browser-conversation-tail.js';
 import { boundedBrowserText } from '../automation/question-browser-state.js';
 import { seedEmployerRating } from '../forms/employer-rating.js';
+import { unreadCoverageScope } from '../automation/question-unread-identity.js';
 
 export const normalizeUnreadScanOptions = (options = {}) => {
   const settings = normalizeChatScanOptions(options);
@@ -14,6 +15,8 @@ export const normalizeUnreadScanOptions = (options = {}) => {
     maxChats < 1 ||
     maxChats > 100 ||
     options.unreadOnly === false ||
+    (options.watchWaiting !== undefined &&
+      typeof options.watchWaiting !== 'boolean') ||
     (options.heldChat !== undefined &&
       !boundedBrowserText(options.heldChat, 480)) ||
     (options.onConversation !== undefined &&
@@ -24,7 +27,11 @@ export const normalizeUnreadScanOptions = (options = {}) => {
       fallback: false,
     });
   }
-  return { ...settings, maxChats };
+  return {
+    ...settings,
+    maxChats,
+    ...(options.watchWaiting && { watchWaiting: true }),
+  };
 };
 
 const passStopReason = (signal, deadline, limitReached = false) => {
@@ -35,6 +42,16 @@ const passStopReason = (signal, deadline, limitReached = false) => {
     return 'time-limit';
   }
   return limitReached ? 'chat-limit' : null;
+};
+
+const waitingRows = (rows, checkedChats = []) => {
+  const visible = rows.filter((row) => row.lastOutgoing !== true);
+  const byChat = new Map(visible.map((row) => [row.chat, row]));
+  const checked = checkedChats.map((chat) => byChat.get(chat)).filter(Boolean);
+  for (const row of checked) {
+    byChat.delete(row.chat);
+  }
+  return [...byChat.values(), ...checked];
 };
 
 /** One finite read pass in an existing inactive view; opening may mark chats read. */
@@ -48,7 +65,14 @@ export const scanUnreadBrowserConversations = ({
   const settings = normalizeUnreadScanOptions(options);
   const deadline = globalThis.performance.now() + settings.budgetMs;
   return withBrowserChatNavigation(
-    { commander, page, ui, signal: options.signal, waitMs: settings.waitMs },
+    {
+      commander,
+      page,
+      ui,
+      signal: options.signal,
+      waitMs: settings.waitMs,
+      showAllChats: settings.watchWaiting && !options.heldChat,
+    },
     async ({
       document,
       visit,
@@ -66,7 +90,7 @@ export const scanUnreadBrowserConversations = ({
         : await scanList(document, ui, {
             ...options,
             ...settings,
-            unreadOnly: true,
+            unreadOnly: settings.watchWaiting ? undefined : true,
             verifyCurrent,
             inactiveToken,
           });
@@ -81,7 +105,10 @@ export const scanUnreadBrowserConversations = ({
       let reason = list.coverage.endObserved
         ? 'observed-list'
         : list.coverage.reason;
-      for (const row of list.rows) {
+      const rows = settings.watchWaiting
+        ? waitingRows(list.rows, options.checkedChats)
+        : list.rows;
+      for (const row of rows) {
         const stop = passStopReason(
           options.signal,
           deadline,
@@ -206,7 +233,7 @@ export const scanUnreadBrowserConversations = ({
         conversations,
         coverage: {
           complete: false,
-          scope: 'unread-conversations',
+          scope: unreadCoverageScope(settings.watchWaiting),
           reason,
           observed: list.rows.length,
           visited: conversations.length,

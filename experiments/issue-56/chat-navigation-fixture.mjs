@@ -18,6 +18,8 @@ export const chatNavigationHtml = ({
   virtual = false,
   allRead = false,
   unreadChats,
+  unreadInitially = false,
+  outgoingChats = [],
   textReplies = false,
   latestMessages = null,
   historyMessages = null,
@@ -31,13 +33,14 @@ export const chatNavigationHtml = ({
 body{font:16px system-ui;margin:24px;color:#172333;background:#eef2f7}main{display:flex;gap:20px}#list{width:250px;height:200px;overflow-y:auto;background:white}#list article{box-sizing:border-box;height:100px;padding:14px;border-bottom:1px solid #ccc;cursor:pointer}#history{height:220px;width:620px;overflow-y:auto;overflow-anchor:none;background:white}#messages{height:800px;position:relative;flex-shrink:0}${messageLayout(reversedMessages)}#history article{box-sizing:border-box;position:absolute;height:100px;padding:12px}textarea{display:block;width:610px;height:65px;margin:12px 0}pre{white-space:pre-wrap;max-width:940px}
 </style><nav data-qa="mainmenu_applicantProfile">Synthetic applicant profile</nav><h1>Owned unread conversation pass</h1>
 <p>Offline fixture. Reading a conversation clears its unread counter; ${textReplies ? 'replies stay inside this fixture.' : 'sending is never requested.'}</p>
-<label><input id="outer-filter" type="checkbox"><label><input type="checkbox" checked data-qa="chatik-checkbox-only-unread">Unread conversations only</label></label>
+<label><input id="outer-filter" type="checkbox" ${unreadInitially ? 'checked' : ''}><label><input type="checkbox" checked data-qa="chatik-checkbox-only-unread">Unread conversations only</label></label>
 <main><div id="list"></div><section><h2 id="chat-title"></h2><span data-qa="participant-info-title">Example employer</span><div data-qa="chatik-header-sub-header"><a href="https://hh.ru/vacancy/123">Example vacancy</a></div><div id="history"><div id="messages"></div></div><div class="reply-options" id="choices" hidden></div><div id="composer"></div><button data-qa="send">Send</button></section></main><pre id="result">The owner's draft, selection and scroll must survive the pass.</pre>
 <script>
 const list=document.querySelector('#list'),filter=document.querySelector('#outer-filter'),pane=document.querySelector('#history'),messages=document.querySelector('#messages');
 const ownerDraft=${emptyOriginal}?'':Array.from({length:8},(_,i)=>'Owner unfinished line '+i).join('\n');
 const fixture=window.fixture={sends:0,visits:[],drafts:{'7':ownerDraft,'8':'','9':''},unread:{'7':${Number(originalUnread)},'8':${unreadCount('8', allRead, unreadChats)},'9':${unreadCount('9', allRead, unreadChats)}},chat:'7'};
-function renderList(){const ids=(${virtual}?['8','1','2','7','3','9']:['8','9','7']).filter(id=>!filter.checked||fixture.unread[id]>0);const first=${virtual}?Math.floor(list.scrollTop/100):0;list.innerHTML='<div style="position:relative;height:'+(ids.length*100)+'px">'+ids.slice(first,${virtual}?first+3:ids.length).map((id,i)=>'<article style="'+(${virtual}?'position:absolute;width:100%;top:'+((first+i)*100)+'px':'')+'" data-qa="chatik-open-chat-'+id+'"><b data-qa="chat-cell-title">Employer '+id+'</b><div data-qa="chat-last-message">A pending question</div><span data-qa="chat-cell-counter">'+fixture.unread[id]+'</span></article>').join('')+'</div>';for(const row of list.querySelectorAll('article'))row.onclick=()=>openChat(row.dataset.qa.replace('chatik-open-chat-',''));}
+const outgoingChats=${scriptMessages(outgoingChats)};
+function renderList(){const ids=(${virtual}?['8','1','2','7','3','9']:['8','9','7']).filter(id=>!filter.checked||fixture.unread[id]>0);const first=${virtual}?Math.floor(list.scrollTop/100):0;list.innerHTML='<div style="position:relative;height:'+(ids.length*100)+'px">'+ids.slice(first,${virtual}?first+3:ids.length).map((id,i)=>'<article style="'+(${virtual}?'position:absolute;width:100%;top:'+((first+i)*100)+'px':'')+'" data-qa="chatik-open-chat-'+id+'"><b data-qa="chat-cell-title">Employer '+id+'</b><div data-qa="chat-last-message">A pending question</div><span data-qa="chat-cell-counter">'+fixture.unread[id]+'</span>'+(outgoingChats.includes(id)?'<span data-qa="status-icon-delivered">Delivered</span>':'')+'</article>').join('')+'</div>';for(const row of list.querySelectorAll('article'))row.onclick=()=>openChat(row.dataset.qa.replace('chatik-open-chat-',''));}
 const messageOffset=()=>${reversedMessages}?pane.scrollHeight-pane.clientHeight+pane.scrollTop:pane.scrollTop;
 const fixtureHistory=${scriptMessages(historyMessages)}, latest=${scriptMessages(latestMessages)};
 function renderMessages(){

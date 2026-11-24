@@ -1,4 +1,18 @@
 export const zhUnreadReview = {
+  'browserUnread.waitingHint':
+    '聊天会保持打开，直到您回复或跳过问题。聊天可能已被标为已读。请将 HeadHunter 标签页留在后台，以便进行下一次检查。',
+  'browserUnread.watch.visiting': '正在检查聊天。',
+  'browserUnread.watch.waiting': '正在等待下一次检查。',
+  'browserUnread.watch.starting': '正在启动定期检查。',
+  'browserUnread.watchWaiting': '包括已读且等待您回复的 HeadHunter 聊天',
+  'browserUnread.startWaiting': '查看等待您回复的 HeadHunter 聊天',
+  'browserUnread.heldWaiting':
+    '聊天 {chat} 已打开，等待您查看。请在 HeadHunter 回复或跳过此问题后继续。',
+  'browserUnread.skip': '跳过此问题',
+  'browserUnread.skipConfirmed': '已跳过聊天 {chat} 中的问题。',
+  'browserUnread.waitingCoverage':
+    '已打开 {observed} 个可见聊天中的 {visited} 个。完整列表可能还有其他聊天。',
+  'browserUnread.answer.skipped': '已跳过问题。',
   'browserUnread.reviewChoices': '手动选择机器人选项',
   'browserUnread.activeReviewChoices':
     '正在检查未读问题。机器人选项和草稿将保留供您检查。',

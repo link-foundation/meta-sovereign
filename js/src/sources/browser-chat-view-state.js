@@ -44,6 +44,7 @@ const captureView = (ui, token) => {
   return {
     token,
     url: window.location.href,
+    filterControl: nodes.control,
     unreadOnly: nodes.control.checked,
     listTop: nodes.list?.scrollTop ?? null,
     messageTop: nodes.messages?.scrollTop ?? null,
@@ -153,6 +154,18 @@ const visitView = (input) => {
 const inactiveReady = (inactive, token) =>
   inactive?.token === token && !inactive.interrupted && !document.hasFocus();
 
+const updateViewFilter = (state, input) => {
+  const control = chatFilterControl(input.ui.chatScan.unreadFilter);
+  if (!control || control !== state.filterControl || control.disabled) {
+    return { state: 'filter-unavailable' };
+  }
+  const checked = input.operation === 'settle-filter' && state.unreadOnly;
+  activateChatFilter({ control, inactiveToken: input.inactiveToken }, checked);
+  return {
+    state: control.checked === checked ? 'ready' : 'filter-unavailable',
+  };
+};
+
 const viewState = (input) => {
   const key = Symbol.for('meta-sovereign.browser-chat-view.v1');
   const { operation, token, inactiveToken, ui } = input;
@@ -176,6 +189,9 @@ const viewState = (input) => {
   }
   if (operation === 'visit' || operation === 'locate') {
     return visitView(input);
+  }
+  if (operation === 'show-all' || operation === 'settle-filter') {
+    return updateViewFilter(state, input);
   }
   if (!operation.startsWith('restore') && operation !== 'receipt') {
     return { state: 'ready' };
@@ -206,5 +222,6 @@ export const browserChatViewState = new Function(`return (input) => {
   const restoreView = (${restoreView.toString()});
   const visitView = (${visitView.toString()});
   const inactiveReady = (${inactiveReady.toString()});
+  const updateViewFilter = (${updateViewFilter.toString()});
   return (${viewState.toString()})(input);
 }`)();

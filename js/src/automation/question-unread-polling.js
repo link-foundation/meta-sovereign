@@ -2,10 +2,39 @@ import { normalizeAnswerAction } from './question-answers.js';
 import { normalizeAnswerEnvironment } from './question-context.js';
 import { normalizeUnreadReviewSettings } from './question-browser-unread.js';
 import { browserUnreadId, unreadFailure } from './question-unread-state.js';
-import { normalizeUnreadPolling } from './question-unread-polling-state.js';
+import {
+  normalizeUnreadPolling,
+  sameUnreadSkip,
+  unreadSkipTarget,
+} from './question-unread-polling-state.js';
 import { UnreadPollingCycle } from './question-unread-polling-cycle.js';
 
 const kind = 'question-unread-polling';
+const skipChanged = () =>
+  unreadFailure(
+    'question-unread-skip-changed',
+    'Refresh the held chat before skipping.'
+  );
+
+const currentSkipTarget = (runtime, input) => {
+  const { record } = runtime;
+  return (
+    runtime.wake &&
+    !runtime.skip &&
+    !runtime.controller.signal.aborted &&
+    sameUnreadSkip(
+      unreadSkipTarget({
+        ...record,
+        owned: true,
+        polling: {
+          ...record.polling,
+          receiptPassId: record.polling.lastPassId,
+        },
+      }),
+      input
+    )
+  );
+};
 
 /** Repeated checking is explicit; saved parent IDs only recover status. */
 class UnreadPolling {
@@ -138,6 +167,7 @@ class UnreadPolling {
         ...(input.noticeReplies ? { noticeReplies: true } : {}),
         ...(input.answerChats ? { answerChats: true } : {}),
         ...(input.reviewChoices ? { reviewChoices: true } : {}),
+        ...(settings.watchWaiting ? { watchWaiting: true } : {}),
         ...(input.prefillForms ? { prefillForms: true } : {}),
         entries: [],
         coverage: null,
@@ -175,6 +205,36 @@ class UnreadPolling {
     return work;
   }
 
+  async skip(input = {}) {
+    const record =
+      browserUnreadId(input.id) && (await this.store.get(input.id));
+    if (
+      record?.kind === kind &&
+      sameUnreadSkip(record.polling.lastSkip, input)
+    ) {
+      return this.status(input);
+    }
+    const runtime = this.runtimes.get(input.id);
+    if (!runtime || !currentSkipTarget(runtime, input)) {
+      throw skipChanged();
+    }
+    const result = new Promise((resolve) => {
+      runtime.skip = {
+        target: {
+          passId: input.passId,
+          chat: input.chat,
+          questionId: input.questionId,
+        },
+        resolve,
+      };
+    });
+    runtime.wake.abort();
+    if (!(await result)) {
+      throw skipChanged();
+    }
+    return this.status(input);
+  }
+
   async stop(input) {
     await this.admitting;
     const runtime = this.runtimes.get(input?.id);
@@ -206,7 +266,7 @@ class UnreadPolling {
 export const withQuestionUnreadPolling = (options) => {
   const service = new UnreadPolling(options);
   return Object.fromEntries(
-    ['start', 'status', 'stop', 'close'].map((name) => [
+    ['start', 'status', 'skip', 'stop', 'close'].map((name) => [
       name,
       service[name].bind(service),
     ])

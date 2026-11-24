@@ -12,18 +12,40 @@ const codeOf = (error) =>
 export class UnreadPollingCycle {
   constructor({ finite, clock, save, runtime, pause = delay }) {
     Object.assign(this, { finite, clock, save, runtime, pause });
+    this.skipped = new Map();
+    this.checked = new Set();
   }
 
-  async sleep(ms) {
+  async sleep(ms, wake) {
+    const stop = this.runtime.controller.signal;
+    const signal = wake
+      ? globalThis.AbortSignal.any([stop, wake.signal])
+      : stop;
     try {
-      await this.pause(ms, undefined, {
-        signal: this.runtime.controller.signal,
-      });
+      await this.pause(ms, undefined, { signal });
     } catch (error) {
-      if (!this.runtime.controller.signal.aborted) {
+      if (!signal.aborted) {
         throw error;
       }
     }
+  }
+
+  settleSkip(child) {
+    const { skip } = this.runtime;
+    if (
+      !skip ||
+      child.state !== 'completed' ||
+      !child.restoration?.restored ||
+      !child.entries.some(
+        ({ chat, answer }) =>
+          chat === skip.target.chat &&
+          answer?.questionId === skip.target.questionId &&
+          answer.phase === 'skipped'
+      )
+    ) {
+      return null;
+    }
+    return skip.target;
   }
 
   async collect(child) {
@@ -50,7 +72,14 @@ export class UnreadPollingCycle {
     });
     let child;
     try {
-      child = await this.finite.start({ ...runtime.input, id });
+      const watch = runtime.input.watchWaiting
+        ? {
+            skipped: this.skipped,
+            checked: this.checked,
+            skip: runtime.skip?.target,
+          }
+        : undefined;
+      child = await this.finite.start({ ...runtime.input, id }, { watch });
     } catch (error) {
       if (error.code === 'question-unread-active') {
         return this.outcome(
@@ -72,8 +101,11 @@ export class UnreadPollingCycle {
       }
     }
     runtime.childId = id;
+    let skipped;
+    let phase;
     try {
       child = await this.collect(child);
+      skipped = !runtime.controller.signal.aborted && this.settleSkip(child);
       if (runtime.input.answerChats) {
         const held = child.restoration?.heldReview;
         if (held) {
@@ -91,14 +123,32 @@ export class UnreadPollingCycle {
           lastPassId: id,
           pendingPassId: null,
           passes: runtime.record.polling.passes + 1,
+          ...(skipped ? { lastSkip: skipped } : {}),
         },
       });
-      return this.outcome(child);
+      phase = await this.outcome(child);
     } finally {
       // An unexpected storage/status failure must still drain issued work.
       await this.finite.stop({ id });
       runtime.childId = null;
     }
+    if (skipped) {
+      this.skipped.set(skipped.chat, skipped.questionId);
+      runtime.skip.resolve(true);
+    }
+    if (runtime.input.watchWaiting && phase === 'waiting') {
+      // Revisit handled chats after new candidates, in least-recently visited order.
+      for (const { chat } of child.entries) {
+        if (chat !== runtime.input.heldChat) {
+          this.checked.delete(chat);
+          this.checked.add(chat);
+        }
+      }
+      while (this.checked.size > 5000) {
+        this.checked.delete(this.checked.values().next().value);
+      }
+    }
+    return phase;
   }
 
   async outcome(child, unissued = false) {
@@ -139,7 +189,13 @@ export class UnreadPollingCycle {
           runtime.controller.abort();
           break;
         }
-        const phase = await this.visit();
+        let phase;
+        try {
+          phase = await this.visit();
+        } finally {
+          runtime.skip?.resolve(false);
+          runtime.skip = null;
+        }
         if (
           runtime.controller.signal.aborted ||
           runtime.record.state !== 'active'
@@ -159,7 +215,13 @@ export class UnreadPollingCycle {
             nextAt: new Date(this.clock().getTime() + ms).toISOString(),
           },
         });
-        await this.sleep(ms);
+        const wake = runtime.input.watchWaiting ? new AbortController() : null;
+        runtime.wake = wake;
+        try {
+          await this.sleep(ms, wake);
+        } finally {
+          runtime.wake = null;
+        }
       }
       if (runtime.controller.signal.aborted) {
         await this.save({
@@ -184,6 +246,7 @@ export class UnreadPollingCycle {
         },
       });
     } finally {
+      runtime.skip?.resolve(false);
       globalThis.clearTimeout(expiry);
     }
   }

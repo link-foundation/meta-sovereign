@@ -7,6 +7,11 @@ Forms slot when explicitly enabled. Retain the form for review and continue to
 the first chat that needs a reply after a confirmed questionnaire-only handoff
 (issue #56, HH10 and QA24).
 
+Watch HeadHunter chats awaiting a reply from shared automation controls, the
+foreground CLI or both Lino encodings. Include already-read chats in this mode,
+keep the current draft open, and advance after an observed owner reply or a
+confirmed Skip for the exact incoming message (issue #56, HH10).
+
 Leave HeadHunter bot choices open for manual selection during application-owned
 chat review. Standalone unread review offers the same policy through the shared
 controls, CLI and Lino. Ordinary drafts and held-chat polling stay available

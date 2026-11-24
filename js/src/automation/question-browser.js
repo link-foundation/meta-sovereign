@@ -309,6 +309,7 @@ export const createQuestionBrowser = ({
     }),
     unreadStart: unread.start,
     unreadStatus: unread.status,
+    unreadSkip: unread.skip,
     unreadStop: unread.stop,
     watchStart: watches.start,
     watchStatus: watches.status,

@@ -1,4 +1,19 @@
 export const enUnreadReview = {
+  'browserUnread.waitingHint':
+    'A chat stays open until you reply or skip. It can already be marked read. Leaving this browser tab inactive lets the next check run.',
+  'browserUnread.watch.visiting': 'Checking conversations now.',
+  'browserUnread.watch.waiting': 'Waiting for the next check.',
+  'browserUnread.watch.starting': 'Starting repeated checks.',
+  'browserUnread.watchWaiting':
+    'Include already-read HeadHunter chats awaiting your reply',
+  'browserUnread.startWaiting': 'Watch HeadHunter chats awaiting your reply',
+  'browserUnread.heldWaiting':
+    'Chat {chat} is open for review. Reply in HeadHunter or skip this question to continue.',
+  'browserUnread.skip': 'Skip this question',
+  'browserUnread.skipConfirmed': 'Skipped the question in chat {chat}.',
+  'browserUnread.waitingCoverage':
+    'Visited {visited} of {observed} visible chats. The full list may contain more conversations.',
+  'browserUnread.answer.skipped': 'Question skipped.',
   'browserUnread.reviewChoices': 'Leave bot choices for manual selection',
   'browserUnread.activeReviewChoices':
     'Checking unread questions. Bot choices and drafts stay open for your review.',

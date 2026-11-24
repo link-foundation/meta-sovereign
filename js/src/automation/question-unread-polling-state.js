@@ -52,6 +52,44 @@ const validPollingCounts = (value, normalized) =>
   value.failures >= 0 &&
   value.failures <= normalized.maxFailures;
 
+export const sameUnreadSkip = (receipt, input) =>
+  Boolean(
+    receipt &&
+    receipt.passId === input.passId &&
+    receipt.chat === input.chat &&
+    receipt.questionId === input.questionId
+  );
+
+export const unreadSkipTarget = (result) => {
+  const held = result?.restoration?.heldReview;
+  const polling = result?.polling;
+  if (
+    !result?.owned ||
+    result.state !== 'active' ||
+    !result.watchWaiting ||
+    polling?.phase !== 'waiting' ||
+    !browserUnreadId(polling.lastPassId) ||
+    polling.lastPassId !== polling.receiptPassId ||
+    !held ||
+    held.currentQuestionId !== held.questionId
+  ) {
+    return null;
+  }
+  return {
+    id: result.id,
+    passId: polling.lastPassId,
+    chat: held.chat,
+    questionId: held.questionId,
+  };
+};
+
+const validUnreadSkip = (skip, parentId) =>
+  skip === undefined ||
+  (browserUnreadId(skip?.passId) &&
+    skip.passId !== parentId &&
+    boundedBrowserText(skip.chat, 480) &&
+    boundedBrowserText(skip.questionId, 480));
+
 export const validUnreadPolling = (value, parentId) => {
   if (value === undefined) {
     return true;
@@ -74,6 +112,7 @@ export const validUnreadPolling = (value, parentId) => {
       Number.isFinite(Date.parse(value.expiresAt)) &&
       (value.nextAt === null || Number.isFinite(Date.parse(value.nextAt))) &&
       validPollingIds(value, parentId) &&
+      validUnreadSkip(value.lastSkip, parentId) &&
       (value.reason === undefined || boundedBrowserText(value.reason, 120))
     );
   } catch {

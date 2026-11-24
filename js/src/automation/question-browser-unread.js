@@ -26,9 +26,9 @@ import {
 } from './question-unread-notice-state.js';
 
 const failure = unreadFailure;
-const checkedPass = (value, maxChats) => {
+const checkedPass = (value, { maxChats, watchWaiting }) => {
   if (
-    !validUnreadCoverage(value?.coverage) ||
+    !validUnreadCoverage(value?.coverage, watchWaiting) ||
     !validUnreadRestoration(value.restoration) ||
     !Array.isArray(value.conversations) ||
     value.conversations.length > maxChats ||
@@ -83,6 +83,7 @@ const executeUnreadReview = async ({
   review,
   save,
   context,
+  watch,
 }) => {
   let recentWindow;
   try {
@@ -91,6 +92,7 @@ const executeUnreadReview = async ({
         source: record.source,
         ...record.settings,
         ...(record.heldChat ? { heldChat: record.heldChat } : {}),
+        ...(watch ? { checkedChats: [...watch.checked] } : {}),
         signal: controller.signal,
         onHistoryWindow: async (window) => {
           const captured = await archiveBrowserHistoryWindow(context.store, {
@@ -125,6 +127,7 @@ const executeUnreadReview = async ({
                   handle,
                   review,
                   save,
+                  watch,
                 }),
             }
           : record.noticeReplies
@@ -143,7 +146,7 @@ const executeUnreadReview = async ({
               }
             : {}),
       }),
-      record.settings.maxChats
+      record.settings
     );
     if (!validUnreadReplyView({ ...record, restoration: pass.restoration })) {
       throw failure(
@@ -203,6 +206,19 @@ export const normalizeUnreadReviewSettings = (input, capabilities) => {
     throw failure(
       'question-unread-unavailable',
       'Unread browser traversal is unavailable for this provider.'
+    );
+  }
+  if (
+    (input.watchWaiting !== undefined &&
+      typeof input.watchWaiting !== 'boolean') ||
+    (input.watchWaiting &&
+      (input.source !== 'hh' ||
+        input.answerChats !== true ||
+        input.reviewChoices !== true))
+  ) {
+    throw failure(
+      'question-unread-waiting-unavailable',
+      'Waiting chat watch requires supervised HeadHunter answers and manual bot choices.'
     );
   }
   if (
@@ -326,7 +342,7 @@ export const createQuestionUnreadReviews = ({
     }
     return unreadStatusResult(record, runtimes.has(record.id));
   };
-  const admit = async (input) => {
+  const admit = async (input, { watch } = {}) => {
     if (closed) {
       throw failure(
         'question-unread-closed',
@@ -341,6 +357,12 @@ export const createQuestionUnreadReviews = ({
     }
     if (await store.get(input.id)) {
       return status(input);
+    }
+    if (input.watchWaiting && !watch) {
+      throw failure(
+        'question-unread-waiting-unavailable',
+        'Waiting chat watch requires repeated polling.'
+      );
     }
     const settings = normalizeUnreadReviewSettings(input, capabilities());
     const planning = {
@@ -366,6 +388,7 @@ export const createQuestionUnreadReviews = ({
       ...(input.noticeReplies ? { noticeReplies: true } : {}),
       ...(input.answerChats ? { answerChats: true } : {}),
       ...(input.reviewChoices ? { reviewChoices: true } : {}),
+      ...(settings.watchWaiting ? { watchWaiting: true } : {}),
       ...(input.prefillForms ? { prefillForms: true } : {}),
       ...(input.heldChat ? { heldChat: input.heldChat } : {}),
       state: 'active',
@@ -393,13 +416,14 @@ export const createQuestionUnreadReviews = ({
       review,
       save,
       context,
+      watch,
     }).finally(() => runtimes.delete(record.id));
     runtime.work.catch(() => {});
     return status(record);
   };
   return {
-    start(input = {}) {
-      const work = admitting.then(() => admit(input));
+    start(input = {}, internal) {
+      const work = admitting.then(() => admit(input, internal));
       admitting = work.catch(() => {});
       return work;
     },

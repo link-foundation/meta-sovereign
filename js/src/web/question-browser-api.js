@@ -8,6 +8,7 @@ import {
   checkBrowserWatchReceipt,
 } from '../automation/question-browser-state.js';
 import { checkUnreadReview } from '../automation/question-unread-state.js';
+import { sameUnreadSkip } from '../automation/question-unread-polling-state.js';
 
 const failure = (value) =>
   Object.assign(
@@ -112,8 +113,8 @@ export const questionBrowserApi = ({ remote }) => {
       ),
       input.id
     );
-  const unread = async (action, input) =>
-    checkUnreadReview(
+  const unread = async (action, input) => {
+    const result = checkUnreadReview(
       await (remote.report ?? remote.post)(
         `/api/automations/answers/browser/unread-${action}`,
         input,
@@ -121,6 +122,11 @@ export const questionBrowserApi = ({ remote }) => {
       ),
       input.id
     );
+    if (action === 'skip' && !sameUnreadSkip(result.polling?.lastSkip, input)) {
+      throw failure({ code: 'question-unread-skip-changed' });
+    }
+    return result;
+  };
   return {
     browserAnswerCapabilities: async () => {
       const result = await remote.get('/api/automations/answers/browser');
@@ -161,6 +167,7 @@ export const questionBrowserApi = ({ remote }) => {
     startBrowserUnreadReview: (input) => unread('start', input),
     browserUnreadReviewStatus: (input) => unread('status', input),
     stopBrowserUnreadReview: (input) => unread('stop', input),
+    skipBrowserUnreadReview: (input) => unread('skip', input),
     prefillBrowserAnswer: (input) => call('prefill', input),
     selectBrowserAnswer: (input) => call('select', input),
     replyBrowserText: (input) => call('reply-text', input),

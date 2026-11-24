@@ -871,3 +871,4 @@ Optional persistent collection with full current-run context: [collection eviden
 - [Older owner replies in sequential review](unread-history-learning.md) save dated, evidence-linked proposals and extend related notice patterns after both replies are confirmed.
 - [Manual bot choices during application-owned checking](application-chat-choices.md) leave the same provider chat open for the owner while applications continue independently.
 - [Application sign-in in the chat slot](application-chat-session.md) verifies workspace-scoped profiles and a HeadHunter session handoff in separate native browser contexts.
+- [HeadHunter chats awaiting a reply](unread-waiting.md) covers already-read chat discovery, an exact Skip receipt, and protected provider drafts during supervised checking.

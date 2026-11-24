@@ -117,6 +117,7 @@ export const unreadAnswerFixture = async (options = {}) => {
     }
     pass.coverage = {
       ...pass.coverage,
+      scope: input.watchWaiting ? 'waiting-conversations' : pass.coverage.scope,
       reason: pass.restoration.heldReview ? 'review-held' : 'observed-list',
       observed: rows.length,
       visited: pass.conversations.length,

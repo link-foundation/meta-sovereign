@@ -12,6 +12,7 @@ const reviewPhases = [
   'owner-draft',
   'prefilled',
   'form-review',
+  'skipped',
 ];
 const effectPhases = ['selecting', 'sent', 'marked-sent', 'unknown', 'failed'];
 const validCount = (value, max) =>

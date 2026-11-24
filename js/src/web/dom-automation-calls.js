@@ -30,6 +30,7 @@ export const AUTOMATION_CALLS = [
   'startBrowserUnreadReview',
   'browserUnreadReviewStatus',
   'stopBrowserUnreadReview',
+  'skipBrowserUnreadReview',
   'startBrowserAnswerWatch',
   'browserAnswerWatchStatus',
   'stopBrowserAnswerWatch',

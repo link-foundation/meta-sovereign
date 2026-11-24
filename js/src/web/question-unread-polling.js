@@ -88,11 +88,15 @@ export const UnreadPollingFields = ({ polling, disabled }) => {
   ]);
 };
 
-export const UnreadPollingStatus = ({ polling }) => {
+export const UnreadPollingStatus = ({ polling, watchWaiting }) => {
   const t = useT();
   if (!polling) {
     return null;
   }
+  const mode =
+    watchWaiting && ['starting', 'visiting', 'waiting'].includes(polling.phase)
+      ? 'watch'
+      : 'poll';
   return el(
     'div',
     { className: 'col', 'data-browser-unread-poll-phase': polling.phase },
@@ -100,7 +104,7 @@ export const UnreadPollingStatus = ({ polling }) => {
       el(
         'p',
         { key: 'phase', role: 'status' },
-        t(`browserUnread.poll.${polling.phase}`)
+        t(`browserUnread.${mode}.${polling.phase}`)
       ),
       el(
         'p',

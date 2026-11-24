@@ -126,6 +126,15 @@ export const extractChats = (spec) => {
       preview: text(node, spec.preview) || null,
       time: text(node, spec.time) || null,
       unread: unreadOf(node),
+      ...(spec.includeDirection &&
+        spec.lastOutgoing && {
+          lastOutgoing: [...node.querySelectorAll(spec.lastOutgoing)].some(
+            (marker) =>
+              marker.getClientRects().length > 0 &&
+              !marker.closest('[hidden], [inert], [aria-hidden="true"]') &&
+              window.getComputedStyle(marker).visibility === 'visible'
+          ),
+        }),
     };
   };
   const unreadOf = (node) => {

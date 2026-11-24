@@ -95,6 +95,30 @@ const alreadyHandled = (snapshot, plan, entry) =>
     !plan.linkReview &&
     !plan.pending?.blocked);
 
+const skippedQuestion = async (watch, snapshot, handle) => {
+  if (!watch || snapshot.question.outgoing) {
+    return false;
+  }
+  const { chat, question } = snapshot;
+  const asked =
+    watch.skip?.chat === chat && watch.skip.questionId === question.id;
+  if (!asked && watch.skipped.get(chat) !== question.id) {
+    return false;
+  }
+  const current = checkBrowserQuestion(await handle.readInactiveQuestion());
+  if (
+    current.chat !== chat ||
+    current.question.id !== question.id ||
+    current.question.outgoing
+  ) {
+    throw unreadFailure(
+      'question-unread-skip-changed',
+      'The held question changed before Skip.'
+    );
+  }
+  return true;
+};
+
 const finishSummary = async ({
   context,
   record,
@@ -141,6 +165,7 @@ export const visitUnreadAnswer = async ({
   handle,
   review,
   save,
+  watch,
 }) => {
   const observed = handle.snapshot;
   const snapshot = checkBrowserQuestion(observed);
@@ -149,6 +174,16 @@ export const visitUnreadAnswer = async ({
       'question-unread-unverified',
       'The borrowed conversation changed.'
     );
+  }
+  if (await skippedQuestion(watch, snapshot, handle)) {
+    controller.signal.throwIfAborted();
+    record.entries.push({
+      chat: snapshot.chat,
+      preview: snapshot.question.body.slice(0, 600),
+      answer: { phase: 'skipped', questionId: snapshot.question.id },
+    });
+    await save(record);
+    return { holdReview: false };
   }
   const input = await unreadAnswerInput(context, record, observed, {
     signal: controller.signal,

@@ -180,6 +180,7 @@ export const questionBrowserServer = async (
     unreadReview = false,
     unreadAnswers = false,
     unreadChoices,
+    unreadWaiting = false,
     unreadModel = false,
     unreadNotices = false,
     unreadReplyView = false,
@@ -228,6 +229,14 @@ export const questionBrowserServer = async (
             {
               ...mode,
               ...(unreadAnswers ? { precedingOutgoing: true } : {}),
+              ...(unreadWaiting
+                ? {
+                    unreadInitially: true,
+                    unreadChats: ['9'],
+                    outgoingChats: ['7'],
+                    textReplies: true,
+                  }
+                : {}),
               ...(unreadChoices
                 ? { choiceChat: '8', latestMessages: { 8: unreadBotQuestion } }
                 : {}),
@@ -340,12 +349,18 @@ if (
   const unreadSummary = process.env.QUESTION_BROWSER_UNREAD_SUMMARY === '1';
   const unreadHistory = process.env.QUESTION_BROWSER_UNREAD_HISTORY === '1';
   const unreadChoices = process.env.QUESTION_BROWSER_UNREAD_CHOICES === '1';
+  const unreadWaiting = process.env.QUESTION_BROWSER_UNREAD_WAITING === '1';
   const fixture = await questionBrowserServer(browser, {
     summaryChoices: process.env.QUESTION_BROWSER_SUMMARY === '1',
     noticePolicies: process.env.QUESTION_BROWSER_NOTICES === '1',
     unreadReview:
       Boolean(
-        linked || rating || unreadSummary || unreadHistory || unreadChoices
+        linked ||
+        rating ||
+        unreadSummary ||
+        unreadHistory ||
+        unreadChoices ||
+        unreadWaiting
       ) || process.env.QUESTION_BROWSER_UNREAD === '1',
     ...(linked && {
       unreadAnswers: true,
@@ -364,6 +379,7 @@ if (
     }),
     ...(unreadHistory && { unreadAnswers: true, unreadHistory }),
     ...(unreadChoices && { unreadAnswers: true, unreadChoices }),
+    ...(unreadWaiting && { unreadAnswers: true, unreadWaiting }),
   });
   const controls = questionBrowserControlServer(fixture);
   await new Promise((resolve) => controls.listen(0, '127.0.0.1', resolve));

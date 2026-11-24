@@ -12,6 +12,7 @@ export const questionBrowserRoute = async (req, res, path, ctx) => {
     [`${ROOT}/inspect`]: 'inspect',
     [`${ROOT}/unread-start`]: 'unreadStart',
     [`${ROOT}/unread-status`]: 'unreadStatus',
+    [`${ROOT}/unread-skip`]: 'unreadSkip',
     [`${ROOT}/unread-stop`]: 'unreadStop',
     [`${ROOT}/prefill`]: 'prefill',
     [`${ROOT}/select`]: 'select',

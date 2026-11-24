@@ -51,6 +51,15 @@ const registeredScenarios = (groups) => {
   });
 };
 
+test('HeadHunter waiting review shares the native chat choice browser group', () => {
+  assert.deepEqual(
+    registeredScenarios(
+      registry.filter((name) => name === 'question-unread-choices')
+    ),
+    ['verifyUnreadBotChoices', 'verifyUnreadWaiting']
+  );
+});
+
 test('vacancy selection has its own budget while retaining all ten scenarios', () => {
   const groups = registry.filter((name) =>
     [

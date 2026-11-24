@@ -1,6 +1,7 @@
 import React from 'react';
 import { useT } from './i18n.js';
 import { browserUnreadId } from '../automation/question-unread-state.js';
+import { unreadSkipTarget } from '../automation/question-unread-polling-state.js';
 import { browserWatchPhaseKey } from './question-browser-watch-state.js';
 import { ModelDraftControl } from './answer-model-settings.js';
 import { UnreadFormOption, UnreadFormResult } from './question-unread-forms.js';
@@ -70,14 +71,29 @@ const useUnreadPass = ({
   }, [pending, result, busy, changed]);
   React.useEffect(() => () => changed(false), [changed]);
   React.useEffect(() => {
-    if (!activePass(result)) {
+    if (!activePass(result) || busy) {
       return undefined;
     }
-    const timer = globalThis.setTimeout(() => {
-      run(() => api.browserUnreadReviewStatus({ id }));
+    let current = true;
+    const timer = globalThis.setTimeout(async () => {
+      try {
+        const value = await api.browserUnreadReviewStatus({ id });
+        if (current && !running.current) {
+          setResult(value);
+        }
+      } catch (err) {
+        if (current && !running.current) {
+          setError(
+            t('browserAnswer.error', { code: err.code ?? 'unconfirmed' })
+          );
+        }
+      }
     }, 750);
-    return () => globalThis.clearTimeout(timer);
-  }, [result, id]);
+    return () => {
+      current = false;
+      globalThis.clearTimeout(timer);
+    };
+  }, [api, busy, result, id, t]);
   return {
     id,
     result,
@@ -98,6 +114,7 @@ const useUnreadPass = ({
     },
     recover: () => run(() => api.browserUnreadReviewStatus({ id })),
     stop: () => run(() => api.stopBrowserUnreadReview({ id })),
+    skip: (target) => run(() => api.skipBrowserUnreadReview(target)),
   };
 };
 
@@ -135,7 +152,12 @@ const UnreadNoticeResult = ({ notice }) => {
     : null;
 };
 
-const UnreadRestoration = ({ restoration }) => {
+const UnreadRestoration = ({
+  restoration,
+  watchWaiting,
+  skip,
+  skipDisabled,
+}) => {
   const t = useT();
   if (!restoration) {
     return null;
@@ -149,10 +171,25 @@ const UnreadRestoration = ({ restoration }) => {
         el(
           'p',
           { key: 'state', role: 'status' },
-          t('browserUnread.held', { chat: held.chat })
+          t(watchWaiting ? 'browserUnread.heldWaiting' : 'browserUnread.held', {
+            chat: held.chat,
+          })
         ),
         held.title
           ? el('p', { key: 'title', className: 'wrap' }, held.title)
+          : null,
+        skip
+          ? el(
+              'button',
+              {
+                key: 'skip',
+                type: 'button',
+                disabled: skipDisabled,
+                'data-browser-unread-skip': true,
+                onClick: skip,
+              },
+              t('browserUnread.skip')
+            )
           : null,
         held.url
           ? el(
@@ -197,7 +234,7 @@ const UnreadRestoration = ({ restoration }) => {
   ]);
 };
 
-const UnreadResult = ({ result, blocked, select }) => {
+const UnreadResult = ({ result, blocked, select, skip, skipDisabled }) => {
   const t = useT();
   if (!result) {
     return null;
@@ -216,21 +253,46 @@ const UnreadResult = ({ result, blocked, select }) => {
               : `browserUnread.${result.state}${['active', 'paused'].includes(result.state) ? (result.answerChats ? 'Answers' : result.noticeReplies ? 'Notices' : '') : ''}`
           )
       ),
-      el(UnreadPollingStatus, { key: 'polling', polling: result.polling }),
+      el(UnreadPollingStatus, {
+        key: 'polling',
+        polling: result.polling,
+        watchWaiting: result.watchWaiting,
+      }),
       result.coverage
         ? el(
             'p',
             { key: 'coverage', className: 'meta' },
-            t('browserUnread.coverage', {
-              visited: result.coverage.visited,
-              observed: result.coverage.observed,
-            })
+            t(
+              result.watchWaiting
+                ? 'browserUnread.waitingCoverage'
+                : 'browserUnread.coverage',
+              {
+                visited: result.coverage.visited,
+                observed: result.coverage.observed,
+              }
+            )
           )
         : null,
       el(UnreadRestoration, {
         key: 'restoration',
         restoration: result.restoration,
+        watchWaiting: result.watchWaiting,
+        skip,
+        skipDisabled,
       }),
+      result.polling?.lastSkip
+        ? el(
+            'p',
+            {
+              key: 'skipped',
+              role: 'status',
+              'data-browser-unread-skipped': true,
+            },
+            t('browserUnread.skipConfirmed', {
+              chat: result.polling.lastSkip.chat,
+            })
+          )
+        : null,
       result.restoration?.history
         ? el(
             'p',
@@ -371,8 +433,18 @@ const UnreadControls = ({
   const [reviewChoices, setReviewChoices] = React.useState(false);
   const [modelDraft, setModelDraft] = React.useState(false);
   const [prefillForms, setPrefillForms] = React.useState(false);
+  const [watchWaiting, setWatchWaiting] = React.useState(false);
   const canPrefillForms = answerChats && answersAvailable && formsAvailable;
   const polling = useUnreadPolling();
+  const canWatchWaiting =
+    source === 'hh' &&
+    answerChats &&
+    answersAvailable &&
+    reviewChoices &&
+    polling.enabled;
+  const watching = canWatchWaiting && watchWaiting;
+  const skipTarget =
+    api.skipBrowserUnreadReview && unreadSkipTarget(pass.result);
   const active = activePass(pass.result);
   const locked = blocked || pass.busy || pass.pending || active;
   const maxChats = Number(limit);
@@ -385,7 +457,7 @@ const UnreadControls = ({
         'p',
         { key: 'hint', className: 'meta' },
         t(
-          `browserUnread.${answerChats ? 'answersHint' : noticeReplies ? 'noticesHint' : 'hint'}`
+          `browserUnread.${watching || pass.result?.watchWaiting ? 'waitingHint' : answerChats ? 'answersHint' : noticeReplies ? 'noticesHint' : 'hint'}`
         )
       ),
       noticesAvailable
@@ -481,6 +553,19 @@ const UnreadControls = ({
         t('browserUnread.confirm'),
       ]),
       el(UnreadPollingFields, { key: 'polling', polling, disabled: locked }),
+      canWatchWaiting
+        ? el('label', { key: 'watch-waiting', className: 'check' }, [
+            el('input', {
+              key: 'input',
+              type: 'checkbox',
+              checked: watchWaiting,
+              disabled: locked,
+              'data-browser-unread-watch-waiting': true,
+              onChange: (event) => setWatchWaiting(event.target.checked),
+            }),
+            t('browserUnread.watchWaiting'),
+          ])
+        : null,
       el(
         'button',
         {
@@ -496,6 +581,7 @@ const UnreadControls = ({
               confirm: true,
               maxChats,
               ...polling.input,
+              ...(watching ? { watchWaiting: true } : {}),
               ...(noticeReplies && noticesAvailable
                 ? { noticeReplies: true }
                 : {}),
@@ -509,7 +595,7 @@ const UnreadControls = ({
             }),
         },
         t(
-          `browserUnread.${answerChats && answersAvailable ? 'startAnswers' : noticeReplies && noticesAvailable ? 'startNotices' : 'start'}`
+          `browserUnread.${watching ? 'startWaiting' : answerChats && answersAvailable ? 'startAnswers' : noticeReplies && noticesAvailable ? 'startNotices' : 'start'}`
         )
       ),
       pass.pending
@@ -550,6 +636,8 @@ const UnreadControls = ({
         key: 'result',
         result: pass.result,
         blocked: locked,
+        skip: skipTarget ? () => pass.skip(skipTarget) : undefined,
+        skipDisabled: pass.busy,
         select: (id) =>
           pass.run(async () => {
             await select(id);

@@ -1,4 +1,20 @@
 export const ruUnreadReview = {
+  'browserUnread.waitingHint':
+    'Чат остаётся открытым, пока вы не ответите или не пропустите вопрос. Чат может быть уже прочитан. Для следующей проверки оставьте вкладку HeadHunter в фоне.',
+  'browserUnread.watch.visiting': 'Идёт проверка чатов.',
+  'browserUnread.watch.waiting': 'Ожидание следующей проверки.',
+  'browserUnread.watch.starting': 'Запускаются повторные проверки.',
+  'browserUnread.watchWaiting':
+    'Включить прочитанные чаты HeadHunter, которые ждут вашего ответа',
+  'browserUnread.startWaiting':
+    'Следить за чатами HeadHunter, которые ждут вашего ответа',
+  'browserUnread.heldWaiting':
+    'Чат {chat} открыт для проверки. Ответьте в HeadHunter или пропустите этот вопрос, чтобы продолжить.',
+  'browserUnread.skip': 'Пропустить вопрос',
+  'browserUnread.skipConfirmed': 'Вопрос в чате {chat} пропущен.',
+  'browserUnread.waitingCoverage':
+    'Открыто {visited} из {observed} видимых чатов. В полном списке могут быть другие чаты.',
+  'browserUnread.answer.skipped': 'Вопрос пропущен.',
   'browserUnread.reviewChoices': 'Выбирать варианты бота вручную',
   'browserUnread.activeReviewChoices':
     'Проверяем непрочитанные вопросы. Варианты бота и черновики остаются открытыми для проверки.',
