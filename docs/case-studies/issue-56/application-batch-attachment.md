@@ -26,7 +26,9 @@ The published parent `13cd87f3` closed the owned browser on the next delivery
 observation even when the letter was pending. Four focused tests reproduced
 premature completion or a missing attachment receipt on that source. The parent
 Chromium probe loaded the parent's batch worker and web bundle and reproduced the
-disabled review action at the delivery cap.
+disabled review action at the delivery cap. The corrected runner installs its
+parent-worker hook before importing the fixture server and serves the exact
+parent bundle. Its rerun log is in the [search attachment evidence](data/application-search-attachment.tar.gz).
 
 Node passed 62 focused tests and Deno passed 49. The registered native Chromium
 scenario starts with a previously delivered fixture vacancy, then verifies both
@@ -49,6 +51,7 @@ RUN_BROWSER_E2E=1 node experiments/issue-56/application-batch-attachment-browser
 [Source and logs](data/application-batch-attachment.tar.gz) ·
 [SHA-256 manifest](data/application-batch-attachment.json)
 
-The search-card-first route and authenticated provider evidence remain open in
-HH06 and HH08. This batch handles the same guarded vacancy-page offer as the
-[standalone review](application-letter-attachment.md).
+This batch handles the same guarded vacancy-page offer as the [standalone
+review](application-letter-attachment.md). When configured to use the original
+search, it checks the [exact search card](application-search-attachment.md) first.
+Authenticated provider evidence remains open in HH06 and HH08.

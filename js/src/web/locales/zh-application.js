@@ -220,6 +220,8 @@ export const zhApplication = {
   'application.letter.not-requested': '尚未请求添加求职信。',
   'application.letter.verified': '求职信已在原生申请中验证。',
   'application.letter.not-attached': '求职信未附上。',
+  'application.attachment.search': '在原搜索结果中查看是否可以单独附上求职信。',
+  'application.attachment.check-search': '在搜索结果中查找求职信选项',
   'application.attachment.offered': 'HH 提供单独附上求职信的选项。',
   'application.attachment.draft': '求职信弹窗已打开。',
   'application.attachment.ready': '求职信已准备好发送。请在 HH 弹窗中查看。',

@@ -363,13 +363,13 @@ const canDeferQuestions = (ready, confirmed, receipt) =>
   !receipt.testMode;
 const attachmentControl = (receipt, action, admitted, t) => {
   const status = receipt.letterAttachment;
-  if (!['offered', 'draft', 'ready'].includes(status)) {
+  if (!['search', 'offered', 'draft', 'ready'].includes(status)) {
     return null;
   }
   const name = status === 'ready' ? 'letter-send' : 'letter-prepare';
   return button(
     name,
-    t(`application.attachment.${name}`),
+    t(`application.attachment.${status === 'search' ? 'check-search' : name}`),
     action('Advance', { action: name, confirm: true }),
     !admitted || receipt.paused
   );

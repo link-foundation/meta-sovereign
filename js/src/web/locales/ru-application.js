@@ -271,6 +271,9 @@ export const ruApplication = {
   'application.letter.not-requested': 'Прикрепление письма ещё не запрошено.',
   'application.letter.verified': 'Письмо проверено в отклике HH.',
   'application.letter.not-attached': 'Письмо не прикреплено.',
+  'application.attachment.search':
+    'Проверьте, можно ли приложить отдельное письмо в исходной выдаче.',
+  'application.attachment.check-search': 'Найти предложение приложить письмо',
   'application.attachment.offered':
     'HH предлагает отдельно прикрепить сопроводительное письмо.',
   'application.attachment.draft': 'Окно сопроводительного письма открыто.',

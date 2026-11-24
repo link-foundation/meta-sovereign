@@ -213,11 +213,11 @@ export class ApplicationReview {
     };
   }
   async inspect(record, signal) {
-    const { filling, readPage } = this.service;
+    const { filling, attachment } = this.service;
     signal.throwIfAborted();
     await filling.clear(record);
     record.continuation = null;
-    record.page = await readPage(record.browser, record.url);
+    record.page = await attachment.readPage(record);
     record.state = applicationState(record.page);
     this.service.holds.observe(record);
     await this.service.limits.observe(record);

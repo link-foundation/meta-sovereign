@@ -89,6 +89,26 @@ export const applicationAttachmentPage = (page) =>
     ? page.attachment
     : null;
 
+const canCheckSearch = (record, attachment) => {
+  const { page } = record;
+  return (
+    record.options.applyFromVacancyPage === false &&
+    !record.attachmentSearchTried &&
+    page?.bound &&
+    page.delivered &&
+    !page.challenge &&
+    !page.dailyLimit &&
+    !page.external &&
+    !page.questions &&
+    !page.error &&
+    !page.resumeNotVisible &&
+    !page.vacancyUnavailable &&
+    (!record.attempted.submit || attachment?.offer) &&
+    !attachment?.submit &&
+    (!attachment?.pending || attachment.offer)
+  );
+};
+
 export const applicationAttachmentStatus = (record) => {
   if (record.attachmentDelivery) {
     return record.attachmentDelivery;
@@ -99,7 +119,13 @@ export const applicationAttachmentStatus = (record) => {
     return null;
   }
   const seen = record.attachmentObserved ? 'needs-review' : null;
-  if (!record.active || !text || !attachment) {
+  if (!record.active || !text) {
+    return seen;
+  }
+  if (canCheckSearch(record, attachment)) {
+    return 'search';
+  }
+  if (!attachment) {
     return seen;
   }
   if (attachment.submit) {

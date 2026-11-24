@@ -2,7 +2,7 @@
 
 Current acceptance: **88 of 118 criteria verified; 30 remain unchecked**.
 
-[Separate cover-letter delivery](application-letter-attachment.md) guards a vacancy-page attachment after HeadHunter confirms the application. The [paced batch](application-batch-attachment.md) applies the saved confirmations and retains one per-vacancy letter result for later review. HH06 and HH08 remain open for the search-card route and authenticated behavior.
+[Separate cover-letter delivery](application-letter-attachment.md) guards the vacancy-page attachment after HeadHunter confirms the application. The [original search](application-search-attachment.md) can supply the exact card's offer with a guarded vacancy-page fallback. The [paced batch](application-batch-attachment.md) applies the saved confirmations and retains one per-vacancy letter result for review. HH06 and HH08 remain open for authenticated behavior and the remaining reference routes.
 
 [Discovery-backed batches](discovery-batch-handoff.md) freeze eligible vacancies from a specific completed search and retain its identity across CLI, both Lino formats and the shared UI. Batches recheck newer owner exclusions and require separate confirmation. HH02, HH03, HH05, HH06 and HH08 remain open for the full authenticated workflow.
 

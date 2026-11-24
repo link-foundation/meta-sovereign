@@ -1,6 +1,5 @@
 import { registerHooks } from 'node:module';
 import { readFileSync } from 'node:fs';
-import { runBrowserScenarios } from '../../js/tests/helpers/e2e-browser-scenarios.mjs';
 
 const parent = process.env.APPLICATION_BATCH_PARENT;
 if (parent) {
@@ -18,9 +17,14 @@ if (parent) {
   });
 }
 
+const { runBrowserScenarios } =
+  await import('../../js/tests/helpers/e2e-browser-scenarios.mjs');
 const { verifyNativeBatchLetterAttachment } =
   await import('../../js/tests/helpers/e2e-application-batch-attachment.mjs');
 await runBrowserScenarios('application-batch-letter-attachment', [
   (browser) =>
-    verifyNativeBatchLetterAttachment(browser, { before: Boolean(parent) }),
+    verifyNativeBatchLetterAttachment(browser, {
+      before: Boolean(parent),
+      webBundle: process.env.APPLICATION_BATCH_PARENT_WEB,
+    }),
 ]);

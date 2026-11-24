@@ -264,6 +264,9 @@ export const hiApplication = {
   'application.letter.not-requested': 'पत्र जोड़ने का अनुरोध अभी नहीं हुआ।',
   'application.letter.verified': 'मूल आवेदन में पत्र सत्यापित है।',
   'application.letter.not-attached': 'पत्र जुड़ा नहीं है।',
+  'application.attachment.search':
+    'अलग कवर लेटर का विकल्प देखने के लिए मूल खोज जाँचें।',
+  'application.attachment.check-search': 'खोज में कवर लेटर का विकल्प देखें',
   'application.attachment.offered':
     'HH अलग से कवर लेटर जोड़ने का विकल्प देता है।',
   'application.attachment.draft': 'कवर लेटर का पॉपअप खुला है।',

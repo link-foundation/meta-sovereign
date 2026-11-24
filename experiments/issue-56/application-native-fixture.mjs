@@ -17,6 +17,7 @@ export const applicationNativeHtml = ({
   signedIn = false,
   instantApplication = false,
   alreadyDelivered = false,
+  separateLetterOffer = true,
 } = {}) => `<!doctype html><html><body>
     ${signedIn ? '<a data-qa="mainmenu_applicantProfilePage" href="/applicant/resumes">Application fixture account</a>' : ''}
     <h1 data-qa="vacancy-title">${html(vacancy.title)}</h1>
@@ -38,8 +39,9 @@ export const applicationNativeHtml = ({
         document.querySelector('[data-qa="vacancy-response-link-top"]').remove();
         if (${instantApplication}) {
           const root=document.querySelector('#application');
-          root.innerHTML='<a data-qa="vacancy-response-link-view-topic">Application delivered</a><button type="button" data-qa="responded-success-attach-cover-letter">Attach cover letter</button>';
+          root.innerHTML='<a data-qa="vacancy-response-link-view-topic">Application delivered</a>${separateLetterOffer ? '<button type="button" data-qa="responded-success-attach-cover-letter">Attach cover letter</button>' : ''}';
           const offer=root.querySelector('button');
+          if (!offer) return;
           offer.onclick=()=>{
             globalThis.fixtureAttachmentOpens++;
             offer.hidden=true;
@@ -98,6 +100,8 @@ export const applicationNativeFixture = async (
     prepareContext,
     instantApplication,
     alreadyDelivered,
+    separateLetterOffer,
+    searchRoute,
   } = {}
 ) => {
   let nativeForms = 0;
@@ -107,6 +111,13 @@ export const applicationNativeFixture = async (
       prepare: prepareContext,
       route: async (route) => {
         const url = new URL(route.request().url());
+        if (
+          url.origin === 'https://hh.ru' &&
+          url.pathname === '/search/vacancy' &&
+          searchRoute
+        ) {
+          return searchRoute(route, url);
+        }
         const response =
           url.pathname === '/applicant/vacancy_response' &&
           url.searchParams.getAll('vacancyId').length === 1 &&
@@ -130,6 +141,7 @@ export const applicationNativeFixture = async (
             signedIn: Boolean(prepareContext),
             instantApplication,
             alreadyDelivered: instantApplication && alreadyDelivered,
+            separateLetterOffer,
             salary:
               typeof salary === 'function'
                 ? salary(

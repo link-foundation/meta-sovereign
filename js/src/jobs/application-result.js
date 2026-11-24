@@ -90,6 +90,7 @@ const reentry = (raw) =>
       !raw.page.submit));
 const attachment = (raw) =>
   optionalChoice(raw.letterAttachment, [
+    'search',
     'offered',
     'draft',
     'ready',
@@ -98,6 +99,10 @@ const attachment = (raw) =>
     'unknown',
     'provider-confirmed',
   ]) &&
+  (raw.letterAttachment !== 'search' ||
+    (raw.applyFromVacancyPage === false &&
+      (raw.state === 'delivered' ||
+        (raw.state === 'test-preview' && raw.testMode)))) &&
   (!raw.letterAttachment || raw.delivery === 'provider-confirmed') &&
   (raw.active ||
     optionalChoice(raw.letterAttachment, [

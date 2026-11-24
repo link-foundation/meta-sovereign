@@ -50,6 +50,7 @@ const excludedVacancy = (url, pending, choices, skips, context) =>
 const owners = new WeakMap();
 const latest = (slot) => `secret:jobs-application-batch-latest:${slot}`;
 const attachmentActions = {
+  search: ['letter-prepare', 'cover-letter'],
   offered: ['letter-prepare', 'cover-letter'],
   draft: ['letter-prepare', 'cover-letter'],
   ready: ['letter-send', 'send'],
@@ -683,7 +684,7 @@ export class ApplicationBatch {
     if (await this.observeLimitWait(runtime, current, signal)) {
       return;
     }
-    const page = await this.service.readPage(current.browser, current.url);
+    const page = await this.service.attachment.readPage(current);
     signal.throwIfAborted();
     if (
       current.delivery === 'provider-confirmed'

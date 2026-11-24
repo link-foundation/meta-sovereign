@@ -261,6 +261,9 @@ export const enApplication = {
   'application.letter.not-requested': 'No letter attachment requested yet.',
   'application.letter.verified': 'Letter verified in the native application.',
   'application.letter.not-attached': 'Letter is not attached.',
+  'application.attachment.search':
+    'Check the original search for a separate cover letter offer.',
+  'application.attachment.check-search': 'Check search for cover letter',
   'application.attachment.offered':
     'HH offers to attach a separate cover letter.',
   'application.attachment.draft': 'The cover-letter popup is open.',

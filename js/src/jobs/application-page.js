@@ -73,14 +73,21 @@ export const applicationDocument = (target, input) => {
       ? value
       : null;
   };
+  const exactSearch = () => {
+    const destination = searchDestination();
+    if (!destination) {
+      return false;
+    }
+    const actual = new URL(current);
+    actual.searchParams.sort();
+    destination.searchParams.sort();
+    return actual.href === destination.href;
+  };
   const searchState = () => {
     const destination = searchDestination();
     if (!destination || current.pathname !== '/search/vacancy') {
       return {};
     }
-    const actual = new URL(current);
-    actual.searchParams.sort();
-    destination.searchParams.sort();
     const links = nodes('a[data-qa="serp-item__title"]');
     const empty = nodes(
       '[data-qa="vacancy-serp__vacancy-not-found"], [data-qa="vacancy-serp__no-results"]'
@@ -125,7 +132,7 @@ export const applicationDocument = (target, input) => {
           ])
         : '';
     return {
-      searchBound: actual.href === destination.href,
+      searchBound: exactSearch(),
       searchReady:
         bounded &&
         searchKey.length <= 1000000 &&
@@ -144,8 +151,7 @@ export const applicationDocument = (target, input) => {
       searchKey: searchKey.length <= 1000000 ? searchKey : '',
     };
   };
-  const describe = (selector) => {
-    const node = unique(selector);
+  const describeNode = (node) => {
     if (!node) {
       return null;
     }
@@ -163,6 +169,7 @@ export const applicationDocument = (target, input) => {
         node.getAttribute('aria-disabled') === 'true',
     };
   };
+  const describe = (selector) => describeNode(unique(selector));
   const applicationError = (form) => {
     const errors = nodes('[data-qa-popup-error-code]');
     const alerts = nodes('[role="alert"], [data-qa="vacancy-response-error"]')
@@ -252,17 +259,21 @@ export const applicationDocument = (target, input) => {
     };
   };
   const marked = (selector) => nodes(selector).length > 0;
-  const attachmentOffer = () => {
+  const attachmentOffer = (offer) => {
     if (marked(selectors.attachmentWrite) || marked(selectors.attachmentSend)) {
       return null;
     }
-    const offer = unique(selectors.attachmentOpen);
     return offer?.matches('button[type="button"], a[href^="#"]') ||
       (offer?.matches('button:not([type])') && !offer.form)
-      ? describe(selectors.attachmentOpen)
+      ? describeNode(offer)
       : null;
   };
-  const attachmentSnapshot = () => {
+  const attachmentSnapshot = ({
+    offer = unique(selectors.attachmentOpen),
+    pending = Boolean(doc.querySelector(selectors.attachmentOpen)),
+    popupBound = true,
+    search = false,
+  } = {}) => {
     const submit = unique(selectors.attachmentSend);
     const letter = unique(selectors.attachmentWrite);
     const popup = letter?.form?.contains(submit)
@@ -277,6 +288,7 @@ export const applicationDocument = (target, input) => {
     );
     const structure = popup?.outerHTML ?? '';
     const isolated =
+      popupBound &&
       popup?.contains(submit) &&
       (!submit.form || submit.form === letter.form) &&
       structure.length <= 100000 &&
@@ -284,28 +296,133 @@ export const applicationDocument = (target, input) => {
       [...otherFields].filter(visible).every((control) => control === letter) &&
       destination.origin === expected.origin &&
       !destination.username &&
-      !destination.password;
+      !destination.password &&
+      (!search ||
+        !destination.searchParams.has('vacancyId') ||
+        sameVacancy(destination));
     const writable =
       isolated &&
       !letter.matches(':disabled') &&
       !letter.readOnly &&
       letter.value.length <= 24000;
     return {
-      offer: attachmentOffer(),
+      offer: attachmentOffer(offer),
       submit: writable ? describe(selectors.attachmentSend) : null,
       value: writable ? letter.value : null,
       maxLength: writable && letter.maxLength >= 0 ? letter.maxLength : null,
       structure: isolated ? structure : '',
       error: popup ? applicationError(popup) : null,
-      pending: Boolean(
-        doc.querySelector(
-          [
-            selectors.attachmentOpen,
-            selectors.attachmentWrite,
-            selectors.attachmentSend,
-          ].join(',')
-        )
-      ),
+      pending:
+        pending ||
+        Boolean(
+          doc.querySelector(
+            `${selectors.attachmentWrite}, ${selectors.attachmentSend}`
+          )
+        ),
+    };
+  };
+  const cardSelector = '[data-qa="vacancy-serp__vacancy"]';
+  const titleSelector = 'a[data-qa="serp-item__title"]';
+  const cardInformer = '[data-qa="vacancy-response-letter-informer"]';
+  const cardToggle = `${cardInformer} [data-qa="vacancy-response-letter-toggle"]`;
+  const searchLease = Symbol.for(
+    'meta-sovereign.jobs.application-search-letter.v1'
+  );
+  const matchesTitle = (link) => {
+    const value = new URL(link.href);
+    return (
+      value.origin === expected.origin &&
+      value.pathname === expected.pathname &&
+      !value.username &&
+      !value.password
+    );
+  };
+  const matchingSearchCard = () => {
+    const titles = nodes(titleSelector).filter(matchesTitle);
+    const candidate =
+      titles.length === 1 ? titles[0].closest(cardSelector) : null;
+    const card =
+      candidate &&
+      [...candidate.querySelectorAll(titleSelector)].filter(visible).length ===
+        1
+        ? candidate
+        : null;
+    return { card, ambiguous: titles.length > 0 && !card };
+  };
+  const cardControls = (card, selector) =>
+    [...(card?.querySelectorAll(selector) ?? [])].filter(
+      (node) => node.closest(cardSelector) === card
+    );
+  const searchOfferNode = (card) => {
+    const offers = cardControls(card, cardToggle).filter(visible);
+    return offers.length === 1 ? offers[0] : null;
+  };
+  const navigationBlocked = () =>
+    Boolean(
+      nodes(
+        '[role="dialog"], [data-qa="modal-overlay"], textarea, [contenteditable="true"]'
+      ).length ||
+      nodes('input[type="file"]').some((node) => node.files.length > 0)
+    );
+  const noFormContent = {
+    externalUrl: null,
+    resumeNotVisible: false,
+    vacancyUnavailable: false,
+    error: null,
+    enter: null,
+    submit: null,
+    letter: null,
+    letterToggle: null,
+    resumeChooser: null,
+    ambiguousLetter: false,
+    scope: false,
+    fieldIndices: [],
+    questionIndices: [],
+    resumeIndices: [],
+    scopeStructureKey: '',
+    scopeKey: JSON.stringify(['', []]),
+  };
+  const searchAttachmentSnapshot = (metadata) => {
+    const boundSearch = exactSearch();
+    const status = {
+      ...metadata,
+      ...noFormContent,
+      bound: boundSearch,
+      url: boundSearch ? current.href : null,
+      delivered: false,
+    };
+    if (
+      !boundSearch ||
+      status.challenge ||
+      status.dailyLimit ||
+      status.external ||
+      status.questions
+    ) {
+      return status;
+    }
+    const { card, ambiguous } = matchingSearchCard();
+    const delivered = cardControls(
+      card,
+      `${cardInformer}, [data-qa="vacancy-serp__vacancy_responded"]`
+    ).some(visible);
+    const offer = searchOfferNode(card);
+    const pending = cardControls(card, cardToggle).length > 0;
+    const popupBound =
+      doc[searchLease]?.card === card && doc[searchLease]?.url === url;
+    const attachment = delivered
+      ? attachmentSnapshot({ offer, pending, popupBound, search: true })
+      : null;
+    return {
+      ...status,
+      delivered,
+      attachment,
+      attachmentSearch: true,
+      returnSafe:
+        !ambiguous &&
+        (!card || !pending) &&
+        !navigationBlocked() &&
+        !attachment?.pending &&
+        searchState().searchReady === true,
     };
   };
   const renderedWarning = (scope, matches) => {
@@ -493,8 +610,13 @@ export const applicationDocument = (target, input) => {
   const snapshot = () => {
     // Detect the boundary before any form value, instructions or HTML read.
     const challenge = challengePresent();
+    const searchReview = input.attachmentSearch && !bound;
     if (input.verificationOnly) {
-      return { bound, documentKey: doc[key], challenge };
+      return {
+        bound: bound || (searchReview && exactSearch()),
+        documentKey: doc[key],
+        challenge,
+      };
     }
     const metadata = {
       bound,
@@ -510,25 +632,11 @@ export const applicationDocument = (target, input) => {
       ),
       questions: marked('[data-qa="task-body"]'),
     };
+    if (searchReview) {
+      return searchAttachmentSnapshot(metadata);
+    }
     const content = metadata.challenge
-      ? {
-          externalUrl: null,
-          resumeNotVisible: false,
-          vacancyUnavailable: false,
-          error: null,
-          enter: null,
-          submit: null,
-          letter: null,
-          letterToggle: null,
-          resumeChooser: null,
-          ambiguousLetter: false,
-          scope: false,
-          fieldIndices: [],
-          questionIndices: [],
-          resumeIndices: [],
-          scopeStructureKey: '',
-          scopeKey: JSON.stringify(['', []]),
-        }
+      ? noFormContent
       : formSnapshot(metadata.delivered);
     return {
       ...metadata,
@@ -548,6 +656,35 @@ export const applicationDocument = (target, input) => {
   const result = snapshot();
   if (!input.action) {
     return result;
+  }
+  const attachmentNavigation = () => {
+    const toSearch = input.action === 'attachmentSearch';
+    const destination = toSearch ? searchDestination() : expected;
+    const allowed = toSearch
+      ? bound &&
+        result.delivered &&
+        !result.challenge &&
+        !result.dailyLimit &&
+        !result.external &&
+        !result.questions &&
+        !result.error &&
+        !result.resumeNotVisible &&
+        !result.vacancyUnavailable &&
+        !navigationBlocked() &&
+        !result.attachment?.submit &&
+        (!result.attachment?.pending || result.attachment?.offer) &&
+        !doc.querySelector(
+          `${selectors.attachmentWrite}, ${selectors.attachmentSend}`
+        )
+      : result.attachmentSearch && result.returnSafe;
+    if (!destination || !allowed || JSON.stringify(result) !== input.guard) {
+      return { navigated: false };
+    }
+    globalThis.location.assign(destination.href);
+    return { navigated: true };
+  };
+  if (['attachmentSearch', 'attachmentVacancy'].includes(input.action)) {
+    return attachmentNavigation();
   }
   const navigateFullForm = () => {
     const destination = new URL('/applicant/vacancy_response', expected);
@@ -657,6 +794,9 @@ export const applicationDocument = (target, input) => {
     const opening = input.action === 'attachmentOpen';
     const sending = input.action === 'attachmentSend';
     const control = opening ? attachment?.offer : attachment?.submit;
+    const searchOpening = opening && result.attachmentSearch;
+    const card = searchOpening ? matchingSearchCard().card : null;
+    const node = searchOpening ? searchOfferNode(card) : target;
     if (
       !control ||
       ((opening || sending) && control.disabled) ||
@@ -665,8 +805,8 @@ export const applicationDocument = (target, input) => {
       result.resumeNotVisible ||
       result.vacancyUnavailable ||
       JSON.stringify(result) !== input.guard ||
-      !target?.isConnected ||
-      unique(selectors[input.action]) !== target ||
+      !node?.isConnected ||
+      (!searchOpening && unique(selectors[input.action]) !== node) ||
       (sending && (!input.text || attachment.value !== input.text)) ||
       (!opening &&
         attachment.maxLength !== null &&
@@ -677,7 +817,28 @@ export const applicationDocument = (target, input) => {
     if (input.action === 'attachmentWrite') {
       return writeLetter();
     }
-    target.click();
+    node.click();
+    if (searchOpening) {
+      doc[searchLease]?.listener.abort();
+      const listener = new globalThis.AbortController();
+      doc[searchLease] = { card, url, listener };
+      // A native card action can replace the portal with a different draft.
+      doc.addEventListener(
+        'click',
+        (event) => {
+          const clicked = event.target;
+          if (
+            clicked instanceof globalThis.Element &&
+            clicked.closest(cardSelector) &&
+            !clicked.closest('form, [role="dialog"], [data-qa="modal-overlay"]')
+          ) {
+            delete doc[searchLease];
+            listener.abort();
+          }
+        },
+        { capture: true, signal: listener.signal }
+      );
+    }
     return { dispatched: true };
   };
   if (
@@ -717,10 +878,18 @@ export const readApplicationPage = (browser, url) =>
     args: [null, { url, selectors: applicationSelectors }],
   });
 
-export const readApplicationVerification = (browser, url) =>
+export const readApplicationVerification = (browser, url, searchUrl) =>
   browser.commander.evaluate({
     fn: applicationDocument,
-    args: [null, { url, verificationOnly: true }],
+    args: [
+      null,
+      {
+        url,
+        verificationOnly: true,
+        attachmentSearch: Boolean(searchUrl),
+        searchUrl,
+      },
+    ],
   });
 
 /** Bind one exact visible element; dispose every other candidate. */
@@ -771,6 +940,14 @@ export const dispatchApplication = (handle, record, action, text) =>
             'https://hh.ru/search/vacancy',
         }
       : {}),
+    ...(action.startsWith('attachment') && record.page?.attachmentSearch
+      ? {
+          attachmentSearch: true,
+          searchUrl:
+            record.options.applicationSearchUrl ??
+            'https://hh.ru/search/vacancy',
+        }
+      : {}),
   });
 
 /** The intermediate search has its own document snapshot, without vacancy authority. */
@@ -789,6 +966,24 @@ export const applicationSearchPage = (browser, record, guard) =>
     ],
   });
 
+/** Search offers are admitted by card identity in the same document evaluation. */
+export const applicationAttachmentDocument = (browser, record, action, guard) =>
+  browser.commander.evaluate({
+    fn: applicationDocument,
+    args: [
+      null,
+      {
+        url: record.url,
+        selectors: applicationSelectors,
+        searchUrl:
+          record.options.applicationSearchUrl ?? 'https://hh.ru/search/vacancy',
+        attachmentSearch: action !== 'attachmentSearch',
+        action,
+        guard,
+      },
+    ],
+  });
+
 /** The letter uses the same synchronous vacancy/document/form admission. */
 export const writeApplicationLetter = async (
   browser,
@@ -796,7 +991,8 @@ export const writeApplicationLetter = async (
   page,
   url,
   previousText,
-  action = 'letter'
+  action = 'letter',
+  searchUrl
 ) => {
   const handle = await applicationTarget(
     browser.page,
@@ -813,6 +1009,9 @@ export const writeApplicationLetter = async (
       guard: JSON.stringify(page),
       text,
       previousText,
+      ...(searchUrl && page.attachmentSearch
+        ? { attachmentSearch: true, searchUrl }
+        : {}),
     });
     return result.letter ?? 'unavailable';
   } finally {

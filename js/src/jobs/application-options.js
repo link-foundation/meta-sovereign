@@ -200,6 +200,8 @@ export const applicationView = (record) => {
             'scopeKey',
             'scopeStructureKey',
             'attachment',
+            'attachmentSearch',
+            'returnSafe',
             'fieldIndices',
             'questionIndices',
             'resumeIndices',

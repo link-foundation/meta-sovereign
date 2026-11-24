@@ -9,6 +9,10 @@ Paced batches keep the offer open at the delivery cap, observe the saved
 confirmation choices, and report letters that still need owner review
 (issue #56, HH06 and HH08).
 
+Look for a separate letter on the exact card when a HeadHunter application
+review uses its original search. Fall back to the matching vacancy when the
+owned search can be left safely (issue #56, HH06 and HH08).
+
 Reuse same-language approved thanks for recognized HeadHunter application
 updates in the explicitly selected inactive notice policy. Verify full chat
 history and keep actionable messages in review (issue #56, QA17).

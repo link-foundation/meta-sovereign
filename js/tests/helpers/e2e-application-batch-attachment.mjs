@@ -10,7 +10,7 @@ const text = 'The reviewed separate batch cover letter.';
 
 export const verifyNativeBatchLetterAttachment = async (
   browser,
-  { before = false, screenshots = process.env.E2E_ARTIFACT_DIR } = {}
+  { before = false, screenshots = process.env.E2E_ARTIFACT_DIR, webBundle } = {}
 ) => {
   const effects = [];
   const fixture = await applicationNativeFixture(browser, {
@@ -20,6 +20,11 @@ export const verifyNativeBatchLetterAttachment = async (
   });
   const controls = applicationPanelBrowser(fixture);
   const { page, panel, action } = controls;
+  if (webBundle) {
+    await page.route(`${fixture.base}/app.min.js`, (route) =>
+      route.fulfill({ path: webBundle, contentType: 'text/javascript' })
+    );
+  }
   const { batch, button, field, phase } = controls.batch();
   const capture = async (name, target) => {
     if (screenshots) {

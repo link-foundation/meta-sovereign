@@ -11,6 +11,8 @@ import {
   applicationView,
 } from './application-options.js';
 import { applicationPreservationPolicy } from './application-run-modes.js';
+import { applicationRouteView } from './application-route-settings.js';
+import { sameSearch } from './options.js';
 
 const popup = (page) => {
   const attachment = applicationAttachmentPage(page);
@@ -33,8 +35,15 @@ export class ApplicationAttachment {
     this.service = service;
   }
 
+  readPage(record) {
+    const { service } = this;
+    return record.attachmentSearchActive
+      ? service.attachmentDocument(record.browser, record)
+      : service.readPage(record.browser, record.url);
+  }
+
   async read(record, check, expectedKey) {
-    const page = await this.service.readPage(record.browser, record.url);
+    const page = await this.readPage(record);
     await this.service.limits.observe(record, page);
     check();
     if (
@@ -46,24 +55,98 @@ export class ApplicationAttachment {
     return page;
   }
 
+  async search(record, check, signal) {
+    const { service } = this;
+    const { browser, url } = record;
+    check();
+    const opened = await service.attachmentDocument(
+      browser,
+      record,
+      'attachmentSearch',
+      record.guard.page
+    );
+    if (opened?.navigated !== true) {
+      throw fail('changed');
+    }
+    record.attachmentSearchTried = true;
+    record.attachmentSearchActive = true;
+    record.attachmentObserved = true;
+    await service.save(record);
+    const { applicationSearchUrl } = applicationRouteView(record.options);
+    await browser.page
+      .waitForURL((current) => sameSearch(current.href, applicationSearchUrl), {
+        waitUntil: 'domcontentloaded',
+        timeout: 5000,
+      })
+      .catch((error) => {
+        service.trace({
+          event: 'application-attachment-search-wait',
+          code: error.name,
+        });
+      });
+    check();
+    const page = await this.readPage(record);
+    if (page.returnSafe && !page.attachment?.offer) {
+      check();
+      const fallback = await service.attachmentDocument(
+        browser,
+        record,
+        'attachmentVacancy',
+        applicationPageKey(page)
+      );
+      if (fallback?.navigated === true) {
+        await browser.page.waitForURL(url, {
+          waitUntil: 'domcontentloaded',
+          timeout: 5000,
+        });
+        record.attachmentSearchActive = false;
+      }
+    }
+    await service.review.inspect(record, signal);
+    check();
+    return applicationAttachmentStatus(record) === 'offered'
+      ? this.prepare(
+          record,
+          record.page,
+          applicationLetterText(record),
+          check,
+          signal
+        )
+      : applicationView(record);
+  }
+
+  async openOffer(record, page, check) {
+    const { service } = this;
+    if (page.attachmentSearch) {
+      check();
+      return service.attachmentDocument(
+        record.browser,
+        record,
+        'attachmentOpen',
+        record.guard.page
+      );
+    }
+    const handle = await service.target(
+      record.browser.page,
+      applicationSelectors.attachmentOpen
+    );
+    if (!handle) {
+      throw fail('changed');
+    }
+    try {
+      check();
+      return await service.dispatch(handle, record, 'attachmentOpen');
+    } finally {
+      await handle.dispose();
+    }
+  }
+
   async prepare(record, page, text, check, signal) {
     const { service } = this;
     if (!popup(page)) {
-      const handle = await service.target(
-        record.browser.page,
-        applicationSelectors.attachmentOpen
-      );
-      if (!handle) {
+      const result = await this.openOffer(record, page, check);
+      if (result?.dispatched !== true) {
         throw fail('changed');
-      }
-      try {
-        check();
-        const result = await service.dispatch(handle, record, 'attachmentOpen');
-        if (result?.dispatched !== true) {
-          throw fail('changed');
-        }
-      } finally {
-        await handle.dispose();
       }
       const documentKey = page.documentKey;
       for (let attempt = 0; attempt < 20; attempt += 1) {
@@ -86,7 +169,8 @@ export class ApplicationAttachment {
         page,
         record.url,
         undefined,
-        'attachmentWrite'
+        'attachmentWrite',
+        applicationRouteView(record.options).applicationSearchUrl
       );
     }
     return service.review.inspect(record, signal);
@@ -143,7 +227,7 @@ export class ApplicationAttachment {
     const { service } = this;
     for (let attempt = 0; attempt < 20; attempt += 1) {
       signal.throwIfAborted();
-      const page = await service.readPage(record.browser, record.url);
+      const page = await this.readPage(record);
       if (confirmation(page, documentKey)) {
         await applicationDelay(100, signal);
         await service.review.inspect(record, signal);
@@ -177,16 +261,24 @@ export class ApplicationAttachment {
     if (
       record.state !== 'delivered' ||
       !record.guard ||
-      !(preparing ? ['offered', 'draft'].includes(status) : status === 'ready')
+      !(preparing
+        ? ['offered', 'draft', 'search'].includes(status)
+        : status === 'ready')
     ) {
       throw fail('state');
     }
     const check = applicationPreservationPolicy(this.service, record, signal);
-    const page = await this.read(record, check, record.guard.page);
+    const page =
+      status === 'search'
+        ? record.page
+        : await this.read(record, check, record.guard.page);
     await this.service.limits.admit(record);
     check();
     if (record.options.testMode) {
       return applicationView({ ...record, state: 'test-preview' });
+    }
+    if (status === 'search') {
+      return this.search(record, check, signal);
     }
     const text = applicationLetterText(record);
     return preparing

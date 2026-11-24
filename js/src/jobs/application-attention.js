@@ -3,6 +3,7 @@ import { inspectFormChallenge } from '../forms/inspection.js';
 import { readApplicationVerification } from './application-page.js';
 import { jobsFailure } from './options.js';
 import { bindAttentionPage } from '../automation/attention-foreground.js';
+import { applicationRouteView } from './application-route-settings.js';
 
 const live = (record) =>
   record?.active === true &&
@@ -56,13 +57,16 @@ export class ApplicationAttention {
     const { browser, url } = record;
     const matches = (page) =>
       page.bound && page.documentKey === wait.documentKey;
-    const before = await this.readVerification(browser, url);
+    const searchUrl = record.attachmentSearchActive
+      ? applicationRouteView(record.options).applicationSearchUrl
+      : undefined;
+    const before = await this.readVerification(browser, url, searchUrl);
     if (!matches(before) || before.challenge || !wait.checkFrames) {
       return matches(before) && before.challenge;
     }
     return (
       (await inspectFormChallenge(browser)) &&
-      matches(await this.readVerification(browser, url))
+      matches(await this.readVerification(browser, url, searchUrl))
     );
   }
 
