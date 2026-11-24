@@ -71,8 +71,9 @@ test('native history message data cannot end its containing script element', () 
   assert.equal(html.split('</script>').length - 1, 1);
   const start = html.indexOf('<script>') + '<script>'.length;
   const end = html.lastIndexOf('</script>');
-  assert.doesNotThrow(() => new vm.Script(html.slice(start, end)));
-  const dataStart = html.indexOf('{"8":');
-  const dataEnd = html.indexOf('?.[fixture.chat]', dataStart);
-  assert.equal(JSON.parse(html.slice(dataStart, dataEnd))[8], message);
+  const script = html.slice(start, end);
+  assert.doesNotThrow(() => new vm.Script(script));
+  const assignment = /^const fixtureHistory=.*, latest=(.*);$/mu.exec(script);
+  assert.ok(assignment, 'The fixture defines its serialized latest messages');
+  assert.equal(JSON.parse(assignment[1])[8], message);
 });
