@@ -12,6 +12,7 @@ export class ApplicationChats {
     store,
     openSession,
     runner,
+    prefillLinkedForm,
     log = () => {},
     sender = createBrowserSender,
     questions = createQuestionBrowser,
@@ -21,6 +22,7 @@ export class ApplicationChats {
       store,
       openSession,
       runner,
+      prefillLinkedForm,
       log,
       sender,
       questions,
@@ -119,6 +121,7 @@ export class ApplicationChats {
       store: this.store,
       send: Object.assign(this.send.send.bind(this.send), this.send),
       runner: this.runner ?? this.model?.draft,
+      prefillLinkedForm: this.prefillLinkedForm,
       log: this.log,
     });
     await this.browser.unreadStart({
@@ -126,6 +129,16 @@ export class ApplicationChats {
       source: 'hh',
       confirm: true,
       answerChats: true,
+      ...(options.chatPrefillForms
+        ? {
+            prefillForms: true,
+            profileId: options.review.profileId,
+            salary: options.review.salary,
+            ...(options.review.answerFinalPeriod === undefined
+              ? {}
+              : { answerFinalPeriod: options.review.answerFinalPeriod }),
+          }
+        : {}),
       modelDraft: options.chatModelDraft,
       polling: {
         intervalMs: options.chatsIntervalMinutes * 60000,

@@ -8,6 +8,7 @@ import {
   checkBrowserQuestion,
 } from './question-browser-state.js';
 import { unreadFailure } from './question-unread-identity.js';
+import { unreadFormLink, visitUnreadForm } from './question-unread-form.js';
 import {
   unreadAnswerInput,
   mayDraftUnreadAnswer,
@@ -106,10 +107,14 @@ export const visitUnreadAnswer = async ({
   const baseline = snapshot.question.outgoing
     ? null
     : await previewAnswer(context.store, input);
+  const link = unreadFormLink(record.prefillForms, snapshot);
   const reviewed = await review(
     { source: record.source, chat: snapshot.chat },
     observed,
-    { ...input, modelDraft: mayDraftUnreadAnswer(record, snapshot, baseline) },
+    {
+      ...input,
+      modelDraft: !link && mayDraftUnreadAnswer(record, snapshot, baseline),
+    },
     { signal: controller.signal }
   );
   const plan = reviewed.plan;
@@ -122,9 +127,23 @@ export const visitUnreadAnswer = async ({
   record.entries.push(entry);
   await save(record);
   if (
+    await visitUnreadForm({
+      context,
+      record,
+      snapshot,
+      handle,
+      signal: controller.signal,
+      entry,
+      save,
+      link,
+    })
+  ) {
+    return { holdReview: false };
+  }
+  if (
     snapshot.question.outgoing ||
     snapshot.noticeContext?.canReply === false ||
-    (plan?.noReply && !plan.linkReview && !plan.pending?.blocked)
+    (plan?.noReply && !entry.form && !plan.linkReview && !plan.pending?.blocked)
   ) {
     entry.answer.phase = 'no-reply';
     await save(record);
@@ -174,6 +193,7 @@ export const visitUnreadAnswer = async ({
   if (
     !snapshot.strictOptions &&
     !snapshot.hasDraft &&
+    !entry.form &&
     (plan?.complete || plan?.model?.used) &&
     !plan.linkReview &&
     !plan.pending?.blocked &&

@@ -1,4 +1,17 @@
 export const zhUnreadReview = {
+  'browserUnread.form.enable': '预填链接中的问卷，由我检查并提交',
+  'browserUnread.answer.form-review': '问卷已移交至表单页面。',
+  'browserUnread.form.prefilled': '已预填 {count} 个字段。提交前请检查问卷。',
+  'browserUnread.form.partial':
+    '已预填 {count} 个字段。请检查问卷并填写剩余字段。',
+  'browserUnread.form.waiting-owner': '请前往表单页面处理问卷。',
+  'browserUnread.form.refused': '无法准备问卷。',
+  'browserUnread.form.slot-limit':
+    '所有表单槽位均已占用。请释放一个槽位以准备问卷。',
+  'browserUnread.form.unconfirmed':
+    '无法确认问卷填写结果。修改前请检查当前页面。',
+  'browserUnread.form.closed': '问卷已在现已关闭的审核会话中准备。',
+  'browserUnread.form.open': '在表单中检查 {slot}',
   'browserUnread.answers': '处理机器人选项，普通回复留待审核',
   'browserUnread.answersHint':
     '在未激活的服务窗口中逐一检查未读聊天。完整且精确匹配的已保存答案、完整摘要中的唯一匹配，以及获准薪资目标对应的唯一包含区间可选择机器人提供的选项。普通文字只填入草稿：第一个需要审核的聊天会保持打开。后续检查只查看该聊天，直到你回复或无需回复。可单独启用已配置模型，为未解决的文字生成草稿。每份生成的草稿仍需你审核。',

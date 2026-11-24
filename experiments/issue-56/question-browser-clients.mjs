@@ -9,6 +9,7 @@ export const questionBrowserCli = (env) => {
     openStore: async () => env.store,
     send: env.send,
     modelRunner: env.runner,
+    forms: env.forms,
   });
   const output = [];
   return async (action, extra = {}) => {

@@ -1,4 +1,22 @@
 export const enUnreadReview = {
+  'browserUnread.form.enable':
+    'Prefill linked questionnaires for me to review and submit',
+  'browserUnread.answer.form-review':
+    'The questionnaire was handed off to Forms.',
+  'browserUnread.form.prefilled':
+    'Prefilled fields ({count}). Review the questionnaire before submitting.',
+  'browserUnread.form.partial':
+    'Prefilled fields ({count}). Review the questionnaire and complete any remaining fields.',
+  'browserUnread.form.waiting-owner':
+    'The questionnaire needs your attention in Forms.',
+  'browserUnread.form.refused': 'The questionnaire could not be prepared.',
+  'browserUnread.form.slot-limit':
+    'All Forms slots are occupied. Free a slot to prepare the questionnaire.',
+  'browserUnread.form.unconfirmed':
+    'The questionnaire result could not be confirmed. Check the latest page before editing.',
+  'browserUnread.form.closed':
+    'The questionnaire was already prepared in a review that has since closed.',
+  'browserUnread.form.open': 'Review {slot} in Forms',
   'browserUnread.answers':
     'Handle bot options and hold ordinary replies for review',
   'browserUnread.answersHint':

@@ -14,6 +14,11 @@ export const workspaceVacancies = (store, ctx) => {
     store,
     storeDir: ctx.storeDir,
     ...ctx.vacancyOptions,
+    application: {
+      prefillLinkedForm: ctx.prefillLinkedForm,
+      chatRunner: ctx.answerModel?.draft,
+      ...ctx.vacancyOptions?.application,
+    },
   }));
 };
 

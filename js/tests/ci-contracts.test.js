@@ -410,6 +410,7 @@ const questionBrowserGroups = {
     'verifyUnreadModel',
     'verifyUnreadModelControls',
   ],
+  'question-unread-forms': ['verifyUnreadLinkedForms'],
   'question-unread-choices': ['verifyUnreadBotChoices'],
   'question-unread-reply-view': [
     'verifyUnreadReplyView',
@@ -480,6 +481,7 @@ test('question provider and control scenarios have separate mandatory browser bu
     'question-unread-reply-view',
     'question-unread-polling',
     'question-unread-answers',
+    'question-unread-forms',
     'question-unread-choices',
   ]) {
     assert.match(

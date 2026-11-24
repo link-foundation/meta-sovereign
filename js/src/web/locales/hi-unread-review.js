@@ -1,4 +1,22 @@
 export const hiUnreadReview = {
+  'browserUnread.form.enable':
+    'मेरी समीक्षा और सबमिशन के लिए लिंक किए गए प्रश्नपत्र पहले से भरें',
+  'browserUnread.answer.form-review':
+    'प्रश्नपत्र फ़ॉर्म अनुभाग में भेज दिया गया है।',
+  'browserUnread.form.prefilled':
+    '{count} फ़ील्ड भरे गए। सबमिट करने से पहले प्रश्नपत्र की समीक्षा करें।',
+  'browserUnread.form.partial':
+    '{count} फ़ील्ड भरे गए। प्रश्नपत्र की समीक्षा करें और बाकी फ़ील्ड भरें।',
+  'browserUnread.form.waiting-owner':
+    'फ़ॉर्म अनुभाग में प्रश्नपत्र पर आपका ध्यान चाहिए।',
+  'browserUnread.form.refused': 'प्रश्नपत्र तैयार नहीं किया जा सका।',
+  'browserUnread.form.slot-limit':
+    'फ़ॉर्म के सभी स्लॉट भरे हुए हैं। प्रश्नपत्र तैयार करने के लिए एक स्लॉट खाली करें।',
+  'browserUnread.form.unconfirmed':
+    'प्रश्नपत्र भरने की पुष्टि नहीं हुई। बदलाव करने से पहले मौजूदा पेज देखें।',
+  'browserUnread.form.closed':
+    'प्रश्नपत्र पहले ही एक ऐसे समीक्षा सत्र में तैयार था जो अब बंद है।',
+  'browserUnread.form.open': 'फ़ॉर्म में {slot} की समीक्षा करें',
   'browserUnread.answers':
     'बॉट विकल्प चुनें और सामान्य उत्तर समीक्षा के लिए रखें',
   'browserUnread.answersHint':

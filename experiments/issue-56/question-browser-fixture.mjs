@@ -67,6 +67,7 @@ export const questionBrowserFixture = async (options = {}) => {
       clock,
       runner: options.runner,
       readVacancy: options.readVacancy,
+      prefillLinkedForm: options.prefillLinkedForm,
     }),
   };
 };

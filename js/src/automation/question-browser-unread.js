@@ -15,6 +15,7 @@ import {
 } from './question-unread-state.js';
 import { visitUnreadNotice } from './question-unread-notices.js';
 import { visitUnreadAnswer } from './question-unread-answers.js';
+import { validUnreadForm } from './question-unread-form.js';
 import {
   unreadAnswerStatus,
   validUnreadAnswer,
@@ -204,7 +205,6 @@ export const normalizeUnreadReviewSettings = (input, capabilities) => {
       'Unread browser traversal is unavailable for this provider.'
     );
   }
-  const settings = normalizeUnreadScanOptions(input);
   if (
     (input.answerChats !== undefined &&
       typeof input.answerChats !== 'boolean') ||
@@ -231,7 +231,24 @@ export const normalizeUnreadReviewSettings = (input, capabilities) => {
       'Notice replies require an explicitly supported unread provider.'
     );
   }
-  return settings;
+  if (
+    (input.prefillForms !== undefined &&
+      typeof input.prefillForms !== 'boolean') ||
+    (input.prefillForms &&
+      (!input.answerChats ||
+        !capabilities.unreadFormSources?.some(({ id }) => id === input.source)))
+  ) {
+    throw failure(
+      'question-unread-forms-unavailable',
+      'Questionnaire prefill requires sequential answers and an available Forms owner.'
+    );
+  }
+  // A linked review can open a second browser and still needs to leave time
+  // to observe the next native conversation. Preserve an explicit caller cap.
+  return normalizeUnreadScanOptions({
+    ...input,
+    budgetMs: input.budgetMs ?? (input.prefillForms ? 60000 : undefined),
+  });
 };
 
 const unreadStatusResult = (record, owned) => {
@@ -257,11 +274,12 @@ export const createQuestionUnreadReviews = ({
   review,
   log = () => {},
   answerPlanning,
+  prefillLinkedForm,
 }) => {
   const runtimes = new Map();
   let admitting = Promise.resolve();
   let closed = false;
-  const context = { store, clock, log, answerPlanning };
+  const context = { store, clock, log, answerPlanning, prefillLinkedForm };
   const save = async (record) => {
     record.updatedAt = clock().toISOString();
     await store.put(record);
@@ -294,7 +312,8 @@ export const createQuestionUnreadReviews = ({
           (entry.notice &&
             !validUnreadNotice(entry.notice, record.source, entry.chat)) ||
           (entry.answer &&
-            !validUnreadAnswer(entry.answer, record.source, entry.chat))
+            !validUnreadAnswer(entry.answer, record.source, entry.chat)) ||
+          (entry.form && !validUnreadForm(entry.form))
       )
     ) {
       throw failure(
@@ -343,6 +362,7 @@ export const createQuestionUnreadReviews = ({
       planning,
       ...(input.noticeReplies ? { noticeReplies: true } : {}),
       ...(input.answerChats ? { answerChats: true } : {}),
+      ...(input.prefillForms ? { prefillForms: true } : {}),
       ...(input.heldChat ? { heldChat: input.heldChat } : {}),
       state: 'active',
       startedAt: clock().toISOString(),

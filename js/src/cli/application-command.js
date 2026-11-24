@@ -8,6 +8,7 @@ import {
 import { defaultStoreDir } from '../storage/app-directory.js';
 import { encodeWire, decodeWire } from '../transport/lino.js';
 import { applicationModeSignals } from './application-signals.js';
+import { ownLinkedForms } from './linked-forms-owner.js';
 import {
   applicationSurveyConfiguration,
   applicationPreviewConfiguration,
@@ -294,6 +295,7 @@ export const createApplicationCommands = ({
             'chats-interval-minutes',
             'chat-browser-slot',
             'chat-model-draft',
+            'chat-prefill-forms',
           ].some((name) => args[name] !== undefined)
         ) {
           throw new Error(
@@ -322,6 +324,7 @@ export const createApplicationCommands = ({
               noQuestionnaires: boolean(args, 'no-questions'),
               processChats: boolean(args, 'process-chats'),
               chatModelDraft: boolean(args, 'chat-model-draft'),
+              chatPrefillForms: boolean(args, 'chat-prefill-forms'),
               chatBrowserSlot: args['chat-browser-slot'],
               chatsIntervalMinutes:
                 args['chats-interval-minutes'] === undefined
@@ -344,11 +347,16 @@ export const createApplicationCommands = ({
                 };
         const storeDir = args.store ?? defaultStoreDir();
         const store = await openStore(storeDir);
+        const forms =
+          input.processChats && input.chatPrefillForms
+            ? ownLinkedForms(store, log, options.forms)
+            : null;
         const service = createVacancyService({
           store,
           storeDir,
           ...options,
           application: {
+            prefillLinkedForm: forms?.prefill,
             ...options.application,
             chatLog: (entry) => log(encodeWire(entry)),
           },
@@ -376,7 +384,11 @@ export const createApplicationCommands = ({
           try {
             await service.stop();
           } finally {
-            await store.close?.();
+            try {
+              await forms?.detach();
+            } finally {
+              await store.close?.();
+            }
           }
         }
       },

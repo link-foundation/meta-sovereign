@@ -10,6 +10,7 @@ const reviewPhases = [
   'pending-options',
   'owner-draft',
   'prefilled',
+  'form-review',
 ];
 const effectPhases = ['selecting', 'sent', 'marked-sent', 'unknown', 'failed'];
 

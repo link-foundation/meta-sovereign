@@ -306,7 +306,7 @@ const reviewLearning = ({
 
 const reviewAction =
   ({ operate, filling, reportWriter, get, check, challenge }, action) =>
-  async (input, onWaiting) => {
+  async (input, onWaiting, validate) => {
     const result = await operate(input.id, async (record) => {
       const perform = async (name, options, arm = true) => {
         const proposed = record.reviewPlan?.proposed;
@@ -314,7 +314,12 @@ const reviewAction =
           reportWriter,
           record,
           name === 'applyEmpty' ? 'apply' : name,
-          await filling[name](record, options, () => check(record)),
+          await filling[name](
+            record,
+            options,
+            () => check(record),
+            name === 'plan' ? validate : undefined
+          ),
           proposed
         );
         if (name === 'plan' && arm) {

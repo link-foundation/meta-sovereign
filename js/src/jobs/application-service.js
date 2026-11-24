@@ -91,11 +91,13 @@ class ApplicationService {
     batchWait,
     chatRunner,
     chatLog = () => {},
+    prefillLinkedForm,
     createChats = () =>
       new ApplicationChats({
         store,
         openSession,
         runner: chatRunner,
+        prefillLinkedForm,
         log: chatLog,
       }),
     trace = applicationTrace(),

@@ -529,6 +529,7 @@ export const BrowserAnswerControls = ({ api, chat, planning = {} }) => {
         available: unreadAvailable(caps, source),
         noticesAvailable: unreadAvailable(caps, source, 'unreadNoticeSources'),
         answersAvailable: unreadAvailable(caps, source, 'unreadAnswerSources'),
+        formsAvailable: unreadAvailable(caps, source, 'unreadFormSources'),
         blocked: busy || watchActive,
         select: (id) => selectUnreadReview(api, id, setReference, receive),
       }),

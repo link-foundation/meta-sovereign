@@ -1,3 +1,11 @@
+2026-11-24 questionnaire links in unread conversations (HH10 and QA24 remain unfinished)
+
+- [x] Reproduce the chat review stopping at a respondent link on the published parent.
+- [x] Offer opted-in prefill in an owned free Forms slot for exact Google, Yandex, Microsoft and Typeform links. Bind native conversation evidence, destination and form writes, and preserve drafts and mixed requests.
+- [x] Verify that repeats recover the existing receipt, foreign destinations and unsupported links remain for review, and Forms records observed writes without submitting.
+- [x] Exercise CLI, both Lino formats, production Chromium and a 390-pixel Playwright MCP handoff to Forms. Reproduce the original pass deadline and verify both browser runs continue to the held draft.
+- [ ] Verify exact-source hosted checks and authenticated provider behavior.
+
 2026-11-24 HeadHunter vacancy pay in Forms (QA13 and QA24 remain unfinished)
 
 - [x] Reproduce the owner-target fallback on the published parent in four focused regressions and the production Forms phone review.

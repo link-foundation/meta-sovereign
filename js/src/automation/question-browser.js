@@ -242,6 +242,7 @@ export const createQuestionBrowser = ({
   log = () => {},
   watchIntervalMs = 1500,
   readVacancy,
+  prefillLinkedForm,
 }) => {
   const controller = new AbortController();
   const answerPlanning = createBrowserAnswerPlanning({
@@ -249,7 +250,12 @@ export const createQuestionBrowser = ({
     readVacancy,
     signal: controller.signal,
   });
-  const capabilities = () => browserCapabilities(send);
+  const capabilities = () => {
+    const result = browserCapabilities(send);
+    return prefillLinkedForm && result.unreadAnswerSources
+      ? { ...result, unreadFormSources: result.unreadAnswerSources }
+      : result;
+  };
   const status = (input) => browserReviewStatus(store, clock, input);
   const review = createBrowserReviewRecorder({
     store,
@@ -266,6 +272,7 @@ export const createQuestionBrowser = ({
     review,
     log,
     answerPlanning,
+    prefillLinkedForm,
   });
   const unread = withQuestionUnreadPolling({
     finite: finiteUnread,

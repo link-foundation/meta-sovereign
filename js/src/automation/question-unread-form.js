@@ -1,0 +1,132 @@
+import { textLinks } from '../message-links.js';
+import { respondentDestination } from '../forms/form-destination.js';
+import {
+  boundedBrowserText,
+  checkBrowserQuestion,
+} from './question-browser-state.js';
+import { unreadFailure } from './question-unread-identity.js';
+
+const cleanTextUrl = (value) => value.replace(/[.,;:!?)\]}»”’]+$/u, '');
+const activeTransfer = (state) =>
+  ['prefilled', 'partial', 'waiting-owner'].includes(state);
+export const unreadFormTransfer = (state) =>
+  activeTransfer(state) || state === 'closed';
+
+export const unreadFormLink = (enabled, snapshot) => {
+  if (
+    !enabled ||
+    snapshot.question.outgoing ||
+    snapshot.strictOptions ||
+    snapshot.hasDraft ||
+    snapshot.noticeContext?.canReply === false
+  ) {
+    return null;
+  }
+  const messages = snapshot.pendingTurn?.messages;
+  if (!messages?.length) {
+    return null;
+  }
+  const forms = messages.flatMap((message) => {
+    const targets = message.links ?? textLinks(message.body).map(cleanTextUrl);
+    const urls = new Set(
+      targets
+        .map((target) => respondentDestination(target)?.url)
+        .filter(Boolean)
+    );
+    return [...urls].map((url) => ({ messageId: message.id, url }));
+  });
+  return forms.length === 1 ? forms[0] : null;
+};
+
+const formOnly = ({ pendingTurn }, link) => {
+  if (pendingTurn.messages.length !== 1) {
+    return false;
+  }
+  const [{ body, links }] = pendingTurn.messages;
+  const visible = textLinks(body).map(cleanTextUrl);
+  if (
+    [...visible, ...(links ?? [])].some(
+      (value) => respondentDestination(value)?.url !== link.url
+    )
+  ) {
+    return false;
+  }
+  const instruction = visible
+    .reduce((text, url) => text.replace(url, ''), body)
+    .trim();
+  return /^(?:please\s+(?:fill (?:in|out)|complete)\s+(?:the\s+|this\s+)?(?:questionnaire|form)|(?:please\s+)?(?:questionnaire|form)|(?:пожалуйста,?\s+)?(?:заполните\s+(?:эту\s+|нашу\s+)?)?анкет[ау]|请填写(?:此|这份)?(?:表格|问卷)|कृपया (?:यह )?फ़ॉर्म भरें)?[\s.:!]*$/iu.test(
+    instruction
+  );
+};
+
+export const visitUnreadForm = async ({
+  context,
+  record,
+  snapshot,
+  handle,
+  signal,
+  entry,
+  save,
+  link,
+}) => {
+  if (!link) {
+    return false;
+  }
+  const verify = async () => {
+    signal.throwIfAborted();
+    const current = checkBrowserQuestion(await handle.readInactiveQuestion());
+    if (JSON.stringify(current) !== JSON.stringify(snapshot)) {
+      throw unreadFailure(
+        'question-form-changed',
+        'The linked form message changed. Review the current chat.'
+      );
+    }
+    signal.throwIfAborted();
+  };
+  try {
+    entry.form = await context.prefillLinkedForm({
+      ...link,
+      source: record.source,
+      chat: snapshot.chat,
+      planning: record.planning,
+      signal,
+      verify,
+    });
+  } catch (error) {
+    signal.throwIfAborted();
+    entry.form = {
+      ...link,
+      state: 'refused',
+      written: 0,
+      code: boundedBrowserText(error?.code, 120)
+        ? error.code
+        : 'question-form-unconfirmed',
+    };
+  }
+  const transferred =
+    unreadFormTransfer(entry.form.state) && formOnly(snapshot, link);
+  if (transferred) {
+    entry.answer.phase = 'form-review';
+  }
+  await save(record);
+  return transferred;
+};
+
+const hasValidFormSlot = (value) =>
+  typeof value.sessionId === 'string' &&
+  /^[a-f\d]{8}(?:-[a-f\d]{4}){3}-[a-f\d]{12}$/u.test(value.sessionId) &&
+  boundedBrowserText(value.browserSlot, 80);
+
+export const validUnreadForm = (value) =>
+  respondentDestination(value?.url) &&
+  boundedBrowserText(value.messageId, 480) &&
+  (unreadFormTransfer(value.state) ||
+    ['refused', 'unconfirmed'].includes(value.state)) &&
+  Number.isInteger(value.written) &&
+  value.written >= 0 &&
+  value.written <= 200 &&
+  ((value.sessionId === undefined &&
+    value.browserSlot === undefined &&
+    !activeTransfer(value.state)) ||
+    (value.state !== 'closed' && hasValidFormSlot(value))) &&
+  (value.code === undefined || boundedBrowserText(value.code, 120));

@@ -18,6 +18,10 @@ import { saveAnswerRule } from '../../js/src/automation/question-store.js';
 import { saveAnswerPolicy } from '../../js/src/automation/question-policy.js';
 import { rejectionText } from './notice-policy-fixture.mjs';
 import {
+  employerQuestionnaire,
+  linkedFormBrowser,
+} from './unread-linked-form-fixture.mjs';
+import {
   modelQuestion,
   modelRunnerFixture,
   seedModelAnswers,
@@ -171,6 +175,8 @@ export const questionBrowserServer = async (
     afterBrowserEvaluate,
     onUnreadPass,
     readVacancy,
+    forms,
+    unreadMessages,
   } = {}
 ) => {
   const env = await questionBrowserFixture();
@@ -206,6 +212,7 @@ export const questionBrowserServer = async (
             {
               ...mode,
               ...(unreadAnswers ? { precedingOutgoing: true } : {}),
+              ...(unreadMessages ? { latestMessages: unreadMessages } : {}),
               ...(unreadModel ? { latestMessages: { 8: modelQuestion } } : {}),
             },
             unreadNotices,
@@ -242,7 +249,7 @@ export const questionBrowserServer = async (
     onUnreadPass,
   });
   const server = await startQuestionFixtureServer(
-    { store: env.store, send, runner: env.runner, readVacancy },
+    { store: env.store, send, runner: env.runner, readVacancy, forms },
     true
   );
   const localBase = `http://127.0.0.1:${server.port}`;
@@ -300,10 +307,20 @@ if (
     headless: true,
     args: ['--disable-dev-shm-usage'],
   });
+  const linked =
+    process.env.QUESTION_BROWSER_LINKED_FORMS === '1'
+      ? linkedFormBrowser(browser)
+      : null;
   const fixture = await questionBrowserServer(browser, {
     summaryChoices: process.env.QUESTION_BROWSER_SUMMARY === '1',
     noticePolicies: process.env.QUESTION_BROWSER_NOTICES === '1',
-    unreadReview: process.env.QUESTION_BROWSER_UNREAD === '1',
+    unreadReview:
+      Boolean(linked) || process.env.QUESTION_BROWSER_UNREAD === '1',
+    ...(linked && {
+      unreadAnswers: true,
+      unreadMessages: { 8: employerQuestionnaire },
+      forms: linked.forms,
+    }),
   });
   const controls = questionBrowserControlServer(fixture);
   await new Promise((resolve) => controls.listen(0, '127.0.0.1', resolve));

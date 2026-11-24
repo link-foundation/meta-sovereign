@@ -55,6 +55,8 @@ export const unreadAnswerFixture = async (options = {}) => {
       let held = false;
       const value = await input.onConversation?.(observation, {
         snapshot,
+        readInactiveQuestion: async () =>
+          (await options.readCurrent?.(snapshot)) ?? snapshot,
         async holdReviewInactive() {
           held = true;
         },

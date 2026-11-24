@@ -46,10 +46,11 @@ const planOptions = (input) => ({
   chat: input.chat,
 });
 
-const requireAnswerForm = (inspection) => {
+const requireAnswerForm = (inspection, validate) => {
   if (inspection.challenge?.active) {
     throw failure('form-captcha', 'Solve verification in the review browser.');
   }
+  validate?.(inspection);
 };
 
 const reviewedField = (field, assignment) => ({
@@ -77,7 +78,7 @@ export const createReviewedPrefill = ({
     record.reviewPlan = null;
     await state?.targets.dispose();
   };
-  const plan = async (record, input, check) => {
+  const plan = async (record, input, check, validate) => {
     const options = planOptions(input);
     if (
       input.modelDraft !== undefined &&
@@ -96,7 +97,7 @@ export const createReviewedPrefill = ({
         snapshot = value;
       },
     });
-    requireAnswerForm(inspection);
+    requireAnswerForm(inspection, validate);
     const proposed = withRadioReview(
       await planFormAnswers(
         store,

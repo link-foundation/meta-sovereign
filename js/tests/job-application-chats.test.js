@@ -38,6 +38,7 @@ test(
     for (const change of [
       { processChats: 'true' },
       { chatModelDraft: 1 },
+      { chatPrefillForms: 1 },
       { chatsIntervalMinutes: 0 },
       { chatsIntervalMinutes: 121 },
       { chatsIntervalMinutes: 1.5 },

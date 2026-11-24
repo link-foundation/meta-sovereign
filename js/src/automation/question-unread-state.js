@@ -4,6 +4,7 @@ import {
 } from './question-browser-state.js';
 import { validUnreadNotice } from './question-unread-notice-state.js';
 import { validUnreadAnswer } from './question-unread-answer-state.js';
+import { unreadFormTransfer, validUnreadForm } from './question-unread-form.js';
 import { validUnreadPolling } from './question-unread-polling-state.js';
 import { browserUnreadId, unreadFailure } from './question-unread-identity.js';
 export { browserUnreadId, unreadFailure } from './question-unread-identity.js';
@@ -75,6 +76,9 @@ const validUnreadEntry = (entry, source) =>
   (entry.code === undefined || boundedBrowserText(entry.code, 120)) &&
   (entry.answer === undefined ||
     validUnreadAnswer(entry.answer, source, entry.chat)) &&
+  (entry.form === undefined || validUnreadForm(entry.form)) &&
+  (entry.answer?.phase !== 'form-review' ||
+    unreadFormTransfer(entry.form?.state)) &&
   (entry.notice === undefined ||
     validUnreadNotice(entry.notice, source, entry.chat));
 
@@ -94,6 +98,9 @@ const validUnreadIdentity = (value, id) =>
   (value.noticeReplies === undefined ||
     typeof value.noticeReplies === 'boolean') &&
   (value.answerChats === undefined || typeof value.answerChats === 'boolean') &&
+  (value.prefillForms === undefined ||
+    typeof value.prefillForms === 'boolean') &&
+  (!value.prefillForms || value.answerChats === true) &&
   !(value.answerChats && value.noticeReplies) &&
   (value.state !== 'active' || value.owned);
 
@@ -104,6 +111,8 @@ const invalidUnreadEntries = (value) =>
     value.entries.some((entry) => entry.notice !== undefined)) ||
   (!value.answerChats &&
     value.entries.some((entry) => entry.answer !== undefined)) ||
+  (!value.prefillForms &&
+    value.entries.some((entry) => entry.form !== undefined)) ||
   !value.entries.every((entry) => validUnreadEntry(entry, value.source)) ||
   new Set(value.entries.map((entry) => entry.chat)).size !==
     value.entries.length;

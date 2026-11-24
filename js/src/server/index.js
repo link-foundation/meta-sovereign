@@ -89,6 +89,7 @@ import {
 import { handleBrowserRoutes } from './routes-browser.js';
 import { handleFormRoutes } from './routes-forms.js';
 import { createFormReader } from '../forms/reader.js';
+import { createLinkedFormPrefill } from '../forms/linked-prefill.js';
 import { createLocalAnswerModel } from '../automation/local-answer-model.js';
 import { createFormReportWriter } from '../forms/report-file.js';
 import { handleGreetingRoutes } from './routes-greetings.js';
@@ -458,7 +459,8 @@ const automationContext = (
   automations = {},
   log = null,
   getSource = getSourceDefault,
-  later = []
+  later = [],
+  prefillLinkedForm
 ) => {
   const say = (event) => log?.(event);
   // The saved connection's token and ids, so the API is really tried
@@ -560,6 +562,7 @@ const automationContext = (
   const questionBrowser = createQuestionBrowser({
     store,
     send,
+    prefillLinkedForm,
     runner: automations.modelRunner,
     readVacancy:
       automations.readVacancy ?? createAssignmentVacancyReader({ store }),
@@ -1131,7 +1134,15 @@ const trackSockets = (server) => {
 };
 
 // The automations' part of the context, fed by the Telegram account.
-const automationFor = (store, automations, log, telegramAccount, later) => ({
+const automationFor = (
+  store,
+  automations,
+  log,
+  telegramAccount,
+  later,
+  model
+) => ({
+  ...model,
   vkCache: createVkCacheRuntime({ store, ...automations.vkCache }),
   vkStickers: createVkStickerRuntime({ store, ...automations.vkStickers }),
   ...automationContext(
@@ -1139,7 +1150,8 @@ const automationFor = (store, automations, log, telegramAccount, later) => ({
     automations,
     log,
     accountSources(telegramAccount),
-    later
+    later,
+    model.prefillLinkedForm
   ),
 });
 
@@ -1184,9 +1196,11 @@ const modelContext = (
   service = createLocalAnswerModel()
 ) => {
   automations.modelRunner ??= service.draft;
+  const reader = serverForms(store, { modelRunner: service.draft, ...forms });
   return {
     answerModel: service,
-    forms: serverForms(store, { modelRunner: service.draft, ...forms }),
+    forms: reader,
+    prefillLinkedForm: createLinkedFormPrefill({ store, forms: reader }),
   };
 };
 
@@ -1365,6 +1379,7 @@ const startServerRuntime = async ({
     },
     later
   );
+  const model = modelContext(store, forms, automations, answerModel);
   const ctx = {
     cloud,
     front,
@@ -1379,9 +1394,8 @@ const startServerRuntime = async ({
     ...workspaceUiContext(cloudConfig, allowOrigins, uiUrl, localUi),
     uiDefaults,
     ...cvContext(cv, vacancies),
-    ...modelContext(store, forms, automations, answerModel),
     replies: replyService(store, storeDir, replies),
-    ...automationFor(store, automations, log, telegramAccount, later),
+    ...automationFor(store, automations, log, telegramAccount, later, model),
     ...greetingContext(greetings),
     broadcasting,
     storeDir,

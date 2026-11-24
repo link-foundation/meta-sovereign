@@ -16,12 +16,13 @@ export const applicationChatSettings = (input, browserSlot) => {
     'chatsIntervalMinutes',
     'chatBrowserSlot',
     'chatModelDraft',
+    'chatPrefillForms',
   ];
   if (names.every((name) => input[name] === undefined)) {
     return {};
   }
   if (
-    ['processChats', 'chatModelDraft'].some(
+    ['processChats', 'chatModelDraft', 'chatPrefillForms'].some(
       (name) => input[name] !== undefined && typeof input[name] !== 'boolean'
     )
   ) {
@@ -42,6 +43,9 @@ export const applicationChatSettings = (input, browserSlot) => {
     chatsIntervalMinutes: interval,
     chatBrowserSlot: slot,
     chatModelDraft: input.chatModelDraft === true,
+    ...(input.chatPrefillForms === undefined
+      ? {}
+      : { chatPrefillForms: input.chatPrefillForms }),
   };
 };
 

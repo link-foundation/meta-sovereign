@@ -511,6 +511,8 @@
     "test:e2e:question-unread-notices:webkit": "E2E_BROWSER=webkit node js/tests/e2e-question-unread-notices-browser.mjs",
     "test:e2e:question-unread-answers": "node js/tests/e2e-question-unread-answers-browser.mjs",
     "test:e2e:question-unread-answers:webkit": "E2E_BROWSER=webkit node js/tests/e2e-question-unread-answers-browser.mjs",
+    "test:e2e:question-unread-forms": "node js/tests/e2e-question-unread-forms-browser.mjs",
+    "test:e2e:question-unread-forms:webkit": "E2E_BROWSER=webkit node js/tests/e2e-question-unread-forms-browser.mjs",
     "test:e2e:question-unread-choices": "node js/tests/e2e-question-unread-choices-browser.mjs",
     "test:e2e:question-unread-choices:webkit": "E2E_BROWSER=webkit node js/tests/e2e-question-unread-choices-browser.mjs",
     "test:e2e:question-unread-polling": "node js/tests/e2e-question-unread-polling-browser.mjs",

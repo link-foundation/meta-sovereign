@@ -40,6 +40,7 @@ import { createFollowDiscovery } from '../follow/chat-discovery.js';
 import { withAnswerModel } from './answer-model-commands.js';
 import { createQuestionBrowser } from '../automation/question-browser.js';
 import { createAssignmentVacancyReader } from '../assignments/vacancy-reader.js';
+import { ownLinkedForms } from './linked-forms-owner.js';
 import { safetyCommands } from './safety-commands.js';
 
 import { AUTOMATION_HELP } from './help.js';
@@ -397,7 +398,7 @@ const SUBCOMMANDS = {
   delete: deleteCmd,
 };
 
-const runnerFor = (store, args, deps) => {
+const runnerFor = (store, args, deps, log) => {
   const send =
     deps.send ??
     createDefaultSender({
@@ -430,9 +431,16 @@ const runnerFor = (store, args, deps) => {
     ...(now ? { clock: () => now } : {}),
     ...(deps.sleep ? { sleep: deps.sleep } : {}),
   });
+  const forms = [true, 'true'].includes(args['prefill-forms'])
+    ? ownLinkedForms(store, log, {
+        modelRunner: deps.modelRunner,
+        ...deps.forms,
+      })
+    : null;
   const questionBrowser = createQuestionBrowser({
     store,
     send,
+    prefillLinkedForm: forms?.prefill,
     ...(now ? { clock: () => now } : {}),
     runner: deps.modelRunner,
     readVacancy:
@@ -443,9 +451,16 @@ const runnerFor = (store, args, deps) => {
     runner,
     questionBrowser,
     close: async () => {
-      await runner.close();
-      await questionBrowser.close();
-      await send.close?.();
+      try {
+        await runner.close();
+        await questionBrowser.close();
+      } finally {
+        try {
+          await forms?.detach();
+        } finally {
+          await send.close?.();
+        }
+      }
     },
   };
 };
@@ -465,11 +480,16 @@ const automationsCmd = async (args, log, deps) => {
     : undefined;
   const store = await deps.openStore(args.store ?? defaultStoreDir());
   const work = async (modelRunner) => {
-    const { runner, questionBrowser, close } = runnerFor(store, args, {
-      ...deps,
-      modelRunner,
-      answerFinalPeriod,
-    });
+    const { runner, questionBrowser, close } = runnerFor(
+      store,
+      args,
+      {
+        ...deps,
+        modelRunner,
+        answerFinalPeriod,
+      },
+      log
+    );
     const followDiscovery =
       deps.followDiscovery ?? createFollowDiscovery({ store });
     try {

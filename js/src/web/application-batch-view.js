@@ -24,18 +24,21 @@ const BatchHeading = ({ batch, eligible, action, copy, frozen, t }) =>
       : null,
   ]);
 
+const batchDraftDefaults = {
+  urls: '',
+  maxApplications: 0,
+  durationMs: 86400000,
+  noQuestionnaires: false,
+  processChats: false,
+  chatsIntervalMinutes: 120,
+  chatBrowserSlot: 'chat-slot',
+  chatModelDraft: false,
+  chatPrefillForms: false,
+};
+
 export const ApplicationBatchView = ({ application, supported, t }) => {
   const state = application.batch;
-  const [draft, setDraft] = useState({
-    urls: '',
-    maxApplications: 0,
-    durationMs: 86400000,
-    noQuestionnaires: false,
-    processChats: false,
-    chatsIntervalMinutes: 120,
-    chatBrowserSlot: 'chat-slot',
-    chatModelDraft: false,
-  });
+  const [draft, setDraft] = useState(batchDraftDefaults);
   const [confirmed, setConfirmed] = useState(false);
   const batch = state?.receipt?.batch;
   const eligible = discoveredReviewUrls(application.discovery);

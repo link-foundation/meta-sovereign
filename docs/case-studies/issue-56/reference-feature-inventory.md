@@ -1,6 +1,8 @@
 # Reference feature inventory
 
 Current acceptance: **88 of 118 criteria verified; 30 remain unchecked**.
+
+[Questionnaires linked in unread HeadHunter chats](unread-linked-forms.md) reach an owned Forms slot under explicit opt-in, recover their receipts and let the native queue continue after a confirmed questionnaire-only handoff. Focused CLI and both Lino encodings, Chromium and a phone Playwright handoff verify the fixture behavior. Authenticated and complete provider coverage remain required for HH10 and QA24.
 The [complete VD03 review](hosted-vk-independent-20e603f1.md), together with
 the earlier exact-source reviews, supersedes pending statuses and historical
 counts in the dated progress notes below.

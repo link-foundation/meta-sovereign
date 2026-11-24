@@ -32,7 +32,7 @@ export const questionUnreadCommand = async (
   options,
   progress = () => {}
 ) => {
-  for (const flag of ['notice-replies', 'answer-chats']) {
+  for (const flag of ['notice-replies', 'answer-chats', 'prefill-forms']) {
     if (
       args[flag] !== undefined &&
       ![true, false, 'true', 'false'].includes(args[flag])
@@ -57,6 +57,9 @@ export const questionUnreadCommand = async (
         ...(args['answer-chats'] === undefined
           ? {}
           : { answerChats: [true, 'true'].includes(args['answer-chats']) }),
+        ...(args['prefill-forms'] === undefined
+          ? {}
+          : { prefillForms: [true, 'true'].includes(args['prefill-forms']) }),
         ...Object.fromEntries(
           [
             ['max-chats', 'maxChats'],

@@ -1,5 +1,6 @@
 import React from 'react';
 import { ModelDraftControl } from './answer-model-settings.js';
+import { UnreadFormOption } from './question-unread-forms.js';
 
 const el = React.createElement;
 export const ApplicationChatControls = ({ draft, update, frozen, t }) =>
@@ -48,6 +49,13 @@ export const ApplicationChatControls = ({ draft, update, frozen, t }) =>
             value: draft.chatModelDraft,
             set: (value) => update('chatModelDraft', value),
             busy: frozen,
+          }),
+          el(UnreadFormOption, {
+            key: 'forms',
+            value: draft.chatPrefillForms,
+            set: (value) => update('chatPrefillForms', value),
+            disabled: frozen,
+            field: 'chatPrefillForms',
           }),
         ]
       : []),

@@ -3,6 +3,7 @@ import { useT } from './i18n.js';
 import { browserUnreadId } from '../automation/question-unread-state.js';
 import { browserWatchPhaseKey } from './question-browser-watch-state.js';
 import { ModelDraftControl } from './answer-model-settings.js';
+import { UnreadFormOption, UnreadFormResult } from './question-unread-forms.js';
 import {
   useUnreadPolling,
   UnreadPollingFields,
@@ -278,6 +279,7 @@ const UnreadResult = ({ result, blocked, select }) => {
             ? el('p', { key: 'preview', className: 'wrap' }, entry.preview)
             : null,
           el(UnreadNoticeResult, { key: 'notice', notice: entry.notice }),
+          el(UnreadFormResult, { key: 'form', form: entry.form }),
           entry.reviewId
             ? el(
                 'button',
@@ -313,6 +315,7 @@ const UnreadControls = ({
   select,
   noticesAvailable,
   answersAvailable,
+  formsAvailable,
 }) => {
   const t = useT();
   const pass = useUnreadPass({
@@ -327,6 +330,8 @@ const UnreadControls = ({
   const [noticeReplies, setNoticeReplies] = React.useState(false);
   const [answerChats, setAnswerChats] = React.useState(false);
   const [modelDraft, setModelDraft] = React.useState(false);
+  const [prefillForms, setPrefillForms] = React.useState(false);
+  const canPrefillForms = answerChats && answersAvailable && formsAvailable;
   const polling = useUnreadPolling();
   const active = activePass(pass.result);
   const locked = blocked || pass.busy || pass.pending || active;
@@ -387,6 +392,14 @@ const UnreadControls = ({
             busy: locked,
           })
         : null,
+      canPrefillForms
+        ? el(UnreadFormOption, {
+            key: 'forms',
+            value: prefillForms,
+            set: setPrefillForms,
+            disabled: locked,
+          })
+        : null,
       el('label', { key: 'limit', className: 'field' }, [
         el(
           'span',
@@ -434,6 +447,9 @@ const UnreadControls = ({
                 ? { noticeReplies: true }
                 : {}),
               ...(answerChats && answersAvailable ? { answerChats: true } : {}),
+              ...(canPrefillForms && prefillForms
+                ? { prefillForms: true }
+                : {}),
             }),
         },
         t(

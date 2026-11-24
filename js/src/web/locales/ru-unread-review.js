@@ -1,4 +1,21 @@
 export const ruUnreadReview = {
+  'browserUnread.form.enable':
+    'Заполнять анкеты по ссылкам для моей проверки и отправки',
+  'browserUnread.answer.form-review': 'Анкета передана в раздел «Формы».',
+  'browserUnread.form.prefilled':
+    'Заполнено полей: {count}. Проверьте анкету перед отправкой.',
+  'browserUnread.form.partial':
+    'Заполнено полей: {count}. Проверьте анкету и заполните оставшиеся поля.',
+  'browserUnread.form.waiting-owner':
+    'Анкета требует вашего внимания в разделе «Формы».',
+  'browserUnread.form.refused': 'Не удалось подготовить анкету.',
+  'browserUnread.form.slot-limit':
+    'Все места в разделе «Формы» заняты. Освободите место для анкеты.',
+  'browserUnread.form.unconfirmed':
+    'Результат заполнения не подтверждён. Проверьте текущую страницу перед изменениями.',
+  'browserUnread.form.closed':
+    'Анкета уже была подготовлена в сеансе, который теперь закрыт.',
+  'browserUnread.form.open': 'Проверить {slot} в разделе «Формы»',
   'browserUnread.answers':
     'Выбирать ответы бота, обычные ответы оставлять на проверку',
   'browserUnread.answersHint':

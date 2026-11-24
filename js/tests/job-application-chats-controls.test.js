@@ -35,6 +35,7 @@ for (const type of [LINO_TEXT, LINO_BINARY]) {
         await api.vacancyApplicationBatchStart({
           ...batchInput,
           processChats: true,
+          chatPrefillForms: true,
           confirmations: ['send'],
         });
         const local = await untilApplicationChats(
@@ -47,6 +48,8 @@ for (const type of [LINO_TEXT, LINO_BINARY]) {
         assert.equal(receipt.batch.chatWorker.pid, local.batch.chatWorker.pid);
         assert.equal(receipt.batch.settings.chatsIntervalMinutes, 120);
         assert.equal(receipt.batch.settings.chatBrowserSlot, 'chat-slot');
+        assert.equal(receipt.batch.settings.chatPrefillForms, true);
+        assert.equal(f.calls.start[0].prefillForms, true);
         const stopped = await api.vacancyApplicationBatchStop(batchInput);
         assert.equal(stopped.batch.chatWorker.phase, 'stopped');
         assert.equal(stopped.batch.chatWorker.active, false);
@@ -78,6 +81,7 @@ test(
         'request-id': batchInput.requestId,
         'process-chats': 'true',
         'chat-model-draft': 'true',
+        'chat-prefill-forms': 'true',
         'chats-interval-minutes': '9',
         'chat-browser-slot': 'recruiter-chats',
         'test-mode': 'true',
@@ -88,6 +92,7 @@ test(
     const record = await f.store.get(applicationBatchKey(batchInput).id);
     assert.equal(record.options.processChats, true);
     assert.equal(record.options.chatModelDraft, true);
+    assert.equal(record.options.chatPrefillForms, true);
     assert.equal(record.options.chatsIntervalMinutes, 9);
     assert.equal(record.options.chatBrowserSlot, 'recruiter-chats');
     assert.equal(f.calls.children.length, 0);
@@ -136,6 +141,7 @@ test(
           draft: {
             processChats: true,
             chatModelDraft: false,
+            chatPrefillForms: true,
             chatsIntervalMinutes: 120,
             chatBrowserSlot: 'chat-slot',
           },
@@ -149,6 +155,10 @@ test(
         /data-application-batch-field="chatsIntervalMinutes"[^>]*value="120"/u
       );
       assert.match(controls, /data-model-draft-opt-in=""/u);
+      assert.match(
+        controls,
+        /data-application-batch-field="chatPrefillForms"[^>]*checked=""/u
+      );
       assert(!controls.includes('application.chats.'));
     }
   }
