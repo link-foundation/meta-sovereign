@@ -208,7 +208,9 @@ export const ExperienceReviewStatus = ({ review, api, openComparison }) => {
   const phase = state.unknown ? 'unknown' : (row?.phase ?? 'acquiring');
   const running = experienceReviewRunning(row);
   const resumable =
-    phase === 'interrupted' && experienceReviewCanResume(row.lastPhase);
+    phase === 'interrupted' &&
+    (experienceReviewCanResume(row.lastPhase) ||
+      (row.lastPhase === 'acquiring' && row.preparationAvailable === true));
   const open = async () => {
     const { hh, linkedin, requestId, fingerprint } = row.comparison;
     setOpening(true);

@@ -21,6 +21,7 @@ import {
   checkHhSnapshot,
   checkLinkedinSnapshot,
   sameExperienceChild,
+  storedExperienceAutoStatus,
   workExperienceChild,
 } from './experience-auto-service.js';
 import { confirmedExperiencePlan } from './experience-plan-receipt.js';
@@ -285,18 +286,15 @@ const readFresh = async (context, row, plan, result, run, save) => {
   }
 };
 
-const startComparison = async (context, row, run, signal) => {
-  const { options } = row;
-  const input = options.autoRequestId
+const acquisitionInput = (row) =>
+  row.options.autoRequestId
     ? null
     : experienceAutoOptions({
-        ...options,
+        ...row.options,
         requestId: reviewChildId(row, 'auto'),
       });
-  const auto = input
-    ? await run(context.getAuto, input, experienceAutoRunning)
-    : await context.getAuto().status({ requestId: options.autoRequestId });
-  signal.throwIfAborted();
+
+const acquiredComparison = async (store, auto) => {
   if (auto.phase !== 'completed' || !auto.plan) {
     throw failure('preparation');
   }
@@ -306,7 +304,7 @@ const startComparison = async (context, row, run, signal) => {
     linkedin: auto.linkedin,
     to: auto.options.to,
   };
-  const plan = await savedPlan(context.store, comparison);
+  const plan = await savedPlan(store, comparison);
   return {
     ...queue(plan),
     auto: auto.options,
@@ -314,6 +312,34 @@ const startComparison = async (context, row, run, signal) => {
     phase: 'selecting',
     waitingLogin: false,
   };
+};
+
+const startComparison = async (context, row, run, signal) => {
+  const input = acquisitionInput(row);
+  const auto = input
+    ? await run(context.getAuto, input, experienceAutoRunning)
+    : await context.getAuto().status({ requestId: row.options.autoRequestId });
+  signal.throwIfAborted();
+  return acquiredComparison(context.store, auto);
+};
+
+const recoverAcquisition = async (store, row) => {
+  const input = acquisitionInput(row);
+  const requestId = input?.requestId ?? row.options.autoRequestId;
+  const auto = await storedExperienceAutoStatus(store, { requestId });
+  if (input && !sameExperienceChild(auto, input)) {
+    throw failure('preparation');
+  }
+  return acquiredComparison(store, auto);
+};
+
+const reviewView = async (store, row, active) => {
+  const view = experienceReviewView(row, active);
+  if (view.phase !== 'interrupted' || row.phase !== 'acquiring') {
+    return view;
+  }
+  const preparation = await recoverAcquisition(store, row).catch(() => null);
+  return { ...view, preparationAvailable: Boolean(preparation) };
 };
 
 const replan = async (context, row, plan, run, save) => {
@@ -479,6 +505,17 @@ const resume = async (service, input) => {
     await service.store.get(experienceReviewKey(requestId)),
     requestId
   );
+  if (row.phase === 'acquiring') {
+    const preparation = await recoverAcquisition(service.store, row).catch(
+      () => null
+    );
+    if (!preparation) {
+      throw failure('conflict');
+    }
+    const owned = { row };
+    await service.save(owned, preparation);
+    return service.launch(owned.row);
+  }
   if (!experienceReviewCanResume(row.phase)) {
     throw failure('conflict');
   }
@@ -499,7 +536,7 @@ export const createExperienceReviewService = (context) => {
         options ? randomBytes(16).toString('hex') : null
       ),
     checked: checkedExperienceReview,
-    view: experienceReviewView,
+    view: (row, active) => reviewView(context.store, row, active),
     work: workFor({
       ...context,
       wait: context.wait ?? ((signal) => delay(250, null, { signal })),
@@ -533,7 +570,8 @@ export const createExperienceReviewService = (context) => {
 };
 
 export const storedExperienceReviewStatus = async (store, { requestId }) =>
-  experienceReviewView(
+  reviewView(
+    store,
     checkedExperienceReview(
       await store.get(experienceReviewKey(requestId)),
       requestId

@@ -1,4 +1,5 @@
 import React from 'react';
+import { randomBytes } from 'node:crypto';
 import { renderToString } from 'react-dom/server';
 import { build } from 'esbuild';
 import { makeBrowserCommander } from 'browser-commander';
@@ -9,6 +10,7 @@ import { vacancyBrowserFixture } from './vacancy-browser-fixture.mjs';
 import { seedHhAboutExperience } from './cv-hh-about-fixture.mjs';
 import { prepareNativeCvAbout } from '../../js/src/jobs/cv-prepare-browser.js';
 import { verifyOwnerCvSave } from '../../js/src/jobs/cv-save-cycle.js';
+import { newExperienceReview } from '../../js/src/cv/experience-review-record.js';
 import {
   experienceReviewFixtureData,
   saveFreshReviewExport,
@@ -183,6 +185,16 @@ export const cvPrepareBrowserFixture = async (
       about,
       queue,
       open,
+      seedReviewAcquisition: async (autoRequestId) => {
+        const requestId = 'recover-cv-acquisition';
+        const row = newExperienceReview(
+          requestId,
+          { requestId, autoRequestId },
+          randomBytes(16).toString('hex')
+        );
+        await app.store.put(row);
+        return row;
+      },
       close: async () => {
         await app.close();
         await native.close();

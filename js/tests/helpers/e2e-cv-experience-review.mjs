@@ -2,50 +2,66 @@ import assert from 'node:assert/strict';
 import { mkdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { cvPrepareBrowserFixture } from '../../../experiments/issue-56/cv-prepare-browser-fixture.mjs';
+import { experienceAutoKey } from '../../src/cv/experience-auto-record.js';
 import { experienceReviewKey } from '../../src/cv/experience-review-record.js';
 
-export const verifyCvExperienceReview = async (browser) => {
+const reviewAction = (page, name) =>
+  page.locator(`[data-experience-review-action="${name}"]`);
+const reviewPhase = (page, name) =>
+  page.locator(`[data-experience-review-phase="${name}"]`).waitFor();
+const reviewPanels = async (page) => {
+  await page.locator('[data-experience-documents] summary').first().click();
+  const auto = page.locator('[data-experience-auto]');
+  await auto.locator('summary').click();
+  return auto;
+};
+const openReview = async ({ page, base, queue }) => {
+  page.setDefaultTimeout(10000);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${base}/#/cv`);
+  const auto = await reviewPanels(page);
+  const field = (name) =>
+    auto.locator(`[data-experience-auto-field="${name}"]`);
+  await field('url').fill(queue.input.url);
+  await field('hash').fill(queue.input.hash);
+  await field('to').selectOption('hh');
+  return auto;
+};
+const routeBundle = async (page, path) => {
+  const body = await readFile(path);
+  await page.route('**/app.min.js*', (route) =>
+    route.fulfill({ body, contentType: 'application/javascript' })
+  );
+};
+const providerCounts = (provider) =>
+  provider.evaluate(() => [
+    globalThis.fixtureOpeners,
+    globalThis.fixtureSaves,
+    globalThis.fixtureCancels,
+  ]);
+const capture = async (name, target) => {
+  const directory = process.env.EXPERIENCE_REVIEW_SCREENSHOTS;
+  if (directory) {
+    await mkdir(directory, { recursive: true });
+    await target.scrollIntoViewIfNeeded();
+    await target.page().screenshot({ path: join(directory, `${name}.png`) });
+  }
+};
+
+const verifyReviewSave = async (browser) => {
   const fixture = await cvPrepareBrowserFixture(browser, { reviewQueue: true });
   const { page, provider, queue, counters } = fixture;
-  page.setDefaultTimeout(10000);
   const before = process.env.EXPERIENCE_REVIEW_BEFORE_BUNDLE;
   const checkpointBefore =
     process.env.EXPERIENCE_REVIEW_CHECKPOINT_BEFORE_BUNDLE;
-  const directory = process.env.EXPERIENCE_REVIEW_SCREENSHOTS;
-  const action = (name) =>
-    page.locator(`[data-experience-review-action="${name}"]`);
-  const phase = (name) =>
-    page.locator(`[data-experience-review-phase="${name}"]`).waitFor();
-  const countersInPage = () =>
-    provider.evaluate(() => [
-      globalThis.fixtureOpeners,
-      globalThis.fixtureSaves,
-      globalThis.fixtureCancels,
-    ]);
-  const capture = async (name, target) => {
-    if (directory) {
-      await mkdir(directory, { recursive: true });
-      await target.scrollIntoViewIfNeeded();
-      await target.page().screenshot({ path: join(directory, `${name}.png`) });
-    }
-  };
+  const action = (name) => reviewAction(page, name);
+  const phase = (name) => reviewPhase(page, name);
+  const countersInPage = () => providerCounts(provider);
   try {
     if (before || checkpointBefore) {
-      const body = await readFile(before || checkpointBefore);
-      await page.route('**/app.min.js*', (route) =>
-        route.fulfill({ body, contentType: 'application/javascript' })
-      );
+      await routeBundle(page, before || checkpointBefore);
     }
-    await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto(`${fixture.base}/#/cv`);
-    await page.locator('[data-experience-documents] summary').first().click();
-    const auto = page.locator('[data-experience-auto]');
-    await auto.locator('summary').click();
-    const field = (name) =>
-      auto.locator(`[data-experience-auto-field="${name}"]`);
-    await field('url').fill(queue.input.url);
-    await field('hash').fill(queue.input.hash);
-    await field('to').selectOption('hh');
+    const auto = await openReview(fixture);
     if (before) {
       await capture(
         'before',
@@ -85,8 +101,7 @@ export const verifyCvExperienceReview = async (browser) => {
     assert.equal(counters.attached, counters.detached);
     await capture('saved-phone', saved);
     await page.reload();
-    await page.locator('[data-experience-documents] summary').first().click();
-    await page.locator('[data-experience-auto] summary').click();
+    await reviewPanels(page);
     await phase('completed');
     assert.deepEqual(await countersInPage(), [1, 1, 0]);
 
@@ -123,5 +138,75 @@ export const verifyCvExperienceReview = async (browser) => {
     assert.deepEqual(fixture.errors, []);
   } finally {
     await fixture.close();
+  }
+};
+
+const verifyReviewAcquisition = async (browser) => {
+  const fixture = await cvPrepareBrowserFixture(browser, { reviewQueue: true });
+  const { page, provider, queue, counters } = fixture;
+  const before = process.env.EXPERIENCE_REVIEW_ACQUISITION_BEFORE_BUNDLE;
+  const action = (name) => reviewAction(page, name);
+  const phase = (name) => reviewPhase(page, name);
+  try {
+    if (before) {
+      await routeBundle(page, before);
+    }
+    const auto = await openReview(fixture);
+    await auto.locator('[data-experience-auto-action="start"]').click();
+    await auto.locator('[data-experience-auto-phase="completed"]').waitFor();
+    const autoRequestId = await page.evaluate(() =>
+      globalThis.localStorage.getItem('ms.cv.experience-auto')
+    );
+    const acquisition = await fixture.seedReviewAcquisition(autoRequestId);
+    await page.evaluate((id) => {
+      globalThis.localStorage.setItem('ms.cv.experience-review', id);
+    }, acquisition.requestId);
+    await page.reload();
+    await reviewPanels(page);
+    await phase('interrupted');
+    const review = page.locator('[data-experience-review]');
+    assert.deepEqual(await providerCounts(provider), [0, 0, 0]);
+    await capture(before ? 'acquisition-before' : 'acquisition-after', review);
+    assert.equal(
+      await action('resume').count(),
+      1,
+      'recover the verified preparation'
+    );
+    await action('resume').click();
+    await phase('prepared');
+    const native = provider.locator('textarea[data-qa="resume-editor-about"]');
+    assert.equal(await native.inputValue(), queue.source.profile.about);
+    const resumed = await fixture.store.get(acquisition.id);
+    const original = await fixture.store.get(experienceAutoKey(autoRequestId));
+    assert.equal(resumed.comparison.requestId, original.plan.requestId);
+    assert.equal(resumed.comparison.fingerprint, original.plan.fingerprint);
+    assert.equal(resumed.comparison.hh, original.hh);
+    assert.deepEqual(await providerCounts(provider), [1, 0, 0]);
+    await capture('acquisition-prepared', action('save'));
+    await action('skip').click();
+    await phase('completed');
+    assert.match(
+      await review
+        .locator('[data-experience-review-outcome="skipped"]')
+        .textContent(),
+      /Discarded/u
+    );
+    assert.deepEqual(await providerCounts(provider), [1, 0, 1]);
+    assert.equal(counters.attached, counters.detached);
+    assert.deepEqual(fixture.errors, []);
+  } finally {
+    await fixture.close();
+  }
+};
+
+export const verifyCvExperienceReview = async (browser) => {
+  if (!process.env.EXPERIENCE_REVIEW_ACQUISITION_BEFORE_BUNDLE) {
+    await verifyReviewSave(browser);
+  }
+  if (
+    !process.env.EXPERIENCE_REVIEW_BEFORE_BUNDLE &&
+    !process.env.EXPERIENCE_REVIEW_CHECKPOINT_BEFORE_BUNDLE
+  ) {
+    await verifyReviewAcquisition(browser);
   }
 };

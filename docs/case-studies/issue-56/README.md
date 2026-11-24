@@ -115,6 +115,7 @@
 - [CV review recovery between items](experience-review-checkpoint.md) retains verified receipts and opens the next editor once after an owner resumes the queue.
 - [CV recovery after a completed comparison](experience-review-replan.md) reuses the original comparison receipt after an interruption.
 - [CV recovery after a completed provider export](experience-review-refresh.md) reuses the original verified HeadHunter or LinkedIn target revision.
+- [CV recovery after completed acquisition](experience-review-acquisition.md) opens the first native editor from the original verified comparison.
 - [CV initial loading](cv-loading.md): deterministic slow-catalogue regression, disabled controls and shared loading state, with before/after browser captures.
 
 - [Desktop native prebuild filtering](desktop-native-prebuilds.md): preserve the actual five-job packaging failure, reproduce it through the installed builder, and keep only target-compatible SQLite addons while retaining native verification. Exact-head hosted builds remain required.

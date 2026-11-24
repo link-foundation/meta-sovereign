@@ -1,6 +1,7 @@
 import { chromium } from 'playwright';
 import { cvPrepareBrowserFixture } from './cv-prepare-browser-fixture.mjs';
 import { waitForCvFixtureShutdown } from './cv-fixture-server.mjs';
+import { experienceAutoKey } from '../../js/src/cv/experience-auto-record.js';
 
 const browser = await chromium.launch({
   headless: true,
@@ -12,9 +13,32 @@ let fixture;
 try {
   fixture = await cvPrepareBrowserFixture(browser, { reviewQueue: true });
   console.log(JSON.stringify({ input: fixture.queue.input }));
-  if (process.env.EXPERIENCE_REVIEW_MCP_CHECKPOINT === '1') {
+  const acquire = process.env.EXPERIENCE_REVIEW_MCP_ACQUISITION === '1';
+  const checkpoint = process.env.EXPERIENCE_REVIEW_MCP_CHECKPOINT === '1';
+  if (checkpoint || acquire) {
     process.once('SIGUSR2', async () => {
       try {
+        if (acquire) {
+          const preparations = await fixture.store.query(
+            ({ id, requestId, phase }) =>
+              id.startsWith('secret:cv-experience-auto:') &&
+              phase === 'completed' &&
+              id === experienceAutoKey(requestId)
+          );
+          if (preparations.length !== 1) {
+            throw new Error('Expected one acknowledged CV preparation.');
+          }
+          const row = await fixture.seedReviewAcquisition(
+            preparations[0].requestId
+          );
+          console.log(
+            JSON.stringify({
+              checkpoint: 'acquiring',
+              requestId: row.requestId,
+            })
+          );
+          return;
+        }
         const rows = await fixture.store.query(
           ({ id, phase }) =>
             id.startsWith('secret:cv-experience-review:') &&
@@ -29,11 +53,12 @@ try {
             'Expected one acknowledged queue with no pending editor.'
           );
         }
-        await fixture.store.put({ ...rows[0], phase: 'selecting' });
+        const row = rows[0];
+        await fixture.store.put({ ...row, phase: 'selecting' });
         console.log(
           JSON.stringify({
             checkpoint: 'selecting',
-            requestId: rows[0].requestId,
+            requestId: row.requestId,
           })
         );
       } catch (error) {
@@ -47,7 +72,7 @@ try {
     async close() {
       let provider;
       try {
-        if (process.env.EXPERIENCE_REVIEW_MCP_CHECKPOINT === '1') {
+        if (checkpoint || acquire) {
           provider = await fixture.provider.evaluate(() => ({
             editors: globalThis.fixtureOpeners,
             saves: globalThis.fixtureSaves,

@@ -20,6 +20,8 @@ The queue records the post-Save comparison request before starting it. If the co
 
 The queue also records the target export request before reading the provider. Recovery can verify the completed export and reuse its exact revision. A stale readback leaves the review interrupted and requires explicit recovery to fetch again. [Export recovery](experience-review-refresh.md)
 
+If both acquisitions and the comparison completed before the first editor opened, Recover review can use that original preparation. Status checks the exact saved result, then the owner decides whether to open the next native draft. [Acquisition recovery](experience-review-acquisition.md)
+
 The local-device UI and JSON commands use the same service as the text and binary Lino routes under `/api/cv/experience/review-*`. Status reads never launch a browser. The active decision checks the parent request, selected change and native request together. Requests and receipts remain private. No automatic model decision submits a provider form.
 
 ## Reproduction and validation
