@@ -1,0 +1,22 @@
+{
+  "archive": "application-letter-attachment.tar.gz",
+  "files": {
+    "before.log": "09d5a32f7402f052f19d7cd8a9a9cdcf7a3e16917e089adb287496e17a5d63f9",
+    "browser-before.log": "1a4775acb43deb26b919825a75e0f9a781f6069acc0b96fc1df1c9542528879c",
+    "browser.log": "10b55dff0abdef784a1dd74bf156873cb41546ae7380efee6cdbd0f0fb478924",
+    "build.log": "962de2a78f95a7136a91631342005034e82cafd344c9c7c98908876f9b21e41d",
+    "ci-contract-before.log": "68eb200e8b508b409c14edf2e6f65f550caa18802d814b93bad0930243eea4c6",
+    "deno.log": "e58012f86a5457be80bde3b2456de14a3ceabdf7f628165264fab6c8a743a0a6",
+    "eslint.log": "e06ea5d8c25efc0eebc4103a89c78ee146b133707cf898ad5bd004d269729292",
+    "format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "mcp-console.log": "9c1ad0ed0e9ecec61fead5c4731cb26aa1b8a26bd221781cbad0e6064ad03160",
+    "mcp-effects.json": "b67807730a12103eebcc7dfe74ec6b5d5758dd1bba92893686ea7ddadc5dc1ac",
+    "mcp-server.log": "e36cd15d5c36a9cb7d5bc9744c22f45d35c20dbdb224cd58c545e01a676dd297",
+    "mcp.json": "3bc2ad998a25584b938e3e3242f11dd48e8e9273f4aacc84fa75bf619ade3a3a",
+    "node.log": "bd1291c8b17147c0e5600c9e4d34b8bc9846aad4c8b0ef2df73b98a263f8351b",
+    "parent.txt": "55e4e87ab9c4975177f66bb077baf0d6493fdf80100d76cf14b8ba86f9aae98f",
+    "secretlint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source.diff": "5521d9a5a0a6226e6791fd94c293a4b08f2d959f0df6d9bcc1edf57c158a2dd3",
+    "web-bundle.git-blob": "effef52c2320d90e57b5b9199bebbf10fe56bfcbba679f6b705939c2531896b0"
+  }
+}

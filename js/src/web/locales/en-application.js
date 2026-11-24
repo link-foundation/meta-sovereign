@@ -258,6 +258,21 @@ export const enApplication = {
   'application.letter.not-requested': 'No letter attachment requested yet.',
   'application.letter.verified': 'Letter verified in the native application.',
   'application.letter.not-attached': 'Letter is not attached.',
+  'application.attachment.offered':
+    'HH offers to attach a separate cover letter.',
+  'application.attachment.draft': 'The cover-letter popup is open.',
+  'application.attachment.ready':
+    'Cover letter ready to send. Review it in the HH popup.',
+  'application.attachment.owner-conflict':
+    'The HH popup contains a different letter. Your text is still there.',
+  'application.attachment.needs-review':
+    'Reopen the vacancy to check the separate cover letter.',
+  'application.attachment.unknown':
+    'HH has not confirmed the cover letter. Check its status in HH before taking further action.',
+  'application.attachment.provider-confirmed':
+    'HH confirmed the separate cover letter.',
+  'application.attachment.letter-prepare': 'Prepare cover letter',
+  'application.attachment.letter-send': 'Send cover letter',
   'application.letter.unavailable': 'Letter control is unavailable.',
   'application.letter.unverified': 'Letter contents could not be verified.',
   'application.letter.owner-conflict':

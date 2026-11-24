@@ -268,6 +268,21 @@ export const ruApplication = {
   'application.letter.not-requested': 'Прикрепление письма ещё не запрошено.',
   'application.letter.verified': 'Письмо проверено в отклике HH.',
   'application.letter.not-attached': 'Письмо не прикреплено.',
+  'application.attachment.offered':
+    'HH предлагает отдельно прикрепить сопроводительное письмо.',
+  'application.attachment.draft': 'Окно сопроводительного письма открыто.',
+  'application.attachment.ready':
+    'Письмо готово к отправке. Проверьте его в окне HH.',
+  'application.attachment.owner-conflict':
+    'В окне HH другое письмо. Ваш текст сохранён в окне.',
+  'application.attachment.needs-review':
+    'Откройте вакансию снова, чтобы проверить сопроводительное письмо.',
+  'application.attachment.unknown':
+    'HH ещё не подтвердил письмо. Прежде чем продолжить, проверьте его статус в HH.',
+  'application.attachment.provider-confirmed':
+    'HH подтвердил отправку отдельного сопроводительного письма.',
+  'application.attachment.letter-prepare': 'Подготовить письмо',
+  'application.attachment.letter-send': 'Отправить письмо',
   'application.letter.unavailable': 'Поле письма недоступно.',
   'application.letter.unverified': 'Содержимое письма не подтверждено.',
   'application.letter.owner-conflict':

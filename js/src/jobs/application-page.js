@@ -7,6 +7,10 @@ export const applicationSelectors = {
     'textarea[data-qa="vacancy-response-popup-form-letter-input"], textarea[data-qa="vacancy-response-form-letter-input"]',
   letterToggle:
     '[data-qa="vacancy-response-letter-toggle"], [data-qa="add-cover-letter"]',
+  attachmentOpen: '[data-qa="responded-success-attach-cover-letter"]',
+  attachmentWrite:
+    'textarea[data-qa="vacancy-response-popup-form-letter-input"]',
+  attachmentSend: 'button[data-qa="vacancy-response-letter-submit"]',
   resumeMenu:
     '[data-qa="resume-title"]:not([role="option"] [data-qa="resume-title"])',
 };
@@ -155,7 +159,8 @@ export const applicationDocument = (target, input) => {
       href,
       disabled:
         !safe ||
-        Boolean(node.disabled || node.getAttribute('aria-disabled') === 'true'),
+        node.matches(':disabled') ||
+        node.getAttribute('aria-disabled') === 'true',
     };
   };
   const applicationError = (form) => {
@@ -247,6 +252,62 @@ export const applicationDocument = (target, input) => {
     };
   };
   const marked = (selector) => nodes(selector).length > 0;
+  const attachmentOffer = () => {
+    if (marked(selectors.attachmentWrite) || marked(selectors.attachmentSend)) {
+      return null;
+    }
+    const offer = unique(selectors.attachmentOpen);
+    return offer?.matches('button[type="button"], a[href^="#"]') ||
+      (offer?.matches('button:not([type])') && !offer.form)
+      ? describe(selectors.attachmentOpen)
+      : null;
+  };
+  const attachmentSnapshot = () => {
+    const submit = unique(selectors.attachmentSend);
+    const letter = unique(selectors.attachmentWrite);
+    const popup = letter?.form?.contains(submit)
+      ? letter.form
+      : letter?.closest('[role="dialog"], [data-qa="modal-overlay"]');
+    const action =
+      submit?.getAttribute('formaction') ??
+      submit?.form?.getAttribute('action');
+    const destination = action ? new URL(action, current) : current;
+    const otherFields = popup?.querySelectorAll(
+      'input:not([type="hidden"]), textarea, select, [contenteditable="true"]'
+    );
+    const structure = popup?.outerHTML ?? '';
+    const isolated =
+      popup?.contains(submit) &&
+      (!submit.form || submit.form === letter.form) &&
+      structure.length <= 100000 &&
+      otherFields.length <= 200 &&
+      [...otherFields].filter(visible).every((control) => control === letter) &&
+      destination.origin === expected.origin &&
+      !destination.username &&
+      !destination.password;
+    const writable =
+      isolated &&
+      !letter.matches(':disabled') &&
+      !letter.readOnly &&
+      letter.value.length <= 24000;
+    return {
+      offer: attachmentOffer(),
+      submit: writable ? describe(selectors.attachmentSend) : null,
+      value: writable ? letter.value : null,
+      maxLength: writable && letter.maxLength >= 0 ? letter.maxLength : null,
+      structure: isolated ? structure : '',
+      error: popup ? applicationError(popup) : null,
+      pending: Boolean(
+        doc.querySelector(
+          [
+            selectors.attachmentOpen,
+            selectors.attachmentWrite,
+            selectors.attachmentSend,
+          ].join(',')
+        )
+      ),
+    };
+  };
   const renderedWarning = (scope, matches) => {
     if (!scope) {
       return false;
@@ -357,8 +418,8 @@ export const applicationDocument = (target, input) => {
     });
     return new Set(destinations).size === 1 ? destinations[0] : null;
   };
-  const formSnapshot = () => {
-    const submit = unique(selectors.submit);
+  const formSnapshot = (delivered) => {
+    const submit = delivered ? null : unique(selectors.submit);
     const form = submit?.form ?? submit?.closest('form');
     const controls = [
       ...doc.querySelectorAll(
@@ -388,7 +449,7 @@ export const applicationDocument = (target, input) => {
       vacancyUnavailable: vacancyUnavailable(),
       error: applicationError(form),
       enter: describe(selectors.enter),
-      submit: describe(selectors.submit),
+      submit: delivered ? null : describe(selectors.submit),
       letter: letter
         ? {
             value: letter.value,
@@ -468,10 +529,19 @@ export const applicationDocument = (target, input) => {
           scopeStructureKey: '',
           scopeKey: JSON.stringify(['', []]),
         }
-      : formSnapshot();
+      : formSnapshot(metadata.delivered);
     return {
       ...metadata,
       ...content,
+      ...(bound &&
+      metadata.delivered &&
+      !metadata.challenge &&
+      !metadata.dailyLimit &&
+      !metadata.external &&
+      !metadata.questions &&
+      current.pathname === expected.pathname
+        ? { attachment: attachmentSnapshot() }
+        : {}),
       ...(metadata.challenge ? {} : searchState()),
     };
   };
@@ -563,20 +633,6 @@ export const applicationDocument = (target, input) => {
     }
     return true;
   };
-  if (!admits()) {
-    return { dispatched: false };
-  }
-  if (input.action === 'search') {
-    const destination = searchDestination();
-    if (!destination || result.scope || result.submit || result.questions) {
-      return { navigated: false };
-    }
-    globalThis.location.assign(destination.href);
-    return { navigated: true };
-  }
-  if (input.action === 'fullForm') {
-    return navigateFullForm();
-  }
   const writeLetter = () => {
     if (target.readOnly) {
       return { dispatched: false };
@@ -596,6 +652,55 @@ export const applicationDocument = (target, input) => {
     target.dispatchEvent(new globalThis.Event('change', { bubbles: true }));
     return { letter: target.value === input.text ? 'verified' : 'unverified' };
   };
+  const dispatchAttachment = () => {
+    const attachment = result.attachment;
+    const opening = input.action === 'attachmentOpen';
+    const sending = input.action === 'attachmentSend';
+    const control = opening ? attachment?.offer : attachment?.submit;
+    if (
+      !control ||
+      ((opening || sending) && control.disabled) ||
+      attachment.error ||
+      result.error ||
+      result.resumeNotVisible ||
+      result.vacancyUnavailable ||
+      JSON.stringify(result) !== input.guard ||
+      !target?.isConnected ||
+      unique(selectors[input.action]) !== target ||
+      (sending && (!input.text || attachment.value !== input.text)) ||
+      (!opening &&
+        attachment.maxLength !== null &&
+        input.text?.length > attachment.maxLength)
+    ) {
+      return { dispatched: false };
+    }
+    if (input.action === 'attachmentWrite') {
+      return writeLetter();
+    }
+    target.click();
+    return { dispatched: true };
+  };
+  if (
+    ['attachmentOpen', 'attachmentWrite', 'attachmentSend'].includes(
+      input.action
+    )
+  ) {
+    return dispatchAttachment();
+  }
+  if (!admits()) {
+    return { dispatched: false };
+  }
+  if (input.action === 'search') {
+    const destination = searchDestination();
+    if (!destination || result.scope || result.submit || result.questions) {
+      return { navigated: false };
+    }
+    globalThis.location.assign(destination.href);
+    return { navigated: true };
+  }
+  if (input.action === 'fullForm') {
+    return navigateFullForm();
+  }
   if (input.action === 'letter') {
     return writeLetter();
   }
@@ -652,12 +757,13 @@ export const applicationTarget = async (page, selector) => {
   }
 };
 
-export const dispatchApplication = (handle, record, action) =>
+export const dispatchApplication = (handle, record, action, text) =>
   handle.evaluate(applicationDocument, {
     url: record.url,
     selectors: applicationSelectors,
     action,
     guard: record.guard.page,
+    ...(action === 'attachmentSend' ? { text } : {}),
     ...(action === 'search'
       ? {
           searchUrl:
@@ -689,11 +795,12 @@ export const writeApplicationLetter = async (
   text,
   page,
   url,
-  previousText
+  previousText,
+  action = 'letter'
 ) => {
   const handle = await applicationTarget(
     browser.page,
-    applicationSelectors.letter
+    applicationSelectors[action]
   );
   if (!handle) {
     return 'unavailable';
@@ -702,7 +809,7 @@ export const writeApplicationLetter = async (
     const result = await handle.evaluate(applicationDocument, {
       url,
       selectors: applicationSelectors,
-      action: 'letter',
+      action,
       guard: JSON.stringify(page),
       text,
       previousText,

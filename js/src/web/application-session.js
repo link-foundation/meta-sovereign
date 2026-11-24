@@ -23,6 +23,10 @@ export const applicationMayRestart = (receipt) =>
   receipt.delivery === 'none' &&
   receipt.attempted.enter === false &&
   receipt.attempted.submit === false;
+export const applicationMayReopen = (receipt) =>
+  receipt?.active === false &&
+  (receipt.delivery !== 'provider-confirmed' ||
+    receipt.letterAttachment === 'needs-review');
 export const applicationMayRetry = (state, entry) =>
   !applicationLimitHeld(state) &&
   (entry.reason !== 'generic-error' || entry.ready === true) &&
@@ -207,8 +211,7 @@ export class ApplicationSession {
       !this.state.intent ||
       !this.state.receipt ||
       this.state.missing ||
-      this.state.receipt.active ||
-      this.state.receipt.delivery === 'provider-confirmed'
+      !applicationMayReopen(this.state.receipt)
     ) {
       throw failure();
     }

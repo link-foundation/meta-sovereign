@@ -88,6 +88,23 @@ const reentry = (raw) =>
       raw.page?.bound &&
       raw.page.enter &&
       !raw.page.submit));
+const attachment = (raw) =>
+  optionalChoice(raw.letterAttachment, [
+    'offered',
+    'draft',
+    'ready',
+    'owner-conflict',
+    'needs-review',
+    'unknown',
+    'provider-confirmed',
+  ]) &&
+  (!raw.letterAttachment || raw.delivery === 'provider-confirmed') &&
+  (raw.active ||
+    optionalChoice(raw.letterAttachment, [
+      'needs-review',
+      'unknown',
+      'provider-confirmed',
+    ]));
 const state = (raw) =>
   applicationStates.includes(raw.state) &&
   ['none', 'provider-confirmed', 'unknown'].includes(raw.delivery) &&
@@ -117,6 +134,7 @@ const state = (raw) =>
     'unverified',
     'owner-conflict',
   ].includes(raw.letter) &&
+  attachment(raw) &&
   (raw.state !== 'delivered' || raw.delivery === 'provider-confirmed');
 const actionDescriptor = (value) =>
   value === null ||

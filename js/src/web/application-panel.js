@@ -2,7 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { ApplicationSalaryReceipt } from './application-salary-view.js';
 import { ApplicationDraftView } from './application-draft-view.js';
 import { FormInspectionReport } from './forms-view.js';
-import { applicationMayRestart } from './application-session.js';
+import {
+  applicationMayReopen,
+  applicationMayRestart,
+} from './application-session.js';
 import { ApplicationQueueView } from './application-queue-view.js';
 import { ApplicationBatchView } from './application-batch-view.js';
 import { ApplicationCollectionReceipt } from './application-collection-view.js';
@@ -214,11 +217,21 @@ const Receipt = ({ receipt, t }) =>
       },
       t(`application.delivery.${receipt.delivery}`)
     ),
-    el(
-      'p',
-      { key: 'letter', 'data-application-letter-state': receipt.letter },
-      t(`application.letter.${receipt.letter}`)
-    ),
+    receipt.letterAttachment
+      ? el(
+          'p',
+          {
+            key: 'letter',
+            role: 'status',
+            'data-application-letter-attachment': receipt.letterAttachment,
+          },
+          t(`application.attachment.${receipt.letterAttachment}`)
+        )
+      : el(
+          'p',
+          { key: 'letter', 'data-application-letter-state': receipt.letter },
+          t(`application.letter.${receipt.letter}`)
+        ),
     receipt.testMode
       ? el('p', { key: 'test', role: 'note' }, t('application.testMode'))
       : null,
@@ -348,6 +361,19 @@ const canDeferQuestions = (ready, confirmed, receipt) =>
   receipt.page?.questions &&
   !receipt.paused &&
   !receipt.testMode;
+const attachmentControl = (receipt, action, admitted, t) => {
+  const status = receipt.letterAttachment;
+  if (!['offered', 'draft', 'ready'].includes(status)) {
+    return null;
+  }
+  const name = status === 'ready' ? 'letter-send' : 'letter-prepare';
+  return button(
+    name,
+    t(`application.attachment.${name}`),
+    action('Advance', { action: name, confirm: true }),
+    !admitted || receipt.paused
+  );
+};
 const NativeControls = ({ application, idle, confirmed, t }) => {
   const receipt = application.receipt;
   const { ready, admitted, payAllowed, writable } = nativeAdmission(
@@ -368,6 +394,7 @@ const NativeControls = ({ application, idle, confirmed, t }) => {
     }),
     el('div', { key: 'actions', className: 'row' }, [
       button('read', t('application.read'), action('Read'), !ready),
+      attachmentControl(receipt, action, admitted && confirmed, t),
       button(
         'form',
         t('application.form'),
@@ -464,11 +491,7 @@ const canRelease = (application) =>
   !application.receipt?.active &&
   Boolean(application.intent || application.receipt);
 const canReopen = ({ known, receipt, intent }) =>
-  known &&
-  intent &&
-  receipt &&
-  !receipt.active &&
-  receipt.delivery !== 'provider-confirmed';
+  known && intent && applicationMayReopen(receipt);
 
 const Context = ({ application, supported, t }) =>
   el(React.Fragment, null, [

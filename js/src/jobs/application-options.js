@@ -9,6 +9,7 @@ import { applicationInterval } from './application-pacing-data.js';
 import {
   applicationStandardLetters,
   applicationLetterLanguage,
+  applicationAttachmentStatus,
 } from './application-letters.js';
 import { applicationAnswerContext } from './application-answer-context.js';
 import {
@@ -198,6 +199,7 @@ export const applicationView = (record) => {
             'documentKey',
             'scopeKey',
             'scopeStructureKey',
+            'attachment',
             'fieldIndices',
             'questionIndices',
             'resumeIndices',
@@ -244,6 +246,7 @@ export const applicationView = (record) => {
     resumeContext: applicationResumeContext(record),
     resumePreference: record.resumePreference ?? null,
     letter: record.letter ?? 'not-requested',
+    letterAttachment: applicationAttachmentStatus(record),
     ...applicationAnswerContext(applicationSalaryOptions(record)),
     salaryAdmission: applicationSalaryDecision(
       applicationSalaryOptions(record),

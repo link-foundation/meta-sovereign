@@ -15,6 +15,7 @@ export const applicationNativeHtml = ({
   description = vacancy.description,
   ownerAnswers,
   signedIn = false,
+  instantApplication = false,
 } = {}) => `<!doctype html><html><body>
     ${signedIn ? '<a data-qa="mainmenu_applicantProfilePage" href="/applicant/resumes">Application fixture account</a>' : ''}
     <h1 data-qa="vacancy-title">${html(vacancy.title)}</h1>
@@ -27,11 +28,33 @@ export const applicationNativeHtml = ({
     <script>
       globalThis.applicationAttempts=0;
       globalThis.applicationEntries=0;
+      globalThis.fixtureAttachmentOpens=0;
+      globalThis.fixtureAttachmentSends=0;
       globalThis.fixtureClicks=0;
       document.addEventListener('click',()=>globalThis.fixtureClicks++);
       function openApplication(recordEntry = true) {
         if (recordEntry) globalThis.applicationEntries++;
         document.querySelector('[data-qa="vacancy-response-link-top"]').remove();
+        if (${instantApplication}) {
+          const root=document.querySelector('#application');
+          root.innerHTML='<a data-qa="vacancy-response-link-view-topic">Application delivered</a><button type="button" data-qa="responded-success-attach-cover-letter">Attach cover letter</button>';
+          const offer=root.querySelector('button');
+          offer.onclick=()=>{
+            globalThis.fixtureAttachmentOpens++;
+            offer.hidden=true;
+            offer.insertAdjacentHTML('afterend','<form aria-label="Separate cover letter"><label>Cover letter<textarea data-qa="vacancy-response-popup-form-letter-input"></textarea></label><button type="submit" data-qa="vacancy-response-letter-submit" disabled>Send letter</button></form>');
+            const form=root.querySelector('form');
+            form.oninput=()=>{ form.querySelector('button').disabled=!form.querySelector('textarea').value.trim(); };
+            form.onsubmit=(event)=>{
+              event.preventDefault();
+              globalThis.fixtureAttachmentSends++;
+              globalThis.fixtureAttachedLetter=form.querySelector('textarea').value;
+              form.remove();
+              offer.remove();
+            };
+          };
+          return;
+        }
         ${popup ? '' : `if (recordEntry) history.pushState({}, '', '/applicant/vacancy_response?vacancyId=${vacancyId}');`}
         document.querySelector('#application').innerHTML='<form id="native-form"><div data-qa="task-body"><label>Recent experience<textarea id="experience"></textarea></label></div><button type="button" data-qa="add-cover-letter" onclick="showLetter(this)">Add letter</button><button type="submit" data-qa="${popup ? 'vacancy-response-submit-popup' : 'vacancy-response-letter-submit'}">Send application</button></form>';
         document.querySelector('#native-form').onsubmit=(event)=>{
@@ -72,6 +95,7 @@ export const applicationNativeFixture = async (
     description,
     ownerAnswers,
     prepareContext,
+    instantApplication,
   } = {}
 ) => {
   let nativeForms = 0;
@@ -102,6 +126,7 @@ export const applicationNativeFixture = async (
             questionLabel,
             description,
             signedIn: Boolean(prepareContext),
+            instantApplication,
             salary:
               typeof salary === 'function'
                 ? salary(
@@ -128,11 +153,22 @@ export const applicationNativeFixture = async (
                 const close = session.close;
                 session.close = async () => {
                   await onApplicationClose(
-                    await session.page.evaluate(() => ({
-                      url: globalThis.location.href,
-                      attempts: globalThis.applicationAttempts ?? 0,
-                      entries: globalThis.applicationEntries ?? 0,
-                    }))
+                    await session.page.evaluate(
+                      (includeAttachment) => ({
+                        url: globalThis.location.href,
+                        attempts: globalThis.applicationAttempts ?? 0,
+                        entries: globalThis.applicationEntries ?? 0,
+                        ...(includeAttachment
+                          ? {
+                              letterOpens:
+                                globalThis.fixtureAttachmentOpens ?? 0,
+                              letterSends:
+                                globalThis.fixtureAttachmentSends ?? 0,
+                            }
+                          : {}),
+                      }),
+                      instantApplication
+                    )
                   );
                   await close();
                 };

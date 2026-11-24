@@ -184,6 +184,9 @@ export class ApplicationActions {
     return true;
   }
   async advance(record, input, signal) {
+    if (['letter-prepare', 'letter-send'].includes(input.action)) {
+      return this.service.attachment.advance(record, input, signal);
+    }
     if (input.action === 'reenter' && !applicationCanReenter(record)) {
       throw fail('already-attempted');
     }

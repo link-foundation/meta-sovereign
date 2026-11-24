@@ -18,6 +18,7 @@ import { observeApplicationResume } from './application-resume-preference.js';
 import {
   applicationLetterRequested,
   applicationLetterStatus,
+  applicationAttachmentStatus,
 } from './application-letters.js';
 import {
   applicationFailure as fail,
@@ -232,6 +233,14 @@ export class ApplicationReview {
     observeApplicationResume(record);
     rememberApplicationLocation(record);
     this.policy(record);
+    if (
+      !record.options.testMode &&
+      ['offered', 'draft', 'ready', 'owner-conflict'].includes(
+        applicationAttachmentStatus(record)
+      )
+    ) {
+      record.attachmentObserved = true;
+    }
     rememberApplicationPopup(record);
     record.guard = {
       page: applicationPageKey(record.page),

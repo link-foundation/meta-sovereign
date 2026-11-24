@@ -74,7 +74,7 @@ test('vacancy selection has its own budget while retaining all ten scenarios', (
     [
       'verifyVacancies',
       'verifyVacancySelection',
-      'verifyVacancyDiscovery',
+      'verifyDiscoveryBatchHandoff',
       'verifyFilteredVacancyDiscovery',
       'verifyMemoryVacancyDiscovery',
       'verifySalaryLadder',
@@ -141,6 +141,7 @@ test('native application scenarios remain registered once in bounded groups', ()
       'verifyNativeApplicationPacingGuard',
       'verifyNativeApplicationLimitRejection',
       'verifyNativeApplicationConfirmations',
+      'verifyNativeLetterAttachment',
       'verifyNativeApplicationBatch',
       'verifyNativeApplicationChats',
       'verifyNativeApplicationChoiceHold',

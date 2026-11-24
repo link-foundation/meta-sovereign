@@ -25,6 +25,7 @@ import { ApplicationSalary } from './application-salary.js';
 import { ApplicationContextRecovery } from './application-context-recovery.js';
 import { ApplicationDrafts } from './application-drafts.js';
 import { ApplicationActions } from './application-actions.js';
+import { ApplicationAttachment } from './application-attachment.js';
 import { ApplicationRunModes } from './application-run-modes.js';
 import { ApplicationDeferrals } from './application-deferrals.js';
 import { ApplicationQuestionDeferrals } from './application-question-deferrals.js';
@@ -134,6 +135,7 @@ class ApplicationService {
     this.salary = new ApplicationSalary(this, now);
     this.context = new ApplicationContextRecovery(this);
     this.actions = new ApplicationActions(this);
+    this.attachment = new ApplicationAttachment(this);
     this.continuation = new ApplicationContinuation(this);
     this.drafts = new ApplicationDrafts(this);
     this.modes = new ApplicationRunModes();
@@ -192,6 +194,7 @@ class ApplicationService {
       !this.current ||
       this.stopped ||
       this.current.hold ||
+      this.current.page?.attachment?.submit ||
       (this.current.page?.scope &&
         this.current.page.submit &&
         !this.current.page.delivered)

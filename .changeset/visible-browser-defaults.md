@@ -2,6 +2,11 @@
 'meta-sovereign': minor
 ---
 
+Prepare and separately confirm a cover letter when a delivered HeadHunter
+vacancy offers an attachment. Keep the application delivery and the
+letter's acknowledged outcome separate across CLI, Lino and CV Sync
+(issue #56, HH06).
+
 Reuse same-language approved thanks for recognized HeadHunter application
 updates in the explicitly selected inactive notice policy. Verify full chat
 history and keep actionable messages in review (issue #56, QA17).

@@ -73,3 +73,45 @@ export const applicationLetterStatus = (record) =>
         record.page?.letter?.value === applicationLetterText(record)
       ? 'verified'
       : 'not-attached';
+
+export const applicationAttachmentPage = (page) =>
+  page?.bound &&
+  page.delivered &&
+  page.attachment &&
+  !page.challenge &&
+  !page.dailyLimit &&
+  !page.external &&
+  !page.questions &&
+  !page.error &&
+  !page.resumeNotVisible &&
+  !page.vacancyUnavailable &&
+  !page.attachment.error
+    ? page.attachment
+    : null;
+
+export const applicationAttachmentStatus = (record) => {
+  if (record.attachmentDelivery) {
+    return record.attachmentDelivery;
+  }
+  const text = applicationLetterText(record);
+  const attachment = applicationAttachmentPage(record.page);
+  if (record.delivery !== 'provider-confirmed') {
+    return null;
+  }
+  if (!record.active) {
+    return record.attachmentObserved ? 'needs-review' : null;
+  }
+  if (!text || !attachment) {
+    return null;
+  }
+  if (attachment.submit) {
+    if (text.length > (attachment.maxLength ?? 24000)) {
+      return null;
+    }
+    if (attachment.value === text) {
+      return attachment.submit.disabled ? null : 'ready';
+    }
+    return attachment.value ? 'owner-conflict' : 'draft';
+  }
+  return attachment.offer && !attachment.offer.disabled ? 'offered' : null;
+};

@@ -32,12 +32,24 @@ const properties = [
   'popupReview',
   'resumePreference',
   'letterTemplate',
+  'attachmentDelivery',
+  'attachmentObserved',
   'limitRejection',
   'draft',
   'restoration',
 ];
 const snapshot = (record) =>
   Object.fromEntries(properties.map((key) => [key, record[key] ?? null]));
+const validAttachment = ({
+  attachmentDelivery,
+  attachmentObserved,
+  delivery,
+}) =>
+  ((attachmentDelivery ?? null) === null ||
+    (['unknown', 'provider-confirmed'].includes(attachmentDelivery) &&
+      delivery === 'provider-confirmed')) &&
+  ((attachmentObserved ?? null) === null ||
+    (attachmentObserved === true && delivery === 'provider-confirmed'));
 export const readApplicationJournal = (row, key) => {
   if (!row || row.version !== 1 || row.id !== key.id) {
     throw fail('missing');
@@ -51,7 +63,8 @@ export const readApplicationJournal = (row, key) => {
     row.requestId !== options.requestId ||
     row.url !== options.url ||
     row.browserSlot !== options.browserSlot ||
-    !applicationStates.includes(row.state)
+    !applicationStates.includes(row.state) ||
+    !validAttachment(row)
   ) {
     throw fail('journal');
   }

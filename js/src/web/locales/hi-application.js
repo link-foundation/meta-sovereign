@@ -261,6 +261,21 @@ export const hiApplication = {
   'application.letter.not-requested': 'पत्र जोड़ने का अनुरोध अभी नहीं हुआ।',
   'application.letter.verified': 'मूल आवेदन में पत्र सत्यापित है।',
   'application.letter.not-attached': 'पत्र जुड़ा नहीं है।',
+  'application.attachment.offered':
+    'HH अलग से कवर लेटर जोड़ने का विकल्प देता है।',
+  'application.attachment.draft': 'कवर लेटर का पॉपअप खुला है।',
+  'application.attachment.ready':
+    'कवर लेटर भेजने के लिए तैयार है। उसे HH पॉपअप में देखें।',
+  'application.attachment.owner-conflict':
+    'HH पॉपअप में दूसरा पत्र है। आपका लिखा पाठ वहीं है।',
+  'application.attachment.needs-review':
+    'अलग कवर लेटर की स्थिति देखने के लिए रिक्ति फिर से खोलें।',
+  'application.attachment.unknown':
+    'HH ने कवर लेटर की पुष्टि नहीं की है। आगे बढ़ने से पहले HH में उसकी स्थिति देखें।',
+  'application.attachment.provider-confirmed':
+    'HH ने अलग कवर लेटर की पुष्टि की।',
+  'application.attachment.letter-prepare': 'कवर लेटर तैयार करें',
+  'application.attachment.letter-send': 'कवर लेटर भेजें',
   'application.letter.unavailable': 'पत्र का नियंत्रण उपलब्ध नहीं है।',
   'application.letter.unverified': 'पत्र की सामग्री सत्यापित नहीं हुई।',
   'application.letter.owner-conflict':
