@@ -236,6 +236,8 @@ QA21/QA25 now include [automatic current-page prefilling](forms-automatic-prefil
 
 ## HH job applications, messaging and CV
 
+The [recruiter-panel wait](application-recruiter-panel-quiet.md) verifies the 20-second first-message and 15-second confirmed-reply waits, protected native drafts and a separate closure receipt through both Lino encodings and CV Sync. This advances HH08 and HH10. Authenticated provider acceptance and the remaining requirements are open.
+
 The [application sign-in handoff](application-chat-session.md) verifies the separate workspace chat slot with synthetic provider sessions. HH01 and HH10 still require authenticated verification and the remaining workflows below.
 
 The [supervised waiting watch](unread-waiting.md) includes already-read HeadHunter chats with an incoming last message. It verifies owner review, exact Skip and advancement in a routed fixture. A [confirmed application handoff](application-chat-waiting.md) wakes the same child for a fresh pass and verifies that Skip recovers across the shared controls. Authenticated coverage and the remaining pinned workflows are still required for HH10.

@@ -110,6 +110,37 @@ const terminalNotice = (row) =>
 const pendingRecruiterMessage = (row) =>
   Boolean(row?.body && !row.outgoing && !row.service && !terminalNotice(row));
 
+const firstRecruiterMessageWaitMs = 20_000;
+const nextRecruiterMessageWaitMs = 15_000;
+const quietRecruiterPanel = (document, boundary, capture, dismissal) => {
+  if (!dismissal || !boundary.ready) {
+    return undefined;
+  }
+  const latest = boundary.messages.findLast(
+    (row) => !row.service || row.links?.length || row.strictOptions
+  );
+  const empty = !latest && (boundary.messages.length || !capture);
+  // The browser boundary already refused any uncertain outgoing rows.
+  const answered =
+    latest?.outgoing && !latest.service && latest.body && !latest.strictOptions;
+  if (!empty && !answered) {
+    return undefined;
+  }
+  const key = historyKey(document.identity, [boundary.header, capture]);
+  const now = dismissal.now();
+  const previous = dismissal.quiet;
+  const since =
+    previous?.key === key && previous.since <= now ? previous.since : now;
+  const elapsed = now - since;
+  return {
+    key,
+    since,
+    ready:
+      elapsed >=
+      (empty ? firstRecruiterMessageWaitMs : nextRecruiterMessageWaitMs),
+  };
+};
+
 const recruiterPanelDecision = async (document, vacancy, capture, options) => {
   const { dismissal, skip, offerSkip, signal } = options;
   if (!dismissal && !skip && !offerSkip) {
@@ -131,13 +162,15 @@ const recruiterPanelDecision = async (document, vacancy, capture, options) => {
     !boundary.disabled && pendingRecruiterMessage(latest)
       ? historyKey(document.identity, [boundary.header, capture])
       : undefined;
+  const quiet = quietRecruiterPanel(document, boundary, capture, dismissal);
   const reason = skip
     ? skipCapture === skip.capture && 'skipped'
     : dismissal?.defer
       ? 'deferred'
       : dismissal &&
-        (boundary.disabled || terminalNotice(latest)) &&
-        'completed';
+        (boundary.disabled || terminalNotice(latest)
+          ? 'completed'
+          : quiet?.ready && 'quiet');
   if (
     reason &&
     (await document.dismissOwnerPanel({
@@ -149,7 +182,7 @@ const recruiterPanelDecision = async (document, vacancy, capture, options) => {
   ) {
     return { dismissed: reason };
   }
-  return { skipCapture: offerSkip ? skipCapture : undefined };
+  return { skipCapture: offerSkip ? skipCapture : undefined, quiet };
 };
 
 /** Read one vacancy-bound panel and archive its observed native messages. */
@@ -230,6 +263,7 @@ export const readApplicationRecruiterPanel = async (
       )
     ),
     capture,
+    ...(decision.quiet && { quiet: decision.quiet }),
     ...(!reply && decision.skipCapture
       ? { skipCapture: decision.skipCapture }
       : {}),

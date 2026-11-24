@@ -2,6 +2,7 @@ import { applicationNativeFixture } from './application-native-fixture.mjs';
 import { originalApplicationSearch } from './application-search-route-fixture.mjs';
 import { saveAnswerRule } from '../../js/src/automation/question-store.js';
 import { saveSettings } from '../../js/src/automation/safety.js';
+import { readApplicationRecruiterPanel } from '../../js/src/jobs/application-recruiter-panel.js';
 
 export const recruiterPanelChatUrl = 'https://chatik.hh.ru/chat/456';
 export const recruiterPanelDraft = 'I am reviewing the interview details.';
@@ -32,20 +33,33 @@ export const applicationRecruiterPanelFixture = async (
     exactReply = false,
     reuseReply = false,
     skipRecruiter = false,
+    quietRecruiter,
   } = {}
 ) => {
   const searchVisits = [];
   const effects = [];
+  const observations = [];
+  let now = Date.now();
   const returnedPanel = panelDelayMs
     ? `<script>setTimeout(()=>document.body.insertAdjacentHTML('beforeend',${JSON.stringify(panel)}),${panelDelayMs});</script>`
     : panel;
   const fixture = await applicationNativeFixture(browser, {
+    ...(quietRecruiter && {
+      application: {
+        now: () => now,
+        readRecruiterPanel: async (...args) => {
+          const observed = await readApplicationRecruiterPanel(...args);
+          observations.push(observed);
+          return observed;
+        },
+      },
+    }),
     ownerAnswers: {
       experience: 'Reviewed experience',
       letter: 'Reviewed letter',
     },
     onApplicationClose: async (effect, page) => {
-      if (skipRecruiter) {
+      if (skipRecruiter || quietRecruiter) {
         const frame = page.frame({ url: recruiterPanelChatUrl });
         effect.recruiterSends = await frame?.evaluate(
           () => globalThis.fixtureRecruiterSends
@@ -77,14 +91,15 @@ export const applicationRecruiterPanelFixture = async (
         body: `<!doctype html><html><body><h2 data-qa="participant-info-title">Recruiter chat</h2>
           <div data-qa="chatik-header-sub-header"><a href="https://hh.ru/vacancy/123">Python engineer</a></div>
           ${prepareReply ? '<div id="recruiter-messages" style="height:68px;overflow:auto"><div style="height:100px"></div>' : ''}
-          <article data-qa="chatik-chat-message-1" data-time="2026-11-24T09:00:00Z"><p data-qa="chat-bubble-text">${recruiterPanelQuestion}</p></article>${prepareReply ? '</div>' : ''}
-          <label>Your reply <textarea data-qa="text-input">${recruiterPanelDraft}</textarea></label>
+          ${quietRecruiter === 'first' ? '' : `<article data-qa="chatik-chat-message-1" data-time="2026-11-24T09:00:00Z"><p data-qa="chat-bubble-text">${recruiterPanelQuestion}</p></article>`}${prepareReply ? '</div>' : ''}
+          <label>Your reply <textarea data-qa="text-input">${quietRecruiter ? '' : recruiterPanelDraft}</textarea></label>
           ${
             ownerReply ||
             prepareReply ||
             exactReply ||
             reuseReply ||
-            skipRecruiter
+            skipRecruiter ||
+            quietRecruiter
               ? `<button type="button" data-qa="send-message">Send reply</button>
           <script>
             globalThis.fixtureRecruiterSends=0;
@@ -111,7 +126,7 @@ export const applicationRecruiterPanelFixture = async (
               input.value='';
             }
             send.onclick=()=>{
-              if (input.value.trim() && !globalThis.fixtureRecruiterSends) acknowledge(input.value);
+              if (input.value.trim() && (${Boolean(quietRecruiter)} || !globalThis.fixtureRecruiterSends)) acknowledge(input.value);
             };
             globalThis.fixtureRecruiterChoices=(exact)=>{
               const existing=document.querySelector('[data-qa="chatik-chat-message-3"]');
@@ -201,5 +216,13 @@ export const applicationRecruiterPanelFixture = async (
       answers: [{ text: recruiterReuseAnswer, approved: true }],
     });
   }
-  return { ...fixture, searchVisits, effects };
+  return {
+    ...fixture,
+    searchVisits,
+    effects,
+    observations,
+    advanceClock: (elapsed) => {
+      now += elapsed;
+    },
+  };
 };

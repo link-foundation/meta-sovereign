@@ -16,6 +16,7 @@ const prepareReply = process.env.E2E_RECRUITER_PANEL_PREPARE_REPLY === '1';
 const exactReply = process.env.E2E_RECRUITER_PANEL_EXACT_REPLY === '1';
 const reuseReply = process.env.E2E_RECRUITER_PANEL_REUSE === '1';
 const skipRecruiter = process.env.E2E_RECRUITER_PANEL_SKIP === '1';
+const quietRecruiter = process.env.E2E_RECRUITER_PANEL_QUIET;
 const replyControl = async (frame, path) => {
   if (path === '/reply/start') {
     await frame
@@ -53,12 +54,19 @@ await serveNativeMcpFixture(
     current = browser;
     fixture = await applicationRecruiterPanelFixture(browser, {
       panelDelayMs:
-        prepareReply || exactReply || reuseReply || skipRecruiter ? 0 : 4000,
+        prepareReply ||
+        exactReply ||
+        reuseReply ||
+        skipRecruiter ||
+        quietRecruiter
+          ? 0
+          : 4000,
       ownerReply,
       prepareReply,
       exactReply,
       reuseReply,
       skipRecruiter,
+      quietRecruiter,
     });
     return fixture;
   },
@@ -67,6 +75,22 @@ await serveNativeMcpFixture(
       .contexts()
       .flatMap((context) => context.pages())
       .find((page) => page.url() === originalApplicationSearch);
+    if (quietRecruiter && request.method === 'POST') {
+      if (request.url === '/application/send') {
+        const form = current
+          .contexts()
+          .flatMap((context) => context.pages())
+          .find(
+            (page) =>
+              new URL(page.url()).pathname === '/applicant/vacancy_response'
+          );
+        await form
+          ?.getByRole('button', { name: 'Send application' })
+          .click({ timeout: 5000 });
+      } else if (request.url === '/clock/20000') {
+        fixture.advanceClock(20_000);
+      }
+    }
     const panel = searchPage?.locator('[data-qa="chatik-root"]');
     let panelOpen = Boolean(await panel?.isVisible());
     const frame = panel
@@ -119,6 +143,9 @@ await serveNativeMcpFixture(
       sends,
       searchVisits: fixture.searchVisits,
       outcomes: fixture.effects,
+      ...(quietRecruiter && {
+        waiting: Boolean(fixture.observations.at(-1)?.quiet),
+      }),
       ...(prepareReply &&
         panelOpen &&
         (await frame.locator('#recruiter-messages').evaluate((node) => ({

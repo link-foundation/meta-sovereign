@@ -165,6 +165,7 @@ const state = (raw) =>
   optionalChoice(raw.recruiterDismissal, [
     'completed',
     'deferred',
+    'quiet',
     'skipped',
   ]) &&
   (!raw.recruiterDismissal ||

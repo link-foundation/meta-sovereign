@@ -276,6 +276,8 @@ export const hiApplication = {
     'भर्तीकर्ता का सवाल छोड़ दिया गया। बातचीत HeadHunter में मौजूद है।',
   'application.recruiterDismissal.completed':
     'HeadHunter पर पूरी हुई भर्ती चैट का पैनल बंद कर दिया गया।',
+  'application.recruiterDismissal.quiet':
+    'HeadHunter पर संदेशों का इंतज़ार करने के बाद भर्ती चैट का पैनल बंद हो गया।',
   'application.recruiterDismissal.deferred':
     'बिना प्रश्नावली वाले मोड में भर्ती चैट बाद में देखने के लिए बंद कर दी गई।',
   'application.recruiterChat.open':

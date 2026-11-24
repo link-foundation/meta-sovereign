@@ -107,10 +107,9 @@ export const saveApplicationJournal = async (store, record) => {
   try {
     await saveAcknowledgedRecord(store, next);
     record.revision = next.revision;
-    // A failed save may be retried from verified native disappearance without
-    // issuing the owner's Skip again.
-    if (next.recruiterDismissal === 'skipped') {
-      record.recruiterSkipVerified = false;
+    // Retain verified native disappearance until its receipt is saved.
+    if (next.recruiterDismissal === record.recruiterDismissalVerified) {
+      record.recruiterDismissalVerified = undefined;
     }
     // Rollback needs the acknowledged live context; it must never reach disk
     // when collection is disabled, including during a later failed save.

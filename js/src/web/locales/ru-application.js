@@ -284,6 +284,8 @@ export const ruApplication = {
     'Вопрос рекрутера пропущен. Переписка осталась на HeadHunter.',
   'application.recruiterDismissal.completed':
     'Панель завершённой переписки на HeadHunter закрыта.',
+  'application.recruiterDismissal.quiet':
+    'Панель переписки на HeadHunter закрылась после ожидания сообщений.',
   'application.recruiterDismissal.deferred':
     'Переписка закрыта для проверки позже в режиме «Без анкет».',
   'application.recruiterChat.open':

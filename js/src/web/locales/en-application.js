@@ -275,6 +275,8 @@ export const enApplication = {
     'Recruiter question skipped. The conversation stays in HeadHunter.',
   'application.recruiterDismissal.completed':
     'The finished recruiter chat was closed on HeadHunter.',
+  'application.recruiterDismissal.quiet':
+    'The recruiter panel closed after waiting for messages on HeadHunter.',
   'application.recruiterDismissal.deferred':
     'The recruiter chat was closed for later review in No-questionnaires mode.',
   'application.recruiterChat.open':

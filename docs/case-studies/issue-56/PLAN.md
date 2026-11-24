@@ -2109,4 +2109,5 @@ Native profile persistence follow-up:
 - [x] Verify the owned native close after a terminal handover, preserving a draft and refusing ambiguous controls or a live instruction. [Reproduction and evidence](application-recruiter-panel-terminal.md).
 - [x] Verify prior-answer reuse for both the inline panel and unread review, holding unknown matches and protecting pending owner work. [Reproduction and evidence](application-recruiter-panel-reuse.md).
 - [x] Verify explicit Skip against the currently displayed recruiter question, including native close ambiguity, concurrent Stop and failed receipt recovery. [Reproduction and evidence](application-recruiter-panel-skip.md).
-- [ ] Check exact-head hosted runs and complete the remaining recruiter timing and authenticated provider acceptance.
+- [x] Verify bounded first and next message waits, blocked closure during loading, unanswered questions, pending sends and owner drafts, and recovery of the confirmed native closure. [Reproduction and evidence](application-recruiter-panel-quiet.md).
+- [ ] Check exact-head hosted runs and complete authenticated provider acceptance and the remaining HH08 and HH10 work.

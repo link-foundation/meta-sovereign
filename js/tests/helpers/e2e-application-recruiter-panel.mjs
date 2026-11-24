@@ -503,6 +503,91 @@ const verifyRecruiterTerminal = async ({
   assert.equal(dismissals, 1);
 };
 
+const verifyRecruiterQuiet = async ({
+  draft,
+  fixture,
+  frame,
+  nativePanel,
+  owned,
+  quietRecruiter,
+  shot,
+}) => {
+  const first = quietRecruiter === 'first';
+  const current = () => fixture.observations.length;
+  const hold = async ({ elapsed = 0 } = {}) => {
+    const reads = current();
+    fixture.advanceClock(elapsed);
+    await waitForCapture(
+      () => current() >= reads + 2,
+      'the batch must keep observing the protected recruiter panel'
+    );
+    assert.equal(await nativePanel.isVisible(), true);
+  };
+  const setLoading = (loading) =>
+    frame.locator('body').evaluate((body, value) => {
+      body.setAttribute('aria-busy', String(value));
+    }, loading);
+  if (first) {
+    await hold({ elapsed: 19_999 });
+    await setLoading(true);
+    await hold({ elapsed: 60_000 });
+    await setLoading(false);
+    await hold();
+    await hold({ elapsed: 19_999 });
+  } else {
+    await hold({ elapsed: 60_000 });
+    const send = frame.getByRole('button', { name: 'Send reply' });
+    const compose = async (text) => {
+      await draft.fill(text);
+      await send.click();
+    };
+    const confirm = (id) =>
+      frame
+        .locator(
+          `[data-qa="chatik-chat-message-${id}"] [data-qa="status-icon-pending"]`
+        )
+        .evaluate((node) => {
+          node.dataset.qa = 'status-icon-delivered';
+          node.textContent = 'Delivered';
+        });
+    await compose(recruiterPanelReply);
+    await hold({ elapsed: 60_000 });
+    await confirm(2);
+    await hold();
+    await hold({ elapsed: 14_999 });
+    await draft.evaluate((composer) => {
+      const row = document.createElement('article');
+      row.dataset.qa = 'chatik-chat-message-3';
+      row.dataset.time = '2026-11-24T09:02:00Z';
+      row.innerHTML =
+        '<p data-qa="chat-bubble-text">Could you work remotely?</p>';
+      composer.closest('label').before(row);
+    });
+    await hold({ elapsed: 60_000 });
+    await compose('Yes, I can work remotely.');
+    await confirm(4);
+    await draft.fill(recruiterPanelDraft);
+    await hold({ elapsed: 60_000 });
+    await draft.fill('');
+    await hold();
+    await hold({ elapsed: 14_999 });
+  }
+  let closes = 0;
+  owned.on('console', (message) => {
+    closes += Number(message.text() === 'fixture recruiter panel dismissed');
+  });
+  fixture.advanceClock(1);
+  try {
+    await waitForCapture(
+      () => closes === 1,
+      `the ${first ? 'first' : 'next'} recruiter wait must end in one native close`
+    );
+  } catch (error) {
+    await shot(`quiet-${quietRecruiter}-before`, nativePanel);
+    throw error;
+  }
+};
+
 const verifyRecruiterSkip = async ({
   panel,
   owned,
@@ -591,6 +676,7 @@ export const verifyNativeApplicationRecruiterPanel = async (
     reuseReply = false,
     terminal = false,
     skipRecruiter = false,
+    quietRecruiter,
     verifyPending = true,
   } = {}
 ) => {
@@ -601,6 +687,7 @@ export const verifyNativeApplicationRecruiterPanel = async (
     exactReply,
     reuseReply,
     skipRecruiter,
+    quietRecruiter,
   });
   const controls = applicationPanelBrowser(fixture);
   const { page, panel } = controls;
@@ -687,10 +774,46 @@ export const verifyNativeApplicationRecruiterPanel = async (
       ),
       '1'
     );
-    assert.equal(await draft.inputValue(), recruiterPanelDraft);
+    assert.equal(
+      await draft.inputValue(),
+      quietRecruiter ? '' : recruiterPanelDraft
+    );
     assert.equal(fixture.effects.length, 0);
     await shot('desktop', status.locator('..'));
     await shot('native', nativePanel);
+    if (quietRecruiter) {
+      await verifyRecruiterQuiet({
+        draft,
+        fixture,
+        frame,
+        nativePanel,
+        owned,
+        quietRecruiter,
+        shot,
+      });
+      await phase('completed');
+      assert.equal(owned.isClosed(), true);
+      assert.equal(fixture.effects.length, 1);
+      assert.equal(
+        fixture.effects[0].recruiterSends,
+        quietRecruiter === 'first' ? 0 : 2
+      );
+      assert.equal(fixture.effects[0].recruiterCloses, 1);
+      assert(fixture.records.every((record) => record.closed));
+      assert.deepEqual(fixture.errors, []);
+      await controls.phone();
+      await panel.locator('[data-application-action="recover"]').click();
+      const dismissal = panel.locator(
+        '[data-application-recruiter-dismissal="quiet"]'
+      );
+      await dismissal.waitFor();
+      await shot(`quiet-${quietRecruiter}-after`, dismissal.locator('..'));
+      return {
+        applicationSends: 1,
+        recruiterWait: quietRecruiter,
+        ...fixture.effects[0],
+      };
+    }
     if (verifyBinding) {
       await verifyRecruiterPanelBinding({
         panel,
@@ -843,4 +966,18 @@ export const verifyNativeApplicationRecruiterReuse = (browser) =>
     manualSend: true,
     panelDelayMs: 0,
     verifyBinding: false,
+  });
+
+export const verifyNativeFirstRecruiterWait = (browser) =>
+  verifyNativeApplicationRecruiterPanel(browser, {
+    quietRecruiter: 'first',
+    manualSend: true,
+    panelDelayMs: 0,
+  });
+
+export const verifyNativeNextRecruiterWait = (browser) =>
+  verifyNativeApplicationRecruiterPanel(browser, {
+    quietRecruiter: 'next',
+    manualSend: true,
+    panelDelayMs: 0,
   });

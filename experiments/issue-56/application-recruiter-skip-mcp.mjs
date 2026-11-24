@@ -1,4 +1,5 @@
-export default async (page) => {
+export default async (page, dismissal = 'FIXTURE_RECRUITER_DISMISSAL') => {
+  const quiet = dismissal === 'quiet';
   const pageErrors = [];
   page.on('pageerror', (error) => pageErrors.push(error.message));
   await page.setViewportSize({ width: 1140, height: 1000 });
@@ -65,25 +66,32 @@ export default async (page) => {
     await recover.click();
   }
   await review.waitFor();
-  await option('confirm').check();
-  await advance(panel.locator('[data-application-action="submit"]'));
+  if (quiet) {
+    await stats('/application/send', 'POST');
+  } else {
+    await option('confirm').check();
+    await advance(panel.locator('[data-application-action="submit"]'));
+  }
   await panel.locator('[data-application-recruiter-chat="open"]').waitFor();
   const held = await stats();
-  if (
-    !held.panelOpen ||
-    !held.draft ||
-    held.recruiterSends !== 0 ||
-    (await skip.count())
-  ) {
+  const protectedPanel = quiet
+    ? held.draft === '' && held.sends === '1' && held.waiting
+    : held.draft && held.recruiterSends === 0;
+  if (!held.panelOpen || !protectedPanel || (await skip.count())) {
     throw new Error(JSON.stringify(held));
   }
-  await stats('/draft/clear', 'POST');
-  await advance(skip);
+  if (quiet) {
+    await stats('/clock/20000', 'POST');
+  } else {
+    await stats('/draft/clear', 'POST');
+    await advance(skip);
+  }
   await phase('completed');
   await page.setViewportSize({ width: 390, height: 1440 });
   await page.reload();
+  const reason = quiet ? 'quiet' : 'skipped';
   const receipt = panel.locator(
-    '[data-application-recruiter-dismissal="skipped"]'
+    `[data-application-recruiter-dismissal="${reason}"]`
   );
   await receipt.waitFor();
   await receipt.locator('..').screenshot({ path: 'SCREENSHOT_PATH' });

@@ -230,6 +230,8 @@ export const zhApplication = {
     '已跳过招聘方的问题。对话仍保留在 HeadHunter。',
   'application.recruiterDismissal.completed':
     'HeadHunter 上已结束的招聘聊天面板已关闭。',
+  'application.recruiterDismissal.quiet':
+    '等待 HeadHunter 上的消息后，招聘聊天面板已关闭。',
   'application.recruiterDismissal.deferred':
     '免问卷模式已关闭招聘聊天面板，可稍后查看。',
   'application.recruiterChat.open':

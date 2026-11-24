@@ -166,7 +166,7 @@ export const readChoiceHistory = (_input, { snapshot }) => snapshot(true);
 /** A native panel close must preserve even a composer hidden by the provider. */
 export const readBrowserPanelBoundary = (
   { spec },
-  { snapshot, state, valueOf }
+  { snapshot, state, valueOf, writable }
 ) => {
   const history = snapshot(true);
   const header = browserVacancyHeader(spec);
@@ -191,9 +191,19 @@ export const readBrowserPanelBoundary = (
     `^(?:${spec.textReply.closedText})[.!。！]*$`,
     'iu'
   );
+  const composer = composers[0];
+  const waitingMarkup = document.querySelectorAll(
+    `[aria-busy="true"],[role="progressbar"],${spec.choices.group}`
+  );
   return {
     ...history,
     header,
+    ready:
+      writable(composer) &&
+      browserFrameVisible(composer) &&
+      history.messages.length ===
+        document.querySelectorAll(spec.messages.item).length &&
+      ![...waitingMarkup].some(browserFrameVisible),
     disabled:
       notices.length <= 5000 &&
       [...notices].some(

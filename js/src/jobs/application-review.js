@@ -115,8 +115,13 @@ const recruiterDismissal = (service, record, signal) => {
     return undefined;
   }
   const check = applicationPreservationPolicy(service, record, signal);
+  const mode = service.modes.version(record.browserSlot);
   return {
     defer: record.noQuestionnaires,
+    now: service.now,
+    mode,
+    quiet:
+      record.recruiterQuiet?.mode === mode ? record.recruiterQuiet : undefined,
     check: () => {
       check();
       if (record.hold || record.closing) {
@@ -285,12 +290,15 @@ export class ApplicationReview {
     }
     let status = record.recruiterChat;
     let reply = record.recruiterReply;
-    let dismissed = record.recruiterSkipVerified
-      ? 'skipped'
-      : record.recruiterDismissal;
+    let dismissed =
+      record.recruiterDismissalVerified ?? record.recruiterDismissal;
     let target;
+    let quiet;
     if (page.recruiterPanelOpen === true) {
       signal.throwIfAborted();
+      const dismissal = skip
+        ? undefined
+        : recruiterDismissal(this.service, record, signal);
       const result = await this.service
         .readRecruiterPanel(record.browser, record.url, {
           store: this.service.store,
@@ -300,7 +308,7 @@ export class ApplicationReview {
             ? { skip }
             : {
                 review: recruiterDraftReview(this.service, record, signal),
-                dismissal: recruiterDismissal(this.service, record, signal),
+                dismissal,
               }),
           offerSkip: maySkipRecruiterPanel(record),
           signal,
@@ -318,8 +326,11 @@ export class ApplicationReview {
           : 'unverified';
       reply = result?.reply ?? reply;
       dismissed = result?.dismissed ?? (result?.matched ? null : dismissed);
-      if (result?.dismissed === 'skipped') {
-        record.recruiterSkipVerified = true;
+      if (result?.dismissed) {
+        record.recruiterDismissalVerified = result.dismissed;
+      }
+      if (dismissal && status === 'open' && result.quiet) {
+        quiet = { ...result.quiet, mode: dismissal.mode };
       }
       if (status === 'open' && result.skipCapture) {
         target =
@@ -333,6 +344,7 @@ export class ApplicationReview {
     } else if (status) {
       status = page.recruiterPanelOpen === false ? null : 'unverified';
     }
+    record.recruiterQuiet = quiet;
     if (
       status === record.recruiterChat &&
       reply === record.recruiterReply &&
@@ -380,7 +392,7 @@ export class ApplicationReview {
       capture: target.capture,
       check,
     });
-    const verified = record.recruiterSkipVerified;
+    const verified = record.recruiterDismissalVerified === 'skipped';
     if (changed) {
       await this.service.save(record);
     }
