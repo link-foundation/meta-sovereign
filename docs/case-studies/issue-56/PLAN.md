@@ -1,3 +1,11 @@
+### 2026-11-24 Keep linked recruiter notices for review (QA04 and QA17)
+
+- [x] Reproduce automatic replies or dropped pending context for linked notices against the published parent.
+- [x] Apply shared link detection to current-chat and sequential unread notice policies.
+- [x] Verify focused Node and Deno tests and the routed native Chromium before and after scenarios.
+- [x] Capture independent Playwright review, verify the displayed destination and drain the watch. [Evidence](notice-link.md).
+- [ ] Inspect hosted checks and verify the remaining authenticated coverage.
+
 ### 2026-11-24 Watch HeadHunter conversations awaiting an owner reply (HH10)
 
 - [x] Compare pinned `--watch` and `--auto` behavior. Reproduce ignored waiting scope and missing owner-only admission in focused checks on the published parent.

@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createMemoryStore } from '../../src/storage/universal.js';
+import { listOutbox } from '../../src/automation/outbox.js';
 import { saveAnswerRule } from '../../src/automation/question-store.js';
 import { saveAnswerPolicy } from '../../src/automation/question-policy.js';
 import { createQuestionBrowser } from '../../src/automation/question-browser.js';
@@ -11,6 +12,7 @@ import { noticePolicyHtml } from '../../../experiments/issue-56/notice-policy-br
 import {
   noticeRule,
   noticeReply,
+  noticeText,
 } from '../../../experiments/issue-56/notice-fixture.mjs';
 import { rejectionText } from '../../../experiments/issue-56/notice-policy-fixture.mjs';
 
@@ -191,6 +193,7 @@ export const verifyNoticePolicies = async (engine, { screenshots } = {}) => {
       assert.equal((await counts(page)).draft, '');
     });
   }
+  await verifyNoticeLink(engine, { screenshots, outcomes });
   await verifyNoticeEmployerChange(engine, { screenshots, outcomes });
   await run(
     'unknown-no-retry',
@@ -211,6 +214,50 @@ export const verifyNoticePolicies = async (engine, { screenshots } = {}) => {
     }
   );
   return { cases: outcomes.length, outcomes, liveProvider: false };
+};
+
+/** Native anchors with an unchanged visible label stay in owner review. */
+export const verifyNoticeLink = async (
+  engine,
+  { screenshots, outcomes = [], before = false } = {}
+) => {
+  const destination = 'https://example.test/next';
+  await runNoticeCase(
+    engine,
+    screenshots,
+    outcomes,
+    'notice-with-action-link',
+    { body: `<a href="${destination}">${noticeText}</a>` },
+    async ({ browser, input, status, page, store }) => {
+      await inactive(page);
+      await browser.watchStart(input);
+      const receipt = await until(
+        status,
+        (s) =>
+          s.last?.plan.historyVerified && ['review', 'sent'].includes(s.phase)
+      );
+      assert.deepEqual(receipt.last.snapshot.question.links, [destination]);
+      assert.equal(receipt.last.snapshot.question.body, noticeText);
+      assert.equal(receipt.phase, before ? 'sent' : 'review');
+      assert.equal((await listOutbox(store)).length, Number(before));
+      await browser.watchStop(input);
+      const { sends, choices, draft } = await counts(page);
+      assert.equal(sends, Number(before));
+      assert.equal(choices, 0);
+      assert.equal(draft, '');
+      if (screenshots) {
+        await mkdir(screenshots, { recursive: true });
+        await page.screenshot({
+          path: join(
+            screenshots,
+            before ? 'native-before.png' : 'native-after.png'
+          ),
+          fullPage: true,
+        });
+      }
+    }
+  );
+  return { sends: Number(before), liveProvider: false };
 };
 
 /** The shared pane guard must refuse a replacement employer before any send. */

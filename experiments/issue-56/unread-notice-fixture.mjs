@@ -21,6 +21,9 @@ export const unreadNoticeFixture = async (options = {}) => {
       }
       const chat = String((options.firstChat ?? 8) + index);
       const rows = noticeRows(body);
+      if (options.links?.[index]) {
+        rows.at(-1).links = options.links[index];
+      }
       const snapshot = { ...noticeSnapshot(rows), chat, ...options.snapshot };
       const observation = {
         chat,

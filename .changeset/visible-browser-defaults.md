@@ -17,6 +17,10 @@ waiting-chat review is enabled. Hold the first new incoming question for an
 owner reply or an exact Skip, including after the vacancy list is exhausted
 (issue #56, HH10).
 
+Leave HeadHunter acknowledgements, rejections and completed handovers with
+links in owner review. Review uses both the visible text and native destinations
+before any automatic notice reply (issue #56, QA04 and QA17).
+
 Leave HeadHunter bot choices open for manual selection during application-owned
 chat review. Standalone unread review offers the same policy through the shared
 controls, CLI and Lino. Ordinary drafts and held-chat polling stay available

@@ -100,6 +100,27 @@ test('sequential acknowledgements and rejections persist shared reservations bef
     }
   ));
 
+test('unread notice delivery leaves a linked acknowledgement for review and delivers the next plain notice', () =>
+  check(
+    {
+      notices: enabled,
+      bodies: [noticeText, noticeText],
+      links: [['https://example.test/next']],
+    },
+    async (env) => {
+      const result = await env.complete();
+      assert.equal(result.state, 'completed');
+      assert.deepEqual(
+        result.entries.map((entry) => entry.notice.phase),
+        ['review', 'sent']
+      );
+      assert.equal(result.entries[0].notice.selection, undefined);
+      assert.deepEqual(env.state.sends, [{ chat: '9', text: noticeReply }]);
+      assert.equal((await listOutbox(env.store)).length, 1);
+      assert.equal(result.restoration.restored, true);
+    }
+  ));
+
 test('incomplete history, owner drafts, invitations and changed turns cannot authorize replies', async () => {
   for (const options of [
     { complete: false },

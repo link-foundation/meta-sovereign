@@ -7,6 +7,11 @@ import {
   rejectionNotice,
 } from './question-notice-intent.js';
 import { browserPendingTurn } from '../sources/browser-pending-turn.js';
+import { textLinks } from '../message-links.js';
+
+const noticeHasLink = ({ body, links }) =>
+  Boolean(links?.length) ||
+  textLinks(body, { includeFileNames: true }).length > 0;
 
 const rejectionAnswered = (rows) => {
   let rejected = false;
@@ -24,7 +29,7 @@ const rejectionAnswered = (rows) => {
 const pendingNotice = (snapshot) => {
   const pending =
     snapshot.pendingTurn?.messages?.filter(
-      (row) => !completedNotice(row.body)
+      (row) => noticeHasLink(row) || !completedNotice(row.body)
     ) ?? [];
   const message = pending.length === 1 ? pending[0] : null;
   const kind = message && noticeIntent(message.body);
@@ -91,6 +96,9 @@ export const planNoticeReply = async ({
     return decision;
   }
   decision.historyVerified = true;
+  if (noticeHasLink(message)) {
+    return decision;
+  }
   if (decision.mode === 'ignore') {
     return { ...decision, status: 'ignored' };
   }

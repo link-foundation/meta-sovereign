@@ -1,0 +1,17 @@
+{
+  "archive": "notice-link.tar.gz",
+  "files": {
+    "ci-logs/notice-link-chromium-parent.log": "6c52151c91180c234d1f55daee43bd5b363c619497649528734753b3b2270166",
+    "ci-logs/notice-link-chromium.log": "14b1b3b050e25b48f65e71a8570399ff85227ae6291d36cbbe029875cdde0278",
+    "ci-logs/notice-link-deno.log": "38ba931b3438681d40779fcc8cf788fa95ac272fea009d07eaa6b8f07fc871ae",
+    "ci-logs/notice-link-eslint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/notice-link-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/notice-link-mcp-console.log": "a22c572195fd77edf7f88a7cac2b36efd7f6a8a3af379cff798e8109862fb603",
+    "ci-logs/notice-link-mcp-result.json": "dc6dbe75528179e50fa19135ed44db0b6427da4bd91dbfdae6d53bfd27deb257",
+    "ci-logs/notice-link-mcp-server.log": "f2aace5c914ef0be93f1bb3f39a3c37d2606768500df3a5df969e4864fa402a6",
+    "ci-logs/notice-link-node.log": "3698483fb4f5072ceff6a1ec6e83ae3fc5ede9154db1c9a07d4acb1a19d8e464",
+    "ci-logs/notice-link-parent.log": "3ea2b8119b797cf02f9266a00065325b7bfbe547f31948c4a86e6f002fca1f5c",
+    "ci-logs/notice-link-secretlint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "metadata.json": "73f8b6530f51d58caa4efc834f17b6dac8f69ce3c8727439b79f9eee3eb0cf1e"
+  }
+}

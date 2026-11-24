@@ -161,6 +161,56 @@ test('admission requires full restored history, an identical pending turn and po
   assert.equal((await planNoticeReply(draft)).status, 'owner-draft');
 });
 
+for (const [name, body, links] of [
+  [
+    'an acknowledgement with a native action anchor',
+    noticeText,
+    ['https://example.test/next'],
+  ],
+  [
+    'a rejection with a native action anchor',
+    rejectionText,
+    ['https://example.test/next'],
+  ],
+  [
+    'an exact acknowledgement with a bare destination',
+    `${noticeText} careers.example/next.`,
+  ],
+  [
+    'a rejection with a contact destination',
+    `${rejectionText} tel:+12025550100`,
+  ],
+]) {
+  test(`notice reply leaves ${name} for review`, async () => {
+    const input = await planFixture(body);
+    if (links) {
+      input.history.rows.at(-1).links = links;
+      input.snapshot = noticeSnapshot(input.history.rows);
+    }
+    if (body.startsWith(noticeText)) {
+      await saveAnswerRule(input.store, noticeRule({ question: body }));
+    }
+    const result = await planNoticeReply(input);
+    assert.equal(result.historyVerified, true);
+    assert.equal(result.status, 'review');
+    assert.equal(result.text, undefined);
+  });
+}
+
+test('a completed handover with an embedded link stays in the pending turn', async () => {
+  const input = await planFixture();
+  input.history.rows.splice(1, 0, {
+    id: '100',
+    body: 'Your answers have been forwarded to the employer.',
+    outgoing: false,
+    links: ['https://example.test/next'],
+  });
+  input.snapshot = noticeSnapshot(input.history.rows);
+  const result = await planNoticeReply(input);
+  assert.equal(result.status, 'review');
+  assert.equal(result.text, undefined);
+});
+
 test('one pending notice may follow a completed bot wrap-up, but requests and multiple notices remain for review', async () => {
   for (const bodies of [
     ['Your answers have been forwarded to the employer.', noticeText],
