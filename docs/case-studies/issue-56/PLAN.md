@@ -1,9 +1,17 @@
+### 2026-11-24 Check already-open HeadHunter acknowledgements before unread chats (QA17)
+
+- [x] Reproduce the bounded pass visiting chat 8 while the already-read selected chat 7 has a recognized update.
+- [x] Verify the selected turn in place with the shared notice planner before reading any unread row. Apply the pass limit, disclose the observed scope, and de-duplicate the selected chat.
+- [x] Verify a finite pass and subsequent repeating pass, including one native provider receipt per eligible chat and no replay. [Evidence](notice-selected.md).
+- [ ] Verify guarded reply visibility in the individual watch and continue authenticated provider verification and exact-head CI.
+
 ### 2026-11-24 Reuse saved thanks for recognized HeadHunter application updates (QA17)
 
 - [x] Compare the pinned C4 examples and reproduce the missing mode on the published parent.
 - [x] Match complete passive application updates in Russian and English. Reuse scoped, approved saved thanks and keep ambiguous answers, conflicting links and pending requests for review.
 - [x] Verify a native completed bot handover followed by a human update, with the owner active before the guarded send. Check the explicit policy and provider receipt on a phone viewport.
-- [ ] Verify that inactive unread runs check the selected chat before the list, and that confirmed replies are revealed while preserving owner changes. Continue authenticated verification and exact-head CI.
+- [x] Verify that an inactive unread run checks the selected chat before the list. [Evidence](notice-selected.md).
+- [ ] Verify that a confirmed individual-watch reply is revealed while preserving owner changes. Continue authenticated verification and exact-head CI.
 
 ### 2026-11-24 Keep linked recruiter notices for review (QA04 and QA17)
 

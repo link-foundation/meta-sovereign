@@ -21,6 +21,14 @@ const checkpointHistory = async ({ onHistoryWindow }, chat, rows, check) => {
   await check();
 };
 
+const inspectNewest = async (readNewest, check) => {
+  const accepted = await readNewest?.();
+  await check();
+  if (accepted === false) {
+    stopped('filtered');
+  }
+};
+
 /** Overlapping windows establish chronology without interpreting provider IDs. */
 export const mergeConversationWindow = (known, incoming) => {
   if (!known.length) {
@@ -190,9 +198,8 @@ export const scanBrowserConversation = async (
       );
       const state = await check();
       if (!newestRead) {
-        await readNewest?.();
+        await inspectNewest(readNewest, check);
         newestRead = true;
-        await check();
       }
       const completed = observed.accept(found, state);
       await checkpointHistory(options, target, found, check);

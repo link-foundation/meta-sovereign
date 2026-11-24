@@ -114,7 +114,7 @@ export const enUnreadReview = {
   'browserUnread.notices':
     'Apply enabled acknowledgement and rejection reply policies',
   'browserUnread.noticesHint':
-    'Use a bounded pass in an already connected, inactive provider window. Enabled saved notice policies may send approved exact acknowledgement answers or one configured rejection reply per chat after complete history is verified. Keep the window inactive. Questions and invitations stay in review; no model is called.',
+    'In an inactive provider window, this pass checks unread chats. HeadHunter checks the selected chat first for an eligible acknowledgement, even if it is marked read. Complete history is required before an enabled policy can send approved thanks or one configured rejection reply per chat. Questions and invitations stay in review.',
   'browserUnread.startNotices': 'Apply notice policies to unread chats',
   'browserUnread.activeNotices':
     'Visiting unread chats and applying the enabled notice reply policies. Wait for actual delivery and restoration receipts.',

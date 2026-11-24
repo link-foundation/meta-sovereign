@@ -12,16 +12,80 @@ import {
   unreadSurfaces,
 } from './e2e-question-unread-controls.mjs';
 import { openQuestionDisclosure } from './question-preview.mjs';
-import { noticeReply } from '../../../experiments/issue-56/notice-fixture.mjs';
+import {
+  noticeReply,
+  russianThanks,
+} from '../../../experiments/issue-56/notice-fixture.mjs';
+import { prepareSelectedUnreadNotice } from '../../../experiments/issue-56/notice-selected-fixture.mjs';
 
-const start = async (unread, notices) => {
-  await unread.getByRole('spinbutton').fill('2');
+const start = async (unread, notices, limit = '2') => {
+  await unread.getByLabel('Maximum chats (1–100)', { exact: true }).fill(limit);
   await unread.locator('[data-browser-unread-notices]').setChecked(notices);
   await unread.locator('[data-browser-unread-confirm]').check();
   await unread.locator('[data-browser-unread-start]').click();
 };
 const completed = (unread) =>
   unread.locator('[data-browser-unread-result="completed"]').waitFor();
+
+export const verifySelectedUnreadNotice = async (
+  browser,
+  { screenshots, before = false } = {}
+) => {
+  const scenario = await questionBrowserUi(browser, {
+    screenshots,
+    serverOptions: { unreadReview: true, unreadNotices: true },
+    group: 'selected-unread-notice',
+  });
+  const { fixture, page, run, shot } = scenario;
+  try {
+    await prepareSelectedUnreadNotice(fixture);
+    await scenario.open();
+    const unread = await openUnread(scenario.controls);
+    await run(
+      'the already-read selected chat gets the first eligible reply',
+      async () => {
+        await start(unread, true, '1');
+        await completed(unread);
+        const result = await fixture.stats();
+        await unread.scrollIntoViewIfNeeded();
+        await shot(before ? 'selected-before' : 'selected-after');
+        assert.deepEqual(result.replies, { 7: russianThanks });
+        assert.deepEqual(result.visits, [], 'The selected chat stays open');
+        assert.equal(result.sends, 1);
+        assert.match(fixture.page.url(), /\/chat\/7\?owner=review#reading$/u);
+        await unread.getByText(russianThanks, { exact: true }).waitFor();
+      }
+    );
+    await run(
+      'a repeating pass continues through unread without replaying the selected reply',
+      async () => {
+        await page.bringToFront();
+        await unread.locator('[data-browser-unread-polling]').check();
+        await unread
+          .locator('[data-browser-unread-poll-field="intervalMs"]')
+          .fill('120');
+        await unread
+          .locator('[data-browser-unread-poll-field="retryMaxMs"]')
+          .fill('120');
+        await start(unread, true, '1');
+        await unread.getByText(noticeReply, { exact: true }).waitFor();
+        await unread
+          .getByRole('button', { name: 'Stop unread pass and wait' })
+          .click();
+        await unread
+          .locator('[data-browser-unread-result="stopped"]')
+          .waitFor();
+        const result = await fixture.stats();
+        assert.deepEqual(result.replies, { 7: russianThanks, 8: noticeReply });
+        assert.deepEqual(result.visits, ['8']);
+        assert.equal(result.sends, 2);
+      }
+    );
+    return scenario.result();
+  } finally {
+    await scenario.close();
+  }
+};
 
 const verifyNoticeSurfaces = async (scenario) => {
   const { fixture, run } = scenario;
@@ -54,7 +118,7 @@ const verifyNoticeSurfaces = async (scenario) => {
 };
 
 /** The production service, transport, UI and default native sender run together. */
-export const verifyUnreadNoticeControls = async (
+const verifyStandardUnreadNoticeControls = async (
   browser,
   { screenshots, before = false } = {}
 ) => {
@@ -154,4 +218,13 @@ export const verifyUnreadNoticeControls = async (
   } finally {
     await scenario.close();
   }
+};
+
+export const verifyUnreadNoticeControls = async (browser, options = {}) => {
+  const standard = await verifyStandardUnreadNoticeControls(browser, options);
+  if (options.before || browser.browserType().name() !== 'chromium') {
+    return standard;
+  }
+  const selected = await verifySelectedUnreadNotice(browser, options);
+  return { ...standard, cases: standard.cases + selected.cases };
 };

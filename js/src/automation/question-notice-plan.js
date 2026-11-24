@@ -108,6 +108,23 @@ const replyEnabled = (mode, message, language) =>
       !noticeHasLink(message) &&
       !noticeAddsTask(message.body);
 
+export const canCheckSelectedAcknowledgement = (snapshot, source, mode) => {
+  if (
+    snapshot.question.outgoing ||
+    snapshot.hasDraft ||
+    snapshot.strictOptions ||
+    !snapshot.noticeContext?.canReply
+  ) {
+    return false;
+  }
+  const { message, kind, language } = pendingNotice(
+    snapshot,
+    source,
+    mode === 'reply-recognized'
+  );
+  return kind === 'acknowledgements' && replyEnabled(mode, message, language);
+};
+
 /** Read-only decision. Only a complete owned conversation can authorize admission. */
 export const planNoticeReply = async ({
   store,

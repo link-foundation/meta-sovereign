@@ -14,6 +14,11 @@ import {
   validUnreadReplyView,
 } from './question-unread-state.js';
 import { visitUnreadNotice } from './question-unread-notices.js';
+import {
+  canCheckSelectedAcknowledgement,
+  planNoticeReply,
+} from './question-notice-plan.js';
+import { readAnswerPolicy } from './question-policy.js';
 import { visitUnreadAnswer } from './question-unread-answers.js';
 import { validUnreadForm } from './question-unread-form.js';
 import {
@@ -26,9 +31,9 @@ import {
 } from './question-unread-notice-state.js';
 
 const failure = unreadFailure;
-const checkedPass = (value, { maxChats, watchWaiting }) => {
+const checkedPass = (value, { maxChats, watchWaiting }, selectedAllowed) => {
   if (
-    !validUnreadCoverage(value?.coverage, watchWaiting) ||
+    !validUnreadCoverage(value?.coverage, watchWaiting, selectedAllowed) ||
     !validUnreadRestoration(value.restoration) ||
     !Array.isArray(value.conversations) ||
     value.conversations.length > maxChats ||
@@ -76,6 +81,31 @@ const reviewEntry = async (entry, record, review) => {
   }
 };
 
+const selectedAcknowledgement = async ({ store }, record) => {
+  if (!record.noticeReplies || record.source !== 'hh') {
+    return undefined;
+  }
+  const { notices } = await readAnswerPolicy(store);
+  const mode = notices.acknowledgements;
+  if (mode !== 'reply' && mode !== 'reply-recognized') {
+    return undefined;
+  }
+  return async (value, history) => {
+    const snapshot = checkBrowserQuestion(value);
+    if (!history) {
+      return canCheckSelectedAcknowledgement(snapshot, record.source, mode);
+    }
+    const plan = await planNoticeReply({
+      store,
+      target: { source: record.source, chat: snapshot.chat },
+      planning: record.planning,
+      snapshot,
+      history,
+    });
+    return plan.kind === 'acknowledgements' && plan.status === 'ready';
+  };
+};
+
 const executeUnreadReview = async ({
   record,
   controller,
@@ -87,12 +117,14 @@ const executeUnreadReview = async ({
 }) => {
   let recentWindow;
   try {
+    const acceptSelected = await selectedAcknowledgement(context, record);
     const pass = checkedPass(
       await send.scanUnreadConversations({
         source: record.source,
         ...record.settings,
         ...(record.heldChat ? { heldChat: record.heldChat } : {}),
         ...(watch ? { checkedChats: [...watch.checked] } : {}),
+        ...(acceptSelected && { acceptSelected }),
         signal: controller.signal,
         onHistoryWindow: async (window) => {
           const captured = await archiveBrowserHistoryWindow(context.store, {
@@ -146,7 +178,8 @@ const executeUnreadReview = async ({
               }
             : {}),
       }),
-      record.settings
+      record.settings,
+      Boolean(acceptSelected)
     );
     if (!validUnreadReplyView({ ...record, restoration: pass.restoration })) {
       throw failure(

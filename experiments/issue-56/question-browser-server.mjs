@@ -14,6 +14,7 @@ import { hhChoiceHtml } from './hh-choice-fixture.mjs';
 import { textReplyHtml } from './text-reply-fixture.mjs';
 import { noticePolicyHtml } from './notice-policy-browser-fixture.mjs';
 import { noticeText, noticeRule } from './notice-fixture.mjs';
+import { prepareSelectedUnreadNotice } from './notice-selected-fixture.mjs';
 import {
   chatNavigationHtml,
   unreadBotQuestion,
@@ -81,7 +82,6 @@ const summarySetter =
 
 const unreadFixtureHtml = (mode, notices, replyView) =>
   chatNavigationHtml({
-    ...mode,
     ...(notices
       ? {
           textReplies: true,
@@ -96,6 +96,7 @@ const unreadFixtureHtml = (mode, notices, replyView) =>
           },
         }
       : {}),
+    ...mode,
   });
 
 const currentFixtureHtml = (mode, noticePolicies) =>
@@ -350,6 +351,7 @@ if (
   const unreadHistory = process.env.QUESTION_BROWSER_UNREAD_HISTORY === '1';
   const unreadChoices = process.env.QUESTION_BROWSER_UNREAD_CHOICES === '1';
   const unreadWaiting = process.env.QUESTION_BROWSER_UNREAD_WAITING === '1';
+  const selectedNotice = process.env.QUESTION_BROWSER_SELECTED_NOTICE === '1';
   const fixture = await questionBrowserServer(browser, {
     summaryChoices: process.env.QUESTION_BROWSER_SUMMARY === '1',
     noticePolicies: process.env.QUESTION_BROWSER_NOTICES === '1',
@@ -360,8 +362,10 @@ if (
         unreadSummary ||
         unreadHistory ||
         unreadChoices ||
-        unreadWaiting
+        unreadWaiting ||
+        selectedNotice
       ) || process.env.QUESTION_BROWSER_UNREAD === '1',
+    unreadNotices: selectedNotice,
     ...(linked && {
       unreadAnswers: true,
       unreadMessages: { 8: employerQuestionnaire },
@@ -381,6 +385,9 @@ if (
     ...(unreadChoices && { unreadAnswers: true, unreadChoices }),
     ...(unreadWaiting && { unreadAnswers: true, unreadWaiting }),
   });
+  if (selectedNotice) {
+    await prepareSelectedUnreadNotice(fixture);
+  }
   const controls = questionBrowserControlServer(fixture);
   await new Promise((resolve) => controls.listen(0, '127.0.0.1', resolve));
   console.log(
@@ -393,6 +400,11 @@ if (
     await new Promise((resolve) => controls.close(resolve));
     await fixture.close();
     await browser.close();
+    if (selectedNotice) {
+      console.log(
+        JSON.stringify({ resourcesClosed: true, liveProvider: false })
+      );
+    }
   };
   process.once('SIGINT', close);
   process.once('SIGTERM', close);

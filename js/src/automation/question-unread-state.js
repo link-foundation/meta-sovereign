@@ -13,9 +13,13 @@ import {
 } from './question-unread-identity.js';
 export { browserUnreadId, unreadFailure } from './question-unread-identity.js';
 
-export const validUnreadCoverage = (value, watchWaiting) =>
+export const validUnreadCoverage = (value, watchWaiting, selectedAllowed) =>
   value?.complete === false &&
-  value.scope === unreadCoverageScope(watchWaiting) &&
+  (value.scope === unreadCoverageScope(watchWaiting) ||
+    (selectedAllowed &&
+      !watchWaiting &&
+      value.visited > 0 &&
+      value.scope === unreadCoverageScope(false, true))) &&
   boundedBrowserText(value.reason, 120) &&
   Number.isInteger(value.observed) &&
   value.observed >= 0 &&
@@ -139,7 +143,11 @@ const invalidUnreadEntries = (value) =>
 
 const invalidUnreadCompletion = (value) =>
   (value.coverage !== null &&
-    !validUnreadCoverage(value.coverage, value.watchWaiting)) ||
+    !validUnreadCoverage(
+      value.coverage,
+      value.watchWaiting,
+      value.source === 'hh' && value.noticeReplies
+    )) ||
   (value.restoration !== null && !validUnreadRestoration(value.restoration)) ||
   (value.state === 'completed' && (!value.coverage || !value.restoration)) ||
   (value.state === 'completed' &&

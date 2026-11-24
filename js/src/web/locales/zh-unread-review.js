@@ -95,7 +95,7 @@ export const zhUnreadReview = {
   'browserUnread.unverified': '聊天 {chat} 没有经过验证的问题审核。',
   'browserUnread.notices': '应用已启用的申请确认和拒绝回复规则',
   'browserUnread.noticesHint':
-    '在已连接且未激活的服务窗口中进行有限检查。验证完整历史后，已启用的保存规则可发送完全匹配且已批准的申请确认回复，或每个聊天一次的指定拒绝回复。请保持窗口未激活。问题和邀请保留待审核；不会调用模型。',
+    '此操作会在未激活的服务窗口中检查未读聊天。HeadHunter 会先检查当前打开的聊天是否有符合规则的申请确认，即使该聊天已读。验证完整历史后，启用的规则才可发送已批准的致谢或每个聊天一次的指定拒绝回复。问题和邀请保留待审核。',
   'browserUnread.startNotices': '对未读聊天应用通知规则',
   'browserUnread.activeNotices':
     '正在访问未读聊天并应用已启用的通知回复规则。请等待实际发送和视图恢复凭据。',

@@ -558,6 +558,7 @@ class ChatNavigation {
             }
             result = await work({
               document: this.adapter,
+              selectedChat: this.originalTarget,
               visit: (chat, read) => this.visit(chat, read),
               verifyCurrent: inactive,
               inactiveToken: token,
