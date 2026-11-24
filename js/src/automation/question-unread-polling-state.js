@@ -83,12 +83,11 @@ export const unreadSkipTarget = (result) => {
   };
 };
 
-const validUnreadSkip = (skip, parentId) =>
-  skip === undefined ||
-  (browserUnreadId(skip?.passId) &&
-    skip.passId !== parentId &&
-    boundedBrowserText(skip.chat, 480) &&
-    boundedBrowserText(skip.questionId, 480));
+export const validUnreadSkipReceipt = (skip, parentId) =>
+  browserUnreadId(skip?.passId) &&
+  skip.passId !== parentId &&
+  boundedBrowserText(skip.chat, 480) &&
+  boundedBrowserText(skip.questionId, 480);
 
 export const validUnreadPolling = (value, parentId) => {
   if (value === undefined) {
@@ -112,7 +111,8 @@ export const validUnreadPolling = (value, parentId) => {
       Number.isFinite(Date.parse(value.expiresAt)) &&
       (value.nextAt === null || Number.isFinite(Date.parse(value.nextAt))) &&
       validPollingIds(value, parentId) &&
-      validUnreadSkip(value.lastSkip, parentId) &&
+      (value.lastSkip === undefined ||
+        validUnreadSkipReceipt(value.lastSkip, parentId)) &&
       (value.reason === undefined || boundedBrowserText(value.reason, 120))
     );
   } catch {

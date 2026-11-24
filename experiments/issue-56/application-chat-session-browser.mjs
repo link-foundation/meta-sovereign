@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { runBrowserScenarios } from '../../js/tests/helpers/e2e-browser-scenarios.mjs';
 import { verifyNativeApplicationChatSession as verifyBatchSession } from '../../js/tests/helpers/e2e-application-chats.mjs';
+import { verifyNativeApplicationChatWaiting } from '../../js/tests/helpers/e2e-application-chat-waiting.mjs';
 import { withHhBrowserScanFixture } from '../../js/tests/helpers/e2e-hh-chat-scan.mjs';
 import {
   signInFixture,
@@ -84,6 +85,6 @@ const verifyNativeApplicationChatSession = (browser) =>
 
 await runBrowserScenarios(
   'application-chat-session',
-  [verifyNativeApplicationChatSession],
+  [verifyNativeApplicationChatSession, verifyNativeApplicationChatWaiting],
   { nativeFocus: true }
 );

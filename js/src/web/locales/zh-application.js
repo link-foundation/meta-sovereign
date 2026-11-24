@@ -43,12 +43,13 @@ export const zhApplication = {
   'application.chats.enable': '在申请期间检查未读聊天',
   'application.chats.hint':
     '聊天使用独立的浏览器槽位。聊天槽位未登录时，可以使用当前申请浏览器中的 HeadHunter 登录会话。申请继续进行时，请手动选择机器人选项并发送准备好的草稿。批次停止或完成时会关闭聊天浏览器。',
-  'application.chats.chatsIntervalMinutes': '聊天检查间隔（分钟，默认 120）',
+  'application.chats.chatsIntervalMinutes': '聊天检查间隔（分钟）',
   'application.chats.chatBrowserSlot': '独立的聊天浏览器槽位',
   'application.chats.status': '聊天：{phase} · 槽位 {slot}',
   'application.chats.held': '请在聊天浏览器中审核：{title}',
   'application.chats.phase.starting': '正在启动',
   'application.chats.phase.running': '正在检查未读聊天',
+  'application.chats.phase.watching': '正在查看等待您回复的聊天',
   'application.chats.phase.draining': '正在停止并等待结束',
   'application.chats.phase.refused': '不可用；请查看错误',
   'application.chats.phase.stopped': '已停止',
@@ -81,6 +82,8 @@ export const zhApplication = {
   'application.batch.salaryDeferred': '因薪资暂缓：{count}',
   'application.batch.phase.starting': '正在启动批次。',
   'application.batch.phase.pacing': '等待已保存的间隔截止时间。',
+  'application.batch.phase.chat-review':
+    '职位列表已处理完毕。聊天槽位仍在检查待回复的会话。',
   'application.batch.phase.review': '当前职位需要审核。',
   'application.batch.phase.questionnaires-held':
     '问卷保留在此进程的内存队列中。',

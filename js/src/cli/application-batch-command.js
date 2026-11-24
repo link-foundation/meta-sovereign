@@ -39,6 +39,23 @@ const currentCommand = async (service, action, displayed) => {
   });
 };
 const batchCommand = async (service, input, action, displayed) => {
+  if (action === 's') {
+    const target = displayed.batch?.chatWorker?.skip;
+    if (!input.chatWatchWaiting || !target) {
+      throw Object.assign(
+        new Error('Display the held chat with status before skipping.'),
+        {
+          code: 'jobs-application-chats-skip-changed',
+        }
+      );
+    }
+    const receipt = await service['application-batch-chat-skip']({
+      requestId: input.requestId,
+      browserSlot: input.browserSlot,
+      chatReview: target,
+    });
+    return { displayed: receipt, output: receipt };
+  }
   if (modeCommands[action]) {
     const receipt = await service['application-batch-mode']({
       ...input,
@@ -102,10 +119,17 @@ export const applicationBatchCommand = async (
           'resume',
           'defer-questionnaires',
           'review-questionnaires',
+          ...(input.chatWatchWaiting ? ['s'] : []),
           'stop',
           'quit',
         ],
         note: 'This finite paced batch may fill and send according to its saved confirmation choices. Confirm commands apply only to the current displayed step and revision. Review/status never resume work. SIGUSR1 defers questionnaires in RAM; SIGUSR2 enables automatic due revisits through the same guards. A backed daily-limit wait may refresh and restore its form before following the saved confirmation choices. Stop drains batch work and leaves the current native form for review. End of input drains the worker and closes its browser.',
+        ...(input.chatWatchWaiting
+          ? {
+              chatCommand:
+                'Use status to display the held chat. Type s to skip that exact question.',
+            }
+          : {}),
       })
     );
     for await (const line of stream) {

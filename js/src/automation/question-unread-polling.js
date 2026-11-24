@@ -235,6 +235,26 @@ class UnreadPolling {
     return this.status(input);
   }
 
+  refresh(input) {
+    const runtime = this.runtimes.get(input.id);
+    if (!runtime?.input.watchWaiting || runtime.controller.signal.aborted) {
+      return;
+    }
+    runtime.refreshVersion = (runtime.refreshVersion ?? 0) + 1;
+    if (runtime.record.polling.phase === 'waiting') {
+      runtime.wake?.abort();
+    }
+  }
+
+  refreshPending(input) {
+    const runtime = this.runtimes.get(input.id);
+    return Boolean(
+      runtime?.record.state === 'active' &&
+      !runtime.controller.signal.aborted &&
+      runtime.refreshVersion > (runtime.reviewedVersion ?? 0)
+    );
+  }
+
   async stop(input) {
     await this.admitting;
     const runtime = this.runtimes.get(input?.id);
@@ -266,9 +286,14 @@ class UnreadPolling {
 export const withQuestionUnreadPolling = (options) => {
   const service = new UnreadPolling(options);
   return Object.fromEntries(
-    ['start', 'status', 'skip', 'stop', 'close'].map((name) => [
-      name,
-      service[name].bind(service),
-    ])
+    [
+      'start',
+      'status',
+      'skip',
+      'refresh',
+      'refreshPending',
+      'stop',
+      'close',
+    ].map((name) => [name, service[name].bind(service)])
   );
 };

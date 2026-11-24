@@ -59,13 +59,13 @@ export const ruApplication = {
     'Проверять непрочитанные чаты параллельно откликам',
   'application.chats.hint':
     'Чаты открываются в отдельном слоте браузера. Если в нём ещё не выполнен вход, он может использовать активный сеанс HeadHunter из браузера откликов. Пока идут отклики, вручную выбирайте варианты бота и отправляйте подготовленные черновики. При остановке или завершении браузер чатов закроется.',
-  'application.chats.chatsIntervalMinutes':
-    'Интервал проверки чатов в минутах (по умолчанию 120)',
+  'application.chats.chatsIntervalMinutes': 'Интервал проверки чатов в минутах',
   'application.chats.chatBrowserSlot': 'Отдельный слот браузера для чатов',
   'application.chats.status': 'Чаты: {phase} · слот {slot}',
   'application.chats.held': 'Проверьте в браузере чатов: {title}',
   'application.chats.phase.starting': 'Запуск',
   'application.chats.phase.running': 'Проверка непрочитанных чатов',
+  'application.chats.phase.watching': 'Просмотр чатов, ожидающих вашего ответа',
   'application.chats.phase.draining': 'Остановка и ожидание завершения',
   'application.chats.phase.refused': 'Недоступно; прочитайте ошибку',
   'application.chats.phase.stopped': 'Остановлено',
@@ -103,6 +103,8 @@ export const ruApplication = {
   'application.batch.salaryDeferred': 'Временно отложено по зарплате: {count}',
   'application.batch.phase.starting': 'Пакет запускается.',
   'application.batch.phase.pacing': 'Ожидание сохранённого интервала.',
+  'application.batch.phase.chat-review':
+    'Список вакансий обработан. Слот чатов продолжает проверять переписки.',
   'application.batch.phase.review': 'Текущая вакансия ожидает проверки.',
   'application.batch.phase.questionnaires-held':
     'Анкеты удерживаются в очереди памяти процесса.',

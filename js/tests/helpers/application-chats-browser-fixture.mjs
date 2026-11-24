@@ -51,7 +51,7 @@ export const signedOutRoute = async (route, context) => {
 export const withNativeApplicationChats = (
   browser,
   work,
-  { choices, session = false } = {}
+  { choices, session = false, waiting = false } = {}
 ) =>
   withChatNavigationFixture(
     browser,
@@ -59,6 +59,9 @@ export const withNativeApplicationChats = (
       html: chatNavigationHtml({
         textReplies: true,
         precedingOutgoing: true,
+        ...(waiting
+          ? { allRead: true, hiddenChats: ['8'], outgoingChats: ['7', '9'] }
+          : {}),
         ...(choices
           ? { choiceChat: '8', latestMessages: { 8: unreadBotQuestion } }
           : {}),
@@ -68,21 +71,36 @@ export const withNativeApplicationChats = (
     },
     async ({ sender, page: chat }) => {
       let child;
-      let chatStats;
+      let chatStats = { chat: null };
       const stats = async () => {
         if (!chat.isClosed()) {
-          chatStats = await chat.evaluate(() =>
-            window.fixture
-              ? {
-                  sends: window.fixture.sends,
-                  unreadNext: window.fixture.unread['9'],
-                  draft: document.querySelector('textarea').value,
-                }
-              : null
-          );
+          chatStats = await chat.evaluate((waiting) => {
+            const state = window.fixture;
+            if (!state) {
+              return { chat: null };
+            }
+            const draft = document.querySelector('textarea').value;
+            return {
+              chat: {
+                sends: state.sends,
+                unreadNext: state.unread['9'],
+                draft,
+              },
+              ...(waiting
+                ? {
+                    waiting: {
+                      visits: state.visits.slice(),
+                      unread: state.unread['8'],
+                      draft,
+                      sends: state.sends,
+                    },
+                  }
+                : {}),
+            };
+          }, waiting);
         }
         return {
-          chat: chatStats,
+          ...chatStats,
           child: child?.status() ?? null,
           logs,
           liveProvider: false,

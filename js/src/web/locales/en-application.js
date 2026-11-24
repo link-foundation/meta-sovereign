@@ -56,13 +56,13 @@ export const enApplication = {
   'application.chats.enable': 'Review unread chats alongside applications',
   'application.chats.hint':
     'Uses a separate browser slot. A signed-out chat slot can reuse your active HeadHunter application sign-in. Choose bot options and send prepared drafts yourself while applications continue. Stop or completion closes the chat browser.',
-  'application.chats.chatsIntervalMinutes':
-    'Chat check interval in minutes (default 120)',
+  'application.chats.chatsIntervalMinutes': 'Chat check interval in minutes',
   'application.chats.chatBrowserSlot': 'Separate chat browser slot',
   'application.chats.status': 'Chats: {phase} · slot {slot}',
   'application.chats.held': 'Review in the chat browser: {title}',
   'application.chats.phase.starting': 'Starting',
   'application.chats.phase.running': 'Checking unread chats',
+  'application.chats.phase.watching': 'Watching chats awaiting your reply',
   'application.chats.phase.draining': 'Stopping and draining',
   'application.chats.phase.refused': 'Unavailable; read the error',
   'application.chats.phase.stopped': 'Stopped',
@@ -98,6 +98,8 @@ export const enApplication = {
   'application.batch.salaryDeferred': 'Temporary salary holds: {count}',
   'application.batch.phase.starting': 'Starting the owned batch.',
   'application.batch.phase.pacing': 'Waiting for the saved spacing deadline.',
+  'application.batch.phase.chat-review':
+    'The application list is finished. The chat slot is still checking for replies.',
   'application.batch.phase.review': 'Current vacancy needs review.',
   'application.batch.phase.questionnaires-held':
     'Questionnaires are held in this worker’s RAM queue.',

@@ -9,6 +9,32 @@ import { applicationRouteApi } from './application-controls.mjs';
 import { nativeApplicationForm } from './application-native-request.mjs';
 import { LINO_TEXT } from '../../src/transport/lino.js';
 
+const stopApplicationChatBatch = async ({ page, button, batch, api, logs }) => {
+  const path = '/api/vacancies/application-batch-stop';
+  try {
+    const [response] = await Promise.all([
+      page.waitForResponse(
+        (entry) =>
+          new URL(entry.url()).pathname === path &&
+          entry.request().method() === 'POST',
+        { timeout: 15000 }
+      ),
+      button('stop').click(),
+    ]);
+    assert.equal(response.status(), 200);
+    await batch.locator('[data-application-chats-phase="stopped"]').waitFor();
+  } catch (error) {
+    const status = await api.vacancyApplicationBatchStatus({});
+    console.error('[application-chat-stop]', {
+      phase: status.batch.phase,
+      worker: status.batch.chatWorker.phase,
+      code: status.batch.chatWorker.code ?? status.batch.code,
+      events: logs.slice(-12).map(({ event, code }) => ({ event, code })),
+    });
+    throw error;
+  }
+};
+
 /** Actual child + two native provider fixtures; every account and delivery is synthetic. */
 export const verifyNativeApplicationChats = async (
   browser,
@@ -224,10 +250,13 @@ export const verifyNativeApplicationChats = async (
       assert.equal(next.batch.delivered, 1);
       assert.equal(next.batch.chatWorker.pid, pid);
       assert.equal(next.batch.chatWorker.held.chat, heldChat);
-      await button('stop').click();
-      await batch
-        .locator('[data-application-chats-phase="stopped"]')
-        .waitFor({ timeout: 60000 });
+      await stopApplicationChatBatch({
+        page: controls.page,
+        button,
+        batch,
+        api,
+        logs,
+      });
       assert(chat.isClosed(), 'Stop must close the owned chat context');
       assert.throws(() => process.kill(pid, 0), { code: 'ESRCH' });
       assert(

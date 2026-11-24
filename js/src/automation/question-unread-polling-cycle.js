@@ -61,6 +61,8 @@ export class UnreadPollingCycle {
 
   async visit() {
     const { runtime } = this;
+    const refreshVersion = runtime.refreshVersion;
+    const heldAtStart = runtime.input.heldChat;
     const id = `question-unread:${randomUUID()}`;
     await this.save({
       polling: {
@@ -127,6 +129,7 @@ export class UnreadPollingCycle {
         },
       });
       phase = await this.outcome(child);
+      this.recordRefresh(child, phase, { refreshVersion, heldAtStart });
     } finally {
       // An unexpected storage/status failure must still drain issued work.
       await this.finite.stop({ id });
@@ -151,6 +154,18 @@ export class UnreadPollingCycle {
     return phase;
   }
 
+  recordRefresh(child, phase, { refreshVersion, heldAtStart }) {
+    if (
+      refreshVersion &&
+      !heldAtStart &&
+      phase === 'waiting' &&
+      child.restoration?.restored
+    ) {
+      // Only a restored list pass begun after delivery can settle its refresh.
+      this.runtime.reviewedVersion = refreshVersion;
+    }
+  }
+
   async outcome(child, unissued = false) {
     const { runtime } = this;
     const phase = unreadPollingOutcome(child, unissued);
@@ -168,6 +183,40 @@ export class UnreadPollingCycle {
       },
     });
     return phase;
+  }
+
+  async waitForNextPass(phase, { refreshVersion, heldAtStart }) {
+    const { runtime } = this;
+    const { settings, failures } = runtime.record.polling;
+    const ms =
+      phase === 'backoff'
+        ? Math.min(
+            settings.retryMaxMs,
+            settings.intervalMs * 2 ** (failures - 1)
+          )
+        : settings.intervalMs;
+    await this.save({
+      polling: {
+        ...runtime.record.polling,
+        nextAt: new Date(this.clock().getTime() + ms).toISOString(),
+      },
+    });
+    const wake = runtime.input.watchWaiting ? new AbortController() : null;
+    runtime.wake = wake;
+    if (
+      phase === 'waiting' &&
+      (runtime.refreshVersion !== refreshVersion ||
+        (heldAtStart &&
+          !runtime.input.heldChat &&
+          runtime.refreshVersion > (runtime.reviewedVersion ?? 0)))
+    ) {
+      wake?.abort();
+    }
+    try {
+      await this.sleep(ms, wake);
+    } finally {
+      runtime.wake = null;
+    }
   }
 
   async run() {
@@ -189,6 +238,8 @@ export class UnreadPollingCycle {
           runtime.controller.abort();
           break;
         }
+        const refreshVersion = runtime.refreshVersion;
+        const heldAtStart = runtime.input.heldChat;
         let phase;
         try {
           phase = await this.visit();
@@ -202,26 +253,7 @@ export class UnreadPollingCycle {
         ) {
           break;
         }
-        const ms =
-          phase === 'backoff'
-            ? Math.min(
-                settings.retryMaxMs,
-                settings.intervalMs * 2 ** (runtime.record.polling.failures - 1)
-              )
-            : settings.intervalMs;
-        await this.save({
-          polling: {
-            ...runtime.record.polling,
-            nextAt: new Date(this.clock().getTime() + ms).toISOString(),
-          },
-        });
-        const wake = runtime.input.watchWaiting ? new AbortController() : null;
-        runtime.wake = wake;
-        try {
-          await this.sleep(ms, wake);
-        } finally {
-          runtime.wake = null;
-        }
+        await this.waitForNextPass(phase, { refreshVersion, heldAtStart });
       }
       if (runtime.controller.signal.aborted) {
         await this.save({

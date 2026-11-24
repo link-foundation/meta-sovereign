@@ -12,6 +12,11 @@ foreground CLI or both Lino encodings. Include already-read chats in this mode,
 keep the current draft open, and advance after an observed owner reply or a
 confirmed Skip for the exact incoming message (issue #56, HH10).
 
+Wake the separate HeadHunter chat watch after a confirmed application when
+waiting-chat review is enabled. Hold the first new incoming question for an
+owner reply or an exact Skip, including after the vacancy list is exhausted
+(issue #56, HH10).
+
 Leave HeadHunter bot choices open for manual selection during application-owned
 chat review. Standalone unread review offers the same policy through the shared
 controls, CLI and Lino. Ordinary drafts and held-chat polling stay available

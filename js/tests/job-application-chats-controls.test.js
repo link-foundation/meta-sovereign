@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, writeFile, rm } from 'node:fs/promises';
+import { randomUUID } from 'node:crypto';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import React from 'react';
@@ -23,8 +24,48 @@ import { applicationBatchKey } from '../src/jobs/application-batch-data.js';
 import { LINO_TEXT, LINO_BINARY, decodeWire } from '../src/transport/lino.js';
 import { ApplicationChatControls } from '../src/web/application-chat-controls.js';
 import { translate } from '../src/web/i18n.js';
+import { wirePost } from './helpers/vacancy-routes.mjs';
 
 const options = { timeout: 15000 };
+const waitingChatFixture = (t) => {
+  const passId = `question-unread:${randomUUID()}`;
+  const target = { passId, chat: '8', questionId: '807' };
+  const skips = [];
+  const unread = (id) => ({
+    id,
+    state: 'active',
+    owned: true,
+    watchWaiting: true,
+    polling: {
+      phase: 'waiting',
+      passes: skips.length + 1,
+      lastPassId: passId,
+      receiptPassId: passId,
+      lastSkip: skips.at(-1),
+    },
+    restoration: skips.length
+      ? { restored: true }
+      : {
+          heldReview: {
+            chat: target.chat,
+            questionId: target.questionId,
+            currentQuestionId: target.questionId,
+          },
+        },
+  });
+  const f = applicationChatsFixture(t, {
+    questionPolling: {
+      unreadStatus: async ({ id }) => unread(id),
+      unreadSkip: async ({ id, ...selected }) => {
+        assert.deepEqual(selected, target);
+        skips.push(selected);
+        return unread(id);
+      },
+    },
+  });
+  return { f, target, skips };
+};
+
 for (const type of [LINO_TEXT, LINO_BINARY]) {
   test(
     `application-owned chat intent and child receipts survive ${type} production API transport`,
@@ -56,7 +97,112 @@ for (const type of [LINO_TEXT, LINO_BINARY]) {
       });
     }
   );
+  test(
+    `the exact application chat Skip is acknowledged and recovered through ${type}`,
+    options,
+    async (t) => {
+      const { f, target, skips } = waitingChatFixture(t);
+      await withApplicationRouteFixture(f, type, async (api, base) => {
+        await api.vacancyApplicationBatchStart({
+          ...batchInput,
+          processChats: true,
+          chatWatchWaiting: true,
+          confirmations: ['send'],
+        });
+        const {
+          batch: { chatWorker },
+        } = await untilApplicationChats(
+          () => api.vacancyApplicationBatchStatus(batchInput),
+          (row) => row.batch?.chatWorker?.skip
+        );
+        const input = {
+          requestId: batchInput.requestId,
+          browserSlot: 'jobs',
+          chatReview: chatWorker.skip,
+        };
+        const refused = await wirePost(
+          base,
+          'application-batch-chat-skip',
+          input,
+          type,
+          {
+            origin: 'https://untrusted.test',
+          }
+        );
+        assert.equal(refused.status, 403);
+        assert.deepEqual(skips, []);
+        const stale = await f.worker().browser.unreadStatus(chatWorker.skip);
+        const accepted = await api.vacancyApplicationBatchChatSkip(input);
+        assert.deepEqual(accepted.batch.chatWorker.lastSkip, target);
+        f.worker().observe(stale);
+        assert.equal(f.worker().status().skip, null);
+        const stopped = await api.vacancyApplicationBatchStop(batchInput);
+        assert.deepEqual(
+          stopped.batch.chatWorker.lastSkip,
+          accepted.batch.chatWorker.lastSkip
+        );
+        const recovered = await api.vacancyApplicationBatchChatSkip(input);
+        assert.deepEqual(
+          recovered.batch.chatWorker.lastSkip,
+          accepted.batch.chatWorker.lastSkip
+        );
+        assert.deepEqual(skips, [target]);
+      });
+    }
+  );
 }
+
+test(
+  'batch console s skips only the question shown by status',
+  options,
+  async (t) => {
+    const { f, target, skips } = waitingChatFixture(t);
+    const directory = await mkdtemp(
+      join(tmpdir(), 'application-chat-console-')
+    );
+    t.after(() => rm(directory, { recursive: true, force: true }));
+    const file = join(directory, 'vacancies.txt');
+    await writeFile(file, batchUrls.join('\n'));
+    const output = [];
+    const commands = createApplicationCommands({
+      ...f.serviceOptions,
+      openStore: async () => f.store,
+      async *applicationInput() {
+        await untilApplicationChats(
+          () => f.worker()?.status(),
+          (view) => view?.skip
+        );
+        yield 's';
+        assert.equal(output.at(-1).code, 'jobs-application-chats-skip-changed');
+        assert.deepEqual(skips, []);
+        yield 'status';
+        const receipt = output.at(-1).batch;
+        assert.equal(
+          receipt.chatWorker.skip?.chat,
+          target.chat,
+          JSON.stringify(receipt)
+        );
+        yield 's';
+        assert.deepEqual(output.at(-1).batch.chatWorker.lastSkip, target);
+        yield 'stop';
+      },
+    });
+    const code = await commands['vacancies-application-batch'](
+      {
+        'vacancies-file': file,
+        'request-id': batchInput.requestId,
+        'process-chats': 'true',
+        'chat-watch-waiting': 'true',
+        'no-auto-select-resume-language': 'true',
+        confirm: 'send',
+      },
+      (value) => output.push(decodeWire(value))
+    );
+    assert.equal(code, 0);
+    assert.deepEqual(skips, [target]);
+    assert.equal(output.at(-1).batch.chatWorker.phase, 'stopped');
+  }
+);
 
 test(
   'the registered CLI preserves chat flags and preview starts no child',
@@ -82,6 +228,7 @@ test(
         'process-chats': 'true',
         'chat-model-draft': 'true',
         'chat-prefill-forms': 'true',
+        'chat-watch-waiting': 'true',
         'chats-interval-minutes': '9',
         'chat-browser-slot': 'recruiter-chats',
         'test-mode': 'true',
@@ -93,6 +240,7 @@ test(
     assert.equal(record.options.processChats, true);
     assert.equal(record.options.chatModelDraft, true);
     assert.equal(record.options.chatPrefillForms, true);
+    assert.equal(record.options.chatWatchWaiting, true);
     assert.equal(record.options.chatsIntervalMinutes, 9);
     assert.equal(record.options.chatBrowserSlot, 'recruiter-chats');
     assert.equal(f.calls.children.length, 0);

@@ -19,6 +19,18 @@ export const ApplicationChatControls = ({ draft, update, frozen, t }) =>
     el('p', { key: 'hint', className: 'meta' }, t('application.chats.hint')),
     ...(draft.processChats
       ? [
+          el('label', { key: 'watch-waiting', className: 'row' }, [
+            el('input', {
+              key: 'input',
+              type: 'checkbox',
+              checked: draft.chatWatchWaiting,
+              disabled: frozen,
+              'data-application-batch-field': 'chatWatchWaiting',
+              onChange: (event) =>
+                update('chatWatchWaiting', event.target.checked),
+            }),
+            t('browserUnread.watchWaiting'),
+          ]),
           ...[
             ['chatsIntervalMinutes', 'number', 1, 120],
             ['chatBrowserSlot', 'text', undefined, undefined],
@@ -31,7 +43,13 @@ export const ApplicationChatControls = ({ draft, update, frozen, t }) =>
                 min,
                 max,
                 maxLength: type === 'text' ? 80 : undefined,
-                value: draft[name],
+                value:
+                  draft[name] ??
+                  (name === 'chatsIntervalMinutes'
+                    ? draft.chatWatchWaiting
+                      ? 1
+                      : 120
+                    : ''),
                 disabled: frozen,
                 'data-application-batch-field': name,
                 onChange: (event) =>
@@ -61,7 +79,13 @@ export const ApplicationChatControls = ({ draft, update, frozen, t }) =>
       : []),
   ]);
 
-export const ApplicationChatReceipt = ({ worker, t }) =>
+export const ApplicationChatReceipt = ({
+  worker,
+  watchWaiting,
+  skip,
+  disabled,
+  t,
+}) =>
   worker
     ? el(
         'div',
@@ -71,7 +95,11 @@ export const ApplicationChatReceipt = ({ worker, t }) =>
             'p',
             { key: 'phase' },
             t('application.chats.status', {
-              phase: t(`application.chats.phase.${worker.phase}`),
+              phase: t(
+                watchWaiting && worker.phase === 'running'
+                  ? 'application.chats.phase.watching'
+                  : `application.chats.phase.${worker.phase}`
+              ),
               slot: worker.browserSlot,
             })
           ),
@@ -105,7 +133,31 @@ export const ApplicationChatReceipt = ({ worker, t }) =>
                         worker.held.url
                       )
                     : null,
+                  worker.skip
+                    ? el(
+                        'button',
+                        {
+                          key: 'skip',
+                          type: 'button',
+                          disabled,
+                          'data-application-chats-skip': true,
+                          onClick: () => void skip(worker.skip).catch(() => {}),
+                        },
+                        t('browserUnread.skip')
+                      )
+                    : null,
                 ]
+              )
+            : null,
+          worker.lastSkip
+            ? el(
+                'p',
+                {
+                  key: 'skipped',
+                  role: 'status',
+                  'data-application-chats-skipped': true,
+                },
+                t('browserUnread.skipConfirmed', { chat: worker.lastSkip.chat })
               )
             : null,
         ]

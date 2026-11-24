@@ -18,6 +18,7 @@ import { storedVacancySkips } from './vacancy-skip-service.js';
 import { vacancySkipBlocks } from './vacancy-skip-policy.js';
 import { pendingDeferredVacancies } from './deferred-questions.js';
 import { vacancyChoiceSlot } from './vacancy-choice.js';
+import { sameUnreadSkip } from '../automation/question-unread-polling-state.js';
 import { applicationPreservationPolicy } from './application-run-modes.js';
 import {
   ApplicationBatchSalary,
@@ -194,6 +195,29 @@ export class ApplicationBatch {
     await this.drain();
     return this.status(input);
   }
+  async skipChat(input) {
+    const key = applicationBatchKey(input);
+    const target = input.chatReview ?? {};
+    const runtime = this.runtime;
+    if (
+      runtime?.record.id === key.id &&
+      runtime.record.active &&
+      runtime.record.options.chatWatchWaiting &&
+      !runtime.controller.signal.aborted &&
+      runtime.chats
+    ) {
+      await runtime.chats.skip(target);
+    }
+    const receipt = await this.status(key);
+    const worker = receipt.batch?.chatWorker;
+    if (
+      worker?.passId !== target.id ||
+      !sameUnreadSkip(worker?.lastSkip, target)
+    ) {
+      throw fail('chats-skip-changed');
+    }
+    return receipt;
+  }
   async mode(input) {
     const key = applicationBatchKey(input);
     await this.service.operate(async (signal) => {
@@ -348,6 +372,15 @@ export class ApplicationBatch {
         options.urls.includes(row.url)
     );
   }
+  async finishApplications(runtime) {
+    const review = await runtime.chats?.reviewPending();
+    return this.save(runtime, {
+      phase: review ? 'chat-review' : 'completed',
+      active: Boolean(review),
+      currentUrl: null,
+      nextAt: null,
+    });
+  }
   async tick(runtime, signal) {
     signal.throwIfAborted();
     const record = runtime.record;
@@ -363,11 +396,7 @@ export class ApplicationBatch {
     }
     const maximum = record.options.maxApplications;
     if (maximum && record.delivered.length >= maximum) {
-      return this.save(runtime, {
-        phase: 'completed',
-        active: false,
-        currentUrl: null,
-      });
+      return this.finishApplications(runtime);
     }
     const limit = await this.service.limits.read();
     if (limit?.active) {
@@ -393,12 +422,7 @@ export class ApplicationBatch {
         return;
       }
       if (!queue.length) {
-        return this.save(runtime, {
-          phase: 'completed',
-          active: false,
-          currentUrl: null,
-          nextAt: null,
-        });
+        return this.finishApplications(runtime);
       }
       const retryAt =
         queue
@@ -536,6 +560,15 @@ export class ApplicationBatch {
     }
     return null;
   }
+  async recordDelivery(runtime, url) {
+    if (!runtime.record.delivered.includes(url)) {
+      await this.save(runtime, {
+        delivered: [...runtime.record.delivered, url],
+      });
+      runtime.chats?.applicationDelivered();
+    }
+    await this.service.close();
+  }
   async observe(runtime, signal) {
     const current = this.service.current;
     if (
@@ -557,11 +590,7 @@ export class ApplicationBatch {
       return;
     }
     if (current.delivery === 'provider-confirmed') {
-      await this.save(runtime, {
-        delivered: [...new Set([...runtime.record.delivered, current.url])],
-      });
-      await this.service.close();
-      return;
+      return this.recordDelivery(runtime, current.url);
     }
     if (current.delivery === 'unknown' && !current.hold) {
       throw fail('unconfirmed');

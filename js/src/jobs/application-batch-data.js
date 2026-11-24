@@ -82,6 +82,7 @@ export const applicationBatchPhases = [
   'starting',
   'pacing',
   'review',
+  'chat-review',
   'questionnaires-held',
   'retry-wait',
   'daily-limit',
@@ -261,10 +262,10 @@ const matchesPublicIdentity = (row, input) =>
   matchingApplicationRoute(row.settings, input) &&
   (input?.requestId === undefined || input.requestId === row.requestId) &&
   (input?.browserSlot === undefined || input.browserSlot === row.browserSlot) &&
-  (input?.vacancyPreviewSeconds === undefined ||
-    input.vacancyPreviewSeconds === row.settings?.vacancyPreviewSeconds) &&
-  (input?.collectVacancies === undefined ||
-    input.collectVacancies === row.settings?.collectVacancies);
+  ['vacancyPreviewSeconds', 'chatWatchWaiting', 'collectVacancies'].every(
+    (name) =>
+      input?.[name] === undefined || input[name] === row.settings?.[name]
+  );
 export const applicationBatchResult = (raw, input) => {
   if (!raw || raw.ok !== true || raw.mode !== 'hh-application-batch') {
     throw fail('batch-recovery');

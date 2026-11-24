@@ -319,6 +319,14 @@ export const createQuestionBrowser = ({
   const pending = new Set();
   return {
     capabilities,
+    // The application supervisor can wake its own waiting watch. Public
+    // transport routes never expose these in-memory signals.
+    unreadRefresh: (input) => {
+      if (!closed) {
+        unread.refresh(input);
+      }
+    },
+    unreadRefreshPending: (input) => !closed && unread.refreshPending(input),
     ...Object.fromEntries(
       Object.entries(actions).map(([name, action]) => [
         name,

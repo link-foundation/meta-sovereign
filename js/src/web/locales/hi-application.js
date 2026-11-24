@@ -55,13 +55,14 @@ export const hiApplication = {
   'application.chats.enable': 'आवेदनों के साथ अपठित चैट की समीक्षा करें',
   'application.chats.hint':
     'चैट के लिए अलग ब्राउज़र स्लॉट है। साइन आउट होने पर चैट स्लॉट आपके मौजूदा HeadHunter आवेदन का साइन-इन इस्तेमाल कर सकता है। आवेदन चलते रहने के दौरान बॉट के विकल्प खुद चुनें और तैयार ड्राफ़्ट खुद भेजें। बैच रुकने या पूरा होने पर चैट का ब्राउज़र बंद हो जाएगा।',
-  'application.chats.chatsIntervalMinutes':
-    'चैट जाँच का अंतराल मिनटों में (डिफ़ॉल्ट 120)',
+  'application.chats.chatsIntervalMinutes': 'चैट जाँच का अंतराल मिनटों में',
   'application.chats.chatBrowserSlot': 'चैट के लिए अलग ब्राउज़र स्लॉट',
   'application.chats.status': 'चैट: {phase} · स्लॉट {slot}',
   'application.chats.held': 'चैट ब्राउज़र में समीक्षा करें: {title}',
   'application.chats.phase.starting': 'शुरू हो रहा है',
   'application.chats.phase.running': 'अपठित चैट जाँची जा रही हैं',
+  'application.chats.phase.watching':
+    'जवाब की प्रतीक्षा कर रही चैट देखी जा रही हैं',
   'application.chats.phase.draining': 'रोककर काम समाप्त होने की प्रतीक्षा',
   'application.chats.phase.refused': 'उपलब्ध नहीं; त्रुटि पढ़ें',
   'application.chats.phase.stopped': 'रुका हुआ',
@@ -97,6 +98,8 @@ export const hiApplication = {
   'application.batch.phase.starting': 'बैच शुरू हो रहा है।',
   'application.batch.phase.pacing':
     'सहेजे हुए अंतराल के समाप्त होने की प्रतीक्षा है।',
+  'application.batch.phase.chat-review':
+    'आवेदन सूची पूरी है। चैट स्लॉट अब भी जवाबों की जाँच कर रहा है।',
   'application.batch.phase.review': 'वर्तमान रिक्ति की समीक्षा चाहिए।',
   'application.batch.phase.questionnaires-held':
     'प्रश्नावलियाँ इस प्रक्रिया की मेमोरी कतार में रुकी हैं।',

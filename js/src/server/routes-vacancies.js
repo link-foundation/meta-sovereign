@@ -146,6 +146,7 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
       'application-batch-start',
       'application-batch-stop',
       'application-batch-mode',
+      'application-batch-chat-skip',
       'application-read',
       'application-wait',
       'application-prefill',

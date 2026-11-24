@@ -3,7 +3,7 @@
 - [x] Compare pinned `--watch` and `--auto` behavior. Reproduce ignored waiting scope and missing owner-only admission in focused checks on the published parent.
 - [x] Add explicit owner-only watch scope, exact held-message Skip, and recoverable receipts across CLI, Lino and the shared unread controls.
 - [x] Verify the published-parent and fixed native browser flow, preserve screenshots and repeat the localized shared flow in Playwright MCP. [Reproduction and evidence](unread-waiting.md).
-- [ ] Connect confirmed application delivery to the supervised application watch. Verify the child detects the new chat and preserves independent application progress while a reply is held.
+- [x] Connect confirmed application delivery to the supervised application watch. Verify the child detects the new chat and preserves independent application progress while a reply is held. [Reproduction and evidence](application-chat-waiting.md).
 - [ ] Inspect exact hosted checks and verify authenticated acceptance. Keep HH10 open until all listed requirements are verified.
 
 ### 2026-11-24 Leave application-owned bot choices for review (HH10)

@@ -2,11 +2,22 @@ import { randomBytes } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { createBrowserSender } from '../sources/browser-sender.js';
 import { createQuestionBrowser } from '../automation/question-browser.js';
+import {
+  unreadSkipTarget,
+  sameUnreadSkip,
+} from '../automation/question-unread-polling-state.js';
 import { createWatcherControl } from '../forms/watcher-rpc.js';
 import { spawnWorker } from '../server/worker-client.js';
 import { createLocalAnswerModel } from '../automation/local-answer-model.js';
 import { jobBrowserProfile } from './browser-profile.js';
 import { reuseApplicationChatSession } from './application-chat-session.js';
+import { jobsFailure } from './options.js';
+
+const skipChanged = () =>
+  jobsFailure(
+    'application-chats-skip-changed',
+    'Refresh the held chat before skipping.'
+  );
 
 /** The child supervises polling; browser effects retain the parent's canonical writer. */
 export class ApplicationChats {
@@ -78,6 +89,9 @@ export class ApplicationChats {
   }
   refuse(code) {
     Object.assign(this.view, { phase: 'refused', active: false, code });
+    if (this.view.skip) {
+      this.view.skip = null;
+    }
     this.log({ event: 'application-chats-refused', code });
   }
   async request(operation) {
@@ -94,21 +108,79 @@ export class ApplicationChats {
     }
     if (this.browser && this.view.phase === 'running') {
       const receipt = await this.browser.unreadStatus({ id: this.view.passId });
-      const held = receipt.restoration?.heldReview;
-      this.view.held = held
-        ? {
-            chat: held.chat,
-            title: (held.title ?? held.chat).slice(0, 1200),
-            url: held.url ?? null,
-          }
-        : null;
-      if (!receipt.owned || receipt.state !== 'active') {
-        this.refuse(
-          receipt.code ?? receipt.polling?.reason ?? 'question-unread-ended'
-        );
-      }
+      this.observe(receipt);
     }
     return this.status();
+  }
+  observe(receipt) {
+    const waiting = this.record.options.chatWatchWaiting;
+    if (waiting && !this.observeWaiting(receipt)) {
+      return;
+    }
+    if (this.closing || this.view.phase !== 'running') {
+      return;
+    }
+    const held = receipt.restoration?.heldReview;
+    this.view.held = held
+      ? {
+          chat: held.chat,
+          title: (held.title ?? held.chat).slice(0, 1200),
+          url: held.url ?? null,
+        }
+      : null;
+    if (waiting) {
+      this.view.skip = unreadSkipTarget(receipt);
+    }
+    if (!receipt.owned || receipt.state !== 'active') {
+      this.refuse(
+        receipt.code ?? receipt.polling?.reason ?? 'question-unread-ended'
+      );
+    }
+  }
+  observeWaiting(receipt) {
+    const { passes, lastSkip } = receipt.polling ?? {};
+    if (passes !== undefined && passes < this.observedPasses) {
+      return false;
+    }
+    this.observedPasses = passes ?? this.observedPasses;
+    if (lastSkip) {
+      this.view.lastSkip = lastSkip;
+    }
+    return true;
+  }
+  applicationDelivered() {
+    if (this.record.options.chatWatchWaiting && this.view.active) {
+      this.delivered = true;
+      if (this.view.phase === 'running') {
+        this.browser.unreadRefresh({ id: this.view.passId });
+      }
+    }
+  }
+  async reviewPending() {
+    if (!this.delivered) {
+      return false;
+    }
+    await this.request('status');
+    return (
+      this.view.active &&
+      (this.view.phase === 'starting' ||
+        this.browser.unreadRefreshPending({ id: this.view.passId }))
+    );
+  }
+  async skip(input) {
+    const { passId: id } = this.view;
+    if (id === input.id && sameUnreadSkip(this.view.lastSkip, input)) {
+      return;
+    }
+    if (this.closing || this.view.phase !== 'running' || id !== input.id) {
+      throw skipChanged();
+    }
+    const receipt = await this.browser.unreadSkip(input);
+    const lastSkip = receipt.polling?.lastSkip;
+    if (!sameUnreadSkip(lastSkip, input)) {
+      throw skipChanged();
+    }
+    this.observe(receipt);
   }
   async prepare() {
     const { options } = this.record;
@@ -155,6 +227,7 @@ export class ApplicationChats {
       confirm: true,
       answerChats: true,
       reviewChoices: true,
+      ...(options.chatWatchWaiting ? { watchWaiting: true } : {}),
       ...(options.chatPrefillForms
         ? {
             prefillForms: true,
@@ -173,6 +246,9 @@ export class ApplicationChats {
     });
     signal.throwIfAborted();
     this.view.phase = 'running';
+    if (this.delivered) {
+      this.browser.unreadRefresh({ id: this.view.passId });
+    }
   }
   drain() {
     return (this.draining ??= (async () => {
@@ -186,6 +262,9 @@ export class ApplicationChats {
         } finally {
           await this.send?.close();
           this.view.active = false;
+          if (this.view.skip) {
+            this.view.skip = null;
+          }
           if (this.view.phase !== 'refused') {
             this.view.phase = 'stopped';
           }

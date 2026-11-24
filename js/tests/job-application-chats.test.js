@@ -17,6 +17,20 @@ const options = { timeout: 15000 };
 const gone = (pid) =>
   assert.throws(() => process.kill(pid, 0), { code: 'ESRCH' });
 
+test('application waiting review is explicit and uses a one-minute default', () => {
+  assert.throws(
+    () => applicationBatchOptions({ ...batchInput, chatWatchWaiting: true }),
+    { code: 'jobs-application-chats-input' }
+  );
+  const options = applicationBatchOptions({
+    ...batchInput,
+    processChats: true,
+    chatWatchWaiting: true,
+  });
+  assert.equal(options.chatWatchWaiting, true);
+  assert.equal(options.chatsIntervalMinutes, 1);
+});
+
 test(
   'chat intent defaults to a separate 120 minute slot and preserves legacy batch signatures',
   options,
@@ -127,6 +141,76 @@ test(
     applicationBatchResult(status, batchInput);
     assert.equal(status.batch.chatWorker.active, false);
     assert.equal(f.calls.children.length, before);
+  }
+);
+
+test(
+  'confirmed delivery triggers the waiting child and keeps the finished application list under review',
+  options,
+  async (t) => {
+    let refreshes = 0;
+    let pending = false;
+    const f = applicationChatsFixture(t, {
+      questionPolling: {
+        unreadRefresh: () => {
+          refreshes++;
+          pending = true;
+        },
+        unreadRefreshPending: () => pending,
+      },
+    });
+    await f.start({
+      processChats: true,
+      chatWatchWaiting: true,
+      maxApplications: 2,
+      confirmations: ['send'],
+    });
+    const ready = await f.ready();
+    assert.equal(f.calls.start[0].watchWaiting, true);
+    assert.equal(f.calls.start[0].polling.intervalMs, 60000);
+    assert.equal(
+      refreshes,
+      0,
+      'Opening an application must never wake the watch'
+    );
+    await f.until((row) => row.application?.continuation?.step === 'send');
+    await f.confirm('send');
+    const next = await f.until((row) => row.application?.url.endsWith('/456'));
+    assert.equal(next.batch.delivered, 1);
+    assert.equal(refreshes, 1);
+    await f.until((row) => row.application?.continuation?.step === 'send');
+    await f.confirm('send');
+    const final = await f.until((row) => row.batch?.phase === 'chat-review');
+    assert.equal(final.batch.delivered, 2);
+    assert.equal(final.batch.currentUrl, null);
+    assert.equal(final.batch.chatWorker.pid, ready.batch.chatWorker.pid);
+    assert.equal(refreshes, 2);
+    pending = false;
+    await f.service['application-batch-drain']();
+    const completed = await f.status();
+    assert.equal(completed.batch.phase, 'completed');
+    assert.equal(completed.batch.chatWorker.phase, 'stopped');
+    gone(ready.batch.chatWorker.pid);
+  }
+);
+
+test(
+  'uncertain application delivery never wakes the waiting chat worker',
+  options,
+  async (t) => {
+    const f = applicationChatsFixture(t, {
+      questionPolling: {
+        unreadRefresh: () => assert.fail('Unconfirmed delivery woke the watch'),
+      },
+    });
+    f.state.unknownSend = true;
+    await f.start({ processChats: true, chatWatchWaiting: true });
+    const refused = await f.until((row) => row.batch?.phase === 'refused');
+    assert.equal(refused.application.delivery, 'unknown');
+    assert.equal(refused.batch.delivered, 0);
+    assert.equal(f.state.submitted, 1);
+    await f.service['application-batch-drain']();
+    assert.equal((await f.status()).batch.chatWorker.active, false);
   }
 );
 

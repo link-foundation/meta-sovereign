@@ -19,7 +19,7 @@ export const untilApplicationChats = async (read, predicate) => {
 /** Actual child, synthetic sender/reviewer: no account, browser or model invocation. */
 export const applicationChatsFixture = (
   t,
-  { prepare, closing, chatError } = {}
+  { prepare, closing, chatError, questionPolling = {} } = {}
 ) => {
   const calls = {
     children: [],
@@ -75,6 +75,7 @@ export const applicationChatsFixture = (
               close: async () => {
                 calls.questionClose++;
               },
+              ...questionPolling,
             };
           },
         });

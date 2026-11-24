@@ -30,10 +30,11 @@ const batchDraftDefaults = {
   durationMs: 86400000,
   noQuestionnaires: false,
   processChats: false,
-  chatsIntervalMinutes: 120,
+  chatsIntervalMinutes: undefined,
   chatBrowserSlot: 'chat-slot',
   chatModelDraft: false,
   chatPrefillForms: false,
+  chatWatchWaiting: false,
 };
 
 export const ApplicationBatchView = ({ application, supported, t }) => {
@@ -255,7 +256,14 @@ const BatchReceipt = ({ batch, state, t, check }) =>
           )
         : null,
       batch.code ? el('p', { key: 'code' }, batch.code) : null,
-      el(ApplicationChatReceipt, { key: 'chats', worker: batch.chatWorker, t }),
+      el(ApplicationChatReceipt, {
+        key: 'chats',
+        worker: batch.chatWorker,
+        watchWaiting: batch.settings.chatWatchWaiting,
+        skip: state.skipChat,
+        disabled: state.busy || !batch.active,
+        t,
+      }),
       check(
         'batchPaused',
         'application.pause',

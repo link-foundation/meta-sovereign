@@ -1,11 +1,12 @@
 import { browserName } from '../browser/policy.js';
 import { browserUnreadId } from '../automation/question-unread-identity.js';
+import { validUnreadSkipReceipt } from '../automation/question-unread-polling-state.js';
 import { jobsFailure } from './options.js';
 
 const fail = () => {
   throw jobsFailure(
     'application-chats-input',
-    'Choose separate application and chat browser slots and a chat interval of 1–120 minutes.'
+    'Enable chat review before watching already-read chats. Choose separate application and chat slots and a 1–120 minute interval.'
   );
 };
 
@@ -17,18 +18,26 @@ export const applicationChatSettings = (input, browserSlot) => {
     'chatBrowserSlot',
     'chatModelDraft',
     'chatPrefillForms',
+    'chatWatchWaiting',
   ];
   if (names.every((name) => input[name] === undefined)) {
     return {};
   }
   if (
-    ['processChats', 'chatModelDraft', 'chatPrefillForms'].some(
+    [
+      'processChats',
+      'chatModelDraft',
+      'chatPrefillForms',
+      'chatWatchWaiting',
+    ].some(
       (name) => input[name] !== undefined && typeof input[name] !== 'boolean'
-    )
+    ) ||
+    (input.chatWatchWaiting && input.processChats !== true)
   ) {
     fail();
   }
-  const interval = input.chatsIntervalMinutes ?? 120;
+  const interval =
+    input.chatsIntervalMinutes ?? (input.chatWatchWaiting ? 1 : 120);
   const slot = browserName(input.chatBrowserSlot ?? 'chat-slot');
   if (
     !Number.isInteger(interval) ||
@@ -46,6 +55,9 @@ export const applicationChatSettings = (input, browserSlot) => {
     ...(input.chatPrefillForms === undefined
       ? {}
       : { chatPrefillForms: input.chatPrefillForms }),
+    ...(input.chatWatchWaiting === undefined
+      ? {}
+      : { chatWatchWaiting: input.chatWatchWaiting }),
   };
 };
 
@@ -56,7 +68,12 @@ export const applicationChatView = (record, runtime) => {
   const view = runtime?.chats?.status();
   if (view) {
     return !record.active && view.active
-      ? { ...view, phase: 'draining', active: false }
+      ? {
+          ...view,
+          phase: 'draining',
+          active: false,
+          ...(view.skip ? { skip: null } : {}),
+        }
       : view;
   }
   return (
@@ -77,6 +94,16 @@ export const applicationChatView = (record, runtime) => {
     }
   );
 };
+
+const validApplicationSkip = (value, enabled) =>
+  ([null, undefined].includes(value.skip) ||
+    (enabled &&
+      value.active &&
+      value.skip.id === value.passId &&
+      value.skip.chat === value.held?.chat &&
+      validUnreadSkipReceipt(value.skip, value.passId))) &&
+  (value.lastSkip === undefined ||
+    (enabled && validUnreadSkipReceipt(value.lastSkip, value.passId)));
 
 export const validApplicationChatView = (value, settings, active) => {
   if (!settings.processChats) {
@@ -102,6 +129,7 @@ export const validApplicationChatView = (value, settings, active) => {
     value.browserSlot === settings.chatBrowserSlot &&
     (value.code === null ||
       (typeof value.code === 'string' && value.code.length <= 120)) &&
+    validApplicationSkip(value, settings.chatWatchWaiting) &&
     (value.held === null ||
       (typeof value.held.chat === 'string' &&
         value.held.chat.length <= 480 &&

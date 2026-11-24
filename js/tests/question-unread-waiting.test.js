@@ -96,6 +96,43 @@ const heldWatch = async (browser, id) =>
     (status) => unreadSkipTarget(status) && status.polling.nextAt
   );
 
+test('a delivery refresh waits for a restored list pass after held-chat review', async () => {
+  const rows = [];
+  const { browser, state } = await unreadAnswerFixture({ rows });
+  const input = unreadInput({
+    ...waiting,
+    polling: { ...pollingSettings, intervalMs: 60000, retryMaxMs: 60000 },
+  });
+  try {
+    await browser.unreadStart(input);
+    await waitUnreadPolling(
+      browser,
+      input.id,
+      (row) => row.polling.phase === 'waiting' && row.polling.nextAt
+    );
+    assert.equal(browser.unreadRefreshPending(input), false);
+    rows.push({});
+    browser.unreadRefresh(input);
+    assert.equal(browser.unreadRefreshPending(input), true);
+    const held = unreadSkipTarget(await heldWatch(browser, input.id));
+    assert.equal(held.chat, '8');
+    await browser.unreadSkip(held);
+    await waitUnreadPolling(
+      browser,
+      input.id,
+      (row) =>
+        row.polling.phase === 'waiting' && !browser.unreadRefreshPending(input)
+    );
+    assert.deepEqual(
+      state.scans.map(({ heldChat }) => heldChat),
+      [undefined, undefined, '8', undefined]
+    );
+    assert.equal(state.sends.length, 0);
+  } finally {
+    await browser.close();
+  }
+});
+
 for (const media of [LINO_TEXT, LINO_BINARY]) {
   test(
     `trusted ${media} clients can skip the exact held question and recover its receipt`,

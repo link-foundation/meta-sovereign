@@ -29,4 +29,4 @@ The native WebKit check paused before visiting a chat because background focus c
 
 Node passed 50 focused checks, including 13 browser registration checks. Deno passed all 37 focused checks. The text and binary Lino regressions each exercise exact Skip, cross-origin refusal and read-only recovery. [Logs](data/unread-waiting.tar.gz) · [SHA-256 manifest](data/unread-waiting.tar.sha256.json).
 
-Tracking for HH10 remains open for confirmed application delivery, the remaining provider workflows and authenticated verification. [Acceptance inventory](reference-feature-inventory.md).
+The [application handoff](application-chat-waiting.md) uses this watch after confirmed delivery. Tracking for HH10 remains open for the remaining provider workflows and authenticated verification. [Acceptance inventory](reference-feature-inventory.md).

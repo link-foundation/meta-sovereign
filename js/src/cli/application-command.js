@@ -296,6 +296,7 @@ export const createApplicationCommands = ({
             'chat-browser-slot',
             'chat-model-draft',
             'chat-prefill-forms',
+            'chat-watch-waiting',
           ].some((name) => args[name] !== undefined)
         ) {
           throw new Error(
@@ -325,6 +326,7 @@ export const createApplicationCommands = ({
               processChats: boolean(args, 'process-chats'),
               chatModelDraft: boolean(args, 'chat-model-draft'),
               chatPrefillForms: boolean(args, 'chat-prefill-forms'),
+              chatWatchWaiting: boolean(args, 'chat-watch-waiting'),
               chatBrowserSlot: args['chat-browser-slot'],
               chatsIntervalMinutes:
                 args['chats-interval-minutes'] === undefined

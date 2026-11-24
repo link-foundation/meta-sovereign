@@ -203,7 +203,7 @@ QA21/QA25 now include [automatic current-page prefilling](forms-automatic-prefil
 
 The [application sign-in handoff](application-chat-session.md) verifies the separate workspace chat slot with synthetic provider sessions. HH01 and HH10 still require authenticated verification and the remaining workflows below.
 
-The [supervised waiting watch](unread-waiting.md) includes already-read HeadHunter chats with an incoming last message. It verifies owner review, exact Skip and advancement in a routed fixture. HH10 still requires the confirmed-application handoff and authenticated coverage.
+The [supervised waiting watch](unread-waiting.md) includes already-read HeadHunter chats with an incoming last message. It verifies owner review, exact Skip and advancement in a routed fixture. A [confirmed application handoff](application-chat-waiting.md) wakes the same child for a fresh pass and verifies that Skip recovers across the shared controls. Authenticated coverage and the remaining pinned workflows are still required for HH10.
 
 Sources: HH `README.md`, `docs/requirements/forms-and-chats.md`, `docs/requirements/experience-sync.md` and the corresponding browser fixtures. Existing `sources/hh.js` is a limited API adapter; `cv/` and its browser plugin provide starting points, not the requested full workflows.
 

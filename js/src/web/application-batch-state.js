@@ -18,6 +18,8 @@ export const useApplicationBatch = ({ api, values, options, session }) => {
       state.execute('Start', {
         ...options,
         ...draft,
+        chatWatchWaiting:
+          draft.processChats && draft.chatWatchWaiting ? true : undefined,
         urls: draft.urls.split(/\s+/u).filter(Boolean),
         browserSlot: slot,
         requestId: globalThis.crypto.randomUUID(),
@@ -26,6 +28,8 @@ export const useApplicationBatch = ({ api, values, options, session }) => {
           values.mode === 'inherit' ? undefined : values.mode === 'headless',
       }),
     stop: () => state.execute('Stop', identity),
+    skipChat: (chatReview) =>
+      state.execute('ChatSkip', { ...identity, chatReview }),
     mode: (change) =>
       state.execute('Mode', {
         ...identity,

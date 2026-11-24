@@ -546,6 +546,7 @@ export const createApplicationService = (options) => {
       'application-batch-status': (input) => service.batch.status(input),
       'application-batch-stop': (input) => service.batch.stop(input),
       'application-batch-mode': (input) => service.batch.mode(input),
+      'application-batch-chat-skip': (input) => service.batch.skipChat(input),
       // Foreground CLI lifecycle only; HTTP status remains an immediate read.
       'application-batch-drain': () => service.batch.runtime?.work,
       'application-status': (input) => service.status(input),
