@@ -99,7 +99,7 @@ export const HH_WEB_UI = {
   textReply: {
     send: 'button[data-qa*="send"]',
     closedText:
-      'работодатель отключил переписку|переписка будет доступна после приглашения|(?:chat|conversation) (?:is |has been )?closed|(?:messaging|correspondence) (?:is |has been )?disabled',
+      'работодатель отключил переписку(?: по данной вакансии)?|переписка будет доступна после приглашения(?: работодателя)?|(?:chat|conversation) (?:is |has been )?closed|(?:messaging|correspondence) (?:is |has been )?disabled|the employer (?:has )?(?:disabled|turned off|closed) (?:the )?(?:chat|messaging|conversation)',
   },
   choices: {
     group:

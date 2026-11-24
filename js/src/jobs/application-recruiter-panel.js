@@ -6,9 +6,11 @@ import {
 } from '../automation/question-observed-history.js';
 import { learnObservedAnswers } from '../automation/question-store.js';
 import { summaryAnswerPairs } from '../automation/question-summary.js';
+import { completedHandover } from '../automation/question-notice-intent.js';
 import { resolveOpenBrowserConversation } from '../sources/browser-choice-document.js';
 import {
   readBrowserHistory,
+  readBrowserPanelDismissalBoundary,
   readBrowserVacancyHeader,
 } from '../sources/browser-choices.js';
 import { archiveBrowserHistoryWindow } from '../sources/browser-history-archive.js';
@@ -97,6 +99,49 @@ const saveRecruiterHistory = async (
   return key;
 };
 
+const terminalNotice = (row) =>
+  row &&
+  !row.outgoing &&
+  !row.service &&
+  !row.links?.length &&
+  !row.strictOptions &&
+  completedHandover(row.body);
+
+const dismissRecruiterPanel = async (document, vacancy, capture, options) => {
+  const { dismissal, signal } = options;
+  if (!dismissal) {
+    return undefined;
+  }
+  const read = () => readBrowserPanelDismissalBoundary(document, recruiterUi);
+  const boundary = await read();
+  const chat = `web:${document.chat}`;
+  if (
+    boundary?.chat !== document.chat ||
+    !sameVacancy(boundary.header.vacancyUrl, vacancy) ||
+    (boundary.messages.length &&
+      historyKey(chat, boundary.messages) !== capture)
+  ) {
+    return undefined;
+  }
+  const reason = dismissal.defer
+    ? 'deferred'
+    : boundary.disabled || terminalNotice(boundary.messages.at(-1))
+      ? 'completed'
+      : undefined;
+  if (
+    reason &&
+    (await document.dismissOwnerPanel({
+      verify: async () =>
+        JSON.stringify(await read()) === JSON.stringify(boundary),
+      admit: dismissal.check,
+      signal,
+    }))
+  ) {
+    return reason;
+  }
+  return undefined;
+};
+
 /** Read one vacancy-bound panel and archive its observed native messages. */
 export const readApplicationRecruiterPanel = async (
   { commander, page },
@@ -119,6 +164,27 @@ export const readApplicationRecruiterPanel = async (
     options.signal.throwIfAborted();
     options.trace({
       event: 'application-recruiter-history',
+      state: 'unverified',
+    });
+  }
+  try {
+    const dismissed = await dismissRecruiterPanel(
+      document,
+      vacancy,
+      capture,
+      options
+    );
+    if (dismissed) {
+      options.trace({
+        event: 'application-recruiter-dismissal',
+        state: dismissed,
+      });
+      return { matched: false, capture, dismissed };
+    }
+  } catch {
+    options.signal.throwIfAborted();
+    options.trace({
+      event: 'application-recruiter-dismissal',
       state: 'unverified',
     });
   }

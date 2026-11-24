@@ -1,3 +1,4 @@
+- [Finished recruiter-panel dismissal](application-recruiter-panel-terminal.md) verifies the exact owned panel closes and the paced batch continues after a provider handover.
 - [Exact recruiter-panel replies](application-recruiter-panel-exact.md) verify approved text and native-button dispatch under explicit opt-in, chat opt-out, native receipts, and recovery.
 - [Recruiter-panel answer drafts](application-recruiter-panel-draft.md) reproduce the blank composer on the published parent and verify a single reviewable native draft, the revealed question, recovery and zero sends.
 - [Hosted Windows fixture failures](ci-hosted-fixtures.md) preserve five actual assertions and verify eighteen focused cases per runtime covering automated HH refusals, form document identity and availability reporting.

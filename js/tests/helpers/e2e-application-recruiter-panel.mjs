@@ -326,11 +326,11 @@ const verifyRecruiterPanelRecovery = async ({
   button,
   status,
   receipt,
-  nativePanel,
   owned,
   draft,
   fixture,
   shot,
+  dismiss,
 }) => {
   await controls.phone();
   await page.reload();
@@ -340,15 +340,75 @@ const verifyRecruiterPanelRecovery = async ({
   await receipt.waitFor();
   assert.equal(await draft.inputValue(), recruiterPanelDraft);
   await shot('phone', status.locator('..'));
-  await nativePanel
-    .getByRole('button', { name: 'Close recruiter panel' })
-    .click();
+  await dismiss();
   await phase('completed');
   assert.equal(owned.isClosed(), true);
   assert.equal(fixture.effects.length, 1);
   assert.equal(fixture.searchVisits.length, 2);
   assert(fixture.records.every((record) => record.closed));
   assert.deepEqual(fixture.errors, []);
+};
+
+const verifyRecruiterTerminal = async ({
+  owned,
+  frame,
+  nativePanel,
+  draft,
+  shot,
+}) => {
+  const marker = 'fixture recruiter panel dismissed';
+  let dismissals = 0;
+  owned.on('console', (message) => {
+    if (message.text() === marker) {
+      dismissals++;
+    }
+  });
+  const setNotice = (text) =>
+    frame.locator('body').evaluate((node, value) => {
+      const row =
+        node.querySelector('[data-qa="chatik-chat-message-5"]') ??
+        document.createElement('article');
+      row.dataset.qa = 'chatik-chat-message-5';
+      row.dataset.time = '2026-11-24T09:04:00Z';
+      row.innerHTML = '<p data-qa="chat-bubble-text"></p>';
+      row.firstElementChild.textContent = value;
+      node.append(row);
+    }, text);
+  const expectHeld = async () => {
+    await setTimeout(1300);
+    assert.equal(dismissals, 0);
+    assert.equal(await nativePanel.isVisible(), true);
+  };
+  const forwarded = 'Ваши ответы отправлены работодателю.';
+  await setNotice(forwarded);
+  await expectHeld();
+  assert.equal(await draft.inputValue(), recruiterPanelDraft);
+  await shot('terminal-draft', nativePanel);
+  await setNotice(`${forwarded} Please complete the form.`);
+  await draft.fill('');
+  await expectHeld();
+  const close = nativePanel.locator('[data-qa="chatik-close"]');
+  await close.evaluate((node) => {
+    const decoy = node.cloneNode();
+    decoy.removeAttribute('onclick');
+    decoy.dataset.qa = 'chatik-secondary-close';
+    decoy.textContent = 'Close other';
+    node.after(decoy);
+  });
+  await setNotice(forwarded);
+  await expectHeld();
+  const decoy = nativePanel.locator('[data-qa="chatik-secondary-close"]');
+  await decoy.evaluate((node) => node.remove());
+  try {
+    await waitForCapture(
+      () => dismissals === 1,
+      'one native dismissal of the finished recruiter panel is required'
+    );
+  } catch (error) {
+    await shot('terminal-before', nativePanel);
+    throw error;
+  }
+  assert.equal(dismissals, 1);
 };
 
 export const verifyNativeApplicationRecruiterPanel = async (
@@ -363,6 +423,7 @@ export const verifyNativeApplicationRecruiterPanel = async (
     ownerReply = false,
     prepareReply = false,
     exactReply = false,
+    terminal = false,
     verifyPending = true,
   } = {}
 ) => {
@@ -504,12 +565,26 @@ export const verifyNativeApplicationRecruiterPanel = async (
       button,
       status,
       receipt,
-      nativePanel,
       owned,
       draft,
       fixture,
       shot,
+      dismiss: terminal
+        ? () =>
+            verifyRecruiterTerminal({ owned, frame, nativePanel, draft, shot })
+        : () =>
+            nativePanel
+              .getByRole('button', { name: 'Close recruiter panel' })
+              .click(),
     });
+    if (terminal) {
+      await panel.locator('[data-application-action="recover"]').click();
+      const dismissal = panel.locator(
+        '[data-application-recruiter-dismissal="completed"]'
+      );
+      await dismissal.waitFor();
+      await shot('terminal-after', dismissal.locator('..'));
+    }
     return {
       applicationsSent: 1,
       manualSend,
@@ -520,7 +595,9 @@ export const verifyNativeApplicationRecruiterPanel = async (
         recruiterSends: 0,
       }),
       ...(exactReply && { exactRepliesConfirmed: 2 }),
-      batchCompletedAfterOwnerDismissal: true,
+      ...(terminal
+        ? { batchCompletedAfterVerifiedTerminalDismissal: true }
+        : { batchCompletedAfterOwnerDismissal: true }),
       resourcesClosed: true,
     };
   } finally {
@@ -541,6 +618,7 @@ export const verifyNativeApplicationRecruiterDraft = (browser) =>
 export const verifyNativeApplicationRecruiterExact = (browser) =>
   verifyNativeApplicationRecruiterPanel(browser, {
     exactReply: true,
+    terminal: true,
     panelDelayMs: 0,
     verifyBinding: false,
   });

@@ -30,6 +30,7 @@ import {
   createChoiceContext,
   readChoicePublic,
   readChoiceHistory,
+  readBrowserPanelBoundary,
   prefillChoiceDraft,
   armChoiceClick,
   readChoiceReceipt,
@@ -70,6 +71,7 @@ const methods = {
   releaseHistory: controlBrowserHistory,
   read: readChoicePublic,
   history: readChoiceHistory,
+  panelBoundary: readBrowserPanelBoundary,
   vacancyHeader: ({ spec }) => browserVacancyHeader(spec),
   prefill: prefillChoiceDraft,
   arm: armChoiceClick,
@@ -181,6 +183,12 @@ export const readBrowserHistory = async (commander, ui, target) => {
   }
   return value.messages;
 };
+
+export const readBrowserPanelDismissalBoundary = (commander, ui) =>
+  evaluate(commander, {
+    spec: browserChoiceSpec(ui),
+    operation: 'panelBoundary',
+  });
 
 export const readBrowserAnswerChoices = async (
   commander,

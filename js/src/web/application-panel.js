@@ -248,6 +248,17 @@ const Receipt = ({ receipt, t }) =>
           t(`application.recruiterReply.${receipt.recruiterReply}`)
         )
       : null,
+    receipt.recruiterDismissal
+      ? el(
+          'p',
+          {
+            key: 'recruiter-dismissal',
+            role: 'status',
+            'data-application-recruiter-dismissal': receipt.recruiterDismissal,
+          },
+          t(`application.recruiterDismissal.${receipt.recruiterDismissal}`)
+        )
+      : null,
     receipt.letterAttachment
       ? el(
           'p',

@@ -10,7 +10,7 @@ Current acceptance: **88 of 118 criteria verified; 30 remain unchecked**.
 
 [Drafts in the recruiter panel](application-recruiter-panel-draft.md) prepare a reviewable saved answer in the verified vacancy’s empty composer and reveal the incoming message. The worker preserves owner edits and makes one preparation attempt per question in the active review.
 
-[Exact replies in the recruiter panel](application-recruiter-panel-exact.md) opt into one approved text or native-button reply per verified question. The shared outbox reserves the turn, and CV Sync shows a separate provider receipt. HH08 and HH10 remain open for accepted-summary replies, terminal dismissal and authenticated verification.
+[Exact replies in the recruiter panel](application-recruiter-panel-exact.md) opt into one approved text or native-button reply per verified question. The shared outbox reserves the turn, and CV Sync shows a separate provider receipt. [Finished panel dismissal](application-recruiter-panel-terminal.md) verifies the provider handover, hold conditions and resumed application pacing. HH08 and HH10 remain open for accepted-summary replies, explicit Skip and authenticated verification.
 
 [Confirmed delivery returns to the original search](application-delivered-return.md) after the application or separately confirmed fallback letter. The receipt survives filters that hide the delivered vacancy. HH06 remains open.
 

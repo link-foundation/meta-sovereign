@@ -7,6 +7,8 @@ import {
 } from './browser-choice-visibility.js';
 import { armBrowserReply } from './browser-reply-guard.js';
 import { browserAnswerRecent } from './browser-answer-context.js';
+import { browserFrameVisible } from './browser-choice-document.js';
+import { browserVacancyHeader } from './browser-notice-context.js';
 
 /** Page-local ownership and one-use event guards. Never returns composer text. */
 export const createChoiceContext = (input, read) => {
@@ -154,6 +156,49 @@ export const createChoiceContext = (input, read) => {
 
 /** Reading history must not clear or acquire the provider composer. */
 export const readChoiceHistory = (_input, { snapshot }) => snapshot(true);
+
+/** A native panel close must preserve even a composer hidden by the provider. */
+export const readBrowserPanelBoundary = (
+  { spec },
+  { snapshot, state, valueOf }
+) => {
+  const history = snapshot(true);
+  const header = browserVacancyHeader(spec);
+  const composers = [...document.querySelectorAll(spec.composer)];
+  if (
+    history.code ||
+    !header ||
+    composers.length > 1 ||
+    valueOf(composers[0]) ||
+    [...state.attempts.values()].some((attempt) => !attempt.confirmed) ||
+    history.messages.some(
+      (row) =>
+        row.outgoing && !['sent', 'delivered', 'read'].includes(row.delivery)
+    )
+  ) {
+    return null;
+  }
+  const notices = document.querySelectorAll(
+    'p,span,div,[role="status"],[role="alert"]'
+  );
+  const disabled = new RegExp(
+    `^(?:${spec.textReply.closedText})[.!。！]*$`,
+    'iu'
+  );
+  return {
+    ...history,
+    header,
+    disabled:
+      notices.length <= 5000 &&
+      [...notices].some(
+        (node) =>
+          !node.children.length &&
+          !node.closest(spec.messages.item) &&
+          browserFrameVisible(node) &&
+          disabled.test(node.textContent.trim())
+      ),
+  };
+};
 
 export const readChoicePublic = (input, context) => {
   const { snapshot, clearOwned, valueOf } = context;

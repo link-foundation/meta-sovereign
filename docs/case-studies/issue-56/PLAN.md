@@ -2106,4 +2106,5 @@ Native profile persistence follow-up:
 - [x] Reproduce the prepared but unsent exact reply on published `9f011361`.
 - [x] Share the opt-in across CLI, Lino and CV Sync. Freeze the full question and applicable native control, preserve owner text, and reserve the question through the Questions outbox.
 - [x] Verify distinct text and native choice receipts, refusal for a near-match button and a saved chat opt-out, and separate recovered application and reply states. [Reproduction and evidence](application-recruiter-panel-exact.md).
-- [ ] Complete accepted-answer reuse and verified terminal dismissal. Check exact-head hosted runs and authenticated provider acceptance.
+- [x] Verify the owned native close after a terminal handover, preserving a draft and refusing ambiguous controls or a live instruction. [Reproduction and evidence](application-recruiter-panel-terminal.md).
+- [ ] Complete accepted-answer reuse and explicit Skip. Check exact-head hosted runs and authenticated provider acceptance.

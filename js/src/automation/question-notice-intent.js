@@ -38,7 +38,7 @@ export const noticeAddsTask = (text) =>
 
 export const completedHandover = (text) =>
   !noticeAddsTask(text) &&
-  /^(?:(?:спасибо за ответы[.!]\s*)?(?:мы передали (?:их|ваши ответы) работодателю|ваши ответы переданы работодателю)|работа (?:ии[- ]помощника|робота[- ]рекрутера) завершена|your answers have been forwarded to the employer|the recruiter bot has finished|आपके उत्तर नियोक्ता को भेज दिए गए हैं|您的回答已转交给雇主)[.!。！\s]*$/iu.test(
+  /^(?:(?:спасибо за ответы[.!]\s*)?(?:мы передали (?:их|ваши ответы) работодателю|ваши ответы (?:переданы|отправлены) работодателю)|работа (?:ии[- ]помощника|робота[- ]рекрутера) завершена|your answers have been forwarded to the employer|the recruiter bot has finished|आपके उत्तर नियोक्ता को भेज दिए गए हैं|您的回答已转交给雇主)[.!。！\s]*$/iu.test(
     text.trim()
   );
 

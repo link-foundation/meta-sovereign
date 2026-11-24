@@ -224,6 +224,10 @@ export const zhApplication = {
     'HeadHunter 已确认自动发送的招聘回复。',
   'application.recruiterReply.unknown':
     '无法确认自动回复是否送达。请查看 HeadHunter 聊天。',
+  'application.recruiterDismissal.completed':
+    'HeadHunter 上已结束的招聘聊天面板已关闭。',
+  'application.recruiterDismissal.deferred':
+    '免问卷模式已关闭招聘聊天面板，可稍后查看。',
   'application.recruiterChat.open':
     '请在 HeadHunter 浏览器中查看招聘方聊天，然后关闭聊天面板。',
   'application.recruiterChat.unverified':

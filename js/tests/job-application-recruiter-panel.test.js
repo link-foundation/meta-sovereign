@@ -196,6 +196,48 @@ test('Stop ends the late-panel wait without closing the owner’s search', async
 });
 
 for (const type of [LINO_TEXT, LINO_BINARY]) {
+  test(`an observed recruiter panel dismissal survives ${type} recovery`, async (t) => {
+    const fixture = applicationFixture({
+      application: {
+        readRecruiterPanel: async (_browser, _vacancy, { dismissal }) => {
+          dismissal.check();
+          assert.equal(Boolean(dismissal.defer), false);
+          fixture.state.page.recruiterPanelOpen = false;
+          return { matched: false, dismissed: 'completed' };
+        },
+      },
+    });
+    t.after(() => fixture.close());
+    await withApplicationRouteFixture(fixture, type, async (api) => {
+      const opened = await api.vacancyApplicationOpen(applicationInput);
+      assert.throws(() =>
+        applicationResult(
+          { ...opened, recruiterDismissal: 'completed' },
+          applicationInput
+        )
+      );
+      Object.assign(fixture.state.page, {
+        delivered: true,
+        enter: null,
+        recruiterPanelOpen: true,
+      });
+      const receipt = await api.vacancyApplicationRead({
+        ...applicationInput,
+        revision: opened.revision,
+      });
+      assert.equal(receipt.delivery, 'provider-confirmed');
+      assert.equal(receipt.recruiterChat, undefined);
+      assert.equal(receipt.recruiterDismissal, 'completed');
+      await api.vacancyApplicationClose({
+        ...applicationInput,
+        revision: receipt.revision,
+      });
+      const saved = await api.vacancyApplicationStatus(applicationInput);
+      assert.equal(saved.active, false);
+      assert.equal(saved.recruiterDismissal, 'completed');
+    });
+  });
+
   test(`only a live confirmed receipt exposes recruiter review through ${type}`, async (t) => {
     const fixture = applicationFixture();
     t.after(() => fixture.close());

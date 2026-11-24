@@ -27,6 +27,7 @@ const properties = [
   'attempted',
   'delivery',
   'recruiterReply',
+  'recruiterDismissal',
   'code',
   'vacancy',
   'resumeUrl',

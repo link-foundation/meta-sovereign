@@ -13,7 +13,7 @@ export const recruiterPanelChoiceQuestion =
   'Would you prefer a video interview?';
 export const recruiterPanelChoices = ['Yes, video', 'No, in person'];
 const panel = `<aside data-qa="chatik-root" aria-label="Recruiter chat" style="position:fixed;inset:20px 20px auto auto;width:360px;border:1px solid #aaa;padding:12px;background:#fff">
-  <button type="button" onclick="this.closest('aside').hidden = true">Close recruiter panel</button>
+  <button type="button" data-qa="chatik-close" onclick="console.info('fixture recruiter panel dismissed'); this.closest('aside').hidden = true">Close recruiter panel</button>
   <iframe title="Recruiter chat" src="${recruiterPanelChatUrl}" style="display:block;width:100%;height:200px;border:0"></iframe>
 </aside>`;
 

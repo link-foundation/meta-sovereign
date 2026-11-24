@@ -7,6 +7,7 @@ const parent = process.env.APPLICATION_RECRUITER_PANEL_PARENT;
 const learningParent = process.env.E2E_RECRUITER_PANEL_LEARNING_PARENT === '1';
 const prepareReply = process.env.E2E_RECRUITER_PANEL_PREPARE_REPLY === '1';
 const exactReply = process.env.E2E_RECRUITER_PANEL_EXACT_REPLY === '1';
+const terminal = process.env.E2E_RECRUITER_PANEL_TERMINAL === '1';
 if (parent) {
   const jobs = new URL('../../js/src/jobs/', import.meta.url).href;
   const files = new Set([
@@ -63,6 +64,7 @@ await runBrowserScenarios('job-application-recruiter-panel', [
       ownerReply: process.env.E2E_RECRUITER_PANEL_LEARN_REPLY === '1',
       prepareReply,
       exactReply,
+      terminal,
       verifyPending: !learningParent,
       ...(process.env.E2E_RECRUITER_PANEL_IMMEDIATE === '1'
         ? { panelDelayMs: 0 }

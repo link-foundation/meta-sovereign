@@ -264,6 +264,9 @@ export const applicationView = (record) => {
       ? { recruiterChat: record.recruiterChat }
       : {}),
     ...(record.recruiterReply ? { recruiterReply: record.recruiterReply } : {}),
+    ...(record.recruiterDismissal
+      ? { recruiterDismissal: record.recruiterDismissal }
+      : {}),
     ...applicationAnswerContext(applicationSalaryOptions(record)),
     salaryAdmission: applicationSalaryDecision(
       applicationSalaryOptions(record),

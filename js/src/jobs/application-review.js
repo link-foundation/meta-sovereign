@@ -102,6 +102,28 @@ const recruiterDraftReview = (service, record, signal) => {
     },
   };
 };
+
+const recruiterDismissal = (service, record, signal) => {
+  if (
+    record.paused ||
+    record.hold ||
+    record.closing ||
+    record.recruiterReply === 'unknown' ||
+    (record.options.supervised && !record.noQuestionnaires)
+  ) {
+    return undefined;
+  }
+  const check = applicationPreservationPolicy(service, record, signal);
+  return {
+    defer: record.noQuestionnaires,
+    check: () => {
+      check();
+      if (record.hold || record.closing) {
+        throw fail('mode-changed');
+      }
+    },
+  };
+};
 export const exactApplicationPlan = (record) => {
   const { report, page, options } = record;
   if (
@@ -252,6 +274,7 @@ export class ApplicationReview {
     }
     let status = record.recruiterChat;
     let reply = record.recruiterReply;
+    let dismissed = record.recruiterDismissal;
     if (page.recruiterPanelOpen === true) {
       signal.throwIfAborted();
       const result = await this.service
@@ -260,6 +283,7 @@ export class ApplicationReview {
           previous: record.recruiterCapture,
           profileId: record.options.profileId,
           review: recruiterDraftReview(this.service, record, signal),
+          dismissal: recruiterDismissal(this.service, record, signal),
           signal,
           trace: this.service.trace,
         })
@@ -268,16 +292,26 @@ export class ApplicationReview {
       if (result?.capture) {
         record.recruiterCapture = result.capture;
       }
-      status = result?.matched ? 'open' : 'unverified';
+      status = result?.dismissed
+        ? null
+        : result?.matched
+          ? 'open'
+          : 'unverified';
       reply = result?.reply ?? reply;
+      dismissed = result?.dismissed ?? (result?.matched ? null : dismissed);
     } else if (status) {
       status = page.recruiterPanelOpen === false ? null : 'unverified';
     }
-    if (status === record.recruiterChat && reply === record.recruiterReply) {
+    if (
+      status === record.recruiterChat &&
+      reply === record.recruiterReply &&
+      dismissed === record.recruiterDismissal
+    ) {
       return false;
     }
     record.recruiterChat = status;
     record.recruiterReply = reply;
+    record.recruiterDismissal = dismissed;
     this.service.trace({ event: 'application-recruiter-panel', state: status });
     return true;
   }

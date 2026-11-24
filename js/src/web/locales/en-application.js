@@ -268,6 +268,10 @@ export const enApplication = {
     'HeadHunter confirmed the automatic recruiter reply.',
   'application.recruiterReply.unknown':
     'Delivery of the automatic recruiter reply is uncertain. Check the native chat.',
+  'application.recruiterDismissal.completed':
+    'The finished recruiter chat was closed on HeadHunter.',
+  'application.recruiterDismissal.deferred':
+    'The recruiter chat was closed for later review in No-questionnaires mode.',
   'application.recruiterChat.open':
     'Review the recruiter chat in the HeadHunter browser, then close its panel.',
   'application.recruiterChat.unverified':

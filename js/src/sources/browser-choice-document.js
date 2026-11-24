@@ -1,4 +1,5 @@
-/* global document, window, getComputedStyle, crypto */
+/* global document, window, getComputedStyle, crypto, location */
+import { setTimeout as sleep } from 'node:timers/promises';
 import {
   browserInactiveView,
   prepareBrowserInactiveView,
@@ -38,6 +39,64 @@ export const browserFrameVisible = (node) => {
     }
   }
   return true;
+};
+
+const browserOwnerPanelState = ({ owner, url, selector, iframe }) => {
+  if (
+    window[Symbol.for('meta-sovereign.browser-choice-document.v1')] !== owner ||
+    location.href !== url
+  ) {
+    return 'changed';
+  }
+  const panels = [...document.querySelectorAll(selector)].filter(
+    browserFrameVisible
+  );
+  if (!iframe) {
+    return panels.length === 0 ? 'closed' : 'open';
+  }
+  const [panel] = panels;
+  if (
+    panels.length !== 1 ||
+    !panel.contains(iframe) ||
+    !browserFrameVisible(iframe)
+  ) {
+    return 'changed';
+  }
+  const controls = [
+    ...panel.querySelectorAll('button[data-qa], [role="button"][data-qa]'),
+  ].filter(
+    (node) =>
+      /close/iu.test(node.getAttribute('data-qa')) &&
+      browserFrameVisible(node) &&
+      !node.matches(':disabled,[disabled]') &&
+      !node.closest('[aria-disabled="true"],[inert]')
+  );
+  if (controls.length !== 1) {
+    return 'ambiguous';
+  }
+  const key = Symbol.for('meta-sovereign.browser-panel-dismissals.v1');
+  const attempted = (window[key] ??= new WeakSet());
+  if (attempted.has(panel)) {
+    return 'pending';
+  }
+  attempted.add(panel);
+  controls[0].click();
+  return 'pending';
+};
+
+const evaluateOwnerPanelState = new Function(
+  `return (input) => {
+    const browserFrameVisible = (${browserFrameVisible.toString()});
+    return (${browserOwnerPanelState.toString()})(input);
+  }`
+)();
+
+const topFrameElement = (frame, owner) => {
+  let current = frame;
+  while (current.parentFrame() && current.parentFrame() !== owner) {
+    current = current.parentFrame();
+  }
+  return current.frameElement();
 };
 
 const trusted = (address, origins) => {
@@ -218,6 +277,40 @@ const resolveBrowserDocument = async (
       const result = await ownerFrame.evaluate(fn, args[0]);
       await assertCurrent();
       return result;
+    },
+    async dismissOwnerPanel({ verify, admit, signal }) {
+      const selector = ui.documents.ownerPanel;
+      if (!selector || selected.frame === ownerFrame || !(await verify())) {
+        return false;
+      }
+      await assertCurrent();
+      const iframe = await topFrameElement(selected.frame, ownerFrame);
+      const location = { owner: selected.owner, url: selected.url, selector };
+      try {
+        admit();
+        if (
+          (await ownerFrame.evaluate(evaluateOwnerPanelState, {
+            ...location,
+            iframe,
+          })) !== 'pending'
+        ) {
+          return false;
+        }
+        for (const deadline = Date.now() + 1500; Date.now() < deadline;) {
+          signal.throwIfAborted();
+          const status = await ownerFrame.evaluate(
+            evaluateOwnerPanelState,
+            location
+          );
+          if (status !== 'open') {
+            return status === 'closed';
+          }
+          await sleep(75, undefined, { signal });
+        }
+        return false;
+      } finally {
+        await iframe.dispose();
+      }
     },
     async evaluate({ fn, args = [], beforeEvaluate }) {
       if (args.length > 1) {

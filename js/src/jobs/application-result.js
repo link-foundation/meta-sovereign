@@ -148,6 +148,9 @@ const state = (raw) =>
   optionalChoice(raw.recruiterReply, ['provider-confirmed', 'unknown']) &&
   (!raw.recruiterReply ||
     (raw.delivery === 'provider-confirmed' && raw.autoSendExactAnswers)) &&
+  optionalChoice(raw.recruiterDismissal, ['completed', 'deferred']) &&
+  (!raw.recruiterDismissal ||
+    (raw.delivery === 'provider-confirmed' && !raw.testMode)) &&
   (raw.state !== 'delivered' || raw.delivery === 'provider-confirmed');
 const actionDescriptor = (value) =>
   value === null ||
