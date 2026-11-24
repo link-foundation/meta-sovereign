@@ -95,6 +95,14 @@ review-only pattern after both replies are saved. The pass reports the observed
 reply variants and holds the chat if their save cannot be confirmed.
 [Reproduction and browser evidence](case-studies/issue-56/unread-history-learning.md).
 
+Select **Leave bot choices for manual selection** in sequential unread settings
+to leave the first offered choice open in the provider chat. Ordinary replies
+can still be prepared as drafts. The equivalent CLI flag is
+`answers browser unread --source=hh --confirm=true --answer-chats=true --review-choices=true`.
+On the unread-start route, either Lino encoding accepts `reviewChoices: true`
+with `answerChats: true`. The application batch's chat worker always uses this
+review policy. [Reproduction and browser evidence](case-studies/issue-56/application-chat-choices.md).
+
 HH browser reads preserve native pending, failed, sent, delivered and read states. Missing, unfamiliar or conflicting outgoing status icons remain unknown; uncertain bubbles cannot confirm a send or become learned answers. Migration 0021 marks older browser replies without status evidence unknown until reread. Existing saved answers remain owner data. [Delivery verification](case-studies/issue-56/hh-browser-delivery.md).
 
 A confirmed current-chat watch also snapshots mounted message changes as the DOM

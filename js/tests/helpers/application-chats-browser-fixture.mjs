@@ -1,15 +1,24 @@
 import assert from 'node:assert/strict';
 import { ApplicationChats } from '../../src/jobs/application-chats.js';
 import { applicationNativeFixture } from '../../../experiments/issue-56/application-native-fixture.mjs';
-import { chatNavigationHtml } from '../../../experiments/issue-56/chat-navigation-fixture.mjs';
+import {
+  chatNavigationHtml,
+  unreadBotQuestion,
+} from '../../../experiments/issue-56/chat-navigation-fixture.mjs';
 import { withChatNavigationFixture } from './e2e-chat-navigation.mjs';
 
 /** Shared isolated native fixture for direct and independent MCP UI checks. */
-export const withNativeApplicationChats = (browser, work) =>
+export const withNativeApplicationChats = (browser, work, { choices } = {}) =>
   withChatNavigationFixture(
     browser,
     {
-      html: chatNavigationHtml({ textReplies: true, precedingOutgoing: true }),
+      html: chatNavigationHtml({
+        textReplies: true,
+        precedingOutgoing: true,
+        ...(choices
+          ? { choiceChat: '8', latestMessages: { 8: unreadBotQuestion } }
+          : {}),
+      }),
       senderOptions: { slot: 'chat-slot' },
     },
     async ({ sender, page: chat }) => {

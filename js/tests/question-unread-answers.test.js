@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { setTimeout as delay } from 'node:timers/promises';
 import { unreadAnswerFixture } from '../../experiments/issue-56/unread-answer-fixture.mjs';
 import {
   unreadInput,
@@ -10,6 +11,8 @@ import { listOutbox } from '../src/automation/outbox.js';
 import { saveAnswerRule } from '../src/automation/question-store.js';
 import { createQuestionBrowser } from '../src/automation/question-browser.js';
 import { pollingCycleFixture } from '../../experiments/issue-56/unread-polling-fixture.mjs';
+import { unreadAnswerClientReceipt } from '../../experiments/issue-56/question-browser-clients.mjs';
+import { LINO_TEXT, LINO_BINARY } from '../src/transport/lino.js';
 
 const check = async (options, work) => {
   const env = await unreadAnswerFixture(options);
@@ -30,6 +33,17 @@ test('sequential answer admission requires explicit supported boolean intent', (
     await assert.rejects(
       env.browser.unreadStart({ ...env.input, noticeReplies: true })
     );
+    for (const modes of [
+      { reviewChoices: 'true' },
+      { answerChats: false, reviewChoices: true },
+    ]) {
+      await assert.rejects(
+        env.browser.unreadStart({ ...env.input, ...modes }),
+        {
+          code: 'question-unread-answers-unavailable',
+        }
+      );
+    }
     env.send.unreadAnswerReplySources = () => [];
     await assert.rejects(env.browser.unreadStart(env.input), {
       code: 'question-unread-answers-unavailable',
@@ -79,6 +93,72 @@ test('pending bot options, unresolved text and owner drafts hold without edits o
     });
   }
 });
+
+test('review-only choices hold an approved bot answer without reserving or sending it', () =>
+  check({}, async (env) => {
+    const result = await env.complete({ ...env.input, reviewChoices: true });
+    assert.equal(result.restoration.heldReview.chat, '8');
+    assert.equal(result.reviewChoices, true);
+    assert.equal(result.entries.length, 1);
+    assert.equal(result.entries[0].answer.phase, 'choice-review');
+    const review = await env.browser.status({ id: result.entries[0].reviewId });
+    assert.equal(review.plan.option, 'Yes');
+    assert.deepEqual(env.state.sends, []);
+    assert.deepEqual(env.state.prefills, []);
+    assert.deepEqual(await listOutbox(env.store), []);
+    checkUnreadReview(result, env.input.id);
+  }));
+
+test('the CLI and both wire formats retain the explicit choice review scope', async () => {
+  for (const media of [null, LINO_TEXT, LINO_BINARY]) {
+    await check({}, async (env) => {
+      env.input.reviewChoices = true;
+      const receipt = await unreadAnswerClientReceipt(env, media, {
+        'review-choices': true,
+      });
+      assert.equal(receipt.reviewChoices, true);
+      assert.equal(receipt.entries[0].answer.phase, 'choice-review');
+      assert.equal(receipt.restoration.heldReview.chat, '8');
+      assert.deepEqual(env.state.sends, []);
+    });
+  }
+});
+
+test(
+  'polling retains manual choice review until an owner reply releases the hold',
+  { timeout: 7000 },
+  () => {
+    const row = {};
+    return check({ rows: [row, {}] }, async (env) => {
+      const started = {
+        ...env.input,
+        reviewChoices: true,
+        polling: { intervalMs: 1000 },
+      };
+      await env.browser.unreadStart(started);
+      let sawHold = false;
+      for (let i = 0; i < 150; i++) {
+        const receipt = await env.browser.unreadStatus(started);
+        if (receipt.polling.passes === 1 && receipt.restoration?.heldReview) {
+          sawHold = true;
+          assert.equal(receipt.restoration.heldReview.chat, '8');
+          row.question = { id: '102', body: 'Yes', outgoing: true };
+          row.strictOptions = false;
+        }
+        if (receipt.entries[0]?.answer?.phase === 'no-reply') {
+          assert.equal(sawHold, true);
+          assert.equal(receipt.reviewChoices, true);
+          assert.equal(env.state.scans[1].heldChat, '8');
+          assert.deepEqual(env.state.sends, []);
+          assert.deepEqual(await listOutbox(env.store), []);
+          return;
+        }
+        await delay(15);
+      }
+      assert.fail('Manual choice hold did not see the owner reply');
+    });
+  }
+);
 
 test('owner answers and a closed conversation continue to the next unread chat', () =>
   check(
@@ -177,6 +257,9 @@ test('wire receipts bind held review and delivered choices to the actual source 
       (x) => {
         x.entries[0].answer.selection.key = 'different';
       },
+      (x) => {
+        x.reviewChoices = true;
+      },
     ]) {
       const forged = globalThis.structuredClone(result);
       mutate(forged);
@@ -223,7 +306,6 @@ test(
   async () => {
     const { questionBrowserCli, questionBrowserHttp } =
       await import('../../experiments/issue-56/question-browser-clients.mjs');
-    const { LINO_TEXT, LINO_BINARY } = await import('../src/transport/lino.js');
     await check({}, async (env) => {
       const result = await questionBrowserCli(env)('unread', {
         source: 'hh',

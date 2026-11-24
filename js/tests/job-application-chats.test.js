@@ -65,6 +65,7 @@ test(
     assert.equal(f.calls.preparation[0].options.store, f.store);
     assert.equal(f.calls.start[0].polling.intervalMs, 7200000);
     assert.equal(f.calls.start[0].modelDraft, false);
+    assert.equal(f.calls.start[0].reviewChoices, true);
     assert.deepEqual(child.held, {
       chat: f.held.chat,
       title: f.held.title,

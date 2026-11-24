@@ -1,3 +1,11 @@
+### 2026-11-24 Leave application-owned bot choices for review (HH10)
+
+- [x] Reproduce the unattended native choice dispatch in the published parent and the missing review-only intent in two focused regressions.
+- [x] Bind application-owned runs to choice review. Expose the same choice policy in standalone CLI, both Lino encodings and shared unread controls.
+- [x] Verify retained options, held-only polling and independent application delivery. Preserve the parent and fixed screenshots. [Reproduction and evidence](application-chat-choices.md).
+- [ ] Verify the exact published head in GitHub Actions.
+- [ ] Verify authenticated HeadHunter acceptance and the remaining HH10 workflows.
+
 ### 2026-11-24 Learn verified earlier replies during sequential review (HH10)
 
 - [x] Reproduce a native visit that advances without saving the captured employer question and notice replies.

@@ -213,6 +213,9 @@ export const normalizeUnreadReviewSettings = (input, capabilities) => {
         ({ id }) => id === input.source
       )) ||
     (input.answerChats && input.noticeReplies) ||
+    (input.reviewChoices !== undefined &&
+      typeof input.reviewChoices !== 'boolean') ||
+    (input.reviewChoices && !input.answerChats) ||
     (input.heldChat && !input.answerChats)
   ) {
     throw failure(
@@ -362,6 +365,7 @@ export const createQuestionUnreadReviews = ({
       planning,
       ...(input.noticeReplies ? { noticeReplies: true } : {}),
       ...(input.answerChats ? { answerChats: true } : {}),
+      ...(input.reviewChoices ? { reviewChoices: true } : {}),
       ...(input.prefillForms ? { prefillForms: true } : {}),
       ...(input.heldChat ? { heldChat: input.heldChat } : {}),
       state: 'active',

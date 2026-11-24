@@ -7,6 +7,11 @@ Forms slot when explicitly enabled. Retain the form for review and continue to
 the first chat that needs a reply after a confirmed questionnaire-only handoff
 (issue #56, HH10 and QA24).
 
+Leave HeadHunter bot choices open for manual selection during application-owned
+chat review. Standalone unread review offers the same policy through the shared
+controls, CLI and Lino. Ordinary drafts and held-chat polling stay available
+(issue #56, HH10).
+
 Check whether GNU Screen or Docker is available on an unconfirmed runner target
 through Settings, the CLI and Lino. Keep the active peer running while checking
 an absent checkout (issue #56, VD01).

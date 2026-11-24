@@ -98,6 +98,9 @@ const validUnreadIdentity = (value, id) =>
   (value.noticeReplies === undefined ||
     typeof value.noticeReplies === 'boolean') &&
   (value.answerChats === undefined || typeof value.answerChats === 'boolean') &&
+  (value.reviewChoices === undefined ||
+    typeof value.reviewChoices === 'boolean') &&
+  (!value.reviewChoices || value.answerChats === true) &&
   (value.prefillForms === undefined ||
     typeof value.prefillForms === 'boolean') &&
   (!value.prefillForms || value.answerChats === true) &&
@@ -111,6 +114,11 @@ const invalidUnreadEntries = (value) =>
     value.entries.some((entry) => entry.notice !== undefined)) ||
   (!value.answerChats &&
     value.entries.some((entry) => entry.answer !== undefined)) ||
+  value.entries.some(
+    (entry) =>
+      (value.reviewChoices && entry?.answer?.selection) ||
+      (!value.reviewChoices && entry?.answer?.phase === 'choice-review')
+  ) ||
   (!value.prefillForms &&
     value.entries.some((entry) => entry.form !== undefined)) ||
   !value.entries.every((entry) => validUnreadEntry(entry, value.source)) ||

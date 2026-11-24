@@ -14,7 +14,10 @@ import { hhChoiceHtml } from './hh-choice-fixture.mjs';
 import { textReplyHtml } from './text-reply-fixture.mjs';
 import { noticePolicyHtml } from './notice-policy-browser-fixture.mjs';
 import { noticeText, noticeRule } from './notice-fixture.mjs';
-import { chatNavigationHtml } from './chat-navigation-fixture.mjs';
+import {
+  chatNavigationHtml,
+  unreadBotQuestion,
+} from './chat-navigation-fixture.mjs';
 import { unreadHistoryMessages } from './unread-history-browser-fixture.mjs';
 import { saveAnswerRule } from '../../js/src/automation/question-store.js';
 import { saveAnswerPolicy } from '../../js/src/automation/question-policy.js';
@@ -176,6 +179,7 @@ export const questionBrowserServer = async (
     noticePolicies = false,
     unreadReview = false,
     unreadAnswers = false,
+    unreadChoices,
     unreadModel = false,
     unreadNotices = false,
     unreadReplyView = false,
@@ -224,6 +228,9 @@ export const questionBrowserServer = async (
             {
               ...mode,
               ...(unreadAnswers ? { precedingOutgoing: true } : {}),
+              ...(unreadChoices
+                ? { choiceChat: '8', latestMessages: { 8: unreadBotQuestion } }
+                : {}),
               ...(unreadMessages ? { latestMessages: unreadMessages } : {}),
               ...(unreadHistory
                 ? { historyMessages: unreadHistoryMessages }
@@ -332,12 +339,14 @@ if (
       : null;
   const unreadSummary = process.env.QUESTION_BROWSER_UNREAD_SUMMARY === '1';
   const unreadHistory = process.env.QUESTION_BROWSER_UNREAD_HISTORY === '1';
+  const unreadChoices = process.env.QUESTION_BROWSER_UNREAD_CHOICES === '1';
   const fixture = await questionBrowserServer(browser, {
     summaryChoices: process.env.QUESTION_BROWSER_SUMMARY === '1',
     noticePolicies: process.env.QUESTION_BROWSER_NOTICES === '1',
     unreadReview:
-      Boolean(linked || rating || unreadSummary || unreadHistory) ||
-      process.env.QUESTION_BROWSER_UNREAD === '1',
+      Boolean(
+        linked || rating || unreadSummary || unreadHistory || unreadChoices
+      ) || process.env.QUESTION_BROWSER_UNREAD === '1',
     ...(linked && {
       unreadAnswers: true,
       unreadMessages: { 8: employerQuestionnaire },
@@ -354,6 +363,7 @@ if (
       unreadMessages: { 8: summary.replaceAll('\n', '<br>') },
     }),
     ...(unreadHistory && { unreadAnswers: true, unreadHistory }),
+    ...(unreadChoices && { unreadAnswers: true, unreadChoices }),
   });
   const controls = questionBrowserControlServer(fixture);
   await new Promise((resolve) => controls.listen(0, '127.0.0.1', resolve));

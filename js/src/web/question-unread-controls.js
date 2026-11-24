@@ -211,7 +211,9 @@ const UnreadResult = ({ result, blocked, select }) => {
         { key: 'state', role: 'status' },
         !result.polling &&
           t(
-            `browserUnread.${result.state}${['active', 'paused'].includes(result.state) ? (result.answerChats ? 'Answers' : result.noticeReplies ? 'Notices' : '') : ''}`
+            result.state === 'active' && result.reviewChoices
+              ? 'browserUnread.activeReviewChoices'
+              : `browserUnread.${result.state}${['active', 'paused'].includes(result.state) ? (result.answerChats ? 'Answers' : result.noticeReplies ? 'Notices' : '') : ''}`
           )
       ),
       el(UnreadPollingStatus, { key: 'polling', polling: result.polling }),
@@ -366,6 +368,7 @@ const UnreadControls = ({
   const [limit, setLimit] = React.useState('20');
   const [noticeReplies, setNoticeReplies] = React.useState(false);
   const [answerChats, setAnswerChats] = React.useState(false);
+  const [reviewChoices, setReviewChoices] = React.useState(false);
   const [modelDraft, setModelDraft] = React.useState(false);
   const [prefillForms, setPrefillForms] = React.useState(false);
   const canPrefillForms = answerChats && answersAvailable && formsAvailable;
@@ -419,6 +422,19 @@ const UnreadControls = ({
               },
             }),
             t('browserUnread.answers'),
+          ])
+        : null,
+      answerChats && answersAvailable
+        ? el('label', { key: 'review-choices', className: 'check' }, [
+            el('input', {
+              key: 'input',
+              type: 'checkbox',
+              checked: reviewChoices,
+              disabled: locked,
+              'data-browser-unread-review-choices': true,
+              onChange: (event) => setReviewChoices(event.target.checked),
+            }),
+            t('browserUnread.reviewChoices'),
           ])
         : null,
       answerChats && answersAvailable
@@ -484,6 +500,9 @@ const UnreadControls = ({
                 ? { noticeReplies: true }
                 : {}),
               ...(answerChats && answersAvailable ? { answerChats: true } : {}),
+              ...(answerChats && answersAvailable && reviewChoices
+                ? { reviewChoices: true }
+                : {}),
               ...(canPrefillForms && prefillForms
                 ? { prefillForms: true }
                 : {}),

@@ -32,13 +32,20 @@ export const questionUnreadCommand = async (
   options,
   progress = () => {}
 ) => {
-  for (const flag of ['notice-replies', 'answer-chats', 'prefill-forms']) {
-    if (
-      args[flag] !== undefined &&
-      ![true, false, 'true', 'false'].includes(args[flag])
-    ) {
+  const modes = {};
+  for (const [flag, key] of [
+    ['notice-replies', 'noticeReplies'],
+    ['answer-chats', 'answerChats'],
+    ['review-choices', 'reviewChoices'],
+    ['prefill-forms', 'prefillForms'],
+  ]) {
+    if (args[flag] === undefined) {
+      continue;
+    }
+    if (![true, false, 'true', 'false'].includes(args[flag])) {
       throw new Error(`${flag} must be true or false`);
     }
+    modes[key] = [true, 'true'].includes(args[flag]);
   }
   const id = args['pass-id'] ?? `question-unread:${randomUUID()}`;
   return ownBrowserCommand({
@@ -51,15 +58,7 @@ export const questionUnreadCommand = async (
         id,
         confirm: [true, 'true'].includes(args.confirm),
         ...pollingFlags(args),
-        ...(args['notice-replies'] === undefined
-          ? {}
-          : { noticeReplies: [true, 'true'].includes(args['notice-replies']) }),
-        ...(args['answer-chats'] === undefined
-          ? {}
-          : { answerChats: [true, 'true'].includes(args['answer-chats']) }),
-        ...(args['prefill-forms'] === undefined
-          ? {}
-          : { prefillForms: [true, 'true'].includes(args['prefill-forms']) }),
+        ...modes,
         ...Object.fromEntries(
           [
             ['max-chats', 'maxChats'],

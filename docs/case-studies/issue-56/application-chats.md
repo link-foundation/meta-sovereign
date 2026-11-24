@@ -22,7 +22,9 @@ visible-window policy. Browser-commander selects its local control port rather
 than reserving the reference script's fixed port 9340.
 
 The existing sequential unread flow retains exact-answer and bot-option guards,
-draft-only ordinary chat replies, review holds and focus protection. A held chat
+draft-only ordinary chat replies, review holds and focus protection. The
+application-owned worker leaves native bot choices for manual selection.
+[Choice review verification](application-chat-choices.md). A held chat
 does not pause the independent application owner. Startup/login/focus/child
 failures produce refused receipts while applications remain usable. Stop,
 completion, expiry and service shutdown abort and await admitted work, close

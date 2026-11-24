@@ -120,6 +120,7 @@ class UnreadPolling {
       modelDraft: input.modelDraft === true,
       ...(input.noticeReplies ? { noticeReplies: true } : {}),
       ...(input.answerChats ? { answerChats: true } : {}),
+      ...(input.reviewChoices ? { reviewChoices: true } : {}),
       ...(input.prefillForms ? { prefillForms: true } : {}),
     };
     const runtime = {
@@ -136,6 +137,7 @@ class UnreadPolling {
         startedAt: this.clock().toISOString(),
         ...(input.noticeReplies ? { noticeReplies: true } : {}),
         ...(input.answerChats ? { answerChats: true } : {}),
+        ...(input.reviewChoices ? { reviewChoices: true } : {}),
         ...(input.prefillForms ? { prefillForms: true } : {}),
         entries: [],
         coverage: null,

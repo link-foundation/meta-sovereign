@@ -49,13 +49,14 @@ export const questionBrowserHttp = async (env) => {
 };
 
 /** Use a fresh owned pass to check the foreground CLI or one Lino encoding. */
-export const unreadAnswerClientReceipt = async (env, media) => {
+export const unreadAnswerClientReceipt = async (env, media, cliFlags = {}) => {
   if (!media) {
     const result = await questionBrowserCli(env)('unread', {
       source: 'hh',
       confirm: true,
       'pass-id': env.input.id,
       'answer-chats': true,
+      ...cliFlags,
     });
     assert.equal(result.code, 0, JSON.stringify(result.value));
     return result.value;

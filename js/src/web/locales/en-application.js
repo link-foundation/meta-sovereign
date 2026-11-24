@@ -55,7 +55,7 @@ export const enApplication = {
     'Choose the shared answer profile and salary targets for this application or batch. Targets stay fixed for this review; each plan reads current saved profile values. Review assembled answers before sending.',
   'application.chats.enable': 'Review unread chats alongside applications',
   'application.chats.hint':
-    'Uses a separate browser slot. Exact bot choices may send through verified delivery guards; ordinary replies stay as drafts. Applications continue during chat review. Stop or completion finishes chat work and closes its browser. Sign in manually in this slot when required.',
+    'Uses a separate browser slot. Choose bot options and send any prepared drafts yourself while applications continue. Stop or completion closes the chat browser. Sign in in this slot when needed.',
   'application.chats.chatsIntervalMinutes':
     'Chat check interval in minutes (default 120)',
   'application.chats.chatBrowserSlot': 'Separate chat browser slot',

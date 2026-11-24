@@ -132,7 +132,7 @@ const finishSummary = async ({
   return true;
 };
 
-/** Ordinary text is held for owner review; only approved native options dispatch. */
+/** Ordinary text stays in review. Review-only passes also hold native choices. */
 export const visitUnreadAnswer = async ({
   context,
   record,
@@ -250,7 +250,7 @@ export const visitUnreadAnswer = async ({
       );
     }
   };
-  if (maySelect(snapshot, plan)) {
+  if (!record.reviewChoices && maySelect(snapshot, plan)) {
     if (
       await select({
         context,
@@ -268,6 +268,8 @@ export const visitUnreadAnswer = async ({
     }
   } else if (snapshot.strictOptions && !snapshot.answerOptions.length) {
     entry.answer.phase = 'pending-options';
+  } else if (record.reviewChoices && snapshot.strictOptions) {
+    entry.answer.phase = 'choice-review';
   }
   // Claim the held view before writing. Even a lost prefill response must not
   // navigate over a newly prepared draft or visit another conversation.

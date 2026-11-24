@@ -7,6 +7,8 @@ const unreadCount = (chat, allRead, unreadChats = ['8', '9']) =>
 const scriptMessages = (value) =>
   JSON.stringify(value).replaceAll('<', '\\u003c');
 
+export const unreadBotQuestion = 'Do you have distributed systems experience?';
+
 /** Finite SPA fixture: three synthetic chats, native history and per-chat drafts. */
 export const chatNavigationHtml = ({
   loseDraft = false,
@@ -23,13 +25,14 @@ export const chatNavigationHtml = ({
   emptyOriginal = false,
   originalUnread = false,
   reversedMessages = false,
+  choiceChat,
 } = {}) => String.raw`<!doctype html><html lang="en">
 <meta charset="utf-8"><title>Owned unread conversations · isolated fixture</title><style>
 body{font:16px system-ui;margin:24px;color:#172333;background:#eef2f7}main{display:flex;gap:20px}#list{width:250px;height:200px;overflow-y:auto;background:white}#list article{box-sizing:border-box;height:100px;padding:14px;border-bottom:1px solid #ccc;cursor:pointer}#history{height:220px;width:620px;overflow-y:auto;overflow-anchor:none;background:white}#messages{height:800px;position:relative;flex-shrink:0}${messageLayout(reversedMessages)}#history article{box-sizing:border-box;position:absolute;height:100px;padding:12px}textarea{display:block;width:610px;height:65px;margin:12px 0}pre{white-space:pre-wrap;max-width:940px}
 </style><nav data-qa="mainmenu_applicantProfile">Synthetic applicant profile</nav><h1>Owned unread conversation pass</h1>
 <p>Offline fixture. Reading a conversation clears its unread counter; ${textReplies ? 'replies stay inside this fixture.' : 'sending is never requested.'}</p>
 <label><input id="outer-filter" type="checkbox"><label><input type="checkbox" checked data-qa="chatik-checkbox-only-unread">Unread conversations only</label></label>
-<main><div id="list"></div><section><h2 id="chat-title"></h2><span data-qa="participant-info-title">Example employer</span><div data-qa="chatik-header-sub-header"><a href="https://hh.ru/vacancy/123">Example vacancy</a></div><div id="history"><div id="messages"></div></div><div id="composer"></div><button data-qa="send">Send</button></section></main><pre id="result">The owner's draft, selection and scroll must survive the pass.</pre>
+<main><div id="list"></div><section><h2 id="chat-title"></h2><span data-qa="participant-info-title">Example employer</span><div data-qa="chatik-header-sub-header"><a href="https://hh.ru/vacancy/123">Example vacancy</a></div><div id="history"><div id="messages"></div></div><div class="reply-options" id="choices" hidden></div><div id="composer"></div><button data-qa="send">Send</button></section></main><pre id="result">The owner's draft, selection and scroll must survive the pass.</pre>
 <script>
 const list=document.querySelector('#list'),filter=document.querySelector('#outer-filter'),pane=document.querySelector('#history'),messages=document.querySelector('#messages');
 const ownerDraft=${emptyOriginal}?'':Array.from({length:8},(_,i)=>'Owner unfinished line '+i).join('\n');
@@ -50,7 +53,18 @@ function renderMessages(){
    (delivery?'<span data-qa="status-icon-'+delivery+'"></span>':'')+'</article>';
  }).join('');
 }
-function renderChat(){fixture.chat=location.pathname.match(/chat\/(\d+)/)?.[1]||'7';document.querySelector('#chat-title').textContent='Employer '+fixture.chat;document.querySelector('#composer').innerHTML='<textarea data-qa="text-input"></textarea>';const field=document.querySelector('textarea');field.value=fixture.drafts[fixture.chat]||'';field.oninput=()=>{fixture.drafts[fixture.chat]=field.value;};pane.scrollTop=${300 - 580 * Number(reversedMessages)};renderMessages();renderList();}
+const choiceChat=${scriptMessages(choiceChat ?? null)};
+function renderChoices(){
+ const choices=document.querySelector('#choices');choices.replaceChildren();
+ choices.hidden=fixture.chat!==choiceChat||Boolean(fixture.replies[fixture.chat]);
+ if(choices.hidden)return;
+ for(const label of ['Yes','No']){
+  const button=document.createElement('button');button.textContent=label;
+  button.onclick=()=>{fixture.sends++;fixture.replies[fixture.chat]=label;renderMessages();renderChoices();};
+  choices.append(button);
+ }
+}
+function renderChat(){fixture.chat=location.pathname.match(/chat\/(\d+)/)?.[1]||'7';document.querySelector('#chat-title').textContent='Employer '+fixture.chat;document.querySelector('#composer').innerHTML='<textarea data-qa="text-input"></textarea>';const field=document.querySelector('textarea');field.value=fixture.drafts[fixture.chat]||'';field.oninput=()=>{fixture.drafts[fixture.chat]=field.value;};pane.scrollTop=${300 - 580 * Number(reversedMessages)};renderMessages();renderList();renderChoices();}
 function openChat(id){const field=document.querySelector('textarea');if(!(${loseDraft}&&fixture.chat==='7'))fixture.drafts[fixture.chat]=field.value;else fixture.drafts['7']='';fixture.visits.push(id);fixture.unread[id]=0;const url='/chat/'+id;if(${reload}){location.href=url;return;}window.history[${replace}?'replaceState':'pushState']({chat:id},'',url);renderChat();}
 window.addEventListener('popstate',()=>{if(${changedDraft})fixture.drafts['7']='Owner draft changed elsewhere';renderChat();});pane.addEventListener('scroll',()=>renderMessages());if(${virtual})list.addEventListener('scroll',renderList);filter.addEventListener('change',()=>{list.scrollTop=0;renderList();});
 fixture.replies={};
@@ -67,7 +81,7 @@ if(${textReplies}){
   }
  };
 }
-document.querySelector('button').onclick=()=>{
+document.querySelector('[data-qa="send"]').onclick=()=>{
  fixture.sends++;
  if(!${textReplies})return;
  const field=document.querySelector('textarea');fixture.replies[fixture.chat]=field.value;fixture.drafts[fixture.chat]='';field.value='';renderMessages();

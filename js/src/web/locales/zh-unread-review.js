@@ -1,4 +1,8 @@
 export const zhUnreadReview = {
+  'browserUnread.reviewChoices': '手动选择机器人选项',
+  'browserUnread.activeReviewChoices':
+    '正在检查未读问题。机器人选项和草稿将保留供您检查。',
+  'browserUnread.answer.choice-review': '请在服务商聊天窗口中选择一个选项。',
   'browserUnread.historyAnswers.saved':
     '已保存聊天记录中的答案（{count}），供你审核。',
   'browserUnread.historyAnswers.hold':
@@ -27,7 +31,7 @@ export const zhUnreadReview = {
   'browserUnread.form.open': '在表单中检查 {slot}',
   'browserUnread.answers': '处理机器人选项，普通回复留待审核',
   'browserUnread.answersHint':
-    '在未激活的服务窗口中逐一检查未读聊天。已确认的历史回复和完整摘要中的答案会保存以供审核。精确匹配的已保存答案、完整摘要中的唯一匹配，以及获准薪资目标对应的唯一区间可选择机器人选项。普通回复会保留为草稿。后续检查会等待你审核第一个待处理聊天。可以单独启用模型草稿。',
+    '在未激活的服务窗口中逐一检查未读聊天。已确认的历史回复和完整摘要中的答案会保存以供审核。默认情况下，精确匹配的已保存答案、完整摘要中的唯一匹配，以及获准薪资目标对应的唯一区间可选择机器人选项。普通回复会保留为草稿。后续检查会等待你审核第一个待处理聊天。可以单独启用模型草稿。',
   'browserUnread.startAnswers': '逐一处理未读答案',
   'browserUnread.activeAnswers':
     '正在检查未读问题。可选择已批准的机器人选项；普通回复保留为草稿供你审核。',

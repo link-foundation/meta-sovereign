@@ -8,6 +8,7 @@ const reviewPhases = [
   'review',
   'no-reply',
   'pending-options',
+  'choice-review',
   'owner-draft',
   'prefilled',
   'form-review',

@@ -1,7 +1,9 @@
 # Sequential unread answers and a held ordinary review
 
-Pinned forms-and-chats C15 requires unread chats to be handled in order. A bot
-option with complete saved evidence may be selected. The first ordinary reply
+Pinned forms-and-chats C15 requires unread chats to be handled in order. The
+standalone strict-choice workflow can select a bot option with complete saved
+evidence. Application-owned checking uses the [manual-choice policy](application-chat-choices.md).
+The first ordinary reply
 or unresolved question must stay open for owner review, and later polling
 cycles must inspect that chat alone until an owner reply or a closed/no-reply
 state releases it. Ordinary text must never be sent automatically.

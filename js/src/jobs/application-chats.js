@@ -129,6 +129,7 @@ export class ApplicationChats {
       source: 'hh',
       confirm: true,
       answerChats: true,
+      reviewChoices: true,
       ...(options.chatPrefillForms
         ? {
             prefillForms: true,
