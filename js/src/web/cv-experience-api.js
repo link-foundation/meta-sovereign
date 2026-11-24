@@ -24,7 +24,7 @@ export const createExperienceApi = ({ get, report }) => ({
     ])
   ),
   ...Object.fromEntries(
-    ['start', 'status', 'stop'].map((operation) => [
+    ['start', 'status', 'stop', 'resume'].map((operation) => [
       `cvExperienceAuto${operation[0].toUpperCase()}${operation.slice(1)}`,
       async (input) => {
         const route = `/api/cv/experience/auto-${operation}`;

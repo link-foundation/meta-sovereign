@@ -107,6 +107,10 @@ the exact existing editor and the owner’s Add About action in the isolated bro
 slot, with draft ownership and fresh readback. HH21 stays unchecked pending broader native and authenticated
 verification.
 
+[Automatic CV preparation recovery](experience-auto-native-recovery.md) supplies
+HH17 and HH21 evidence for explicit, same-request continuation from acknowledged
+native exports. An unconfirmed export or translation remains interrupted.
+
 Partial HH10 extension: [application-owned chat review](application-chats.md) adds an explicit actual child, separate persistent chat slot, 120 minute default interval, independent held review and awaited Stop/completion/expiry/shutdown. Focused runtime, native Chromium and independent MCP evidence is retained. Exact-head hosted verification and full reference/provider parity remain required; all 60 rows stay unchecked.
 
 Partial VD01 prerequisite: [desktop provider packaging](desktop-provider-packaging.md) now includes the browser and Telegram runtimes and validates the staged adapters. Remote dependency preparation, readiness and every unchecked criterion remain unfinished; all 60 rows stay unchecked.

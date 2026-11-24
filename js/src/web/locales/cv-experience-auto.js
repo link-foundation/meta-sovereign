@@ -4,6 +4,7 @@ const entries = {
     hint: 'Use the latest available HeadHunter résumé or enter a specific hash. Review the translated comparison before preparing any provider change.',
     start: 'Acquire and compare',
     status: 'Recover status',
+    resume: 'Resume preparation',
     stop: 'Stop preparation',
     new: 'New request',
     open: 'Open comparison',
@@ -15,6 +16,8 @@ const entries = {
     completed: 'The translated comparison is ready for review.',
     stopped: 'Preparation stopped. Any completed snapshots are retained.',
     failed: 'Preparation failed. Any completed snapshots are retained.',
+    recoverable:
+      'Preparation was interrupted. You can continue with the verified snapshots.',
     interrupted:
       'Preparation was interrupted. Start a new request to try again.',
     unknown: 'Checking the existing request by ID. You can stop it here.',
@@ -26,6 +29,7 @@ const entries = {
     hint: 'Используйте последнее доступное резюме HeadHunter или укажите хеш. Проверьте сравнение с переводами перед подготовкой изменений.',
     start: 'Получить и сравнить',
     status: 'Восстановить статус',
+    resume: 'Продолжить подготовку',
     stop: 'Остановить подготовку',
     new: 'Новый запрос',
     open: 'Открыть сравнение',
@@ -37,6 +41,8 @@ const entries = {
     completed: 'Сравнение с переводами готово к проверке.',
     stopped: 'Подготовка остановлена. Полученные снимки сохранены.',
     failed: 'Не удалось завершить подготовку. Полученные снимки сохранены.',
+    recoverable:
+      'Подготовка прервана. Можно продолжить с проверенными снимками.',
     interrupted:
       'Подготовка прервана. Для повторной попытки создайте новый запрос.',
     unknown: 'Проверяем существующий запрос по ID. Здесь его можно остановить.',
@@ -47,6 +53,7 @@ const entries = {
     hint: '使用最新可用的 HeadHunter 简历，或输入指定哈希值。准备修改前，请查看带译文的比较结果。',
     start: '获取并比较',
     status: '恢复状态',
+    resume: '继续准备',
     stop: '停止准备',
     new: '新请求',
     open: '打开比较结果',
@@ -57,6 +64,7 @@ const entries = {
     completed: '带译文的比较结果已准备好，可以查看。',
     stopped: '准备已停止。已获取的快照已保留。',
     failed: '准备失败。已获取的快照已保留。',
+    recoverable: '准备已中断。可以使用已验证的快照继续。',
     interrupted: '准备已中断。请发起新请求重试。',
     unknown: '正在按 ID 检查现有请求。您可以在此停止请求。',
     openError: '无法打开这份比较结果。之前的计划已保留。',
@@ -66,6 +74,7 @@ const entries = {
     hint: 'नवीनतम HeadHunter रिज़्यूमे इस्तेमाल करें या कोई हैश दर्ज करें। बदलाव तैयार करने से पहले अनुवाद सहित तुलना की समीक्षा करें।',
     start: 'प्रोफ़ाइल लें और तुलना करें',
     status: 'स्थिति फिर पाएँ',
+    resume: 'तैयारी जारी रखें',
     stop: 'तैयारी रोकें',
     new: 'नया अनुरोध',
     open: 'तुलना खोलें',
@@ -77,6 +86,8 @@ const entries = {
     completed: 'अनुवाद सहित तुलना समीक्षा के लिए तैयार है।',
     stopped: 'तैयारी रुकी। पूरे हो चुके स्नैपशॉट सुरक्षित हैं।',
     failed: 'तैयारी पूरी नहीं हुई। पूरे हो चुके स्नैपशॉट सुरक्षित हैं।',
+    recoverable:
+      'तैयारी बाधित हुई। आप सत्यापित स्नैपशॉट के साथ जारी रख सकते हैं।',
     interrupted:
       'तैयारी बाधित हुई। फिर कोशिश करने के लिए नया अनुरोध शुरू करें।',
     unknown:

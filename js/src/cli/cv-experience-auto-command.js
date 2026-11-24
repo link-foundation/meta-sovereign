@@ -126,11 +126,11 @@ export const experienceAcquisitionInput = (args, requestId) =>
     }).filter(([, value]) => value !== undefined)
   );
 
-const runForeground = (service, args, requestId, options) => {
+const runForeground = (service, operation, input, options) => {
   let announced = false;
   return foregroundPrivateCvJob(
-    service,
-    experienceAcquisitionInput(args, requestId),
+    { ...service, start: service[operation] },
+    input,
     {
       running: experienceAutoRunning,
       wait: options.foregroundWait,
@@ -152,11 +152,12 @@ export const createExperienceAutoCommands = (
   options = {}
 ) =>
   Object.fromEntries(
-    ['start', 'status', 'stop'].map((operation) => [
+    ['start', 'status', 'stop', 'resume'].map((operation) => [
       `cv-experience-auto-${operation}`,
       async (args, log) => {
         const dir = args.store ?? defaultStoreDir();
         const reading = operation === 'status';
+        const foreground = operation === 'start' || operation === 'resume';
         const store = await (reading ? openReadOnly : openStore)(dir);
         let children;
         let service;
@@ -170,13 +171,16 @@ export const createExperienceAutoCommands = (
           } else {
             children = cliExperienceServices(store, dir, options);
             service = children.getAuto();
-            row =
+            const input =
               operation === 'start'
-                ? await runForeground(service, args, requestId, options)
-                : await service.stop({ requestId });
+                ? experienceAcquisitionInput(args, requestId)
+                : { requestId };
+            row = foreground
+              ? await runForeground(service, operation, input, options)
+              : await service.stop(input);
           }
           log(JSON.stringify(row, null, 2));
-          return operation === 'start' && row.phase !== 'completed' ? 1 : 0;
+          return foreground && row.phase !== 'completed' ? 1 : 0;
         } finally {
           try {
             await service?.close();

@@ -4,13 +4,19 @@ import { PrivateCvJob } from './private-job.js';
 import { storedExperienceDocument } from './experience-store.js';
 import { confirmedExperiencePlan } from './experience-plan-receipt.js';
 import { readExperiencePlan } from './experience-plan-service.js';
-import { hhAcquisitionRunning } from './experience-hh-acquisition.js';
+import {
+  hhAcquisitionRunning,
+  storedHhAcquisitionStatus,
+} from './experience-hh-acquisition.js';
 import { hhAcquisitionOptions } from './experience-hh-acquisition-options.js';
 import {
+  checkedLinkedinExport,
+  linkedinExportKey,
   linkedinExportOptions,
   linkedinExportRunning,
 } from './linkedin-experience-record.js';
 import {
+  experiencePlanKey,
   experiencePlanOptions,
   experiencePlanRunning,
 } from './experience-plan-record.js';
@@ -152,6 +158,63 @@ const storedComparison = async (store, row) => {
     : null;
 };
 
+const completedChild = (row, input) => {
+  if (!sameExperienceChild(row, input) || row.phase !== 'completed') {
+    throw experienceAutoFailure('child-unavailable');
+  }
+  return row;
+};
+
+const acknowledgedHh = async (store, row) => {
+  const input = hhAcquisitionOptions(autoChildInput(row, 'hh'));
+  const receipt = await storedHhAcquisitionStatus(store, input).catch(
+    (error) => {
+      if (error.code !== 'cv-hh-acquisition-missing') {
+        throw error;
+      }
+      return null;
+    }
+  );
+  return (
+    receipt && checkHhSnapshot(store, completedChild(receipt, input), input)
+  );
+};
+
+const acknowledgedLinkedin = async (store, row) => {
+  const input = linkedinExportOptions(autoChildInput(row, 'linkedin'));
+  const receipt = await store.get(linkedinExportKey(input.requestId));
+  if (!receipt) {
+    return null;
+  }
+  const checked = checkedLinkedinExport(receipt, input.requestId);
+  return checkLinkedinSnapshot(store, completedChild(checked, input), input);
+};
+
+const matchesCheckpoint = ({ phase, step }, stage, saved, completed) =>
+  (saved === null || saved === completed) &&
+  (completed !== null || phase !== stage || step === null);
+
+const recoverablePreparation = async (store, row) => {
+  const hh = await acknowledgedHh(store, row);
+  if (!matchesCheckpoint(row, 'acquiring-hh', row.hh, hh)) {
+    return false;
+  }
+  const linkedin = await acknowledgedLinkedin(store, row);
+  if (
+    (linkedin && !hh) ||
+    !matchesCheckpoint(row, 'acquiring-linkedin', row.linkedin, linkedin)
+  ) {
+    return false;
+  }
+  const planId = experienceAutoChildId(row.token, 'plan');
+  if (!(await store.get(experiencePlanKey(planId)))) {
+    return matchesCheckpoint(row, 'planning', null, null);
+  }
+  return Boolean(
+    hh && linkedin && (await storedComparison(store, { ...row, hh, linkedin }))
+  );
+};
+
 const autoView = async (store, row, active) => {
   if (!active && row.phase === 'planning') {
     const completion = await storedComparison(store, row).catch(() => null);
@@ -159,7 +222,15 @@ const autoView = async (store, row, active) => {
       return experienceAutoView({ ...row, ...completion }, active);
     }
   }
-  return experienceAutoView(row, active);
+  const view = experienceAutoView(row, active);
+  return view.phase === 'interrupted'
+    ? {
+        ...view,
+        recoveryAvailable: await recoverablePreparation(store, row).catch(
+          () => false
+        ),
+      }
+    : view;
 };
 
 const workFor =
@@ -172,23 +243,26 @@ const workFor =
     const run = (getService, input, running) =>
       workExperienceChild(getService, input, running, signal, progress, wait);
     try {
-      const hhInput = hhAcquisitionOptions(inputFor('hh'));
-      const hh = await checkHhSnapshot(
-        store,
-        await run(getHh, hhInput, hhAcquisitionRunning),
-        hhInput
-      );
-      signal.throwIfAborted();
-      await save({ hh, phase: 'acquiring-linkedin', step: null });
-
-      const linkedinInput = linkedinExportOptions(inputFor('linkedin'));
-      const linkedin = await checkLinkedinSnapshot(
-        store,
-        await run(getLinkedin, linkedinInput, linkedinExportRunning),
-        linkedinInput
-      );
-      signal.throwIfAborted();
-      await save({ linkedin, phase: 'planning', step: null });
+      if (owned.row.phase === 'acquiring-hh') {
+        const input = hhAcquisitionOptions(inputFor('hh'));
+        const hh = await checkHhSnapshot(
+          store,
+          await run(getHh, input, hhAcquisitionRunning),
+          input
+        );
+        signal.throwIfAborted();
+        await save({ hh, phase: 'acquiring-linkedin', step: null });
+      }
+      if (owned.row.phase === 'acquiring-linkedin') {
+        const input = linkedinExportOptions(inputFor('linkedin'));
+        const linkedin = await checkLinkedinSnapshot(
+          store,
+          await run(getLinkedin, input, linkedinExportRunning),
+          input
+        );
+        signal.throwIfAborted();
+        await save({ linkedin, phase: 'planning', step: null });
+      }
 
       const input = comparisonInput(owned.row);
       const plan = await confirmedExperiencePlan(
@@ -210,6 +284,30 @@ const workFor =
     }
   };
 
+const resumePreparation = async (service, { requestId }) => {
+  if (service.closing) {
+    throw experienceAutoFailure('stopped');
+  }
+  if (service.current) {
+    if (service.current.row.requestId !== requestId) {
+      throw experienceAutoFailure('busy');
+    }
+    return service.view(service.current.row, true);
+  }
+  const row = checkedExperienceAuto(
+    await service.store.get(experienceAutoKey(requestId)),
+    requestId
+  );
+  const view = await service.view(row, false);
+  if (view.phase === 'completed') {
+    return view;
+  }
+  if (!view.recoveryAvailable) {
+    throw experienceAutoFailure('conflict');
+  }
+  return service.launch(row);
+};
+
 /** Checkpoint the exact two native snapshots and directed comparison in one request. */
 export const createExperienceAutoService = ({
   store,
@@ -217,8 +315,8 @@ export const createExperienceAutoService = ({
   getLinkedin,
   getPlan,
   wait = (signal) => delay(250, null, { signal }),
-}) =>
-  new PrivateCvJob({
+}) => {
+  const service = new PrivateCvJob({
     store,
     key: experienceAutoKey,
     failure: experienceAutoFailure,
@@ -227,7 +325,12 @@ export const createExperienceAutoService = ({
     checked: checkedExperienceAuto,
     view: (row, active) => autoView(store, row, active),
     work: workFor({ store, getHh, getLinkedin, getPlan, wait }),
-  }).controls();
+  });
+  return {
+    ...service.controls(),
+    resume: (input) => service.serial(() => resumePreparation(service, input)),
+  };
+};
 
 export const storedExperienceAutoStatus = async (store, { requestId }) =>
   autoView(

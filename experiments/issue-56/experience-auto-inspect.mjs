@@ -137,5 +137,93 @@ export const inspectExperienceAuto = async (page, config) => {
     'comparison-phone',
     panel.locator('[data-experience-plan-state="completed"]')
   );
-  return { starts, widths };
+  return { requestId, starts, widths };
+};
+
+export const inspectExperienceAutoResume = async (
+  page,
+  { requestId, planId, screenshots, beforeBundle, base, tutorialKey, version }
+) => {
+  const auto = page.locator('[data-experience-auto]');
+  const action = (name) =>
+    auto.locator(`[data-experience-auto-action="${name}"]`);
+  let resumes = 0;
+  await page.route('**/api/cv/experience/auto-resume', async (route) => {
+    resumes++;
+    await route.continue();
+  });
+  if (beforeBundle) {
+    await page.route('**/app.min.js', (route) =>
+      route.fulfill({
+        path: beforeBundle,
+        contentType: 'application/javascript',
+      })
+    );
+  }
+  if (base) {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(base);
+    await page.evaluate(
+      ({ requestId, tutorialKey, version }) => {
+        globalThis.localStorage.setItem(
+          tutorialKey,
+          JSON.stringify({ off: true, v: version })
+        );
+        globalThis.localStorage.setItem('metaSovereignLocale', 'en');
+        globalThis.localStorage.setItem('ms.cv.experience-auto', requestId);
+      },
+      { requestId, tutorialKey, version }
+    );
+    await page.goto(`${base}/#/cv`);
+  } else {
+    await page.reload();
+  }
+  await page.locator('[data-experience-documents] summary').first().click();
+  await auto.locator('summary').click();
+  const phase = beforeBundle ? 'waiting-login' : 'recoverable';
+  await auto.locator(`[data-experience-auto-phase="${phase}"]`).waitFor();
+  const capture = async (name) => {
+    if (screenshots) {
+      const viewport = page.viewportSize();
+      await page.setViewportSize({ ...viewport, height: 1024 });
+      await auto.evaluate((node) => node.scrollIntoView({ block: 'start' }));
+      await page.evaluate(() => globalThis.scrollBy(0, -56));
+      await auto.screenshot({ path: `${screenshots}/${name}.png` });
+      await page.setViewportSize(viewport);
+    }
+  };
+  await capture(beforeBundle ? 'resume-before' : 'resume-after');
+  if (!(await action('resume').isVisible())) {
+    throw new Error('Explicit preparation recovery is missing.');
+  }
+  if (
+    resumes ||
+    (await auto
+      .locator('[data-experience-auto-field="requestId"]')
+      .inputValue()) !== requestId
+  ) {
+    throw new Error('Status recovery changed or resumed the preparation.');
+  }
+  await action('resume').click();
+  await auto.locator('[data-experience-auto-phase="completed"]').waitFor();
+  await action('open').click();
+  const comparison = page.locator('[data-experience-plan]');
+  await comparison
+    .locator('[data-experience-plan-state="completed"]')
+    .waitFor();
+  const id = await comparison
+    .locator('[data-experience-plan-request]')
+    .inputValue();
+  if (resumes !== 1 || id !== planId) {
+    throw new Error('Recovery switched comparisons or repeated its mutation.');
+  }
+  const fitsPhone = await page.evaluate(
+    () =>
+      globalThis.document.documentElement.scrollWidth <=
+      globalThis.innerWidth + 1
+  );
+  if (!fitsPhone) {
+    throw new Error('The recovered comparison overflows its viewport.');
+  }
+  return { resumes, retainedPlanId: id === planId, fitsPhone };
 };

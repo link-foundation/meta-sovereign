@@ -148,20 +148,20 @@ const autoPhase = (state) => {
   if (state.unknown) {
     return 'unknown';
   }
-  if (state.row?.step === 'waiting-login') {
+  if (experienceAutoRunning(state.row) && state.row.step === 'waiting-login') {
     return 'waiting-login';
+  }
+  if (
+    state.row?.phase === 'interrupted' &&
+    state.row.recoveryAvailable === true
+  ) {
+    return 'recoverable';
   }
   return state.row?.phase ?? (state.busy ? 'acquiring-hh' : null);
 };
 
-const AutoControls = ({
-  state,
-  actions,
-  disabled,
-  openComparison,
-  review,
-  api,
-}) => {
+const AutoControls = (props) => {
+  const { state, actions, disabled, openComparison, review, api } = props;
   const t = useT();
   const [opening, setOpening] = useState(false);
   const [openError, setOpenError] = useState(false);
@@ -194,6 +194,12 @@ const AutoControls = ({
     }
   };
   const phase = autoPhase(state);
+  const reviewBlocked =
+    disabled ||
+    state.busy ||
+    state.unknown ||
+    active ||
+    phase === 'recoverable';
   const autoRequestId =
     state.row?.phase === 'completed' && !state.unknown
       ? state.row.requestId
@@ -227,6 +233,9 @@ const AutoControls = ({
             () => actions.refresh(),
             state.busy || !state.requestId
           ),
+          phase === 'recoverable'
+            ? button('resume', () => actions.mutate('Resume'), state.busy)
+            : null,
           button(
             'stop',
             () => actions.mutate('Stop'),
@@ -251,11 +260,7 @@ const AutoControls = ({
                   type: 'button',
                   'data-experience-review-action': 'start',
                   disabled:
-                    disabled ||
-                    state.busy ||
-                    state.unknown ||
-                    active ||
-                    (!autoRequestId && !validStart(state)),
+                    reviewBlocked || (!autoRequestId && !validStart(state)),
                   onClick: () => review.actions.mutate('Start', reviewInput),
                 },
                 t('experienceReview.start')

@@ -8,10 +8,13 @@ import {
 } from '../src/cv/experience-auto-service.js';
 import { createHhExperienceAcquisition } from '../src/cv/experience-hh-acquisition.js';
 import {
+  experienceAutoChildId,
   experienceAutoKey,
   experienceAutoRunning,
 } from '../src/cv/experience-auto-record.js';
+import { linkedinExportKey } from '../src/cv/linkedin-experience-record.js';
 import { confirmedExperiencePlan } from '../src/cv/experience-plan-receipt.js';
+import { experiencePlanKey } from '../src/cv/experience-plan-record.js';
 import { LINO_BINARY, LINO_TEXT } from '../src/transport/lino.js';
 import { experienceAutoFixture } from '../../experiments/issue-56/experience-auto-fixture.mjs';
 import {
@@ -177,6 +180,125 @@ test(
 );
 
 test(
+  'explicit preparation recovery retains acknowledged snapshots and refuses unconfirmed children',
+  { timeout: 10000 },
+  async () => {
+    const fixture = await experienceAutoFixture();
+    const { store } = fixture;
+    const server = await startCvFixtureServer({
+      store,
+      vacancies: fixture.vacancies,
+      cv: fixture.cv,
+    });
+    const send = cvFixtureRequest(
+      `http://127.0.0.1:${server.port}/api/cv/experience/`,
+      ['auto-status']
+    );
+    try {
+      const request = { requestId: 'recover-native-acquisition' };
+      const input = { ...fixture.input, ...request };
+      const status = async () =>
+        (await send('auto-status', LINO_TEXT, request)).row;
+      await send('auto-start', LINO_TEXT, input);
+      const result = await settled(status);
+      assert.equal(result.phase, 'completed');
+      const id = experienceAutoKey(request.requestId);
+      const row = await store.get(id);
+      const child = experienceAutoChildId(row.token, 'linkedin');
+      const linkedinKey = linkedinExportKey(child);
+      const planKey = experiencePlanKey(result.plan.requestId);
+      const checkpoint = {
+        ...row,
+        phase: 'acquiring-hh',
+        hh: null,
+        linkedin: null,
+        plan: null,
+      };
+      await store.put(checkpoint);
+      await store.delete(linkedinKey);
+      await store.delete(planKey);
+      const interrupted = await status();
+      assert.equal(interrupted.phase, 'interrupted');
+      assert.equal(interrupted.recoveryAvailable, true);
+      assert.deepEqual(
+        (await send('auto-start', LINO_BINARY, input)).row,
+        interrupted
+      );
+      assert.equal(fixture.calls.length, 1);
+      assert.deepEqual(await store.get(id), checkpoint);
+
+      assert.equal(
+        (
+          await send(
+            'auto-resume',
+            LINO_BINARY,
+            request,
+            'https://untrusted.example'
+          )
+        ).response.status,
+        403
+      );
+      assert.equal(
+        (await send('auto-resume', LINO_BINARY, request)).response.status,
+        200
+      );
+      const complete = await settled(status);
+      assert.equal(complete.phase, 'completed');
+      assert.equal(complete.hh, result.hh);
+      assert.equal(complete.linkedin, result.linkedin);
+      assert.equal(complete.plan.requestId, result.plan.requestId);
+      assert.deepEqual(fixture.calls, [child, child]);
+      assert.deepEqual(
+        (await send('auto-resume', LINO_TEXT, request)).row,
+        complete
+      );
+
+      const acknowledged = await store.get(linkedinKey);
+      const comparison = await store.get(planKey);
+      const translations = fixture.translationCalls.length;
+      await store.put({ ...comparison, phase: 'translating' });
+      await store.put({ ...row, phase: 'planning', plan: null });
+      assert.equal((await status()).recoveryAvailable, false);
+      assert.equal(
+        (await send('auto-resume', LINO_TEXT, request)).response.status,
+        409
+      );
+      assert.equal(fixture.translationCalls.length, translations);
+      await store.put({
+        ...acknowledged,
+        phase: 'reading',
+        revision: null,
+        files: [],
+      });
+      const uncertain = {
+        ...checkpoint,
+        phase: 'acquiring-linkedin',
+        hh: row.hh,
+      };
+      await store.put(uncertain);
+      await store.delete(planKey);
+      assert.equal((await status()).recoveryAvailable, false);
+      const refused = await send('auto-resume', LINO_TEXT, request);
+      assert.equal(refused.response.status, 409);
+      assert.deepEqual(await store.get(id), uncertain);
+      await store.delete(linkedinKey);
+      const missingAfterProgress = { ...uncertain, step: 'reading' };
+      await store.put(missingAfterProgress);
+      assert.equal((await status()).recoveryAvailable, false);
+      assert.equal(
+        (await send('auto-resume', LINO_TEXT, request)).response.status,
+        409
+      );
+      assert.deepEqual(await store.get(id), missingAfterProgress);
+      assert.deepEqual(fixture.calls, [child, child]);
+    } finally {
+      await server.close();
+      await fixture.close();
+    }
+  }
+);
+
+test(
   'Stop drains only the identified child and retains the completed HeadHunter checkpoint',
   { timeout: 5000 },
   async () => {
@@ -266,7 +388,7 @@ test(
 );
 
 test(
-  'foreground CLI recovers its receipt with a read-only store and does not start another acquisition',
+  'foreground CLI reads status without ownership and explicitly resumes with the original snapshots',
   { timeout: 5000 },
   async () => {
     const fixture = await experienceAutoFixture();
@@ -280,11 +402,11 @@ test(
     const commands = createCvCommands({
       openStore: async () => {
         opened.push('write');
-        return fixture.store;
+        return Object.create(fixture.store);
       },
       openReadOnly: async () => {
         opened.push('read');
-        return fixture.store;
+        return Object.create(fixture.store);
       },
       live: {
         ...fixture.cv,
@@ -309,6 +431,32 @@ test(
       assert.equal(start.phase, 'completed');
       assert.deepEqual(start, status);
       assert.deepEqual(opened, ['write', 'read']);
+      const id = experienceAutoKey(args['request-id']);
+      const row = await fixture.store.get(id);
+      await fixture.store.put({
+        ...row,
+        phase: 'acquiring-linkedin',
+        step: 'waiting-login',
+        linkedin: null,
+        plan: null,
+      });
+      await fixture.store.delete(experiencePlanKey(row.plan.requestId));
+      assert.equal(await commands['cv-experience-auto-status'](args, log), 0);
+      assert.equal(JSON.parse(output.at(-1)).phase, 'unknown');
+      assert.equal(
+        await commands['cv-experience-auto-resume'](
+          { 'request-id': args['request-id'] },
+          log
+        ),
+        0,
+        JSON.stringify(output.slice(-2))
+      );
+      const resumed = JSON.parse(output.at(-1));
+      assert.equal(resumed.phase, 'completed');
+      assert.equal(resumed.hh, start.hh);
+      assert.equal(resumed.linkedin, start.linkedin);
+      assert.equal(resumed.plan.requestId, start.plan.requestId);
+      assert.deepEqual(opened, ['write', 'read', 'read', 'write']);
       assert.equal(fixture.calls.length, 1);
     } finally {
       await fixture.close();

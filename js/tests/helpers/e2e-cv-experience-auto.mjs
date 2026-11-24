@@ -3,6 +3,7 @@ import { experienceAutoBrowserFixture } from '../../../experiments/issue-56/expe
 import {
   experienceAutoInspectionConfig,
   inspectExperienceAuto,
+  inspectExperienceAutoResume,
 } from '../../../experiments/issue-56/experience-auto-inspect.mjs';
 import { watchFixturePages } from './e2e-page-errors.mjs';
 
@@ -23,8 +24,17 @@ export const verifyCvExperienceAuto = async (browser) => {
         beforeBundle: process.env.EXPERIENCE_AUTO_BEFORE_BUNDLE,
       })
     );
+    const reads = fixture.reads();
+    const planId = await fixture.interruptBeforeComparison(result.requestId);
+    const recovery = await inspectExperienceAutoResume(page, {
+      requestId: result.requestId,
+      planId,
+      screenshots: process.env.EXPERIENCE_AUTO_SCREENSHOTS,
+      beforeBundle: process.env.EXPERIENCE_AUTO_RESUME_BEFORE_BUNDLE,
+    });
+    assert.equal(fixture.reads(), reads);
     assert.deepEqual(errors, []);
-    return result;
+    return { starts: result.starts, widths: result.widths, ...recovery, reads };
   } finally {
     await context.close();
     await fixture.close();

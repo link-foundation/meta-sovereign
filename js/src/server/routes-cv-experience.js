@@ -217,7 +217,7 @@ const actions = {
   ),
   compare: (store, input) => compareStoredExperience(store, input),
   ...Object.fromEntries(
-    ['start', 'status', 'stop'].map((operation) => [
+    ['start', 'status', 'stop', 'resume'].map((operation) => [
       `auto-${operation}`,
       (store, input, ctx) => experienceAuto(store, ctx)[operation](input),
     ])

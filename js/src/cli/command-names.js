@@ -21,6 +21,7 @@ export const ordinaryCommandNames = new Set([
   'chat',
   'contacts-import',
   'cv-diff',
+  'cv-experience-auto-resume',
   'cv-experience-auto-start',
   'cv-experience-auto-status',
   'cv-experience-auto-stop',
