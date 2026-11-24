@@ -55,6 +55,6 @@ the output of `git show f35d0d64:js/src/web/app.min.js` to a bundle and set
 [Source and logs](data/application-recruiter-panel-reuse.tar.gz) ·
 [SHA-256 manifest](data/application-recruiter-panel-reuse.json)
 
-Explicit Skip and authenticated provider acceptance remain open under HH08
-and HH10.
+[Explicit Skip](application-recruiter-panel-skip.md) has separate fixture
+evidence. Authenticated provider acceptance remains open under HH08 and HH10.
 [Pinned HeadHunter requirements](https://github.com/konard/hh-job-application-automation/blob/fa0991b8c2d0896fb3b4be6c69947f0590094b15/docs/requirements/README.md#run-the-application-run)

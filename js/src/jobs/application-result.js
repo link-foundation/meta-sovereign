@@ -148,11 +148,25 @@ const state = (raw) =>
   optionalChoice(raw.recruiterChat, ['open', 'unverified']) &&
   (!raw.recruiterChat ||
     (raw.active && raw.delivery === 'provider-confirmed' && !raw.testMode)) &&
+  (raw.recruiterSkipTarget === undefined ||
+    (typeof raw.recruiterSkipTarget === 'string' &&
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/u.test(
+        raw.recruiterSkipTarget
+      ) &&
+      raw.recruiterChat === 'open' &&
+      !raw.hold &&
+      !raw.paused &&
+      !raw.noQuestionnaires &&
+      raw.recruiterReply !== 'unknown')) &&
   optionalChoice(raw.recruiterReply, ['provider-confirmed', 'unknown']) &&
   (!raw.recruiterReply ||
     (raw.delivery === 'provider-confirmed' &&
       (raw.autoSendExactAnswers || raw.autoReuseAnswers))) &&
-  optionalChoice(raw.recruiterDismissal, ['completed', 'deferred']) &&
+  optionalChoice(raw.recruiterDismissal, [
+    'completed',
+    'deferred',
+    'skipped',
+  ]) &&
   (!raw.recruiterDismissal ||
     (raw.delivery === 'provider-confirmed' && !raw.testMode)) &&
   (raw.state !== 'delivered' || raw.delivery === 'provider-confirmed');

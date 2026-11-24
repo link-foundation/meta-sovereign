@@ -279,6 +279,9 @@ export const ruApplication = {
     'HeadHunter подтвердил автоматическую отправку ответа рекрутеру.',
   'application.recruiterReply.unknown':
     'Отправка автоматического ответа не подтверждена. Проверьте чат HeadHunter.',
+  'application.recruiterSkip': 'Пропустить вопрос рекрутера',
+  'application.recruiterDismissal.skipped':
+    'Вопрос рекрутера пропущен. Переписка осталась на HeadHunter.',
   'application.recruiterDismissal.completed':
     'Панель завершённой переписки на HeadHunter закрыта.',
   'application.recruiterDismissal.deferred':

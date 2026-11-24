@@ -257,6 +257,7 @@ const resolveBrowserDocument = async (
   const ownerFrame = page.mainFrame();
   return {
     chat: selected.chat,
+    identity: [selected.owner, selected.identity.key],
     async bindHistory(token, onSnapshot) {
       await assertCurrent();
       return bindBrowserHistory(page, selected.frame, token, onSnapshot);
@@ -280,13 +281,16 @@ const resolveBrowserDocument = async (
     },
     async dismissOwnerPanel({ verify, admit, signal }) {
       const selector = ui.documents.ownerPanel;
-      if (!selector || selected.frame === ownerFrame || !(await verify())) {
+      if (!selector || selected.frame === ownerFrame) {
         return false;
       }
       await assertCurrent();
       const iframe = await topFrameElement(selected.frame, ownerFrame);
       const location = { owner: selected.owner, url: selected.url, selector };
       try {
+        if (!(await verify())) {
+          return false;
+        }
         admit();
         if (
           (await ownerFrame.evaluate(evaluateOwnerPanelState, {

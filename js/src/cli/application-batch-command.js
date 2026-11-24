@@ -15,12 +15,12 @@ const stepCommands = {
   'confirm-send': 'send',
   'confirm-popup': 'popup',
 };
-const attachmentCommands = ['letter-prepare', 'letter-send'];
+const advanceCommands = ['letter-prepare', 'letter-send', 'skip-recruiter'];
 const applicationCommands = {
   read: 'application-read',
   'close-review': 'application-close',
   ...Object.fromEntries(
-    attachmentCommands.map((action) => [action, 'application-advance'])
+    advanceCommands.map((action) => [action, 'application-advance'])
   ),
 };
 const modeCommands = {
@@ -42,10 +42,16 @@ const currentCommand = async (service, action, displayed) => {
     ...(stepCommands[action]
       ? { step: stepCommands[action], confirm: true }
       : {}),
-    ...(attachmentCommands.includes(action) ? { action, confirm: true } : {}),
+    ...(advanceCommands.includes(action) ? { action, confirm: true } : {}),
+    ...(action === 'skip-recruiter'
+      ? { recruiterSkipTarget: receipt.recruiterSkipTarget }
+      : {}),
   });
 };
 const batchCommand = async (service, input, action, displayed) => {
+  if (action === 's' && displayed.application?.recruiterSkipTarget) {
+    action = 'skip-recruiter';
+  }
   if (action === 's') {
     const target = displayed.batch?.chatWorker?.skip;
     if (!input.chatWatchWaiting || !target) {
@@ -125,21 +131,23 @@ export const applicationBatchCommand = async (
           'read',
           'continue',
           ...Object.keys(stepCommands),
-          ...attachmentCommands,
+          ...advanceCommands,
           'close-review',
           'pause',
           'resume',
           'defer-questionnaires',
           'review-questionnaires',
-          ...(input.chatWatchWaiting ? ['s'] : []),
+          's',
           'stop',
           'quit',
         ],
         note: 'This finite paced batch may fill and send according to its saved confirmation choices. Confirm commands apply only to the current displayed step and revision. Review/status never resume work. SIGUSR1 defers questionnaires in RAM; SIGUSR2 enables automatic due revisits through the same guards. A backed daily-limit wait may refresh and restore its form before following the saved confirmation choices. Stop drains batch work and leaves the current native form for review. End of input drains the worker and closes its browser.',
+        recruiterCommand:
+          'Read or display the current application. When it offers a recruiter question to skip, type skip-recruiter or s. The current panel closes without sending a reply.',
         ...(input.chatWatchWaiting
           ? {
               chatCommand:
-                'Use status to display the held chat. Type s to skip that exact question.',
+                'Use status to display the held unread chat. Type s to skip that exact question when no application recruiter question is offered.',
             }
           : {}),
       })

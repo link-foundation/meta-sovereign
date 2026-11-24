@@ -125,6 +125,16 @@ const recruiterDismissal = (service, record, signal) => {
     },
   };
 };
+
+const maySkipRecruiterPanel = (record) =>
+  record.active &&
+  !record.paused &&
+  !record.noQuestionnaires &&
+  !record.options.testMode &&
+  !record.closing &&
+  !record.hold &&
+  record.recruiterReply !== 'unknown' &&
+  record.delivery === 'provider-confirmed';
 export const exactApplicationPlan = (record) => {
   const { report, page, options } = record;
   if (
@@ -269,13 +279,16 @@ export class ApplicationReview {
       url: record.url,
     };
   }
-  async observeRecruiterPanel(record, page, signal) {
+  async observeRecruiterPanel(record, page, signal, skip) {
     if (record.delivery !== 'provider-confirmed' || record.options.testMode) {
       return false;
     }
     let status = record.recruiterChat;
     let reply = record.recruiterReply;
-    let dismissed = record.recruiterDismissal;
+    let dismissed = record.recruiterSkipVerified
+      ? 'skipped'
+      : record.recruiterDismissal;
+    let target;
     if (page.recruiterPanelOpen === true) {
       signal.throwIfAborted();
       const result = await this.service
@@ -283,8 +296,13 @@ export class ApplicationReview {
           store: this.service.store,
           previous: record.recruiterCapture,
           profileId: record.options.profileId,
-          review: recruiterDraftReview(this.service, record, signal),
-          dismissal: recruiterDismissal(this.service, record, signal),
+          ...(skip
+            ? { skip }
+            : {
+                review: recruiterDraftReview(this.service, record, signal),
+                dismissal: recruiterDismissal(this.service, record, signal),
+              }),
+          offerSkip: maySkipRecruiterPanel(record),
           signal,
           trace: this.service.trace,
         })
@@ -300,21 +318,76 @@ export class ApplicationReview {
           : 'unverified';
       reply = result?.reply ?? reply;
       dismissed = result?.dismissed ?? (result?.matched ? null : dismissed);
+      if (result?.dismissed === 'skipped') {
+        record.recruiterSkipVerified = true;
+      }
+      if (status === 'open' && result.skipCapture) {
+        target =
+          record.recruiterSkip?.capture === result.skipCapture
+            ? record.recruiterSkip
+            : {
+                capture: result.skipCapture,
+                token: globalThis.crypto.randomUUID(),
+              };
+      }
     } else if (status) {
       status = page.recruiterPanelOpen === false ? null : 'unverified';
     }
     if (
       status === record.recruiterChat &&
       reply === record.recruiterReply &&
-      dismissed === record.recruiterDismissal
+      dismissed === record.recruiterDismissal &&
+      target === record.recruiterSkip
     ) {
       return false;
     }
     record.recruiterChat = status;
     record.recruiterReply = reply;
     record.recruiterDismissal = dismissed;
+    record.recruiterSkip = target;
     this.service.trace({ event: 'application-recruiter-panel', state: status });
     return true;
+  }
+  async skipRecruiterPanel(record, input, signal) {
+    if (
+      input.confirm !== true ||
+      (input.automatic !== undefined && input.automatic !== false)
+    ) {
+      throw fail('confirmation');
+    }
+    const target = record.recruiterSkip;
+    if (!target || input.recruiterSkipTarget !== target.token) {
+      throw fail('changed');
+    }
+    const policy = applicationPreservationPolicy(this.service, record, signal);
+    const batch = this.service.batch.runtime;
+    const batchSignal =
+      batch?.record.options.requestId === record.requestId &&
+      batch.record.options.browserSlot === record.browserSlot
+        ? batch.controller.signal
+        : undefined;
+    const check = () => {
+      policy();
+      batchSignal?.throwIfAborted();
+      if (!maySkipRecruiterPanel(record) || record.recruiterChat !== 'open') {
+        throw fail('mode-changed');
+      }
+    };
+    check();
+    const page = await this.service.attachment.readPage(record);
+    check();
+    const changed = await this.observeRecruiterPanel(record, page, signal, {
+      capture: target.capture,
+      check,
+    });
+    const verified = record.recruiterSkipVerified;
+    if (changed) {
+      await this.service.save(record);
+    }
+    if (!verified) {
+      throw fail('changed');
+    }
+    return applicationView(record);
   }
   async inspect(record, signal) {
     const { filling, attachment } = this.service;

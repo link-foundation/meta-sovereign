@@ -271,6 +271,9 @@ export const hiApplication = {
     'HeadHunter ने भर्ती करने वाले को भेजे गए स्वचालित जवाब की पुष्टि की।',
   'application.recruiterReply.unknown':
     'स्वचालित जवाब की डिलीवरी की पुष्टि बाकी है। HeadHunter चैट देखें।',
+  'application.recruiterSkip': 'भर्तीकर्ता का सवाल छोड़ें',
+  'application.recruiterDismissal.skipped':
+    'भर्तीकर्ता का सवाल छोड़ दिया गया। बातचीत HeadHunter में मौजूद है।',
   'application.recruiterDismissal.completed':
     'HeadHunter पर पूरी हुई भर्ती चैट का पैनल बंद कर दिया गया।',
   'application.recruiterDismissal.deferred':

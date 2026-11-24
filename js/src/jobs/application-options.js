@@ -270,6 +270,15 @@ export const applicationView = (record) => {
     ...(record.active && record.recruiterChat
       ? { recruiterChat: record.recruiterChat }
       : {}),
+    ...(record.active &&
+    record.recruiterChat === 'open' &&
+    record.recruiterSkip &&
+    record.recruiterReply !== 'unknown' &&
+    !record.hold &&
+    !record.paused &&
+    !record.noQuestionnaires
+      ? { recruiterSkipTarget: record.recruiterSkip.token }
+      : {}),
     ...(record.recruiterReply ? { recruiterReply: record.recruiterReply } : {}),
     ...(record.recruiterDismissal
       ? { recruiterDismissal: record.recruiterDismissal }

@@ -503,6 +503,79 @@ const verifyRecruiterTerminal = async ({
   assert.equal(dismissals, 1);
 };
 
+const verifyRecruiterSkip = async ({
+  panel,
+  owned,
+  draft,
+  nativePanel,
+  web,
+  shot,
+}) => {
+  const skip = panel.locator('[data-application-action="skip-recruiter"]');
+  const sends = () => draft.evaluate(() => globalThis.fixtureRecruiterSends);
+  const priorSends = await sends();
+  assert.equal(typeof priorSends, 'number');
+  assert.equal(await skip.count(), 0);
+  assert.equal(await draft.inputValue(), recruiterPanelDraft);
+  await draft.fill('');
+  try {
+    await waitForCapture(
+      async () => (await skip.count()) && (await skip.isEnabled()),
+      'Skip must be offered for the current recruiter question'
+    );
+  } catch (error) {
+    await shot(
+      'skip-before',
+      panel.locator('[data-application-recruiter-chat="open"]').locator('..')
+    );
+    throw error;
+  }
+  await shot('skip-ready', skip.locator('..'));
+
+  const close = nativePanel.locator('[data-qa="chatik-close"]');
+  const recover = panel.locator('[data-application-action="recover"]');
+  const clickSkip = () =>
+    waitForCapture(async () => {
+      if (!(await skip.isEnabled())) {
+        await recover.click();
+      }
+      const attempted = web.waitForResponse(
+        (response) =>
+          new URL(response.url()).pathname ===
+          '/api/vacancies/application-advance'
+      );
+      await skip.click();
+      const response = await attempted;
+      const body = await response.text();
+      return !body.includes('jobs-busy') && { ok: response.ok(), body };
+    }, 'Skip must acquire the vacancy writer between batch observations');
+  await close.evaluate((node) => {
+    const decoy = node.cloneNode();
+    decoy.removeAttribute('onclick');
+    decoy.dataset.qa = 'chatik-secondary-close';
+    node.after(decoy);
+  });
+  const rejection = await clickSkip();
+  assert.equal(rejection.ok, false);
+  assert.match(rejection.body, /jobs-application-changed/u);
+  assert.equal(await sends(), priorSends);
+  assert.equal(await nativePanel.isVisible(), true);
+  await nativePanel
+    .locator('[data-qa="chatik-secondary-close"]')
+    .evaluate((node) => node.remove());
+  let closes = 0;
+  owned.on('console', (message) => {
+    closes += Number(message.text() === 'fixture recruiter panel dismissed');
+  });
+  const response = await clickSkip();
+  assert.equal(response.ok, true, response.body);
+  await waitForCapture(
+    () => closes === 1,
+    'Skip must close the single owned native panel'
+  );
+  assert.equal(closes, 1);
+};
+
 export const verifyNativeApplicationRecruiterPanel = async (
   browser,
   {
@@ -517,6 +590,7 @@ export const verifyNativeApplicationRecruiterPanel = async (
     exactReply = false,
     reuseReply = false,
     terminal = false,
+    skipRecruiter = false,
     verifyPending = true,
   } = {}
 ) => {
@@ -526,6 +600,7 @@ export const verifyNativeApplicationRecruiterPanel = async (
     prepareReply,
     exactReply,
     reuseReply,
+    skipRecruiter,
   });
   const controls = applicationPanelBrowser(fixture);
   const { page, panel } = controls;
@@ -662,7 +737,36 @@ export const verifyNativeApplicationRecruiterPanel = async (
     }
     if (reuseReply) {
       await verifyRecruiterReuse({ frame, nativePanel, panel, fixture, shot });
+      if (skipRecruiter) {
+        await draft.evaluate((composer) => {
+          const row = document.createElement('article');
+          row.dataset.qa = 'chatik-chat-message-8';
+          row.dataset.time = '2026-11-24T09:05:00Z';
+          const body = document.createElement('p');
+          body.dataset.qa = 'chat-bubble-text';
+          body.textContent = 'Could you share your portfolio?';
+          row.append(body);
+          composer.closest('label').before(row);
+        });
+      }
     }
+    const dismiss = skipRecruiter
+      ? () =>
+          verifyRecruiterSkip({
+            panel,
+            owned,
+            draft,
+            nativePanel,
+            web: page,
+            shot,
+          })
+      : terminal
+        ? () =>
+            verifyRecruiterTerminal({ owned, frame, nativePanel, draft, shot })
+        : () =>
+            nativePanel
+              .getByRole('button', { name: 'Close recruiter panel' })
+              .click();
     await verifyRecruiterPanelRecovery({
       controls,
       page,
@@ -674,21 +778,23 @@ export const verifyNativeApplicationRecruiterPanel = async (
       draft,
       fixture,
       shot,
-      dismiss: terminal
-        ? () =>
-            verifyRecruiterTerminal({ owned, frame, nativePanel, draft, shot })
-        : () =>
-            nativePanel
-              .getByRole('button', { name: 'Close recruiter panel' })
-              .click(),
+      dismiss,
     });
-    if (terminal) {
+    if (terminal || skipRecruiter) {
+      if (skipRecruiter) {
+        assert.equal(fixture.effects[0].recruiterSends, reuseReply ? 2 : 0);
+        assert.equal(fixture.effects[0].recruiterCloses, 1);
+      }
       await panel.locator('[data-application-action="recover"]').click();
+      const reason = skipRecruiter ? 'skipped' : 'completed';
       const dismissal = panel.locator(
-        '[data-application-recruiter-dismissal="completed"]'
+        `[data-application-recruiter-dismissal="${reason}"]`
       );
       await dismissal.waitFor();
-      await shot('terminal-after', dismissal.locator('..'));
+      await shot(
+        skipRecruiter ? 'skip-after' : 'terminal-after',
+        dismissal.locator('..')
+      );
     }
     return {
       applicationsSent: 1,
@@ -700,9 +806,11 @@ export const verifyNativeApplicationRecruiterPanel = async (
         recruiterSends: 0,
       }),
       ...(exactReply && { exactRepliesConfirmed: 2 }),
-      ...(terminal
-        ? { batchCompletedAfterVerifiedTerminalDismissal: true }
-        : { batchCompletedAfterOwnerDismissal: true }),
+      ...(skipRecruiter
+        ? { batchCompletedAfterExplicitSkip: true }
+        : terminal
+          ? { batchCompletedAfterVerifiedTerminalDismissal: true }
+          : { batchCompletedAfterOwnerDismissal: true }),
       resourcesClosed: true,
     };
   } finally {
@@ -731,6 +839,8 @@ export const verifyNativeApplicationRecruiterExact = (browser) =>
 export const verifyNativeApplicationRecruiterReuse = (browser) =>
   verifyNativeApplicationRecruiterPanel(browser, {
     reuseReply: true,
+    skipRecruiter: true,
+    manualSend: true,
     panelDelayMs: 0,
     verifyBinding: false,
   });

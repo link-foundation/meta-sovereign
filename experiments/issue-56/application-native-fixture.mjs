@@ -189,7 +189,8 @@ export const applicationNativeFixture = async (
                           : {}),
                       }),
                       instantApplication
-                    )
+                    ),
+                    session.page
                   );
                   await close();
                 };

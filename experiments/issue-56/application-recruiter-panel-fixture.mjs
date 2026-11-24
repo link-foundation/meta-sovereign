@@ -19,7 +19,7 @@ export const recruiterReuseOptions = [
   'Нет. Отвечу заново',
 ];
 const panel = `<aside data-qa="chatik-root" aria-label="Recruiter chat" style="position:fixed;inset:20px 20px auto auto;width:360px;border:1px solid #aaa;padding:12px;background:#fff">
-  <button type="button" data-qa="chatik-close" onclick="console.info('fixture recruiter panel dismissed'); this.closest('aside').hidden = true">Close recruiter panel</button>
+  <button type="button" data-qa="chatik-close" onclick="window.fixtureRecruiterCloses=(window.fixtureRecruiterCloses ?? 0)+1; console.info('fixture recruiter panel dismissed'); this.closest('aside').hidden = true">Close recruiter panel</button>
   <iframe title="Recruiter chat" src="${recruiterPanelChatUrl}" style="display:block;width:100%;height:200px;border:0"></iframe>
 </aside>`;
 
@@ -31,6 +31,7 @@ export const applicationRecruiterPanelFixture = async (
     prepareReply = false,
     exactReply = false,
     reuseReply = false,
+    skipRecruiter = false,
   } = {}
 ) => {
   const searchVisits = [];
@@ -43,7 +44,18 @@ export const applicationRecruiterPanelFixture = async (
       experience: 'Reviewed experience',
       letter: 'Reviewed letter',
     },
-    onApplicationClose: (effect) => effects.push(effect),
+    onApplicationClose: async (effect, page) => {
+      if (skipRecruiter) {
+        const frame = page.frame({ url: recruiterPanelChatUrl });
+        effect.recruiterSends = await frame?.evaluate(
+          () => globalThis.fixtureRecruiterSends
+        );
+        effect.recruiterCloses = await page.evaluate(
+          () => globalThis.fixtureRecruiterCloses ?? 0
+        );
+      }
+      effects.push(effect);
+    },
     searchRoute: async (route, url) => {
       if (url.href !== originalApplicationSearch) {
         return false;
@@ -68,7 +80,11 @@ export const applicationRecruiterPanelFixture = async (
           <article data-qa="chatik-chat-message-1" data-time="2026-11-24T09:00:00Z"><p data-qa="chat-bubble-text">${recruiterPanelQuestion}</p></article>${prepareReply ? '</div>' : ''}
           <label>Your reply <textarea data-qa="text-input">${recruiterPanelDraft}</textarea></label>
           ${
-            ownerReply || prepareReply || exactReply || reuseReply
+            ownerReply ||
+            prepareReply ||
+            exactReply ||
+            reuseReply ||
+            skipRecruiter
               ? `<button type="button" data-qa="send-message">Send reply</button>
           <script>
             globalThis.fixtureRecruiterSends=0;

@@ -2108,4 +2108,5 @@ Native profile persistence follow-up:
 - [x] Verify distinct text and native choice receipts, refusal for a near-match button and a saved chat opt-out, and separate recovered application and reply states. [Reproduction and evidence](application-recruiter-panel-exact.md).
 - [x] Verify the owned native close after a terminal handover, preserving a draft and refusing ambiguous controls or a live instruction. [Reproduction and evidence](application-recruiter-panel-terminal.md).
 - [x] Verify prior-answer reuse for both the inline panel and unread review, holding unknown matches and protecting pending owner work. [Reproduction and evidence](application-recruiter-panel-reuse.md).
-- [ ] Complete explicit Skip. Check exact-head hosted runs and authenticated provider acceptance.
+- [x] Verify explicit Skip against the currently displayed recruiter question, including native close ambiguity, concurrent Stop and failed receipt recovery. [Reproduction and evidence](application-recruiter-panel-skip.md).
+- [ ] Check exact-head hosted runs and complete the remaining recruiter timing and authenticated provider acceptance.

@@ -107,10 +107,13 @@ const terminalNotice = (row) =>
   !row.strictOptions &&
   completedHandover(row.body);
 
-const dismissRecruiterPanel = async (document, vacancy, capture, options) => {
-  const { dismissal, signal } = options;
-  if (!dismissal) {
-    return undefined;
+const pendingRecruiterMessage = (row) =>
+  Boolean(row?.body && !row.outgoing && !row.service && !terminalNotice(row));
+
+const recruiterPanelDecision = async (document, vacancy, capture, options) => {
+  const { dismissal, skip, offerSkip, signal } = options;
+  if (!dismissal && !skip && !offerSkip) {
+    return {};
   }
   const read = () => readBrowserPanelDismissalBoundary(document, recruiterUi);
   const boundary = await read();
@@ -121,25 +124,32 @@ const dismissRecruiterPanel = async (document, vacancy, capture, options) => {
     (boundary.messages.length &&
       historyKey(chat, boundary.messages) !== capture)
   ) {
-    return undefined;
+    return {};
   }
-  const reason = dismissal.defer
-    ? 'deferred'
-    : boundary.disabled || terminalNotice(boundary.messages.at(-1))
-      ? 'completed'
+  const latest = boundary.messages.at(-1);
+  const skipCapture =
+    !boundary.disabled && pendingRecruiterMessage(latest)
+      ? historyKey(document.identity, [boundary.header, capture])
       : undefined;
+  const reason = skip
+    ? skipCapture === skip.capture && 'skipped'
+    : dismissal?.defer
+      ? 'deferred'
+      : dismissal &&
+        (boundary.disabled || terminalNotice(latest)) &&
+        'completed';
   if (
     reason &&
     (await document.dismissOwnerPanel({
       verify: async () =>
         JSON.stringify(await read()) === JSON.stringify(boundary),
-      admit: dismissal.check,
+      admit: (skip ?? dismissal).check,
       signal,
     }))
   ) {
-    return reason;
+    return { dismissed: reason };
   }
-  return undefined;
+  return { skipCapture: offerSkip ? skipCapture : undefined };
 };
 
 /** Read one vacancy-bound panel and archive its observed native messages. */
@@ -167,19 +177,20 @@ export const readApplicationRecruiterPanel = async (
       state: 'unverified',
     });
   }
+  let decision = {};
   try {
-    const dismissed = await dismissRecruiterPanel(
+    decision = await recruiterPanelDecision(
       document,
       vacancy,
       capture,
       options
     );
-    if (dismissed) {
+    if (decision.dismissed) {
       options.trace({
         event: 'application-recruiter-dismissal',
-        state: dismissed,
+        state: decision.dismissed,
       });
-      return { matched: false, capture, dismissed };
+      return { matched: false, capture, dismissed: decision.dismissed };
     }
   } catch {
     options.signal.throwIfAborted();
@@ -190,12 +201,14 @@ export const readApplicationRecruiterPanel = async (
   }
   let reply;
   try {
-    reply = await reviewRecruiterAnswer(
-      document,
-      recruiterUi,
-      vacancy,
-      options
-    );
+    if (!options.skip) {
+      reply = await reviewRecruiterAnswer(
+        document,
+        recruiterUi,
+        vacancy,
+        options
+      );
+    }
     if (reply) {
       options.trace({
         event: 'application-recruiter-answer',
@@ -217,6 +230,9 @@ export const readApplicationRecruiterPanel = async (
       )
     ),
     capture,
+    ...(!reply && decision.skipCapture
+      ? { skipCapture: decision.skipCapture }
+      : {}),
     ...(reply && reply !== 'draft' ? { reply } : {}),
   };
 };

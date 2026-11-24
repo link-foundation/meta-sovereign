@@ -15,6 +15,7 @@ const ownerReply = process.env.E2E_RECRUITER_PANEL_LEARN_REPLY === '1';
 const prepareReply = process.env.E2E_RECRUITER_PANEL_PREPARE_REPLY === '1';
 const exactReply = process.env.E2E_RECRUITER_PANEL_EXACT_REPLY === '1';
 const reuseReply = process.env.E2E_RECRUITER_PANEL_REUSE === '1';
+const skipRecruiter = process.env.E2E_RECRUITER_PANEL_SKIP === '1';
 const replyControl = async (frame, path) => {
   if (path === '/reply/start') {
     await frame
@@ -51,11 +52,13 @@ await serveNativeMcpFixture(
   async (browser) => {
     current = browser;
     fixture = await applicationRecruiterPanelFixture(browser, {
-      panelDelayMs: prepareReply || exactReply || reuseReply ? 0 : 4000,
+      panelDelayMs:
+        prepareReply || exactReply || reuseReply || skipRecruiter ? 0 : 4000,
       ownerReply,
       prepareReply,
       exactReply,
       reuseReply,
+      skipRecruiter,
     });
     return fixture;
   },
@@ -93,7 +96,7 @@ await serveNativeMcpFixture(
             .click({ timeout: 5000 });
           panelOpen = false;
         } else if (
-          (prepareReply || exactReply) &&
+          (prepareReply || exactReply || skipRecruiter) &&
           request.url === '/draft/clear'
         ) {
           await frame.getByRole('textbox', { name: 'Your reply' }).fill('');
@@ -123,7 +126,7 @@ await serveNativeMcpFixture(
           recruiterSends: globalThis.fixtureRecruiterSends,
           revealed: node.scrollTop > 0,
         })))),
-      ...(ownerReply || exactReply
+      ...(ownerReply || exactReply || skipRecruiter
         ? await observeLearning(fixture.runtimeStore, frame, panelOpen)
         : {}),
       ...(reuseReply

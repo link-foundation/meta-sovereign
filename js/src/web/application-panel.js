@@ -444,6 +444,18 @@ const NativeControls = ({ application, idle, confirmed, t }) => {
     }),
     el('div', { key: 'actions', className: 'row' }, [
       button('read', t('application.read'), action('Read'), !ready),
+      receipt.recruiterSkipTarget
+        ? button(
+            'skip-recruiter',
+            t('application.recruiterSkip'),
+            action('Advance', {
+              action: 'skip-recruiter',
+              confirm: true,
+              recruiterSkipTarget: receipt.recruiterSkipTarget,
+            }),
+            !ready
+          )
+        : null,
       attachmentControl(receipt, action, admitted && confirmed, t),
       button(
         'form',

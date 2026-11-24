@@ -1,3 +1,4 @@
+- [Skip a HeadHunter recruiter question](application-recruiter-panel-skip.md) leaves the conversation available in HeadHunter and resumes the batch after a confirmed native close.
 - [Earlier HeadHunter answer reuse](application-recruiter-panel-reuse.md) verifies affirmative and negative native choices, an unknown answer held for review, and recovery of the provider receipt.
 - [Finished recruiter-panel dismissal](application-recruiter-panel-terminal.md) verifies the exact owned panel closes and the paced batch continues after a provider handover.
 - [Exact recruiter-panel replies](application-recruiter-panel-exact.md) verify approved text and native-button dispatch under explicit opt-in, chat opt-out, native receipts, and recovery.

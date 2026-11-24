@@ -270,6 +270,9 @@ export const enApplication = {
     'HeadHunter confirmed the automatic recruiter reply.',
   'application.recruiterReply.unknown':
     'Delivery of the automatic recruiter reply is uncertain. Check the native chat.',
+  'application.recruiterSkip': 'Skip recruiter question',
+  'application.recruiterDismissal.skipped':
+    'Recruiter question skipped. The conversation stays in HeadHunter.',
   'application.recruiterDismissal.completed':
     'The finished recruiter chat was closed on HeadHunter.',
   'application.recruiterDismissal.deferred':

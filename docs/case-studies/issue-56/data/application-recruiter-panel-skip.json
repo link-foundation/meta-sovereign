@@ -1,0 +1,34 @@
+{
+  "archive": "application-recruiter-panel-skip.tar.gz",
+  "files": {
+    "before.log": "1d81c291bd455a8a70554c4ea85619b1f76e245e863ed2b62fdd0a017033c60e",
+    "browser-reuse.log": "a86fb1ca19feba6990420e2b2febac5fddd7e0a2192b1fad3870d6b81ba4fbb7",
+    "browser.log": "4a04c930355761d02c53713b3497d79e90076e0bca1071235cb5c4ff90ad1158",
+    "build.log": "8261fbee10e18446f323980ca7295c1a4c4a9380cca15830f74aacfee9f02a7f",
+    "deno.log": "eb4f8235c9d5a5fcea6f3afe6c403452f7f284fdc223a34a5c6039ce4fc1b329",
+    "eslint.log": "d812845f4a68e2e6cac0e405eef014b051c35c49eac3f0d951032692f3e70ac9",
+    "mcp-console.log": "c03cdb445b2dd41db8be1d1f995e414d059935c132a1368b472eb8182134fe58",
+    "mcp-server.log": "0a8697e29e8acaa3488e93ffcaa45f877868f377e22b0c946048394bb3df41e1",
+    "mcp.json": "f34fe278d02ae119b107c65fe901890f8dd547cb44ba358bf0b72ff2643c4695",
+    "node.log": "453a23d0c24cc3811fc625ce112dfe14588dac7099bc5dde188408a15e9b34e3",
+    "parent-modules/application-attachment.js": "2b66796b0dfdadeb01a3ff0ce3924d7d613c01b28e7eaf725b74e681ded043f8",
+    "parent-modules/application-batch.js": "9926ba611a07517f0d9e3184edb77df815ab56beccd7b0d6769bb4f52246102f",
+    "parent-modules/application-options.js": "c82bc1e7f6decbed6db8d3cf2ffba10e5fdb87e52eb31232ce3bf8c4790fdf32",
+    "parent-modules/application-page.js": "0e76bc2353235ee362fd75aa395a30d98c533ea5813c3e0907e61eb521dfe476",
+    "parent-modules/application-recruiter-panel.js": "c895ea561cd75c800975e3342a25113ab65059dcd17e028f40bafc1ba0d64b51",
+    "parent-modules/application-result.js": "8e9f70bf7382e95950a5266e6242beaec839def55c5eee1d7dca4ddc874dd6aa",
+    "parent-modules/application-review.js": "4f11361d31adf4e86424f942fa90eb4c2b652da536450a0990f742f55b7ed3dc",
+    "parent-modules/application-search-route.js": "0ea142be33c92862e59f56d2dce5ec32546e1f7b16be98a3af39d15dba98745b",
+    "parent-modules/application-service.js": "446917497754f297455a35ef08640baaa2db3ee9e89c4e109d79481c47d36eb1",
+    "parent-web.git-blob": "4a976a368dd4ec6b44591602a0347cba63d8de2e82b397df4ad759f6597b9d4e",
+    "parent.txt": "22f706caf737026f64a7764150ee23cd93aa634e9e1d171463779cf353d7f0e8",
+    "secretlint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source.diff": "bd802c95ae8400161bc53c03ed628ac603a371a1a7734cdd77313e4696c389f0"
+  },
+  "screenshots": {
+    "skip-after.png": "aaf851dc7b8ddd38e273712ef7bf95ba40f9bff4286def7cf22094ba3b0681e6",
+    "skip-before.png": "3f1000c7fea91f9c59a5b0034899759e2d7dd0f6556b7739d3a01af30255f6e4",
+    "skip-phone.png": "41991dbca3a040f768abc1f01ecc0c82f15eb517f10376cc778fb7d4c7502a07",
+    "skip-ready.png": "488e3c846f391b1cf3b66a8929c19ae05e5b9ff0efa90484dc47d761ce0ed8e8"
+  }
+}
