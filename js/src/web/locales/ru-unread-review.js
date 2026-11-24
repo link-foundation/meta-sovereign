@@ -1,7 +1,14 @@
 export const ruUnreadReview = {
   'browserUnread.form.enable':
-    'Заполнять анкеты по ссылкам для моей проверки и отправки',
-  'browserUnread.answer.form-review': 'Анкета передана в раздел «Формы».',
+    'Готовить анкеты по ссылкам и голосования HeadHunter к проверке',
+  'browserUnread.answer.form-review': 'Открыто для проверки в разделе «Формы».',
+  'browserUnread.form.rating-ready':
+    'Название компании введено. Выберите оценки и отправьте их на HeadHunter.',
+  'browserUnread.form.rating-closed': 'HeadHunter завершил это голосование.',
+  'browserUnread.form.rating-sign-in':
+    'Войдите в HeadHunter в окне голосования.',
+  'browserUnread.form.rating-unavailable':
+    'Проверьте поиск компании в окне голосования HeadHunter.',
   'browserUnread.form.prefilled':
     'Заполнено полей: {count}. Проверьте анкету перед отправкой.',
   'browserUnread.form.partial':

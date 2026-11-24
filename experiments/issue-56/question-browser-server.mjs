@@ -22,6 +22,11 @@ import {
   linkedFormBrowser,
 } from './unread-linked-form-fixture.mjs';
 import {
+  employerRatingInvite,
+  ratingReviewBrowser,
+  ratingSessionCookie,
+} from './unread-rating-fixture.mjs';
+import {
   modelQuestion,
   modelRunnerFixture,
   seedModelAnswers,
@@ -177,6 +182,7 @@ export const questionBrowserServer = async (
     readVacancy,
     forms,
     unreadMessages,
+    unreadRatingAuth,
   } = {}
 ) => {
   const env = await questionBrowserFixture();
@@ -190,6 +196,9 @@ export const questionBrowserServer = async (
   const context = await browser.newContext({
     viewport: { width: 1000, height: 800 },
   });
+  if (unreadRatingAuth) {
+    await context.addCookies([ratingSessionCookie]);
+  }
   const page = await context.newPage();
   traceUnreadNavigation(page, unreadReview);
   let inactiveView;
@@ -311,15 +320,25 @@ if (
     process.env.QUESTION_BROWSER_LINKED_FORMS === '1'
       ? linkedFormBrowser(browser)
       : null;
+  const rating =
+    process.env.QUESTION_BROWSER_EMPLOYER_RATING === '1'
+      ? ratingReviewBrowser(browser)
+      : null;
   const fixture = await questionBrowserServer(browser, {
     summaryChoices: process.env.QUESTION_BROWSER_SUMMARY === '1',
     noticePolicies: process.env.QUESTION_BROWSER_NOTICES === '1',
     unreadReview:
-      Boolean(linked) || process.env.QUESTION_BROWSER_UNREAD === '1',
+      Boolean(linked || rating) || process.env.QUESTION_BROWSER_UNREAD === '1',
     ...(linked && {
       unreadAnswers: true,
       unreadMessages: { 8: employerQuestionnaire },
       forms: linked.forms,
+    }),
+    ...(rating && {
+      unreadAnswers: true,
+      unreadMessages: { 8: employerRatingInvite },
+      unreadRatingAuth: true,
+      forms: rating.forms,
     }),
   });
   const controls = questionBrowserControlServer(fixture);

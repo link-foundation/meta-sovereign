@@ -4,6 +4,7 @@ import { readBrowserAnswerChoices } from './browser-choices.js';
 import { normalizeChatScanOptions } from './browser-scan-options.js';
 import { withBrowserConversationTail } from './browser-conversation-tail.js';
 import { boundedBrowserText } from '../automation/question-browser-state.js';
+import { seedEmployerRating } from '../forms/employer-rating.js';
 
 export const normalizeUnreadScanOptions = (options = {}) => {
   const settings = normalizeChatScanOptions(options);
@@ -168,6 +169,10 @@ export const scanUnreadBrowserConversations = ({
                   verify,
                   retainReply,
                   retainReview,
+                  ...(ui.id === 'hh' && {
+                    seedRating: (destination, check) =>
+                      seedEmployerRating(page, destination, check),
+                  }),
                   onHistoryWindow: options.onHistoryWindow,
                 },
                 (handle) => options.onConversation(observation, handle)

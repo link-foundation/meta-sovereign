@@ -4,6 +4,10 @@ import {
   sameRespondentForm,
 } from './form-destination.js';
 import { formFailure as failure } from './options.js';
+import {
+  checkRatingRequest,
+  employerRatingDestination,
+} from './employer-rating.js';
 
 const checkRespondentReport = (target, report) => {
   const resolved = respondentDestination(report.url);
@@ -115,7 +119,7 @@ const reviewLinkedForm = async ({
   release,
 }) => {
   const { forms, onWaiting } = ownership;
-  const { url, planning, signal, verify } = input;
+  const { url, planning, signal, verify, rating } = input;
   let session;
   let issued = false;
   let closing;
@@ -129,9 +133,26 @@ const reviewLinkedForm = async ({
   signal.addEventListener('abort', abort, { once: true });
   try {
     signal.throwIfAborted();
+    const browserSlot = `chat-form-${requestId.slice(0, 20)}`;
+    if (rating) {
+      ({ session } = await forms.openRatingReview({
+        url,
+        browserSlot,
+        company: rating.company,
+        seed: rating.seed,
+        verify,
+      }));
+      await verify();
+      return await save({
+        ...base,
+        state: session.ratingState,
+        sessionId: session.id,
+        browserSlot: session.browserSlot,
+      });
+    }
     ({ session } = await forms.openReview({
       url,
-      browserSlot: `chat-form-${requestId.slice(0, 20)}`,
+      browserSlot,
     }));
     await verify();
     issued = true;
@@ -196,9 +217,11 @@ const reviewLinkedForm = async ({
 export const createLinkedFormPrefill =
   ({ store, ...ownership }) =>
   async (input) => {
-    const { url, messageId, verify } = input;
+    const { url, messageId, source, verify, rating } = input;
     const target = respondentDestination(url);
-    if (!target) {
+    if (source === 'hh' && rating && employerRatingDestination(url)) {
+      checkRatingRequest(url, rating.company, rating.seed, verify);
+    } else if (!target || rating) {
       throw failure(
         'question-form-destination',
         'Choose a known questionnaire destination.'

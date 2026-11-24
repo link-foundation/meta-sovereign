@@ -1,8 +1,16 @@
 export const hiUnreadReview = {
   'browserUnread.form.enable':
-    'मेरी समीक्षा और सबमिशन के लिए लिंक किए गए प्रश्नपत्र पहले से भरें',
+    'समीक्षा के लिए लिंक किए गए प्रश्नपत्र और HeadHunter रेटिंग पोल तैयार करें',
   'browserUnread.answer.form-review':
-    'प्रश्नपत्र फ़ॉर्म अनुभाग में भेज दिया गया है।',
+    'समीक्षा के लिए फ़ॉर्म अनुभाग में खोला गया।',
+  'browserUnread.form.rating-ready':
+    'कंपनी की खोज तैयार है। अपनी रेटिंग चुनें और HeadHunter पर सबमिट करें।',
+  'browserUnread.form.rating-closed':
+    'HeadHunter ने इस पोल में मतदान बंद कर दिया है।',
+  'browserUnread.form.rating-sign-in':
+    'जारी रखने के लिए पोल की विंडो में HeadHunter पर साइन इन करें।',
+  'browserUnread.form.rating-unavailable':
+    'HeadHunter पोल की विंडो में कंपनी की खोज देखें।',
   'browserUnread.form.prefilled':
     '{count} फ़ील्ड भरे गए। सबमिट करने से पहले प्रश्नपत्र की समीक्षा करें।',
   'browserUnread.form.partial':

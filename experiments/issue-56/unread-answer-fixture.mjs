@@ -57,6 +57,7 @@ export const unreadAnswerFixture = async (options = {}) => {
         snapshot,
         readInactiveQuestion: async () =>
           (await options.readCurrent?.(snapshot)) ?? snapshot,
+        seedRating: options.seedRating,
         async holdReviewInactive() {
           held = true;
         },

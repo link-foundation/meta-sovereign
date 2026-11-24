@@ -7,7 +7,11 @@ const detachRecord = async (records, record, timers) => {
   }
   timers.clearTimeout(record.idleTimer);
   await record.monitor?.stop();
-  await record.learning.detach();
+  if (record.rating) {
+    await record.learning.stop();
+  } else {
+    await record.learning.detach();
+  }
   records.delete(record.id);
   try {
     await record.browser.detach();
@@ -20,7 +24,7 @@ const detachRecord = async (records, record, timers) => {
     browserSlot: record.slot,
     state: 'detached',
     answerLearning: record.learning.status(),
-    watcher: record.learning.watcher(),
+    watcher: record.learning.watcher?.(),
   };
 };
 
@@ -150,7 +154,10 @@ export const createReviewLifecycle = ({
     stopping = true;
     const detached = [];
     for (const record of [...records.values()]) {
-      if (!record.learning?.detached || !record.browser?.detach) {
+      if (
+        !(record.learning?.detached || record.rating) ||
+        !record.browser?.detach
+      ) {
         await close(record.id);
         continue;
       }

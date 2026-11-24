@@ -50,6 +50,7 @@ export const withBrowserConversationTail = async (
     verify,
     retainReply,
     retainReview,
+    seedRating,
     onHistoryWindow,
   },
   work,
@@ -127,6 +128,10 @@ export const withBrowserConversationTail = async (
     value = await work({
       snapshot,
       readInactiveQuestion: () => run(read),
+      ...(seedRating && {
+        seedRating: (destination) =>
+          run(() => seedRating(destination, checked)),
+      }),
       holdReviewInactive: () =>
         run(async () => {
           await retainReview({ chat, questionId: snapshot.question.id });

@@ -99,6 +99,10 @@ const useReviewControls = ({ api, setBusy, onReport }) => {
 const ReviewCard = ({ session, busy, run }) => {
   const t = useT();
   const closed = session.state !== 'open';
+  const rating = session.kind === 'employer-rating';
+  const actions = rating
+    ? ['Focus', 'Close']
+    : ['Read', 'History', 'Focus', 'Close'];
   return el(
     'article',
     { className: 'card col', 'data-form-review': session.id },
@@ -130,12 +134,24 @@ const ReviewCard = ({ session, busy, run }) => {
         { key: 'expiry', className: 'meta' },
         t('forms.review.expires', { time: session.idleExpiresAt })
       ),
-      el(FormMonitorStatus, { key: 'monitor', monitoring: session.monitoring }),
-      el(FormLearningStatus, {
-        key: 'learning',
-        learning: session.answerLearning,
-      }),
-      ...['Read', 'History', 'Focus', 'Close'].map((action) =>
+      rating
+        ? session.ratingState &&
+          el(
+            'p',
+            { key: 'rating', role: 'status' },
+            t(`browserUnread.form.${session.ratingState}`)
+          )
+        : el(FormMonitorStatus, {
+            key: 'monitor',
+            monitoring: session.monitoring,
+          }),
+      rating
+        ? null
+        : el(FormLearningStatus, {
+            key: 'learning',
+            learning: session.answerLearning,
+          }),
+      ...actions.map((action) =>
         el(
           'button',
           {

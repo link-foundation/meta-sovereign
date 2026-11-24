@@ -1,6 +1,13 @@
 export const zhUnreadReview = {
-  'browserUnread.form.enable': '预填链接中的问卷，由我检查并提交',
-  'browserUnread.answer.form-review': '问卷已移交至表单页面。',
+  'browserUnread.form.enable':
+    '准备链接中的问卷和 HeadHunter 评分投票，供我审核',
+  'browserUnread.answer.form-review': '已在表单页面打开，可进行审核。',
+  'browserUnread.form.rating-ready':
+    '已输入公司名称。请在 HeadHunter 上自行评分并提交。',
+  'browserUnread.form.rating-closed': 'HeadHunter 已结束本次投票。',
+  'browserUnread.form.rating-sign-in': '请在投票窗口登录 HeadHunter 后继续。',
+  'browserUnread.form.rating-unavailable':
+    '请在 HeadHunter 投票窗口检查公司搜索。',
   'browserUnread.form.prefilled': '已预填 {count} 个字段。提交前请检查问卷。',
   'browserUnread.form.partial':
     '已预填 {count} 个字段。请检查问卷并填写剩余字段。',

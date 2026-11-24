@@ -1,3 +1,11 @@
+2026-11-24 HeadHunter employer rating poll (HH10 remains unfinished)
+
+- [x] Trace pinned C11 and compare it with the public HeadHunter poll. The 2026 voting page is in the tally phase and exposes no company search.
+- [x] Reproduce the missing poll on the published parent. Open the exact poll in an isolated Forms slot and verify search for the company from the native chat with a synthetic signed-in session. Keep rating and submission controls owner-operated.
+- [x] Check signed-out, seasonal, mixed-message and unrelated-destination cases. Verify 60 focused tests per runtime, production Chromium and the independent phone handoff.
+- [ ] Review published CI for the exact source.
+- [ ] Verify a live authenticated poll during an active voting period.
+
 2026-11-24 questionnaire links in unread conversations (HH10 and QA24 remain unfinished)
 
 - [x] Reproduce the chat review stopping at a respondent link on the published parent.

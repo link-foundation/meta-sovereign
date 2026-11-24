@@ -1,8 +1,15 @@
 export const enUnreadReview = {
   'browserUnread.form.enable':
-    'Prefill linked questionnaires for me to review and submit',
-  'browserUnread.answer.form-review':
-    'The questionnaire was handed off to Forms.',
+    'Prepare linked questionnaires and HeadHunter rating polls for review',
+  'browserUnread.answer.form-review': 'Opened for review in Forms.',
+  'browserUnread.form.rating-ready':
+    'Company search is ready. Choose and submit your own ratings on HeadHunter.',
+  'browserUnread.form.rating-closed':
+    'HeadHunter has closed voting for this poll.',
+  'browserUnread.form.rating-sign-in':
+    'Sign in to HeadHunter in the poll window to continue.',
+  'browserUnread.form.rating-unavailable':
+    'Check the company search in the HeadHunter poll window.',
   'browserUnread.form.prefilled':
     'Prefilled fields ({count}). Review the questionnaire before submitting.',
   'browserUnread.form.partial':

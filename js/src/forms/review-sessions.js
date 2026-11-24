@@ -18,6 +18,11 @@ import { learnFormAnswerPairs } from './answer-learning.js';
 import path from 'node:path';
 import { startFormWatcher } from './watcher-client.js';
 import {
+  checkRatingRequest,
+  employerRatingDestination,
+  prepareEmployerRating,
+} from './employer-rating.js';
+import {
   createReviewCapacity,
   reviewCapacityValue,
 } from './review-capacity.js';
@@ -31,35 +36,42 @@ const prefillIdentity = (record) =>
   pendingPrefill(record.lastPrefill?.result)
     ? { prefillState: record.lastPrefill.result.state }
     : {};
-const identity = (record) => {
-  let url = record.url;
+const reviewLocation = (record) => {
+  if (record.rating) {
+    return record.url;
+  }
   try {
-    url = formUrl(record.browser?.page?.url?.() ?? url);
+    return formUrl(record.browser?.page?.url?.() ?? record.url);
   } catch {
     // Do not expose unsupported/credential-bearing navigation URLs.
+    return record.url;
   }
-  return {
-    id: record.id,
-    browserSlot: record.slot,
-    url,
-    title: record.title,
-    state: record.state,
-    busy: Boolean(record.task),
-    headless: record.browser?.policy?.headless ?? null,
-    openedAt: new Date(record.openedAt).toISOString(),
-    lastUsedAt: new Date(record.lastUsedAt).toISOString(),
-    idleExpiresAt: idleExpiry(record),
-    activityTracking: record.activityTracking,
-    answerLearning: record.learning?.status(),
-    watcher: record.learning?.watcher?.(),
-    monitoring: record.monitor?.status() ?? {
-      state: 'unavailable',
-      learning: false,
-    },
-    error: record.error ?? null,
-    ...prefillIdentity(record),
-  };
 };
+const identity = (record) => ({
+  id: record.id,
+  browserSlot: record.slot,
+  url: reviewLocation(record),
+  title: record.title,
+  state: record.state,
+  busy: Boolean(record.task),
+  headless: record.browser?.policy?.headless ?? null,
+  openedAt: new Date(record.openedAt).toISOString(),
+  lastUsedAt: new Date(record.lastUsedAt).toISOString(),
+  idleExpiresAt: idleExpiry(record),
+  activityTracking: record.activityTracking,
+  answerLearning: record.learning?.status(),
+  watcher: record.learning?.watcher?.(),
+  monitoring: record.monitor?.status() ?? {
+    state: 'unavailable',
+    learning: false,
+  },
+  error: record.error ?? null,
+  ...(record.rating && {
+    kind: 'employer-rating',
+    ratingState: record.ratingState,
+  }),
+  ...prefillIdentity(record),
+});
 
 const reviewInput = (input) => {
   for (const key of ['headless', 'autoCapture', 'learn']) {
@@ -72,6 +84,21 @@ const reviewInput = (input) => {
     slot: browserName(input.browserSlot ?? 'form-1'),
   };
 };
+
+const openRatingReview =
+  (open) =>
+  ({ url, browserSlot, company, seed, verify }) => {
+    checkRatingRequest(url, company, seed, verify);
+    return open(
+      {
+        url: employerRatingDestination(url),
+        browserSlot,
+        autoCapture: false,
+        learn: false,
+      },
+      { company, seed, verify }
+    );
+  };
 
 const reviewLimits = ({
   maxSessions,
@@ -210,6 +237,7 @@ const launchReviewBrowser = async ({
   owner,
   reportWriter,
   ready,
+  rating,
 }) => {
   if (ready) {
     await ready;
@@ -221,7 +249,7 @@ const launchReviewBrowser = async ({
     useCase: 'forms',
     slot: record.slot,
     headless: input.headless,
-    persistent: record.learn && Boolean(store?.logFile),
+    persistent: Boolean((record.rating || record.learn) && store?.logFile),
     idleMs: record.idleMs,
     signal: record.operationAbort?.signal,
     ...(store?.logFile
@@ -244,6 +272,26 @@ const launchReviewBrowser = async ({
   });
   await attachReviewObservation(record, owner, reportWriter);
   owner.check(record);
+  if (rating) {
+    const { company, seed, verify } = rating;
+    const { page, commander } = record.browser;
+    const seeded = await seed(page);
+    owner.check(record);
+    await commander.goto({
+      url: record.url,
+      waitUntil: 'load',
+      timeout: 30000,
+    });
+    record.ratingState = await prepareEmployerRating({
+      page,
+      company,
+      seeded,
+      check: () => owner.check(record),
+      verify,
+    });
+    record.state = 'open';
+    return;
+  }
   if (record.learning.reused) {
     record.url = formUrl(record.browser.page.url());
   } else {
@@ -308,6 +356,7 @@ const reviewAction =
   ({ operate, filling, reportWriter, get, check, challenge }, action) =>
   async (input, onWaiting, validate) => {
     const result = await operate(input.id, async (record) => {
+      checkOrdinaryReview(record);
       const perform = async (name, options, arm = true) => {
         const proposed = record.reviewPlan?.proposed;
         const result = await captureReport(
@@ -371,6 +420,7 @@ const newReviewRecord = ({
   autoCapture,
   learn,
   store,
+  rating,
 }) => ({
   id: globalThis.crypto.randomUUID(),
   slot,
@@ -381,6 +431,7 @@ const newReviewRecord = ({
   lastUsedAt: now(),
   idleMs,
   activityTracking: false,
+  rating: Boolean(rating),
   autoCapture: input.autoCapture ?? autoCapture,
   learn:
     (input.learn ?? learn) &&
@@ -460,20 +511,31 @@ const reviewOperator =
     }
   };
 
+const checkOrdinaryReview = (record) => {
+  if (record.rating) {
+    throw failure(
+      'form-rating-owner-only',
+      'Use the rating website to review or enter scores.'
+    );
+  }
+};
+
 const inspectionActions = ({ operate, get, check, filling, reportWriter }) => ({
   snapshot: (id, signal) =>
-    operate(id, (record) =>
-      inspectCurrentFormSession(record.browser, {
+    operate(id, (record) => {
+      checkOrdinaryReview(record);
+      return inspectCurrentFormSession(record.browser, {
         check: () => {
           signal.throwIfAborted();
           check(record);
         },
-      })
-    ),
+      });
+    }),
   read: async (id) => {
-    const report = await operate(id, (record) =>
-      readReviewReport({ record, filling, check, reportWriter })
-    );
+    const report = await operate(id, (record) => {
+      checkOrdinaryReview(record);
+      return readReviewReport({ record, filling, check, reportWriter });
+    });
     return { ...report, reviewSession: identity(get(id)) };
   },
 });
@@ -516,7 +578,7 @@ export const createFormSessions = ({
     modelRunner,
     ...prefill,
   });
-  const open = async (input = {}) => {
+  const open = async (input, rating) => {
     checkReviewOwner(owner);
     const { url, slot } = reviewInput(input);
     const record = await capacity.reserve((limit) => {
@@ -531,6 +593,7 @@ export const createFormSessions = ({
         autoCapture,
         learn,
         store,
+        rating,
       });
       record.learning = reviewLearning({
         record,
@@ -553,6 +616,7 @@ export const createFormSessions = ({
         owner,
         reportWriter,
         ready,
+        rating,
       })
     );
     try {
@@ -590,7 +654,8 @@ export const createFormSessions = ({
   const attention = () =>
     reviewAttention(owner.isStopping() ? [] : records.values(), now());
   return {
-    open,
+    open: (input = {}) => open(input),
+    openRating: openRatingReview(open),
     close,
     stop: () => finishReviews(owner, capacity, 'stop'),
     detach: () => finishReviews(owner, capacity, 'detach'),

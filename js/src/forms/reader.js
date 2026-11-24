@@ -79,6 +79,7 @@ const checkPlanning = (stopping, planning) => {
 
 const reviewReaderApi = (reviews) => ({
   openReview: reviews.open,
+  openRatingReview: reviews.openRating,
   closeReview: reviews.close,
   listReviews: reviews.list,
   reviewAttention: reviews.attention,
