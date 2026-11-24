@@ -18,11 +18,13 @@ export const chatNavigationHtml = ({
   virtual = false,
   allRead = false,
   unreadChats,
+  listChats = virtual ? ['8', '1', '2', '7', '3', '9'] : ['8', '9', '7'],
   unreadInitially = false,
   outgoingChats = [],
   hiddenChats = [],
   textReplies = false,
   latestMessages = null,
+  listPreviews = {},
   historyMessages = null,
   precedingOutgoing = false,
   emptyOriginal = false,
@@ -39,9 +41,10 @@ body{font:16px system-ui;margin:24px;color:#172333;background:#eef2f7}main{displ
 <script>
 const list=document.querySelector('#list'),filter=document.querySelector('#outer-filter'),pane=document.querySelector('#history'),messages=document.querySelector('#messages');
 const ownerDraft=${emptyOriginal}?'':Array.from({length:8},(_,i)=>'Owner unfinished line '+i).join('\n');
-const fixture=window.fixture={sends:0,visits:[],drafts:{'7':ownerDraft,'8':'','9':''},unread:{'7':${Number(originalUnread)},'8':${unreadCount('8', allRead, unreadChats)},'9':${unreadCount('9', allRead, unreadChats)}},chat:'7',hidden:${scriptMessages(hiddenChats)}};
+const fixture=window.fixture={sends:0,visits:[],drafts:{'7':ownerDraft,'8':'','9':''},unread:${scriptMessages(Object.fromEntries(listChats.map((id) => [id, id === '7' ? Number(originalUnread) : unreadCount(id, allRead, unreadChats)])))},chat:'7',hidden:${scriptMessages(hiddenChats)}};
 const outgoingChats=${scriptMessages(outgoingChats)};
-function renderList(){const ids=(${virtual}?['8','1','2','7','3','9']:['8','9','7']).filter(id=>!fixture.hidden.includes(id)&&(!filter.checked||fixture.unread[id]>0));const first=${virtual}?Math.floor(list.scrollTop/100):0;list.innerHTML='<div style="position:relative;height:'+(ids.length*100)+'px">'+ids.slice(first,${virtual}?first+3:ids.length).map((id,i)=>'<article style="'+(${virtual}?'position:absolute;width:100%;top:'+((first+i)*100)+'px':'')+'" data-qa="chatik-open-chat-'+id+'"><b data-qa="chat-cell-title">Employer '+id+'</b><div data-qa="chat-last-message">A pending question</div><span data-qa="chat-cell-counter">'+fixture.unread[id]+'</span>'+(outgoingChats.includes(id)?'<span data-qa="status-icon-delivered">Delivered</span>':'')+'</article>').join('')+'</div>';for(const row of list.querySelectorAll('article'))row.onclick=()=>openChat(row.dataset.qa.replace('chatik-open-chat-',''));}
+const previews=${scriptMessages(listPreviews)};
+function renderList(){const ids=${scriptMessages(listChats)}.filter(id=>!fixture.hidden.includes(id)&&(!filter.checked||fixture.unread[id]>0));const first=${virtual}?Math.floor(list.scrollTop/100):0;list.innerHTML='<div style="position:relative;height:'+(ids.length*100)+'px">'+ids.slice(first,${virtual}?first+3:ids.length).map((id,i)=>'<article style="'+(${virtual}?'position:absolute;width:100%;top:'+((first+i)*100)+'px':'')+'" data-qa="chatik-open-chat-'+id+'"><b data-qa="chat-cell-title">Employer '+id+'</b><div data-qa="chat-last-message"></div><span data-qa="chat-cell-counter">'+fixture.unread[id]+'</span>'+(outgoingChats.includes(id)?'<span data-qa="status-icon-delivered">Delivered</span>':'')+'</article>').join('')+'</div>';for(const row of list.querySelectorAll('article')){const id=row.dataset.qa.replace('chatik-open-chat-','');row.querySelector('[data-qa="chat-last-message"]').textContent=previews[id]??'A pending question';row.onclick=()=>openChat(id);}}
 const messageOffset=()=>${reversedMessages}?pane.scrollHeight-pane.clientHeight+pane.scrollTop:pane.scrollTop;
 const fixtureHistory=${scriptMessages(historyMessages)}, latest=${scriptMessages(latestMessages)};
 function renderMessages(){

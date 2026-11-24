@@ -229,6 +229,7 @@ export class ApplicationChats {
       confirm: true,
       answerChats: true,
       reviewChoices: true,
+      rejectionsFirst: true,
       ...(options.review.autoReuseAnswers ? { autoReuseAnswers: true } : {}),
       ...(options.chatWatchWaiting ? { watchWaiting: true } : {}),
       ...(options.chatPrefillForms ? { prefillForms: true } : {}),

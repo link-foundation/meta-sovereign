@@ -6,6 +6,7 @@ import { withBrowserConversationTail } from './browser-conversation-tail.js';
 import { boundedBrowserText } from '../automation/question-browser-state.js';
 import { seedEmployerRating } from '../forms/employer-rating.js';
 import { unreadCoverageScope } from '../automation/question-unread-identity.js';
+import { passiveRejection } from '../automation/question-notice-intent.js';
 
 const validSelectedCheck = (options) =>
   options.acceptSelected === undefined ||
@@ -24,6 +25,8 @@ export const normalizeUnreadScanOptions = (options = {}) => {
     options.unreadOnly === false ||
     (options.watchWaiting !== undefined &&
       typeof options.watchWaiting !== 'boolean') ||
+    (options.rejectionsFirst !== undefined &&
+      typeof options.rejectionsFirst !== 'boolean') ||
     (options.heldChat !== undefined &&
       !boundedBrowserText(options.heldChat, 480)) ||
     (options.onConversation !== undefined &&
@@ -39,6 +42,7 @@ export const normalizeUnreadScanOptions = (options = {}) => {
     ...settings,
     maxChats,
     ...(options.watchWaiting && { watchWaiting: true }),
+    ...(options.rejectionsFirst && { rejectionsFirst: true }),
   };
 };
 
@@ -61,6 +65,15 @@ const waitingRows = (rows, checkedChats = []) => {
   }
   return [...byChat.values(), ...checked];
 };
+
+const rejectionPreview = ({ unread, lastOutgoing, preview }) =>
+  unread > 0 &&
+  lastOutgoing === false &&
+  typeof preview === 'string' &&
+  !/^(?:Вы|You)\s*:/iu.test(preview) &&
+  !/(?:…|\.{3})$/u.test(preview) &&
+  (/^(?:Отказ|Rejection)$/iu.test(preview) ||
+    passiveRejection({ body: preview }));
 
 const processingStopReason = ({ processing }) => {
   if (processing?.value?.holdReview) {
@@ -233,7 +246,7 @@ export const scanUnreadBrowserConversations = ({
       retainReply,
       retainReview,
     }) => {
-      const visitRow = async (row, accept) => {
+      const visitRow = async (row, { accept, rejectionCandidate } = {}) => {
         await verifyCurrent();
         if (options.heldChat) {
           // A held review is checked in place without scanning the list.
@@ -241,26 +254,32 @@ export const scanUnreadBrowserConversations = ({
             preserveDraft: true,
           });
         }
-        return visit(row.chat, (chatDocument, chat, verify, token) =>
-          readUnreadConversation({
-            chatDocument,
-            chat,
-            verify,
-            token,
-            row,
-            accept,
-            deadline,
-            options,
-            settings,
-            ui,
-            page,
-            retainReply,
-            retainReview,
-          })
+        return visit(
+          row.chat,
+          (chatDocument, chat, verify, token) =>
+            readUnreadConversation({
+              chatDocument,
+              chat,
+              verify,
+              token,
+              row: rejectionCandidate ? { ...row, rejectionCandidate } : row,
+              accept,
+              deadline,
+              options,
+              settings,
+              ui,
+              page,
+              retainReply,
+              retainReview,
+            }),
+          rejectionCandidate ? row.preview : undefined
         );
       };
       const selected = shouldVisitSelected(selectedChat, options, deadline)
-        ? await visitRow({ chat: selectedChat }, options.acceptSelected)
+        ? await visitRow(
+            { chat: selectedChat },
+            { accept: options.acceptSelected }
+          )
         : null;
       const conversations = selected ? [selected] : [];
       const list = await listForPass(
@@ -283,8 +302,12 @@ export const scanUnreadBrowserConversations = ({
       const rows = settings.watchWaiting
         ? waitingRows(list.rows, options.checkedChats)
         : list.rows;
-      for (const row of rows) {
-        if (row.chat === selected?.chat) {
+      const priority = settings.rejectionsFirst
+        ? rows.filter(rejectionPreview)
+        : [];
+      const visited = new Set(selected ? [selected.chat] : []);
+      for (const [index, row] of [...priority, ...rows].entries()) {
+        if (visited.has(row.chat)) {
           continue;
         }
         const stop = passStopReason(
@@ -296,11 +319,18 @@ export const scanUnreadBrowserConversations = ({
           reason = stop;
           break;
         }
-        const observation = await visitRow(row);
+        const observation = await visitRow(row, {
+          rejectionCandidate: index < priority.length,
+        });
+        if (observation === undefined) {
+          // The native preview changed before opening. Keep its list order.
+          continue;
+        }
         if (!observation) {
           reason = 'time-limit';
           break;
         }
+        visited.add(row.chat);
         conversations.push(observation);
         const stopped =
           processingStopReason(observation) ??

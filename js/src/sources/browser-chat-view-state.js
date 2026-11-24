@@ -1,6 +1,7 @@
 /* global document, window */
 import { browserFrameVisible } from './browser-choice-document.js';
 import { browserChatScrollRoot } from './browser-chat-list-state.js';
+import { extractChats } from './browser-actions.js';
 import {
   chatFilterControl,
   activateChatFilter,
@@ -147,7 +148,25 @@ const visitView = (input) => {
   if (candidates.length !== 1) {
     return { state: 'chat-unavailable' };
   }
-  candidates[0].click();
+  const [candidate] = candidates;
+  if (input.unreadPreview !== undefined) {
+    const [row] = extractChats(
+      { ...ui.chats, limit: 1, includeDirection: true },
+      candidate
+    );
+    const preview = candidate.querySelector(ui.chats.preview);
+    if (
+      row?.chat !== input.chat ||
+      row.preview !== input.unreadPreview ||
+      row.unread <= 0 ||
+      row.lastOutgoing !== false ||
+      preview?.matches('a[href]') ||
+      preview?.querySelector('a[href]')
+    ) {
+      return { state: 'preview-changed' };
+    }
+  }
+  candidate.click();
   return { state: 'activated' };
 };
 
@@ -208,6 +227,7 @@ const viewState = (input) => {
 export const browserChatViewState = new Function(`return (input) => {
   const browserFrameVisible = (${browserFrameVisible.toString()});
   const browserChatScrollRoot = (${browserChatScrollRoot.toString()});
+  const extractChats = (${extractChats.toString()});
   const browserChatReplyNode = (${browserChatReplyNode.toString()});
   const browserChatReplyVisible = (${browserChatReplyVisible.toString()});
   const chatFilterControl = (${chatFilterControl.toString()});

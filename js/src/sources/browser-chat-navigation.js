@@ -353,7 +353,7 @@ class ChatNavigation {
     }
   }
 
-  async visit(chat, read) {
+  async visit(chat, read, unreadPreview) {
     await this.verify();
     if (this.signal?.aborted) {
       throw failure('cancelled');
@@ -376,10 +376,14 @@ class ChatNavigation {
           inactiveToken: this.inactiveToken,
           ui: this.spec,
           chat: target,
+          unreadPreview,
         }
       );
       if (activated.state !== 'activated') {
         this.pending = null;
+        if (activated.state === 'preview-changed') {
+          return undefined;
+        }
         throw failure(activated.state);
       }
       const selected = await this.wait(async () => {
@@ -559,7 +563,8 @@ class ChatNavigation {
             result = await work({
               document: this.adapter,
               selectedChat: this.originalTarget,
-              visit: (chat, read) => this.visit(chat, read),
+              visit: (chat, read, unreadPreview) =>
+                this.visit(chat, read, unreadPreview),
               verifyCurrent: inactive,
               inactiveToken: token,
               retainReview: async (review) => {

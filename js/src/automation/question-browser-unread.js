@@ -292,6 +292,10 @@ export const normalizeUnreadReviewSettings = (input, capabilities) => {
       typeof input.autoReuseAnswers !== 'boolean') ||
     (input.autoReuseAnswers &&
       (input.source !== 'hh' || input.answerChats !== true)) ||
+    (input.rejectionsFirst !== undefined &&
+      typeof input.rejectionsFirst !== 'boolean') ||
+    (input.rejectionsFirst &&
+      (input.source !== 'hh' || input.answerChats !== true)) ||
     (input.heldChat && !input.answerChats)
   ) {
     throw failure(

@@ -134,7 +134,8 @@ const traverseBrowserChatList = async (
             ...ui.chats,
             limit: settings.limit,
             listToken: token,
-            includeDirection: options.watchWaiting === true,
+            includeDirection:
+              options.watchWaiting === true || options.rejectionsFirst === true,
           },
         ],
       });
@@ -253,7 +254,8 @@ export const createBrowserChatScans = ({
       const ui = uiFor(source);
       if (
         !supportsUnreadNavigation(ui, inExisting) ||
-        (options.watchWaiting && !ui.chats.lastOutgoing)
+        ((options.watchWaiting || options.rejectionsFirst) &&
+          !ui.chats.lastOutgoing)
       ) {
         throw failure(
           'Inactive unread traversal is unavailable for this provider',

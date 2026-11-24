@@ -46,15 +46,23 @@ export const unreadAnswerFixture = async (options = {}) => {
         continue;
       }
       const observation = { chat: snapshot.chat, question: snapshot };
+      if (
+        input.rejectionsFirst &&
+        options.rejectionChats?.includes(snapshot.chat)
+      ) {
+        observation.rejectionCandidate = true;
+      }
       if (options.history) {
         const rows = options.history(snapshot);
         observation.history = {
           rows,
           restored: true,
           coverage: {
-            complete: false,
+            complete: options.completeHistory === true,
             scope: 'conversation',
-            reason: 'rendered-start',
+            reason: options.completeHistory
+              ? 'provider-start'
+              : 'rendered-start',
             passes: 1,
           },
         };

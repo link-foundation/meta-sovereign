@@ -14,6 +14,11 @@ import { createQuestionBrowser } from '../src/automation/question-browser.js';
 import { pollingCycleFixture } from '../../experiments/issue-56/unread-polling-fixture.mjs';
 import { unreadAnswerClientReceipt } from '../../experiments/issue-56/question-browser-clients.mjs';
 import { LINO_TEXT, LINO_BINARY } from '../src/transport/lino.js';
+import {
+  noticeRows,
+  noticeSnapshot,
+  rejectionText,
+} from '../../experiments/issue-56/notice-policy-fixture.mjs';
 
 const check = async (options, work) => {
   const env = await unreadAnswerFixture(options);
@@ -39,6 +44,8 @@ test('sequential answer admission requires explicit supported boolean intent', (
       { answerChats: false, reviewChoices: true },
       { autoReuseAnswers: 'true' },
       { answerChats: false, autoReuseAnswers: true },
+      { rejectionsFirst: 'true' },
+      { answerChats: false, rejectionsFirst: true },
     ]) {
       await assert.rejects(
         env.browser.unreadStart({ ...env.input, ...modes }),
@@ -94,6 +101,84 @@ test('pending bot options, unresolved text and owner drafts hold without edits o
       assert.equal(env.state.sends.length, 0);
       assert.deepEqual(await listOutbox(env.store), []);
     });
+  }
+});
+
+test('a passive unread rejection advances only with a stable and complete native turn', async () => {
+  const pendingQuestion = {
+    id: '100',
+    body: 'What time can you start?',
+    outgoing: false,
+  };
+  for (const variant of [
+    { verified: true },
+    { historyComplete: false },
+    { draft: true },
+    { choice: true },
+    { earlier: pendingQuestion },
+    { changed: true },
+    { text: 'We have chosen another interview date.' },
+    { text: 'We cannot proceed without written authorization.' },
+    { text: `${rejectionText} Please contact the hiring manager.` },
+    { text: `${rejectionText} Please share your availability.` },
+    { text: `${rejectionText} https://example.test/next` },
+    { links: ['https://example.test/next'] },
+  ]) {
+    const history = noticeRows(variant.text ?? rejectionText);
+    if (variant.earlier) {
+      history.splice(1, 0, variant.earlier);
+    }
+    if (variant.links) {
+      history.at(-1).links = variant.links;
+    }
+    const snapshot = noticeSnapshot(history);
+    const { chat, ...row } = snapshot;
+    assert.equal(chat, '7');
+    await check(
+      {
+        rows: [
+          {
+            ...row,
+            ...(variant.draft && { hasDraft: true }),
+            ...(variant.choice && {
+              strictOptions: true,
+              answerOptions: ['Yes'],
+            }),
+          },
+          { strictOptions: false },
+        ],
+        rejectionChats: ['8'],
+        completeHistory: variant.historyComplete !== false,
+        history: ({ chat }) => (chat === '8' ? history : []),
+        readCurrent: variant.changed
+          ? (current) => ({ ...current, hasDraft: true })
+          : undefined,
+      },
+      async (env) => {
+        const input = { ...env.input, rejectionsFirst: true };
+        const result = await env.complete(input);
+        const [first] = checkUnreadReview(result, input.id).entries;
+        assert.equal(
+          result.restoration.heldReview.chat,
+          variant.verified ? '9' : '8',
+          JSON.stringify(variant)
+        );
+        assert.equal(
+          first.answer.phase,
+          variant.verified ? 'no-reply' : 'review',
+          JSON.stringify(variant)
+        );
+        assert.equal(
+          first.answer.reason === 'passive-rejection',
+          Boolean(variant.verified)
+        );
+        assert.deepEqual(env.state.sends, []);
+        assert.deepEqual(await listOutbox(env.store), []);
+        if (!variant.verified) {
+          assert.deepEqual(env.state.prefills, []);
+        }
+      }
+    );
   }
 });
 

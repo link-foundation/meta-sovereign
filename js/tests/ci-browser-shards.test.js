@@ -147,6 +147,7 @@ test('native application scenarios remain registered once in bounded groups', ()
       'verifyNativeApplicationBatch',
       'verifyNativeApplicationChats',
       'verifyNativeApplicationChoiceHold',
+      'verifyChangedRejectionPreview',
       'verifyUnreadChoiceReviewControl',
       'verifyNativeApplicationChatSession',
       'verifyNativeApplicationChatWaiting',
@@ -159,6 +160,8 @@ test('native application scenarios remain registered once in bounded groups', ()
       'verifyNativeApplicationRecruiterDraft',
       'verifyNativeApplicationRecruiterExact',
       'verifyNativeApplicationRecruiterReuse',
+      'verifyNativeFirstRecruiterWait',
+      'verifyNativeNextRecruiterWait',
       'verifyNativeApplicationAnswerApproval',
       'verifyNativeApplicationAnswerContext',
       'verifyApplicationSalary',
@@ -180,6 +183,17 @@ test('long application workflows have separate registered budgets without nestin
         'verifyNativeApplicationRecruiterExact',
         'verifyNativeApplicationRecruiterReuse',
       ],
+    ],
+    [
+      'job-application-rejection',
+      [
+        'verifyNativeApplicationLimitRejection',
+        'verifyNativeFirstRecruiterWait',
+      ],
+    ],
+    [
+      'job-application-limit-restore',
+      ['verifyNativeApplicationLimitRestore', 'verifyNativeNextRecruiterWait'],
     ],
     [
       'job-application-collection',

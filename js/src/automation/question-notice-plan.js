@@ -9,7 +9,9 @@ import {
   completedNotice,
   handoverAnswer,
   noticeAddsTask,
+  noticeHasLink,
   noticeIntent,
+  passiveRejection,
   rejectionNotice,
 } from './question-notice-intent.js';
 import { recognizedAcknowledgement } from './question-acknowledgement.js';
@@ -19,11 +21,6 @@ import {
 } from './question-acknowledgement-answer.js';
 import { planAnswer } from './question-answers.js';
 import { browserPendingTurn } from '../sources/browser-pending-turn.js';
-import { textLinks } from '../message-links.js';
-
-const noticeHasLink = ({ body, links }) =>
-  Boolean(links?.length) ||
-  textLinks(body, { includeFileNames: true }).length > 0;
 
 const rejectionAnswered = (rows) => {
   let rejected = false;
@@ -68,7 +65,6 @@ const verifiedHistory = (message, snapshot, history) => {
   if (
     !message ||
     snapshot.strictOptions ||
-    !snapshot.noticeContext?.canReply ||
     history?.coverage?.complete !== true ||
     history.restored !== true
   ) {
@@ -87,6 +83,19 @@ const verifiedHistory = (message, snapshot, history) => {
   }
   return true;
 };
+
+export const verifiedPassiveRejection = (snapshot, history) => {
+  if (snapshot.hasDraft || snapshot.question.outgoing) {
+    return false;
+  }
+  const { message, kind } = pendingNotice(snapshot, 'hh', false);
+  return (
+    kind === 'rejections' &&
+    passiveRejection(message) &&
+    verifiedHistory(message, snapshot, history)
+  );
+};
+
 const validReply = (text, policy) =>
   typeof text === 'string' &&
   Boolean(text.trim()) &&
@@ -156,7 +165,10 @@ export const planNoticeReply = async ({
   if (snapshot.hasDraft) {
     return { ...decision, status: 'owner-draft' };
   }
-  if (!verifiedHistory(message, snapshot, history)) {
+  if (
+    !snapshot.noticeContext?.canReply ||
+    !verifiedHistory(message, snapshot, history)
+  ) {
     return decision;
   }
   decision.historyVerified = true;

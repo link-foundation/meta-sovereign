@@ -1,3 +1,4 @@
+import { isDeepStrictEqual } from 'node:util';
 import { previewAnswer } from './question-store.js';
 import { guardedSend } from './outbox.js';
 import { questionChoiceKey } from './question-choice-key.js';
@@ -19,6 +20,7 @@ import {
   visitUnreadForm,
 } from './question-unread-form.js';
 import { completedAnswerSummary } from './question-summary.js';
+import { verifiedPassiveRejection } from './question-notice-plan.js';
 import { learnUnreadSummary } from './question-unread-summary.js';
 import { unreadHistoryAnswerReceipt } from './question-unread-history-learning.js';
 import {
@@ -152,6 +154,34 @@ const skippedQuestion = async (watch, snapshot, handle) => {
     );
   }
   return true;
+};
+
+const finishRejection = async ({
+  record,
+  snapshot,
+  handle,
+  save,
+  signal,
+  historyReceipt,
+}) => {
+  const current = checkBrowserQuestion(await handle.readInactiveQuestion());
+  const verified = isDeepStrictEqual(current, snapshot);
+  signal.throwIfAborted();
+  if (!verified) {
+    await handle.holdReviewInactive();
+  }
+  record.entries.push({
+    chat: snapshot.chat,
+    preview: snapshot.question.body.slice(0, 600),
+    answer: {
+      phase: verified ? 'no-reply' : 'review',
+      questionId: snapshot.question.id,
+      ...historyReceipt,
+      reason: verified ? 'passive-rejection' : 'question-unread-unverified',
+    },
+  });
+  await save(record);
+  return { holdReview: !verified };
 };
 
 const finishSummary = async ({
@@ -305,6 +335,22 @@ export const visitUnreadAnswer = async ({
     input,
     signal: controller.signal,
   });
+  const rejectionCandidate =
+    record.settings?.rejectionsFirst && observation.rejectionCandidate;
+  if (
+    rejectionCandidate &&
+    !historyReceipt.reason &&
+    verifiedPassiveRejection(snapshot, observation.history)
+  ) {
+    return finishRejection({
+      record,
+      snapshot,
+      handle,
+      save,
+      signal: controller.signal,
+      historyReceipt,
+    });
+  }
   const reuse = isBrowserReuseOffer(record.source, snapshot);
   const baseline =
     snapshot.question.outgoing || reuse
@@ -318,6 +364,7 @@ export const visitUnreadAnswer = async ({
       ...input,
       modelDraft:
         !reuse &&
+        !rejectionCandidate &&
         !historyReceipt.reason &&
         !link &&
         mayDraftUnreadAnswer(record, snapshot, baseline),
@@ -337,7 +384,7 @@ export const visitUnreadAnswer = async ({
   };
   record.entries.push(entry);
   await save(record);
-  if (historyReceipt.reason) {
+  if (historyReceipt.reason || rejectionCandidate) {
     await handle.holdReviewInactive();
     return { holdReview: true };
   }

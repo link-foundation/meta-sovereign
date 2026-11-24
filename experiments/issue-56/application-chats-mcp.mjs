@@ -72,9 +72,16 @@ const inspect = async (page, config) => {
   check(
     initial.chat.draft === 'At 9 a.m.' &&
       initial.chat.sends === 0 &&
-      initial.chat.unreadNext === 1,
-    'Held unsent draft; next chat untouched'
+      initial.chat.unreadNext === (config.rejections ? 0 : 1),
+    'Held unsent draft and expected unread state'
   );
+  if (config.rejections) {
+    check(
+      initial.rejections.visits.join(',') === '9,8' &&
+        initial.rejections.ownerDraft.includes('Owner unfinished line 7'),
+      'Native rejection priority and owner draft preservation'
+    );
+  }
   const sessionReused = initial.logs.some(
     ({ event }) => event === 'application-chats-session-reused'
   );
@@ -87,12 +94,14 @@ const inspect = async (page, config) => {
       'Application custom session reuse is explained before choosing an account'
     );
   }
-  await page.screenshot({
-    path: `${config.screenshots}/mcp-application-chats.png`,
-    fullPage: true,
-  });
+  if (!config.rejections) {
+    await page.screenshot({
+      path: `${config.screenshots}/mcp-application-chats.png`,
+      fullPage: true,
+    });
+  }
   const locales = [];
-  for (const locale of ['ru', 'hi', 'zh', 'en']) {
+  for (const locale of config.rejections ? ['en'] : ['ru', 'hi', 'zh', 'en']) {
     await page.evaluate(
       (value) => localStorage.setItem('metaSovereignLocale', value),
       locale
@@ -150,8 +159,10 @@ export const applicationChatsMcpCode = (metadata) =>
     key: TUTORIAL_STORAGE_KEY,
     version: TUTORIAL_VERSION,
     screenshots: resolve(
-      metadata.session
-        ? 'docs/screenshots/issue-56-application-chat-session'
-        : 'docs/screenshots/issue-56-application-chats'
+      metadata.rejections
+        ? 'docs/screenshots/issue-56-application-chat-rejections'
+        : metadata.session
+          ? 'docs/screenshots/issue-56-application-chat-session'
+          : 'docs/screenshots/issue-56-application-chats'
     ),
   });

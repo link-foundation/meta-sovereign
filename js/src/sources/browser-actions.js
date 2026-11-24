@@ -71,7 +71,7 @@ export const scrollToNewest = (spec) => {
  * Page-side: the visible chat list. A chat's id is its `idAttribute`, or
  * what `linkPattern` captures from the `link` element's href.
  */
-export const extractChats = (spec) => {
+export const extractChats = (spec, row) => {
   const container = () => {
     if (!spec.listToken) {
       return { root: document };
@@ -151,7 +151,8 @@ export const extractChats = (spec) => {
   const seen = new Set();
   const rows = [];
   const owned = container();
-  for (const node of owned?.root.querySelectorAll(spec.item) ?? []) {
+  const nodes = row ? [row] : owned?.root.querySelectorAll(spec.item);
+  for (const node of nodes ?? []) {
     if (rows.length >= spec.limit) {
       break;
     }

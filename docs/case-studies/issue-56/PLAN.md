@@ -2111,3 +2111,10 @@ Native profile persistence follow-up:
 - [x] Verify explicit Skip against the currently displayed recruiter question, including native close ambiguity, concurrent Stop and failed receipt recovery. [Reproduction and evidence](application-recruiter-panel-skip.md).
 - [x] Verify bounded first and next message waits, blocked closure during loading, unanswered questions, pending sends and owner drafts, and recovery of the confirmed native closure. [Reproduction and evidence](application-recruiter-panel-quiet.md).
 - [ ] Check exact-head hosted runs and complete authenticated provider acceptance and the remaining HH08 and HH10 work.
+
+### HeadHunter rejection-first application chat passes (HH10 / B33)
+
+- [x] Reproduce a held first question leaving a later unread rejection in the provider inbox on the published parent.
+- [x] Prioritize clearly passive unread HeadHunter rejections in the application worker. Recheck the native row before opening and the current conversation history before advancing. Hold drafts, new requests, ambiguous notices, links and native choices for review.
+- [x] Verify selection order, read state, retained review, draft preservation and zero sends in the routed browser. Cover stale preview and mixed pending turns in focused checks. [Reproduction and evidence](application-chat-rejections.md).
+- [ ] Verify the current hosted checks and retain the authenticated HeadHunter and standalone rejection-handling acceptance criteria until they are demonstrated.

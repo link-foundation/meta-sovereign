@@ -45,6 +45,7 @@ export const verifyNativeApplicationChats = async (
     parentChoice = false,
     session = false,
     parentSession = false,
+    rejections = false,
   } = {}
 ) =>
   withNativeApplicationChats(
@@ -59,14 +60,16 @@ export const verifyNativeApplicationChats = async (
       const api = applicationRouteApi(fixture.base, LINO_TEXT);
       const shot = controls.screenshot(
         screenshots,
-        choices
-          ? 'application-chat-choices'
-          : session
-            ? 'application-chat-session'
-            : 'application-chats'
+        rejections
+          ? 'application-chat-rejections'
+          : choices
+            ? 'application-chat-choices'
+            : session
+              ? 'application-chat-session'
+              : 'application-chats'
       );
       const verifiesFocus = browser.browserType().name() === 'chromium';
-      if (choices && !verifiesFocus) {
+      if ((choices || rejections) && !verifiesFocus) {
         await controls.page.goto(`${fixture.base}/#/cv`);
         await controls.panel.waitFor();
       } else {
@@ -187,10 +190,33 @@ export const verifyNativeApplicationChats = async (
           ]
         );
       }
-      assert.deepEqual((await stats()).chat, {
+      const provider = await stats();
+      if (rejections && screenshots) {
+        await shot('review');
+        await chat.screenshot({
+          path: join(screenshots, 'application-chat-rejections-native.png'),
+          fullPage: true,
+        });
+      }
+      if (rejections) {
+        assert.deepEqual(
+          provider.rejections.visits,
+          ['9', '8'],
+          'the unread rejection must be opened before the earlier question'
+        );
+        assert.equal(provider.rejections.unread, 0);
+        assert.match(
+          provider.rejections.ownerDraft,
+          /Owner unfinished line 7/u
+        );
+        if (choices) {
+          assert.equal(provider.rejections.unrelated, 1);
+        }
+      }
+      assert.deepEqual(provider.chat, {
         draft: choices && !parentChoice ? '' : 'At 9 a.m.',
         sends: parentChoice ? 1 : 0,
-        unreadNext: parentChoice ? 0 : 1,
+        unreadNext: parentChoice || rejections ? 0 : 1,
       });
       if (choices && !parentChoice) {
         assert.deepEqual(
@@ -209,7 +235,7 @@ export const verifyNativeApplicationChats = async (
       );
       assert.equal(await field('processChats').isDisabled(), true);
       await shot(parentChoice ? 'before' : 'after');
-      if (screenshots) {
+      if (screenshots && !rejections) {
         await mkdir(screenshots, { recursive: true });
         await chat.screenshot({
           path: join(
@@ -223,7 +249,7 @@ export const verifyNativeApplicationChats = async (
           fullPage: true,
         });
       }
-      if (!parentChoice) {
+      if (!parentChoice && (!rejections || choices)) {
         await controls.locales('[data-application-chats-held]');
         await controls.phone();
         await shot('phone');
@@ -274,17 +300,27 @@ export const verifyNativeApplicationChats = async (
         independentNativeBrowsers: true,
         applicationDeliveries: 1,
         chatSends: parentChoice ? 1 : 0,
+        ...(rejections && { nativeVisitOrder: provider.rejections.visits }),
         childDrained: true,
         liveProvider: false,
       };
     },
-    { choices, session }
+    { choices, session, rejections }
   );
 
-export const verifyNativeApplicationChoiceHold = (browser) =>
-  verifyNativeApplicationChats(browser, {
+export const verifyNativeApplicationChoiceHold = (browser) => {
+  const parentChoice = process.env.APPLICATION_CHAT_CHOICES_BEFORE === '1';
+  return verifyNativeApplicationChats(browser, {
     choices: true,
-    parentChoice: process.env.APPLICATION_CHAT_CHOICES_BEFORE === '1',
+    parentChoice,
+    rejections: !parentChoice,
+    screenshots: process.env.APPLICATION_SCREENSHOTS,
+  });
+};
+
+export const verifyNativeApplicationRejections = (browser) =>
+  verifyNativeApplicationChats(browser, {
+    rejections: true,
     screenshots: process.env.APPLICATION_SCREENSHOTS,
   });
 

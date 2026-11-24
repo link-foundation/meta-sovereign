@@ -51,7 +51,7 @@ export const signedOutRoute = async (route, context) => {
 export const withNativeApplicationChats = (
   browser,
   work,
-  { choices, session = false, waiting = false } = {}
+  { choices, session = false, waiting = false, rejections = false } = {}
 ) =>
   withChatNavigationFixture(
     browser,
@@ -65,6 +65,19 @@ export const withNativeApplicationChats = (
         ...(choices
           ? { choiceChat: '8', latestMessages: { 8: unreadBotQuestion } }
           : {}),
+        ...(rejections && {
+          listPreviews: {
+            9: 'We will not move forward with your application.',
+          },
+          latestMessages: {
+            ...(choices && { 8: unreadBotQuestion }),
+            9: 'We will not move forward with your application.',
+          },
+          ...(choices && {
+            listChats: ['8', '9', '10', '7'],
+            unreadChats: ['8', '9', '10'],
+          }),
+        }),
       }),
       senderOptions: { slot: 'chat-slot' },
       routePage: session ? signedOutRoute : undefined,
@@ -74,30 +87,41 @@ export const withNativeApplicationChats = (
       let chatStats = { chat: null };
       const stats = async () => {
         if (!chat.isClosed()) {
-          chatStats = await chat.evaluate((waiting) => {
-            const state = window.fixture;
-            if (!state) {
-              return { chat: null };
-            }
-            const draft = document.querySelector('textarea').value;
-            return {
-              chat: {
-                sends: state.sends,
-                unreadNext: state.unread['9'],
-                draft,
-              },
-              ...(waiting
-                ? {
-                    waiting: {
-                      visits: state.visits.slice(),
-                      unread: state.unread['8'],
-                      draft,
-                      sends: state.sends,
-                    },
-                  }
-                : {}),
-            };
-          }, waiting);
+          chatStats = await chat.evaluate(
+            ({ waiting, rejections }) => {
+              const state = window.fixture;
+              if (!state) {
+                return { chat: null };
+              }
+              const draft = document.querySelector('textarea').value;
+              return {
+                chat: {
+                  sends: state.sends,
+                  unreadNext: state.unread['9'],
+                  draft,
+                },
+                ...(waiting
+                  ? {
+                      waiting: {
+                        visits: state.visits.slice(),
+                        unread: state.unread['8'],
+                        draft,
+                        sends: state.sends,
+                      },
+                    }
+                  : {}),
+                ...(rejections && {
+                  rejections: {
+                    visits: state.visits.slice(),
+                    unread: state.unread['9'],
+                    unrelated: state.unread['10'],
+                    ownerDraft: state.drafts['7'],
+                  },
+                }),
+              };
+            },
+            { waiting, rejections }
+          );
         }
         return {
           ...chatStats,

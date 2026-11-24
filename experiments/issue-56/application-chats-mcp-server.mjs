@@ -15,6 +15,7 @@ const browser = await chromium.launch({
 });
 let final;
 const session = process.env.APPLICATION_CHAT_SESSION_REUSE === '1';
+const rejections = process.env.APPLICATION_CHAT_REJECTIONS === '1';
 try {
   await withNativeApplicationChats(
     browser,
@@ -35,6 +36,7 @@ try {
           base: fixture.base,
           control: `http://127.0.0.1:${control.address().port}`,
           session,
+          rejections,
         })
       );
       try {
@@ -47,7 +49,7 @@ try {
         await new Promise((resolve) => control.close(resolve));
       }
     },
-    { session }
+    { session, rejections }
   );
 } finally {
   await browser.close();

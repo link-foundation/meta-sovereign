@@ -1,3 +1,4 @@
+- [Rejection-first application chat passes](application-chat-rejections.md) verify the native unread order, a changed preview refusal and an unsent owner review.
 - [Recruiter panel message waits](application-recruiter-panel-quiet.md) verify the 20-second first wait and the 15-second wait after a confirmed reply, with protected owner work and a recoverable native closure.
 - [Skip a HeadHunter recruiter question](application-recruiter-panel-skip.md) leaves the conversation available in HeadHunter and resumes the batch after a confirmed native close.
 - [Earlier HeadHunter answer reuse](application-recruiter-panel-reuse.md) verifies affirmative and negative native choices, an unknown answer held for review, and recovery of the provider receipt.
