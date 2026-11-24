@@ -51,6 +51,7 @@ const checkedTextSnapshot = (target, expected) => {
     ...(expected.noticeContext
       ? { noticeContext: expected.noticeContext }
       : {}),
+    ...(expected.recent === undefined ? {} : { recent: expected.recent }),
   };
 };
 
@@ -113,6 +114,7 @@ export const sendBrowserTextReply = async (
       pollMs: options.pollMs ?? 100,
       inactiveToken: options.inactiveToken,
       verifyCurrent: options.verifyCurrent,
+      beforeClick: options.beforeClick,
     }
   );
   return {

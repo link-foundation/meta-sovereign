@@ -81,6 +81,8 @@ const recruiterDraftReview = (service, record, signal) => {
   const vacancy = record.vacancy;
   return {
     attempted: (record.recruiterDraftAttempts ??= new Set()),
+    owner: `application-recruiter:${record.requestId}`,
+    autoSendExactAnswers: record.options.autoSendExactAnswers === true,
     input: {
       profileId,
       salary,
@@ -249,6 +251,7 @@ export class ApplicationReview {
       return false;
     }
     let status = record.recruiterChat;
+    let reply = record.recruiterReply;
     if (page.recruiterPanelOpen === true) {
       signal.throwIfAborted();
       const result = await this.service
@@ -266,13 +269,15 @@ export class ApplicationReview {
         record.recruiterCapture = result.capture;
       }
       status = result?.matched ? 'open' : 'unverified';
+      reply = result?.reply ?? reply;
     } else if (status) {
       status = page.recruiterPanelOpen === false ? null : 'unverified';
     }
-    if (status === record.recruiterChat) {
+    if (status === record.recruiterChat && reply === record.recruiterReply) {
       return false;
     }
     record.recruiterChat = status;
+    record.recruiterReply = reply;
     this.service.trace({ event: 'application-recruiter-panel', state: status });
     return true;
   }

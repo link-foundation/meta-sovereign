@@ -48,6 +48,7 @@ const validateApplicationFlags = (input) => {
   if (
     [
       'autoExact',
+      'autoSendExactAnswers',
       'testMode',
       'recover',
       'supervised',
@@ -110,6 +111,11 @@ export const applicationSettings = (input, { legacy = false } = {}) => {
     requestId: input.requestId,
     coverLetter: input.coverLetter ?? '',
     autoExact: input.autoExact === true && input.supervised !== true,
+    ...(input.autoSendExactAnswers === true &&
+    input.supervised !== true &&
+    input.testMode !== true
+      ? { autoSendExactAnswers: true }
+      : {}),
     testMode: input.testMode === true,
     reviewDelayMs: input.reviewDelayMs ?? 3000,
     // Absence preserves the exact signatures of acknowledged legacy reviews.
@@ -226,6 +232,9 @@ export const applicationView = (record) => {
     hold: record.hold ?? null,
     testMode: record.options.testMode,
     autoExact: record.options.autoExact,
+    ...(record.options.autoSendExactAnswers
+      ? { autoSendExactAnswers: true }
+      : {}),
     supervised: record.options.supervised === true,
     confirmations: applicationConfirmationPolicy(record.options),
     continuation: continuationView(record),
@@ -254,6 +263,7 @@ export const applicationView = (record) => {
     ...(record.active && record.recruiterChat
       ? { recruiterChat: record.recruiterChat }
       : {}),
+    ...(record.recruiterReply ? { recruiterReply: record.recruiterReply } : {}),
     ...applicationAnswerContext(applicationSalaryOptions(record)),
     salaryAdmission: applicationSalaryDecision(
       applicationSalaryOptions(record),

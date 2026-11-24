@@ -12,7 +12,10 @@ import { originalApplicationSearch } from '../../experiments/issue-56/applicatio
 import { applicationDelay } from '../src/jobs/application-options.js';
 import { applicationResult } from '../src/jobs/application-result.js';
 import { LINO_BINARY, LINO_TEXT } from '../src/transport/lino.js';
-import { withApplicationRouteFixture } from './helpers/application-controls.mjs';
+import {
+  closedApplicationFixtureCommand,
+  withApplicationRouteFixture,
+} from './helpers/application-controls.mjs';
 
 const recruiterPanelFixture = (t, application = {}) =>
   applicationBatchFixture(t, {
@@ -224,4 +227,69 @@ for (const type of [LINO_TEXT, LINO_BINARY]) {
       assert.equal(closed.delivery, 'provider-confirmed');
     });
   });
+
+  test(`a verified or uncertain automatic recruiter reply survives ${type} recovery`, async (t) => {
+    let reply = 'provider-confirmed';
+    const fixture = applicationFixture({
+      application: {
+        readRecruiterPanel: async (_browser, _vacancy, { review }) => {
+          assert.equal(review.autoSendExactAnswers, true);
+          return { matched: true, reply };
+        },
+      },
+    });
+    t.after(() => fixture.close());
+    await withApplicationRouteFixture(fixture, type, async (api) => {
+      const input = { ...applicationInput, autoSendExactAnswers: true };
+      const opened = await api.vacancyApplicationOpen(input);
+      assert.equal(opened.autoSendExactAnswers, true);
+      assert.equal(opened.recruiterReply, undefined);
+      assert.throws(() =>
+        applicationResult({ ...opened, recruiterReply: reply }, input)
+      );
+      Object.assign(fixture.state.page, {
+        delivered: true,
+        enter: null,
+        recruiterPanelOpen: true,
+      });
+      const delivered = await api.vacancyApplicationRead({
+        ...input,
+        revision: opened.revision,
+      });
+      assert.equal(delivered.recruiterReply, 'provider-confirmed');
+      reply = 'unknown';
+      const uncertain = await api.vacancyApplicationRead({
+        ...input,
+        revision: delivered.revision,
+      });
+      assert.notEqual(uncertain.revision, delivered.revision);
+      assert.equal(uncertain.delivery, 'provider-confirmed');
+      assert.equal(uncertain.recruiterReply, 'unknown');
+      await api.vacancyApplicationClose({
+        ...input,
+        revision: uncertain.revision,
+      });
+      const saved = await api.vacancyApplicationStatus(input);
+      assert.equal(saved.active, false);
+      assert.equal(saved.recruiterChat, undefined);
+      assert.equal(saved.recruiterReply, 'unknown');
+    });
+  });
 }
+
+test('the CLI opts into recruiter replies separately and suppresses them in protected modes', async (t) => {
+  for (const args of [
+    {},
+    { 'auto-send-exact-answers': 'false' },
+    { 'auto-send-exact-answers': 'true', supervised: 'true' },
+    { 'auto-send-exact-answers': 'true', 'test-mode': 'true' },
+  ]) {
+    const receipt = await closedApplicationFixtureCommand(t, args);
+    assert.equal(receipt.autoSendExactAnswers, undefined);
+  }
+  const receipt = await closedApplicationFixtureCommand(t, {
+    'auto-send-exact-answers': 'true',
+  });
+  assert.equal(receipt.autoSendExactAnswers, true);
+  assert.equal(receipt.autoExact, false);
+});

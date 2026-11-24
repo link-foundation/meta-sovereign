@@ -13,7 +13,7 @@ import {
 } from '../sources/browser-choices.js';
 import { archiveBrowserHistoryWindow } from '../sources/browser-history-archive.js';
 import { HH_WEB_UI } from '../sources/hh-web-ui.js';
-import { prepareRecruiterDraft } from './application-recruiter-draft.js';
+import { reviewRecruiterAnswer } from './application-recruiter-draft.js';
 
 const recruiterUi = {
   ...HH_WEB_UI,
@@ -122,24 +122,35 @@ export const readApplicationRecruiterPanel = async (
       state: 'unverified',
     });
   }
+  let reply;
   try {
-    if (await prepareRecruiterDraft(document, recruiterUi, vacancy, options)) {
+    reply = await reviewRecruiterAnswer(
+      document,
+      recruiterUi,
+      vacancy,
+      options
+    );
+    if (reply) {
       options.trace({
-        event: 'application-recruiter-draft',
-        state: 'verified',
+        event: 'application-recruiter-answer',
+        state: reply,
       });
     }
   } catch {
     options.signal.throwIfAborted();
     options.trace({
-      event: 'application-recruiter-draft',
+      event: 'application-recruiter-answer',
       state: 'unverified',
     });
   }
   return {
     matched: Boolean(
-      sameVacancy((await readHeader(document))?.vacancyUrl, vacancy)
+      sameVacancy(
+        (await readHeader(document).catch(() => null))?.vacancyUrl,
+        vacancy
+      )
     ),
     capture,
+    ...(reply && reply !== 'draft' ? { reply } : {}),
   };
 };

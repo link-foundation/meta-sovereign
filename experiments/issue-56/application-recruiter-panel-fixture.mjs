@@ -1,6 +1,7 @@
 import { applicationNativeFixture } from './application-native-fixture.mjs';
 import { originalApplicationSearch } from './application-search-route-fixture.mjs';
 import { saveAnswerRule } from '../../js/src/automation/question-store.js';
+import { saveSettings } from '../../js/src/automation/safety.js';
 
 export const recruiterPanelChatUrl = 'https://chatik.hh.ru/chat/456';
 export const recruiterPanelDraft = 'I am reviewing the interview details.';
@@ -8,6 +9,9 @@ export const recruiterPanelQuestion = 'Could you confirm your availability?';
 export const recruiterPanelReply = 'I can start on December 7.';
 export const recruiterPanelSavedQuestion = 'Can you confirm your availability?';
 export const recruiterPanelSavedDraft = 'I am available next Wednesday.';
+export const recruiterPanelChoiceQuestion =
+  'Would you prefer a video interview?';
+export const recruiterPanelChoices = ['Yes, video', 'No, in person'];
 const panel = `<aside data-qa="chatik-root" aria-label="Recruiter chat" style="position:fixed;inset:20px 20px auto auto;width:360px;border:1px solid #aaa;padding:12px;background:#fff">
   <button type="button" onclick="this.closest('aside').hidden = true">Close recruiter panel</button>
   <iframe title="Recruiter chat" src="${recruiterPanelChatUrl}" style="display:block;width:100%;height:200px;border:0"></iframe>
@@ -15,7 +19,12 @@ const panel = `<aside data-qa="chatik-root" aria-label="Recruiter chat" style="p
 
 export const applicationRecruiterPanelFixture = async (
   browser,
-  { panelDelayMs = 0, ownerReply = false, prepareReply = false } = {}
+  {
+    panelDelayMs = 0,
+    ownerReply = false,
+    prepareReply = false,
+    exactReply = false,
+  } = {}
 ) => {
   const searchVisits = [];
   const effects = [];
@@ -52,7 +61,7 @@ export const applicationRecruiterPanelFixture = async (
           <article data-qa="chatik-chat-message-1" data-time="2026-11-24T09:00:00Z"><p data-qa="chat-bubble-text">${recruiterPanelQuestion}</p></article>${prepareReply ? '</div>' : ''}
           <label>Your reply <textarea data-qa="text-input">${recruiterPanelDraft}</textarea></label>
           ${
-            ownerReply || prepareReply
+            ownerReply || prepareReply || exactReply
               ? `<button type="button" data-qa="send-message">Send reply</button>
           <script>
             globalThis.fixtureRecruiterSends=0;
@@ -60,22 +69,45 @@ export const applicationRecruiterPanelFixture = async (
             document.querySelector('[data-qa="text-input"]').addEventListener('input',event=>{
               if (!event.isTrusted) globalThis.fixtureRecruiterDraftWrites++;
             });
-            document.querySelector('[data-qa="send-message"]').onclick=()=>{
-              const input=document.querySelector('[data-qa="text-input"]');
-              if (!input.value.trim() || globalThis.fixtureRecruiterSends) return;
-              globalThis.fixtureRecruiterSends++;
+            const input=document.querySelector('[data-qa="text-input"]');
+            const send=document.querySelector('[data-qa="send-message"]');
+            function acknowledge(text) {
+              const id=2+2*globalThis.fixtureRecruiterSends++;
               const row=document.createElement('article');
-              row.dataset.qa='chatik-chat-message-2';
+              row.dataset.qa='chatik-chat-message-'+id;
               row.dataset.time='2026-11-24T09:01:00Z';
               const body=document.createElement('p');
               body.dataset.qa='chat-bubble-text';
-              body.textContent=input.value;
+              body.textContent=text;
               const delivery=document.createElement('span');
-              delivery.dataset.qa='status-icon-pending';
-              delivery.textContent='Sending';
+              delivery.dataset.qa=${JSON.stringify(exactReply ? 'status-icon-delivered' : 'status-icon-pending')};
+              delivery.textContent=${JSON.stringify(exactReply ? 'Delivered' : 'Sending')};
               row.append(body,delivery);
               input.closest('label').before(row);
               input.value='';
+            }
+            send.onclick=()=>{
+              if (input.value.trim() && !globalThis.fixtureRecruiterSends) acknowledge(input.value);
+            };
+            globalThis.fixtureRecruiterChoices=(exact)=>{
+              const existing=document.querySelector('[data-qa="chatik-chat-message-3"]');
+              const row=existing || document.createElement('article');
+              row.dataset.qa='chatik-chat-message-3';
+              row.dataset.time='2026-11-24T09:02:00Z';
+              row.innerHTML='<p data-qa="chat-bubble-text">${recruiterPanelChoiceQuestion}</p><div data-qa="answer-options"></div>';
+              const label=input.closest('label');
+              label.hidden=true;
+              send.hidden=true;
+              label.before(row);
+              for (const text of ${JSON.stringify(recruiterPanelChoices)}) {
+                const choice=document.createElement('button');
+                choice.textContent=exact ? text : text+'.';
+                choice.onclick=()=>{
+                  row.querySelector('[data-qa="answer-options"]').remove();
+                  acknowledge(choice.textContent);
+                };
+                row.querySelector('[data-qa="answer-options"]').append(choice);
+              }
             };
           </script>`
               : ''
@@ -90,6 +122,21 @@ export const applicationRecruiterPanelFixture = async (
       question: recruiterPanelSavedQuestion,
       answers: [{ text: recruiterPanelSavedDraft, approved: true }],
     });
+  }
+  if (exactReply) {
+    await saveSettings(fixture.runtimeStore, {
+      quietHours: { enabled: false },
+    });
+    for (const [key, question, answer] of [
+      ['availability', recruiterPanelQuestion, recruiterPanelSavedDraft],
+      ['interview', recruiterPanelChoiceQuestion, recruiterPanelChoices[0]],
+    ]) {
+      await saveAnswerRule(fixture.runtimeStore, {
+        id: `qa-rule:recruiter-panel-${key}`,
+        question,
+        answers: [{ text: answer, approved: true }],
+      });
+    }
   }
   return { ...fixture, searchVisits, effects };
 };

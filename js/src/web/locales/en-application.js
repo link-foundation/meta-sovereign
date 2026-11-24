@@ -211,6 +211,8 @@ export const enApplication = {
     'Review the full vacancy and native answers. Entering an application can send it immediately. Continue follows the saved confirmation choices; only a native success signal confirms delivery.',
   'application.settings': 'Application settings',
   'application.coverLetter': 'Reviewed cover letter (up to 24,000 characters)',
+  'application.autoSendExactAnswers':
+    'Send approved word-for-word recruiter answers automatically',
   'application.autoExact':
     'After filling, send automatically only when every answer is exact and verified',
   'application.delay': 'Review delay before automatic sending (0–30,000 ms)',
@@ -262,6 +264,10 @@ export const enApplication = {
     'Delivery is unknown. A reserved action may have reached HH. A retry requires fresh native rejection evidence and a separately confirmed review.',
   'application.delivery.provider-confirmed':
     'HH confirmed application delivery.',
+  'application.recruiterReply.provider-confirmed':
+    'HeadHunter confirmed the automatic recruiter reply.',
+  'application.recruiterReply.unknown':
+    'Delivery of the automatic recruiter reply is uncertain. Check the native chat.',
   'application.recruiterChat.open':
     'Review the recruiter chat in the HeadHunter browser, then close its panel.',
   'application.recruiterChat.unverified':

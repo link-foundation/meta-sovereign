@@ -11,7 +11,7 @@ import { checkedBrowserPendingTurn } from '../sources/browser-pending-turn.js';
 const failure = (code, message) =>
   Object.assign(new Error(message), { code, fallback: false });
 
-const textDraft = (record, text) => {
+export const browserTextDraft = (record, text) => {
   const { snapshot } = record;
   if (
     !boundedBrowserText(text, 12000) ||
@@ -58,7 +58,7 @@ export const createBrowserTextReview =
         'This provider has no verified browser text reply support.'
       );
     }
-    const draft = textDraft(record, input.text);
+    const draft = browserTextDraft(record, input.text);
     const outcome = await guardedSend({
       store,
       kind: 'question-text',

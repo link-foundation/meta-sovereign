@@ -6,11 +6,15 @@ import {
 } from '../../src/automation/question-store.js';
 import {
   applicationRecruiterPanelFixture,
+  recruiterPanelChoices,
   recruiterPanelDraft,
   recruiterPanelQuestion,
   recruiterPanelReply,
   recruiterPanelSavedDraft,
 } from '../../../experiments/issue-56/application-recruiter-panel-fixture.mjs';
+import { outboxId } from '../../src/automation/outbox.js';
+import { questionChoiceKey } from '../../src/automation/question-choice-key.js';
+import { saveSettings } from '../../src/automation/safety.js';
 import { originalApplicationSearch } from '../../../experiments/issue-56/application-search-route-fixture.mjs';
 import { applicationPanelBrowser } from './application-panel-browser.mjs';
 import { nativeApplicationForm } from './application-native-request.mjs';
@@ -82,6 +86,89 @@ const verifyRecruiterDraftReview = async ({
   assert.equal(await draft.inputValue(), '');
   assert.equal(await draftWrites(), 1);
   await draft.fill(recruiterPanelDraft);
+};
+
+const verifyExactRecruiterReplies = async ({
+  draft,
+  frame,
+  nativePanel,
+  panel,
+  fixture,
+  shot,
+}) => {
+  const reply = panel.locator(
+    '[data-application-recruiter-reply="provider-confirmed"]'
+  );
+  const body = frame.locator('body');
+  const sends = () => body.evaluate(() => globalThis.fixtureRecruiterSends);
+  const outbox = (question) =>
+    fixture.runtimeStore.get(
+      outboxId(
+        questionChoiceKey({
+          source: 'hh',
+          chat: '456',
+          answer: { message: `msg:hh:456:${question}`, textReply: true },
+        })
+      )
+    );
+  const confirm = async (question, id, text) => {
+    await waitForCapture(async () => {
+      const row = await outbox(question);
+      return (
+        row?.status === 'sent' &&
+        row.receipt?.messageId === String(id) &&
+        (row.receipt.text ?? row.receipt.option) === text
+      );
+    }, `native recruiter reply ${id} needs a positive outbox receipt`);
+  };
+  assert.equal(await sends(), 0);
+  await draft.fill('');
+  try {
+    await confirm(1, 2, recruiterPanelSavedDraft);
+  } catch (error) {
+    await shot('exact-before', nativePanel);
+    throw error;
+  }
+  await reply.waitFor();
+  assert.equal(await sends(), 1);
+  assert.equal(await draft.inputValue(), '');
+  await shot('exact-text', nativePanel);
+  await shot('exact-receipt', reply.locator('..'));
+
+  const showChoices = (exact) =>
+    body.evaluate(
+      (_node, value) => globalThis.fixtureRecruiterChoices(value),
+      exact
+    );
+  await showChoices(false);
+  await frame
+    .getByRole('button', { name: `${recruiterPanelChoices[0]}.`, exact: true })
+    .waitFor();
+  await setTimeout(1300);
+  assert.equal(await sends(), 1);
+  assert.equal(await outbox(3), null);
+  await saveSettings(fixture.runtimeStore, {
+    quietHours: { enabled: false },
+    optOut: [{ source: 'hh', chat: 'web:456' }],
+  });
+  await showChoices(true);
+  await frame
+    .getByRole('button', { name: recruiterPanelChoices[0], exact: true })
+    .waitFor();
+  await setTimeout(1300);
+  assert.equal(await sends(), 1);
+  assert.equal(await outbox(3), null);
+  await saveSettings(fixture.runtimeStore, { quietHours: { enabled: false } });
+  await confirm(3, 4, recruiterPanelChoices[0]);
+  assert.equal(await sends(), 2);
+  await shot('exact-choice', nativePanel);
+  // Restore the owner draft to exercise recovery without another dispatch.
+  await frame
+    .locator('textarea[data-qa="text-input"]')
+    .evaluate((node, text) => {
+      node.closest('label').hidden = false;
+      node.value = text;
+    }, recruiterPanelDraft);
 };
 
 const verifyRecruiterReplyLearning = async ({
@@ -275,6 +362,7 @@ export const verifyNativeApplicationRecruiterPanel = async (
     verifyBinding = true,
     ownerReply = false,
     prepareReply = false,
+    exactReply = false,
     verifyPending = true,
   } = {}
 ) => {
@@ -282,6 +370,7 @@ export const verifyNativeApplicationRecruiterPanel = async (
     panelDelayMs,
     ownerReply,
     prepareReply,
+    exactReply,
   });
   const controls = applicationPanelBrowser(fixture);
   const { page, panel } = controls;
@@ -306,6 +395,13 @@ export const verifyNativeApplicationRecruiterPanel = async (
     await panel
       .locator('[data-application-option="vacancyPreviewSeconds"]')
       .fill('0');
+    const automaticReply = panel.locator(
+      '[data-application-option="autoSendExactAnswers"]'
+    );
+    if (exactReply && (await automaticReply.count())) {
+      assert.equal(await automaticReply.isChecked(), false);
+      await automaticReply.check();
+    }
     await field('urls').fill(vacancy);
     await field('maxApplications').fill('1');
     await field('confirmBatch').check();
@@ -391,6 +487,16 @@ export const verifyNativeApplicationRecruiterPanel = async (
         shot,
       });
     }
+    if (exactReply) {
+      await verifyExactRecruiterReplies({
+        draft,
+        frame,
+        nativePanel,
+        panel,
+        fixture,
+        shot,
+      });
+    }
     await verifyRecruiterPanelRecovery({
       controls,
       page,
@@ -413,6 +519,7 @@ export const verifyNativeApplicationRecruiterPanel = async (
         approximateDraftConfirmed: true,
         recruiterSends: 0,
       }),
+      ...(exactReply && { exactRepliesConfirmed: 2 }),
       batchCompletedAfterOwnerDismissal: true,
       resourcesClosed: true,
     };
@@ -420,3 +527,20 @@ export const verifyNativeApplicationRecruiterPanel = async (
     await fixture.close();
   }
 };
+
+export const verifyNativeApplicationRecruiterLearning = (browser) =>
+  verifyNativeApplicationRecruiterPanel(browser, { ownerReply: true });
+
+export const verifyNativeApplicationRecruiterDraft = (browser) =>
+  verifyNativeApplicationRecruiterPanel(browser, {
+    prepareReply: true,
+    panelDelayMs: 0,
+    verifyBinding: false,
+  });
+
+export const verifyNativeApplicationRecruiterExact = (browser) =>
+  verifyNativeApplicationRecruiterPanel(browser, {
+    exactReply: true,
+    panelDelayMs: 0,
+    verifyBinding: false,
+  });

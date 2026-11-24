@@ -55,6 +55,7 @@ const commandInput = async (args, configuration) => {
     browserSlot: args['browser-slot'],
     headless: boolean(args, 'headless'),
     autoExact: boolean(args, 'auto-exact'),
+    autoSendExactAnswers: boolean(args, 'auto-send-exact-answers'),
     testMode: boolean(args, 'test-mode'),
     collectVacancies:
       args['no-collect-vacancies'] === undefined

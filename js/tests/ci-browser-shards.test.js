@@ -155,7 +155,9 @@ test('native application scenarios remain registered once in bounded groups', ()
       'verifyNativeVacancyPreview',
       'verifyNativeApplicationSearchRoute',
       'verifyNativeApplicationDeliveredReturn',
-      'verifyNativeApplicationRecruiterPanel',
+      'verifyNativeApplicationRecruiterLearning',
+      'verifyNativeApplicationRecruiterDraft',
+      'verifyNativeApplicationRecruiterExact',
       'verifyNativeApplicationAnswerApproval',
       'verifyNativeApplicationAnswerContext',
       'verifyApplicationSalary',
@@ -170,7 +172,13 @@ test('long application workflows have separate registered budgets without nestin
       'job-application-attention',
       ['verifyNativeApplicationAttention', 'verifyApplicationAttentionChime'],
     ],
-    ['job-application-feedback', ['verifyNativeApplicationFeedback']],
+    [
+      'job-application-feedback',
+      [
+        'verifyNativeApplicationFeedback',
+        'verifyNativeApplicationRecruiterExact',
+      ],
+    ],
     [
       'job-application-collection',
       ['verifyNativeApplicationCollection', 'verifyNativeVacancyPreview'],
@@ -180,7 +188,8 @@ test('long application workflows have separate registered budgets without nestin
       [
         'verifyNativeApplicationSearchRoute',
         'verifyNativeApplicationDeliveredReturn',
-        'verifyNativeApplicationRecruiterPanel',
+        'verifyNativeApplicationRecruiterLearning',
+        'verifyNativeApplicationRecruiterDraft',
       ],
     ],
     [

@@ -204,7 +204,7 @@ export const armChoiceClick = (input, context) => {
   if (!same(current) || !current.strictOptions || candidates.length !== 1) {
     return { code: 'answer-choice-changed' };
   }
-  if (!clearOwned(current)) {
+  if (input.requireEmpty ? valueOf(current.composer) : !clearOwned(current)) {
     return { code: 'answer-draft-preserved' };
   }
   return armBrowserReply(

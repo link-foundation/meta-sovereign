@@ -235,7 +235,7 @@ const resolveBrowserDocument = async (
       await assertCurrent();
       return value;
     },
-    async clickButton({ selector, inactiveToken }) {
+    async clickButton({ selector, inactiveToken, beforeClick }) {
       await assertCurrent();
       if (inactiveToken) {
         for (const frame of new Set([ownerFrame, selected.frame])) {
@@ -255,16 +255,25 @@ const resolveBrowserDocument = async (
           }
         }
       }
+      if (beforeClick) {
+        try {
+          beforeClick();
+        } catch (error) {
+          throw Object.assign(error, { dispatched: false });
+        }
+      }
       if (selected.frame === page.mainFrame()) {
         await commander.clickButton({
           selector,
-          scrollIntoView: !inactiveToken,
-          ...(inactiveToken ? { activation: 'dom', scroll: 'none' } : {}),
+          scrollIntoView: !inactiveToken && !beforeClick,
+          ...(inactiveToken || beforeClick
+            ? { activation: 'dom', scroll: 'none' }
+            : {}),
           waitForNavigation: false,
           waitAfterClick: 0,
           verify: false,
         });
-      } else if (inactiveToken) {
+      } else if (inactiveToken || beforeClick) {
         // DOM activation targets the actual provider control without taking
         // window focus. Its page-local frozen-turn guard still runs on click.
         await selected.frame.locator(selector).evaluate((node) => node.click());

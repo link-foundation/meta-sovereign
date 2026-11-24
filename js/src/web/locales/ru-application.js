@@ -221,6 +221,8 @@ export const ruApplication = {
   'application.settings': 'Настройки отклика',
   'application.coverLetter':
     'Проверенное сопроводительное письмо (до 24 000 знаков)',
+  'application.autoSendExactAnswers':
+    'Автоматически отправлять одобренные ответы при дословном совпадении вопроса',
   'application.autoExact':
     'После заполнения отправлять автоматически, только если все ответы точные и проверены',
   'application.delay': 'Пауза перед автоматической отправкой (0–30 000 мс)',
@@ -271,6 +273,10 @@ export const ruApplication = {
   'application.delivery.unknown':
     'Доставка неизвестна. Зарезервированное действие могло достичь HH. Для повтора нужны свежие данные об отказе в родной форме и отдельное подтверждение просмотра.',
   'application.delivery.provider-confirmed': 'HH подтвердил доставку отклика.',
+  'application.recruiterReply.provider-confirmed':
+    'HeadHunter подтвердил автоматическую отправку ответа рекрутеру.',
+  'application.recruiterReply.unknown':
+    'Отправка автоматического ответа не подтверждена. Проверьте чат HeadHunter.',
   'application.recruiterChat.open':
     'Проверьте чат с работодателем в браузере HeadHunter, затем закройте панель чата.',
   'application.recruiterChat.unverified':

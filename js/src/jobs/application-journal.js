@@ -26,6 +26,7 @@ const properties = [
   'state',
   'attempted',
   'delivery',
+  'recruiterReply',
   'code',
   'vacancy',
   'resumeUrl',

@@ -212,6 +212,8 @@ export const hiApplication = {
     'पूरा नौकरी विवरण और मूल उत्तर देखें। आवेदन खोलते ही वह भेजा जा सकता है। जारी रखने पर सहेजे गए पुष्टि चरण लागू होते हैं; केवल HH की सफलता सूचना भेजे जाने की पुष्टि करती है।',
   'application.settings': 'आवेदन सेटिंग',
   'application.coverLetter': 'समीक्षित परिचय पत्र (24,000 अक्षर तक)',
+  'application.autoSendExactAnswers':
+    'भर्ती करने वाले के हूबहू मिलते सवालों के स्वीकृत जवाब अपने आप भेजें',
   'application.autoExact':
     'भरने के बाद तभी स्वतः भेजें जब सभी उत्तर सटीक और सत्यापित हों',
   'application.delay': 'स्वतः भेजने से पहले समीक्षा विराम (0–30,000 मिलीसेकंड)',
@@ -263,6 +265,10 @@ export const hiApplication = {
     'भेजे जाने की स्थिति अज्ञात है। आरक्षित क्रिया HH तक पहुँच सकती है। दोबारा प्रयास के लिए मूल फ़ॉर्म में अस्वीकृति का नया प्रमाण और अलग से पुष्टि की गई समीक्षा चाहिए।',
   'application.delivery.provider-confirmed':
     'HH ने आवेदन पहुँचने की पुष्टि की।',
+  'application.recruiterReply.provider-confirmed':
+    'HeadHunter ने भर्ती करने वाले को भेजे गए स्वचालित जवाब की पुष्टि की।',
+  'application.recruiterReply.unknown':
+    'स्वचालित जवाब की डिलीवरी की पुष्टि बाकी है। HeadHunter चैट देखें।',
   'application.recruiterChat.open':
     'HeadHunter ब्राउज़र में भर्ती करने वाले से हुई बातचीत देखें, फिर उसका पैनल बंद करें।',
   'application.recruiterChat.unverified':

@@ -16,6 +16,7 @@ export const useApplication = ({ api, values, selected, run }) => {
     vacancyPreviewSeconds: 3,
     applyFromVacancyPage: true,
     autoExact: false,
+    autoSendExactAnswers: false,
     testMode: false,
     supervised: false,
     confirmations: ['send'],

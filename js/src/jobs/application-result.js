@@ -73,7 +73,9 @@ const supervised = (raw) =>
   (raw.autoSelectResumeLanguage === undefined ||
     typeof raw.autoSelectResumeLanguage === 'boolean') &&
   optionalChoice(raw.letterLanguage, ['en', 'ru']) &&
-  !(raw.supervised && raw.autoExact);
+  !(raw.supervised && raw.autoExact) &&
+  (raw.autoSendExactAnswers === undefined ||
+    (raw.autoSendExactAnswers === true && !raw.supervised && !raw.testMode));
 const reentry = (raw) =>
   (raw.reentryAvailable === undefined ||
     typeof raw.reentryAvailable === 'boolean') &&
@@ -143,6 +145,9 @@ const state = (raw) =>
   optionalChoice(raw.recruiterChat, ['open', 'unverified']) &&
   (!raw.recruiterChat ||
     (raw.active && raw.delivery === 'provider-confirmed' && !raw.testMode)) &&
+  optionalChoice(raw.recruiterReply, ['provider-confirmed', 'unknown']) &&
+  (!raw.recruiterReply ||
+    (raw.delivery === 'provider-confirmed' && raw.autoSendExactAnswers)) &&
   (raw.state !== 'delivered' || raw.delivery === 'provider-confirmed');
 const actionDescriptor = (value) =>
   value === null ||
@@ -216,6 +221,10 @@ const validReceiptContext = (raw, input) =>
   (input.collectVacancies === undefined ||
     (typeof input.collectVacancies === 'boolean' &&
       raw.collectVacancies === input.collectVacancies)) &&
+  (input.autoSendExactAnswers === undefined ||
+    (typeof input.autoSendExactAnswers === 'boolean' &&
+      Boolean(raw.autoSendExactAnswers) ===
+        (input.autoSendExactAnswers && !raw.supervised && !raw.testMode))) &&
   state(raw) &&
   page(raw.page) &&
   validApplicationAnswerContext(raw) &&

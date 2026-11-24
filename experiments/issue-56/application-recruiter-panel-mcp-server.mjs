@@ -11,6 +11,7 @@ let current;
 let fixture;
 const ownerReply = process.env.E2E_RECRUITER_PANEL_LEARN_REPLY === '1';
 const prepareReply = process.env.E2E_RECRUITER_PANEL_PREPARE_REPLY === '1';
+const exactReply = process.env.E2E_RECRUITER_PANEL_EXACT_REPLY === '1';
 const replyControl = async (frame, path) => {
   if (path === '/reply/start') {
     await frame
@@ -47,9 +48,10 @@ await serveNativeMcpFixture(
   async (browser) => {
     current = browser;
     fixture = await applicationRecruiterPanelFixture(browser, {
-      panelDelayMs: prepareReply ? 0 : 4000,
+      panelDelayMs: prepareReply || exactReply ? 0 : 4000,
       ownerReply,
       prepareReply,
+      exactReply,
     });
     return fixture;
   },
@@ -59,7 +61,7 @@ await serveNativeMcpFixture(
       .flatMap((context) => context.pages())
       .find((page) => page.url() === originalApplicationSearch);
     const panel = searchPage?.locator('[data-qa="chatik-root"]');
-    const panelOpen = Boolean(await panel?.isVisible());
+    let panelOpen = Boolean(await panel?.isVisible());
     const frame = panel
       ?.locator('iframe[title="Recruiter chat"]')
       .contentFrame();
@@ -86,7 +88,11 @@ await serveNativeMcpFixture(
           await panel
             .getByRole('button', { name: 'Close recruiter panel' })
             .click({ timeout: 5000 });
-        } else if (prepareReply && request.url === '/draft/clear') {
+          panelOpen = false;
+        } else if (
+          (prepareReply || exactReply) &&
+          request.url === '/draft/clear'
+        ) {
           await frame.getByRole('textbox', { name: 'Your reply' }).fill('');
         } else if (ownerReply) {
           await replyControl(frame, request.url);
@@ -106,7 +112,7 @@ await serveNativeMcpFixture(
           recruiterSends: globalThis.fixtureRecruiterSends,
           revealed: node.scrollTop > 0,
         })))),
-      ...(ownerReply
+      ...(ownerReply || exactReply
         ? await observeLearning(fixture.runtimeStore, frame, panelOpen)
         : {}),
     };

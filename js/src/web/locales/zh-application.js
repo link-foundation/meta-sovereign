@@ -179,6 +179,7 @@ export const zhApplication = {
     '请审核完整职位和原生答案。进入申请可能立即发送。继续操作遵循已保存的确认步骤；只有 HH 的成功信号才能确认送达。',
   'application.settings': '申请设置',
   'application.coverLetter': '已审核的求职信（最多 24,000 字符）',
+  'application.autoSendExactAnswers': '问题逐字匹配时自动发送已批准的招聘回复',
   'application.autoExact': '填写后，仅在所有答案均精确且已验证时自动发送',
   'application.delay': '自动发送前的审核延时（0–30,000 毫秒）',
   'application.testMode': '仅预览：不执行答案填写或申请操作',
@@ -219,6 +220,10 @@ export const zhApplication = {
   'application.delivery.unknown':
     '送达状态未知。已预留操作可能已到达 HH。重试需要原生页面的新拒绝证据和单独确认的审核。',
   'application.delivery.provider-confirmed': 'HH 已确认申请送达。',
+  'application.recruiterReply.provider-confirmed':
+    'HeadHunter 已确认自动发送的招聘回复。',
+  'application.recruiterReply.unknown':
+    '无法确认自动回复是否送达。请查看 HeadHunter 聊天。',
   'application.recruiterChat.open':
     '请在 HeadHunter 浏览器中查看招聘方聊天，然后关闭聊天面板。',
   'application.recruiterChat.unverified':

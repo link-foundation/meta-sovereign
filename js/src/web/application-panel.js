@@ -129,6 +129,7 @@ const Settings = ({ application, disabled, t }) => {
           ...options,
           supervised: value,
           autoExact: value ? false : options.autoExact,
+          autoSendExactAnswers: value ? false : options.autoSendExactAnswers,
         })
     ),
     check(
@@ -137,6 +138,13 @@ const Settings = ({ application, disabled, t }) => {
       options.autoExact,
       (value) => update('autoExact', value),
       options.supervised
+    ),
+    check(
+      'autoSendExactAnswers',
+      t('application.autoSendExactAnswers'),
+      options.autoSendExactAnswers && !options.testMode,
+      (value) => update('autoSendExactAnswers', value),
+      options.supervised || options.testMode
     ),
     el('label', { key: 'delay', className: 'col' }, [
       t('application.delay'),
@@ -227,6 +235,17 @@ const Receipt = ({ receipt, t }) =>
             'data-application-recruiter-chat': receipt.recruiterChat,
           },
           t(`application.recruiterChat.${receipt.recruiterChat}`)
+        )
+      : null,
+    receipt.recruiterReply
+      ? el(
+          'p',
+          {
+            key: 'recruiter-reply',
+            role: 'status',
+            'data-application-recruiter-reply': receipt.recruiterReply,
+          },
+          t(`application.recruiterReply.${receipt.recruiterReply}`)
         )
       : null,
     receipt.letterAttachment

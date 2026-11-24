@@ -372,7 +372,16 @@ export const selectBrowserAnswer = async (
   ui,
   draft,
   target,
-  { receiptMs = 10000, pollMs = 100, verifyCurrent, inactiveToken, recent } = {}
+  {
+    receiptMs = 10000,
+    pollMs = 100,
+    verifyCurrent,
+    inactiveToken,
+    recent,
+    noticeContext,
+    beforeClick,
+    requireEmpty,
+  } = {}
 ) => {
   if (!validWait(receiptMs, pollMs)) {
     throw failure('bad-draft');
@@ -380,6 +389,7 @@ export const selectBrowserAnswer = async (
   const expected = {
     ...expectedQuestion(draft, target),
     ...(recent ? { recent } : {}),
+    ...(noticeContext ? { noticeContext } : {}),
   };
   const spec = browserChoiceSpec(ui);
   const result = await dispatchBrowserReply(
@@ -388,8 +398,9 @@ export const selectBrowserAnswer = async (
       spec,
       expected,
       option: draft.answer.option,
+      ...(requireEmpty ? { requireEmpty: true } : {}),
     },
-    { receiptMs, pollMs, verifyCurrent, inactiveToken }
+    { receiptMs, pollMs, verifyCurrent, inactiveToken, beforeClick }
   );
   return {
     via: 'browser',
@@ -400,7 +411,12 @@ export const selectBrowserAnswer = async (
   };
 };
 
-const issueBrowserReply = async (commander, selector, inactiveToken) => {
+const issueBrowserReply = async (
+  commander,
+  selector,
+  inactiveToken,
+  beforeClick
+) => {
   try {
     await commander.clickButton({
       selector,
@@ -408,12 +424,13 @@ const issueBrowserReply = async (commander, selector, inactiveToken) => {
       ...(inactiveToken
         ? { inactiveToken, activation: 'dom', scroll: 'none' }
         : {}),
+      ...(beforeClick ? { beforeClick } : {}),
       waitForNavigation: false,
       waitAfterClick: 0,
       verify: false,
     });
   } catch (error) {
-    if (inactiveToken && error?.dispatched === false) {
+    if ((inactiveToken || beforeClick) && error?.dispatched === false) {
       throw error;
     }
     // An issued native click can reject even after dispatch; require its receipt.
@@ -424,7 +441,7 @@ const issueBrowserReply = async (commander, selector, inactiveToken) => {
 export const dispatchBrowserReply = async (
   commander,
   request,
-  { receiptMs, pollMs, inactiveToken, verifyCurrent }
+  { receiptMs, pollMs, inactiveToken, verifyCurrent, beforeClick }
 ) => {
   if (!validWait(receiptMs, pollMs)) {
     throw failure('bad-draft');
@@ -444,7 +461,12 @@ export const dispatchBrowserReply = async (
       throw failure(armed.code);
     }
     await verifyCurrent?.();
-    await issueBrowserReply(commander, armed.selector, inactiveToken);
+    await issueBrowserReply(
+      commander,
+      armed.selector,
+      inactiveToken,
+      beforeClick
+    );
     const deadline = Date.now() + receiptMs;
     for (;;) {
       let result;
