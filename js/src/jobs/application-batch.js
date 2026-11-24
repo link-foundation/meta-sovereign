@@ -643,6 +643,18 @@ export class ApplicationBatch {
   async finishDelivery(runtime, current, signal) {
     await this.recordDelivery(runtime, current);
     const status = applicationAttachmentStatus(current);
+    if (current.recruiterChat) {
+      return this.save(runtime, { phase: 'review', nextAt: null });
+    }
+    if (!current.options.testMode) {
+      const page = await this.service.attachment.readPage(current);
+      signal.throwIfAborted();
+      if (page.recruiterPanelOpen === true) {
+        // Delivery storage can yield while the provider opens the panel.
+        await this.service.review.inspect(current, signal);
+        return this.save(runtime, { phase: 'review', nextAt: null });
+      }
+    }
     if (!status || status === 'provider-confirmed') {
       return this.service.close();
     }

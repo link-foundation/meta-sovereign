@@ -217,6 +217,17 @@ const Receipt = ({ receipt, t }) =>
       },
       t(`application.delivery.${receipt.delivery}`)
     ),
+    receipt.recruiterChat
+      ? el(
+          'p',
+          {
+            key: 'recruiter-chat',
+            role: 'status',
+            'data-application-recruiter-chat': receipt.recruiterChat,
+          },
+          t(`application.recruiterChat.${receipt.recruiterChat}`)
+        )
+      : null,
     receipt.letterAttachment
       ? el(
           'p',
@@ -371,7 +382,7 @@ const attachmentControl = (receipt, action, admitted, t) => {
     name,
     t(`application.attachment.${status === 'search' ? 'check-search' : name}`),
     action('Advance', { action: name, confirm: true }),
-    !admitted || receipt.paused
+    !admitted || receipt.paused || Boolean(receipt.recruiterChat)
   );
 };
 const NativeControls = ({ application, idle, confirmed, t }) => {

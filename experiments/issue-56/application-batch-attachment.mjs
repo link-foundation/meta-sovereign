@@ -5,7 +5,10 @@ import {
 
 export const batchAttachmentText = 'Reviewed separate cover letter';
 
-export const batchAttachmentFixture = (t, { uncertain = null } = {}) => {
+export const batchAttachmentFixture = (
+  t,
+  { uncertain = null, recruiterPanelOpen = false } = {}
+) => {
   const effects = [];
   const fixture = applicationBatchFixture(t, {
     vacancyPage: (state, url) => {
@@ -13,6 +16,7 @@ export const batchAttachmentFixture = (t, { uncertain = null } = {}) => {
         Object.assign(state.page, {
           enter: null,
           delivered: true,
+          ...(recruiterPanelOpen ? { recruiterPanelOpen } : {}),
           attachment: {
             offer: { disabled: false },
             value: null,

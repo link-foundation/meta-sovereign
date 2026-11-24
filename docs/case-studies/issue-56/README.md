@@ -893,3 +893,4 @@ Optional persistent collection with full current-run context: [collection eviden
 - [Separate cover letters in a paced batch](application-batch-attachment.md) keep the current browser open at the application cap and retain confirmed, uncertain and manual-review outcomes.
 - [Separate cover letters in the original search](application-search-attachment.md) bind the exact vacancy card and fall back to the same vacancy while the route is safe to leave.
 - [Return to the original search after delivery](application-delivered-return.md) verifies the saved filter and page, preserves the receipt when the delivered card disappears, and covers separately confirmed fallback letters.
+- [Recruiter panel after delivery](application-recruiter-panel.md) verifies the batch holds a visible native panel and preserves its owner draft at the delivery cap.

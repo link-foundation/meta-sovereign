@@ -140,6 +140,9 @@ const state = (raw) =>
     'owner-conflict',
   ].includes(raw.letter) &&
   attachment(raw) &&
+  optionalChoice(raw.recruiterChat, ['open', 'unverified']) &&
+  (!raw.recruiterChat ||
+    (raw.active && raw.delivery === 'provider-confirmed' && !raw.testMode)) &&
   (raw.state !== 'delivered' || raw.delivery === 'provider-confirmed');
 const actionDescriptor = (value) =>
   value === null ||

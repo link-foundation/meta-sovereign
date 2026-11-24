@@ -17,6 +17,11 @@ Return the owned HeadHunter browser to its original search after a confirmed
 application or separate letter when the search route is configured. Keep the
 delivery receipt when the search filters hide the vacancy (issue #56, HH06).
 
+Keep a visible native HeadHunter recruiter panel open for owner review after
+confirmed delivery. Paced batches wait for dismissal before continuing or
+starting a separate cover letter, including at the delivery cap (issue #56,
+HH08 and HH10).
+
 Reuse same-language approved thanks for recognized HeadHunter application
 updates in the explicitly selected inactive notice policy. Verify full chat
 history and keep actionable messages in review (issue #56, QA17).

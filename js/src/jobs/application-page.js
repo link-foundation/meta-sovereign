@@ -357,8 +357,18 @@ export const applicationDocument = (target, input) => {
     const offers = cardControls(card, cardToggle).filter(visible);
     return offers.length === 1 ? offers[0] : null;
   };
+  const recruiterPanelOpen = () =>
+    nodes('[data-qa="chatik-root"] iframe').some((frame) => {
+      for (let node = frame; node; node = node.parentElement) {
+        if (Number(globalThis.getComputedStyle(node).opacity) === 0) {
+          return false;
+        }
+      }
+      return true;
+    });
   const navigationBlocked = () =>
     Boolean(
+      recruiterPanelOpen() ||
       nodes(
         '[role="dialog"], [data-qa="modal-overlay"], textarea, [contenteditable="true"]'
       ).length ||
@@ -417,6 +427,7 @@ export const applicationDocument = (target, input) => {
       delivered,
       attachment,
       attachmentSearch: true,
+      recruiterPanelOpen: recruiterPanelOpen(),
       returnSafe:
         !ambiguous &&
         (!card || !pending) &&
@@ -642,6 +653,16 @@ export const applicationDocument = (target, input) => {
       ...metadata,
       ...content,
       ...(bound &&
+      !metadata.challenge &&
+      !metadata.dailyLimit &&
+      !metadata.external &&
+      !metadata.questions &&
+      !content.error &&
+      !content.resumeNotVisible &&
+      !content.vacancyUnavailable
+        ? { recruiterPanelOpen: recruiterPanelOpen() }
+        : {}),
+      ...(bound &&
       metadata.delivered &&
       !metadata.challenge &&
       !metadata.dailyLimit &&
@@ -806,6 +827,7 @@ export const applicationDocument = (target, input) => {
     const node = searchOpening ? searchOfferNode(card) : target;
     if (
       !control ||
+      result.recruiterPanelOpen ||
       ((opening || sending) && control.disabled) ||
       attachment.error ||
       result.error ||

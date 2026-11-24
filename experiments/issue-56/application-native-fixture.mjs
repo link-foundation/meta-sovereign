@@ -104,6 +104,7 @@ export const applicationNativeFixture = async (
     alreadyDelivered,
     separateLetterOffer,
     searchRoute,
+    recruiterRoute,
   } = {}
 ) => {
   let nativeForms = 0;
@@ -113,6 +114,9 @@ export const applicationNativeFixture = async (
       prepare: prepareContext,
       route: async (route) => {
         const url = new URL(route.request().url());
+        if (recruiterRoute && url.origin === 'https://chatik.hh.ru') {
+          return recruiterRoute(route, url);
+        }
         if (
           url.origin === 'https://hh.ru' &&
           url.pathname === '/search/vacancy' &&

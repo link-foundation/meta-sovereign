@@ -203,6 +203,7 @@ export const applicationView = (record) => {
             'attachmentSearch',
             'returnSafe',
             'searchKey',
+            'recruiterPanelOpen',
             'fieldIndices',
             'questionIndices',
             'resumeIndices',
@@ -250,6 +251,9 @@ export const applicationView = (record) => {
     resumePreference: record.resumePreference ?? null,
     letter: record.letter ?? 'not-requested',
     letterAttachment: applicationAttachmentStatus(record),
+    ...(record.active && record.recruiterChat
+      ? { recruiterChat: record.recruiterChat }
+      : {}),
     ...applicationAnswerContext(applicationSalaryOptions(record)),
     salaryAdmission: applicationSalaryDecision(
       applicationSalaryOptions(record),

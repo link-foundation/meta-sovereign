@@ -19,6 +19,7 @@ export const returnDeliveredApplicationToSearch = async (
     record.state !== 'delivered' ||
     record.hold ||
     record.paused ||
+    record.recruiterChat ||
     record.options.testMode ||
     record.attachmentSearchActive ||
     record.page.attachment?.pending ||

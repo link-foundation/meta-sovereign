@@ -2,6 +2,8 @@
 
 Current acceptance: **88 of 118 criteria verified; 30 remain unchecked**.
 
+[Recruiter panels after delivery](application-recruiter-panel.md) hold the paced batch and its separate letter actions while the native recruiter panel is open or its state is uncertain. A Chromium fixture verifies the owner reply survives reload and the batch completes after the owner dismisses the panel. HH08 and HH10 remain open for the rest of the inline chat workflow and authenticated verification.
+
 [Confirmed delivery returns to the original search](application-delivered-return.md) after the application or separately confirmed fallback letter. The receipt survives filters that hide the delivered vacancy. HH06 remains open.
 
 [Separate cover-letter delivery](application-letter-attachment.md) guards the vacancy-page attachment after HeadHunter confirms the application. The [original search](application-search-attachment.md) can supply the exact card's offer with a guarded vacancy-page fallback. The [paced batch](application-batch-attachment.md) applies the saved confirmations and retains one per-vacancy letter result for review. HH06 and HH08 remain open for authenticated behavior and the remaining reference routes.

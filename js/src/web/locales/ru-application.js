@@ -271,6 +271,10 @@ export const ruApplication = {
   'application.delivery.unknown':
     'Доставка неизвестна. Зарезервированное действие могло достичь HH. Для повтора нужны свежие данные об отказе в родной форме и отдельное подтверждение просмотра.',
   'application.delivery.provider-confirmed': 'HH подтвердил доставку отклика.',
+  'application.recruiterChat.open':
+    'Проверьте чат с работодателем в браузере HeadHunter, затем закройте панель чата.',
+  'application.recruiterChat.unverified':
+    'Вернитесь на сохранённую страницу HeadHunter, чтобы проверить, закрыта ли панель чата.',
   'application.letter.not-requested': 'Прикрепление письма ещё не запрошено.',
   'application.letter.verified': 'Письмо проверено в отклике HH.',
   'application.letter.not-attached': 'Письмо не прикреплено.',

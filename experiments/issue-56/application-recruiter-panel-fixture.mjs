@@ -1,0 +1,47 @@
+import { applicationNativeFixture } from './application-native-fixture.mjs';
+import { originalApplicationSearch } from './application-search-route-fixture.mjs';
+
+export const recruiterPanelChatUrl = 'https://chatik.hh.ru/chat/456';
+export const recruiterPanelDraft = 'I am reviewing the interview details.';
+const panel = `<aside data-qa="chatik-root" aria-label="Recruiter chat" style="position:fixed;inset:20px 20px auto auto;width:360px;border:1px solid #aaa;padding:12px;background:#fff">
+  <button type="button" onclick="this.closest('aside').hidden = true">Close recruiter panel</button>
+  <iframe title="Recruiter chat" src="${recruiterPanelChatUrl}" style="display:block;width:100%;height:200px;border:0"></iframe>
+</aside>`;
+
+export const applicationRecruiterPanelFixture = async (browser) => {
+  const searchVisits = [];
+  const effects = [];
+  const fixture = await applicationNativeFixture(browser, {
+    ownerAnswers: {
+      experience: 'Reviewed experience',
+      letter: 'Reviewed letter',
+    },
+    onApplicationClose: (effect) => effects.push(effect),
+    searchRoute: async (route, url) => {
+      if (url.href !== originalApplicationSearch) {
+        return false;
+      }
+      searchVisits.push(url.href);
+      await route.fulfill({
+        contentType: 'text/html; charset=utf-8',
+        body: `<!doctype html><html><body><h1>Python vacancies</h1><label>Search <input value="Python"></label>
+          <article><a data-qa="serp-item__title" href="/vacancy/789">Another Python vacancy</a></article>${searchVisits.length > 1 ? panel : ''}</body></html>`,
+      });
+      return true;
+    },
+    recruiterRoute: async (route, url) => {
+      if (url.href !== recruiterPanelChatUrl) {
+        return false;
+      }
+      await route.fulfill({
+        contentType: 'text/html; charset=utf-8',
+        body: `<!doctype html><html><body><h2>Recruiter chat</h2>
+          <a href="https://hh.ru/vacancy/123">Python engineer</a>
+          <p>Could you confirm your availability?</p>
+          <label>Your reply <textarea>${recruiterPanelDraft}</textarea></label></body></html>`,
+      });
+      return true;
+    },
+  });
+  return { ...fixture, searchVisits, effects };
+};

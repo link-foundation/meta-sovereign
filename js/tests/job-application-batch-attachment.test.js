@@ -80,6 +80,24 @@ test(
 );
 
 test(
+  'a recruiter draft takes precedence over automatic and explicit letter actions',
+  { timeout: 6000 },
+  async (t) => {
+    const fixture = batchAttachmentFixture(t, { recruiterPanelOpen: true });
+    await start(fixture);
+    const offered = await held(fixture, 'offered');
+    assert.equal(offered.application.recruiterChat, 'open');
+    await assert.rejects(advance(fixture, offered, 'letter-prepare'), {
+      code: 'jobs-application-state',
+    });
+    assert.deepEqual(fixture.effects, []);
+    fixture.state.page.recruiterPanelOpen = false;
+    receiptRows(await finished(fixture), 'provider-confirmed');
+    assert.deepEqual(fixture.effects, ['attachmentOpen', 'attachmentSend']);
+  }
+);
+
+test(
   'closing confirmed delivery leaves an unsent attachment in recovered batch status',
   { timeout: 6000 },
   async (t) => {

@@ -197,6 +197,7 @@ class ApplicationService {
       !this.current ||
       this.stopped ||
       this.current.hold ||
+      this.current.recruiterChat ||
       this.current.page?.attachment?.submit ||
       (this.current.page?.scope &&
         this.current.page.submit &&

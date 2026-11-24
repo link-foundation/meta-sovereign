@@ -262,6 +262,10 @@ export const enApplication = {
     'Delivery is unknown. A reserved action may have reached HH. A retry requires fresh native rejection evidence and a separately confirmed review.',
   'application.delivery.provider-confirmed':
     'HH confirmed application delivery.',
+  'application.recruiterChat.open':
+    'Review the recruiter chat in the HeadHunter browser, then close its panel.',
+  'application.recruiterChat.unverified':
+    'Return to the saved HeadHunter page to verify that the recruiter panel is closed.',
   'application.letter.not-requested': 'No letter attachment requested yet.',
   'application.letter.verified': 'Letter verified in the native application.',
   'application.letter.not-attached': 'Letter is not attached.',

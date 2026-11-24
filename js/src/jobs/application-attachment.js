@@ -49,6 +49,7 @@ export class ApplicationAttachment {
     check();
     if (
       !applicationAttachmentPage(page) ||
+      page.recruiterPanelOpen ||
       (expectedKey && applicationPageKey(page) !== expectedKey)
     ) {
       throw fail('changed');
@@ -105,7 +106,8 @@ export class ApplicationAttachment {
     }
     await service.review.inspect(record, signal);
     check();
-    return applicationAttachmentStatus(record) === 'offered'
+    return !record.recruiterChat &&
+      applicationAttachmentStatus(record) === 'offered'
       ? this.prepare(
           record,
           record.page,
@@ -261,6 +263,7 @@ export class ApplicationAttachment {
     const preparing = input.action === 'letter-prepare';
     if (
       record.state !== 'delivered' ||
+      record.recruiterChat ||
       !record.guard ||
       !(preparing
         ? ['offered', 'draft', 'search'].includes(status)

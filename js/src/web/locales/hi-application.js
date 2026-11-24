@@ -263,6 +263,10 @@ export const hiApplication = {
     'भेजे जाने की स्थिति अज्ञात है। आरक्षित क्रिया HH तक पहुँच सकती है। दोबारा प्रयास के लिए मूल फ़ॉर्म में अस्वीकृति का नया प्रमाण और अलग से पुष्टि की गई समीक्षा चाहिए।',
   'application.delivery.provider-confirmed':
     'HH ने आवेदन पहुँचने की पुष्टि की।',
+  'application.recruiterChat.open':
+    'HeadHunter ब्राउज़र में भर्ती करने वाले से हुई बातचीत देखें, फिर उसका पैनल बंद करें।',
+  'application.recruiterChat.unverified':
+    'सहेजे गए HeadHunter पृष्ठ पर लौटकर पुष्टि करें कि भर्ती चैट का पैनल बंद है।',
   'application.letter.not-requested': 'पत्र जोड़ने का अनुरोध अभी नहीं हुआ।',
   'application.letter.verified': 'मूल आवेदन में पत्र सत्यापित है।',
   'application.letter.not-attached': 'पत्र जुड़ा नहीं है।',

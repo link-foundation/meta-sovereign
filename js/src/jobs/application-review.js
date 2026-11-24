@@ -221,7 +221,8 @@ export class ApplicationReview {
     record.state = applicationState(record.page);
     if (
       record.returnedToSearch &&
-      record.page.returnSafe &&
+      (record.page.returnSafe ||
+        (record.page.attachmentSearch && record.page.recruiterPanelOpen)) &&
       record.state === 'unavailable'
     ) {
       // The search may filter out the vacancy. Its separately saved receipt still holds.
@@ -241,6 +242,14 @@ export class ApplicationReview {
     observeApplicationResume(record);
     rememberApplicationLocation(record);
     this.policy(record);
+    if (record.delivery === 'provider-confirmed' && !record.options.testMode) {
+      if (record.page.recruiterPanelOpen === true) {
+        record.recruiterChat = 'open';
+      } else if (record.recruiterChat) {
+        record.recruiterChat =
+          record.page.recruiterPanelOpen === false ? null : 'unverified';
+      }
+    }
     if (
       !record.options.testMode &&
       ['offered', 'draft', 'ready', 'owner-conflict'].includes(

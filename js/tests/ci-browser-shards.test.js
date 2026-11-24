@@ -155,6 +155,7 @@ test('native application scenarios remain registered once in bounded groups', ()
       'verifyNativeVacancyPreview',
       'verifyNativeApplicationSearchRoute',
       'verifyNativeApplicationDeliveredReturn',
+      'verifyNativeApplicationRecruiterPanel',
       'verifyNativeApplicationAnswerApproval',
       'verifyNativeApplicationAnswerContext',
       'verifyApplicationSalary',
@@ -179,6 +180,7 @@ test('long application workflows have separate registered budgets without nestin
       [
         'verifyNativeApplicationSearchRoute',
         'verifyNativeApplicationDeliveredReturn',
+        'verifyNativeApplicationRecruiterPanel',
       ],
     ],
     [
