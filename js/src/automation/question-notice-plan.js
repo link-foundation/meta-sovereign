@@ -1,4 +1,8 @@
 import { readAnswerPolicy, rejectedAnswer } from './question-policy.js';
+import {
+  noticePolicyFor,
+  repliesAutomatically,
+} from './question-notice-policy.js';
 import { prepareAnswerPreview, previewAnswer } from './question-store.js';
 import {
   completedHandover,
@@ -104,7 +108,7 @@ const acknowledgementAnswer = async (store, input, language) => {
 const replyEnabled = (mode, message, language) =>
   language
     ? mode === 'reply-recognized'
-    : ['reply', 'reply-recognized'].includes(mode) &&
+    : repliesAutomatically(mode) &&
       !noticeHasLink(message) &&
       !noticeAddsTask(message.body);
 
@@ -134,7 +138,8 @@ export const planNoticeReply = async ({
   history,
 }) => {
   const policy = await readAnswerPolicy(store);
-  const recognize = policy.notices.acknowledgements === 'reply-recognized';
+  const notices = noticePolicyFor(policy.notices, target.source, snapshot.chat);
+  const recognize = notices.acknowledgements === 'reply-recognized';
   const { message, kind, language } = pendingNotice(
     snapshot,
     target.source,
@@ -142,7 +147,7 @@ export const planNoticeReply = async ({
   );
   const decision = {
     kind,
-    mode: kind ? policy.notices[kind] : 'review',
+    mode: kind ? notices[kind] : 'review',
     status: 'review',
   };
   if (snapshot.question.outgoing) {
@@ -170,7 +175,7 @@ export const planNoticeReply = async ({
     if (rejectionAnswered(history.rows)) {
       return { ...decision, reason: 'rejection-already-answered' };
     }
-    text = policy.notices.rejectionReply;
+    text = notices.rejectionReply;
   } else {
     const input = {
       ...planning,

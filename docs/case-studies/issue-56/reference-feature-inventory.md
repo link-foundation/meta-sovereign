@@ -2,6 +2,8 @@
 
 Current acceptance: **88 of 118 criteria verified; 30 remain unchecked**.
 
+[Provider and chat notice overrides](notice-policy-scopes.md) share one saved record across CLI, Lino and web. Local fixtures verify inherited decisions, exact chat opt-outs and rechecking an opt-out before a queued reply. The full provider audit under QA19 remains open.
+
 [Older owner replies](unread-history-learning.md) and [completed recruiter summaries](unread-summary-learning.md) save unapproved answer proposals during sequential unread review. Native playback verifies history learning, advancement to the next held draft and zero sends. Focused fixtures verify cross-chat notice patterns, the foreground CLI and both Lino encodings. Authenticated verification remains required for HH10.
 
 [Employer rating polls linked in HeadHunter chats](employer-rating-poll.md) use a separate Forms slot to enter a verified employer name and leave scoring and submission to the owner. The fixture checks a signed-in search, held chat progression and closed-season behavior. Live active-voting and authenticated checks remain required for HH10.

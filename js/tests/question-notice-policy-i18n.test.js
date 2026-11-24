@@ -37,6 +37,23 @@ test('all four locales render independent notice policies with invitations limit
           React.createElement(component, props)
         )
       );
+    const scoped = render(NoticePolicyFields, {
+      value: normalizeNoticePolicy({
+        overrides: [{ source: 'hh', chat: '8', acknowledgements: 'review' }],
+      }),
+      change: () => assert.fail('Rendering starts nothing'),
+    });
+    assert.equal((scoped.match(/<select /gu) ?? []).length, 6);
+    for (const key of [
+      'overrides',
+      'providerId',
+      'inherit',
+      'addOverride',
+      'removeOverride',
+    ]) {
+      assert.ok(scoped.includes(t(`noticePolicy.${key}`)), key);
+    }
+    assert.ok(scoped.includes('value="8"'));
     const snapshot = {
       question: { id: '1', body: 'Application received' },
       strictOptions: false,

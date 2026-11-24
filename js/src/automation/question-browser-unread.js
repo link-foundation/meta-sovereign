@@ -19,6 +19,10 @@ import {
   planNoticeReply,
 } from './question-notice-plan.js';
 import { readAnswerPolicy } from './question-policy.js';
+import {
+  noticePolicyFor,
+  repliesAutomatically,
+} from './question-notice-policy.js';
 import { visitUnreadAnswer } from './question-unread-answers.js';
 import { validUnreadForm } from './question-unread-form.js';
 import {
@@ -86,14 +90,33 @@ const selectedAcknowledgement = async ({ store }, record) => {
     return undefined;
   }
   const { notices } = await readAnswerPolicy(store);
-  const mode = notices.acknowledgements;
-  if (mode !== 'reply' && mode !== 'reply-recognized') {
+  if (
+    !repliesAutomatically(
+      noticePolicyFor(notices, record.source).acknowledgements
+    ) &&
+    !notices.overrides?.some(
+      (entry) =>
+        entry.source === record.source &&
+        entry.chat !== undefined &&
+        repliesAutomatically(entry.acknowledgements)
+    )
+  ) {
     return undefined;
   }
   return async (value, history) => {
     const snapshot = checkBrowserQuestion(value);
     if (!history) {
-      return canCheckSelectedAcknowledgement(snapshot, record.source, mode);
+      const { notices: current } = await readAnswerPolicy(store);
+      const { acknowledgements } = noticePolicyFor(
+        current,
+        record.source,
+        snapshot.chat
+      );
+      return canCheckSelectedAcknowledgement(
+        snapshot,
+        record.source,
+        acknowledgements
+      );
     }
     const plan = await planNoticeReply({
       store,

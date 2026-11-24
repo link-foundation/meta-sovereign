@@ -364,6 +364,8 @@ if (
   const unreadChoices = process.env.QUESTION_BROWSER_UNREAD_CHOICES === '1';
   const unreadWaiting = process.env.QUESTION_BROWSER_UNREAD_WAITING === '1';
   const selectedNotice = process.env.QUESTION_BROWSER_SELECTED_NOTICE === '1';
+  const unreadNotices =
+    selectedNotice || process.env.QUESTION_BROWSER_UNREAD_NOTICES === '1';
   const fixture = await questionBrowserServer(browser, {
     summaryChoices: process.env.QUESTION_BROWSER_SUMMARY === '1',
     noticePolicies: process.env.QUESTION_BROWSER_NOTICES === '1',
@@ -375,9 +377,9 @@ if (
         unreadHistory ||
         unreadChoices ||
         unreadWaiting ||
-        selectedNotice
+        unreadNotices
       ) || process.env.QUESTION_BROWSER_UNREAD === '1',
-    unreadNotices: selectedNotice,
+    unreadNotices,
     ...(linked && {
       unreadAnswers: true,
       unreadMessages: { 8: employerQuestionnaire },
@@ -421,7 +423,7 @@ if (
     await new Promise((resolve) => controls.close(resolve));
     await fixture.close();
     await browser.close();
-    if (selectedNotice || followup) {
+    if (unreadNotices || followup) {
       console.log(
         JSON.stringify({ resourcesClosed: true, liveProvider: false })
       );

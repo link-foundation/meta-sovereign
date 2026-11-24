@@ -24,6 +24,10 @@ const notices = {
   rejections: 'ignore',
   invitations: 'review',
   rejectionReply: 'May I ask the reason?',
+  overrides: [
+    { source: 'hh', acknowledgements: 'reply-recognized' },
+    { source: 'hh', chat: '7', acknowledgements: 'review' },
+  ],
 };
 
 test(

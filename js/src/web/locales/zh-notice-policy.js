@@ -1,4 +1,10 @@
 export const zhNoticePolicy = {
+  'noticePolicy.overrides': '按服务商或聊天覆盖策略',
+  'noticePolicy.addOverride': '添加覆盖策略',
+  'noticePolicy.removeOverride': '移除覆盖策略',
+  'noticePolicy.providerId': '服务商 ID',
+  'noticePolicy.chatId': '聊天 ID（留空则适用于整个服务商）',
+  'noticePolicy.inherit': '继承',
   'noticePolicy.title': '通知回复策略',
   'noticePolicy.hint':
     '保存策略不会启动任何操作。请为一个已核对的 HH 聊天启动非活动通知监控，或明确在有限次未读聊天访问中应用这些策略。识别模式也可使用已批准并保存的感谢语回复英语或俄语的申请进度更新。需要完整历史记录和已验证的开放雇主聊天。',

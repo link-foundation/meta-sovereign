@@ -6,7 +6,11 @@ import {
   noticeReply,
   noticeText,
 } from '../../experiments/issue-56/notice-fixture.mjs';
-import { rejectionText } from '../../experiments/issue-56/notice-policy-fixture.mjs';
+import {
+  noticeRows,
+  noticeSnapshot,
+  rejectionText,
+} from '../../experiments/issue-56/notice-policy-fixture.mjs';
 import { listOutbox } from '../src/automation/outbox.js';
 import { saveAnswerPolicy } from '../src/automation/question-policy.js';
 import { createQuestionBrowser } from '../src/automation/question-browser.js';
@@ -56,6 +60,57 @@ test('default policies leave borrowed notices in review without models or provid
     assert.deepEqual(env.state.sends, []);
     assert.deepEqual(await listOutbox(env.store), []);
   }));
+
+test('a chat can opt out of an enabled provider while the next visit can reply', () =>
+  check(
+    {
+      notices: {
+        overrides: [
+          { source: 'hh', acknowledgements: 'reply' },
+          { source: 'hh', chat: '8', acknowledgements: 'review' },
+        ],
+      },
+      bodies: [noticeText, noticeText],
+    },
+    async (env) => {
+      const result = await env.complete();
+      assert.deepEqual(
+        result.entries.map(({ chat, notice }) => [chat, notice.phase]),
+        [
+          ['8', 'review'],
+          ['9', 'sent'],
+        ]
+      );
+      assert.deepEqual(env.state.sends, [{ chat: '9', text: noticeReply }]);
+      assert.equal((await listOutbox(env.store)).length, 1);
+      const assess = env.state.scans[0].acceptSelected;
+      assert.equal(typeof assess, 'function');
+      const rows = noticeRows();
+      const snapshot = noticeSnapshot(rows);
+      assert.equal(await assess({ ...snapshot, chat: '8' }), false);
+      assert.equal(await assess({ ...snapshot, chat: '9' }), true);
+    }
+  ));
+
+test('a single chat can enable an acknowledgement under a review-only provider', () =>
+  check(
+    {
+      notices: {
+        overrides: [{ source: 'hh', chat: '9', acknowledgements: 'reply' }],
+      },
+      bodies: [noticeText, noticeText],
+    },
+    async (env) => {
+      await env.complete();
+      assert.deepEqual(env.state.sends, [{ chat: '9', text: noticeReply }]);
+      const assess = env.state.scans[0].acceptSelected;
+      const snapshot = noticeSnapshot(noticeRows());
+      assert.equal(await assess({ ...snapshot, chat: '8' }), false);
+      assert.equal(await assess({ ...snapshot, chat: '9' }), true);
+      await saveAnswerPolicy(env.store, { notices: {} });
+      assert.equal(await assess({ ...snapshot, chat: '9' }), false);
+    }
+  ));
 
 test('sequential acknowledgements and rejections persist shared reservations before issue', () =>
   check(

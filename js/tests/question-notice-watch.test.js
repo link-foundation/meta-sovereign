@@ -143,7 +143,7 @@ test('missing receipts hold both rejection reservations and repeated start or re
     }
   ));
 
-test('queued policy changes refuse before issue and release the owned handle', () => {
+const refuseQueuedPolicyChange = (notices) => {
   const queued = questionWatchGate();
   const release = questionWatchGate();
   return checkNoticeWatch(
@@ -158,9 +158,7 @@ test('queued policy changes refuse before issue and release the owned handle', (
       try {
         await env.browser.watchStart(env.input);
         await queued.promise;
-        await saveAnswerPolicy(env.store, {
-          notices: { acknowledgements: 'review' },
-        });
+        await saveAnswerPolicy(env.store, { notices });
         release.release();
         const paused = await env.until((s) => s.state === 'paused' && !s.owned);
         assert.equal(paused.reason, 'question-watch-plan-changed');
@@ -171,7 +169,16 @@ test('queued policy changes refuse before issue and release the owned handle', (
       }
     }
   );
-});
+};
+
+test('queued global policy changes refuse before issue and release the owned handle', () =>
+  refuseQueuedPolicyChange({ acknowledgements: 'review' }));
+
+test('a queued acknowledgement is refused when its exact chat opts out', () =>
+  refuseQueuedPolicyChange({
+    ...acknowledgement,
+    overrides: [{ source: 'hh', chat: '7', acknowledgements: 'review' }],
+  }));
 
 test('failed reservation flush cannot issue a rejection', () =>
   checkNoticeWatch({ body: rejectionText, notices: rejection }, async (env) => {

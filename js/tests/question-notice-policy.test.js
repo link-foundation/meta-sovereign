@@ -276,6 +276,66 @@ test('each saved notice policy defaults to review and invitations cannot auto-ac
   assert.deepEqual((await readAnswerPolicy(store)).notices, saved.notices);
 });
 
+test('the exact chat override wins over its provider and inherits other fields', async () => {
+  const input = await planFixture();
+  await saveAnswerPolicy(input.store, {
+    notices: {
+      acknowledgements: 'reply',
+      rejections: 'reply',
+      rejectionReply: 'Global reason request.',
+      overrides: [
+        {
+          source: 'hh',
+          acknowledgements: 'ignore',
+          rejectionReply: 'HeadHunter reason request.',
+        },
+        { source: 'hh', chat: '7', acknowledgements: 'review' },
+      ],
+    },
+  });
+  const decide = async (source, chat, body = noticeText) => {
+    const rows = noticeRows(body);
+    return planNoticeReply({
+      ...input,
+      target: { source, chat },
+      snapshot: { ...noticeSnapshot(rows), chat },
+      history: { ...input.history, rows },
+    });
+  };
+  assert.equal((await decide('hh', '7')).status, 'review');
+  assert.equal((await decide('hh', '8')).status, 'ignored');
+  assert.equal((await decide('vk', '7')).status, 'ready');
+  assert.equal(
+    (await decide('hh', '7', rejectionText)).text,
+    'HeadHunter reason request.'
+  );
+  assert.equal(
+    (await decide('vk', '7', rejectionText)).text,
+    'Global reason request.'
+  );
+});
+
+test('invalid and duplicate overrides cannot replace a saved notice policy', async () => {
+  const { store } = await planFixture();
+  const original = await readAnswerPolicy(store);
+  for (const overrides of [
+    null,
+    [{ chat: '7', acknowledgements: 'review' }],
+    [{ source: 'hh', chat: ' ', acknowledgements: 'review' }],
+    [{ source: 'hh', chat: '7', invitations: 'reply' }],
+    [{ source: 'hh', rejectionReply: '' }],
+    [{ source: 'hh', unrecognizedSetting: 'review' }],
+    [{ source: 'hh' }],
+    [
+      { source: 'hh', chat: '7', rejections: 'ignore' },
+      { source: 'hh', chat: '7', acknowledgements: 'review' },
+    ],
+  ]) {
+    await assert.rejects(saveAnswerPolicy(store, { notices: { overrides } }));
+    assert.deepEqual(await readAnswerPolicy(store), original);
+  }
+});
+
 test('four-language notice intents distinguish acknowledgements, declines and added work', () => {
   for (const text of [
     noticeText,
