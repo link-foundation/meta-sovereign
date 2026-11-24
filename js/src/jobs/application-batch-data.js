@@ -21,6 +21,7 @@ import {
   applicationChatView,
   validApplicationChatView,
 } from './application-chat-settings.js';
+import { discoveryBatchRequestId } from './application-batch-discovery.js';
 
 export const applicationBatchKey = (input) => {
   const browserSlot = vacancyChoiceSlot(input);
@@ -70,6 +71,11 @@ export const applicationBatchOptions = (input) => {
   });
   return {
     ...key,
+    ...(input.discoveryRequestId === undefined
+      ? {}
+      : {
+          discoveryRequestId: discoveryBatchRequestId(input.discoveryRequestId),
+        }),
     review,
     urls,
     maxApplications: input.supervised ? 1 : (input.maxApplications ?? 0),
@@ -187,6 +193,9 @@ export const applicationBatchView = (
     ? {
         requestId: record.options.requestId,
         browserSlot: record.options.browserSlot,
+        ...(record.options.discoveryRequestId === undefined
+          ? {}
+          : { discoveryRequestId: record.options.discoveryRequestId }),
         revision: record.revision,
         settings: settingsView(record.options),
         ...modes,
@@ -243,6 +252,9 @@ const publicSettings = (settings, browserSlot) => {
 };
 const validatePublicBatch = (row, input) => {
   applicationBatchKey(row);
+  if (row.discoveryRequestId !== undefined) {
+    discoveryBatchRequestId(row.discoveryRequestId);
+  }
   if (
     !matchesPublicIdentity(row, input) ||
     !lifecycle(row) ||
@@ -262,6 +274,8 @@ const matchesPublicIdentity = (row, input) =>
   matchingApplicationRoute(row.settings, input) &&
   (input?.requestId === undefined || input.requestId === row.requestId) &&
   (input?.browserSlot === undefined || input.browserSlot === row.browserSlot) &&
+  (input?.discoveryRequestId === undefined ||
+    input.discoveryRequestId === row.discoveryRequestId) &&
   ['vacancyPreviewSeconds', 'chatWatchWaiting', 'collectVacancies'].every(
     (name) =>
       input?.[name] === undefined || input[name] === row.settings?.[name]
@@ -273,6 +287,8 @@ export const applicationBatchResult = (raw, input) => {
   const row = raw.batch;
   if (row !== null) {
     validatePublicBatch(row, input);
+  } else if (input?.discoveryRequestId !== undefined) {
+    throw fail('batch-recovery');
   }
   if (raw.application !== null) {
     if (

@@ -82,7 +82,6 @@ export const applicationBatchCommand = async (
 ) => {
   const stream = readInput();
   const identity = {
-    url: input.urls[0],
     requestId: input.requestId,
     browserSlot: input.browserSlot,
   };

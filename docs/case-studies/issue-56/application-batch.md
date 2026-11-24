@@ -7,7 +7,9 @@ HH06/HH08; automatic discovery, authenticated account scope, full reference pari
 and all 81 original incomplete inventory rows remain required. PR57 stays draft
 and unmerged.
 
-The worker freezes 1–1,000 distinct canonical vacancy URLs, a delivery maximum
+The worker accepts a manually supplied list or the eligible URLs in an exact
+[completed discovery receipt](discovery-batch-handoff.md) from the same browser
+slot. It freezes 1–1,000 distinct canonical vacancy URLs, a delivery maximum
 (zero means the supplied list), a finite lifetime of at most 24 hours, pacing and
 the existing application settings. Supervised review caps the delivery maximum
 at one. Only positive native delivery observations count, including an owner's

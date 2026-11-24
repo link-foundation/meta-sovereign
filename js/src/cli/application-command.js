@@ -48,7 +48,7 @@ const commandInput = async (args, configuration) => {
           ru: await letterFile(args['standard-letter-ru-file']),
         }
       : undefined;
-  const input = {
+  return {
     url: args.url,
     ...(args['form-url'] === undefined ? {} : { formUrl: args['form-url'] }),
     requestId: args['request-id'],
@@ -108,8 +108,47 @@ const commandInput = async (args, configuration) => {
         ? undefined
         : Number(args['job-application-interval']),
   };
+};
+const checkedCommandInput = async (args, configuration) => {
+  const input = await commandInput(args, configuration);
   applicationSettings(input);
   return input;
+};
+const batchCommandInput = async (args, configuration) => {
+  const discoveryRequestId = args['discovery-request-id'];
+  const file = args['vacancies-file'];
+  if ((discoveryRequestId === undefined) === (file === undefined)) {
+    throw new Error(
+      'For a batch choose either --vacancies-file or --discovery-request-id.'
+    );
+  }
+  const urls =
+    file === undefined ? undefined : await applicationBatchFile(file);
+  const options = urls
+    ? await checkedCommandInput({ ...args, url: urls[0] }, configuration)
+    : await commandInput({ ...args, url: undefined }, configuration);
+  return {
+    ...options,
+    ...(urls ? { urls } : { discoveryRequestId }),
+    maxApplications:
+      args['max-applications'] === undefined
+        ? 0
+        : Number(args['max-applications']),
+    durationMs:
+      args['duration-ms'] === undefined
+        ? undefined
+        : Number(args['duration-ms']),
+    noQuestionnaires: boolean(args, 'no-questions'),
+    processChats: boolean(args, 'process-chats'),
+    chatModelDraft: boolean(args, 'chat-model-draft'),
+    chatPrefillForms: boolean(args, 'chat-prefill-forms'),
+    chatWatchWaiting: boolean(args, 'chat-watch-waiting'),
+    chatBrowserSlot: args['chat-browser-slot'],
+    chatsIntervalMinutes:
+      args['chats-interval-minutes'] === undefined
+        ? undefined
+        : Number(args['chats-interval-minutes']),
+  };
 };
 const commands = {
   read: ['read', {}],
@@ -303,50 +342,31 @@ export const createApplicationCommands = ({
             'Chat worker settings require vacancies application-batch.'
           );
         }
-        const urls =
+        if (
+          operation !== 'application-batch' &&
+          args['discovery-request-id'] !== undefined
+        ) {
+          throw new Error(
+            '--discovery-request-id requires vacancies-application-batch.'
+          );
+        }
+        const input =
           operation === 'application-batch'
-            ? await applicationBatchFile(args['vacancies-file'])
-            : undefined;
-        const input = urls
-          ? {
-              ...(await commandInput(
-                { ...args, url: urls[0] },
-                applicationConfiguration
-              )),
-              urls,
-              maxApplications:
-                args['max-applications'] === undefined
-                  ? 0
-                  : Number(args['max-applications']),
-              durationMs:
-                args['duration-ms'] === undefined
-                  ? undefined
-                  : Number(args['duration-ms']),
-              noQuestionnaires: boolean(args, 'no-questions'),
-              processChats: boolean(args, 'process-chats'),
-              chatModelDraft: boolean(args, 'chat-model-draft'),
-              chatPrefillForms: boolean(args, 'chat-prefill-forms'),
-              chatWatchWaiting: boolean(args, 'chat-watch-waiting'),
-              chatBrowserSlot: args['chat-browser-slot'],
-              chatsIntervalMinutes:
-                args['chats-interval-minutes'] === undefined
-                  ? undefined
-                  : Number(args['chats-interval-minutes']),
-            }
-          : operation === 'application-batch-status'
-            ? {
-                requestId: args['request-id'],
-                browserSlot: args['browser-slot'],
-              }
-            : operation === 'application'
-              ? await commandInput(args, applicationConfiguration)
-              : {
-                  ...applicationKey({
-                    url: args.url,
-                    browserSlot: args['browser-slot'],
-                  }),
+            ? await batchCommandInput(args, applicationConfiguration)
+            : operation === 'application-batch-status'
+              ? {
                   requestId: args['request-id'],
-                };
+                  browserSlot: args['browser-slot'],
+                }
+              : operation === 'application'
+                ? await checkedCommandInput(args, applicationConfiguration)
+                : {
+                    ...applicationKey({
+                      url: args.url,
+                      browserSlot: args['browser-slot'],
+                    }),
+                    requestId: args['request-id'],
+                  };
         const storeDir = args.store ?? defaultStoreDir();
         const store = await openStore(storeDir);
         const forms =

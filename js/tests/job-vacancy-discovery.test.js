@@ -8,6 +8,8 @@ import {
 } from '../../experiments/issue-56/discovery-fixture.mjs';
 import { createVacancyService } from '../src/jobs/service.js';
 import { discoveryKey, discoveryResult } from '../src/jobs/discovery-data.js';
+import { applicationBatchResult } from '../src/jobs/application-batch-data.js';
+import { hhSearchUrl } from '../src/jobs/options.js';
 import { validateVacancySearch } from '../src/jobs/search-result.js';
 import {
   searchFixture,
@@ -15,11 +17,187 @@ import {
 } from '../../experiments/issue-56/vacancy-fixture.mjs';
 import { refusedSnapshot } from './helpers/refused-snapshot.mjs';
 import { createMemoryStore } from '../src/storage/universal.js';
+import { withApplicationRouteFixture } from './helpers/application-controls.mjs';
+import { decodeWire, LINO_BINARY, LINO_TEXT } from '../src/transport/lino.js';
+import { createApplicationCommands } from '../src/cli/application-command.js';
 
 const run = async (f, input) => {
   await f.start(input);
   return (await f.drain()).discovery;
 };
+
+test('confirmed batches use the exact acknowledged discovery in their slot', async (t) => {
+  const f = discoveryFixture(t);
+  const discovery = await run(f, { collectVacancies: false });
+  await run(f, { requestId: 'newer-discovery', query: 'Other search' });
+  const input = {
+    requestId: 'fixture-batch',
+    discoveryRequestId: discovery.options.requestId,
+    testMode: true,
+    confirm: true,
+  };
+  const start = (changes) =>
+    f.service['application-batch-start']({ ...input, ...changes });
+  const counts = [f.searches.length, f.descriptions.length];
+  await assert.rejects(start({ confirm: false }), {
+    code: 'jobs-application-confirmation',
+  });
+  await assert.rejects(start({ browserSlot: 'other' }), {
+    code: 'jobs-application-batch-source',
+  });
+  await assert.rejects(start({ urls: [discoveryCard(125).url] }), {
+    code: 'jobs-application-batch-input',
+  });
+  const receipt = applicationBatchResult(await start(), input);
+  assert.equal(receipt.batch.phase, 'completed');
+  assert.equal(receipt.batch.discoveryRequestId, discovery.options.requestId);
+  assert.equal(receipt.batch.total, 1);
+  assert.equal(receipt.batch.settings.collectVacancies, false);
+  assert.equal(
+    receipt.batch.settings.applicationSearchUrl,
+    hhSearchUrl(discovery.options.search)
+  );
+  const saved = await f.store.get(
+    'secret:jobs-application-batch:jobs:fixture-batch'
+  );
+  assert.deepEqual(saved.options.urls, [discoveryCard(123).url]);
+  assert.throws(() =>
+    applicationBatchResult({ ...receipt, batch: null }, input)
+  );
+  assert.throws(() =>
+    applicationBatchResult(receipt, {
+      ...input,
+      discoveryRequestId: 'newer-discovery',
+    })
+  );
+  await assert.rejects(start({ discoveryRequestId: 'newer-discovery' }), {
+    code: 'jobs-application-conflict',
+  });
+  await assert.rejects(start({ collectVacancies: true }), {
+    code: 'jobs-application-conflict',
+  });
+  await f.store.put({ ...discovery, signature: 'unacknowledged' });
+  await assert.rejects(start({ requestId: 'another-batch' }), {
+    code: 'jobs-application-batch-source',
+  });
+  const restarted = createVacancyService(f.serviceOptions);
+  t.after(() => restarted.stop());
+  assert.deepEqual(await restarted['application-batch-start'](input), receipt);
+  assert.deepEqual([f.searches.length, f.descriptions.length], counts);
+});
+
+test('interrupted and ineligible discoveries cannot admit a new batch', async (t) => {
+  const f = discoveryFixture(t);
+  const discovery = await run(f, { excludeText: 'description' });
+  const start = () =>
+    f.service['application-batch-start']({
+      requestId: 'unadmitted-batch',
+      discoveryRequestId: discovery.options.requestId,
+      confirm: true,
+    });
+  assert.equal(discovery.phase, 'completed');
+  assert.equal(
+    discovery.entries.some((row) => row.decision.reason === 'review'),
+    false
+  );
+  await assert.rejects(start(), { code: 'jobs-application-batch-source' });
+  await f.store.put({ ...discovery, phase: 'running', reason: null });
+  await assert.rejects(start(), { code: 'jobs-application-batch-source' });
+  assert.equal((await f.service['application-batch-status']()).batch, null);
+});
+
+test('a discovery-backed worker rechecks newer owner exclusions before native review', async (t) => {
+  const f = discoveryFixture(t);
+  const browserSlot = 'named-retained-search';
+  await f.start({ browserSlot });
+  await f.service['discovery-drain']();
+  const { discovery } = await f.status({ browserSlot });
+  assert.equal(discovery.phase, 'completed');
+  const counts = [f.searches.length, f.descriptions.length];
+  await f.service['choice-save']({
+    browserSlot,
+    url: discoveryCard(123).url,
+    revision: 'empty',
+    state: 'skipped',
+    title: 'Engineer 123',
+  });
+  const input = {
+    browserSlot,
+    requestId: 'guarded-batch',
+    discoveryRequestId: discovery.options.requestId,
+    confirm: true,
+  };
+  await f.service['application-batch-start'](input);
+  await f.service['application-batch-drain']();
+  const { batch } = await f.service['application-batch-status'](input);
+  assert.equal(batch.phase, 'completed');
+  assert.equal(batch.total, 1);
+  assert.equal(batch.skipped, 1);
+  assert.equal(batch.delivered, 0);
+  assert.deepEqual([f.searches.length, f.descriptions.length], counts);
+});
+
+for (const type of [LINO_TEXT, LINO_BINARY]) {
+  test(`the discovery-backed batch restores its provenance through ${type}`, async (t) => {
+    const f = discoveryFixture(t);
+    const discovery = await run(f);
+    await withApplicationRouteFixture(f, type, async (api) => {
+      const input = {
+        requestId: 'wire-batch',
+        discoveryRequestId: discovery.options.requestId,
+        testMode: true,
+        confirm: true,
+      };
+      const receipt = await api.vacancyApplicationBatchStart(input);
+      assert.equal(
+        receipt.batch.discoveryRequestId,
+        discovery.options.requestId
+      );
+      assert.equal(receipt.batch.total, 1);
+      assert.deepEqual(
+        await api.vacancyApplicationBatchStatus({ requestId: input.requestId }),
+        receipt
+      );
+    });
+  });
+}
+
+test('the foreground batch CLI accepts a saved discovery without a URL file', async (t) => {
+  const f = discoveryFixture(t);
+  const discovery = await run(f, { collectVacancies: false });
+  const commands = createApplicationCommands({
+    ...f.serviceOptions,
+    openStore: async () => f.store,
+    async *applicationInput() {
+      yield 'quit';
+    },
+  });
+  const output = [];
+  const input = {
+    'request-id': 'cli-batch',
+    'discovery-request-id': discovery.options.requestId,
+    'test-mode': true,
+  };
+  assert.equal(
+    await commands['vacancies-application-batch'](input, (line) =>
+      output.push(decodeWire(line))
+    ),
+    0
+  );
+  assert.equal(
+    output.at(-1).batch.discoveryRequestId,
+    discovery.options.requestId
+  );
+  assert.equal(output.at(-1).batch.total, 1);
+  assert.equal(output.at(-1).batch.settings.collectVacancies, false);
+  await assert.rejects(
+    commands['vacancies-application-batch'](
+      { ...input, 'vacancies-file': '/unused' },
+      () => {}
+    ),
+    /either --vacancies-file or --discovery-request-id/u
+  );
+});
 
 test(
   'an admission checkpoint consuming the lifetime expires before any browser read',

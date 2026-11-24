@@ -213,7 +213,7 @@
 - [Batch-owned review controls](batch-review-ownership.md): exact Chromium/WebKit failures, matching owner controls, inactive identity recovery and a single-clock admission correction, with parent regressions and native/MCP desktop/phone evidence.
 - [Configurable viewed-vacancy surveys](application-feedback.md): a frozen default/opt-out for explicitly opened owned application reviews, preserving owner reasons, preview, verification holds and read-only recovery. Parent regressions and focused native/MCP desktop/phone evidence are retained; original incomplete criteria remain required.
 
-- [Bounded automatic vacancy discovery](vacancy-discovery.md): frozen native search/pagination, finite full-description collection, acknowledged progress and explicit batch-draft handoff through CLI, both Lino encodings and four-language UI. Parent failures and focused native/MCP desktop/phone evidence are retained; all original incomplete criteria remain required.
+- [Bounded automatic vacancy discovery](vacancy-discovery.md) covers native pagination, finite full-description collection and acknowledged progress. [Selecting a completed discovery in a batch](discovery-batch-handoff.md) verifies the exact source across CLI, both Lino formats and phone Playwright.
 
 - [Batch CLI admission correction](ci-batch-cli-admission.md): preserve eight exact-parent runtime failures and admit the two existing commands through the public entrypoint. Focused Node/Deno checks retain lightweight help, complete command coverage and foreground batch controls.
 

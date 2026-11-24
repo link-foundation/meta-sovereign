@@ -2,6 +2,8 @@
 
 Current acceptance: **88 of 118 criteria verified; 30 remain unchecked**.
 
+[Discovery-backed batches](discovery-batch-handoff.md) freeze eligible vacancies from a specific completed search and retain its identity across CLI, both Lino formats and the shared UI. Batches recheck newer owner exclusions and require separate confirmation. HH02, HH03, HH05, HH06 and HH08 remain open for the full authenticated workflow.
+
 [Provider and chat notice overrides](notice-policy-scopes.md) share one saved record across CLI, Lino and web. Local fixtures verify inherited decisions, exact chat opt-outs and rechecking an opt-out before a queued reply. The full provider audit under QA19 remains open.
 
 [Older owner replies](unread-history-learning.md) and [completed recruiter summaries](unread-summary-learning.md) save unapproved answer proposals during sequential unread review. Native playback verifies history learning, advancement to the next held draft and zero sends. Focused fixtures verify cross-chat notice patterns, the foreground CLI and both Lino encodings. Authenticated verification remains required for HH10.

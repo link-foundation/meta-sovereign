@@ -22,8 +22,9 @@ The service probe fails all twelve discovery cases because the operations are
 absent. The native probe saves the missing-control screenshot and fails its explicit
 availability assertion. In the current UI, enter search settings under CV sync,
 choose finite discovery limits and press Start discovery. Inspect the saved search,
-completion reason, card decisions and description timestamps. Copying the eligible
-URLs into the batch draft requires a separate batch start and confirmation.
+completion reason, card decisions and description timestamps. Use completed
+discovery in batch selects that receipt and previews its eligible URLs. Starting
+the batch requires separate confirmation. See [the batch handoff](discovery-batch-handoff.md).
 
 The defaults are ten pages, one hundred distinct cards and fifteen minutes; hard
 bounds are one hundred pages, one thousand cards and twenty-four hours. Every

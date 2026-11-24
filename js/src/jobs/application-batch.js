@@ -24,6 +24,11 @@ import {
   ApplicationBatchSalary,
   batchSalaryFloor,
 } from './application-batch-salary.js';
+import {
+  applyDiscoveryBatch,
+  discoveryBatchRequestId,
+  readDiscoveryBatch,
+} from './application-batch-discovery.js';
 
 const observedOutcome = (page) =>
   page.bound &&
@@ -94,13 +99,35 @@ export class ApplicationBatch {
     runtime.record = record;
   }
   async start(input) {
-    const options = applicationBatchOptions(input);
     if (input.confirm !== true) {
       throw fail('confirmation');
     }
-    const existing = await this.service.store.get(options.id);
-    if (existing) {
-      const record = readApplicationBatch(existing, options);
+    const key = applicationBatchKey(input);
+    const discoveryId = input.discoveryRequestId;
+    if (discoveryId !== undefined && input.urls !== undefined) {
+      throw fail('batch-input');
+    }
+    const existing = await acknowledgedRead(this.service.store, () =>
+      this.service.store.get(key.id)
+    );
+    const record = existing ? readApplicationBatch(existing, key) : null;
+    if (record && record.options.discoveryRequestId !== discoveryId) {
+      throw fail('conflict');
+    }
+    const source =
+      discoveryId === undefined
+        ? null
+        : record
+          ? { urls: record.options.urls, settings: record.options.review }
+          : await readDiscoveryBatch(
+              this.service.store,
+              key,
+              discoveryBatchRequestId(discoveryId)
+            );
+    const options = applicationBatchOptions(
+      source ? applyDiscoveryBatch(input, source) : input
+    );
+    if (record) {
       if (record.signature !== JSON.stringify(options)) {
         throw fail('conflict');
       }

@@ -46,6 +46,7 @@ import { watchApplicationFeedback } from './application-feedback.js';
 import { scrollApplicationVacancy } from './application-preview.js';
 import { assertVacancyNotSkipped } from './vacancy-skip-service.js';
 import { clearRunVacancies } from '../assignments/vacancy-run-context.js';
+import { jobsBrowserOptions } from './options.js';
 import {
   ApplicationResumes,
   dispatchResumeChoice,
@@ -274,7 +275,7 @@ class ApplicationService {
     if (this.stopped) {
       throw fail('stopped');
     }
-    const { browserSlot } = applicationKey(input);
+    const { browserSlot } = jobsBrowserOptions(input);
     const modes = this.modes.signal(
       this.current,
       browserSlot,

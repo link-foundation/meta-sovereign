@@ -1,10 +1,10 @@
 export const enDiscovery = {
   'discovery.title': 'Discover vacancies',
   'discovery.hint':
-    'Read a finite search and collect full descriptions for eligible cards. Search settings stay fixed for this run. Review the saved results before copying eligible URLs into an application batch.',
+    'Read a finite search and collect full descriptions for eligible cards. Search settings stay fixed for this run. Review the saved results before using them in an application batch.',
   'discovery.bounds': 'Discovery limits',
   'discovery.collectionHint':
-    'When off, full descriptions are read for filtering and stay in memory while this worker runs. Discovery history keeps decisions, not descriptions. Existing saved descriptions are kept. Copying results to a batch also copies this setting.',
+    'When off, full descriptions are read for filtering and stay in memory while this worker runs. Discovery history keeps decisions, not descriptions. Existing saved descriptions are kept. A batch started from discovery inherits this setting.',
   'discovery.collectionMemory':
     'Description storage: off for this discovery. Restart cannot restore its temporary descriptions; saved decisions remain available.',
   'discovery.readAt': 'Description read: {date}',
@@ -19,7 +19,8 @@ export const enDiscovery = {
     'Pages visited: {pages} · Distinct vacancies: {count} · Duplicates: {duplicates}',
   'discovery.source':
     'Saved search: {query} · Resume: {resume} · Up to {pages} pages / {maximum} vacancies',
-  'discovery.useBatch': 'Copy discovered review URLs into the batch draft',
+  'discovery.useBatch': 'Use completed discovery in batch',
+  'discovery.batchSource': 'Discovery source {requestId}',
   'discovery.phase.running': 'Discovery is running',
   'discovery.phase.completed': 'Discovery finished within its limits',
   'discovery.phase.stopped': 'Discovery stopped; acknowledged results retained',

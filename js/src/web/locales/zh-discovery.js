@@ -1,10 +1,10 @@
 export const zhDiscovery = {
   'discovery.title': '发现职位',
   'discovery.hint':
-    '读取有限的搜索页，并保存符合条件的职位完整描述。本次运行固定搜索设置。将可审核链接复制到申请批次前，请先检查保存的结果。',
+    '读取有限的搜索页，并保存符合条件的职位完整描述。本次运行固定搜索设置。在申请批次中使用搜索结果前，请先检查已保存的结果。',
   'discovery.bounds': '发现范围',
   'discovery.collectionHint':
-    '关闭后仍读取完整描述用于筛选，并在此工作进程运行期间保留在内存中。发现历史仅保存筛选决定，不保存描述。已有描述保持不变。将结果复制到申请批次时也会复制此设置。',
+    '关闭后仍读取完整描述用于筛选，并在此工作进程运行期间保留在内存中。发现历史仅保存筛选决定，不保存描述。已有描述保持不变。从搜索结果启动的批次会沿用此设置。',
   'discovery.collectionMemory':
     '本次发现已关闭描述保存。重启后无法恢复临时描述；已保存的筛选决定仍然可用。',
   'discovery.readAt': '描述读取时间：{date}',
@@ -19,7 +19,8 @@ export const zhDiscovery = {
     '已访问页数：{pages} · 不同职位：{count} · 重复项：{duplicates}',
   'discovery.source':
     '已保存搜索：{query} · 简历：{resume} · 最多 {pages} 页 / {maximum} 个职位',
-  'discovery.useBatch': '将可审核链接复制到批次草稿',
+  'discovery.useBatch': '在批次中使用已完成的搜索',
+  'discovery.batchSource': '搜索来源 {requestId}',
   'discovery.phase.running': '正在发现职位',
   'discovery.phase.completed': '已在设定范围内完成',
   'discovery.phase.stopped': '发现已停止；保留已确认的结果',

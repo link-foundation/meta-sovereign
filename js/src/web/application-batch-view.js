@@ -1,6 +1,10 @@
-import { hhSearchUrl } from '../jobs/options.js';
 import React, { useEffect, useState } from 'react';
-import { salaryTierFloor } from '../jobs/salary-ladder.js';
+import {
+  discoveryBatchCollection,
+  discoveryBatchSalary,
+  discoveryBatchSettings,
+  discoveryBatchUrls,
+} from '../jobs/application-batch-discovery.js';
 import { ApplicationAnswerReceipt } from './application-answer-settings.js';
 import { ApplicationCollectionReceipt } from './application-collection-view.js';
 import {
@@ -11,7 +15,7 @@ import {
 const el = React.createElement;
 const chatPolicyDraft = (draft, batch, frozen) =>
   frozen && batch ? { ...draft, ...batch.settings } : draft;
-const BatchHeading = ({ batch, eligible, action, copy, frozen, t }) =>
+const BatchHeading = ({ batch, eligible, action, selectSource, frozen, t }) =>
   el(React.Fragment, null, [
     el('h4', { key: 'title' }, t('application.batch.title')),
     el('p', { key: 'hint', className: 'meta' }, t('application.batch.hint')),
@@ -20,7 +24,7 @@ const BatchHeading = ({ batch, eligible, action, copy, frozen, t }) =>
       receipt: batch?.settings,
     }),
     eligible.length
-      ? action('use-discovery', 'discovery.useBatch', copy, frozen)
+      ? action('use-discovery', 'discovery.useBatch', selectSource, frozen)
       : null,
   ]);
 
@@ -42,24 +46,25 @@ export const ApplicationBatchView = ({ application, supported, t }) => {
   const [draft, setDraft] = useState(batchDraftDefaults);
   const [confirmed, setConfirmed] = useState(false);
   const batch = state?.receipt?.batch;
-  const eligible = discoveredReviewUrls(application.discovery);
+  const discovery = application.discovery?.receipt?.discovery;
+  const eligible = discoveryBatchUrls(discovery);
+  const slot = state?.slot;
+  const selectedSource =
+    draft.source?.browserSlot === slot ? draft.source : null;
   useEffect(
     () => setConfirmed(false),
-    [batch?.requestId, JSON.stringify(application.options)]
+    [slot, batch?.requestId, JSON.stringify(application.options)]
   );
   if (!state || !supported) {
     return null;
   }
   const frozen = state.busy || batch?.active;
-  const startDisabled = batchStartDisabled(
-    state,
-    frozen,
-    confirmed,
-    draft,
-    application
-  );
   const update = (name, value) => {
-    setDraft({ ...draft, [name]: value });
+    setDraft({
+      ...draft,
+      ...(name === 'urls' ? { source: null } : {}),
+      [name]: value,
+    });
     setConfirmed(false);
   };
   const action = (...args) => batchAction(t, ...args);
@@ -70,27 +75,23 @@ export const ApplicationBatchView = ({ application, supported, t }) => {
       batch,
       eligible,
       action,
-      copy: () => {
-        update('urls', eligible.join('\n'));
+      selectSource: () => {
+        const { requestId, browserSlot } = discovery.options;
+        setDraft({
+          ...draft,
+          source: { requestId, browserSlot },
+          urls: eligible.join('\n'),
+        });
+        setConfirmed(false);
         application.setOptions((current) => ({
           ...current,
-          ...discoveredApplicationSettings(application.discovery),
+          ...discoveryBatchSettings(discovery),
         }));
       },
       frozen: frozen || Boolean(application.intent),
       t,
     }),
-    el('label', { key: 'urls', className: 'col' }, [
-      t('application.batch.urls'),
-      el('textarea', {
-        key: 'input',
-        value: draft.urls,
-        rows: 3,
-        disabled: frozen,
-        'data-application-batch-field': 'urls',
-        onChange: (event) => update('urls', event.target.value),
-      }),
-    ]),
+    el(BatchUrls, { key: 'urls', selectedSource, draft, frozen, update, t }),
     ...[
       [
         'maxApplications',
@@ -151,8 +152,8 @@ export const ApplicationBatchView = ({ application, supported, t }) => {
       action(
         'start',
         'application.batch.start',
-        () => state.start(draft),
-        startDisabled
+        () => state.start({ ...draft, source: selectedSource }),
+        batchStartDisabled(state, frozen, confirmed, draft, application)
       ),
       action('status', 'application.batch.status', state.refresh, state.busy),
       action(
@@ -179,6 +180,34 @@ export const ApplicationBatchView = ({ application, supported, t }) => {
   ]);
 };
 
+const BatchUrls = ({ selectedSource, draft, frozen, update, t }) =>
+  el(React.Fragment, null, [
+    selectedSource ? sourceLabel(selectedSource.requestId, t, 'draft') : null,
+    el('label', { key: 'urls', className: 'col' }, [
+      t('application.batch.urls'),
+      el('textarea', {
+        key: 'input',
+        value: draft.urls,
+        rows: 3,
+        disabled: frozen,
+        'data-application-batch-field': 'urls',
+        onChange: (event) => update('urls', event.target.value),
+      }),
+    ]),
+  ]);
+
+const sourceLabel = (requestId, t, location) =>
+  el(
+    'p',
+    {
+      key: 'source',
+      className: 'meta',
+      'data-application-batch-source': location,
+      style: { overflowWrap: 'anywhere' },
+    },
+    t('discovery.batchSource', { requestId })
+  );
+
 const BatchReceipt = ({ batch, state, t, check }) =>
   el(
     'div',
@@ -190,6 +219,9 @@ const BatchReceipt = ({ batch, state, t, check }) =>
     },
     [
       el('p', { key: 'phase' }, t(`application.batch.phase.${batch.phase}`)),
+      batch.discoveryRequestId
+        ? sourceLabel(batch.discoveryRequestId, t, 'receipt')
+        : null,
       el(
         'p',
         { key: 'progress' },
@@ -319,52 +351,16 @@ const batchStartDisabled = (state, frozen, confirmed, draft, application) =>
   !state.known ||
   !confirmed ||
   !draft.urls.trim() ||
+  Boolean(draft.source && draft.source.browserSlot !== state.slot) ||
   application.occupied ||
   Boolean(application.options.formUrl) ||
   application.discoveryRunning;
 
-export const discoveredReviewUrls = (state) => {
-  const discovery = state?.receipt?.discovery;
-  return discovery?.phase === 'completed'
-    ? discovery.entries
-        .filter(
-          (row) =>
-            row.decision.reason === 'review' &&
-            (!row.pay || row.pay.action === 'apply')
-        )
-        .map((row) => row.card.url)
-    : [];
-};
-
-export const discoveredSalarySettings = (state) => {
-  const discovery = state?.receipt?.discovery;
-  const options = discovery?.options;
-  const floor = options ? salaryTierFloor(options, discovery.salaryTier) : null;
-  return discovery?.phase === 'completed' && options.salaryConfig
-    ? {
-        salary: options.salaryConfig,
-        salaryLadder: options.salaryLadder !== false,
-        ...(floor === null ? {} : { salaryFloorRub: floor }),
-      }
-    : {};
-};
-
-export const discoveredCollectionSettings = (state) => {
-  const discovery = state?.receipt?.discovery;
-  const value = discovery?.options.collectVacancies;
-  return discovery?.phase === 'completed' && typeof value === 'boolean'
-    ? { collectVacancies: value }
-    : {};
-};
-
-export const discoveredApplicationSettings = (state) => ({
-  ...discoveredSalarySettings(state),
-  ...discoveredCollectionSettings(state),
-  ...(state?.receipt?.discovery?.phase === 'completed'
-    ? {
-        applicationSearchUrl: hhSearchUrl(
-          state.receipt.discovery.options.search
-        ),
-      }
-    : {}),
-});
+export const discoveredReviewUrls = (state) =>
+  discoveryBatchUrls(state?.receipt?.discovery);
+export const discoveredSalarySettings = (state) =>
+  discoveryBatchSalary(state?.receipt?.discovery);
+export const discoveredCollectionSettings = (state) =>
+  discoveryBatchCollection(state?.receipt?.discovery);
+export const discoveredApplicationSettings = (state) =>
+  discoveryBatchSettings(state?.receipt?.discovery);

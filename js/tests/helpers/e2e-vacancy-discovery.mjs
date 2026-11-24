@@ -3,6 +3,7 @@ import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { vacancyBrowserFixture } from '../../../experiments/issue-56/vacancy-browser-fixture.mjs';
 import { runVacancy } from '../../src/assignments/vacancy-run-context.js';
+import { decodeWire } from '../../src/transport/lino.js';
 
 const verifyCollectedVacancies = async (store, memoryOnly) => {
   const cached = await store.query((row) =>
@@ -75,6 +76,10 @@ const verifyDiscoveryLocales = async (page, discovery, completed) => {
       locale
     );
     assert(!/\bdiscovery\.[a-z]/u.test(await discovery.innerText()));
+    const source = page.locator('[data-application-batch-source="receipt"]');
+    if (await source.count()) {
+      assert(!/\bdiscovery\.[a-z]/u.test(await source.innerText()));
+    }
   }
 };
 
@@ -94,6 +99,84 @@ const verifyTemporaryDescription = async (discovery, fixture) => {
   );
 };
 
+const verifyBatchHandoff = async ({ batch, panel, fixture, shot }) => {
+  const { page, records, store } = fixture;
+  const action = (name) =>
+    batch.locator(`[data-application-batch-action="${name}"]`);
+  const field = (name) =>
+    batch.locator(`[data-application-batch-field="${name}"]`);
+  const source = (location) =>
+    batch.locator(`[data-application-batch-source="${location}"]`);
+  const [discovery] = await store.query((row) =>
+    row.id.startsWith('secret:jobs-discovery:')
+  );
+  const id = discovery.options.requestId;
+  const posts = [];
+  page.on('request', (request) => {
+    if (
+      request.method() === 'POST' &&
+      new URL(request.url()).pathname ===
+        '/api/vacancies/application-batch-start'
+    ) {
+      posts.push(decodeWire(request.postData()));
+    }
+  });
+  await panel.locator('[data-application-option="testMode"]').check();
+  await action('use-discovery').click();
+  if (process.env.DISCOVERY_BATCH_BEFORE === '1') {
+    await action('use-discovery').scrollIntoViewIfNeeded();
+    await shot('batch-before');
+    assert.equal(
+      await source('draft').count(),
+      1,
+      'The draft must identify its durable source'
+    );
+    return;
+  }
+  assert.match(await source('draft').innerText(), new RegExp(id, 'u'));
+  assert.equal(await action('start').isDisabled(), true);
+  const urls = await field('urls').inputValue();
+  await field('confirmBatch').check();
+  await field('urls').fill(urls.split('\n')[0]);
+  assert.equal(await source('draft').count(), 0);
+  assert.equal(await action('start').isDisabled(), true);
+  await action('use-discovery').click();
+  await source('draft').scrollIntoViewIfNeeded();
+  await shot('batch-selected');
+  assert.deepEqual(posts, []);
+  const count = records.length;
+  await field('confirmBatch').check();
+  await action('start').click();
+  await page.locator('[data-application-batch-phase="completed"]').waitFor();
+  assert.match(await source('receipt').innerText(), new RegExp(id, 'u'));
+  assert.equal(posts.length, 1);
+  assert.equal(posts[0].discoveryRequestId, id);
+  assert.equal(Object.hasOwn(posts[0], 'urls'), false);
+  await page.reload();
+  await source('receipt').waitFor();
+  assert.equal(posts.length, 1);
+  assert.equal(records.length, count);
+  const [saved] = await store.query((row) =>
+    row.id.startsWith('secret:jobs-application-batch:')
+  );
+  assert.deepEqual(saved.options.urls, urls.split('\n'));
+  assert.equal(saved.options.discoveryRequestId, id);
+  assert.equal(saved.options.review.testMode, true);
+  await page.setViewportSize({ width: 390, height: 950 });
+  await source('receipt').scrollIntoViewIfNeeded();
+  await shot('batch-phone');
+  console.log(
+    JSON.stringify({
+      discoveryReads: count,
+      batchPosts: posts.length,
+      batchNativeReads: records.length - count,
+      candidates: saved.options.urls.length,
+      receiptRestored: true,
+      manualEditsClearSource: true,
+    })
+  );
+};
+
 /** Exercise actual HH pagination and description readers through the shared UI. */
 export const verifyVacancyDiscovery = async (
   browser,
@@ -102,6 +185,7 @@ export const verifyVacancyDiscovery = async (
     screenshots = process.env.APPLICATION_SCREENSHOTS,
     excludedTitle = false,
     memoryOnly = false,
+    batchHandoff = false,
   } = {}
 ) => {
   const fixture = await vacancyBrowserFixture(browser);
@@ -190,6 +274,9 @@ export const verifyVacancyDiscovery = async (
         'Batch handoff retains disabled description storage'
       );
     }
+    if (batchHandoff) {
+      await verifyBatchHandoff({ batch, panel, fixture, shot });
+    }
     await verifyDiscoveryLocales(page, discovery, completed);
     await page.setViewportSize({ width: 390, height: 950 });
     await completed.scrollIntoViewIfNeeded();
@@ -210,7 +297,7 @@ export const verifyVacancyDiscovery = async (
         memoryOnly,
         providerClicks: 0,
         recoveryReplayed: false,
-        batchStarted: false,
+        batchStarted: batchHandoff,
         locales: 4,
         resourcesClosed: true,
         navigationMs: records.map((record) => record.navigationMs),
@@ -251,3 +338,6 @@ export const verifyFilteredVacancyDiscovery = (browser) =>
 
 export const verifyMemoryVacancyDiscovery = (browser) =>
   verifyVacancyDiscovery(browser, { memoryOnly: true });
+
+export const verifyDiscoveryBatchHandoff = (browser) =>
+  verifyVacancyDiscovery(browser, { batchHandoff: true });

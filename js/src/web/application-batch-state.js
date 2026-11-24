@@ -14,13 +14,16 @@ export const useApplicationBatch = ({ api, values, options, session }) => {
   const identity = { browserSlot: slot, requestId: batch?.requestId };
   return {
     ...state,
-    start: (draft) =>
+    slot,
+    start: ({ urls, source, ...draft }) =>
       state.execute('Start', {
         ...options,
         ...draft,
         chatWatchWaiting:
           draft.processChats && draft.chatWatchWaiting ? true : undefined,
-        urls: draft.urls.split(/\s+/u).filter(Boolean),
+        ...(source
+          ? { discoveryRequestId: source.requestId }
+          : { urls: urls.split(/\s+/u).filter(Boolean) }),
         browserSlot: slot,
         requestId: globalThis.crypto.randomUUID(),
         confirm: true,
