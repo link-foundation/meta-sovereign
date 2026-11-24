@@ -8,7 +8,11 @@ import {
   checkBrowserQuestion,
 } from './question-browser-state.js';
 import { unreadFailure } from './question-unread-identity.js';
-import { unreadFormLink, visitUnreadForm } from './question-unread-form.js';
+import {
+  formHandoffSummaries,
+  unreadFormLink,
+  visitUnreadForm,
+} from './question-unread-form.js';
 import { completedAnswerSummary } from './question-summary.js';
 import { learnUnreadSummary } from './question-unread-summary.js';
 import { unreadHistoryAnswerReceipt } from './question-unread-history-learning.js';
@@ -86,12 +90,11 @@ const maySelect = (snapshot, plan) =>
   approvedBrowserPlan(plan) &&
   Boolean(plan.option);
 
-const alreadyHandled = (snapshot, plan, entry) =>
+const alreadyHandled = (snapshot, plan) =>
   snapshot.question.outgoing ||
   snapshot.noticeContext?.canReply === false ||
   (!snapshot.hasDraft &&
     plan?.noReply &&
-    !entry.form &&
     !plan.linkReview &&
     !plan.pending?.blocked);
 
@@ -123,6 +126,7 @@ const finishSummary = async ({
   context,
   record,
   snapshot,
+  summaries,
   handle,
   input,
   signal,
@@ -135,6 +139,7 @@ const finishSummary = async ({
       store: context.store,
       source: record.source,
       snapshot,
+      summaries,
       handle,
       input,
       signal,
@@ -200,9 +205,6 @@ export const visitUnreadAnswer = async ({
   const baseline = snapshot.question.outgoing
     ? null
     : await previewAnswer(context.store, input);
-  const summary =
-    !snapshot.question.outgoing &&
-    completedAnswerSummary(snapshot.question.body);
   const link = unreadFormLink(record.prefillForms, snapshot, record.source);
   const reviewed = await review(
     { source: record.source, chat: snapshot.chat },
@@ -233,6 +235,37 @@ export const visitUnreadAnswer = async ({
     await handle.holdReviewInactive();
     return { holdReview: true };
   }
+  const handoff = formHandoffSummaries(snapshot, link);
+  const handled = !link && alreadyHandled(snapshot, plan);
+  const summaries =
+    handoff ??
+    (handled &&
+    !snapshot.hasDraft &&
+    !snapshot.question.outgoing &&
+    completedAnswerSummary(snapshot.question.body)
+      ? [snapshot.question]
+      : []);
+  if (
+    summaries.length &&
+    !(await finishSummary({
+      context,
+      record,
+      snapshot,
+      summaries,
+      handle,
+      input,
+      signal: controller.signal,
+      entry,
+    }))
+  ) {
+    await save(record);
+    return { holdReview: true };
+  }
+  if (handled) {
+    entry.answer.phase = 'no-reply';
+    await save(record);
+    return { holdReview: false };
+  }
   if (
     await visitUnreadForm({
       context,
@@ -243,28 +276,10 @@ export const visitUnreadAnswer = async ({
       entry,
       save,
       link,
+      canAdvance: handoff !== null,
     })
   ) {
     return { holdReview: false };
-  }
-  if (alreadyHandled(snapshot, plan, entry)) {
-    const finished =
-      !summary ||
-      snapshot.hasDraft ||
-      (await finishSummary({
-        context,
-        record,
-        snapshot,
-        handle,
-        input,
-        signal: controller.signal,
-        entry,
-      }));
-    if (finished) {
-      entry.answer.phase = 'no-reply';
-    }
-    await save(record);
-    return { holdReview: !finished };
   }
   const verify = async () => {
     if (

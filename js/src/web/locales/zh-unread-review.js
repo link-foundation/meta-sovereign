@@ -22,6 +22,7 @@ export const zhUnreadReview = {
   'browserUnread.historyAnswers.hold':
     '无法确认聊天记录中的答案是否已保存。请核对当前聊天后再继续。',
   'browserUnread.summary.saved': '已保存摘要中的答案（{count}）。无需回复。',
+  'browserUnread.summary.learned': '已保存摘要中的答案（{count}）。',
   'browserUnread.summary.hold': '请在此聊天中核对摘要。下一个聊天将继续等待。',
   'browserUnread.form.enable':
     '准备链接中的问卷和 HeadHunter 评分投票，供我审核',

@@ -26,6 +26,7 @@ import { rejectionText } from './notice-policy-fixture.mjs';
 import {
   employerQuestionnaire,
   linkedFormBrowser,
+  questionnaireHandoverHistory,
 } from './unread-linked-form-fixture.mjs';
 import {
   employerRatingInvite,
@@ -243,7 +244,12 @@ export const questionBrowserServer = async (
                 : {}),
               ...(unreadMessages ? { latestMessages: unreadMessages } : {}),
               ...(unreadHistory
-                ? { historyMessages: unreadHistoryMessages }
+                ? {
+                    historyMessages:
+                      unreadHistory === true
+                        ? unreadHistoryMessages
+                        : unreadHistory,
+                  }
                 : {}),
               ...(unreadModel ? { latestMessages: { 8: modelQuestion } } : {}),
             },
@@ -370,6 +376,9 @@ if (
       unreadAnswers: true,
       unreadMessages: { 8: employerQuestionnaire },
       forms: linked.forms,
+      ...(process.env.QUESTION_BROWSER_FORM_AFTER_SUMMARY === '1' && {
+        unreadHistory: questionnaireHandoverHistory,
+      }),
     }),
     ...(rating && {
       unreadAnswers: true,

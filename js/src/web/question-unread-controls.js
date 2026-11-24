@@ -321,9 +321,12 @@ const UnreadResult = ({ result, blocked, select, skip, skipDisabled }) => {
                   'data-browser-unread-answer': entry.answer.phase,
                 },
                 entry.answer.summaryAnswers
-                  ? t('browserUnread.summary.saved', {
-                      count: entry.answer.summaryAnswers,
-                    })
+                  ? t(
+                      entry.answer.phase === 'no-reply'
+                        ? 'browserUnread.summary.saved'
+                        : 'browserUnread.summary.learned',
+                      { count: entry.answer.summaryAnswers }
+                    )
                   : t(`browserUnread.answer.${entry.answer.phase}`)
               )
             : null,

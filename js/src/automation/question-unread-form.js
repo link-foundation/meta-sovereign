@@ -7,6 +7,7 @@ import {
 } from './question-browser-state.js';
 import { unreadFailure } from './question-unread-identity.js';
 import { completedAnswerSummary } from './question-summary.js';
+import { completedHandover } from './question-notice-intent.js';
 
 const cleanTextUrl = (value) => value.replace(/[.,;:!?)\]}»”’]+$/u, '');
 const activeTransfer = (state) =>
@@ -51,11 +52,7 @@ export const unreadFormLink = (enabled, snapshot, source) => {
   return forms.length === 1 ? forms[0] : null;
 };
 
-const formOnly = ({ pendingTurn }, link) => {
-  if (pendingTurn.messages.length !== 1) {
-    return false;
-  }
-  const [{ body, links }] = pendingTurn.messages;
+const formOnly = ({ body, links }, link) => {
   const visible = textLinks(body).map(cleanTextUrl);
   if (
     [...visible, ...(links ?? [])].some(
@@ -77,6 +74,28 @@ const formOnly = ({ pendingTurn }, link) => {
   );
 };
 
+/** A separate Forms review can resolve the turn only if no chat task remains. */
+export const formHandoffSummaries = ({ pendingTurn }, link) => {
+  if (!link) {
+    return null;
+  }
+  const summaries = [];
+  for (const message of pendingTurn.messages) {
+    if (message.id === link.messageId) {
+      if (!formOnly(message, link)) {
+        return null;
+      }
+    } else if (message.links?.length || textLinks(message.body).length) {
+      return null;
+    } else if (completedAnswerSummary(message.body)) {
+      summaries.push(message);
+    } else if (!completedHandover(message.body)) {
+      return null;
+    }
+  }
+  return summaries;
+};
+
 export const visitUnreadForm = async ({
   context,
   record,
@@ -86,6 +105,7 @@ export const visitUnreadForm = async ({
   entry,
   save,
   link,
+  canAdvance,
 }) => {
   if (!link) {
     return false;
@@ -128,8 +148,7 @@ export const visitUnreadForm = async ({
         : 'question-form-unconfirmed',
     };
   }
-  const transferred =
-    unreadFormTransfer(entry.form.state) && formOnly(snapshot, link);
+  const transferred = canAdvance && unreadFormTransfer(entry.form.state);
   if (transferred) {
     entry.answer.phase = 'form-review';
   }

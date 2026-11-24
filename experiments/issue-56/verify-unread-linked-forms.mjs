@@ -8,6 +8,7 @@ const browser = await chromium.launch({
 try {
   const result = await verifyUnreadLinkedForms(browser, {
     before: process.argv.includes('--before'),
+    afterSummary: process.argv.includes('--after-summary'),
     screenshots: 'docs/screenshots',
   });
   console.log(JSON.stringify(result));

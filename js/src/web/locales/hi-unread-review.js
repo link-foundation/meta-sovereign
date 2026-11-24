@@ -24,6 +24,7 @@ export const hiUnreadReview = {
     'चैट के इतिहास से उत्तर सहेजने की पुष्टि नहीं हुई। आगे बढ़ने से पहले यह चैट जाँचें।',
   'browserUnread.summary.saved':
     'सारांश से उत्तर सहेजे गए ({count})। जवाब देना ज़रूरी नहीं है।',
+  'browserUnread.summary.learned': 'सारांश से उत्तर सहेजे गए ({count})।',
   'browserUnread.summary.hold':
     'इस चैट में सारांश की पुष्टि करें। अगली चैट प्रतीक्षा में है।',
   'browserUnread.form.enable':

@@ -26,6 +26,7 @@ export const ruUnreadReview = {
     'Не удалось подтвердить сохранение ответов из истории. Проверьте этот чат, прежде чем продолжить.',
   'browserUnread.summary.saved':
     'Ответы из сводки сохранены ({count}). Ответ в чат не требуется.',
+  'browserUnread.summary.learned': 'Ответы из сводки сохранены ({count}).',
   'browserUnread.summary.hold':
     'Проверьте сводку в этом чате. Следующий чат пока ждёт.',
   'browserUnread.form.enable':

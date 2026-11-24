@@ -115,6 +115,7 @@
 
 - [Desktop native prebuild filtering](desktop-native-prebuilds.md): preserve the actual five-job packaging failure, reproduce it through the installed builder, and keep only target-compatible SQLite addons while retaining native verification. Exact-head hosted builds remain required.
 - [Sequential unread answers](unread-answers.md): guarded borrowed bot choices, ordinary review drafts, truthful held-view receipts and held-only polling through CLI, both Lino encodings and shared localized controls. Focused parent/native/MCP evidence is retained; wider criteria remain unfinished.
+- [Questionnaires with completed recruiter handovers](unread-form-handover.md) cover acknowledged summary facts, a retained Forms receipt and continuation to the first chat that still needs a reply.
 
 - [Hosted employer-change refusal](ci-notice-pane.md): preserve the exact Chromium failure and finite native reproduction; require the earlier observed-pane guard, a failed outbox and zero text/choice effects. Exact-head CI remains required.
 - [Watched dispatch ownership](browser-watch-dispatch.md): reproduce Stop, navigation and policy changes during native arming; recheck before issue while draining already-issued receipts. Wider unread orchestration remains required.

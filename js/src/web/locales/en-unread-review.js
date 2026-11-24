@@ -25,6 +25,7 @@ export const enUnreadReview = {
     'Chat history learning could not be confirmed. Check this chat before continuing.',
   'browserUnread.summary.saved':
     'Answers saved from summary ({count}). No reply is needed.',
+  'browserUnread.summary.learned': 'Answers saved from summary ({count}).',
   'browserUnread.summary.hold':
     'Check this chat to confirm its summary. The next chat is waiting.',
   'browserUnread.form.enable':

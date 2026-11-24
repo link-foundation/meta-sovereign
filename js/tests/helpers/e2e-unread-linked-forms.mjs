@@ -3,10 +3,12 @@ import { join } from 'node:path';
 import {
   employerQuestionnaire,
   linkedFormBrowser,
+  questionnaireHandoverHistory,
   respondentQuestionnaire,
   sharedQuestionnaire,
 } from '../../../experiments/issue-56/unread-linked-form-fixture.mjs';
 import { questionBrowserUi } from './question-browser-ui.mjs';
+import { listAnswerRules } from '../../src/automation/question-store.js';
 import {
   openUnread,
   verifyUnreadFocusRefusal,
@@ -14,13 +16,14 @@ import {
 
 export const verifyUnreadLinkedForms = async (
   browser,
-  { screenshots, before = false } = {}
+  { screenshots, before = false, afterSummary = false } = {}
 ) => {
   const form = linkedFormBrowser(browser);
   const scenario = await questionBrowserUi(browser, {
     screenshots,
     group: 'question-unread-forms',
     serverOptions: {
+      ...(afterSummary && { unreadHistory: questionnaireHandoverHistory }),
       unreadReview: true,
       unreadAnswers: true,
       unreadMessages: { 8: employerQuestionnaire },
@@ -36,7 +39,7 @@ export const verifyUnreadLinkedForms = async (
       assert.deepEqual(form.visits, []);
       return { cases: 1, liveProvider: false };
     }
-    if (!before) {
+    if (!before || afterSummary) {
       await unread.locator('[data-browser-unread-forms]').check();
     }
     await unread.locator('[data-browser-unread-confirm]').check();
@@ -62,7 +65,7 @@ export const verifyUnreadLinkedForms = async (
       'completed',
       await unread.innerText()
     );
-    if (before) {
+    if (before && !afterSummary) {
       const held = unread.locator('[data-browser-unread-held="8"]');
       await held.waitFor();
       assert.deepEqual(form.visits, []);
@@ -72,7 +75,9 @@ export const verifyUnreadLinkedForms = async (
     }
     const handedOff = unread.locator('[data-browser-unread-form="prefilled"]');
     await handedOff.waitFor();
-    await unread.locator('[data-browser-unread-held="9"]').waitFor();
+    await unread
+      .locator(`[data-browser-unread-held="${before ? '8' : '9'}"]`)
+      .waitFor({ timeout: 5000 });
     assert.match(await handedOff.textContent(), /Prefilled fields \(1\)/u);
     assert.deepEqual(form.visits, [
       ['GET', sharedQuestionnaire],
@@ -88,10 +93,41 @@ export const verifyUnreadLinkedForms = async (
       'Owner entered this'
     );
     assert.equal(await form.pages[0].evaluate(() => globalThis.submits), 0);
-    assert.deepEqual((await scenario.fixture.stats()).visits, ['8', '9']);
+    assert.deepEqual(
+      (await scenario.fixture.stats()).visits,
+      before ? ['8'] : ['8', '9']
+    );
     assert.equal((await scenario.fixture.stats()).sends, 0);
     await handedOff.scrollIntoViewIfNeeded();
-    await scenario.shot('issue-56-unread-forms-after');
+    const name = afterSummary ? 'unread-form-handover' : 'unread-forms';
+    if (afterSummary) {
+      const answers = (await listAnswerRules(scenario.fixture.store)).flatMap(
+        ({ answers }) =>
+          answers.filter(({ evidence }) => evidence.includes('msg:hh:8:806'))
+      );
+      assert.deepEqual(
+        answers.map(({ text, approved }) => [text, approved]),
+        before
+          ? []
+          : [
+              ['Нет.', false],
+              ['Разрабатывал поиск по техническим документам.', false],
+            ]
+      );
+      if (!before) {
+        assert.equal(
+          await unread
+            .locator('[data-browser-unread-answer="form-review"]')
+            .innerText(),
+          'Answers saved from summary (2).'
+        );
+      }
+    }
+    await scenario.shot(`issue-56-${name}-${before ? 'before' : 'after'}`);
+    if (before) {
+      assert.deepEqual(scenario.errors, []);
+      return { cases: 1, liveProvider: false };
+    }
     if (screenshots) {
       await scenario.page.setViewportSize({ width: 390, height: 844 });
       await handedOff.scrollIntoViewIfNeeded();
@@ -101,9 +137,9 @@ export const verifyUnreadLinkedForms = async (
         ),
         true
       );
-      await scenario.shot('issue-56-unread-forms-mobile');
+      await scenario.shot(`issue-56-${name}-mobile`);
       await form.pages[0].screenshot({
-        path: join(screenshots, 'issue-56-unread-forms-questionnaire.png'),
+        path: join(screenshots, `issue-56-${name}-questionnaire.png`),
       });
     }
     await handedOff.getByRole('link').click();

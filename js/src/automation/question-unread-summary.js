@@ -26,11 +26,12 @@ const matchesArchivedSummary = (message, { id, source, chat, question }) =>
     messageLinkProperties(question.links)
   );
 
-/** Bind the saved fact to this visit's still-current, durably captured bubble. */
+/** Bind saved facts to this visit's still-current, durably captured bubbles. */
 export const learnUnreadSummary = ({
   store,
   source,
   snapshot,
+  summaries,
   handle,
   input,
   signal,
@@ -43,14 +44,20 @@ export const learnUnreadSummary = ({
       if (!isDeepStrictEqual(current, snapshot)) {
         return null;
       }
-      const { chat, question } = current;
-      const id = `msg:${source}:${chat}:${question.id}`;
-      if (id.length > 500) {
-        return null;
+      const { chat } = current;
+      const messages = [];
+      for (const question of summaries) {
+        signal.throwIfAborted();
+        const id = `msg:${source}:${chat}:${question.id}`;
+        if (id.length > 500) {
+          return null;
+        }
+        const message = await store.get(id);
+        if (!matchesArchivedSummary(message, { id, source, chat, question })) {
+          return null;
+        }
+        messages.push(message);
       }
-      const message = await store.get(id);
-      return matchesArchivedSummary(message, { id, source, chat, question })
-        ? [message]
-        : null;
+      return messages;
     },
   });

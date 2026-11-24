@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { unreadAnswerFixture } from '../../experiments/issue-56/unread-answer-fixture.mjs';
+import { summary } from '../../experiments/issue-56/question-summary-fixture.mjs';
+import { listAnswerRules } from '../src/automation/question-store.js';
 import { checkUnreadReview } from '../src/automation/question-unread-state.js';
 import { createMemoryStore } from '../src/storage/universal.js';
 import {
@@ -168,6 +170,160 @@ test('an opted-in questionnaire opens Forms and continues the unread pass', () =
     checkUnreadReview(result, env.input.id);
     assert.deepEqual(env.state.sends, []);
   }));
+
+const questionnaireTurn = (body = summary, links = undefined) => {
+  const row = linkedRow();
+  row.pendingTurn.messages.unshift({ id: '100', body, links });
+  return [row, { strictOptions: false }];
+};
+
+const turnHistory = ({ pendingTurn, question }) =>
+  (pendingTurn?.messages ?? [question]).map((message, index) => ({
+    ...message,
+    sender: 'recruiter-bot',
+    outgoing: false,
+    timestamp: `2026-11-09T11:00:0${index}Z`,
+  }));
+
+const learnedSummaries = async (store) =>
+  (await listAnswerRules(store)).flatMap(({ answers }) =>
+    answers.filter(({ evidence }) => evidence.includes('msg:hh:8:100'))
+  );
+
+test('a questionnaire after a completed recruiter summary saves facts and continues', () =>
+  withPass(
+    { rows: questionnaireTurn(), history: turnHistory },
+    async (env, calls) => {
+      const result = await env.complete({ ...env.input, prefillForms: true });
+      assert.deepEqual(
+        result.entries.map(({ answer }) => answer.phase),
+        ['form-review', 'prefilled']
+      );
+      assert.equal(result.entries[0].answer.summaryAnswers, 2);
+      assert.equal(result.entries[0].form.messageId, '101');
+      assert.equal(result.restoration.heldReview.chat, '9');
+      assert.equal(calls.length, 1);
+      assert.deepEqual(env.state.sends, []);
+      assert.deepEqual(
+        (await learnedSummaries(env.store)).map(({ approved, evidence }) => ({
+          approved,
+          evidence,
+        })),
+        Array(2).fill({ approved: false, evidence: ['msg:hh:8:100'] })
+      );
+      checkUnreadReview(result, env.input.id);
+    }
+  ));
+
+test('a questionnaire after a completed plain handover continues without learning facts', () =>
+  withPass(
+    {
+      rows: questionnaireTurn(
+        'Your answers have been forwarded to the employer.'
+      ),
+    },
+    async (env, calls) => {
+      const result = await env.complete({ ...env.input, prefillForms: true });
+      assert.equal(result.entries[0].answer.phase, 'form-review');
+      assert.equal(result.entries[0].answer.summaryAnswers, undefined);
+      assert.equal(result.restoration.heldReview.chat, '9');
+      assert.equal(calls.length, 1);
+      assert.deepEqual(await learnedSummaries(env.store), []);
+    }
+  ));
+
+test('a questionnaire holds before opening Forms when the preceding summary lacks a matching archive', () =>
+  withPass(
+    {
+      rows: questionnaireTurn(),
+      history: (snapshot) => turnHistory(snapshot).slice(1),
+    },
+    async (env, calls) => {
+      const result = await env.complete({ ...env.input, prefillForms: true });
+      assert.equal(
+        result.entries[0].answer.reason,
+        'question-unread-summary-unverified'
+      );
+      assert.equal(result.restoration.heldReview.chat, '8');
+      assert.deepEqual(calls, []);
+      assert.deepEqual(await learnedSummaries(env.store), []);
+    }
+  ));
+
+test('a questionnaire fails closed when the completed summary changes after capture', () =>
+  withPass(
+    {
+      rows: questionnaireTurn(),
+      history: turnHistory,
+      readCurrent: (snapshot) => {
+        const { pendingTurn } = snapshot;
+        const [first, ...rest] = pendingTurn.messages;
+        return {
+          ...snapshot,
+          pendingTurn: {
+            ...pendingTurn,
+            messages: [
+              { ...first, body: first.body.replace('Нет.', 'Да.') },
+              ...rest,
+            ],
+          },
+        };
+      },
+    },
+    async (env, calls) => {
+      const result = await env.complete({ ...env.input, prefillForms: true });
+      assert.equal(
+        result.entries[0].answer.reason,
+        'question-unread-summary-unverified'
+      );
+      assert.equal(result.restoration.heldReview.chat, '8');
+      assert.deepEqual(calls, []);
+      assert.deepEqual(await learnedSummaries(env.store), []);
+    }
+  ));
+
+test('a refused questionnaire retains the saved summary and held review', () =>
+  withPass(
+    {
+      rows: questionnaireTurn(),
+      history: turnHistory,
+      prefillLinkedForm: async ({ verify }) => {
+        await verify();
+        throw Object.assign(new Error('No fixture slot available.'), {
+          code: 'form-slot-unavailable',
+        });
+      },
+    },
+    async (env) => {
+      const result = await env.complete({ ...env.input, prefillForms: true });
+      assert.equal(result.entries[0].answer.phase, 'review');
+      assert.equal(result.entries[0].answer.summaryAnswers, 2);
+      assert.equal(result.entries[0].form.code, 'form-slot-unavailable');
+      assert.equal(result.restoration.heldReview.chat, '8');
+      assert.deepEqual(env.state.sends, []);
+      assert.equal((await learnedSummaries(env.store)).length, 2);
+      checkUnreadReview(result, env.input.id);
+    }
+  ));
+
+for (const [name, rows] of [
+  ['an earlier unanswered request', questionnaireTurn('Can you start Monday?')],
+  [
+    'an earlier completed summary with an unrelated hidden link',
+    questionnaireTurn(summary, ['https://example.org/next-step']),
+  ],
+]) {
+  test(`a questionnaire prefilled alongside ${name} holds the chat`, () =>
+    withPass({ rows, history: turnHistory }, async (env, calls) => {
+      const result = await env.complete({ ...env.input, prefillForms: true });
+      assert.equal(result.entries[0].form.state, 'prefilled');
+      assert.equal(result.restoration.heldReview.chat, '8');
+      assert.equal(result.entries.length, 1);
+      assert.equal(calls.length, 1);
+      assert.deepEqual(env.state.sends, []);
+      assert.deepEqual(await learnedSummaries(env.store), []);
+    }));
+}
 
 test('a form alongside an unanswered question still holds the native chat', () =>
   withPass(
