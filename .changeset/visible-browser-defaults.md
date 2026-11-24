@@ -1275,3 +1275,7 @@ reuse the prepared tree on later starts (issue #56).
 Read saved runner targets in Settings while a session command is active.
 Saving still requires the runner control lock and current profile revision
 (issue #56).
+
+Reuse the current HeadHunter application sign-in in an untouched signed-out
+chat slot. Keep the two browser profiles scoped to the workspace, and confirm
+the chat list before reporting session reuse (issue #56).

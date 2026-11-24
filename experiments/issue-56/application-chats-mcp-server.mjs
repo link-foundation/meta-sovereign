@@ -14,35 +14,41 @@ const browser = await chromium.launch({
   ],
 });
 let final;
+const session = process.env.APPLICATION_CHAT_SESSION_REUSE === '1';
 try {
-  await withNativeApplicationChats(browser, async ({ fixture, stats }) => {
-    await saveAnswerRule(fixture.store, {
-      id: 'start-time',
-      question: 'What time can you start?',
-      answers: [{ text: 'At 9 a.m.', approved: true }],
-    });
-    const control = createServer(async (_req, res) => {
-      res.setHeader('content-type', 'application/json');
-      res.end(JSON.stringify(await stats()));
-    });
-    await new Promise((resolve) => control.listen(0, '127.0.0.1', resolve));
-    console.log(
-      JSON.stringify({
-        pid: process.pid,
-        base: fixture.base,
-        control: `http://127.0.0.1:${control.address().port}`,
-      })
-    );
-    try {
-      await new Promise((resolve) => {
-        process.once('SIGTERM', resolve);
-        process.once('SIGINT', resolve);
+  await withNativeApplicationChats(
+    browser,
+    async ({ fixture, stats }) => {
+      await saveAnswerRule(fixture.store, {
+        id: 'start-time',
+        question: 'What time can you start?',
+        answers: [{ text: 'At 9 a.m.', approved: true }],
       });
-      final = await stats();
-    } finally {
-      await new Promise((resolve) => control.close(resolve));
-    }
-  });
+      const control = createServer(async (_req, res) => {
+        res.setHeader('content-type', 'application/json');
+        res.end(JSON.stringify(await stats()));
+      });
+      await new Promise((resolve) => control.listen(0, '127.0.0.1', resolve));
+      console.log(
+        JSON.stringify({
+          pid: process.pid,
+          base: fixture.base,
+          control: `http://127.0.0.1:${control.address().port}`,
+          session,
+        })
+      );
+      try {
+        await new Promise((resolve) => {
+          process.once('SIGTERM', resolve);
+          process.once('SIGINT', resolve);
+        });
+        final = await stats();
+      } finally {
+        await new Promise((resolve) => control.close(resolve));
+      }
+    },
+    { session }
+  );
 } finally {
   await browser.close();
 }

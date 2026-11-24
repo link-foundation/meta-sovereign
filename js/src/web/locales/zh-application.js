@@ -42,7 +42,7 @@ export const zhApplication = {
     '为本次申请或批量申请选择共享回答档案和薪资目标。审核期间薪资目标保持不变；每次规划都会读取档案中当前保存的值。发送前请审核组合回答。',
   'application.chats.enable': '在申请期间检查未读聊天',
   'application.chats.hint':
-    '聊天使用独立的浏览器槽位。申请继续进行时，请手动选择机器人选项并发送准备好的草稿。批次停止或完成时会关闭聊天浏览器。如有需要，请在此槽位登录。',
+    '聊天使用独立的浏览器槽位。聊天槽位未登录时，可以使用当前申请浏览器中的 HeadHunter 登录会话。申请继续进行时，请手动选择机器人选项并发送准备好的草稿。批次停止或完成时会关闭聊天浏览器。',
   'application.chats.chatsIntervalMinutes': '聊天检查间隔（分钟，默认 120）',
   'application.chats.chatBrowserSlot': '独立的聊天浏览器槽位',
   'application.chats.status': '聊天：{phase} · 槽位 {slot}',

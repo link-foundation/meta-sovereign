@@ -5,12 +5,15 @@ import { createQuestionBrowser } from '../automation/question-browser.js';
 import { createWatcherControl } from '../forms/watcher-rpc.js';
 import { spawnWorker } from '../server/worker-client.js';
 import { createLocalAnswerModel } from '../automation/local-answer-model.js';
+import { jobBrowserProfile } from './browser-profile.js';
+import { reuseApplicationChatSession } from './application-chat-session.js';
 
 /** The child supervises polling; browser effects retain the parent's canonical writer. */
 export class ApplicationChats {
   constructor({
     store,
     openSession,
+    storeDir,
     runner,
     prefillLinkedForm,
     log = () => {},
@@ -21,6 +24,7 @@ export class ApplicationChats {
     Object.assign(this, {
       store,
       openSession,
+      storeDir,
       runner,
       prefillLinkedForm,
       log,
@@ -32,7 +36,7 @@ export class ApplicationChats {
   status() {
     return globalThis.structuredClone(this.view);
   }
-  async start(record) {
+  async start(record, { applicationPage } = {}) {
     this.controller = new AbortController();
     this.view = {
       phase: 'starting',
@@ -44,6 +48,7 @@ export class ApplicationChats {
       held: null,
     };
     this.record = record;
+    this.applicationPage = applicationPage;
     const token = randomBytes(32).toString('hex');
     try {
       this.control = await createWatcherControl({
@@ -112,9 +117,29 @@ export class ApplicationChats {
       store: this.store,
       openSession: this.openSession,
       slot: options.chatBrowserSlot,
+      resolveProfileDir: () =>
+        jobBrowserProfile({
+          storeDir: this.storeDir,
+          browserSlot: options.chatBrowserSlot,
+        }),
     });
-    await this.send.prepareUnreadConversations({ source: 'hh', signal });
+    const prepared = await this.send.prepareUnreadConversations({
+      source: 'hh',
+      signal,
+      authenticate: (destination) =>
+        reuseApplicationChatSession({
+          applicationPage: this.applicationPage,
+          destination,
+          signal,
+        }),
+    });
     signal.throwIfAborted();
+    if (prepared?.sessionReused) {
+      this.log({
+        event: 'application-chats-session-reused',
+        browserSlot: options.chatBrowserSlot,
+      });
+    }
     this.model =
       options.chatModelDraft && !this.runner ? createLocalAnswerModel() : null;
     this.browser = this.questions({

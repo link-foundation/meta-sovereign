@@ -292,6 +292,61 @@ test('the login check times out to the same error', async () => {
   );
 });
 
+test('owned HH preparation can reuse the application session in its exact chat slot', async () => {
+  const ui = WEB_UIS.hh;
+  let signedIn = false;
+  let location = ui.loginUrl;
+  const page = { isClosed: () => false, url: () => location };
+  const commander = fakeCommander({
+    present: (selector) =>
+      selector === first(signedIn ? ui.loggedIn : ui.loggedOut),
+  });
+  const goto = commander.goto;
+  commander.goto = async (options) => {
+    await goto(options);
+    location = signedIn ? options.url : ui.loginUrl;
+  };
+  const profiles = [];
+  const sender = createBrowserSender({
+    ...quick,
+    slot: 'batch-chats',
+    resolveProfileDir: async () => '/workspace/hh/slots/batch-chats',
+    openSession: async ({ profileDir }) => {
+      profiles.push(profileDir);
+      return { commander, page };
+    },
+  });
+  let attempts = 0;
+  const authenticate = (destination) => {
+    assert.equal(destination, page);
+    assert.equal(destination.url(), ui.loginUrl);
+    attempts++;
+    signedIn = true;
+    return true;
+  };
+  const result = await sender.prepareUnreadConversations({
+    source: 'hh',
+    authenticate,
+  });
+  assert.deepEqual(result, {
+    source: 'hh',
+    slot: 'batch-chats',
+    ready: true,
+    sessionReused: true,
+  });
+  assert.deepEqual(profiles, ['/workspace/hh/slots/batch-chats']);
+  assert.equal(attempts, 1);
+  assert.deepEqual(commander.calls, [
+    ['goto', ui.listUrl],
+    ['goto', ui.listUrl],
+  ]);
+  assert.deepEqual(
+    await sender.prepareUnreadConversations({ source: 'hh', authenticate }),
+    { source: 'hh', slot: 'batch-chats', ready: true }
+  );
+  assert.equal(attempts, 1);
+});
+
 test('missing composer, text, target or network fail clearly', async () => {
   const commander = fakeCommander({
     present: [first(WEB_UIS.vk.loggedIn)],

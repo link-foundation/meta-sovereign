@@ -141,6 +141,7 @@
   "job-application-confirmations",
   "job-application-batch",
   "job-application-chat-choices",
+  "job-application-chat-session",
   "job-application-feedback",
   "job-application-answers",
   "cv-snapshot-publication",

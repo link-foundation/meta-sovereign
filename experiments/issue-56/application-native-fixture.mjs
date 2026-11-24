@@ -12,9 +12,11 @@ export const applicationNativeHtml = ({
   vacancyId = '123',
   salary,
   ownerAnswers,
+  signedIn = false,
 } = {}) => {
   const vacancy = vacancySnapshotFixture();
   return `<!doctype html><html><body>
+    ${signedIn ? '<a data-qa="mainmenu_applicantProfilePage" href="/applicant/resumes">Application fixture account</a>' : ''}
     <h1 data-qa="vacancy-title">${html(vacancy.title)}</h1>
     ${salary === undefined ? '' : `<span data-qa="vacancy-salary">${html(salary)}</span>`}
     <div data-qa="vacancy-description">${html(vacancy.description)}</div>
@@ -69,12 +71,14 @@ export const applicationNativeFixture = async (
     onApplicationClose,
     salary,
     ownerAnswers,
+    prepareContext,
   } = {}
 ) => {
   let nativeForms = 0;
   const fixture = await vacancyBrowserFixture(browser, {
     ...(store ? { store } : {}),
     exports: {
+      prepare: prepareContext,
       route: async (route) => {
         const url = new URL(route.request().url());
         const response =
@@ -96,6 +100,7 @@ export const applicationNativeFixture = async (
             popup,
             resumeChooser,
             questionLabel,
+            signedIn: Boolean(prepareContext),
             salary:
               typeof salary === 'function'
                 ? salary(

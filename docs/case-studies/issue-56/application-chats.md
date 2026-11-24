@@ -64,7 +64,8 @@ Its fixture server confirms all owned resources closed.
 The [evidence archive](data/application-chats.tar.gz) and
 [hash manifest](data/application-chats.tar.sha256.json) preserve commands,
 parent failures, runtime/native/MCP results, source snapshots and screenshots.
-The hosted checks must still pass against the published commit. Synthetic
-fixtures establish these lifecycle and UI behaviors; they do not establish live
-provider parity, every HH10 criterion or the other 60 unchecked inventory rows.
-Those remain required in [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57).
+Hosted checks and authenticated provider parity remain open in
+[PR #57](https://github.com/link-foundation/meta-sovereign/pull/57). The
+[inventory](reference-feature-inventory.md) tracks the remaining HH10 work.
+Signed-out chat slots can reuse a verified
+[active application sign-in](application-chat-session.md).

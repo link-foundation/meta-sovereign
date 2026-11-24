@@ -324,32 +324,64 @@ const createSessionPool = ({ open, log }) => {
   };
 };
 
+const confirmedHhList = (page, url) => {
+  const destination = new URL(page.url());
+  return (
+    destination.origin === new URL(url).origin &&
+    !destination.username &&
+    !destination.password &&
+    /^\/chat\/?$/u.test(destination.pathname)
+  );
+};
+
 /**
  * Pages of one network: `inChat(source, target, options, fn)` and
  * `inList(source, fn)` run `fn(commander, page)` with the chat (or the
  * chat list) open and the login checked, in the network's queue.
  */
-const createChatPages = ({ pool, uiFor, waitFor, log, profileDirFor }) => {
+const createChatPages = ({ pool, uiFor, waitFor, log, resolveProfileDir }) => {
   /** Navigate to `url` (if not already there) and check the login. */
-  const openPage = async (source, url, { reload = false } = {}) => {
+  const openPage = async (
+    source,
+    url,
+    { reload = false, authenticate, signal } = {}
+  ) => {
     const ui = uiFor(source);
     const state = await pool.get(source);
-    if (state.url !== url || reload) {
+    const visit = async () => {
       log(`[browser:${source}] open ${url}`);
       await state.commander.goto({ url, waitUntil: 'domcontentloaded' });
       state.url = url;
+    };
+    if (state.url !== url || reload) {
+      await visit();
     }
+    const signedIn = () =>
+      waitFor(state.commander, ui.loggedIn, { stop: ui.loggedOut });
+    if (await signedIn()) {
+      return state;
+    }
+    state.url = null;
+    const page = state.session?.page;
+    signal?.throwIfAborted();
     if (
-      !(await waitFor(state.commander, ui.loggedIn, { stop: ui.loggedOut }))
+      authenticate &&
+      page &&
+      (await authenticate(page)) &&
+      !page.isClosed()
     ) {
+      signal?.throwIfAborted();
+      await visit();
+      if ((await signedIn()) && confirmedHhList(page, url)) {
+        return { ...state, sessionReused: true };
+      }
       state.url = null;
-      throw new BrowserLoginRequiredError({
-        source,
-        loginUrl: ui.loginUrl,
-        profileDir: profileDirFor(source),
-      });
     }
-    return state;
+    throw new BrowserLoginRequiredError({
+      source,
+      loginUrl: ui.loginUrl,
+      profileDir: await resolveProfileDir(source),
+    });
   };
 
   /** Open the chat; a pre-filled URL is reloaded every time. */
@@ -383,14 +415,17 @@ const createChatPages = ({ pool, uiFor, waitFor, log, profileDirFor }) => {
     });
 
   /** Run `fn(commander, page)` with the chat list open. */
-  const inList = (source, fn, { signal } = {}) =>
+  const inList = (source, fn, { signal, authenticate } = {}) =>
     pool.queue(source, async () => {
       if (signal?.aborted) {
         throw codedError('The browser chat scan was cancelled', 'cancelled');
       }
       const ui = uiFor(source);
-      const state = await openPage(source, ui.listUrl ?? ui.loginUrl);
-      return fn(state.commander, state.session?.page ?? null);
+      const state = await openPage(source, ui.listUrl ?? ui.loginUrl, {
+        authenticate,
+        signal,
+      });
+      return fn(state.commander, state.session?.page ?? null, state);
     });
 
   const inExisting = (source, fn, { signal } = {}) =>
@@ -476,6 +511,8 @@ const composerFocus =
  * @param {boolean} [options.headless] for the default session factory
  * @param {(source: string) => string} [options.profileDirFor] persistent
  *   profile per network (default `~/.meta-sovereign/browser-profiles/<id>`)
+ * @param {(source: string) => string | Promise<string>} [options.resolveProfileDir]
+ *   complete workspace profile path for an explicitly owned slot
  * @param {Function} [options.log] progress messages
  * @param {() => Date} [options.clock]
  */
@@ -494,6 +531,30 @@ const unreadConversationSources = (platforms) =>
       ui.chatScan?.unreadFilter
     );
   });
+
+/** Explicit ownership may prepare a slot. Ordinary unread scans use the existing view. */
+const prepareUnreadList =
+  (platforms, inList, slot) =>
+  ({ source, signal, authenticate } = {}) => {
+    if (
+      !unreadConversationSources(platforms).some((entry) => entry.id === source)
+    ) {
+      throw codedError(
+        'Unread conversation review is unavailable.',
+        'unsupported-source'
+      );
+    }
+    return inList(
+      source,
+      (_commander, _page, { sessionReused }) => ({
+        source,
+        slot,
+        ready: true,
+        ...(sessionReused ? { sessionReused } : {}),
+      }),
+      { signal, authenticate: source === 'hh' ? authenticate : undefined }
+    );
+  };
 
 const senderCapabilities = (platforms) => ({
   choiceSources: () => choiceSources(platforms),
@@ -597,6 +658,7 @@ export const createBrowserSender = ({
   slot = 'main',
   withOpenHhImport = null,
   profileDirFor = defaultProfileDir,
+  resolveProfileDir = (source) => slotProfileDir(profileDirFor(source), slot),
   log = () => {},
   clock = () => new Date(),
 } = {}) => {
@@ -613,7 +675,7 @@ export const createBrowserSender = ({
       useCase: 'messages',
       slot,
       headless: policy.headless,
-      profileDir: slotProfileDir(profileDirFor(source), slot),
+      profileDir: await resolveProfileDir(source),
     });
   };
   const pool = createSessionPool({ open, log });
@@ -632,7 +694,7 @@ export const createBrowserSender = ({
     uiFor,
     waitFor,
     log,
-    profileDirFor: (source) => slotProfileDir(profileDirFor(source), slot),
+    resolveProfileDir,
   });
 
   const focusComposer = composerFocus(waitFor);
@@ -676,20 +738,7 @@ export const createBrowserSender = ({
     ...texts,
     ...senderCapabilities(platforms),
 
-    /** Explicit ownership may prepare a new slot; ordinary unread scans never do. */
-    prepareUnreadConversations({ source, signal } = {}) {
-      if (
-        !unreadConversationSources(platforms).some(
-          (entry) => entry.id === source
-        )
-      ) {
-        throw codedError(
-          'Unread conversation review is unavailable.',
-          'unsupported-source'
-        );
-      }
-      return inList(source, () => ({ source, slot, ready: true }), { signal });
-    },
+    prepareUnreadConversations: prepareUnreadList(platforms, inList, slot),
 
     /** Type and send one message in the network's web UI. */
     send: createBrowserTextSender({

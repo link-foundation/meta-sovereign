@@ -63,6 +63,7 @@ const fixture = (
     frames,
     setup,
     senderOptions,
+    routePage,
   } = {},
   work
 ) => {
@@ -73,6 +74,7 @@ const fixture = (
       html,
       frames,
       senderOptions,
+      routePage,
       isRead: ({ fn, args }) =>
         fn === browserChoicePage && args?.[0]?.operation === 'history',
       onRead: (...args) => armed && onRead?.(...args),

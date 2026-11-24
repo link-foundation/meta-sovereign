@@ -12,7 +12,14 @@ import { LINO_TEXT } from '../../src/transport/lino.js';
 /** Actual child + two native provider fixtures; every account and delivery is synthetic. */
 export const verifyNativeApplicationChats = async (
   browser,
-  { screenshots, before = false, choices = false, parentChoice = false } = {}
+  {
+    screenshots,
+    before = false,
+    choices = false,
+    parentChoice = false,
+    session = false,
+    parentSession = false,
+  } = {}
 ) =>
   withNativeApplicationChats(
     browser,
@@ -26,7 +33,11 @@ export const verifyNativeApplicationChats = async (
       const api = applicationRouteApi(fixture.base, LINO_TEXT);
       const shot = controls.screenshot(
         screenshots,
-        choices ? 'application-chat-choices' : 'application-chats'
+        choices
+          ? 'application-chat-choices'
+          : session
+            ? 'application-chat-session'
+            : 'application-chats'
       );
       const verifiesFocus = browser.browserType().name() === 'chromium';
       if (choices && !verifiesFocus) {
@@ -73,6 +84,40 @@ export const verifyNativeApplicationChats = async (
       await field('confirmBatch').check();
       const original = verifiesFocus ? null : (await stats()).chat;
       await button('start').click();
+      if (parentSession) {
+        await batch
+          .locator('[data-application-chats-phase="refused"]')
+          .waitFor({ timeout: 60000 });
+        assert.match(await batch.innerText(), /login-required/u);
+        await button('follow').click();
+        await controls.panel
+          .locator('[data-application-continuation="send"]')
+          .waitFor({ timeout: 60000 });
+        assert.equal(chat.url(), 'https://hh.ru/account/login');
+        assert.equal(
+          await chat.locator('h1').innerText(),
+          'Synthetic HeadHunter sign-in'
+        );
+        assert.equal((await stats()).chat, null);
+        await shot('before');
+        if (screenshots) {
+          await chat.screenshot({
+            path: join(
+              screenshots,
+              'application-chat-session-native-before.png'
+            ),
+          });
+        }
+        await button('stop').click();
+        await batch
+          .locator('[data-application-batch-phase="stopped"]')
+          .waitFor();
+        return {
+          loginRequired: true,
+          applicationContinued: true,
+          liveProvider: false,
+        };
+      }
       if (!verifiesFocus) {
         await batch
           .locator('[data-application-chats-phase="refused"]')
@@ -103,6 +148,19 @@ export const verifyNativeApplicationChats = async (
       assert(pid > 0 && pid !== process.pid);
       const heldChat = parentChoice ? '9' : '8';
       assert.equal(receipt.batch.chatWorker.held.chat, heldChat);
+      if (session) {
+        assert.deepEqual(
+          logs.filter(
+            (row) => row.event === 'application-chats-session-reused'
+          ),
+          [
+            {
+              event: 'application-chats-session-reused',
+              browserSlot: 'chat-slot',
+            },
+          ]
+        );
+      }
       assert.deepEqual((await stats()).chat, {
         draft: choices && !parentChoice ? '' : 'At 9 a.m.',
         sends: parentChoice ? 1 : 0,
@@ -132,7 +190,9 @@ export const verifyNativeApplicationChats = async (
             screenshots,
             choices
               ? `application-chat-choices-native-${parentChoice ? 'before' : 'after'}.png`
-              : 'application-chats-native-draft.png'
+              : session
+                ? 'application-chat-session-native-after.png'
+                : 'application-chats-native-draft.png'
           ),
           fullPage: true,
         });
@@ -180,6 +240,7 @@ export const verifyNativeApplicationChats = async (
       assert.deepEqual(fixture.errors, []);
       return {
         cases: 1,
+        ...(session ? { sessionReused: true } : {}),
         actualChild: true,
         independentNativeBrowsers: true,
         applicationDeliveries: 1,
@@ -188,12 +249,19 @@ export const verifyNativeApplicationChats = async (
         liveProvider: false,
       };
     },
-    { choices }
+    { choices, session }
   );
 
 export const verifyNativeApplicationChoiceHold = (browser) =>
   verifyNativeApplicationChats(browser, {
     choices: true,
     parentChoice: process.env.APPLICATION_CHAT_CHOICES_BEFORE === '1',
+    screenshots: process.env.APPLICATION_SCREENSHOTS,
+  });
+
+export const verifyNativeApplicationChatSession = (browser) =>
+  verifyNativeApplicationChats(browser, {
+    session: true,
+    parentSession: process.env.APPLICATION_CHAT_SESSION_BEFORE === '1',
     screenshots: process.env.APPLICATION_SCREENSHOTS,
   });

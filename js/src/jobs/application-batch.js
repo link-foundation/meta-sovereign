@@ -227,7 +227,9 @@ export class ApplicationBatch {
       await this.wait(0, runtime.controller.signal);
       if (runtime.record.options.processChats) {
         runtime.chats = this.service.createChats();
-        await runtime.chats.start(runtime.record);
+        await runtime.chats.start(runtime.record, {
+          applicationPage: () => this.chatApplicationPage(runtime),
+        });
       }
       while (!applicationBatchTerminal(runtime.record.phase)) {
         try {
@@ -517,6 +519,22 @@ export class ApplicationBatch {
     if (current.restoration?.state !== 'restored') {
       throw fail('changed');
     }
+  }
+  chatApplicationPage(runtime) {
+    const current = this.service.current;
+    if (
+      this.runtime === runtime &&
+      !runtime.controller.signal.aborted &&
+      !applicationBatchTerminal(runtime.record.phase) &&
+      current?.active &&
+      !current.closing &&
+      current.url === runtime.record.currentUrl &&
+      current.requestId === runtime.record.options.requestId &&
+      current.browserSlot === runtime.record.options.browserSlot
+    ) {
+      return current.browser?.page;
+    }
+    return null;
   }
   async observe(runtime, signal) {
     const current = this.service.current;

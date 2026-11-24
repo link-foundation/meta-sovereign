@@ -533,6 +533,7 @@
     "test:e2e:job-application-rejection": "node js/tests/e2e-job-application-rejection-browser.mjs",
     "test:e2e:job-application-batch": "node js/tests/e2e-job-application-batch-browser.mjs",
     "test:e2e:job-application-chat-choices": "node js/tests/e2e-job-application-chat-choices-browser.mjs",
+    "test:e2e:job-application-chat-session": "node experiments/issue-56/application-chat-session-browser.mjs",
     "test:e2e:job-application-confirmations": "node js/tests/e2e-job-application-confirmations-browser.mjs",
     "test:e2e:job-application-drafts": "node js/tests/e2e-job-application-drafts-browser.mjs",
     "test:e2e:job-application-language": "node js/tests/e2e-job-application-language-browser.mjs",

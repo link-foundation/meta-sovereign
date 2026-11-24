@@ -2053,3 +2053,10 @@ Native profile persistence follow-up:
 - [x] Reproduce generic refusal copy with the published bundle and verify both precise Settings messages, four languages and desktop and phone layouts. [Reproduction and screenshots](runner-launcher-preparation.md#dependency-refusals-in-settings).
 - [x] Reproduce the existing-Node and missing-npm startup failure against the published source. Verify private npm preparation on cold startup and warm reuse with npm and the private Node folder absent. [Reproduction](runner-launcher-preparation.md#nodejs-is-installed-and-npm-is-missing).
 - [ ] Verify the hosted SSH, native desktop and application dependency cases on the current source. Complete the supported OS backend and application preparation workflow.
+
+### 2026-11-24 Reuse the active application sign-in in the owned chat slot (HH01, HH10)
+
+- [x] Trace the pinned C2 behavior and reproduce the signed-out preparation and global profile fallback on the published parent.
+- [x] Resolve the chat profile in its workspace. Reuse secure HeadHunter cookies only from the active batch's verified signed-in page, into its separate signed-out chat context.
+- [x] Verify native signed-in readback, protected destinations, cancellation, workspace isolation and the absence of message sends. [Screenshots and evidence](application-chat-session.md).
+- [ ] Review exact hosted checks and complete authenticated provider acceptance.

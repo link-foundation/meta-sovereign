@@ -7,8 +7,52 @@ import {
 } from '../../../experiments/issue-56/chat-navigation-fixture.mjs';
 import { withChatNavigationFixture } from './e2e-chat-navigation.mjs';
 
+const fixtureCookie = {
+  name: 'application_fixture',
+  value: 'fixture-owner',
+  domain: '.hh.ru',
+  path: '/',
+  secure: true,
+  httpOnly: true,
+};
+export const signInFixture = (context) => context.addCookies([fixtureCookie]);
+
+const loginPage = (route) =>
+  route.fulfill({
+    contentType: 'text/html; charset=utf-8',
+    body: '<!doctype html><main><h1>Synthetic HeadHunter sign-in</h1><form action="/account/login" data-qa="account-login-form"><label>Email <input type="email"></label><button data-qa="account-login-submit">Sign in</button></form></main><script>history.replaceState(null, "", "/account/login");</script>',
+  });
+
+export const signedOutRoute = async (route, context) => {
+  const { pathname } = new URL(route.request().url());
+  if (pathname === '/account/login') {
+    await loginPage(route);
+    return true;
+  }
+  if (pathname === '/chat') {
+    // Some routed engines omit Cookie from the intercepted request headers.
+    const signedIn = context
+      ? (await context.cookies(route.request().url())).some(
+          ({ name, value }) =>
+            name === fixtureCookie.name && value === fixtureCookie.value
+        )
+      : (await route.request().allHeaders()).cookie
+          ?.split('; ')
+          .includes(`${fixtureCookie.name}=${fixtureCookie.value}`);
+    if (!signedIn) {
+      await loginPage(route);
+      return true;
+    }
+  }
+  return false;
+};
+
 /** Shared isolated native fixture for direct and independent MCP UI checks. */
-export const withNativeApplicationChats = (browser, work, { choices } = {}) =>
+export const withNativeApplicationChats = (
+  browser,
+  work,
+  { choices, session = false } = {}
+) =>
   withChatNavigationFixture(
     browser,
     {
@@ -20,17 +64,22 @@ export const withNativeApplicationChats = (browser, work, { choices } = {}) =>
           : {}),
       }),
       senderOptions: { slot: 'chat-slot' },
+      routePage: session ? signedOutRoute : undefined,
     },
     async ({ sender, page: chat }) => {
       let child;
       let chatStats;
       const stats = async () => {
         if (!chat.isClosed()) {
-          chatStats = await chat.evaluate(() => ({
-            sends: window.fixture.sends,
-            unreadNext: window.fixture.unread['9'],
-            draft: document.querySelector('textarea').value,
-          }));
+          chatStats = await chat.evaluate(() =>
+            window.fixture
+              ? {
+                  sends: window.fixture.sends,
+                  unreadNext: window.fixture.unread['9'],
+                  draft: document.querySelector('textarea').value,
+                }
+              : null
+          );
         }
         return {
           chat: chatStats,
@@ -42,6 +91,7 @@ export const withNativeApplicationChats = (browser, work, { choices } = {}) =>
       const logs = [];
       const fixture = await applicationNativeFixture(browser, {
         vacancyIds: ['123', '456'],
+        prepareContext: session ? signInFixture : undefined,
         application: {
           createChats: () => {
             child = new ApplicationChats({

@@ -21,21 +21,25 @@ const withFixture = async (
     onMove,
     choiceReceiptMs = 10000,
     senderOptions = {},
+    routePage,
   } = {},
   run
 ) => {
   const context = await browser.newContext({
     viewport: { width: 1024, height: 900 },
   });
-  await context.route('**/*', (route) =>
-    route.fulfill({
+  await context.route('**/*', async (route) => {
+    if (await routePage?.(route)) {
+      return;
+    }
+    return route.fulfill({
       contentType: 'text/html',
       body:
         frames && new URL(route.request().url()).hostname === 'hh.ru'
           ? hhChatScanOwner(frames)
           : html,
-    })
-  );
+    });
+  });
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.message));

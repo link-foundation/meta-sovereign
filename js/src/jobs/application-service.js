@@ -95,6 +95,7 @@ class ApplicationService {
     createChats = () =>
       new ApplicationChats({
         store,
+        storeDir,
         openSession,
         runner: chatRunner,
         prefillLinkedForm,

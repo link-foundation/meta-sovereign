@@ -75,6 +75,18 @@ const inspect = async (page, config) => {
       initial.chat.unreadNext === 1,
     'Held unsent draft; next chat untouched'
   );
+  const sessionReused = initial.logs.some(
+    ({ event }) => event === 'application-chats-session-reused'
+  );
+  if (config.session) {
+    check(sessionReused, 'HeadHunter chat list confirmed the reused session');
+    check(
+      (await batch.innerText()).includes(
+        'reuse your active HeadHunter application sign-in'
+      ),
+      'Application custom session reuse is explained before choosing an account'
+    );
+  }
   await page.screenshot({
     path: `${config.screenshots}/mcp-application-chats.png`,
     fullPage: true,
@@ -120,7 +132,15 @@ const inspect = async (page, config) => {
     'Stop drains without sending chat text'
   );
   check(!errors.length, errors.join(', '));
-  return { cases: 1, locales, errors, initial, stopped, liveProvider: false };
+  return {
+    cases: 1,
+    locales,
+    errors,
+    initial,
+    stopped,
+    sessionReused,
+    liveProvider: false,
+  };
 };
 
 /** Browser-only inspection; native fixtures run in a separate owned process. */
@@ -129,5 +149,9 @@ export const applicationChatsMcpCode = (metadata) =>
     ...metadata,
     key: TUTORIAL_STORAGE_KEY,
     version: TUTORIAL_VERSION,
-    screenshots: resolve('docs/screenshots/issue-56-application-chats'),
+    screenshots: resolve(
+      metadata.session
+        ? 'docs/screenshots/issue-56-application-chat-session'
+        : 'docs/screenshots/issue-56-application-chats'
+    ),
   });
