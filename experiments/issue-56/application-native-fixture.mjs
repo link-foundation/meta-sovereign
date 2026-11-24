@@ -4,6 +4,7 @@ import { vacancySnapshotFixture } from './vacancy-fixture.mjs';
 import { applicationResumeHtml } from './application-resume-html.mjs';
 
 const html = (value) => value.replaceAll('&', '&amp;').replaceAll('<', '&lt;');
+const vacancy = vacancySnapshotFixture();
 export const applicationNativeHtml = ({
   response = false,
   popup = false,
@@ -11,15 +12,14 @@ export const applicationNativeHtml = ({
   questionLabel,
   vacancyId = '123',
   salary,
+  description = vacancy.description,
   ownerAnswers,
   signedIn = false,
-} = {}) => {
-  const vacancy = vacancySnapshotFixture();
-  return `<!doctype html><html><body>
+} = {}) => `<!doctype html><html><body>
     ${signedIn ? '<a data-qa="mainmenu_applicantProfilePage" href="/applicant/resumes">Application fixture account</a>' : ''}
     <h1 data-qa="vacancy-title">${html(vacancy.title)}</h1>
     ${salary === undefined ? '' : `<span data-qa="vacancy-salary">${html(salary)}</span>`}
-    <div data-qa="vacancy-description">${html(vacancy.description)}</div>
+    <div data-qa="vacancy-description">${html(description)}</div>
     <span data-qa="skills-element">Python</span>
     <label>Header search<input id="header" value="Owner header"></label>
     <button data-qa="vacancy-response-link-top" onclick="openApplication()">Apply</button>
@@ -56,7 +56,6 @@ export const applicationNativeHtml = ({
           : ''
       }
     </script></body></html>`;
-};
 
 export const applicationNativeFixture = async (
   browser,
@@ -70,6 +69,7 @@ export const applicationNativeFixture = async (
     vacancyIds = ['123'],
     onApplicationClose,
     salary,
+    description,
     ownerAnswers,
     prepareContext,
   } = {}
@@ -100,6 +100,7 @@ export const applicationNativeFixture = async (
             popup,
             resumeChooser,
             questionLabel,
+            description,
             signedIn: Boolean(prepareContext),
             salary:
               typeof salary === 'function'

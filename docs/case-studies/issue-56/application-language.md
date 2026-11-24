@@ -50,6 +50,10 @@ owner edits, four-locale read-only recovery, phone layout, zero entry/send click
 and closed fixtures with no scenario errors. Initial draft failures, the stale
 fixture closure, failed-save stale revision and correction logs remain archived.
 
+The follow-up regression preserves the association between a salary question
+and its own instructions when another field contains a shell prompt.
+[Separate dollar-pay fields](application-dollar-context.md)
+
 The published-parent hosted macOS Node shard failed before tests: a GitHub connection
 failure while fetching main, at lines 371–372 of
 `application-language-parent-macos-node-132417924355.log`. This establishes a network

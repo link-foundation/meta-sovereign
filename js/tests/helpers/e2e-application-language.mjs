@@ -54,6 +54,7 @@ export const verifyNativeApplicationLanguage = async (
     await panel
       .locator('[data-application-resume-preference="automatic"]')
       .waitFor();
+    await shot('salary-context');
     const owned = nativeApplicationForm(browser);
     assert(owned, 'Policy did not open the full native form.');
     assert.deepEqual(await counters(owned), {

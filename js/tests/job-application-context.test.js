@@ -99,6 +99,41 @@ test('employer language precedence excludes shell dollars and prefers full conte
 });
 
 test(
+  'a shell dollar in a separate employer field cannot select an English CV',
+  { timeout: 5000 },
+  async (t) => {
+    const salary = 'Какую зарплату вы ожидаете в рублях?';
+    const shell = 'Приведите результат команды: $ make test';
+    assert.deepEqual(resumeContextDecision({ questions: [salary, shell] }), {
+      language: 'ru',
+      reason: 'questions',
+    });
+    const fixture = await applicationContextFixture(t, {
+      vacancy: { description: shell, salary: '200000 RUB' },
+    });
+    fixture.state.fields[1].label = salary;
+    const read = (receipt) =>
+      fixture.service['application-read'](identity(receipt));
+    const receipt = await read(fixture.entered);
+    assert.deepEqual(receipt.resumeContext, {
+      language: 'ru',
+      reason: 'questions',
+    });
+    const result = await fixture.context(receipt);
+    assert.equal(result.resumeSelection.languageProof.language, 'ru');
+
+    fixture.state.fields[1].label = 'Ожидаемая зарплата';
+    fixture.state.fields[1].description = 'Укажите в $ или рублях.';
+    const sameQuestion = await read(result);
+    assert.deepEqual(sameQuestion.resumeContext, {
+      language: 'en',
+      reason: 'dollar-pay',
+    });
+    assert.equal(fixture.state.submitted, 0);
+  }
+);
+
+test(
   'context chooses from checked exports, preserves owner values and never enters or sends',
   { timeout: 5000 },
   async (t) => {

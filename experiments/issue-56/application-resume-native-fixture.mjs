@@ -37,7 +37,11 @@ export const applicationResumeNativeFixture = async (
       artifactRoot: evidence.artifactRoot,
       resumeChooser: true,
       ...(language
-        ? { questionLabel: 'Расскажите о вашем последнем опыте работы' }
+        ? {
+            questionLabel: 'Какую зарплату вы ожидаете в рублях?',
+            description: 'Приведите результат команды: $ make test',
+            salary: '200000 RUB',
+          }
         : {}),
       application: diagnosticApplication,
     });

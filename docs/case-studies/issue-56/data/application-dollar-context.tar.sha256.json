@@ -1,0 +1,28 @@
+{
+  "archive": "application-dollar-context.tar.gz",
+  "files": {
+    "before/js/src/jobs/application-resume-context.js": "ac0b916e0822bf3b937df153ca13bdb688ba9f8831070d3d6f67a9481adbd331",
+    "ci-logs/application-dollar-context-browser-final.log": "820b5443fce7a31e78c9b3e08a6dd61a01f7c7acf6ca52b8d8fcdc0c05010ca4",
+    "ci-logs/application-dollar-context-browser-parent.log": "7e6fe37ab781f267e2ddbc03c3a44124fcf0ccb98124e4caf44598a65ed226a5",
+    "ci-logs/application-dollar-context-browser.log": "360b629fc5bcb94753661b62d777c3f3595ea1aa52f1a84dd172e899fc3018ae",
+    "ci-logs/application-dollar-context-deno.log": "f11c31a25b855f0f4956ded005700b2268de820bb7fe58b0269f6d57e123c8db",
+    "ci-logs/application-dollar-context-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/application-dollar-context-lint.log": "ed0f5f553f69727b4b55b7d217da581815258d4aae640b04852416573dc8fd62",
+    "ci-logs/application-dollar-context-mcp-result.log": "d4708a7bd0a44e2c8c4b46b82b8ab6e7d94614c20e349fab9e57e79925d1f129",
+    "ci-logs/application-dollar-context-mcp-server.log": "011cd17c4ab00afbdf07ae61bf66d0fe971eb19cc663e8bb07640caa40d9d5c7",
+    "ci-logs/application-dollar-context-node.log": "400e8cee68eb074528dac158716a164ab5dbafbe044d11c197233394dfa4418a",
+    "ci-logs/application-dollar-context-parent-lint.log": "57241ea8bbe39661484b23ecbd109b35361efb23cad53101f1526d00bce64930",
+    "ci-logs/application-dollar-context-parent.log": "97587f70619ad127ac33606c2f94c86c088e77854a6981319ba996bdb35d8a16",
+    "ci-logs/application-dollar-context-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/case-studies/issue-56/application-dollar-context.md": "d1b07f6056a38c8e4bfdb252371d4c9a05cb17cd1c900859a869c46139b4cea6",
+    "docs/case-studies/issue-56/application-language.md": "9221daed9e762873a56b40613692f0343cd00b21642cc81cf797bf4ef00da133",
+    "experiments/issue-56/application-native-fixture.mjs": "7fa1a741a3cfe6cb9069558b0f5f753bef8dbddbae1bf13fdb965e5ad45db8f4",
+    "experiments/issue-56/application-resume-native-fixture.mjs": "89e5cc21f10438b344cc267cb78fcffd2e12482876571784394ed6beaf85c88f",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "js/src/jobs/application-resume-context.js": "42ce449e93a121a409a3c5a358b37ab6d0f5c33a239f07119d6b17fde385b5cb",
+    "js/tests/helpers/e2e-application-language.mjs": "9556ef2ba3b2275585b1d98249e1a5f073d2bad98e6972bab13a707a8da26aee",
+    "js/tests/job-application-context.test.js": "60503f08d21b435d7a85d165b8f06320e2550fba49a9b191a811c58fb78ef81c",
+    "metadata.json": "db4b02e0751d34c656a3541f7e493230c3b2ceee0c8db43d00a63a928872a8a9"
+  }
+}

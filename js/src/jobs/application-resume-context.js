@@ -31,7 +31,7 @@ export const resumeContextDecision = ({
 } = {}) => {
   const questionText = questions.join('\n');
   const description = vacancy.description ?? '';
-  if (dollarPay([questionText, vacancy.salary ?? '', description].join('\n'))) {
+  if ([...questions, vacancy.salary ?? '', description].some(dollarPay)) {
     return { language: 'en', reason: 'dollar-pay' };
   }
   for (const [reason, text] of [
@@ -90,11 +90,9 @@ export const applicationResumeContext = (record) => {
     if (!completeQuestions(report, page, fields)) {
       return { language: null, reason: 'unreadable' };
     }
-    questions = fields.flatMap((field) => [
-      field.group?.label ?? '',
-      field.label,
-      field.description,
-    ]);
+    questions = fields.map((field) =>
+      [field.group?.label, field.label, field.description].join('\n')
+    );
   }
   return resumeContextDecision({ questions, vacancy });
 };
