@@ -6,6 +6,7 @@ import {
 } from '../../experiments/issue-56/application-search-route-fixture.mjs';
 import { applicationFullFormFixture } from '../../experiments/issue-56/application-fullform-fixture.mjs';
 import { applicationInput } from '../../experiments/issue-56/application-fixture.mjs';
+import { applicationIdentity } from '../../experiments/issue-56/application-run-fixture.mjs';
 import { applicationSettings } from '../src/jobs/application-options.js';
 import { createVacancyService } from '../src/jobs/service.js';
 
@@ -14,6 +15,54 @@ const unsent = (fixture) => {
   assert.equal(fixture.state.submitted, 0);
   assert.deepEqual(fixture.state.writes, []);
 };
+
+const submit = (fixture, receipt) =>
+  fixture.service['application-advance'](
+    applicationIdentity(receipt, { action: 'submit', confirm: true })
+  );
+
+test('a confirmed native send returns once to the frozen search even if the card is filtered out', async (t) => {
+  const fixture = await applicationSearchRouteFixture(t);
+  const form = await fixture.form();
+  const sent = await submit(fixture, form);
+  assert.equal(sent.state, 'delivered');
+  assert.equal(sent.delivery, 'provider-confirmed');
+  assert.equal(sent.page.url, originalApplicationSearch);
+  assert.equal(sent.page.delivered, false);
+  assert.equal(sent.page.submit, null);
+  const identity = applicationIdentity(sent);
+  const refreshed = await fixture.service['application-read'](identity);
+  assert.equal(refreshed.state, 'delivered');
+  assert.deepEqual(fixture.state.routes, [
+    originalApplicationSearch,
+    'full-form',
+    originalApplicationSearch,
+  ]);
+  assert.equal(fixture.state.returnAttempts, 1);
+  assert.equal(fixture.state.submitted, 1);
+  await fixture.service.stop();
+  const recovered = createVacancyService(fixture.serviceOptions);
+  t.after(() => recovered.stop());
+  const saved = await recovered['application-status'](applicationInput);
+  assert.equal(saved.delivery, 'provider-confirmed');
+  assert.equal(fixture.state.returnAttempts, 1);
+});
+
+test('a changed document refuses return and retains the confirmed delivery receipt', async (t) => {
+  const fixture = await applicationSearchRouteFixture(t);
+  const form = await fixture.form();
+  fixture.state.returnCheckpoint = () => {
+    fixture.state.page.documentKey = 'owner-replaced-document';
+  };
+  const sent = await submit(fixture, form);
+  assert.equal(sent.delivery, 'provider-confirmed');
+  assert.equal(fixture.state.returnAttempts, 1);
+  assert.deepEqual(fixture.state.routes, [
+    originalApplicationSearch,
+    'full-form',
+  ]);
+  assert.equal(fixture.state.submitted, 1);
+});
 
 test(
   'search route preserves original filters and reaches full-form review without clicking Apply',

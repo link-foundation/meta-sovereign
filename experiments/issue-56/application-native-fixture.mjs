@@ -51,6 +51,7 @@ export const applicationNativeHtml = ({
             form.onsubmit=(event)=>{
               event.preventDefault();
               globalThis.fixtureAttachmentSends++;
+              sessionStorage.setItem('fixture-letter-sends', String(Number(sessionStorage.getItem('fixture-letter-sends') ?? 0) + 1));
               globalThis.fixtureAttachedLetter=form.querySelector('textarea').value;
               form.remove();
               offer.remove();
@@ -63,6 +64,7 @@ export const applicationNativeHtml = ({
         document.querySelector('#native-form').onsubmit=(event)=>{
           event.preventDefault();
           globalThis.applicationAttempts++;
+          sessionStorage.setItem('fixture-application-sends', String(Number(sessionStorage.getItem('fixture-application-sends') ?? 0) + 1));
           globalThis.deliveredLetter=document.querySelector('[data-qa="vacancy-response-form-letter-input"]')?.value;
           document.querySelector('#application').innerHTML='<a data-qa="vacancy-response-link-view-topic">Application delivered</a>';
         };

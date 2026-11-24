@@ -12,6 +12,8 @@ export const enApplication = {
   'application.routeVacancy': 'Full-form review route: vacancy → full form.',
   'application.routeSearch':
     'Full-form review route: vacancy → original search → full form.',
+  'application.originalSearchOpen':
+    'The original search is open in the HeadHunter browser.',
   'application.vacancyPreviewSeconds':
     'Vacancy preview before entry (0–30 seconds)',
   'application.vacancyPreviewHint':
@@ -223,6 +225,8 @@ export const enApplication = {
     'The native action was refused. Read the page again before continuing.',
   'application.read': 'Read current native page',
   'application.enterWithLanguage': 'Open full form and check CV language',
+  'application.enterFromSearch':
+    'Open the application from the original search',
   'application.enter': 'Enter application (may send immediately)',
   'application.prefill': 'Fill verified exact answers and letter',
   'application.prefillAutomatic':

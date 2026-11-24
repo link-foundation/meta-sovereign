@@ -1,4 +1,5 @@
 export const hiApplication = {
+  'application.originalSearchOpen': 'मूल खोज HeadHunter ब्राउज़र में खुली है।',
   'application.attention.waiting':
     'जारी रखने के लिए {slot} में HeadHunter का सत्यापन पूरा करें।',
   'application.attention.notification':
@@ -225,6 +226,7 @@ export const hiApplication = {
     'मूल क्रिया अस्वीकार हुई। आगे बढ़ने से पहले पेज फिर पढ़ें।',
   'application.read': 'वर्तमान मूल पेज पढ़ें',
   'application.enterWithLanguage': 'पूरा फ़ॉर्म खोलें और CV की भाषा जाँचें',
+  'application.enterFromSearch': 'मूल खोज से आवेदन खोलें',
   'application.enter': 'आवेदन खोलें (तुरंत भेजा जा सकता है)',
   'application.prefill': 'सत्यापित सटीक उत्तर और पत्र भरें',
   'application.prefillAutomatic':

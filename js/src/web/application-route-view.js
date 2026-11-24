@@ -1,4 +1,5 @@
 import React from 'react';
+import { sameSearch } from '../jobs/options.js';
 
 const el = React.createElement;
 export const ApplicationRouteSettings = ({ options, setOptions, t }) =>
@@ -44,16 +45,27 @@ export const ApplicationRouteSettings = ({ options, setOptions, t }) =>
     ]),
   ]);
 
-export const ApplicationRouteReceipt = ({ receipt, t }) =>
-  el(
-    'p',
-    {
-      'data-application-route':
-        receipt.applyFromVacancyPage === false ? 'search' : 'vacancy',
-    },
-    t(
-      receipt.applyFromVacancyPage === false
-        ? 'application.routeSearch'
-        : 'application.routeVacancy'
-    )
+export const ApplicationRouteReceipt = ({ receipt, t }) => {
+  const throughSearch = receipt.applyFromVacancyPage === false;
+  const searchOpen =
+    receipt.active &&
+    receipt.state === 'delivered' &&
+    receipt.page?.bound &&
+    sameSearch(receipt.page.url, receipt.applicationSearchUrl);
+  return el(
+    React.Fragment,
+    null,
+    el(
+      'p',
+      { 'data-application-route': throughSearch ? 'search' : 'vacancy' },
+      t(throughSearch ? 'application.routeSearch' : 'application.routeVacancy')
+    ),
+    searchOpen
+      ? el(
+          'p',
+          { 'data-application-search-open': '', role: 'status' },
+          t('application.originalSearchOpen')
+        )
+      : null
   );
+};

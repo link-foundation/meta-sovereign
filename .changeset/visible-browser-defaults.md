@@ -13,6 +13,10 @@ Look for a separate letter on the exact card when a HeadHunter application
 review uses its original search. Fall back to the matching vacancy when the
 owned search can be left safely (issue #56, HH06 and HH08).
 
+Return the owned HeadHunter browser to its original search after a confirmed
+application or separate letter when the search route is configured. Keep the
+delivery receipt when the search filters hide the vacancy (issue #56, HH06).
+
 Reuse same-language approved thanks for recognized HeadHunter application
 updates in the explicitly selected inactive notice policy. Verify full chat
 history and keep actionable messages in review (issue #56, QA17).

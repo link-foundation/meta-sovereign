@@ -658,7 +658,8 @@ export const applicationDocument = (target, input) => {
     return result;
   }
   const attachmentNavigation = () => {
-    const toSearch = input.action === 'attachmentSearch';
+    const completed = input.action === 'returnSearch';
+    const toSearch = completed || input.action === 'attachmentSearch';
     const destination = toSearch ? searchDestination() : expected;
     const allowed = toSearch
       ? bound &&
@@ -671,8 +672,10 @@ export const applicationDocument = (target, input) => {
         !result.resumeNotVisible &&
         !result.vacancyUnavailable &&
         !navigationBlocked() &&
+        (!completed || !unique(selectors.submit)) &&
         !result.attachment?.submit &&
-        (!result.attachment?.pending || result.attachment?.offer) &&
+        (!result.attachment?.pending ||
+          (!completed && result.attachment?.offer)) &&
         !doc.querySelector(
           `${selectors.attachmentWrite}, ${selectors.attachmentSend}`
         )
@@ -683,7 +686,11 @@ export const applicationDocument = (target, input) => {
     globalThis.location.assign(destination.href);
     return { navigated: true };
   };
-  if (['attachmentSearch', 'attachmentVacancy'].includes(input.action)) {
+  if (
+    ['attachmentSearch', 'attachmentVacancy', 'returnSearch'].includes(
+      input.action
+    )
+  ) {
     return attachmentNavigation();
   }
   const navigateFullForm = () => {

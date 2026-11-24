@@ -111,9 +111,16 @@ export const verifyNativeSearchLetterAttachment = async (
     await confirmed.waitFor();
     if (mode === 'fallback') {
       assert.equal(
-        await owned.evaluate(() => globalThis.fixtureAttachmentSends),
-        1
+        await owned.evaluate(() =>
+          globalThis.sessionStorage.getItem('fixture-letter-sends')
+        ),
+        '1'
       );
+      assert.equal(owned.url(), originalApplicationSearch);
+      assert.deepEqual(fixture.searches, [
+        originalApplicationSearch,
+        originalApplicationSearch,
+      ]);
     } else {
       assert.deepEqual(await owned.evaluate(() => globalThis.letterSends), [
         { id: '123', text: letter },

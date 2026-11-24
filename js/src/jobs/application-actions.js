@@ -14,6 +14,7 @@ import {
 } from './application-review.js';
 import { readApplicationJournal } from './application-journal.js';
 import { observeVacancySkip } from './vacancy-skip-service.js';
+import { returnDeliveredApplicationToSearch } from './application-search-route.js';
 import {
   applicationLetterRequested,
   applicationLetterText,
@@ -114,7 +115,8 @@ export class ApplicationActions {
     } finally {
       await handle.dispose();
     }
-    return this.settle(record, action, signal);
+    await this.settle(record, action, signal);
+    return returnDeliveredApplicationToSearch(service, record, signal);
   }
   admitAdvance(record, input) {
     if (

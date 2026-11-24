@@ -15,6 +15,9 @@ Stop refuse navigation. It makes no Apply/Send click or delivery reservation.
 Existing direct Apply behavior with automatic CV language selection disabled
 is retained and explained in the UI.
 
+[Confirmed post-delivery return](application-delivered-return.md) now restores
+the original search after a successful send when the route is configured.
+
 `--apply-from-vacancy-page`, `--no-apply-from-vacancy-page`,
 `APPLY_FROM_VACANCY_PAGE` and selected/current Lino configuration resolve through
 the existing configuration layer. `--application-search-url` optionally selects

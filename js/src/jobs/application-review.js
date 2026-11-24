@@ -219,6 +219,14 @@ export class ApplicationReview {
     record.continuation = null;
     record.page = await attachment.readPage(record);
     record.state = applicationState(record.page);
+    if (
+      record.returnedToSearch &&
+      record.page.returnSafe &&
+      record.state === 'unavailable'
+    ) {
+      // The search may filter out the vacancy. Its separately saved receipt still holds.
+      record.state = 'delivered';
+    }
     this.service.holds.observe(record);
     await this.service.limits.observe(record);
     await this.service.pacing.observe(record, signal);

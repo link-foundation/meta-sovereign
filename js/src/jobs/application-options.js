@@ -202,6 +202,7 @@ export const applicationView = (record) => {
             'attachment',
             'attachmentSearch',
             'returnSafe',
+            'searchKey',
             'fieldIndices',
             'questionIndices',
             'resumeIndices',

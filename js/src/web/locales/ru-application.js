@@ -1,4 +1,6 @@
 export const ruApplication = {
+  'application.originalSearchOpen':
+    'Исходный поиск открыт в браузере HeadHunter.',
   'application.attention.waiting':
     'Чтобы продолжить, пройдите проверку HeadHunter в {slot}.',
   'application.attention.notification':
@@ -234,6 +236,7 @@ export const ruApplication = {
   'application.read': 'Перечитать текущую страницу',
   'application.enterWithLanguage':
     'Открыть полную форму и проверить язык резюме',
+  'application.enterFromSearch': 'Открыть отклик из исходного поиска',
   'application.enter': 'Войти в отклик (возможна немедленная отправка)',
   'application.prefill': 'Заполнить точные проверенные ответы и письмо',
   'application.prefillAutomatic':

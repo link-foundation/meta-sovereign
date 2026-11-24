@@ -12,6 +12,7 @@ import {
 } from './application-options.js';
 import { applicationPreservationPolicy } from './application-run-modes.js';
 import { applicationRouteView } from './application-route-settings.js';
+import { returnDeliveredApplicationToSearch } from './application-search-route.js';
 import { sameSearch } from './options.js';
 
 const popup = (page) => {
@@ -198,7 +199,7 @@ export class ApplicationAttachment {
       await handle.dispose();
     }
     await this.settle(record, page.documentKey, signal);
-    return applicationView(record);
+    return returnDeliveredApplicationToSearch(service, record, signal);
   }
 
   async dispatchReserved(handle, record, text, check) {

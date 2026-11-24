@@ -1,4 +1,5 @@
 export const zhApplication = {
+  'application.originalSearchOpen': '原搜索已在 HeadHunter 浏览器中打开。',
   'application.attention.waiting': '请在 {slot} 中完成 HeadHunter 验证以继续。',
   'application.attention.notification':
     '一份 HeadHunter 求职申请需要您完成验证。',
@@ -189,6 +190,7 @@ export const zhApplication = {
   'application.refused': '原生操作被拒绝。继续前请重新读取页面。',
   'application.read': '读取当前原生页面',
   'application.enterWithLanguage': '打开完整申请表并核对简历语言',
+  'application.enterFromSearch': '从原搜索打开申请',
   'application.enter': '进入申请（可能立即发送）',
   'application.prefill': '填写已验证的精确答案和求职信',
   'application.prefillAutomatic': '填写精确答案并在审核延时后发送',

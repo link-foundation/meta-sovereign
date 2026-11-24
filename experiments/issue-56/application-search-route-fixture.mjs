@@ -14,8 +14,18 @@ export const applicationSearchRouteFixture = async (t, input = {}) => {
   await fixture.service.stop();
   const { state } = fixture;
   state.routes = [];
+  state.returnAttempts = 0;
   const dispatch = fixture.serviceOptions.application.dispatch;
   fixture.serviceOptions.application.dispatch = async (...args) => {
+    if (args[2] === 'submit') {
+      const result = await dispatch(...args);
+      Object.assign(state.page, {
+        questions: false,
+        scope: false,
+        submit: null,
+      });
+      return result;
+    }
     if (args[2] !== 'search') {
       return dispatch(...args);
     }
@@ -48,6 +58,38 @@ export const applicationSearchRouteFixture = async (t, input = {}) => {
     const result = await dispatch(null, record, 'fullForm');
     state.page.bound = true;
     return result;
+  };
+  fixture.serviceOptions.application.attachmentDocument = async (
+    _browser,
+    record,
+    action,
+    guard
+  ) => {
+    if (!action) {
+      return globalThis.structuredClone(state.page);
+    }
+    if (action !== 'returnSearch') {
+      return { navigated: false };
+    }
+    state.returnAttempts++;
+    await state.returnCheckpoint?.();
+    if (guard !== JSON.stringify(state.page)) {
+      return { navigated: false };
+    }
+    const url = record.options.applicationSearchUrl;
+    state.routes.push(url);
+    state.page = {
+      ...state.page,
+      url,
+      documentKey: 'returned-to-original-search',
+      delivered: false,
+      scope: false,
+      questions: false,
+      submit: null,
+      returnSafe: true,
+      attachmentSearch: true,
+    };
+    return { navigated: true };
   };
   fixture.service = createVacancyService(fixture.serviceOptions);
   fixture.opened = await fixture.service['application-open']({

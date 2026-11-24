@@ -404,9 +404,11 @@ const NativeControls = ({ application, idle, confirmed, t }) => {
       button(
         'enter',
         t(
-          receipt.autoSelectResumeLanguage
-            ? 'application.enterWithLanguage'
-            : 'application.enter'
+          receipt.applyFromVacancyPage === false
+            ? 'application.enterFromSearch'
+            : receipt.autoSelectResumeLanguage
+              ? 'application.enterWithLanguage'
+              : 'application.enter'
         ),
         action('Advance', { action: 'enter', confirm: true }),
         !canEnter(admitted && payAllowed, confirmed, receipt)
@@ -416,9 +418,11 @@ const NativeControls = ({ application, idle, confirmed, t }) => {
         ? button(
             'reenter',
             t(
-              receipt.autoSelectResumeLanguage
-                ? 'application.enterWithLanguage'
-                : 'application.reenter'
+              receipt.applyFromVacancyPage === false
+                ? 'application.enterFromSearch'
+                : receipt.autoSelectResumeLanguage
+                  ? 'application.enterWithLanguage'
+                  : 'application.reenter'
             ),
             action('Advance', { action: 'reenter', confirm: true }),
             !admitted || !confirmed || !payAllowed

@@ -9,7 +9,8 @@ letter**. The application remains confirmed while letter delivery is checked
 separately.
 
 If the exact search has no eligible card offer, the worker can return to the same
-vacancy and prepare its separate offer. Duplicate cards, a different search,
+vacancy and prepare its separate offer. A [confirmed send from that fallback](application-delivered-return.md)
+returns to the original search. Duplicate cards, a different search,
 native verification, and open drafts prevent automatic navigation or dispatch.
 If the popup already has different text, the review keeps the owner's draft open.
 When neither page offers the letter, the outcome retains the vacancy for manual

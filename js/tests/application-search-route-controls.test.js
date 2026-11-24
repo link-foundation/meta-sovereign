@@ -53,13 +53,32 @@ for (const type of [LINO_TEXT, LINO_BINARY]) {
             applicationResult({ ...receipt, ...change }, input)
           );
         }
-        await api.vacancyApplicationClose({
+        const form = await api.vacancyApplicationAdvance({
           ...input,
           revision: receipt.revision,
+          action: 'enter',
+          confirm: true,
+        });
+        const sent = await api.vacancyApplicationAdvance({
+          ...input,
+          revision: form.revision,
+          action: 'submit',
+          confirm: true,
+        });
+        assert.equal(sent.delivery, 'provider-confirmed');
+        assert.equal(sent.page.url, originalApplicationSearch);
+        await api.vacancyApplicationClose({
+          ...input,
+          revision: sent.revision,
         });
         const status = await api.vacancyApplicationStatus(input);
         assert.equal(status.applyFromVacancyPage, false);
-        assert.deepEqual(fixture.state.routes, []);
+        assert.equal(status.delivery, 'provider-confirmed');
+        assert.deepEqual(fixture.state.routes, [
+          originalApplicationSearch,
+          'full-form',
+          originalApplicationSearch,
+        ]);
       });
     }
   );
