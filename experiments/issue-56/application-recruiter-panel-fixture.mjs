@@ -3,6 +3,8 @@ import { originalApplicationSearch } from './application-search-route-fixture.mj
 
 export const recruiterPanelChatUrl = 'https://chatik.hh.ru/chat/456';
 export const recruiterPanelDraft = 'I am reviewing the interview details.';
+export const recruiterPanelQuestion = 'Could you confirm your availability?';
+export const recruiterPanelReply = 'I can start on December 7.';
 const panel = `<aside data-qa="chatik-root" aria-label="Recruiter chat" style="position:fixed;inset:20px 20px auto auto;width:360px;border:1px solid #aaa;padding:12px;background:#fff">
   <button type="button" onclick="this.closest('aside').hidden = true">Close recruiter panel</button>
   <iframe title="Recruiter chat" src="${recruiterPanelChatUrl}" style="display:block;width:100%;height:200px;border:0"></iframe>
@@ -10,7 +12,7 @@ const panel = `<aside data-qa="chatik-root" aria-label="Recruiter chat" style="p
 
 export const applicationRecruiterPanelFixture = async (
   browser,
-  { panelDelayMs = 0 } = {}
+  { panelDelayMs = 0, ownerReply = false } = {}
 ) => {
   const searchVisits = [];
   const effects = [];
@@ -43,8 +45,33 @@ export const applicationRecruiterPanelFixture = async (
         contentType: 'text/html; charset=utf-8',
         body: `<!doctype html><html><body><h2 data-qa="participant-info-title">Recruiter chat</h2>
           <div data-qa="chatik-header-sub-header"><a href="https://hh.ru/vacancy/123">Python engineer</a></div>
-          <article data-qa="chatik-chat-message-1"><p data-qa="chat-bubble-text">Could you confirm your availability?</p></article>
-          <label>Your reply <textarea data-qa="text-input">${recruiterPanelDraft}</textarea></label></body></html>`,
+          <article data-qa="chatik-chat-message-1" data-time="2026-11-24T09:00:00Z"><p data-qa="chat-bubble-text">${recruiterPanelQuestion}</p></article>
+          <label>Your reply <textarea data-qa="text-input">${recruiterPanelDraft}</textarea></label>
+          ${
+            ownerReply
+              ? `<button type="button" data-qa="send-message">Send reply</button>
+          <script>
+            globalThis.fixtureRecruiterSends=0;
+            document.querySelector('[data-qa="send-message"]').onclick=()=>{
+              const input=document.querySelector('[data-qa="text-input"]');
+              if (!input.value.trim() || globalThis.fixtureRecruiterSends) return;
+              globalThis.fixtureRecruiterSends++;
+              const row=document.createElement('article');
+              row.dataset.qa='chatik-chat-message-2';
+              row.dataset.time='2026-11-24T09:01:00Z';
+              const body=document.createElement('p');
+              body.dataset.qa='chat-bubble-text';
+              body.textContent=input.value;
+              const delivery=document.createElement('span');
+              delivery.dataset.qa='status-icon-pending';
+              delivery.textContent='Sending';
+              row.append(body,delivery);
+              input.closest('label').before(row);
+              input.value='';
+            };
+          </script>`
+              : ''
+          }</body></html>`,
       });
       return true;
     },

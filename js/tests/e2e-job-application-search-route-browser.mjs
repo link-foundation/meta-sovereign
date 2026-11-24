@@ -6,5 +6,6 @@ import { verifyNativeApplicationRecruiterPanel } from './helpers/e2e-application
 await runBrowserScenarios('job-application-search-route', [
   verifyNativeApplicationSearchRoute,
   verifyNativeApplicationDeliveredReturn,
-  verifyNativeApplicationRecruiterPanel,
+  (browser) =>
+    verifyNativeApplicationRecruiterPanel(browser, { ownerReply: true }),
 ]);

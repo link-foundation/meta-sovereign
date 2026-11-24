@@ -1,14 +1,53 @@
-import { applicationRecruiterPanelFixture } from './application-recruiter-panel-fixture.mjs';
+import { listAnswerRules } from '../../js/src/automation/question-store.js';
+import {
+  applicationRecruiterPanelFixture,
+  recruiterPanelQuestion,
+  recruiterPanelReply,
+} from './application-recruiter-panel-fixture.mjs';
 import { serveNativeMcpFixture } from './application-native-mcp-server.mjs';
 import { originalApplicationSearch } from './application-search-route-fixture.mjs';
 
 let current;
 let fixture;
+const ownerReply = process.env.E2E_RECRUITER_PANEL_LEARN_REPLY === '1';
+const replyControl = async (frame, path) => {
+  if (path === '/reply/start') {
+    await frame
+      .getByRole('textbox', { name: 'Your reply' })
+      .fill(recruiterPanelReply);
+    await frame
+      .getByRole('button', { name: 'Send reply' })
+      .click({ timeout: 5000 });
+  } else if (path === '/reply/confirm') {
+    await frame.locator('[data-qa="status-icon-pending"]').evaluate(
+      (node) => {
+        node.dataset.qa = 'status-icon-delivered';
+        node.textContent = 'Delivered';
+      },
+      undefined,
+      { timeout: 5000 }
+    );
+  }
+};
+
+const observeLearning = async (store, frame, panelOpen) => ({
+  recruiterSends: panelOpen
+    ? await frame
+        .locator('body')
+        .evaluate(() => globalThis.fixtureRecruiterSends)
+    : undefined,
+  savedReply: (await store.get('msg:hh:web:456:2'))?.delivery,
+  learned: (await listAnswerRules(store)).find(
+    (rule) => rule.question === recruiterPanelQuestion
+  )?.answers[0],
+});
+
 await serveNativeMcpFixture(
   async (browser) => {
     current = browser;
     fixture = await applicationRecruiterPanelFixture(browser, {
       panelDelayMs: 4000,
+      ownerReply,
     });
     return fixture;
   },
@@ -45,6 +84,8 @@ await serveNativeMcpFixture(
           await panel
             .getByRole('button', { name: 'Close recruiter panel' })
             .click({ timeout: 5000 });
+        } else if (ownerReply) {
+          await replyControl(frame, request.url);
         }
       }
     }
@@ -54,6 +95,9 @@ await serveNativeMcpFixture(
       sends,
       searchVisits: fixture.searchVisits,
       outcomes: fixture.effects,
+      ...(ownerReply
+        ? await observeLearning(fixture.runtimeStore, frame, panelOpen)
+        : {}),
     };
   }
 );

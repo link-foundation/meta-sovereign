@@ -896,3 +896,4 @@ Optional persistent collection with full current-run context: [collection eviden
 - [Recruiter panel after delivery](application-recruiter-panel.md) verifies the batch holds a visible native panel and preserves its owner draft at the delivery cap.
 - [Delayed recruiter panel](application-recruiter-panel-delay.md) verifies the bounded search wait, native owner Send and background recovery of the followed receipt in CV Sync.
 - [Recruiter panel vacancy binding](application-recruiter-panel-binding.md) verifies the chat header against the delivered vacancy and keeps ambiguous panels available for owner review.
+- [Replies in the recruiter panel](application-recruiter-panel-learning.md) verifies the pending and delivered Chat rows and an evidence-linked answer proposal after delivery.

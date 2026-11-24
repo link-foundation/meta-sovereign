@@ -129,7 +129,9 @@ export const applicationFixture = ({
       previewVacancy: async () => true,
       previewWait: async (_ms, signal) => signal.throwIfAborted(),
       readPage: async () => globalThis.structuredClone(state.page),
-      readRecruiterPanel: async () => state.page.recruiterPanelOpen === true,
+      readRecruiterPanel: async () => ({
+        matched: state.page.recruiterPanelOpen === true,
+      }),
       readVerification: async () => {
         const { challenge, documentKey, bound } = state.page;
         return { challenge, documentKey, bound };

@@ -77,7 +77,7 @@ test('an unverified page cannot clear a visible recruiter panel hold', async (t)
 test('a replaced recruiter chat is unverified until the same vacancy returns', async (t) => {
   let sameVacancy = true;
   const fixture = recruiterPanelFixture(t, {
-    readRecruiterPanel: async () => sameVacancy,
+    readRecruiterPanel: async () => ({ matched: sameVacancy }),
   });
   await fixture.start({ maxApplications: 1 });
   const matched = await review(fixture, 'open');

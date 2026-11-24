@@ -219,11 +219,20 @@ export class ApplicationReview {
     let status = record.recruiterChat;
     if (page.recruiterPanelOpen === true) {
       signal.throwIfAborted();
-      const bound = await this.service
-        .readRecruiterPanel(record.browser, record.url)
-        .catch(() => false);
+      const result = await this.service
+        .readRecruiterPanel(record.browser, record.url, {
+          store: this.service.store,
+          previous: record.recruiterCapture,
+          profileId: record.options.profileId,
+          signal,
+          trace: this.service.trace,
+        })
+        .catch(() => null);
       signal.throwIfAborted();
-      status = bound ? 'open' : 'unverified';
+      if (result?.capture) {
+        record.recruiterCapture = result.capture;
+      }
+      status = result?.matched ? 'open' : 'unverified';
     } else if (status) {
       status = page.recruiterPanelOpen === false ? null : 'unverified';
     }
