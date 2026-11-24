@@ -166,6 +166,9 @@ test('Russian, Hindi and Chinese notice variations retain review-only patterns',
       rules.every((rule) => rule.learnedPatterns?.length === 1),
       left
     );
+    if (left.includes('. ')) {
+      assert.match(rules[0].learnedPatterns[0], / \. /u);
+    }
     const result = planAnswer(rules[0].question, { rules });
     assert.equal(result.requiresReview, true);
   }

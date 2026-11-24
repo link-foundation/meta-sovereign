@@ -868,3 +868,4 @@ Optional persistent collection with full current-run context: [collection eviden
 - [Questionnaires linked in unread HeadHunter chats](unread-linked-forms.md) use an owned Forms slot and continue after a confirmed questionnaire-only handoff. The case retains before and after browser evidence and the remaining live-provider checks.
 - [Employer rating polls linked in HeadHunter chats](employer-rating-poll.md) prepare the verified company search and leave the ratings to the owner. The case records the current public tally and the remaining live acceptance check.
 - [Completed unread recruiter summaries](unread-summary-learning.md) save source-linked answer proposals before the next chat and hold the conversation if the source or durable write cannot be verified.
+- [Older owner replies in sequential review](unread-history-learning.md) save dated, evidence-linked proposals and extend related notice patterns after both replies are confirmed.

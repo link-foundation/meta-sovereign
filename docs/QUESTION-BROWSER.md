@@ -88,6 +88,13 @@ unseen messages and missing timestamps are not reconstructed. Existing explicit
 answer learning can use the saved turns, with private link targets excluded and
 all new answers unapproved. See [history evidence](case-studies/issue-56/browser-history-archive.md).
 
+**Handle unread answers sequentially** also saves reviewable proposals from
+verified, dated owner replies in each visited chat. Question answers and notice
+acknowledgements carry the original reply IDs. A similar notice can extend a
+review-only pattern after both replies are saved. The pass reports the observed
+reply variants and holds the chat if their save cannot be confirmed.
+[Reproduction and browser evidence](case-studies/issue-56/unread-history-learning.md).
+
 HH browser reads preserve native pending, failed, sent, delivered and read states. Missing, unfamiliar or conflicting outgoing status icons remain unknown; uncertain bubbles cannot confirm a send or become learned answers. Migration 0021 marks older browser replies without status evidence unknown until reread. Existing saved answers remain owner data. [Delivery verification](case-studies/issue-56/hh-browser-delivery.md).
 
 A confirmed current-chat watch also snapshots mounted message changes as the DOM

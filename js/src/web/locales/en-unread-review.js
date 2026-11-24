@@ -1,4 +1,8 @@
 export const enUnreadReview = {
+  'browserUnread.historyAnswers.saved':
+    'Answers saved from chat history ({count}) for review.',
+  'browserUnread.historyAnswers.hold':
+    'Chat history learning could not be confirmed. Check this chat before continuing.',
   'browserUnread.summary.saved':
     'Answers saved from summary ({count}). No reply is needed.',
   'browserUnread.summary.hold':
@@ -31,7 +35,7 @@ export const enUnreadReview = {
   'browserUnread.answers':
     'Handle bot options and hold ordinary replies for review',
   'browserUnread.answersHint':
-    'Visit unread chats one at a time in the inactive provider window. Answers from completed summaries are saved for review. Exact saved answers, unique completed summaries and approved salary targets with one containing band may select an offered bot option. Ordinary replies stay as drafts. Later checks wait on the first chat needing your review. You can enable model drafts separately.',
+    'Visit unread chats one at a time in the inactive provider window. Verified past replies and completed summary answers are saved for review. Exact saved answers, unique completed summaries and approved salary targets with one containing band may select an offered bot option. Ordinary replies stay as drafts. Later checks wait on the first chat needing your review. You can enable model drafts separately.',
   'browserUnread.startAnswers': 'Handle unread answers sequentially',
   'browserUnread.activeAnswers':
     'Checking unread questions. Approved bot options may be selected; ordinary replies remain drafts for your review.',

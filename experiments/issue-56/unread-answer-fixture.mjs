@@ -47,9 +47,20 @@ export const unreadAnswerFixture = async (options = {}) => {
       }
       const observation = { chat: snapshot.chat, question: snapshot };
       if (options.history) {
+        const rows = options.history(snapshot);
+        observation.history = {
+          rows,
+          restored: true,
+          coverage: {
+            complete: false,
+            scope: 'conversation',
+            reason: 'rendered-start',
+            passes: 1,
+          },
+        };
         await input.onHistoryWindow?.({
           chat: snapshot.chat,
-          rows: options.history(snapshot),
+          rows,
         });
       }
       let held = false;

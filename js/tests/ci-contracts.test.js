@@ -410,6 +410,7 @@ const questionBrowserGroups = {
     'verifyUnreadModel',
     'verifyUnreadModelControls',
   ],
+  'question-unread-history': ['verifyUnreadHistoryLearning'],
   'question-unread-forms': [
     'verifyUnreadLinkedForms',
     'verifyUnreadEmployerRating',
@@ -485,6 +486,7 @@ test('question provider and control scenarios have separate mandatory browser bu
     'question-unread-reply-view',
     'question-unread-polling',
     'question-unread-answers',
+    'question-unread-history',
     'question-unread-forms',
     'question-unread-choices',
   ]) {

@@ -2,6 +2,7 @@
 // original records and counts; generated patterns never become owner aliases.
 import { lcs } from '../patterns/index.js';
 import {
+  questionClauseTokens,
   questionKey,
   questionWords,
   questionSimilarity,
@@ -103,17 +104,22 @@ const patternFor = (left, right, budget) => {
     ? pattern
     : null;
 };
-const observations = (rules) =>
+const observations = (rules, requireEvidence) =>
   rules
     .flatMap((rule) => {
       if (rule.kind !== 'notice' || !passiveNotice(rule.question)) {
         return [];
       }
       const text = noticeCore(rule.question);
-      const words = questionWords(text);
+      // Keep aligned sentence boundaries literal, as the shared matcher
+      // requires. Unmatched boundaries still disqualify an inferred pattern.
+      const words = questionClauseTokens(text);
       const replies = rule.answers
         .filter(
-          (answer) => answer.count > 0 && answer.text.trim() !== NO_NOTICE_REPLY
+          (answer) =>
+            answer.count > 0 &&
+            (!requireEvidence || answer.evidence?.length) &&
+            answer.text.trim() !== NO_NOTICE_REPLY
         )
         .map((answer) => answer.text);
       return words.length > 0 && words.length <= 256 && replies.length
@@ -125,10 +131,15 @@ const observations = (rules) =>
 /** Atomic finite synthesis; exhaustion refuses learning before any writes. */
 export const withNoticePatterns = (
   rules,
-  { maxCells = 4 * 1024 ** 2, maxComparisons = 100000 } = {}
+  { maxCells = 4 * 1024 ** 2, maxComparisons = 100000, observed } = {}
 ) => {
-  const entries = observations(rules);
-  const patterns = new Map(entries.map((entry) => [entry.rule.id, new Set()]));
+  const entries = observations(rules, Boolean(observed));
+  const patterns = new Map(
+    entries.map(({ rule }) => [
+      rule.id,
+      new Set(observed ? rule.learnedPatterns : undefined),
+    ])
+  );
   const budget = {
     remaining: maxCells,
     exhausted: false,
@@ -139,6 +150,7 @@ export const withNoticePatterns = (
       const a = entries[i],
         b = entries[j];
       if (
+        (observed && !observed.has(a.rule.id) && !observed.has(b.rule.id)) ||
         !a.replies.some((left) =>
           b.replies.some((right) => similarReply(left, right, budget))
         )
@@ -160,7 +172,14 @@ export const withNoticePatterns = (
   }
   return rules.map((rule) =>
     rule.kind === 'notice'
-      ? { ...rule, learnedPatterns: [...(patterns.get(rule.id) ?? [])].sort() }
+      ? {
+          ...rule,
+          learnedPatterns: [
+            ...(patterns.get(rule.id) ??
+              (observed && rule.learnedPatterns) ??
+              []),
+          ].sort(),
+        }
       : rule
   );
 };

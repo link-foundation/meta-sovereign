@@ -33,7 +33,10 @@ import {
   resolveStoredAnswerProfile,
 } from './question-profiles.js';
 import { debugQuestionTurn } from './question-turns.js';
-import { mergeObservedAnswers } from './question-merge.js';
+import {
+  mergeObservedAnswers,
+  mergeVisitedAnswerRules,
+} from './question-merge.js';
 import { createAnswerLearner } from './question-learning.js';
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
 import { savedQuestionnaireProposals } from './questionnaire-backfill.js';
@@ -452,8 +455,12 @@ const readAnswerKnowledge = async (store, profileId) => ({
   ...(profileId ? { profile: await readAnswerProfile(store, profileId) } : {}),
 });
 
-/** Save one live, acknowledged handover through the same history learner. */
-export const learnObservedSummary = (store, input, { readCurrent, signal }) =>
+/** Persist proposals from one acknowledged native observation. */
+export const learnObservedAnswers = (
+  store,
+  input,
+  { readCurrent, signal, includeSummaries = true }
+) =>
   writeAnswerKnowledge(store, async () => {
     signal.throwIfAborted();
     const knowledge = await readAnswerKnowledge(store, input.profileId);
@@ -462,27 +469,51 @@ export const learnObservedSummary = (store, input, { readCurrent, signal }) =>
       resolveAnswerProfile({ ...input, contract: true }, knowledge.profile),
       true
     );
-    const message = await readCurrent();
+    const messages = await readCurrent();
     signal.throwIfAborted();
-    if (!message) {
+    if (messages === null) {
       return null;
     }
     const learner = createAnswerLearner({
       ...knowledge,
       profile: options.profile,
       contract: createAnswerContractor(options),
+      includeSummaries,
     });
-    learner.accept(message);
+    for (const message of messages) {
+      if (message === null) {
+        learner.discardTurn();
+      } else {
+        learner.accept(message);
+      }
+    }
     learner.finishChat();
     const saved = new Map(knowledge.rules.map((rule) => [rule.id, rule]));
-    let answers = 0;
-    for (const rule of mergeObservedAnswers(saved, learner.rules())) {
+    const proposals = learner.rules();
+    const { rules, merged, patterns } = mergeVisitedAnswerRules(
+      saved,
+      proposals
+    );
+    for (const rule of merged) {
       signal.throwIfAborted();
       if (JSON.stringify(rule) !== JSON.stringify(saved.get(rule.id))) {
         await saveAcknowledgedRecord(store, rule);
       }
-      answers += rule.answers.filter((answer) =>
-        answer.evidence.includes(message.id)
+    }
+    // A generalized template depends on two already acknowledged replies.
+    for (const rule of patterns) {
+      signal.throwIfAborted();
+      await saveAcknowledgedRecord(store, rule);
+    }
+    let answers = 0;
+    for (const proposal of proposals) {
+      const confirmed = rules.get(proposal.id).answers;
+      answers += proposal.answers.filter((candidate) =>
+        confirmed.some(
+          (answer) =>
+            answer.text === candidate.text &&
+            candidate.evidence.some((id) => answer.evidence.includes(id))
+        )
       ).length;
     }
     signal.throwIfAborted();

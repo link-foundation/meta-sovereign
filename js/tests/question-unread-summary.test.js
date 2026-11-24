@@ -2,16 +2,9 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { unreadAnswerFixture } from '../../experiments/issue-56/unread-answer-fixture.mjs';
 import { summary } from '../../experiments/issue-56/question-summary-fixture.mjs';
-import {
-  unreadInput,
-  waitUnreadReview,
-} from '../../experiments/issue-56/question-unread-review-fixture.mjs';
-import {
-  questionBrowserCli,
-  questionBrowserHttp,
-} from '../../experiments/issue-56/question-browser-clients.mjs';
+import { unreadInput } from '../../experiments/issue-56/question-unread-review-fixture.mjs';
+import { unreadAnswerClientReceipt } from '../../experiments/issue-56/question-browser-clients.mjs';
 import { listAnswerRules } from '../src/automation/question-store.js';
-import { checkUnreadReview } from '../src/automation/question-unread-state.js';
 import { listOutbox } from '../src/automation/outbox.js';
 import { LINO_BINARY, LINO_TEXT } from '../src/transport/lino.js';
 
@@ -109,6 +102,21 @@ test('a summary changing after capture is held without learning the stale answer
       assert.equal((await summaryAnswers(env.store)).length, 0);
     }
   ));
+
+test('summary receipts count only the observed version of an edited bubble', () => {
+  const row = summaryRow();
+  return fixture({ rows: [row, { strictOptions: false }] }, async (env) => {
+    const first = await env.complete();
+    assert.equal(first.entries[0].answer.summaryAnswers, 2);
+    row.question = { ...row.question, body: summary.replace('Нет.', 'Да.') };
+    const edited = await env.complete(unreadInput({ answerChats: true }));
+    assert.equal(edited.entries[0].answer.summaryAnswers, 2);
+    assert.deepEqual(
+      (await summaryAnswers(env.store)).map((answer) => answer.text),
+      ['Нет.', 'Да.', 'Разрабатывал поиск по техническим документам.']
+    );
+  });
+});
 
 test('missing archive evidence holds the summary', () =>
   fixture({ history: undefined }, async (env) => {
@@ -220,37 +228,11 @@ test(
   'the CLI and both Lino media retain the summary receipt',
   { timeout: 10000 },
   async () => {
-    await fixture({}, async (env) => {
-      const result = await questionBrowserCli(env)('unread', {
-        source: 'hh',
-        confirm: true,
-        'pass-id': env.input.id,
-        'answer-chats': true,
-      });
-      assert.equal(result.code, 0, JSON.stringify(result.value));
-      assert.equal(result.value.entries[0].answer.summaryAnswers, 2);
-    });
-    for (const media of [LINO_TEXT, LINO_BINARY]) {
+    for (const media of [undefined, LINO_TEXT, LINO_BINARY]) {
       await fixture({}, async (env) => {
-        const { call, server } = await questionBrowserHttp(env);
-        try {
-          assert.equal(
-            (await call('unread-start', env.input, media)).status,
-            200
-          );
-          await waitUnreadReview(env.browser, env.input.id);
-          const { body, status } = await call(
-            'unread-status',
-            { id: env.input.id },
-            media
-          );
-          assert.equal(status, 200);
-          const receipt = checkUnreadReview(body, env.input.id);
-          assert.equal(receipt.entries[0].answer.summaryAnswers, 2);
-          assert.equal(receipt.restoration.heldReview.chat, '9');
-        } finally {
-          await server.close();
-        }
+        const receipt = await unreadAnswerClientReceipt(env, media);
+        assert.equal(receipt.entries[0].answer.summaryAnswers, 2);
+        assert.equal(receipt.restoration.heldReview.chat, '9');
       });
     }
   }

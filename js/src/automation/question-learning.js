@@ -271,13 +271,16 @@ export const createAnswerPairLearner = ({
 // Keep one pending question, its immediate reminder and at most 20 bubbles.
 const createTurnReader = (isSelf, onTurn, onSummary, initial = {}) => {
   let { question, priorQuestion, answers = [] } = initial;
+  const discard = () => {
+    question = null;
+    priorQuestion = null;
+    answers = [];
+  };
   const finish = () => {
     if (question && answers.length) {
       onTurn(question, answers);
     }
-    question = null;
-    priorQuestion = null;
-    answers = [];
+    discard();
   };
   return {
     pending: () => Boolean(question || priorQuestion),
@@ -294,9 +297,7 @@ const createTurnReader = (isSelf, onTurn, onSummary, initial = {}) => {
         // A private continuation invalidates the whole pending answer, including
         // any preceding public fragment. Never learn a truncated response.
         if (isSelf(message)) {
-          question = null;
-          priorQuestion = null;
-          answers = [];
+          discard();
         } else {
           finish();
         }
@@ -349,6 +350,7 @@ const createTurnReader = (isSelf, onTurn, onSummary, initial = {}) => {
         priorQuestion = previous;
       }
     },
+    discard,
     finish,
   };
 };
@@ -361,6 +363,7 @@ export const createAnswerLearner = ({
   contract = (text) => text,
   rules = [],
   profile = {},
+  includeSummaries = true,
 } = {}) => {
   const isSelf = (message) =>
     message.out === true ||
@@ -413,8 +416,10 @@ export const createAnswerLearner = ({
     }
   };
   const reader = createTurnReader(isSelf, record, (message, summaries) => {
-    for (const pair of summaries) {
-      collection.add(pair.question, pair.text, [message.id], 0, message);
+    if (includeSummaries) {
+      for (const pair of summaries) {
+        collection.add(pair.question, pair.text, [message.id], 0, message);
+      }
     }
   });
   const confirmedOutgoing = (message) =>
@@ -446,6 +451,10 @@ export const createAnswerLearner = ({
           branches.push({ reader: alternate, id: revision.id });
         }
       }
+    },
+    discardTurn() {
+      reader.discard();
+      branches = [];
     },
     finishChat() {
       reader.finish();

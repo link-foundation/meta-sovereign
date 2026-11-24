@@ -72,6 +72,9 @@ const templateTokens = (text, expression) => {
   });
 };
 
+export const questionClauseTokens = (text) =>
+  templateTokens(fold(text).trim(), MESSAGE_TOKEN).map(({ value }) => value);
+
 const isBoundary = (token) => token === '?' || token === '.';
 
 const prefixMatches = (stem, words, position) => {

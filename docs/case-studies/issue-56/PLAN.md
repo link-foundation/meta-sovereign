@@ -1,9 +1,16 @@
+### 2026-11-24 Learn verified earlier replies during sequential review (HH10)
+
+- [x] Reproduce a native visit that advances without saving the captured employer question and notice replies.
+- [x] Reuse the archive answer learner on acknowledged bounded history. Preserve review-only patterns, refuse ambiguous turns and keep writes recoverable.
+- [x] Verify the foreground CLI, both Lino encodings, browser receipts and a phone render. [Evidence](unread-history-learning.md).
+- [ ] Verify the exact hosted head and the authenticated HeadHunter workflow. All 30 unchecked acceptance criteria remain required.
+
 ### 2026-11-24 Learn from completed unread recruiter summaries (HH10)
 
 - [x] Reproduce advancement with zero saved facts and advancement after a stale summary on the published parent.
 - [x] Save unapproved proposals from the freshly verified, acknowledged native bubble before advancing. Hold when evidence or storage acknowledgment fails.
 - [x] Verify 91 checks per runtime, CLI and both Lino encodings, production Chromium and independent phone playback. [Before and after evidence](unread-summary-learning.md).
-- [ ] Verify the exact published head in GitHub Actions. Learning from ordinary earlier candidate replies and authenticated HeadHunter acceptance remain open.
+- [ ] Verify the exact published head in GitHub Actions and complete authenticated HeadHunter acceptance.
 
 ### 2026-11-23 Added requests inside a word-prefix wildcard (QA04)
 

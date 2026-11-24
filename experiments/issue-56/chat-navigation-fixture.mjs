@@ -18,6 +18,7 @@ export const chatNavigationHtml = ({
   unreadChats,
   textReplies = false,
   latestMessages = null,
+  historyMessages = null,
   precedingOutgoing = false,
   emptyOriginal = false,
   originalUnread = false,
@@ -35,7 +36,20 @@ const ownerDraft=${emptyOriginal}?'':Array.from({length:8},(_,i)=>'Owner unfinis
 const fixture=window.fixture={sends:0,visits:[],drafts:{'7':ownerDraft,'8':'','9':''},unread:{'7':${Number(originalUnread)},'8':${unreadCount('8', allRead, unreadChats)},'9':${unreadCount('9', allRead, unreadChats)}},chat:'7'};
 function renderList(){const ids=(${virtual}?['8','1','2','7','3','9']:['8','9','7']).filter(id=>!filter.checked||fixture.unread[id]>0);const first=${virtual}?Math.floor(list.scrollTop/100):0;list.innerHTML='<div style="position:relative;height:'+(ids.length*100)+'px">'+ids.slice(first,${virtual}?first+3:ids.length).map((id,i)=>'<article style="'+(${virtual}?'position:absolute;width:100%;top:'+((first+i)*100)+'px':'')+'" data-qa="chatik-open-chat-'+id+'"><b data-qa="chat-cell-title">Employer '+id+'</b><div data-qa="chat-last-message">A pending question</div><span data-qa="chat-cell-counter">'+fixture.unread[id]+'</span></article>').join('')+'</div>';for(const row of list.querySelectorAll('article'))row.onclick=()=>openChat(row.dataset.qa.replace('chatik-open-chat-',''));}
 const messageOffset=()=>${reversedMessages}?pane.scrollHeight-pane.clientHeight+pane.scrollTop:pane.scrollTop;
-function renderMessages(){const first=Math.floor(messageOffset()/100);messages.innerHTML=Array.from({length:Math.min(4,8-first)},(_,i)=>{const n=first+i;return '<article style="top:'+(n*100)+'px" data-qa="chatik-chat-message-'+(Number(fixture.chat)*100+n)+'">'+(n===0?'<b data-qa="chat-bubble-title">Vacancy application</b>':'')+'<p data-qa="chat-bubble-text">'+(n===7?(${scriptMessages(latestMessages)}?.[fixture.chat]??'What time can you start?'):'Conversation record '+n)+'</p>'+(${precedingOutgoing}&&n>0&&n<7?'<span data-qa="status-icon-delivered"></span>':'')+'</article>';}).join('');}
+const fixtureHistory=${scriptMessages(historyMessages)}, latest=${scriptMessages(latestMessages)};
+function renderMessages(){
+ const first=Math.floor(messageOffset()/100);
+ messages.innerHTML=Array.from({length:Math.min(4,8-first)},(_,i)=>{
+  const n=first+i, row=fixtureHistory?.[fixture.chat]?.[n];
+  const body=row?.body??(n===7?(latest?.[fixture.chat]??'What time can you start?'):'Conversation record '+n);
+  const delivery=row?row.delivery:(${precedingOutgoing}&&n>0&&n<7?'delivered':null);
+  const timestamp=row?.timestamp?' data-time="'+row.timestamp+'"':'';
+  return '<article style="top:'+(n*100)+'px" data-qa="chatik-chat-message-'+(Number(fixture.chat)*100+n)+'"'+timestamp+'>'+
+   (n===0?'<b data-qa="chat-bubble-title">Vacancy application</b>':'')+
+   '<p data-qa="chat-bubble-text">'+body+'</p>'+
+   (delivery?'<span data-qa="status-icon-'+delivery+'"></span>':'')+'</article>';
+ }).join('');
+}
 function renderChat(){fixture.chat=location.pathname.match(/chat\/(\d+)/)?.[1]||'7';document.querySelector('#chat-title').textContent='Employer '+fixture.chat;document.querySelector('#composer').innerHTML='<textarea data-qa="text-input"></textarea>';const field=document.querySelector('textarea');field.value=fixture.drafts[fixture.chat]||'';field.oninput=()=>{fixture.drafts[fixture.chat]=field.value;};pane.scrollTop=${300 - 580 * Number(reversedMessages)};renderMessages();renderList();}
 function openChat(id){const field=document.querySelector('textarea');if(!(${loseDraft}&&fixture.chat==='7'))fixture.drafts[fixture.chat]=field.value;else fixture.drafts['7']='';fixture.visits.push(id);fixture.unread[id]=0;const url='/chat/'+id;if(${reload}){location.href=url;return;}window.history[${replace}?'replaceState':'pushState']({chat:id},'',url);renderChat();}
 window.addEventListener('popstate',()=>{if(${changedDraft})fixture.drafts['7']='Owner draft changed elsewhere';renderChat();});pane.addEventListener('scroll',()=>renderMessages());if(${virtual})list.addEventListener('scroll',renderList);filter.addEventListener('change',()=>{list.scrollTop=0;renderList();});

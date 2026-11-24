@@ -11,6 +11,7 @@ import { unreadFailure } from './question-unread-identity.js';
 import { unreadFormLink, visitUnreadForm } from './question-unread-form.js';
 import { completedAnswerSummary } from './question-summary.js';
 import { learnUnreadSummary } from './question-unread-summary.js';
+import { unreadHistoryAnswerReceipt } from './question-unread-history-learning.js';
 import {
   unreadAnswerInput,
   mayDraftUnreadAnswer,
@@ -152,6 +153,15 @@ export const visitUnreadAnswer = async ({
   const input = await unreadAnswerInput(context, record, observed, {
     signal: controller.signal,
   });
+  const historyReceipt = await unreadHistoryAnswerReceipt({
+    store: context.store,
+    source: record.source,
+    snapshot,
+    history: observation.history,
+    handle,
+    input,
+    signal: controller.signal,
+  });
   const baseline = snapshot.question.outgoing
     ? null
     : await previewAnswer(context.store, input);
@@ -164,7 +174,10 @@ export const visitUnreadAnswer = async ({
     observed,
     {
       ...input,
-      modelDraft: !link && mayDraftUnreadAnswer(record, snapshot, baseline),
+      modelDraft:
+        !historyReceipt.reason &&
+        !link &&
+        mayDraftUnreadAnswer(record, snapshot, baseline),
     },
     { signal: controller.signal }
   );
@@ -173,10 +186,18 @@ export const visitUnreadAnswer = async ({
     chat: snapshot.chat,
     reviewId: reviewed.id,
     preview: snapshot.question.body.slice(0, 600),
-    answer: { phase: 'review', questionId: snapshot.question.id },
+    answer: {
+      phase: 'review',
+      questionId: snapshot.question.id,
+      ...historyReceipt,
+    },
   };
   record.entries.push(entry);
   await save(record);
+  if (historyReceipt.reason) {
+    await handle.holdReviewInactive();
+    return { holdReview: true };
+  }
   if (
     await visitUnreadForm({
       context,

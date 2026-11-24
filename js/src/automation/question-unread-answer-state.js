@@ -13,6 +13,8 @@ const reviewPhases = [
   'form-review',
 ];
 const effectPhases = ['selecting', 'sent', 'marked-sent', 'unknown', 'failed'];
+const validCount = (value, max) =>
+  Number.isSafeInteger(value) && value >= 1 && value <= max;
 
 /** A selection and positive receipt must agree on their durable identity. */
 export const validUnreadAnswer = (value, source, chat) => {
@@ -20,11 +22,10 @@ export const validUnreadAnswer = (value, source, chat) => {
     !boundedBrowserText(value?.questionId, 480) ||
     ![...reviewPhases, ...effectPhases].includes(value.phase) ||
     (value.reason !== undefined && !boundedBrowserText(value.reason, 120)) ||
+    (value.historyAnswers !== undefined &&
+      !validCount(value.historyAnswers, 100000)) ||
     (value.summaryAnswers !== undefined &&
-      (value.phase !== 'no-reply' ||
-        !Number.isSafeInteger(value.summaryAnswers) ||
-        value.summaryAnswers < 1 ||
-        value.summaryAnswers > 20))
+      (value.phase !== 'no-reply' || !validCount(value.summaryAnswers, 20)))
   ) {
     return false;
   }

@@ -263,6 +263,29 @@ const UnreadResult = ({ result, blocked, select }) => {
                   : t(`browserUnread.answer.${entry.answer.phase}`)
               )
             : null,
+          entry.answer?.historyAnswers
+            ? el(
+                'p',
+                {
+                  key: 'history-answers',
+                  className: 'meta',
+                  'data-browser-unread-history-answers': true,
+                },
+                t('browserUnread.historyAnswers.saved', {
+                  count: entry.answer.historyAnswers,
+                })
+              )
+            : null,
+          [
+            'question-unread-history-unverified',
+            'question-unread-history-save-failed',
+          ].includes(entry.answer?.reason)
+            ? el(
+                'p',
+                { key: 'history-hold', className: 'meta' },
+                t('browserUnread.historyAnswers.hold')
+              )
+            : null,
           [
             'question-unread-summary-unverified',
             'question-unread-summary-save-failed',

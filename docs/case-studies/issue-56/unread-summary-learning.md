@@ -24,4 +24,4 @@ RUN_BROWSER_E2E=1 E2E_EXECUTABLE_PATH=/opt/google/chrome/chrome \
 
 ![The completed pass reports two saved facts and holds the next draft](../../screenshots/issue-56-unread-summary-after.png)
 
-Authenticated HeadHunter verification and learning from earlier employer questions followed by owner replies remain open under HH10. [Acceptance inventory](reference-feature-inventory.md).
+The [earlier-reply learning fixture](unread-history-learning.md) now covers verified older employer questions and owner replies in the same sequential flow. Authenticated HeadHunter verification remains open under HH10. [Acceptance inventory](reference-feature-inventory.md).

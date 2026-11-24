@@ -1,7 +1,7 @@
 import { isDeepStrictEqual } from 'node:util';
 import { messageLinkProperties } from '../message-link-targets.js';
 import { checkBrowserQuestion } from './question-browser-state.js';
-import { learnObservedSummary } from './question-store.js';
+import { learnObservedAnswers } from './question-store.js';
 
 const unavailable = (message) =>
   message.service ||
@@ -35,7 +35,7 @@ export const learnUnreadSummary = ({
   input,
   signal,
 }) =>
-  learnObservedSummary(store, input, {
+  learnObservedAnswers(store, input, {
     signal,
     readCurrent: async () => {
       const current = checkBrowserQuestion(await handle.readInactiveQuestion());
@@ -50,7 +50,7 @@ export const learnUnreadSummary = ({
       }
       const message = await store.get(id);
       return matchesArchivedSummary(message, { id, source, chat, question })
-        ? message
+        ? [message]
         : null;
     },
   });

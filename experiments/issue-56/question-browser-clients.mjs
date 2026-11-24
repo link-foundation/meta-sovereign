@@ -2,6 +2,9 @@ import { createAutomationCommands } from '../../js/src/cli/automation-commands.j
 import { startQuestionFixtureServer } from '../../js/tests/helpers/question-fixture-server.mjs';
 import { LINO_TEXT, readWireResponse } from '../../js/src/transport/lino.js';
 import { postQuestion } from '../../js/tests/helpers/question-http.mjs';
+import assert from 'node:assert/strict';
+import { checkUnreadReview } from '../../js/src/automation/question-unread-state.js';
+import { waitUnreadReview } from './question-unread-review-fixture.mjs';
 
 /** Native choice and text tests use the same real CLI command dispatch. */
 export const questionBrowserCli = (env) => {
@@ -43,4 +46,32 @@ export const questionBrowserHttp = async (env) => {
     return { status: response.status, body: await readWireResponse(response) };
   };
   return { server, call };
+};
+
+/** Use a fresh owned pass to check the foreground CLI or one Lino encoding. */
+export const unreadAnswerClientReceipt = async (env, media) => {
+  if (!media) {
+    const result = await questionBrowserCli(env)('unread', {
+      source: 'hh',
+      confirm: true,
+      'pass-id': env.input.id,
+      'answer-chats': true,
+    });
+    assert.equal(result.code, 0, JSON.stringify(result.value));
+    return result.value;
+  }
+  const { call, server } = await questionBrowserHttp(env);
+  try {
+    assert.equal((await call('unread-start', env.input, media)).status, 200);
+    await waitUnreadReview(env.browser, env.input.id);
+    const { body, status } = await call(
+      'unread-status',
+      { id: env.input.id },
+      media
+    );
+    assert.equal(status, 200);
+    return checkUnreadReview(body, env.input.id);
+  } finally {
+    await server.close();
+  }
 };
