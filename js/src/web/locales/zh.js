@@ -1,3 +1,24 @@
+import { autoImportLocale } from './auto-import.js';
+import { zhSending } from './sending.js';
+import { zhCloud } from './cloud.js';
+import { questionFinalPeriodLocale } from './question-final-period.js';
+import { vkProviderJobsLocale } from './vk-provider-jobs.js';
+import { vkAttachmentsLocale } from './vk-attachments.js';
+import { zhGratitude } from './zh-gratitude.js';
+import { zhGreetingCatalog } from './zh-greeting-catalog.js';
+import { zhAnswerModel } from './zh-answer-model.js';
+import { zhVacancy } from './zh-vacancy.js';
+import { zhBrowserAnswer } from './zh-browser-answer.js';
+import { zhForms } from './zh-forms.js';
+import { zhSharedProfile } from './zh-shared-profile.js';
+import { zhProfileImport } from './zh-profile-import.js';
+import { zhChatRemoval } from './zh-chat-removal.js';
+import { zhFollowTelegram } from './zh-follow-telegram.js';
+import { zhFollow } from './zh-follow.js';
+import { zhTelegramGreetings } from './zh-telegram-greetings.js';
+import { zhChatUsers } from './zh-chat-users.js';
+import { zhPublication } from './zh-publication.js';
+import { zhBrowser } from './zh-browser.js';
 // Simplified Chinese locale (issue #18). Keys must mirror ./en.js
 // exactly; the parity test in js/tests/i18n.test.js fails the build
 // if they drift. The issue uses the informal `ch` tag — the canonical
@@ -20,6 +41,47 @@ import { zhFeedback } from './zh-feedback.js';
 import { zhStickers } from './zh-stickers.js';
 
 export const zh = {
+  ...questionFinalPeriodLocale('zh'),
+  ...vkProviderJobsLocale('zh'),
+  ...vkAttachmentsLocale('zh'),
+  ...zhGratitude,
+  ...zhVacancy,
+  ...zhForms,
+  ...zhAnswerModel,
+  ...zhBrowserAnswer,
+  ...zhSharedProfile,
+  ...zhProfileImport,
+  ...zhChatRemoval,
+  ...zhFollow,
+  ...zhFollowTelegram,
+  ...zhFollowBacklink,
+  ...zhTelegramGreetings,
+  ...zhChatUsers,
+  ...zhPublication,
+  'backup.schedule': '自动恢复备份',
+  'backup.scheduleHint':
+    '保存后用于定时和手动备份。首次自动备份将在所选间隔后运行。',
+  'backup.hours': '间隔小时数（0 表示关闭）',
+  'backup.retention': '每种格式保留的份数（0 保留全部）',
+  'backup.formats': '独立恢复转储',
+  'backup.format.text': '文本 Lino 转储',
+  'backup.format.binary': '二进制 Lino 转储',
+  'backup.format.archive': '恢复归档',
+  'backup.save': '保存恢复设置',
+  'backup.saved': '恢复设置已保存。',
+  'backup.created': '备份已验证；已验证 {count} 份独立恢复转储。',
+  'backup.restored': '已恢复 {count} 条记录。',
+  'backup.working': '处理中…',
+  'backup.failed': '无法确认操作结果。重试前请检查文件列表。',
+  'backup.refused': '操作失败：{reason}',
+  'backup.empty': '尚无恢复文件。',
+  'backup.rawHint':
+    '独立转储始终排除秘密记录，即使归档已加密。文件仍包含其他数据，请妥善保管。',
+  'backup.unavailable':
+    '文件备份需要连接具有归档存储的服务器。连接受支持的服务器以配置恢复。',
+  'backup.restoreAsk':
+    '恢复 {file}？记录将合并到此服务器，并替换相同 ID 的记录。更改任何记录前会先验证整个文件。',
+  ...zhBrowser,
   ...zhStickers,
   ...zhFeedback,
   ...zhConversation,
@@ -37,23 +99,7 @@ export const zh = {
   ...zhTranscribe,
   ...zhGithub,
   appName: 'meta-sovereign',
-  'cloud.signOut': '退出登录',
-  'cloud.connectionsIntro': '选择要连接账号或上传归档文件的服务。',
-  'cloud.contactsImportHint': '上传 vCard 文件以预览并导入联系人。',
-  'cloud.contactsReading': '正在读取 vCard 文件…',
-  'cloud.unreachable': '工作区服务器暂时无法访问。请检查连接后重试。',
-  'cloud.browserProvider':
-    '您可以在此上传导出的归档文件。通过浏览器实时登录需要在您的设备上运行应用。',
-  'cloud.whatsapp':
-    '连接 WhatsApp Business API 或导入聊天归档。个人 WhatsApp Web 登录在您的设备上进行。',
-  'cloud.cv':
-    '比较已保存的简历快照。实时读取和更新简历的操作在您的设备上进行。',
-  'cloud.marketplaces':
-    '查看已保存的平台资料。从已登录的浏览器采集资料需要在您的设备上进行。',
-  'cloud.tourPick': '请选择要通过 API 连接或导入归档的服务。',
-  'cloud.tourSetupTitle': '连接服务或导入归档',
-  'cloud.tourSetup':
-    '请按所选服务的说明操作。在支持的情况下，输入凭据或上传归档。',
+  ...zhCloud,
   skipLink: '跳到主要内容',
   'header.theme': '主题',
   'header.themeAria': '切换深色模式',
@@ -61,7 +107,7 @@ export const zh = {
   'header.tutorialAria': '打开教程',
   'header.language': '语言',
   'header.languageAria': '选择界面语言',
-  'header.systemDefault': '跟随系统',
+  'header.systemDefault': '应用或系统默认设置',
   'header.online': '在线',
   'header.offline': '离线',
   'header.reconnecting': '正在重新连接',
@@ -227,6 +273,16 @@ export const zh = {
   'audience.queryPlaceholder': '例如 network:telegram AND chat:general',
   'audience.contactsCount': '{count} 个联系人',
   'broadcast.title': '广播',
+  'broadcast.sending': '正在发送…',
+  'broadcast.sent': '已发送。',
+  'broadcast.partial': '已发送到部分目标，请检查其余结果。',
+  'broadcast.failed': '本次未发送。',
+  'broadcast.unknown': '投递状态不确定，重试前请检查目标。',
+  'broadcast.queued': '已排队，投递尚未确认。',
+  'broadcast.cancelled': '已取消。',
+  'broadcast.unavailable': '请连接受支持的服务器以发送，尚未加入队列。',
+  'broadcast.counts':
+    '{sent} 已发送 · {failed} 未发送 · {unknown} 不确定 · {queued} 已排队',
   'broadcast.placeholder': '发送到所有选中网络的消息',
   'outreach.title': '触达',
   'outreach.hint': '大规模个性化触达。预览随时可用；队列会真正发送。',
@@ -382,15 +438,11 @@ export const zh = {
   'connections.openDetail': '设置',
   'connections.controlsTitle': '连接控制',
   'autoImport.title': '通过浏览器导入',
-  'autoImport.intro':
-    '在单独的浏览器窗口中打开 {service}。登录后在那里开始数据导出，下载的每个文件都会自动导入。下次无需重新登录。',
-  'autoImport.introCapture':
-    '在单独的浏览器窗口中打开 {service}。登录并打开一个聊天，然后点击「保存此聊天」。下载的导出文件也会自动导入。',
+  ...autoImportLocale.zh,
   'autoImport.start': '打开浏览器',
   'autoImport.capture': '保存此聊天',
   'autoImport.finish': '完成',
   'autoImport.state.launching': '正在打开浏览器…',
-  'autoImport.state.waiting': '浏览器已打开，正在等待你的导出文件…',
   'autoImport.state.importing': '正在导入…',
   'autoImport.state.done': '已完成。',
   'autoImport.state.stopped': '长时间无操作，已停止。',
@@ -414,17 +466,7 @@ export const zh = {
     '在 {networks} 上更新你的个人资料吗？那里的人会看到改动。',
   'profile.confirmPublish.resume':
     '在 {networks} 上更新你的简历吗？那里的雇主会看到改动。',
-  'settings.sending.title': '发送消息',
-  'settings.sending.continueLast': '在公开聊天中续写我的上一条消息',
-  'settings.sending.continueHint':
-    '在 Telegram 公开群组和频道中，如果您的上一条文字消息仍是最新消息，就将补充内容添加到该消息中。',
-  'settings.privacy.title': '隐私',
-  'settings.shareTyping': '向对方显示我正在输入',
-  'settings.shareTypingHint':
-    '默认关闭。开启后，VK 和 Telegram 会向你正在联系的人显示“正在输入…”。',
-  'settings.readReceipts': '阅读聊天时将其标为已读',
-  'settings.readReceiptsHint':
-    '默认开启，与 Telegram 官方应用一致。关闭后，在这里阅读聊天不会在 Telegram 上标为已读：对方看不到 ✓✓，未读数也会保留。',
+  ...zhSending,
   'settings.notify.title': '通知',
   'settings.notify.on': '以通知显示新消息',
   'settings.notify.preview': '显示发送者和内容',
@@ -499,6 +541,8 @@ export const zh = {
   'telegramSessions.less': '收起',
   'telegramSessions.signIn': '登录',
   'telegramSessions.connected': '已连接',
+  'telegramSessions.unconfirmed':
+    '会话导入尚未确认。已保留原有连接；请检查 Telegram 后重试。',
 
   // 通过 MTProto(GramJS)登录你的 Telegram 用户账号,与 konard/telegram-bot 一致。
   'telegramLogin.title': '用你的 Telegram 账号登录',
@@ -790,13 +834,13 @@ export const zh = {
   'connections.habr-career.errorHints.401':
     'career.habr.com 拒绝了令牌。请在 设置 -> Tokens 重新签发。',
   'connections.hh.label': 'hh.ru',
-  'connections.hh.archive.title': '导入 hh.ru 沟通归档',
+  'connections.hh.archive.title': '导入 hh.ru 聊天记录',
   'connections.hh.archive.hint':
-    '打开 https://hh.ru/applicant/negotiations,使用 JSON 导出,保存文件并在此加载。',
-  'connections.hh.archive.fileHint': 'negotiations.json',
+    '导入包含沟通消息的 JSON 文件。导入含有已保存编辑记录的 chat-history.json 时，请连接服务器。如需在线历史，请输入 API 令牌并选择立即获取。',
+  'connections.hh.archive.fileHint': 'chat-history.json / negotiations.json',
   'connections.hh.api.title': '连接 hh.ru API',
   'connections.hh.api.hint':
-    '在 https://dev.hh.ru/ 注册应用,运行 OAuth2 客户端凭证或授权码流程,把访问令牌粘贴为 "secret:hh:token"。',
+    '在 https://dev.hh.ru/ 注册应用，通过 OAuth 授权您的 HH 账户，并在下方粘贴用户访问令牌。聊天访问取决于应用和账户权限。',
   'connections.hh.fields.token.label': '访问令牌',
   'connections.hh.errorHints.401':
     'hh.ru 拒绝了令牌。请通过 https://dev.hh.ru/ 的应用刷新。',
@@ -1088,6 +1132,7 @@ export const zh = {
   'settings.folderTabs.start': '开头',
   'settings.folderTabs.hint':
     '从所选边缘起，“全部”和“未读”分别位于第一和第二位。其他文件夹的顺序保持不变，不会更改 Telegram。',
+  'settings.appearance.reset': '使用应用默认设置',
   'settings.appearance.title': '外观',
   'settings.appearance.intro':
     '主题和皮肤作用于所有界面，并保存在此浏览器中。页眉中的“主题”按钮可在浅色和深色之间切换。',
@@ -1114,10 +1159,7 @@ export const zh = {
   'greetings.telegramDefault':
     'Telegram 在空聊天中推荐的贴纸来自其用户 API（{method} "{emoticon}"），机器人无法调用。请改为从下面的贴纸集中列出贴纸，或添加你自己的贴纸集。',
   'greetings.sets': '要列出的 Telegram 贴纸集',
-  'greetings.language': '问候语言',
-  'greetings.prefer': '发送',
-  'greetings.prefer.sticker': '尽可能发送贴纸',
-  'greetings.prefer.text': '文字问候',
+  ...zhGreetingCatalog,
   'greetings.listLive': '实时列出贴纸',
   'greetings.save': '保存选择',
   'greetings.saved': '选择已保存。',
@@ -1178,4 +1220,218 @@ export const zh = {
   'error.code.send-in-doubt': '上一次发送可能已送出 — 未重复发送',
   'error.code.timeout': '请求超时',
   'error.code.network': '本地服务器没有响应',
+  'questions.title': '问题与已保存的回答',
+  'questions.intro':
+    '跨聊天复用回答。已批准的保存规则可自动发送；近似、冲突或不完整的匹配仍需审核。使用 {{field}} 替换资料值，… 表示短语变量，word* 表示词尾。',
+  'questions.action': '操作',
+  'questions.kind.send-template': '发送模板',
+  'questions.kind.answer-questions': '回答问题',
+  'questions.actionHint':
+    '使用最新未回答的问题及下方保存的回答。未批准、近似、冲突或不完整的回答会暂停自动发送并等待审核。',
+  'questions.ruleIds': '回答规则 ID',
+  'questions.ruleIdsHint': '用逗号分隔；留空则使用所有启用的规则。',
+  'questions.matchingSettings': '问题匹配',
+  'questions.matchingAlgorithm': '匹配方法',
+  'questions.matchingordered': '词语顺序',
+  'questions.matchingweighted': '加权改写',
+  'questions.matchingThreshold': '最低相似度 (%)',
+  'questions.matchingCase': '区分字母大小写',
+  'questions.matchingHint':
+    '近似匹配始终需要审核。主题、范围和已拒绝答案规则仍然适用。',
+  'questions.matchingInvalid': '请输入 0 到 100 之间的相似度。',
+  'questions.inspectMatches': '查看所有符合条件的匹配',
+  'questions.matchesTitle': '匹配排名',
+  'questions.matchesRange': '共 {total} 项，显示 {start}–{end} 项',
+  'questions.matchesPartial': '已达到匹配限制。此列表不完整。',
+  'questions.matchScore': '相似度：{score}%',
+  'questions.matchSelected': '已为此草稿选中',
+  'questions.matchesPrevious': '上一页匹配',
+  'questions.matchesNext': '下一页匹配',
+  'questions.approximate': '提供近似匹配以供审核',
+  'questions.contract': '将已配置的值替换为占位符',
+  'questions.contractHint':
+    '保存或学习回答时，使用“预览回答”中的资料和薪资设置。批准前请检查建议的模板。',
+  'questions.salaryTemplateEvidence': '薪资占位符值',
+  'questions.profile': '资料值',
+  'questions.fieldName': '字段名，例如 city',
+  'questions.addField': '添加字段',
+  'questions.removeField': '移除字段',
+  'questions.ruleKind': '规则类型',
+  'questions.ruleKind.question': '问题或表单字段',
+  'questions.ruleKind.notice': '通知消息',
+  'questions.learnedNoticePatterns': '学习到的通知模式',
+  'questions.learnedNoticePatternsHint':
+    '将这些模式添加为等效消息前请先审核。新观察会重新生成此列表；匹配学习模式始终需要审核。',
+  'questions.noticeHint':
+    '仅用于通知消息；问题、请求、邀请、拒绝和链接单独处理。回复文本需要审核。无需回复时，将答案设为 [без ответа]，再标记规则已审核。',
+  'questions.noticeApproved': '已审核通知规则（回复文本仍需审核）',
+  'questions.noticeReview':
+    '匹配到已保存通知。回复文本需要审核；此预览不会发送消息。',
+  'questions.noticeNoReplyReview': '建议无需回复。请先审核并批准已保存的规则。',
+  'questions.question': '问题或模式',
+  'questions.answer': '回答',
+  'questions.variant': '变体 {count}',
+  'questions.approved': '允许按此保存的规则自动发送',
+  'questions.frequency': '观察到的回答轮次：{count}',
+  'questions.evidence': '来源消息',
+  'questions.addVariant': '添加回答变体',
+  'questions.removeVariant': '移除变体',
+  'questions.sources': '服务商，用逗号分隔；留空表示全部',
+  'questions.chats': '聊天，例如 hh:123, telegram:456；留空表示全部',
+  'questions.new': '新建回答规则',
+  'questions.refresh': '刷新回答',
+  'questions.empty': '暂无保存的回答。请添加回答或从导入的对话中学习建议。',
+  'questions.saved': '回答规则已保存。',
+  'questions.deleted': '回答规则已删除。',
+  'questions.createAutomation': '创建问答自动化',
+  'questions.automationName': '回答收到的问题',
+  'questions.learn': '从对话中学习',
+  'questions.learnHint':
+    '从此设备保存的消息中学习回复，并从已保存的完整问卷中提取明确对应的分项。只有实际发出的回复计入频率；保存的措辞和摘要引用不增加次数。未回复不会生成免回复规则。建议仍需批准。',
+  'questions.previewLearning': '预览学到的回答',
+  'questions.applyLearning': '保存建议以供审核',
+  'questions.learned': '建议已保存。请先检查每个回答，再批准。',
+  'questions.coverage': '已检查的存档消息：{retained} / {seen}。',
+  'questions.partialHistory':
+    '部分对话缺少可靠时间戳，已排除。学习仅使用已保存的消息，不会下载服务商缺失的历史。',
+  'questions.incompleteRevisions':
+    '{count} 条已发送消息的编辑历史不完整。统计仅包含已保存的版本。',
+  'questions.preview': '预览回答',
+  'questions.previewSource': '预览服务商',
+  'questions.previewChat': '预览聊天',
+  'questions.match.exact': '精确匹配',
+  'questions.match.template': '模式匹配',
+  'questions.match.approximate': '近似匹配',
+  'questions.match.assembled': '由单独回答组合',
+  'questions.match.unanswered': '没有匹配的回答',
+  'questions.reviewRequired': '自动发送前需要审核。',
+  'questions.ready': '已批准且完整。预览不会发送任何消息。',
+  'questions.noAnswer': '请添加或完善已保存的回答。',
+  'questions.missing': '缺少资料值：{fields}',
+  'questions.enabled': '使用此回答规则',
+  'questions.approvedComplete': '已批准且完整。',
+  'automations.form.neutral': '保存的回答',
+  'chat.form.neutral': '保存的回答',
+  'automations.reason.question-unanswered': '最新问题没有保存的回答',
+  'automations.reason.question-already-answered': '最新一轮已经发出',
+  'automations.reason.question-turn-unavailable': '最新一轮不能用作问题',
+  'questions.aliases': '等价问题，每行一个',
+  'questions.canonical': '用此更正替代旧答案',
+  'questions.policy': '答案复用规则',
+  'questions.rejected': '拒绝的短语，每行一个',
+  'questions.punctuationEquivalent': '合并仅句末标点不同的答案次数',
+  'questions.policySaved': '答案复用规则已保存。',
+  'automations.reason.notice-no-reply': '已保存通知；无需回复',
+  'questions.noReply': '无需回复。',
+  'questions.match.summary': '已完成的问卷汇总',
+  'automations.reason.question-summary-complete': '问卷已完成，无需回复',
+  'questions.contexts': '上下文值',
+  'questions.contextHint':
+    '设置关键词，按币种、工作方式或其他上下文选择资料值。优先顺序为当前问题、近期对话、职位薪酬、职位描述和默认值。缺失值不会被其他选项替代。',
+  'questions.contextGroup': '上下文组',
+  'questions.contextKey': '上下文字段，例如 currency',
+  'questions.contextChoice': '上下文选项',
+  'questions.contextChoiceId': '选项值，例如 USD',
+  'questions.contextKeywords': '选择此选项的关键词，每行一个',
+  'questions.contextDefault': '无上下文时的默认值',
+  'questions.contextNoDefault': '需要上下文',
+  'questions.contextAddGroup': '添加上下文组',
+  'questions.contextRemoveGroup': '移除上下文组',
+  'questions.contextAddChoice': '添加上下文选项',
+  'questions.contextRemoveChoice': '移除上下文选项',
+  'questions.contextPreview': '预览所用的对话和职位',
+  'questions.contextPreviewHint':
+    '这些字段仅用于本次预览。发送时使用实际对话及其关联的职位上下文。',
+  'questions.contextRecent': '近期消息，每行一条，最新的在前',
+  'questions.contextPay': '职位薪酬上下文',
+  'questions.contextDescription': '职位描述',
+  'questions.contextEvidence': '选择这些值的原因',
+  'questions.contextSource.question': '当前问题',
+  'questions.contextSource.conversation': '近期对话',
+  'questions.contextSource.vacancy-pay': '职位薪酬',
+  'questions.contextSource.vacancy-description': '职位描述',
+  'questions.contextSource.default': '已配置的默认值',
+  'questions.contextSource.missing': '上下文不可用',
+  'questions.contextSource.ambiguous': '上下文不明确',
+  'questions.salaryGuidance': '按职位或表单拟定最低报酬和理想时薪（需审核）',
+  'questions.salary.hourlyNet': '理想税后时薪（可选）',
+  'questions.salary.hourlyGross': '理想税前时薪（可选）',
+  'questions.contextSource.form-intro': '表单介绍',
+  'questions.salaryMinimumSource': '最低报酬来源：{source}',
+  'questions.contextSource.owner-target': '所有者的目标',
+  'questions.salaryTitle': '薪酬目标',
+  'questions.salaryHint':
+    '分别填写各币种的税后月薪目标。可直接填写税前金额，或明确选择按您自己的税率表和带日期的汇率计算。时薪按工时和步长向上取整。缺失或过期的数据需要审核。',
+  'questions.salaryEnabled': '使用配置的薪酬目标',
+  'questions.salaryApproved': '允许自动发送完整的薪酬答复',
+  'questions.salaryHours': '每月工时（留空则禁用时薪答复）',
+  'questions.salaryDefault': '默认薪酬币种',
+  'questions.salaryBasis': '默认税前或税后',
+  'questions.salaryCurrency': '薪酬币种',
+  'questions.salaryCode': '币种代码，例如 USD',
+  'questions.salaryKeywords': '币种关键词，以逗号分隔',
+  'questions.salaryContextPriority':
+    '上下文优先级（数值越高越优先；问题指定币种优先）',
+  'questions.salary.net': '税后月薪',
+  'questions.salary.gross': '税前月薪',
+  'questions.salary.hourlyStep': '时薪向上取整步长',
+  'questions.salaryAdd': '添加薪酬币种',
+  'questions.salaryRemove': '删除薪酬币种',
+  'questions.salaryClear': '删除薪酬设置',
+  'questions.match.salary': '配置的薪酬目标',
+  'questions.salaryMethod': '税前金额计算方式',
+  'questions.salaryMethod.explicit': '直接填写税前金额',
+  'questions.salaryMethod.personal': '个人累进税',
+  'questions.salaryMethod.company': '公司税和分配税',
+  'questions.salary.grossStep': '计算税前月薪的取整步长',
+  'questions.salaryTaxHint.personal':
+    '填写适用的年度税前收入上限和税率。各税率仅适用于对应区间，最后一区间无上限。不预设司法辖区或法定税率。',
+  'questions.salaryTaxHint.company':
+    '区间决定整个年度税前收入适用的税率。分配税在公司税之后计算。有有效汇率时，区间币种可与薪酬币种不同。',
+  'questions.salaryTaxCurrency': '个人税币种',
+  'questions.salaryBand': '税率区间 {number}',
+  'questions.salaryBandLimit': '年度税前收入上限',
+  'questions.salaryBandCurrency': '区间币种（留空使用薪酬币种）',
+  'questions.salaryTaxRate': '税率（%）',
+  'questions.salaryPayout': '额外分配税（%）',
+  'questions.salaryUnlimited': '最后区间：无上限',
+  'questions.salaryAddBand': '添加有上限的税率区间',
+  'questions.salaryRemoveBand': '删除税率区间',
+  'questions.salaryAddTax': '配置税率表',
+  'questions.salaryRemoveTax': '删除税率表',
+  'questions.salaryExchange': '带日期的汇率',
+  'questions.salaryExchangeHint':
+    '汇率表示每一单位所列币种对应多少基准币种。仅用于换算税务门槛，不改变独立的税后目标。计算答复会显示来源和日期。缺失或过期的汇率需要审核。',
+  'questions.salaryExchangeBase': '汇率基准币种',
+  'questions.salaryExchangeDate': '汇率日期',
+  'questions.salaryExchangeSource': '汇率来源',
+  'questions.salaryExchangeSource.manual': '所有者提供的汇率',
+  'questions.salaryExchangeSource.cbr': '俄罗斯央行汇率快照',
+  'questions.salaryExchangeAge': '汇率最长有效期（天）',
+  'questions.salaryExchangeRate': '每单位币种对应的基准币种数量',
+  'questions.salaryAddRate': '添加汇率',
+  'questions.salaryRemoveRate': '删除汇率',
+  'questions.salaryAddExchange': '配置汇率',
+  'questions.salaryRemoveExchange': '删除汇率配置',
+  'questions.salaryCalculationEvidence': '薪酬计算详情',
+  'questions.salaryFetchRates': '从俄罗斯央行刷新',
+  'questions.salaryUseCachedRates': '使用缓存汇率',
+  'questions.salaryRatesLoading': '正在加载汇率…',
+  'questions.salaryRates.updated': '已加载俄罗斯央行汇率（{date}）。',
+  'questions.salaryRates.cached': '已加载缓存汇率（{date}）。',
+  'questions.salaryRates.stale':
+    '{date} 的汇率已过期。计算所得的回答需要审核。',
+  'questions.salaryRates.unavailable':
+    '没有可用的已保存汇率。请手动输入或重试刷新。',
+  'questions.salaryRatesFallback':
+    '刷新未提供更新的有效汇率；现有已保存数据仍予保留。',
+  'questions.salaryRatesDraft': '汇率已应用于此草稿。',
+  'questions.salaryRatesChanged':
+    '汇率加载期间设置已更改。您的修改已保留；重试可替换它们。',
+  'questions.salaryExchangeMode': '汇率策略',
+  'questions.salaryExchangeMode.snapshot': '使用此保存快照',
+  'questions.salaryExchangeMode.cbr': '自动从俄罗斯央行刷新',
+  'questions.salaryExchangeModeHint':
+    '自动模式使用未过期的缓存，并在规划前刷新缺失或过期的汇率。失败时保留缓存日期，五分钟后重试。仅快照模式使用保存的快照数值。',
 };
+import { zhFollowBacklink } from './zh-follow-backlink.js';

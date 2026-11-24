@@ -50,6 +50,9 @@ const fakeCommander = ({ present = [], rows = [], calls = [] } = {}) => {
       return { filled: true };
     },
     async evaluate({ fn, args }) {
+      if (fn.name === 'browserComposerDraft') {
+        return { verified: true };
+      }
       calls.push(['evaluate', args[0].item, args[0].limit]);
       return typeof rows === 'function' ? rows(fn, args) : rows;
     },
@@ -232,7 +235,7 @@ test('input "fill" fills the composer instead of typing', async () => {
   ]);
 });
 
-test('WhatsApp relies on the pre-filled composer and only sends', async () => {
+test('WhatsApp opens without prefill and types after checking the composer', async () => {
   const commander = fakeCommander({ present: signedIn('whatsapp') });
   const { openSession } = fakeSessions(() => commander);
   const sender = createBrowserSender({ openSession, ...quick });
@@ -244,8 +247,9 @@ test('WhatsApp relies on the pre-filled composer and only sends', async () => {
   });
   assert.equal(result.chat, '+1 555 0100');
   assert.deepEqual(commander.calls, [
-    ['goto', 'https://web.whatsapp.com/send?phone=15550100&text=hi'],
+    ['goto', 'https://web.whatsapp.com/send?phone=15550100'],
     ['click', first(WEB_UIS.whatsapp.composer)],
+    ['type', 'hi'],
     ['click', first(WEB_UIS.whatsapp.send.selector)],
   ]);
 });
@@ -286,6 +290,61 @@ test('the login check times out to the same error', async () => {
     sender.send({ source: 'vk', chat: 1, text: 'hi' }),
     BrowserLoginRequiredError
   );
+});
+
+test('owned HH preparation can reuse the application session in its exact chat slot', async () => {
+  const ui = WEB_UIS.hh;
+  let signedIn = false;
+  let location = ui.loginUrl;
+  const page = { isClosed: () => false, url: () => location };
+  const commander = fakeCommander({
+    present: (selector) =>
+      selector === first(signedIn ? ui.loggedIn : ui.loggedOut),
+  });
+  const goto = commander.goto;
+  commander.goto = async (options) => {
+    await goto(options);
+    location = signedIn ? options.url : ui.loginUrl;
+  };
+  const profiles = [];
+  const sender = createBrowserSender({
+    ...quick,
+    slot: 'batch-chats',
+    resolveProfileDir: async () => '/workspace/hh/slots/batch-chats',
+    openSession: async ({ profileDir }) => {
+      profiles.push(profileDir);
+      return { commander, page };
+    },
+  });
+  let attempts = 0;
+  const authenticate = (destination) => {
+    assert.equal(destination, page);
+    assert.equal(destination.url(), ui.loginUrl);
+    attempts++;
+    signedIn = true;
+    return true;
+  };
+  const result = await sender.prepareUnreadConversations({
+    source: 'hh',
+    authenticate,
+  });
+  assert.deepEqual(result, {
+    source: 'hh',
+    slot: 'batch-chats',
+    ready: true,
+    sessionReused: true,
+  });
+  assert.deepEqual(profiles, ['/workspace/hh/slots/batch-chats']);
+  assert.equal(attempts, 1);
+  assert.deepEqual(commander.calls, [
+    ['goto', ui.listUrl],
+    ['goto', ui.listUrl],
+  ]);
+  assert.deepEqual(
+    await sender.prepareUnreadConversations({ source: 'hh', authenticate }),
+    { source: 'hh', slot: 'batch-chats', ready: true }
+  );
+  assert.equal(attempts, 1);
 });
 
 test('missing composer, text, target or network fail clearly', async () => {
@@ -372,6 +431,31 @@ test('readRecent maps visible messages to message links', async () => {
   assert.match(links[1].id, /^msg:telegram:-100500:[0-9a-f]{12}$/);
   assert.equal(links[1].sender, 'me');
   assert.equal(links[1].timestamp, '2026-10-11T10:00:00.000Z');
+});
+
+test('readRecent retains text-free service barriers as message links', async () => {
+  const commander = fakeCommander({
+    present: signedIn('telegram'),
+    rows: [
+      { id: '1', body: 'Can you start Monday?', outgoing: false },
+      { id: '2', body: '', outgoing: true, service: true },
+      { id: '3', body: 'Yes, Monday works.', outgoing: true },
+    ],
+  });
+  const { openSession } = fakeSessions(() => commander);
+  const sender = createBrowserSender({ openSession, ...quick });
+  try {
+    const messages = await sender.readRecent({ source: 'telegram', chat: 7 });
+    assert.deepEqual(
+      messages.map((row) => row.id),
+      ['msg:telegram:7:1', 'msg:telegram:7:2', 'msg:telegram:7:3']
+    );
+    assert.equal(messages[1].service, true);
+    assert.equal(messages[1].body, '');
+    assert.equal(messages[2].service, undefined);
+  } finally {
+    await sender.close();
+  }
 });
 
 test('readRecent parses WhatsApp data-pre-plain-text', async () => {
@@ -660,9 +744,15 @@ test('createDefaultSender: adapter first, browser on failure', async () => {
     text: 'hi',
   });
   assert.equal(viaApi.via, 'api');
-  assert.deepEqual(posted, [
-    [{ chat: '42', to: 'anna', text: 'hi' }, { token: 't' }],
-  ]);
+  assert.deepEqual(
+    posted.map(([content, { beforeIssue: _guard, ...options }]) => [
+      content,
+      options,
+    ]),
+    [[{ chat: '42', to: 'anna', text: 'hi' }, { token: 't' }]]
+  );
+  assert.equal(typeof posted[0][1].beforeIssue, 'function');
+  await posted[0][1].beforeIssue();
   const viaBrowser = await send({
     source: 'vk',
     chat: '5',

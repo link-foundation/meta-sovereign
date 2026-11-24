@@ -1,0 +1,16 @@
+{
+  "archive": "ci-single-changeset.tar.gz",
+  "files": {
+    ".changeset/visible-browser-defaults.md": "84bab232ef8f93113029b6c25fec721ca7d2d98c50599c5d746fdf0332c06241",
+    "docs/case-studies/issue-56/ci-single-changeset.md": "691fad3df039dfc234cc25764d88e656246bf68e6c11586f72aff65b265eee06",
+    "experiments/issue-56/collect-ci-single-changeset.py": "57bcd6489c738456b478ffff4b69934b6b5413e1d79f35834fbd7d3d22024c9d",
+    "ci-logs/checks-wall-132798716101.log": "f055ae32df785b4e5b5b499ab3c78e06af62826bd647077e785824ca5f0b2aba",
+    "ci-logs/checks-wall-132799449198.log": "44adcb60dca730e403790b8b18fa799e39fc4973d1f9fc25acbac13d000f1fec",
+    "ci-logs/vk-birthday-wall-head-jobs.json": "fc77891f2635e91a78a0c6bec142a5e8e517cb9977bafea3d907d548b98ac10b",
+    "ci-logs/vk-birthday-current-runs.json": "9ef0e59ff08d23debb0d9a7a5f0b015dcedcad08258aed34c1fd94a3e0d9be53",
+    "ci-logs/vk-changeset-before.log": "afee59821c7a545e0d09f76f50e4131725b218d7a98a1e33cc2a8e09b2d74895",
+    "ci-logs/vk-changeset-after.log": "e80f6bc04c15d62df9025ecfeb78c3ee9681441a5febd1f313a6599c996604fc",
+    "before/.changeset/visible-browser-defaults.md": "358092ee1e4304ffbb884c5f8f38a92347e1c1c5ba76e8c33fae95f53da9edd0",
+    "before/.changeset/vk-wall-invitations.md": "4278a3498762a364de92d96e145413036968776d35b13fa176c0544f15730d85"
+  }
+}

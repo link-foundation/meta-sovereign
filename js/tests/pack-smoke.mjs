@@ -24,6 +24,7 @@ import { debug } from '../scripts/debug-print.mjs';
 import { HOSTED_UI_URL } from '../src/server/hosted-ui.js';
 import { localTlsPaths } from '../src/server/local-tls.js';
 import { BEACON_PATH, BEACON_WIDTH, pictureSays } from '../src/web/discover.js';
+import { readWireResponse } from '../src/transport/lino.js';
 
 const repoRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -74,6 +75,12 @@ const pack = (dir) => {
   );
   for (const required of [
     'js/src/server/local-key-enclave.swift',
+    'js/src/server/runner-tools/check-application.mjs',
+    'js/src/server/runner-tools/deploy-source.mjs',
+    'js/src/server/runner-tools/prepare-application.mjs',
+    'js/src/server/runner-tools/prepare.mjs',
+    'js/src/server/runner-tools/prepare-node.sh',
+    'js/src/server/runner-tools/locked-dependencies.json',
     'js/src/sources/system-contacts.swift',
     'js/src/sources/system-contacts.plist',
   ]) {
@@ -102,7 +109,10 @@ const problemsOf = async (base, storeDir) => {
   const status = await fetch(`${base}/api/status`, {
     headers: { origin: new URL(HOSTED_UI_URL).origin },
   });
-  if (typeof (await status.json()).links !== 'number') {
+  if (!status.headers.get('content-type')?.startsWith('text/lino')) {
+    problems.push('/api/status does not default to Lino');
+  }
+  if (typeof (await readWireResponse(status)).links !== 'number') {
     problems.push('/api/status has no link count');
   }
   if (
@@ -225,6 +235,9 @@ const main = async () => {
     });
     await waitForServer(`${base}/api/status`, child, {
       headers: { origin: new URL(HOSTED_UI_URL).origin },
+      // The rolling host can answer before its control socket is created and
+      // the CLI announces the address. Both belong to the startup deadline.
+      ready: () => log.includes(`open the app → ${HOSTED_UI_URL}`),
     });
     if (spawnError) {
       throw spawnError;

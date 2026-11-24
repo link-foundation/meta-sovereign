@@ -1,0 +1,104 @@
+{
+  "questions.salaryTitle": {
+    "en": "Salary targets",
+    "ru": "Зарплатные ожидания",
+    "zh": "薪酬目标",
+    "hi": "वेतन लक्ष्य"
+  },
+  "questions.salaryHint": {
+    "en": "Enter separate monthly net and gross amounts for each currency. Hourly rates round up using your hours and rounding step. Missing amounts require review. No currency conversion or tax calculation is assumed.",
+    "ru": "Задайте месячные суммы на руки и до вычета налогов отдельно для каждой валюты. Почасовая ставка округляется вверх с учётом часов и шага. Отсутствующие суммы требуют проверки. Конвертация валют и расчёт налогов не предполагаются.",
+    "zh": "分别填写各币种的月薪税后和税前金额。时薪按设定工时和步长向上取整。缺失金额需要审核，不会自动换汇或计算税额。",
+    "hi": "हर मुद्रा में मासिक कर के बाद और कर से पहले की राशि अलग दें। घंटे की दर आपके घंटों और पूर्णांकन चरण से ऊपर गोल होगी। अनुपलब्ध राशि की समीक्षा ज़रूरी है। मुद्रा या कर की गणना अपने आप नहीं होती।"
+  },
+  "questions.salaryEnabled": {
+    "en": "Use configured salary targets",
+    "ru": "Использовать заданные зарплатные ожидания",
+    "zh": "使用配置的薪酬目标",
+    "hi": "निर्धारित वेतन लक्ष्य उपयोग करें"
+  },
+  "questions.salaryApproved": {
+    "en": "Approve complete salary answers for automatic sending",
+    "ru": "Разрешить автоматическую отправку полных ответов о зарплате",
+    "zh": "允许自动发送完整的薪酬答复",
+    "hi": "पूर्ण वेतन उत्तरों को स्वतः भेजने की मंज़ूरी दें"
+  },
+  "questions.salaryHours": {
+    "en": "Work hours per month (empty disables hourly answers)",
+    "ru": "Часы работы в месяц (пусто — без почасовых ответов)",
+    "zh": "每月工时（留空则禁用时薪答复）",
+    "hi": "मासिक कार्य घंटे (खाली रखने पर प्रति घंटे उत्तर बंद)"
+  },
+  "questions.salaryDefault": {
+    "en": "Default salary currency",
+    "ru": "Валюта зарплаты по умолчанию",
+    "zh": "默认薪酬币种",
+    "hi": "डिफ़ॉल्ट वेतन मुद्रा"
+  },
+  "questions.salaryBasis": {
+    "en": "Default tax basis",
+    "ru": "Налоговая база по умолчанию",
+    "zh": "默认税前或税后",
+    "hi": "डिफ़ॉल्ट कर आधार"
+  },
+  "questions.salaryCurrency": {
+    "en": "Salary currency",
+    "ru": "Валюта зарплаты",
+    "zh": "薪酬币种",
+    "hi": "वेतन मुद्रा"
+  },
+  "questions.salaryCode": {
+    "en": "Currency code, e.g. USD",
+    "ru": "Код валюты, например USD",
+    "zh": "币种代码，例如 USD",
+    "hi": "मुद्रा कोड, जैसे USD"
+  },
+  "questions.salaryKeywords": {
+    "en": "Currency words, comma-separated",
+    "ru": "Слова для валюты через запятую",
+    "zh": "币种关键词，以逗号分隔",
+    "hi": "मुद्रा के शब्द, अल्पविराम से अलग"
+  },
+  "questions.salary.net": {
+    "en": "Monthly net amount",
+    "ru": "Месячная сумма на руки",
+    "zh": "税后月薪",
+    "hi": "मासिक कर के बाद की राशि"
+  },
+  "questions.salary.gross": {
+    "en": "Monthly gross amount",
+    "ru": "Месячная сумма до вычета налогов",
+    "zh": "税前月薪",
+    "hi": "मासिक कर से पहले की राशि"
+  },
+  "questions.salary.hourlyStep": {
+    "en": "Hourly rounding step",
+    "ru": "Шаг округления почасовой ставки",
+    "zh": "时薪向上取整步长",
+    "hi": "प्रति घंटे पूर्णांकन चरण"
+  },
+  "questions.salaryAdd": {
+    "en": "Add salary currency",
+    "ru": "Добавить валюту зарплаты",
+    "zh": "添加薪酬币种",
+    "hi": "वेतन मुद्रा जोड़ें"
+  },
+  "questions.salaryRemove": {
+    "en": "Remove salary currency",
+    "ru": "Удалить валюту зарплаты",
+    "zh": "删除薪酬币种",
+    "hi": "वेतन मुद्रा हटाएं"
+  },
+  "questions.salaryClear": {
+    "en": "Remove salary settings",
+    "ru": "Удалить настройки зарплаты",
+    "zh": "删除薪酬设置",
+    "hi": "वेतन सेटिंग हटाएं"
+  },
+  "questions.match.salary": {
+    "en": "Configured salary target",
+    "ru": "Заданные зарплатные ожидания",
+    "zh": "配置的薪酬目标",
+    "hi": "निर्धारित वेतन लक्ष्य"
+  }
+}

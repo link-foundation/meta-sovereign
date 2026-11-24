@@ -54,6 +54,26 @@ const lockedError = (dir, pid) =>
   );
 
 const held = new Map(); // lock file -> { count, release }
+const conflicts = (pid, exclusive) =>
+  pid !== null && (pid === process.pid ? exclusive : alive(pid));
+
+/** Observe a process lease without claiming or removing it. */
+export const readStoreLockState = async (dir) => {
+  try {
+    const contents = await fs.readFile(path.join(dir, LOCK_FILE), 'utf8');
+    const pid = Number(contents.trim());
+    if (
+      !/^[1-9]\d*\n?$/.test(contents) ||
+      !Number.isSafeInteger(pid) ||
+      pid > 2147483647
+    ) {
+      return 'unknown';
+    }
+    return alive(pid) ? 'held' : 'free';
+  } catch (error) {
+    return error.code === 'ENOENT' ? 'free' : 'unknown';
+  }
+};
 
 /** Take the lock of the store in `dir`; resolves to `{ release }`. */
 export const acquireStoreLock = async (dir, { exclusive = false } = {}) => {
@@ -82,7 +102,9 @@ export const acquireStoreLock = async (dir, { exclusive = false } = {}) => {
         await sleep(50);
         continue; // the owner is still writing its pid
       }
-      if (pid !== null && pid !== process.pid && alive(pid)) {
+      // Another request in this process may still be publishing its handle
+      // into held. An exclusive request must not unlink that live PID's file.
+      if (conflicts(pid, exclusive)) {
         throw lockedError(dir, pid);
       }
       await fs.unlink(file).catch(() => {}); // stale: its process is gone

@@ -1,0 +1,22 @@
+{
+  "archive": "application-chat-waiting.tar.gz",
+  "files": {
+    "ci-logs/application-chat-waiting-chromium-current-2.log": "457adbe1568e3520e2d57ac543c16d04ddba1e5036c42402d645e74efc5d1b96",
+    "ci-logs/application-chat-waiting-chromium-group-trace.log": "e190e93c6b41ec5d41d16205676fd03c4bece39d9acbea6e8c5fd3e5adacf11e",
+    "ci-logs/application-chat-waiting-chromium-group.log": "9402280d988eba1ec8fbd9e7f92bd5d6186c53a203d926892c91d6e60124c375",
+    "ci-logs/application-chat-waiting-chromium-parent.log": "788f19abf1f2a598c6812c50e1776d9876fc0df18f4811f7998912664ee0a1f8",
+    "ci-logs/application-chat-waiting-deno.log": "c03ba9414aa67c8cfd3c9ebe8dd2d009cd81326a9a43182f6df9c919b3210627",
+    "ci-logs/application-chat-waiting-eslint-final.log": "6d9125c56ffdf6b9e3be51c9d624767667f13238a68d8da1debd14eede4ceaed",
+    "ci-logs/application-chat-waiting-format-final.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/application-chat-waiting-mcp-console.log": "099e1372b70a93d1de1b0e830e36e3861990a9c0fe42a67f666139ca448617cd",
+    "ci-logs/application-chat-waiting-mcp-result.json": "37a65116766ea0b634ab4d699e68912c091d1031e1d64efbf8f33cb354925e6f",
+    "ci-logs/application-chat-waiting-mcp-server-fixed.log": "74b9816bb73ebbd9ac266437cb30b8e7d0dd0c269fd947091db8afbb0498c9d2",
+    "ci-logs/application-chat-waiting-node-final.log": "3f2457428eecb4b8ba63c738690d2a757b325fdb0e8662bada4c0f5b7276ac6e",
+    "ci-logs/application-chat-waiting-parent.log": "9aa7a1782b3c1824c4681dc1f6b8bfad9ff54b5b14e6dd5943eb4ff24cdb6b43",
+    "ci-logs/application-chat-waiting-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/application-chat-waiting-trace-eslint.log": "37d5531ec34933ea70fefab3e62fb457410de75dd0aad18ad74da777e61d688d",
+    "ci-logs/application-chat-waiting-trace-format.log": "a83d87360a42e93d5a1fc833d64a033777aea58e5244cc5cb35e7cf4dfda0093",
+    "ci-logs/application-chat-waiting-webkit-final.log": "97af494188dc7bc3a99d09457775675a7fb47c23216d11ec1471b698f743f857",
+    "metadata.json": "91e38cfd65bd456b3d998a50aade118a0c246892cf600dfd80a977433d12a671"
+  }
+}

@@ -1,0 +1,46 @@
+✖ worker close waits for process and stdio closure after its acknowledgment (15.676006ms)
+✖ failed warm readers are discarded only after their resources close (4.35755ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 168.50253
+
+✖ failing tests:
+
+test at js/tests/worker-client.test.js:36:1
+✖ worker close waits for process and stdio closure after its acknowledgment (15.676006ms)
+  AssertionError [ERR_ASSERTION]: an IPC acknowledgment does not release the worker
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///tmp/gh-issue-solver-1794216540735/js/tests/worker-client.test.js:52:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at js/tests/worker-client.test.js:68:1
+✖ failed warm readers are discarded only after their resources close (4.35755ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///tmp/gh-issue-solver-1794216540735/js/tests/worker-client.test.js:79:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

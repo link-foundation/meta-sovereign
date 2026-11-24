@@ -1,0 +1,12 @@
+{
+  "archive": "ci-lino-pause-hosted.tar.gz",
+  "files": {
+    "ci-logs/hosted-b61-windows-node-1-job.json": "7de817f2fcf192c7a93fe3d2634d8fa2f1e68272dde4a022fb64a07f256b6722",
+    "ci-logs/hosted-b61-windows-node-1.log": "f7d9dacff113cc844f41b7b3ea5ad59685a377651ab74093b98cb0e609ea6819",
+    "docs/case-studies/issue-56/ci-lino-pause.md": "d504a1a6982d4e424a78122205b2adbd39322e368c21b0d9beb0c1ce48ccecd9",
+    "docs/case-studies/issue-56/ci-lino-pause-plan.md": "123175339b6be8889c645c2811eb4e3fc179c949eae676f960d988c09bb9f772",
+    "experiments/issue-56/collect-lino-pause-hosted.py": "325bed2da567730ac9c19192d571a35172febe30bf2310e3539666fcb5eb66df",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "metadata.json": "0a76070ddca0ea5bd70b253410aa4b2dc7b7e261edef0144f281bedc59bb8f87"
+  }
+}

@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for chat invite links (R-Y123), as Telegram Desktop
 // handles them: an invite link in a message opens a dialog instead of the
 // browser (the chat's initial, title, kind, members, Join or Request to
@@ -89,7 +90,7 @@ const checks = [];
 const joins = [];
 const revokes = [];
 await page.route('**/api/telegram/invite-check', (route) => {
-  const { hash } = route.request().postDataJSON();
+  const { hash } = requestBody(route.request());
   checks.push(hash);
   if (hash === 'PlainHash123') {
     return fulfil(route, {
@@ -127,14 +128,14 @@ await page.route('**/api/telegram/invite-check', (route) => {
   return fulfil(route, { ok: false, error: 'x', code: 'invite-expired' });
 });
 await page.route('**/api/telegram/invite-join', (route) => {
-  const { hash } = route.request().postDataJSON();
+  const { hash } = requestBody(route.request());
   joins.push(hash);
   return hash === 'RequestHash1'
     ? fulfil(route, { ok: false, error: 'x', code: 'invite-request-sent' })
     : fulfil(route, { ok: true, chat: '-1009' });
 });
 await page.route('**/api/telegram/invite-revoke', (route) => {
-  revokes.push(route.request().postDataJSON());
+  revokes.push(requestBody(route.request()));
   return fulfil(route, { ok: true, link: 'https://t.me/+NewPrimary56789' });
 });
 

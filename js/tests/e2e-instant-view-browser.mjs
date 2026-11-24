@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for Instant View (R-Y205), as Telegram Desktop offers
 // it: a message whose link preview has a cached page shows an INSTANT
 // VIEW button; it opens a full-height reader with the page's title,
@@ -121,7 +122,7 @@ const tree = {
 };
 const asked = [];
 await page.route('**/api/telegram/instant-view', (route) => {
-  const { url } = route.request().postDataJSON();
+  const { url } = requestBody(route.request());
   asked.push(url);
   if (url.endsWith('/gone')) {
     return fulfil(route, { ok: false, error: 'failed', code: 'not-found' });

@@ -1,0 +1,5 @@
+
+> meta-sovereign@1.2.0 test:e2e:browser-preferences
+> node js/tests/e2e-browser-preferences.mjs
+
+[e2e-browser-preferences] OK (chromium)

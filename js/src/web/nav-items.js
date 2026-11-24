@@ -26,6 +26,7 @@ export const navItems = [
   ['status', 'nav.status'],
   ['connections', 'nav.connections'],
   ['cv', 'nav.cv'],
+  ['forms', 'nav.forms'],
   ['greetings', 'nav.greetings'],
   ['settings', 'nav.settings'],
 ];

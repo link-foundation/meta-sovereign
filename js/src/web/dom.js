@@ -12,8 +12,11 @@ import { createPasscodeCaller } from './passcode-request.js';
 import { messageVersionCalls } from './dom-message-versions.js';
 import { LOCKED_EVENT } from './passcode.js';
 import { createRecoveringRequest } from './request-recovery.js';
+import { createLinoFetch } from '../transport/fetch.js';
+import { LINO_TEXT, LINO_LINE, decodeWire } from '../transport/lino.js';
 import { isReadRequest } from './request-policy.js';
-import { migrateBrowserStore } from '../storage/migrations/browser-runner.js';
+import { withCausalWrites } from '../storage/causal-writes.js';
+import { openCausalBrowserStore } from '../storage/open-browser-store.js';
 import {
   createBrowserStore,
   pickBrowserDriver,
@@ -30,13 +33,23 @@ import { createHandlerBus, broadcastHandler } from '../handlers/index.js';
 import { createAutomationApi } from './automation-api.js';
 import { attachWebRtcSync } from './webrtc-sync.js';
 import { createGreetingApi } from './greetings-api.js';
-import { TELEGRAM_CALLS } from './dom-telegram-calls.js';
+import { createTelegramCalls } from './telegram-call-api.js';
 import { bindPaid, guardApi, paidGate } from './paid-send.js';
 import { guardCodes, pageCodeGate } from './sign-in-code-guard.js';
 import { activeAccount, scopedUrl } from './telegram-account-scope.js';
 import { createConversationApi } from './conversation-api.js';
 import { createFeedbackApi } from './feedback-api.js';
 import { createStickerCollectionsApi } from './sticker-collections-api.js';
+import { createVkProviderApi } from './vk-provider-api.js';
+import { createVkTokenApi } from './vk-token-api.js';
+import { createRunnerApi } from './runner-api.js';
+import { openTelegramAccountEvents } from './telegram-capabilities.js';
+import { createBroadcastApi } from './broadcast-api.js';
+import { createFormsApi } from './forms-api.js';
+import { createCvApi } from './cv-api.js';
+import { createVacancyApi } from './vacancy-api.js';
+import { createPublicationApi } from './publication-api.js';
+import { AUTOMATION_CALLS } from './dom-automation-calls.js';
 import {
   createWorkspaceStore,
   workspaceFetch,
@@ -90,12 +103,13 @@ const localBroadcast = async (networks, body) =>
 // by a newer build is not touched: the page works on a scratch copy and
 // says so (`ms-schema-too-new`), so nothing of it is overwritten.
 const openMigratedStore = async (suffix) => {
-  const store = await createBrowserStore({
-    driver: pickBrowserDriver({ suffix }),
-  });
   try {
-    await migrateBrowserStore(store);
-    return store;
+    return await openCausalBrowserStore({
+      driver: pickBrowserDriver({ suffix }),
+      signal: pageLifetime,
+      onError: (error) =>
+        debugBrowser('snapshot-merge-refused', { code: error?.code }),
+    });
   } catch (error) {
     if (error?.code !== 'STORE_TOO_NEW') {
       throw error;
@@ -104,7 +118,7 @@ const openMigratedStore = async (suffix) => {
     globalThis.dispatchEvent?.(
       new globalThis.CustomEvent('ms-schema-too-new', { detail: error.message })
     );
-    return createBrowserStore();
+    return withCausalWrites(await createBrowserStore());
   }
 };
 
@@ -125,6 +139,7 @@ const peerSync = (store, discovered, slot) =>
     ? attachWebRtcSync({
         store,
         origin: discovered.origin,
+        capabilities: discovered.capabilities,
         onError: (error) => {
           rawApi
             .clientLog({
@@ -143,9 +158,9 @@ const boot = async () => {
   const slot = activeAccount();
   const suffix = slot > 1 ? `@telegram-${slot}` : '';
   const cloud = Boolean(workspaceName());
-  const request = cloud
-    ? workspaceFetch
-    : (...args) => globalThis.fetch(...args);
+  const request = createLinoFetch(
+    cloud ? workspaceFetch : (url, init) => globalThis.fetch(url, init)
+  );
   const fetchScoped = (url, init) =>
     request(scopedUrl(String(url), init?.method ?? 'GET'), init);
   const store = cloud
@@ -172,6 +187,9 @@ const boot = async () => {
     replyDriver: cloud
       ? null
       : pickSnapshotDriver(`meta-sovereign:reply-model${suffix}`),
+    signal: pageLifetime,
+    onReplyCacheError: (error) =>
+      debugBrowser('reply-cache-refused', { code: error.code }),
   });
   client.on((event) => {
     if (event.type === 'mode-change' && event.online) {
@@ -180,7 +198,8 @@ const boot = async () => {
   });
   // When a server is reachable, also open a WebRTC peer sync over its
   // /rtc broker so writes propagate browser-to-browser without the
-  // server relaying every byte (R-J7). Best-effort: a missing
+  // server relaying every byte (R-J7). Honor an explicitly disabled broker.
+  // Best-effort: a missing
   // RTCPeerConnection (older browsers) just skips this path. Only account
   // 1's: the peers are account 1's pages (R-Y202).
   const rtc = peerSync(store, discovered, cloud ? null : slot);
@@ -221,8 +240,9 @@ const ensure = () => {
  */
 export const resetServerBinding = () => {
   bootPromise
-    ?.then(({ follow, client, requests }) => {
+    ?.then(({ follow, client, requests, rtc }) => {
       follow?.stop?.();
+      rtc?.close?.();
       client.close?.();
       requests.stop();
     })
@@ -246,7 +266,7 @@ const NO_ANSWER = Object.freeze({
 const serverResponse = async (
   path,
   init,
-  { network = false, read = false } = {}
+  { network = false, read = false, recover = true, body = 'json' } = {}
 ) => {
   const { origin, requests } = await ensure();
   if (!origin) {
@@ -264,8 +284,9 @@ const serverResponse = async (
   return requests
     .request(url, init ?? {}, {
       // Mixed read/write endpoints opt in only for their read-only variant.
-      retry: read || isReadRequest(path, init?.method),
+      retry: recover && (read || isReadRequest(path, init?.method)),
       json: true,
+      body,
     })
     .then(announceLocked)
     .catch(() => (network ? NO_ANSWER : null));
@@ -280,13 +301,13 @@ const announceLocked = (response) => {
 };
 
 // The local passcode (R-Y183): `op` is status, unlock, lock, set, remove or
-// auto-lock; the answer is the server's JSON with `httpStatus`, null offline.
+// auto-lock; the answer has `httpStatus`, null offline.
 const passcodeCall = createPasscodeCaller(ensure, announceLocked);
 
-const serverFetch = async (path, init) => {
-  const response = await serverResponse(path, init);
+const serverFetch = async (path, init, options) => {
+  const response = await serverResponse(path, init, options);
   // "Online" does not mean "implements this route": the Rust backend
-  // answers routes it does not have with a 404 and a JSON error body
+  // answers routes it does not have with a 404 and a structured error body
   // (`docs/SERVER-PARITY.md`), and a proxy in front of it may answer
   // with HTML. Both mean the same thing as being offline, so both
   // return null and let the caller's `??` default take over —
@@ -306,6 +327,16 @@ const serverFetch = async (path, init) => {
     return null;
   }
   return response.json().catch(() => null);
+};
+
+// A refused saved-file read is unknown, rather than an empty local selection.
+const serverReadReport = async (path) => {
+  const response = await serverResponse(path, {}, { network: true });
+  if (!response) {
+    return null;
+  }
+  const result = await response.json().catch(() => null);
+  return result ?? { ok: false, code: 'server-read-unconfirmed' };
 };
 
 /**
@@ -328,8 +359,8 @@ const serverPostReport = async (path, body, options) => {
   if (!data || data.error === 'unknown route') {
     return null;
   }
-  // Read panels own their feedback; mutation refusals retain the global toast.
-  if (!options?.read) {
+  // Panels with inline feedback can suppress the global toast independently of retry.
+  if (!options?.read && !options?.quiet) {
     reportApiFailure({ path, method: 'POST', status: response.status, data });
   }
   return { ...data, httpStatus: response.status };
@@ -352,12 +383,16 @@ const uploadTo = async (path, file, { onProgress, signal } = {}) => {
     const xhr = new globalThis.XMLHttpRequest();
     xhr.open('POST', url);
     xhr.setRequestHeader('content-type', 'application/octet-stream');
+    xhr.setRequestHeader('accept', LINO_TEXT);
     xhr.upload.onprogress = (event) =>
       event.lengthComputable && onProgress?.(event.loaded / event.total);
     xhr.onload = () => {
       const data = (() => {
         try {
-          return JSON.parse(xhr.responseText);
+          return decodeWire(
+            xhr.responseText,
+            xhr.getResponseHeader('content-type')
+          );
         } catch {
           return null;
         }
@@ -457,13 +492,6 @@ const postJson = (path, body) =>
     body: JSON.stringify(body),
   });
 
-/** Offline answer shared by every live CV call. */
-const cvOffline = (platforms) => ({
-  platform: (platforms ?? []).join(',') || 'all',
-  code: 'server-required',
-  message: 'the local server drives the browser for CV reads and writes',
-});
-
 const jsonInit = (method, body) => ({
   method,
   headers: { 'content-type': 'application/json' },
@@ -495,7 +523,8 @@ export const serverPostConfirmed = async (path, body, ask, options) => {
 
 /** The server bridge for ./automation-api.js; null means "no server". */
 const remote = {
-  get: (path) => serverFetch(path),
+  request: serverResponse,
+  get: (path, init, options) => serverFetch(path, init, options),
   post: (path, body) => postJson(path, body),
   report: (path, body, options) => serverPostReport(path, body, options),
   // `{ network: true }`: a request that got no answer comes back as
@@ -515,14 +544,10 @@ const telegramPost = async (name, body) =>
 let automationApi = null;
 // Each plain Telegram call of the page (R-Y75 onwards) as a function: a
 // call that takes a body sends it, one that takes none always sends {}.
-const telegramCalls = Object.fromEntries(
-  Object.entries(TELEGRAM_CALLS).map(([name, call]) => [
-    name,
-    call.body
-      ? (body = {}) => telegramPost(call.route, body)
-      : () => telegramPost(call.route, {}),
-  ])
-);
+const telegramCalls = createTelegramCalls({
+  post: telegramPost,
+  readStatus: () => api.telegramStatus(),
+});
 
 const automationCall =
   (name) =>
@@ -532,40 +557,52 @@ const automationCall =
     return automationApi[name](...args);
   };
 
-// Issue #31 / PR #34: automations, their drafts, the composer's send and
-// typing status, people, lists and audiences — see ./automation-api.js.
-const AUTOMATION_CALLS = [
-  'automations',
-  'saveAutomation',
-  'deleteAutomation',
-  'planAutomation',
-  'runAutomation',
-  'drafts',
-  'draftAction',
-  'nextDraft',
-  'resetEdit',
-  'autopilots',
-  'autopilot',
-  'automationHistory',
-  'outbox',
-  'resolveOutbox',
-  'safetySettings',
-  'saveSafetySettings',
-  'sendMessage',
-  'setTyping',
-  'typing',
-  'people',
-  'audiences',
-  'saveAudience',
-  'deleteAudience',
-  'resolveAudience',
-  'lists',
-  'saveList',
-];
-
 const rawApi = {
+  ...createVkTokenApi({ serverFetch, serverResponse }),
+  ...createRunnerApi({ serverResponse }),
+  diagnosticSettings: (signal) =>
+    serverFetch('/api/diagnostics/settings', { signal }, { recover: false }),
+  saveDiagnosticSettings: async (input, signal) => {
+    const response = await serverResponse(
+      '/api/diagnostics/settings',
+      {
+        method: 'POST',
+        signal,
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(input),
+      },
+      { network: true, recover: false }
+    );
+    return response?.json();
+  },
+  diagnosticSession: async (signal) => {
+    const response = await serverResponse(
+      '/api/diagnostics/session',
+      { signal },
+      { recover: false, body: 'blob' }
+    );
+    if (!response?.ok) {
+      throw new Error('session log unavailable');
+    }
+    return response.blob();
+  },
+  diagnosticLogs: async ({ cursor = 0, session = null } = {}, signal) =>
+    (await serverFetch(
+      `/api/diagnostics/logs?after=${cursor}${session ? `&session=${encodeURIComponent(session)}` : ''}`,
+      { signal },
+      // This visible feed owns bounded retries and must expose failed reads.
+      { recover: false }
+    )) ?? { ok: false, available: false },
+  browserPolicies: async () =>
+    (await serverFetch('/api/browser/policies')) ?? { available: false },
+  saveBrowserPolicy: async (policy) =>
+    serverPostReport('/api/browser/policies', policy, { network: true }),
   ...createFeedbackApi(remote),
   ...createStickerCollectionsApi({
+    ...remote,
+    local: async () => (await ensure()).store,
+  }),
+  ...createVkProviderApi({
     ...remote,
     local: async () => (await ensure()).store,
   }),
@@ -619,6 +656,9 @@ const rawApi = {
     const { client } = await ensure();
     return client.isOnline();
   },
+  serverOrigin: async () => (await ensure()).origin,
+  // Public presentation defaults from the connected app; saved browser choices win.
+  uiDefaults: ({ signal } = {}) => serverFetch('/api/ui/defaults', { signal }),
   // The server's disk and store health, null when it cannot be asked (R-Z14).
   health: async () => {
     const response = await serverResponse('/api/health');
@@ -684,10 +724,11 @@ const rawApi = {
       ok: false,
       code: 'server-required',
     },
-  broadcast: async (text, networks) => {
-    const { client } = await ensure();
-    return client.broadcast({ text, networks });
-  },
+  broadcast: createBroadcastApi(serverPostConfirmed),
+  publications: createPublicationApi({
+    request: serverResponse,
+    confirmed: serverPostConfirmed,
+  }),
   // ---- thin server passthroughs (work only when online) -----------
   // These derive from richer server-side data (sources, patterns,
   // etc.). When offline they short-circuit to safe defaults so the
@@ -786,68 +827,30 @@ const rawApi = {
   // Reading a live profile needs a browser, which only the local
   // server has; offline the SPA still shows the catalogue, the stored
   // snapshots it holds and a clear "server required" answer.
-  cvPlatforms: async () => (await serverFetch('/api/cv/platforms')) ?? [],
-  cvPlan: async (platform) =>
-    (await serverFetch(
-      `/api/cv/plan?platform=${encodeURIComponent(platform)}`
-    )) ?? null,
-  cvStored: async (platforms = []) =>
-    (await serverFetch(
-      `/api/cv/stored${platforms.length ? `?platforms=${encodeURIComponent(platforms.join(','))}` : ''}`
-    )) ?? { entries: [] },
-  cvRead: async ({ platforms, vars = {} } = {}) =>
-    (await postJson('/api/cv/read', { platforms, vars })) ?? {
-      entries: [],
-      failures: [cvOffline(platforms)],
+  ...createVacancyApi({
+    get: serverFetch,
+    report: serverPostReport,
+    local: async () => (await ensure()).store,
+    fileUrl: async (path) => {
+      const { client, origin } = await ensure();
+      return client.isOnline()
+        ? scopedUrl(origin ? new URL(path, origin).toString() : path)
+        : null;
     },
-  cvCompare: async ({ platforms, entries, prefer = null } = {}) =>
-    (await postJson('/api/cv/compare', { platforms, entries, prefer })) ?? {
-      entries: [],
-      comparison: { rows: [], plan: [], updates: {}, agreed: 0 },
-      diffs: [],
-    },
-  // A dry run returns `confirm.token` for applying exactly its plan;
-  // applying passes it back (`ask` covers an expired token).
-  cvSync: async ({
-    platforms,
-    dryRun = true,
-    prefer = null,
-    vars = {},
-    confirmToken,
-    ask,
-  } = {}) =>
-    (dryRun
-      ? await postJson('/api/cv/sync', { platforms, dryRun, prefer, vars })
-      : await serverPostConfirmed(
-          '/api/cv/sync',
-          { platforms, dryRun, prefer, vars, confirmToken },
-          ask
-        )) ?? {
-      dryRun,
-      actions: [],
-      applied: [],
-      entries: [],
-      failures: [cvOffline(platforms)],
-    },
-  cvTelemetry: async ({
-    runId = null,
-    platform = null,
-    type = null,
-    limit = 200,
-  } = {}) => {
-    const search = new URLSearchParams({ limit: String(limit) });
-    for (const [key, value] of Object.entries({ runId, platform, type })) {
-      if (value) {
-        search.set(key, value);
-      }
-    }
-    return (
-      (await serverFetch(`/api/cv/telemetry?${search}`)) ?? {
-        runs: [],
-        events: [],
-      }
-    );
-  },
+  }),
+  ...createCvApi({
+    serverFetch,
+    postJson,
+    serverPostConfirmed,
+    serverReadReport,
+    serverPostReport,
+  }),
+  ...createFormsApi({
+    get: serverFetch,
+    getResume: serverReadReport,
+    report: serverPostReport,
+    local: async () => (await ensure()).store,
+  }),
   ...createGreetingApi({ ensure, serverFetch, postJson, serverPostConfirmed }),
   // Read the friends and members the audiences name (R-X13, R-Z7).
   syncAudiences: async (source) =>
@@ -869,18 +872,26 @@ const rawApi = {
       confirm: true,
     })) ?? { ok: false, error: 'server required' },
   listBackups: async () => (await serverFetch('/api/backups')) ?? [],
-  createBackup: async ({ passphrase = null, keep } = {}) =>
-    (await serverFetch('/api/backups', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ passphrase, ...(keep ? { keep } : {}) }),
-    })) ?? { error: 'server required for backups' },
+  recoverySettings: async () =>
+    (await serverFetch('/api/backups/settings')) ?? { available: false },
+  saveRecoverySettings: (settings) =>
+    serverPostReport('/api/backups/settings', settings, { network: true }),
+  createBackup: async ({ passphrase = null, keep, formats } = {}) =>
+    (await serverPostReport(
+      '/api/backups',
+      {
+        passphrase,
+        ...(keep !== undefined ? { keep } : {}),
+        ...(formats !== undefined ? { formats } : {}),
+      },
+      { network: true }
+    )) ?? { error: 'server required for backups' },
   restoreBackup: async (file, passphrase = null) =>
-    (await serverFetch('/api/backups/restore', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ file, passphrase }),
-    })) ?? { error: 'server required for restore' },
+    (await serverPostReport(
+      '/api/backups/restore',
+      { file, passphrase },
+      { network: true }
+    )) ?? { error: 'server required for restore' },
   // The GitHub inbox (R-Z11): GET when `body` is undefined, else POST. The
   // server's own answer, with its error code, is kept.
   githubInbox: async (route, body) => {
@@ -940,7 +951,7 @@ const rawApi = {
       `/api/archive/upload?source=${encodeURIComponent(source)}&name=${encodeURIComponent(file?.name || 'archive')}`,
       file,
       options
-    )) ?? { error: 'server required for zip imports' },
+    )) ?? { error: 'server required for archive uploads' },
   whatsappArchive: async (name, data) =>
     (await serverPostReport('/api/whatsapp/archive', { name, data }).catch(
       (error) => ({ error: error.message })
@@ -990,7 +1001,7 @@ const rawApi = {
       return () => {};
     }
     const url = scopedUrl(
-      origin ? new URL('/api/events', origin).toString() : '/api/events'
+      new URL('/api/events?format=lino-line', origin).toString()
     );
     const transport = trackServerStream();
     let interrupted = false;
@@ -1011,7 +1022,7 @@ const rawApi = {
         },
         link: (event) => {
           try {
-            onEvent(JSON.parse(event.data));
+            onEvent(decodeWire(event.data, LINO_LINE));
           } catch {
             /* Skip malformed frames; the next refresh catches up. */
           }
@@ -1041,24 +1052,10 @@ const rawApi = {
    */
   telegramAccountsEvents: async (onEvent) => {
     const { origin } = await ensure();
-    const Source = globalThis.EventSource;
-    if (!origin || typeof Source !== 'function') {
-      return () => {};
-    }
-    const path = '/api/telegram/accounts-events';
-    return openServerEvents(
-      origin ? new URL(path, origin).toString() : path,
-      {
-        message: (event) => {
-          try {
-            onEvent(JSON.parse(event.data));
-          } catch {
-            /* Skip malformed frames. */
-          }
-        },
-      },
-      { Source, signal: pageLifetime }
-    );
+    return openTelegramAccountEvents(origin, onEvent, {
+      readStatus: () => api.telegramStatus(),
+      signal: pageLifetime,
+    });
   },
   // Mark a chat read up to a message on Telegram, and save its draft
   // there, so the phone and other apps show the same.
@@ -1098,15 +1095,13 @@ const rawApi = {
     (await serverPostReport('/api/telegram/dialogs', { priority }).catch(
       (error) => ({ error: error.message })
     )) ?? { error: 'server required for Telegram dialogs' },
-  autoImportAction: async (id, action) =>
-    (await serverFetch(
+  autoImportAction: async (id, action, body = {}) =>
+    (await serverPostReport(
       `/api/auto-import/jobs/${encodeURIComponent(id)}/${action}`,
-      {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: '{}',
-      }
-    )) ?? { error: 'server required for auto-import' },
+      body
+    ).catch((error) => ({ error: error.message }))) ?? {
+      error: 'server required for auto-import',
+    },
 
   // One link as the server's store holds it (a reply's original that
   // the page does not hold), or null.

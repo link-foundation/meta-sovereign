@@ -1,0 +1,19 @@
+{
+  "archive": "ci-vacancy-groups.tar.gz",
+  "files": {
+    "js/tests/ci-browser-shards.test.js": "e426d879a1cbc3714205ebeddc1fcdc63736283e717573c28da616ee6153449c",
+    "js/tests/e2e-vacancies-browser.mjs": "66748dc117e854ae87bcb167074840293b5b5ec546b41fd791a71e1d10176445",
+    "js/tests/e2e-vacancy-loading-browser.mjs": "c5de75f05679f2d5b2140e105081ff71e75d683a7cfeacd62b7b4a90632ea3d3",
+    "js/scripts/browser-checks.json": "ff9d2ad3ab7f8346941024d7e1ce3c7a697f40b89bdb6ab405f7bf92706fcf8c",
+    "ci-logs/ci-d48-contract-failure.log": "488231cd2fa91898fa207eeb92141a258c27807e38a918e8ec9c0e842a9b41db",
+    "ci-logs/ci-vacancy-groups-before.log": "55fe3ecb4cdaeb7b1f22a2873217415433cc1f6b28c4422fa663297a132684e3",
+    "ci-logs/ci-vacancy-groups-after.log": "272a167321bf04d8acc34962c01e96864b986af26510aa820b55b6467105e732",
+    "docs/case-studies/issue-56/ci-vacancy-groups.md": "6f43d30ac7b83628a0e9e09aadb892295bedc1bd1946ce6c0d956c2dec78a30a",
+    "experiments/issue-56/collect-ci-vacancy-modern-groups.py": "c5c40f5c35d309361ec986c010de22e1b80a1e95439d632dd5265d51fafb0dc5",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "before/js/tests/ci-browser-shards.test.js": "f789f9d02ac53ba5ffe99d8095270f111b3fe3f231ea68d821c8c75a84e5b210",
+    "before/js/tests/e2e-vacancies-browser.mjs": "c803e9700dd36743f877dbd49bfa20aef7b747c8ad73aa399c9af50fa929c3f9",
+    "before/js/tests/e2e-vacancy-loading-browser.mjs": "f3dac70d9672a945e76b589f6985cca935cfb2416ca0dd9f2b9aff11158ccd70",
+    "metadata.json": "934fcf6934d66691d4d34c0405243e1019ef1692db432fd7fe4e4c2c88291d66"
+  }
+}

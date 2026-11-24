@@ -25,6 +25,12 @@
 
 import { connected, runIn } from './telegram-stickers.js';
 import { quietFailureOf } from './telegram-chat-settings.js';
+import {
+  invokeTelegramWrite,
+  telegramLeftUpdates,
+  telegramWriteFailure,
+  traceTelegramMembership,
+} from './telegram-membership-receipt.js';
 
 const CODES = {
   USERNAME_INVALID: 'invalid',
@@ -45,6 +51,13 @@ const CODES = {
 
 const failure = quietFailureOf(CODES);
 const bad = (code = 'bad-request') => ({ ok: false, error: code, code });
+const leaveFailure = telegramWriteFailure(
+  quietFailureOf({
+    ...CODES,
+    USER_CREATOR: 'owner-cannot-leave',
+    USER_NOT_PARTICIPANT: 'not-member',
+  })
+);
 
 const CHANNEL = /^-100\d{1,20}$/;
 const NAME = /^[A-Za-z][A-Za-z0-9_]{3,30}[A-Za-z0-9]$/;
@@ -84,8 +97,10 @@ const inactiveOf = (answer) =>
 
 // The shared helpers of the actions below.
 const kitOf = (env, userClient) => {
-  const ask = (c, key, request) =>
-    runIn(env, `channel-manage:${key}`, () => c.client.invoke(request));
+  const ask = (c, key, request, write = false) =>
+    runIn(env, `channel-manage:${key}`, () =>
+      write ? invokeTelegramWrite(c.client, request) : c.client.invoke(request)
+    );
   const withChannel = (c, chat, use) =>
     runIn(env, `channel-manage:${chat}`, () =>
       env.connection.withPeer(c.client, chat, use)
@@ -212,44 +227,70 @@ const createLook = (env, { onChannel }) => ({
   ),
 });
 
-const createInactive = ({ ask, guarded, plain, inactive }) => ({
-  inactiveChannels: plain(async (c) => ({
-    channels: (await inactive(c)).map(({ raw, date }) => ({
+const leaveInactive = async (env, kit, c, chats) => {
+  const listed = new Map(
+    (await kit.inactive(c)).map((x) => [idOf(x.raw), x.raw])
+  );
+  const left = [];
+  const results = [];
+  for (const chat of new Set(chats.map(String))) {
+    const raw = listed.get(chat);
+    if (!raw) {
+      results.push({ chat, status: 'skipped', code: 'not-inactive' });
+      continue;
+    }
+    let result;
+    try {
+      const answer = await kit.ask(
+        c,
+        'leave',
+        new c.Api.channels.LeaveChannel({
+          channel: new c.Api.InputChannel({
+            channelId: raw.id,
+            accessHash: raw.accessHash,
+          }),
+        }),
+        true
+      );
+      result = telegramLeftUpdates(answer, chat)
+        ? { ok: true }
+        : bad('outcome-unknown');
+    } catch (error) {
+      result = leaveFailure(error);
+    }
+    traceTelegramMembership(env, 'inactive-leave', result);
+    results.push({
+      chat,
+      status: result.ok
+        ? 'confirmed'
+        : result.code === 'outcome-unknown'
+          ? 'unknown'
+          : 'failed',
+      ...(result.code ? { code: result.code } : {}),
+    });
+    if (!result.ok) {
+      return { ...result, left, results };
+    }
+    left.push(chat);
+  }
+  return { ok: true, left, results };
+};
+const createInactive = (env, kit) => ({
+  inactiveChannels: kit.plain(async (c) => ({
+    channels: (await kit.inactive(c)).map(({ raw, date }) => ({
       chat: idOf(raw),
       title: raw.title ?? '',
       date,
       broadcast: Boolean(raw.broadcast),
     })),
   })),
-  leaveChannels: guarded(
+  leaveChannels: kit.guarded(
     (r) =>
       Array.isArray(r.chats) &&
       r.chats.length > 0 &&
       r.chats.length <= MAX_LEAVE &&
       r.chats.every((x) => CHANNEL.test(String(x))),
-    (r) => async (c) => {
-      const listed = new Map(
-        (await inactive(c)).map((x) => [idOf(x.raw), x.raw])
-      );
-      const left = [];
-      for (const chat of new Set(r.chats.map(String))) {
-        const raw = listed.get(chat);
-        if (raw) {
-          await ask(
-            c,
-            'leave',
-            new c.Api.channels.LeaveChannel({
-              channel: new c.Api.InputChannel({
-                channelId: raw.id,
-                accessHash: raw.accessHash,
-              }),
-            })
-          );
-          left.push(chat);
-        }
-      }
-      return { ok: true, left };
-    }
+    (r) => (c) => leaveInactive(env, kit, c, r.chats)
   ),
 });
 
@@ -258,6 +299,6 @@ export const createChannelManage = (env, { userClient }) => {
   return {
     ...createPublicLink(kit),
     ...createLook(env, kit),
-    ...createInactive(kit),
+    ...createInactive(env, kit),
   };
 };

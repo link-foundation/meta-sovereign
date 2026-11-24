@@ -128,7 +128,7 @@ describe('X chat sends are DMs, posts are explicit', () => {
   });
 
   it('never tweets for a chat send; a post thread is not a DM', async () => {
-    const fetchImpl = recorder();
+    const fetchImpl = recorder(() => reply({ data: { id: '123' } }));
     const live = make(fetchImpl);
     for (const draft of [
       { chat: 'post:9', text: 'hi' },

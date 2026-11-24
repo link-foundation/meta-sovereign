@@ -1,0 +1,32 @@
+{
+  "archive": "ci-release-copy-pool.tar.gz",
+  "files": {
+    ".changeset/visible-browser-defaults.md": "0fcf20210827e6d3d381f97e0a630c2afd385270cf6ed258dda0a19c011d6e09",
+    "before/js/src/server/rolling-release.js": "be30352501b555dc5687eb0caa3b5f5fddc9dfb7ce2dc2ab10ce9008f328a989",
+    "ci-logs/hub-relay-parent-deno-windows.log": "22405875204fa97646ea9f90fcde4ac0a02560639ae89630d99a7c998979d2d4",
+    "ci-logs/release-pool-changeset.log": "3a359b928b0c6b88b14b4de98a3145c729a8f29953cbc7e281d8b9806fc7553c",
+    "ci-logs/release-pool-cli.log": "3f08dcf016b0174b619aeb16fe44f8dac4704a8d99ca0d97289cb871283bcd57",
+    "ci-logs/release-pool-current-checks.json": "22c2892905946b2e38c85e051b14f576e02eb58a3aed63dd0afe88710a517174",
+    "ci-logs/release-pool-current-runs.json": "8ac6a95742624a1ca5f650e674bfa8bf90685d3345366ef6cb432d8e69cbdd68",
+    "ci-logs/release-pool-doc-format.log": "099a618592aef0b95cb232a7eac79d0e061141b5cf4e8672727a84329c2e9afd",
+    "ci-logs/release-pool-fetch.log": "b172aa24eefaa1cfc4ba50739956a1a942d648af2e425cd4bcf38111d0920758",
+    "ci-logs/release-pool-focused.log": "9069a587c96734b3f2e670aec2ebad99c6a726a852dd56f0135116a25d920f09",
+    "ci-logs/release-pool-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/release-pool-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/release-pool-parent-ci.json": "c6e2c6d52b0773e7025141911a64b6cf409781df91f249e0dcf5dfe344b3a027",
+    "ci-logs/release-pool-parent-replay.log": "939c17de61330a82c40083f31b679351b3236727a2d6aeb65aeedc002211bee7",
+    "ci-logs/release-pool-parent.log": "46cb1863ac5fb350d97973129aa4a97bc613987e0907be7b9a50b40d701eace3",
+    "ci-logs/release-pool-runs.json": "0666281ebec5e2aff67e720de4b6be24684f1bf1c162cb33135d10b99c284284",
+    "ci-logs/release-pool-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/case-studies/issue-56/PLAN.md": "ae488867bd592101bc5fd4af7f59968d639a16cee849dc0dc0add36f82785c55",
+    "docs/case-studies/issue-56/README.md": "89fb44e1fc1fcdaa5d5249dc58d0fef94ac0df6454de0cb85cb70ebc6947fa70",
+    "docs/case-studies/issue-56/ci-release-copy-pool.md": "e3850222244350076496d7a19aad7a1fe6450296f30a48ae99f81978354e574a",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-release-pool.py": "3b6c9f74799a167ff1fd77785725d637e7b4808d07f18cf6a8ef3baba663f8e3",
+    "experiments/issue-56/evidence_bundle.py": "024f9281300d3c61a575303998953b7a56c145a136f1c19ca93649c668183b16",
+    "experiments/issue-56/release-pool-before.py": "120ae289753d8f81317bd9021624ae0e8f1e303794e26bc13fdd1ade6fc5b256",
+    "js/src/server/rolling-release.js": "5dcfd5fb6cdb141ddecd94f0efa22b7d013bc886ba78be39438c89e00c999602",
+    "js/tests/rolling-release-copy.test.js": "1e64b214bb0e5cb0bf5b01b57ac4ecd98aef7bc502b7204a1934f3dcd8f62c91",
+    "metadata.json": "74013a9aea8f7b20b314ba8c068c9f774655448a7f3992f159780a23c5598738"
+  }
+}

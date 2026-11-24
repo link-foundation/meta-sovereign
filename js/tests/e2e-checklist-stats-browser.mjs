@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for checklist extras, reaction reports and the
 // remaining statistics views (R-Y195), as Telegram Desktop has them:
 // "Add tasks" on a checklist (own, or one that lets others add) sends the
@@ -150,7 +151,7 @@ await page.route('**/api/telegram/chat-info*', (route) => {
 const asked = {};
 const record = (name, answer) =>
   page.route(`**/api/telegram/${name}`, (route) => {
-    const body = route.request().postDataJSON();
+    const body = requestBody(route.request());
     (asked[name] ??= []).push(body);
     return fulfil(route, typeof answer === 'function' ? answer(body) : answer);
   });

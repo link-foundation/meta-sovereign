@@ -27,6 +27,7 @@ import {
   isTelegramWebUrl,
 } from '../sources/telegram-chat-url.js';
 import { addressFormOf } from './person-learn.js';
+import { messageTime } from './message-time.js';
 import {
   batchStopReason,
   guardedSend,
@@ -117,6 +118,10 @@ export const collectSelfIds = (explicit = []) => {
   const chatsBySender = new Map();
   return {
     add(m) {
+      if (m.sender && (m.outgoing === true || m.out === true || m.out === 1)) {
+        ids.add(String(m.sender));
+        return;
+      }
       if (explicit.length || !m.sender) {
         return;
       }
@@ -173,8 +178,8 @@ const lastMessage = (messages) => {
   let last = null;
   let lastMs = null;
   for (const m of messages) {
-    const ms = toMs(m.timestamp);
-    if (ms !== null && (lastMs === null || ms > lastMs)) {
+    const ms = messageTime(m.timestamp);
+    if (Number.isFinite(ms) && (lastMs === null || ms > lastMs)) {
       last = m;
       lastMs = ms;
     }
@@ -495,6 +500,12 @@ const SEND_FIELDS = [
 export const createAdapterSender =
   ({ getSource, options = {} }) =>
   async (draft) => {
+    if (draft.sticker && draft.source !== 'vk') {
+      throw Object.assign(
+        new Error('This automation sticker requires the VK API'),
+        { code: 'unsupported-send-options', fallback: false }
+      );
+    }
     const live = getSource(draft.source)?.live;
     // `sendMessage` is the chat-only route; `post` may publish (R-Z4).
     const send = live?.sendMessage ?? live?.post;
@@ -509,6 +520,7 @@ export const createAdapterSender =
         chat: draft.chat,
         to: draft.contact ?? draft.to,
         text: draft.text,
+        ...(draft.sticker ? { sticker: draft.sticker } : {}),
         ...Object.fromEntries(
           SEND_FIELDS.filter((key) => draft[key] !== undefined).map((key) => [
             key,

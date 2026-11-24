@@ -1,0 +1,31 @@
+{
+  "archive": "forms-reviewed-radios.tar.gz",
+  "files": {
+    "ci-logs/forms-radio-before-capture.log": "d56b2c8172507c93a0f90981b1854406b146fd37fbaf32a685047bf1c2434dea",
+    "ci-logs/forms-radio-browser-before.log": "989cd01b8277cf163a16653b2e620b8f3096ccd547cfa13f7e3ce1b092ff606a",
+    "ci-logs/forms-radio-browser.log": "52dcb06f03584d6aca4b00e89e64351355c047c831cbba95e36ba4ff0dc02fb1",
+    "ci-logs/forms-radio-build.log": "d445781596d3266058a5d56f86e1c08dc56cdb5054c61ff44c14d73d0c89d87b",
+    "ci-logs/forms-radio-deno-final.log": "ab119f7ca63adfce9bc0e3ea17e0fddc0329b2233a9bd9ec800e7a295114ec69",
+    "ci-logs/forms-radio-deno.log": "c141506cb9751dad9183691ae8ece689d29d9a92b86ecc7e24b30a1d5c5c1fd0",
+    "ci-logs/forms-radio-format-final.log": "a94c4f7f1012ea29a6706831f26886abc9f6531ea1e9dbf7065f5c51d12ec72e",
+    "ci-logs/forms-radio-format-fixture.log": "e24a5edbb21ea9285926f5a13107287edca3f9d3345a8eb52e1ee609f6a498d0",
+    "ci-logs/forms-radio-format-locales.log": "1d8f41282391cf1e20b2755b6ac60753d2368dbf6c02b7cff43bdaef836bf9c4",
+    "ci-logs/forms-radio-format.log": "c5d0b01fcaaeba665f4206367bc2c59e921b11a3eae7cca25d5e45234ec5ad11",
+    "ci-logs/forms-radio-issue-comments.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "ci-logs/forms-radio-lint-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/forms-radio-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/forms-radio-mcp-closed.json": "7cd3d8ba1c35ad484911630190581bdb46c4fd59a1f810706b61b3520f4cf6ad",
+    "ci-logs/forms-radio-mcp-console.log": "22b413ca2d56de3c1909e82383d6f5f63f733e120f93d7b93dc1b21540f54f81",
+    "ci-logs/forms-radio-mcp-desktop.json": "5c5a3d94b97f63dc9cd899111ff00d57c37dff7a176f6c4460a99cf7962df59e",
+    "ci-logs/forms-radio-mcp-fixture.log": "d3e947a96249f93a99c233d5f885d24a7661153211d251a0b38921e01a151f2a",
+    "ci-logs/forms-radio-mcp-mobile.json": "af769a399531ead653d534d256690e0d81b48aa7d32655018e87d76e90bce7ae",
+    "ci-logs/forms-radio-mcp-plan.json": "5e6edc6c99ae7374b04314d5e05900732a2a2ce03c7e8943a50818a5e8bc3b40",
+    "ci-logs/forms-radio-mcp-refused.json": "c325788719da6aa821c831d2738ea0449d618e9a75806a7f2ea7088f08e8c25e",
+    "ci-logs/forms-radio-node-final.log": "d58d9c89f0bf2c6e8c6b3a61f1891d1c6eb59819918dc4a384aa258f8434e822",
+    "ci-logs/forms-radio-node.log": "13adc71cc7da910a0531206928e7f7fda331f57df0df9091fc76ef8d0e9bd84a",
+    "ci-logs/forms-radio-prior-head-jobs.json": "f88a95c26b4d597be5cc7e766dc18f4dc47562f12ce8312ff06ee9272507bbcf",
+    "ci-logs/forms-radio-prior-head-runs.json": "59737027147e6b50030446c5eab3f9c3c92edee56f985f724d03452ba7ddbd59",
+    "experiments/issue-56/collect-forms-radio.py": "1e00f51128e4af541d0c9a9563e1b4cb86f25e69e15ca1018b650eefacd2d1ea",
+    "metadata.json": "640fcd00f59f7ab46f3f79cf68d515837498f21ac884642aabc5c23b2feccdfa"
+  }
+}

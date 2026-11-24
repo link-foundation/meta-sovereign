@@ -1,0 +1,27 @@
+{
+  "archive": "vk-scheduler.tar.gz",
+  "files": {
+    ".changeset/visible-browser-defaults.md": "2bdff5c237163f9fb87d7f35a6a1b39bd85682f74db3fd1893ee2f34cf10d0e4",
+    "ci-logs/vk-desktop-reference-requirements.source": "e0f0458349c20edbd3b31386f772ab18fd7fbc332ec55a1ff96b511c6028de90",
+    "ci-logs/vk-scheduler-before.log": "4eabcc89c84d04f2f50246d2e9ccd82bbe400ec8acd44878af9ed60cc1a05e34",
+    "ci-logs/vk-scheduler-current-ci.json": "56dfd0a30918232d04a5228e2d3320c2df641d7eb23006d2189f78d768205a80",
+    "ci-logs/vk-scheduler-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/vk-scheduler-doc-format.log": "c2726cbe7997910668641d766914555b9a5d62ad1164bc34999b7cee20d8b995",
+    "ci-logs/vk-scheduler-format.log": "df357ef97c83c7d9977f61fafd4f740d13b174c41661eb1aeda2fb2693606bea",
+    "ci-logs/vk-scheduler-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/vk-scheduler-node.log": "902a8185a7c8ad194ec7ec59b2c2eb1577329ff39cc4404662d4e7b6813c0c83",
+    "ci-logs/vk-scheduler-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/case-studies/issue-56/README.md": "503c978508e7cff97bf3c17fd214f877e9ffdec8fbcab84ffbd259f531dccc8c",
+    "docs/case-studies/issue-56/vk-desktop-execution-plan.md": "2e1f20ac528bb15608e20458b9ac4cd26e5a35f16d6f8a508b1d1f9d9082deeb",
+    "docs/case-studies/issue-56/vk-scheduler-lifetime.md": "bd870adec2a4081409c554b35a8f6d963d586916a193fcb6f83a1d30145efa84",
+    "experiments/issue-56/collect-vk-scheduler.py": "c52632b2958f27914a8a668f18c23533bae8723b9205137426e76e108c2f141a",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "experiments/issue-56/vk-scheduler-lifetime.mjs": "07cb9a8dd3a014f8aa07928d870ef77f433793e0117176811bd2612ada29d018",
+    "js/src/automation/vk-friends.js": "989bc86c7c07895f8def90847f2c82108d803c15f0e2b73f1794b4ee8731ff77",
+    "js/src/automation/vk-online.js": "00cdc7727d932e64598dea7b646eb50887ebd0632035035919a261e89c5de0c5",
+    "js/tests/vk-scheduler-lifetime.test.js": "63f3d728d3d3d6a79f430928fb70ff4c7ed8529c60a4ebb1746ab301b57fe09a",
+    "before/js/src/automation/vk-online.js": "500d9db0f01bcb242a7bac9fd056badf56618fb96d525d3793f35651134cb78d",
+    "before/js/src/automation/vk-friends.js": "42a902a27f46b661babf8d77ddb99ea05e93c0b657f953ebcb0b33522da5c809",
+    "metadata.json": "2f8571c3815d1c07d479680e650c23800857ea94c4a6f28fc982c4d0586b6e7b"
+  }
+}

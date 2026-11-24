@@ -28,7 +28,7 @@ cd meta-sovereign
 cargo run --manifest-path rust/Cargo.toml -p meta-sovereign-server -- serve
 ```
 
-> **选择之前请先了解限制。** Rust server 只把 links 保存在**内存**中：不会写入磁盘，停止后所有数据都会丢失。它**没有 source adapters**：不能从 Telegram、VK、GitHub、Upwork 等实时拉取，没有出站 HTTP/TLS 客户端（email 只能导入归档），也没有自动化、CV 同步、浏览器 auto-import、备份和 `/api/export-encrypted`。实际使用请选择 JS server（第 3 节）或桌面 app（第 4 节）。逐条路由列表见 [`docs/SERVER-PARITY.zh.md`](./SERVER-PARITY.zh.md)。
+> **选择之前请先了解限制。** Rust server CLI 默认将 links 保存到原生文本/二进制检查点；`--data` 指定目录，`--memory` 显式使用临时内存。格式和恢复限制见 [native storage](./NATIVE-STORAGE.md)。它**没有 source adapters**：不能从 Telegram、VK、GitHub、Upwork 等实时拉取，没有出站 HTTP/TLS 客户端（email 只能导入归档），也没有自动化、CV 同步、浏览器 auto-import、备份和 `/api/export-encrypted`。实际使用请选择 JS server（第 3 节）或桌面 app（第 4 节）。逐条路由列表见 [`docs/SERVER-PARITY.zh.md`](./SERVER-PARITY.zh.md)。
 
 Server 默认监听 <http://127.0.0.1:8787>。GitHub Pages 上的 SPA 会自动探测保存的 override（`localStorage` 中的 `metaServer`）和一组 `127.0.0.1` 端口。
 
@@ -81,24 +81,41 @@ JS 服务器将数据保存在操作系统用户的应用文件夹：macOS 为 `
 
 | 系统    | 文件（x64 和 arm64）                                              |
 | ------- | ----------------------------------------------------------------- |
-| Linux   | `.AppImage`（自动更新）、`.deb`、`.tar.gz`                        |
+| Linux   | `.AppImage`（x64 自动更新）、`.deb`、`.tar.gz`                    |
 | macOS   | `.dmg`（拖到 Applications）、`.zip`                               |
 | Windows | `windows-installer` `.exe`（自动更新）、`windows-portable` `.exe` |
 
+Apple Silicon 或其他 ARM64 系统请选择 **arm64**，Intel/AMD 系统请选择 **x64**。安装或打开之前请先校验下载文件。
+
 首次启动：
 
-- **macOS。** 没有 Apple Developer ID 的构建使用 ad-hoc 签名，macOS 会阻止首次启动（“Apple could not verify…”）。打开 System Settings → Privacy & Security，点击 **Open Anyway**。这类构建不会自动更新，请从下载页获取新版本。
-- **Windows。** 如果 SmartScreen 显示 “Windows protected your PC”，点击 **More info** → **Run anyway**。
-- **Linux。** 执行 `chmod +x meta-sovereign-desktop-linux-*.AppImage` 后运行，或用 `sudo apt install ./<file>.deb` 安装 `.deb`。
+- **macOS。** 没有 Apple Developer ID 的构建使用 ad-hoc 签名，macOS 会阻止首次启动（“Apple could not verify…”）。请先按下文校验下载文件。尝试打开已安装应用，点击 **Done**，再打开 System Settings → Privacy & Security → Security，为 Meta Sovereign 点击 **Open Anyway**。按提示验证身份并点击 **Open**。这类构建不会自动更新，请从下载页获取新版本。
+- **Windows。** 运行安装程序，或直接运行 portable `.exe`。Windows arm64 构建需要手动更新。如果 SmartScreen 显示 “Windows protected your PC”，点击 **More info** → **Run anyway**。
+- **Linux。** 执行 `chmod +x meta-sovereign-desktop-linux-*.AppImage` 后运行，用 `sudo apt install ./<file>.deb` 安装 `.deb`，或将 `.tar.gz` 解压到文件夹后运行其中的 `meta-sovereign`。
 
 用 release 中的 `SHA256SUMS.txt` 校验下载的文件：可以在下载页的 **Verify your download** 区域进行（选择文件和 `SHA256SUMS.txt`，数据不会离开浏览器），也可以在终端中执行：
 
 ```bash
 sha256sum --check --ignore-missing SHA256SUMS.txt
-gh attestation verify <file> --repo link-foundation/meta-sovereign
 ```
 
-应用把数据保存在系统的用户应用目录中，因此更新后数据仍然保留。自行构建安装包：`npm i --no-save electron-builder@^26 && npm run desktop:build -- --linux --x64`（见 `js/scripts/build-desktop.mjs`）。
+macOS 可使用 `shasum -a 256 <file>`，Windows 可使用 PowerShell
+`Get-FileHash -Algorithm SHA256 <file>`。将完整哈希值与 `SHA256SUMS.txt` 中对应文件名的记录比较。
+Release 还包含 `BUILD-PROVENANCE.txt`，记录仓库、workflow、标签、源代码提交、runner 和工具版本。
+请核对这些来源信息；如果提供了 GitHub 证明，可执行：
+`gh attestation verify <file> --repo link-foundation/meta-sovereign`。
+
+对于已校验的 macOS 下载文件，也可仅处理复制到 `/Applications` 的应用
+（先解压 `.zip`）。执行一次以下命令，然后打开应用：
+
+```sh
+xattr -dr com.apple.quarantine "/Applications/Meta Sovereign.app"
+```
+
+[Apple 的说明介绍了单个应用的首次启动例外](https://support.apple.com/en-us/102445)。
+临时签名不代表经过公证。
+
+应用把数据保存在系统的用户应用目录中，因此更新后数据仍然保留。自行构建安装包：`npm ci && npm run build:web && npm run desktop:build -- --linux --x64`（见 `js/scripts/build-desktop.mjs`）。
 
 ### 移动端和开发构建
 
@@ -193,7 +210,7 @@ MS_SECRET_PASSPHRASE='只有你自己知道的长 passphrase' node js/bin/meta-s
 - 未设置该变量时，什么都不加密，server 行为和以前一样。
 - 当请求没有带 passphrase 时，`POST /api/export-encrypted` 默认使用同一个 passphrase。
 
-它**不会**加密的内容：存储的其余部分（`data.lino` 和 `data.bin`：联系人、消息、patterns 等）、下载的媒体和归档、日志，以及备份（只有创建备份时给了 passphrase 才会加密）。请用磁盘加密和文件权限保护它们。Rust server 没有这个选项：它把一切都放在内存中。
+它**不会**加密的内容：存储的其余部分（`data.lino` 和 `data.bin`：联系人、消息、patterns 等）、下载的媒体和归档、日志，以及备份（只有创建备份时给了 passphrase 才会加密）。请用磁盘加密和文件权限保护它们。Rust server 没有这个加密选项：其原生检查点文件以明文保存。
 
 ## 8. 导入数据
 
@@ -498,3 +515,7 @@ Operator 的 Next 会将会话移至队列末尾，保持未读；其他会话�
 临时连接失败会无限自动重试加载，并保留最近成功显示的内容。消息队列在所有页面持续运行，服务器恢复后立即继续发送。连接过服务器或 Telegram 后，默认不再建议纯浏览器模式；可在连接恢复设置中启用该建议。
 
 更新后，在原主进程保持运行时再次执行 `serve`：旧版本在新版本预热时继续服务，随后移交唯一写入权限，保留公共端口和证书。失败时自动回退。旧的单进程安装需要首次重启才能启用此架构。[滚动升级说明](ROLLING-SERVER.md)。
+
+[提供方浏览器答案审核、精确选项确认与状态恢复](QUESTION-BROWSER.zh.md).
+
+隔离桌面授权、私密导入及验证后的受保护保存请参见 [VK 用户令牌](VK-USER-TOKEN.zh.md)。

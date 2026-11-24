@@ -1,3 +1,4 @@
+import { fulfilWire } from './helpers/http-wire.mjs';
 // Real browser e2e for Telegram's reachability (R-Y96): nothing under the
 // chat list, whatever Telegram says; the header's badge stays Online while
 // Telegram only asks to wait, turns Offline once it is out of reach for
@@ -66,7 +67,7 @@ let telegram = {
   needsLogin: false,
 };
 await page.route('**/api/telegram/status', (route) =>
-  route.fulfill({
+  fulfilWire(route, {
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify(telegram),

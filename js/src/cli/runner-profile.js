@@ -1,0 +1,213 @@
+import { readReadableConfiguration } from './readable-configuration.js';
+import path from 'node:path';
+import { runnerSourcePin } from '../transport/runner-deployment-receipt.js';
+
+const invalid = () => new Error('Runner profile unavailable or invalid.');
+const record = (value) =>
+  value && typeof value === 'object' && !Array.isArray(value);
+const text = (value) =>
+  typeof value === 'string' &&
+  value.length > 0 &&
+  value.length <= 2048 &&
+  [...value].every(
+    (char) => char.charCodeAt(0) >= 32 && char.charCodeAt(0) !== 127
+  );
+const fields = new Set([
+  'directory',
+  'cli',
+  'store',
+  'port',
+  'host',
+  'isolation',
+  'start',
+  'node',
+  'image',
+  'applicationLock',
+  'applicationSource',
+]);
+const hostValid = (host) =>
+  typeof host === 'string' &&
+  /^(?:[a-zA-Z0-9_][a-zA-Z0-9_.-]{0,63}@)?[a-zA-Z0-9][a-zA-Z0-9.-]{0,252}$/.test(
+    host
+  );
+const optionalTextValid = (target) =>
+  ['start', 'node'].every(
+    (key) => target[key] === undefined || text(target[key])
+  ) &&
+  (target.applicationLock === undefined ||
+    (typeof target.applicationLock === 'string' &&
+      /^[a-f0-9]{64}$/u.test(target.applicationLock))) &&
+  (target.applicationSource === undefined ||
+    Boolean(runnerSourcePin(target.applicationSource)));
+const pathsValid = (target, mode, partial) =>
+  (target.isolation === 'desktop'
+    ? ['store']
+    : ['directory', 'cli', 'store']
+  ).every(
+    (key) =>
+      (partial && target[key] === undefined) ||
+      (text(target[key]) &&
+        (mode === 'server' ? path.posix : path).isAbsolute(target[key]))
+  );
+const addressValid = (target, mode, partial) =>
+  mode === 'server'
+    ? (partial && target.host === undefined) || hostValid(target.host)
+    : target.host === undefined;
+const portValid = (value, partial) =>
+  (partial && value === undefined) ||
+  (Number.isInteger(value) && value >= 1 && value <= 65535);
+const imageValid = (value) =>
+  typeof value === 'string' &&
+  /^[a-zA-Z0-9][a-zA-Z0-9._:/@-]{0,255}$/.test(value) &&
+  !value.includes('://') &&
+  (!value.includes('@') || /@sha256:[a-f0-9]{64}$/.test(value));
+const isolationValid = (target, mode, partial) => {
+  const isolation = target.isolation ?? 'screen';
+  if (isolation === 'desktop') {
+    return (
+      mode === 'local' &&
+      [
+        'directory',
+        'cli',
+        'start',
+        'node',
+        'image',
+        'applicationLock',
+        'applicationSource',
+      ].every((key) => target[key] === undefined)
+    );
+  }
+  if (
+    !['screen', 'docker'].includes(isolation) ||
+    (mode === 'local' && (isolation === 'docker' || target.image !== undefined))
+  ) {
+    return false;
+  }
+  if (target.image !== undefined && !imageValid(target.image)) {
+    return false;
+  }
+  if (partial || isolation === 'screen') {
+    return true;
+  }
+  const relative = path.posix.relative(target.directory, target.cli);
+  return (
+    target.image !== undefined &&
+    relative !== '..' &&
+    !relative.startsWith('../')
+  );
+};
+const productPath = (target, mode) => {
+  const paths = mode === 'server' ? path.posix : path;
+  return (
+    paths.relative(target.directory, target.cli) ===
+    paths.join('js', 'bin', 'meta-sovereign.js')
+  );
+};
+const applicationPathValid = (target, mode, partial) =>
+  partial || target.applicationLock === undefined || productPath(target, mode);
+const sourcePathValid = (target, mode, partial) => {
+  if (partial || target.applicationSource === undefined) {
+    return true;
+  }
+  const paths = mode === 'server' ? path.posix : path;
+  return (
+    target.applicationLock !== undefined &&
+    paths.resolve(target.directory) === target.directory &&
+    paths.dirname(target.directory) !== target.directory
+  );
+};
+const validateTarget = (target, mode, session, partial) => {
+  if (
+    !record(target) ||
+    Object.keys(target).some((key) => !fields.has(key)) ||
+    !pathsValid(target, mode, partial) ||
+    !portValid(target.port, partial) ||
+    !optionalTextValid(target)
+  ) {
+    throw invalid();
+  }
+  if (
+    !addressValid(target, mode, partial) ||
+    !isolationValid(target, mode, partial) ||
+    !applicationPathValid(target, mode, partial) ||
+    !sourcePathValid(target, mode, partial)
+  ) {
+    throw invalid();
+  }
+  const isolation = target.isolation ?? 'screen';
+  if (partial) {
+    return { ...target };
+  }
+  if (isolation === 'desktop') {
+    return { ...target, session };
+  }
+  return {
+    ...target,
+    isolation,
+    session,
+    start: target.start ?? '$',
+    node: target.node ?? 'node',
+  };
+};
+
+/** Profiles contain paths and an SSH address; credentials stay in protected stores. */
+export const validateRunnerProfile = (value, { partial = false } = {}) => {
+  if (
+    !record(value) ||
+    Object.keys(value).some(
+      (key) => !['session', 'local', 'server'].includes(key)
+    )
+  ) {
+    throw invalid();
+  }
+  const session =
+    value.session === undefined ? 'meta-sovereign-bot' : value.session;
+  if (
+    typeof session !== 'string' ||
+    !/^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,63}$/.test(session)
+  ) {
+    throw invalid();
+  }
+  const targets = {};
+  for (const mode of ['local', 'server']) {
+    if (value[mode] === undefined) {
+      continue;
+    }
+    targets[mode] =
+      partial && value[mode] === false
+        ? false
+        : validateTarget(value[mode], mode, session, partial);
+  }
+  return partial
+    ? { ...(value.session === undefined ? {} : { session }), ...targets }
+    : targets;
+};
+
+/** Read at most 64 KiB, including growth after stat and nonregular-file refusal. */
+export const readRunnerProfile = async (file, { optional = false } = {}) => {
+  try {
+    return validateRunnerProfile(await readReadableConfiguration(file));
+  } catch (error) {
+    if (optional && error.code === 'ENOENT') {
+      return {};
+    }
+    throw invalid();
+  }
+};
+
+/** Stable, credential-free binding retained before any process mutation. */
+export const runnerProfileData = (targets) => {
+  const profile = {
+    session: Object.values(targets)[0]?.session ?? 'meta-sovereign-bot',
+  };
+  for (const mode of ['local', 'server']) {
+    if (targets[mode]) {
+      profile[mode] = Object.fromEntries(
+        [...fields]
+          .filter((key) => targets[mode][key] !== undefined)
+          .map((key) => [key, targets[mode][key]])
+      );
+    }
+  }
+  return profile;
+};

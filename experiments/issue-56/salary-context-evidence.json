@@ -1,0 +1,20 @@
+[
+  "question-salary",
+  "salary-calculation",
+  "salary-both",
+  "question-substitution",
+  "salary-template-context",
+  "salary-intent-contract",
+  "salary-context-priority",
+  "salary-vocabulary-contract",
+  "salary-wording-contract",
+  "salary-clarification-contract",
+  "salary-phrasing",
+  "salary-numbers",
+  "salary-browser-context",
+  "salary-browser-vacancy",
+  "salary-browser-vacancy-card",
+  "salary-employer-context",
+  "salary-choice-currency",
+  "salary-saved-baseline"
+]

@@ -1,0 +1,32 @@
+{
+  "archive": "question-response-confirmation.tar.gz",
+  "files": {
+    "ci-logs/ci-answer-ack-after.log": "fd4906981d7fcda236e19e55ecd3bfa42efcc9f6e081296ffbd9d239b3573179",
+    "ci-logs/ci-answer-ack-before.log": "43689cf0b6a492be1ae476a7b641b840eb8a67c9f358307133fb16a07b8a242f",
+    "ci-logs/ci-answer-ack-browser-after.log": "3152db022650f0868b552658e144cd217048c5fee69b5867ccec0a50db86d728",
+    "ci-logs/ci-answer-ack-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-answer-ack-compatibility.log": "933d4af147436dd243eb628151623a3dc2c5fc5ee774a1819c5f5b38e3b077f0",
+    "ci-logs/ci-answer-ack-deno.log": "7b778b7bbaa0e78de68e5a685b9ed6ae24f379bde879841224c0fd985912df9d",
+    "ci-logs/ci-answer-ack-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/ci-answer-ack-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-answer-ack-mcp-after-console.log": "259e177f068836c6e3540ca7da5cb599fd4abbf9d689483ea015a72f5f5df427",
+    "ci-logs/ci-answer-ack-mcp.json": "7015e706f7353f1bec15b47f0b2918746da5b5a2da07e09a652516e30473a41e",
+    "ci-logs/ci-answer-ack-precommit-runs.json": "7414802f01e04609335c3959baaff1dda3c89529e14caf43bc2c2d0191596ec9",
+    "ci-logs/ci-browser-input-mcp-console.log": "caf0695f909b9de8cd9491bf3b8f8d46895af371bb7c996ee42a5fbee98ec7b4",
+    "ci-logs/ci-browser-model-input-probe.log": "875de24d6ac3f6d2bee5f20edf0e7bb2ca92fa56165861618575c06022100e67",
+    "ci-logs/ci-browser-navigation-scroll-probe.log": "8bc2685bb4aad478c07cedb02c1eb50ecb9dab4c9fb16604e7bb8cc9d0c06177",
+    "ci-logs/ci-browser-question-refusal-probe.log": "97341ef56a92b4191147766b88256fc9074805749b4790caad2aa465842ca1d3",
+    "experiments/issue-56/browser-input-mcp.mjs": "197e8f3aa3ea861ee30dac7abe522dc894132f10a8760ab91df00ab4f551527d",
+    "js/src/web/answer-model-settings.js": "6562d5dd7bc0b93c60c55bb13e858096ab23f529b0588a74d5d36787c5b99875",
+    "js/src/web/app-route.js": "68038033401e4e77867e587f531521a39f9c09cc5177ca7cadc383099ee086f3",
+    "js/src/web/question-api.js": "9ad51eb9306e8f92d60a4b9805a633720d83406721ca08fdf086c51cad73a1cc",
+    "js/src/web/question-controls.js": "f44bae5f922851538189f5b9ee03ed9c87891473ec2e955ed9d0e762954e7492",
+    "js/tests/e2e-forms-reader-browser.mjs": "04398cce85a68e626768cd9e1b310371099c9d4334aaa67fd0413e02f57f07c1",
+    "js/tests/e2e-navigation-browser.mjs": "d4eb0a10ce16a69a1bcb5865e39a788637ba5499f0b9dc085beb40d5961e15e5",
+    "js/tests/e2e-questions-browser.mjs": "2673d5773a7e974934749df1d025eb407f9f4e74efc27568ca1b2a00e62e2c01",
+    "js/tests/helpers/e2e-form-model.mjs": "bee674ab842ee8d8bcac05f86f8a833dd65d71497e5084e3a5f11a252ee90dac",
+    "js/tests/helpers/e2e-input-trace.mjs": "b66d713d04996a6408bbff2b287c9b2785b65daceb9f7a19a1c7fe4d8544a0c7",
+    "js/tests/question-api-confirmation.test.js": "174e6b0ae4865495c528293b543380b3a0528e03b991dd26bf5b1d92fba8f23e",
+    "screenshots.sha256.json": "d3e18fb390c07c937576abbe483973f368374a09096c8fa5a861ce6c673ee44c"
+  }
+}

@@ -5,7 +5,7 @@ export const zhChatAccount = {
   'chat.versions.title': '编辑历史',
   'chat.versions.edited': '已编辑的消息',
   'chat.versions.local': '此服务器保存的版本在服务更改或删除消息后仍然可用。',
-  'chat.versions.partial': '此服务器首次收到该消息之前的版本未被保存。',
+  'chat.versions.partial': '部分较早的版本可能无法查看。',
   'chat.versions.mediaMissing': '此版本未保留附件内容。',
   'chat.versions.attachment': '附件',
   'chat.versions.download': '下载已保存的附件',
@@ -365,7 +365,11 @@ export const zhChatAccount = {
     '自动化、自动驾驶、问候和群发都不会联系此名单中的聊天和人员。被屏蔽、已退出、已删除的账号、机器人和频道会自动跳过。',
   'safety.optout.empty': '名单为空。',
   'safety.optout.network': '网络',
-  'safety.optout.chat': '聊天或人员 ID',
+  'safety.optout.kind': '不要联系',
+  'safety.optout.chatKind': '聊天',
+  'safety.optout.contactKind': '人员',
+  'safety.optout.chat': '聊天 ID',
+  'safety.optout.contact': '人员 ID',
   'safety.optout.note': '备注',
   'safety.optout.add': '添加',
   'safety.optout.remove': '移除',
@@ -376,6 +380,11 @@ export const zhChatAccount = {
   'safety.quiet.zone': '时区（留空：本机时区）',
   'safety.quiet.save': '保存',
   'safety.saved': '已保存',
+  'safety.cooldown.label': '自动消息的默认间隔（天）',
+  'safety.cooldown.hint':
+    '自动化未设置自身间隔时使用；距上次聊天的条件仍然适用。留空：{days} 天。',
+  'safety.cooldown.invalid': '请输入零或更大的天数，或留空以使用默认值。',
+  'safety.failed': '设置尚未确认。您的更改尚未标记为已保存。',
   'email.pull.button': '立即收取邮件',
   'email.pull.working': '正在收取邮件…',
   'email.pull.done': '已收取 {count} 封新邮件',
@@ -387,6 +396,16 @@ export const zhChatAccount = {
   'email.download': '下载',
   'pull.fetchNow': '立即获取',
   'pull.fetching': '正在获取…',
+  'pull.history.changed':
+    '读取期间聊天列表发生变化。已读取 {count} 条消息；请再次获取以重新检查覆盖范围。',
+  'pull.history.hint':
+    '按需读取 HH 历史。再次获取可继续未完成的读取。此操作不会将消息标为已读。',
+  'pull.history.complete':
+    '已读取 {count} 条消息。已检查 API 可用历史：{chats} 个聊天中的 {total} 条消息。',
+  'pull.history.partial':
+    '已读取 {count} 条消息。历史尚不完整（{total} 条消息，已完成 {chats} 个聊天）。请再次获取以继续。',
+  'pull.history.limited':
+    '已读取 {count} 条消息。已达到 API 聊天列表上限，较早的聊天可能缺失。',
   'pull.done': '已完成，读取了 {count} 条消息。',
   'pull.rateLimited': '刚刚获取过，请在 {seconds} 秒后重试。',
   'pull.notConnected': '请先保存访问令牌，再获取。',

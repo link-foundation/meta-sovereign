@@ -1,0 +1,23 @@
+{
+  "archive": "ci-duplication-fixtures.tar.gz",
+  "files": {
+    "before/js/tests/e2e-stickers-browser.mjs": "559a8c223961b30f846bbdbbe1426f33c9c2ed25012b076241e4adf65864e126",
+    "before/js/tests/e2e-sticker-menu-browser.mjs": "88b32a60a8e9a777b4affd792a795528eab17d6ec70306ddba062ac8067be780",
+    "before/js/tests/e2e-sticker-search-browser.mjs": "df52abca687660efe7fcd3cace60156212fb16b2e6aa5479b1bdf03e138b58c0",
+    "js/tests/e2e-stickers-browser.mjs": "c2498f1346cb56d6957b1b876253d4d2a1714eea3060adbde04de3cd1aa02528",
+    "js/tests/e2e-sticker-menu-browser.mjs": "1a47cf0998df9266799372cecf5f4aff007a8b6afc6d469186057b294b769351",
+    "js/tests/e2e-sticker-search-browser.mjs": "dd6ecbd72e82ddd1ea5efc30f8dce2b3ab5f1d6b8971af482b131f3f7844a256",
+    "js/tests/helpers/e2e-sticker-fixture.mjs": "5c0fab2670671cc844bcbe9283282b92b617b60a6f58e3a08d0ebc5a5aa3d5e3",
+    ".jscpd.json": "e71121a1859c71697606e8f4c58870b349a180ecbcef8634fffb7ec6ef3000ae",
+    "experiments/issue-56/collect-ci-duplication-fixtures.py": "116b56aa4ed4e250ffa53cc6b20adbdd5c4612db350daef94602f911e7bdcd29",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "docs/case-studies/issue-56/ci-duplication-fixtures.md": "2efc817ec3dd7addf15b9262b6fcd17e6bbe2dc1ec3cbe6b19eaef42886e72df",
+    "ci-logs/hosted-3fee-lint.log": "a4e776ac2ee2132390addf3a90da5c3e578dd181e9bec35e5752b5223ca80f45",
+    "ci-logs/ci-duplication-fixtures-check.log": "b90f8de005a9d3f10cdef9dadcd9e4ca84b98becc3ae4e14a2d3be2e014da592",
+    "ci-logs/ci-duplication-fixtures-stats.json": "cbb0c84fa08d0c1d3df303e1cbd7fe07e6d9891a5863492451b9118236fdca1b",
+    "ci-logs/ci-duplication-fixtures-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-duplication-fixtures-browser.log": "ccf663251fbbc2eb35de8c5e509f5bd706b4a8f19630681bd9f50c88a104cbf4",
+    "ci-logs/ci-duplication-fixtures-format.log": "34e545bd72939a4e386accb099550bf4ec7d286b1d29c26f35737732ca175a81",
+    "metadata.json": "e1ad8545dda40cc9cc41c2f8ffda97c68435a0bf664d25a247be22ec69e94af3"
+  }
+}

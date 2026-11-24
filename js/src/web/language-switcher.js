@@ -1,7 +1,6 @@
 // Header language switcher (issue #18). Sits next to the theme toggle
-// and lets users pick a UI language explicitly. The "system default"
-// option clears the stored override so detection falls back to
-// `navigator.languages` again.
+// and lets users pick a UI language explicitly. The default option clears
+// the stored override, following the app's configured language or the browser.
 //
 // The component is intentionally a plain `<select>` so screen readers
 // announce it correctly, the keyboard interaction matches the rest of

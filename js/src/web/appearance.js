@@ -14,9 +14,10 @@ import { getLocalStorage } from '../storage/local-storage.js';
 // header's Theme button still flips light/dark (an explicit mode).
 
 import { useEffect, useSyncExternalStore } from 'react';
+import { THEME_MODES, SKINS } from '../configuration/ui-defaults.js';
+import { currentUiDefaults, subscribeUiDefaults } from './ui-defaults.js';
 
-export const THEME_MODES = ['system', 'light', 'dark', 'auto'];
-export const SKINS = ['t3', 'telegram', 'whatsapp', 'signal'];
+export { THEME_MODES, SKINS };
 export const THEME_KEY = 'metaSovereignTheme';
 export const SKIN_KEY = 'metaSovereignSkin';
 const DAY_FROM = 7;
@@ -51,26 +52,50 @@ const write = (key, value) => {
 };
 
 /** The stored choice; unknown or missing values fall back to defaults. */
-export const readAppearance = (get = read) => {
+export const readAppearance = (get = read, defaults = currentUiDefaults()) => {
   const mode = get(THEME_KEY);
   const skin = get(SKIN_KEY);
   return {
-    mode: THEME_MODES.includes(mode) ? mode : 'system',
-    skin: SKINS.includes(skin) ? skin : 't3',
+    mode: THEME_MODES.includes(mode) ? mode : (defaults.theme ?? 'system'),
+    skin: SKINS.includes(skin) ? skin : (defaults.skin ?? 't3'),
   };
 };
 
 let state = null;
+const choices = new Map();
 const listeners = new Set();
-const current = () => (state ??= readAppearance());
+const snapshot = () =>
+  readAppearance((key) => (choices.has(key) ? choices.get(key) : read(key)));
+const current = () => (state ??= snapshot());
 const subscribe = (listener) => {
   listeners.add(listener);
   return () => listeners.delete(listener);
 };
 const update = (patch) => {
-  state = { ...current(), ...patch };
-  write(THEME_KEY, state.mode);
-  write(SKIN_KEY, state.skin);
+  for (const [key, value] of Object.entries(patch)) {
+    const storageKey = key === 'mode' ? THEME_KEY : SKIN_KEY;
+    choices.set(storageKey, value);
+    write(storageKey, value);
+  }
+  state = snapshot();
+  listeners.forEach((listener) => listener());
+};
+
+subscribeUiDefaults(() => {
+  state = snapshot();
+  listeners.forEach((listener) => listener());
+});
+
+export const resetAppearance = () => {
+  for (const key of [THEME_KEY, SKIN_KEY]) {
+    choices.set(key, null);
+    try {
+      getLocalStorage()?.removeItem(key);
+    } catch {
+      // In-memory choices remain reversible when storage is unavailable.
+    }
+  }
+  state = snapshot();
   listeners.forEach((listener) => listener());
 };
 
@@ -99,6 +124,7 @@ export const useAppearance = () => {
     theme,
     setMode: setThemeMode,
     setSkin,
+    reset: resetAppearance,
     toggle: () => setThemeMode(theme === 'dark' ? 'light' : 'dark'),
   };
 };

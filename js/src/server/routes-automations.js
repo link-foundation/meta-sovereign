@@ -44,7 +44,10 @@
 import { createLiveSubset } from './live-subset.js';
 import { bodyFailure, json, readBody } from './util.js';
 import { confirmed } from './confirmations.js';
+import { sendMessageOnce } from './chat-send-receipts.js';
 import { previewFields } from '../sources/telegram-link-preview.js';
+import { hhCommonChatId, validHhMessageId } from '../sources/hh-chat-read.js';
+import { isHhWebTarget } from '../sources/hh-web-ui.js';
 import { CHANNEL } from '../sources/telegram-usernames.js';
 import {
   AUTOMATION_PREFIX,
@@ -58,6 +61,8 @@ import { isTypingActive, typingLink } from '../sources/live-links.js';
 import { validSchedule } from '../sources/telegram-scheduled.js';
 import { paidField, validSendAs } from '../sources/telegram-send-as-client.js';
 import { validEffect } from './routes-telegram-effects.js';
+import { questionAnswerRoute } from './routes-question-answers.js';
+import { followRoute } from './routes-follow.js';
 
 const fail = (res, status, code, error) =>
   json(res, status, { error, code }) ?? true;
@@ -103,6 +108,7 @@ const sentMessage = ({ source, chat, text }, { at, via }) => ({
 const sentLinks = (draft, result) => {
   const stamp = (link) => ({
     ...link,
+    ...(draft.chatName && !link.chatName ? { chatName: draft.chatName } : {}),
     ...(result?.via ? { via: result.via } : {}),
     ...(draft.clientId ? { clientId: draft.clientId } : {}),
   });
@@ -125,8 +131,6 @@ const sentLinks = (draft, result) => {
   ];
 };
 
-const SEND_MEMORY_MS = 10 * 60_000;
-
 // Build the outgoing draft from the POST body.
 // A forum topic it goes to (R-Y122).
 const topicField = (body) =>
@@ -141,13 +145,17 @@ const continuationField = (body) =>
     ? { continueLast: true }
     : {};
 
+const hhBrowserField = (body) =>
+  body.source === 'hh' && body.hhBrowserMessage !== undefined
+    ? { hhBrowserMessage: body.hhBrowserMessage }
+    : {};
+
 const buildDraft = (body) => {
   const clientId =
     typeof body.clientId === 'string' && body.clientId.length <= 100
       ? body.clientId
       : null;
-  const replyTo =
-    typeof body.replyTo === 'number' && body.replyTo > 0 ? body.replyTo : null;
+  const replyTo = body.replyTo ?? null;
   // The part of it quoted (Quote & Reply); Telegram takes up to 1024.
   const replyQuote =
     replyTo && typeof body.replyQuote === 'string' && body.replyQuote.trim()
@@ -158,6 +166,7 @@ const buildDraft = (body) => {
     chat: String(body.chat),
     contact: body.contact ?? null,
     text: String(body.text),
+    ...hhBrowserField(body),
     ...continuationField(body),
     ...(clientId ? { clientId } : {}),
     ...(replyTo ? { replyTo } : {}),
@@ -177,34 +186,6 @@ const buildDraft = (body) => {
       ? { scheduleDate: body.scheduleDate }
       : {}),
   };
-};
-
-// A draft (one `clientId`) is sent at most once per server: a second
-// request — a double click, a retry after a lost answer — shares the
-// first one's outcome instead of sending again. A failed send is
-// forgotten, so the user can retry it.
-const sendOnce = (ctx, draft, send) => {
-  if (!draft.clientId) {
-    return send();
-  }
-  const sends = (ctx.sends ??= new Map());
-  const key = `${draft.source}:${draft.chat}:${draft.clientId}`;
-  const now = Date.now();
-  for (const [k, entry] of sends) {
-    if (now - entry.at > SEND_MEMORY_MS) {
-      sends.delete(k);
-    }
-  }
-  const known = sends.get(key);
-  if (known) {
-    return known.promise;
-  }
-  const promise = send().catch((error) => {
-    sends.delete(key);
-    throw error;
-  });
-  sends.set(key, { at: now, promise });
-  return promise;
 };
 
 // Several tabs can send to the same dialog. Keep the tail read and
@@ -246,8 +227,20 @@ const keepSent = async (store, links) => {
   }
 };
 
-const validReply = (id) =>
-  id === undefined || id === null || (Number.isInteger(id) && id > 0);
+const validReply = ({ source, chat, replyTo, replyQuote }) => {
+  if (source === 'hh' && replyQuote !== undefined && replyQuote !== null) {
+    return false;
+  }
+  if (replyTo === undefined || replyTo === null) {
+    return true;
+  }
+  return source === 'hh'
+    ? Boolean(hhCommonChatId(chat)) &&
+        typeof replyTo === 'string' &&
+        replyTo.length <= 620 &&
+        replyTo.startsWith(`msg:hh:${chat}:`)
+    : Number.isInteger(replyTo) && replyTo > 0;
+};
 const sendTrace = (draft) => ({
   source: draft.source,
   chat: draft.chat,
@@ -267,6 +260,91 @@ const reportSend = (ctx, trace, result, error) =>
       : { count: result.links?.length ?? 0, stored: result.stored !== false }),
   });
 
+const hhBrowserSendDraft = async (store, draft) => {
+  const id = draft.hhBrowserMessage;
+  const archived = draft.source === 'hh' && isHhWebTarget(draft.chat);
+  if (id === undefined && !archived) {
+    return draft;
+  }
+  const reference =
+    (archived || /^\d{1,30}$/u.test(draft.chat)) &&
+    typeof id === 'string' &&
+    id.startsWith(`msg:hh:${draft.chat}:`) &&
+    id.length <= 160 &&
+    (await store.get(id));
+  if (
+    reference?.source !== 'hh' ||
+    reference.chat !== draft.chat ||
+    reference.via !== 'browser' ||
+    reference.deleted
+  ) {
+    throw Object.assign(
+      new Error('The saved HeadHunter web conversation could not be verified.'),
+      { code: 'unsupported-target' }
+    );
+  }
+  return {
+    ...draft,
+    chat: archived ? draft.chat : `web:${draft.chat}`,
+    chatName: reference.chatName,
+  };
+};
+
+const keepArchivedHhDestination = (draft, result) => {
+  if (draft.source !== 'hh' || !isHhWebTarget(draft.chat)) {
+    return result;
+  }
+  const native = draft.chat.slice(4);
+  const link = result?.link;
+  if (
+    result?.via !== 'browser' ||
+    link?.source !== 'hh' ||
+    link.chat !== native ||
+    link.outgoing !== true ||
+    !['sent', 'delivered', 'read'].includes(link.delivery) ||
+    !validHhMessageId(result.messageId) ||
+    link.id !== `msg:hh:${native}:${result.messageId}`
+  ) {
+    throw Object.assign(new Error('HeadHunter did not confirm delivery.'), {
+      code: 'send-unknown',
+      ambiguous: true,
+      fallback: false,
+    });
+  }
+  return {
+    via: result.via,
+    link: {
+      ...link,
+      id: `msg:hh:${draft.chat}:${result.messageId}`,
+      chat: draft.chat,
+      tokens: ['message', 'hh', draft.chat],
+    },
+  };
+};
+
+const hhReplyDraft = async (store, draft) => {
+  if (draft.source !== 'hh' || !draft.replyTo) {
+    return draft;
+  }
+  const reference = await store.get(draft.replyTo);
+  if (
+    reference?.source !== 'hh' ||
+    reference.chat !== draft.chat ||
+    reference.hhChat?.id !== hhCommonChatId(draft.chat) ||
+    reference.raw?.can_reply !== true ||
+    reference.deleted ||
+    !validHhMessageId(reference.messageId)
+  ) {
+    throw Object.assign(
+      new Error('The saved HeadHunter reply target is unavailable.'),
+      {
+        code: 'bad-reply',
+      }
+    );
+  }
+  return { ...draft, replyTo: reference.messageId };
+};
+
 const deliverMessage = async (store, ctx, draft) => {
   const edited = draft.continueLast
     ? await ctx.telegramAccount?.continueMessage?.(draft)
@@ -281,8 +359,12 @@ const deliverMessage = async (store, ctx, draft) => {
       links: link ? [link] : [],
     };
   }
-  const result = await ctx.send(draft);
-  const links = sentLinks(draft, result);
+  const destination = await hhBrowserSendDraft(store, draft);
+  const result = keepArchivedHhDestination(
+    draft,
+    await ctx.send(await hhReplyDraft(store, destination))
+  );
+  const links = sentLinks({ ...draft, chatName: destination.chatName }, result);
   const stored = await keepSent(store, links);
   return {
     status: 'sent',
@@ -304,8 +386,12 @@ const currentDelivery = async (store, sent) => {
   return { ...sent, link, links: link ? [link] : [] };
 };
 
+const SEND_FAILURE_STATUS = new Map([
+  ['flood-wait', 429],
+  ['send-id-conflict', 409],
+]);
 const sendFailure = (res, error) =>
-  json(res, error.code === 'flood-wait' ? 429 : 502, {
+  json(res, SEND_FAILURE_STATUS.get(error.code) ?? 502, {
     error: error.message,
     code: error.code ?? 'send-failed',
     ...(error.retryAfter ? { retryAfter: error.retryAfter } : {}),
@@ -318,7 +404,7 @@ const handleSend = async (store, res, body, ctx) => {
   if (typeof ctx.send !== 'function') {
     return fail(res, 501, 'no-sender', 'no sender is configured');
   }
-  if (!validReply(body.replyTo)) {
+  if (!validReply(body)) {
     return fail(res, 400, 'bad-reply', 'a valid reply message id is required');
   }
   if (body.scheduleDate !== undefined && !validSchedule(body.scheduleDate)) {
@@ -351,7 +437,7 @@ const handleSend = async (store, res, body, ctx) => {
     return true;
   }
   try {
-    const sent = await sendOnce(ctx, draft, () =>
+    const sent = await sendMessageOnce(store, ctx, draft, () =>
       orderedSend(ctx, draft, () => deliverMessage(store, ctx, draft))
     );
     reportSend(ctx, trace, sent);
@@ -389,18 +475,21 @@ const draftAction = (method) => async (store, res, body, ctx) => {
     return fail(res, 400, 'bad-draft', 'id is required');
   }
   const runner = ctx.automations.runner;
+  let confirmedDraft;
   if (method === 'send') {
     // One draft per confirmation, exactly as the user saw (or edited) it.
     const ok = await confirmed(ctx, res, {
       action: 'draft.send',
       body,
-      prepare: async () => ({
-        preview: { id: body.id, text: body.text ?? null, form: body.form },
-      }),
+      prepare: async () => {
+        const draft = await runner.previewDraft(body.id, body);
+        return { preview: draft, data: { draft } };
+      },
     });
     if (!ok) {
       return true;
     }
+    confirmedDraft = ok.data.draft;
   }
   const result = {
     send: () =>
@@ -408,13 +497,22 @@ const draftAction = (method) => async (store, res, body, ctx) => {
         confirm: true,
         text: body.text,
         form: body.form,
+        confirmedDraft,
       }),
     form: () => runner.setDraftForm(body.id, body.form),
     mark: () => runner.markSent(body.id),
     skip: () => runner.skip(body.id),
   }[method]();
   const outcome = await result;
-  return json(res, outcome.status === 'failed' ? 502 : 200, outcome);
+  return json(
+    res,
+    outcome.code === 'draft-changed'
+      ? 409
+      : outcome.status === 'failed'
+        ? 502
+        : 200,
+    outcome
+  );
 };
 
 // Autopilot: turning it on sends to every chat the automation fits, so
@@ -605,6 +703,9 @@ const handleWrite = async (store, req, res, p) => {
 };
 
 const statusFor = (error) => {
+  if (error.code?.startsWith('answer-model-')) {
+    return [error.code === 'answer-model-changed' ? 409 : 400, error.code];
+  }
   if (error.code === 'confirm-required') {
     return [400, error.code];
   }
@@ -612,7 +713,23 @@ const statusFor = (error) => {
   return bodyFailure(error) ? [error.status, error.code] : [400, 'bad-request'];
 };
 
+const featureRoute = (path) =>
+  [
+    ['/api/automations/answers', questionAnswerRoute],
+    ['/api/automations/follow', followRoute],
+  ].find(([root]) => path === root || path.startsWith(`${root}/`))?.[1];
+
 export const handleAutomationRoutes = async (store, req, res, p, url, ctx) => {
+  const feature = featureRoute(p);
+  if (feature) {
+    try {
+      return await feature(store, req, res, p, url, ctx);
+    } catch (error) {
+      const [status, code] = statusFor(error);
+      fail(res, status, code, error.message);
+      return true;
+    }
+  }
   const get = req.method === 'GET' ? GET[p] : null;
   const post = req.method === 'POST' ? POST[p] : null;
   const isWrite = ['PUT', 'DELETE'].includes(req.method);

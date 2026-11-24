@@ -32,7 +32,7 @@ import { launchWithCommander } from '../src/cv/browser.js';
 
 const clock = () => new Date('2026-10-19T12:00:00.000Z');
 
-test('every web app entry describes sign-in, sending, reading and actions', () => {
+test('web app entries describe only their supported messaging capabilities', () => {
   for (const [id, ui] of Object.entries(WEB_UIS)) {
     assert.equal(ui.id, id);
     for (const field of ['name', 'loginUrl', 'loggedIn', 'loggedOut']) {
@@ -40,10 +40,20 @@ test('every web app entry describes sign-in, sending, reading and actions', () =
     }
     assert.equal(typeof ui.chatUrl, 'function', `${id}.chatUrl`);
     assert.equal(typeof ui.target, 'function', `${id}.target`);
-    assert.ok(ui.composer && ui.send, `${id} composer/send`);
     assert.ok(ui.messages?.item && ui.messages?.body, `${id}.messages`);
     assert.ok(ui.chats?.item, `${id}.chats`);
-    assert.ok(ui.actions?.menu && ui.actions?.delete, `${id}.actions`);
+    if (id === 'hh') {
+      assert.ok(ui.composer && ui.choices && ui.location, 'hh native choices');
+      assert.equal(
+        ui.send,
+        undefined,
+        'hh ordinary text sending is unavailable'
+      );
+      assert.deepEqual(ui.actions, {}, 'hh has no general message actions');
+    } else {
+      assert.ok(ui.composer && ui.send, `${id} composer/send`);
+      assert.ok(ui.actions?.menu && ui.actions?.delete, `${id}.actions`);
+    }
     assert.match(
       ui.chatUrl(ui.target({ chat: '1234567' }), { text: '' }),
       /^https:\/\//
@@ -581,6 +591,41 @@ test('POST /api/message/delete marks the messages deleted', async () => {
   assert.equal(isTombstone(store.map.get('msg:whatsapp:B')), true);
 });
 
+test('HH message mutations require an exact provider receipt and a current saved edit', async () => {
+  const id = 'msg:hh:chat:41:m:2';
+  const saved = {
+    id,
+    source: 'hh',
+    chat: 'chat:41',
+    messageId: 'm:2',
+    body: 'Original',
+    raw: { payload: { text: 'Original' } },
+  };
+  const store = memoryStore([saved]);
+  let messageId = 'another-message';
+  const { ctx, performed } = routeCtx(() => ({ via: 'api', messageId }));
+  const edit = (previousText) =>
+    call(store, ctx, 'POST', '/api/message/edit', {
+      ids: [id],
+      text: 'Corrected',
+      previousText,
+    });
+  const remove = (ids, revoke) =>
+    call(store, ctx, 'POST', '/api/message/delete', { ids, revoke });
+  assert.equal((await edit('Earlier')).status, 409);
+  assert.equal((await remove([id], false)).status, 400);
+  assert.equal((await remove([id, 'msg:hh:absent'], true)).status, 400);
+  assert.deepEqual(performed, []);
+  assert.equal((await edit(saved.body)).body.code, 'mutation-unconfirmed');
+  assert.equal((await remove([id], true)).body.code, 'mutation-unconfirmed');
+  assert.deepEqual(store.map.get(id), saved);
+  messageId = saved.messageId;
+  assert.equal((await edit(saved.body)).status, 200);
+  assert.equal(store.map.get(id).raw.payload.text, 'Corrected');
+  assert.equal((await remove([id], true)).status, 200);
+  assert.equal(isTombstone(store.map.get(id)), true);
+});
+
 test('POST /api/message/react keeps one reaction of ours', async () => {
   const store = memoryStore([
     message('A', {
@@ -623,6 +668,55 @@ test('POST /api/message/read resets the unread count of the chat', async () => {
   const read = store.map.get('read:vk:5');
   assert.equal(read.unreadCount, 0);
   assert.equal(read.inboxMaxId, 2);
+});
+
+test('HH message reads retain cached unread counts until a matching provider snapshot arrives', async () => {
+  const old = {
+    id: 'read:hh:chat:5',
+    source: 'hh',
+    chat: 'chat:5',
+    unreadCount: 4,
+  };
+  const store = memoryStore([old]);
+  const body = { source: 'hh', chat: 'chat:5' };
+  const unconfirmed = routeCtx(() => ({ via: 'browser', read: true }));
+  const browser = await call(
+    store,
+    unconfirmed.ctx,
+    'POST',
+    '/api/message/read',
+    body
+  );
+  assert.equal(browser.body.read, false);
+  assert.equal(store.map.get(old.id).unreadCount, 4);
+
+  const readState = { ...old, unreadCount: 2, hhLatestMessageId: 'latest' };
+  const confirmed = routeCtx(() => ({ via: 'api', read: true, readState }));
+  const api = await call(
+    store,
+    confirmed.ctx,
+    'POST',
+    '/api/message/read',
+    body
+  );
+  assert.equal(api.body.read, true);
+  assert.equal(store.map.get(old.id).unreadCount, 2);
+});
+
+test('an unread arrival in a native HH view persists without a read acknowledgement', async () => {
+  const chat = '7';
+  const id = `read:hh:${chat}`;
+  const state = { id, source: 'hh', chat, unreadCount: 2 };
+  const store = memoryStore([state]);
+  const readState = { ...state, unreadCount: 1, hhLatestMessageId: '103' };
+  const { ctx } = routeCtx(() => ({ via: 'browser', read: false, readState }));
+  const result = await call(store, ctx, 'POST', '/api/message/read', {
+    source: 'hh',
+    chat,
+  });
+  assert.equal(result.status, 200);
+  assert.equal(result.body.read, false);
+  assert.deepEqual(store.map.get(id), readState);
 });
 
 test('POST /api/message/forward forwards to the chat named', async () => {
@@ -710,6 +804,7 @@ test('the CV browser launches through browser-commander, never with engine flags
   };
   const session = await launchWithCommander({
     bc,
+    prepare: async () => {},
     headless: false,
     profileDir: '/profile',
     slowMo: 0,

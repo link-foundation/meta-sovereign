@@ -1,0 +1,20 @@
+{
+  "archive": "ci-reply-fixture-clock.tar.gz",
+  "files": {
+    "ci-logs/checks-macos-node-43705703714.log": "c3042e44eba0a7db9e7c4c50310d6f76d1c66a3c443c97a5c0fe9a6cf2cfc516",
+    "ci-logs/checks-macos-node-shard3-43705703714.log": "276b1de4c67ff7f0431ca940b79597806e72f147307fb6487520b13c69bc96bb",
+    "ci-logs/vk-reply-clock-before.log": "041260eee36554185b924e23a82b7c8376228ba4793a9b232c229ebe5aa07b30",
+    "ci-logs/vk-reply-clock-deno.log": "4e2f5fc610d3b5ff993d6348bd6c9e96cfa37b99f73b4f33fa34a232406456a5",
+    "ci-logs/vk-reply-clock-format.log": "f3675f9c66f7da1d56f7437b5fb8f51ef9b8654a07bdd9cec6b3e9bb3565eff4",
+    "ci-logs/vk-reply-clock-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/vk-reply-clock-node.log": "fabfca1b703011d780b96def62ae5fbc6481fa8c9f3bcc7cd28bc4b106a4474c",
+    "ci-logs/vk-wall-macos-node-annotations.json": "251ae7ce11ab69d08a41989640c1ddba6ba156a9483631b4b876f5fb3aced421",
+    "ci-logs/vk-wall-macos-node-shard3-annotations.json": "1196034af204f6470fec283e96f6f6c0fe1ca01eada6e92b5b8428dd25f53a4b",
+    "ci-logs/vk-wall-macos-node-shard3-job.json": "ca25d18f0619fa82f0b7fb739c51401bcc90a2c75ede33ce9eb87b93dc4c8ba4",
+    "docs/case-studies/issue-56/ci-reply-fixture-clock.md": "cbb4251e4ac892c693a7d6caddd47546ab67689fa916e3785412988491073482",
+    "experiments/issue-56/collect-vk-reply-clock.py": "24266ec53ce2f1d5a846a1959eb7aae2dc409f1ab5f2332cf4f9151ef3fd37ca",
+    "experiments/issue-56/vk-gratitude-fixture.mjs": "c7d52332dde913a3b977768f2af47646653ad1e60418e6df53aba782a256894d",
+    "js/tests/vk-reply-fixture.test.js": "d285719f463f375c7a24d7434b5d1c1c5a9bc880cc959ee401d817ad1b23c2bb",
+    "before/experiments/issue-56/vk-gratitude-fixture.mjs": "a71b531736fab1d40dd5e440b303b7b40047be89fe910dc63a74025731972bdd"
+  }
+}

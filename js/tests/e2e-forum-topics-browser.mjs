@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for a forum group's topics (R-Y122), as Telegram's
 // apps show them in their tabs layout: a strip over the messages with
 // "All" and each topic (its mark, title, unread count, a lock when
@@ -75,7 +76,7 @@ const { base, page, until, finish } = await openChatApp('forum-topics', {
 
 const histories = [];
 await page.route('**/api/telegram/history', (route) => {
-  histories.push(route.request().postDataJSON());
+  histories.push(requestBody(route.request()));
   return fulfil(route, { written: 0, cached: 0, complete: true });
 });
 await page.route('**/api/telegram/scheduled', (route) =>
@@ -83,7 +84,7 @@ await page.route('**/api/telegram/scheduled', (route) =>
 );
 const reads = [];
 await page.route('**/api/telegram/read', (route) => {
-  reads.push(route.request().postDataJSON());
+  reads.push(requestBody(route.request()));
   return fulfil(route, { ok: true });
 });
 const asked = [];
@@ -104,7 +105,7 @@ const topic = (id, title, extra = {}) => ({
   ...extra,
 });
 await page.route('**/api/telegram/forum-topics', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   asked.push(body);
   return fulfil(
     route,

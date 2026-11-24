@@ -1,0 +1,23 @@
+{
+  "archive": "desktop-clipboard-async.tar.gz",
+  "files": {
+    "js/electron/clipboard.js": "098ed720b45c9c7c31fd717d4c741cc7bbe1e36e5c3124d4fd25fc20c6fcefea",
+    "js/tests/desktop-clipboard.test.js": "3b89c515dd45e22a165e298212a756836907d24f205e72d22d4b2bceab35dfd6",
+    "experiments/issue-56/desktop-clipboard-async.mjs": "c6a462c18378d4bd06316bed42096e502be10725beb221b4db755035a7c66b8d",
+    "experiments/issue-56/desktop-clipboard-electron.mjs": "cf0dad6e62b742fbc6da915e740b4816f54fa7b971052b960230e632b6bd27de",
+    "experiments/issue-56/collect-desktop-clipboard-async.py": "c3341725b30a013be303ea8dc519573055994595fe5b2d10d64d93b19a6420ac",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "docs/case-studies/issue-56/desktop-clipboard-async.md": "2b8fbe5fdab077d41e6f43b1cd9eed620ed1c40df4ea794f0349287e31cfe8e3",
+    "ci-logs/desktop-clipboard-native-failure.log": "6f7fffc14b8b337d5b8dd0ca9647c7408be155487b5c0ca48a6cc4291b1c95ad",
+    "ci-logs/desktop-clipboard-native-pass.log": "08fc5ce4c41d4dfa55356a59c6b2192f99511ff24d489b46a8335b755412890a",
+    "ci-logs/async-clipboard-native-job.json": "fd8f306eccfe053afa19fd468ae55478763e651a6bf274102bc986385411df18",
+    "ci-logs/desktop-clipboard-electron-api.source": "1aa0522c4d42e1692cf0d5430a9ab259d17a5a8b146b0f44dee6a2235fa282c6",
+    "ci-logs/desktop-clipboard-async-before.log": "d695573991b4cf13fb65ead3e81c498e41a65838c6e15cefa5517f27111276b7",
+    "ci-logs/desktop-clipboard-async-after-probe.log": "5dd933e4e5a1e97b99460c0c5923d51820c2006d496cb9b31d3aa70a92454f15",
+    "ci-logs/desktop-clipboard-async-focused.log": "85ba86a55d9780b08ae591336530f14e682539fee8871b74673b01c68e659a45",
+    "ci-logs/desktop-clipboard-async-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "before/js/electron/clipboard.js": "2e2c150afee84821b3196057affce33ae978ffc9c2eba91eaf8abc761c2e5399",
+    "before/experiments/issue-56/desktop-clipboard-electron.mjs": "d5123c4914104511d2e105b626423d1f3063b0ea25a913361a2ced6d7bc47d77",
+    "metadata.json": "a449f9928df1c6baff92675895aea8f3c164f3a32901accec77b19e7327a7390"
+  }
+}

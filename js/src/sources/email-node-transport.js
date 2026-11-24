@@ -571,8 +571,10 @@ const envelopeSender = (content, username) => {
 };
 
 // After the message started to leave, a failure may still have delivered it.
-const sendData = async (client, raw) => {
+const sendData = async (client, raw, beforeIssue) => {
+  await beforeIssue?.();
   await sendSmtp(client, 'DATA', [354]);
+  await beforeIssue?.();
   try {
     client.writeRaw(`${dotStuff(raw)}\r\n.\r\n`);
     return await readSmtp(client, [250], 'SMTP DATA');
@@ -602,7 +604,7 @@ const postSmtp = async (config, content, options) => {
     for (const to of message.recipients) {
       await sendSmtp(client, `RCPT TO:<${to}>`, [250, 251]);
     }
-    const response = await sendData(client, message.raw);
+    const response = await sendData(client, message.raw, options.beforeIssue);
     await sendSmtp(client, 'QUIT', [221]).catch(() => null);
     return {
       accepted: message.recipients,

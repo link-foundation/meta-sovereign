@@ -2,7 +2,7 @@ name: Desktop release
 
 # Builds the Electron desktop app for Windows, macOS and Linux (x64 and
 # arm64) and attaches the installers, SHA256SUMS.txt, BUILD-PROVENANCE.txt
-# and the electron-updater feeds (latest*.yml) to the GitHub release of
+# the runner source archive and recipe, and the electron-updater feeds (latest*.yml) to the GitHub release of
 # the current package version (issue #37). The download page
 # (https://link-foundation.github.io/meta-sovereign/download/) and the
 # in-app updater read those assets; their names come from one catalogue,
@@ -52,11 +52,13 @@ on: # zizmor: ignore[dangerous-triggers]
       - 'js/src/**'
       - 'js/bin/**'
       - 'js/scripts/build-web.mjs'
+      - 'js/scripts/build-runner-source.mjs'
       - 'js/scripts/validated-release-tree.mjs'
       - 'js/scripts/github-release-state.mjs'
       - 'js/scripts/create-github-release.mjs'
       - 'js/scripts/github-release-content.mjs'
       - 'js/electron/**'
+      - 'experiments/issue-56/vk-token-electron.mjs'
       - 'js/scripts/build-desktop.mjs'
       - 'js/scripts/desktop-release-gate.mjs'
       - 'js/scripts/command-process.mjs'
@@ -64,6 +66,10 @@ on: # zizmor: ignore[dangerous-triggers]
       - 'js/scripts/validate-desktop-updater.mjs'
       - 'js/scripts/normalize-desktop-artifacts.mjs'
       - 'js/scripts/validate-desktop-assets.mjs'
+      - 'js/scripts/verify-*-packages.*'
+      - 'js/scripts/wait-windows-uninstall.ps1'
+      - 'experiments/issue-56/desktop-packaged-launch.mjs'
+      - 'experiments/issue-56/desktop-packaged-runner.mjs'
       - 'js/src/web/download/downloads.js'
 
 permissions:
@@ -109,11 +115,11 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
 
       - name: Use pinned npm
-        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - name: Install release helper dependencies
         run: npm ci --no-audit --no-fund
@@ -185,6 +191,12 @@ jobs:
           echo "build=true" >> "$GITHUB_OUTPUT"
           echo "publish=true" >> "$GITHUB_OUTPUT"
 
+      - name: Test runner source packaging on pull requests
+        if: github.event_name == 'pull_request'
+        env:
+          TAG: ${{ steps.resolve.outputs.tag }}
+        run: node js/scripts/build-runner-source.mjs HEAD "$RUNNER_TEMP/runner-source" "$TAG"
+
   build:
     concurrency:
       group: check-${{ github.workflow }}-${{ github.ref }}-build-${{ strategy.job-index || 0 }}
@@ -232,11 +244,11 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
 
       - name: Use pinned npm
-        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - name: Install dependencies
         shell: bash
@@ -262,6 +274,13 @@ jobs:
 
       - name: Build web bundle
         run: npm run build:web
+
+      - name: Verify native VK authorization isolation
+        if: matrix.name == 'linux-x64'
+        env:
+          ELECTRON_VERSION: ${{ steps.electron.outputs.version }}
+        # One owned, network-intercepted case; no provider account is used.
+        run: xvfb-run -a npm exec --yes --package="electron@$ELECTRON_VERSION" -- electron --no-sandbox experiments/issue-56/vk-token-electron.mjs
 
       - name: Choose macOS signing mode
         if: matrix.os == 'macos'
@@ -344,6 +363,9 @@ jobs:
           chmod +x "$appimage"
           ./"$appimage" --appimage-extract > /dev/null
           test -x squashfs-root/meta-sovereign
+          mkdir -p "$GITHUB_WORKSPACE/artifacts"
+          xvfb-run -a node "$GITHUB_WORKSPACE/experiments/issue-56/desktop-packaged-launch.mjs" \
+            squashfs-root/meta-sovereign "$GITHUB_WORKSPACE/artifacts/desktop-launch-${{ matrix.name }}.png"
           rm -rf squashfs-root
           tar -tzf meta-sovereign-desktop-linux-*.tar.gz > tar-contents.txt
           grep -q '/meta-sovereign$' tar-contents.txt
@@ -353,45 +375,38 @@ jobs:
       - name: Smoke test (macOS)
         if: matrix.os == 'macos'
         shell: bash
-        run: |
-          set -euo pipefail
-          cd dist/desktop/release
-          ls -la
-          check_app() {
-            local app="$1" id
-            ls -la "$app/Contents"
-            test "$(basename "$app")" = 'Meta Sovereign.app'
-            id=$(plutil -extract CFBundleIdentifier raw -o - "$app/Contents/Info.plist")
-            echo "$app: $id"
-            test "$id" = foundation.link.meta.sovereign
-            codesign --verify --deep --strict --verbose=2 "$app"
-          }
-          for dir in mac mac-arm64; do
-            ls -la "$dir"
-            check_app "$(find "$dir" -maxdepth 1 -name '*.app' | head -n 1)"
-          done
-          for dmg in meta-sovereign-desktop-macos-*.dmg; do
-            mount=$(mktemp -d)
-            hdiutil attach "$dmg" -nobrowse -readonly -mountpoint "$mount"
-            ls -la "$mount"
-            check_app "$(find "$mount" -maxdepth 1 -name '*.app' | head -n 1)"
-            hdiutil detach "$mount" > /dev/null
-          done
-          test -f latest-mac.yml
+        run: bash js/scripts/verify-macos-packages.sh
 
       - name: Smoke test (Windows)
         if: matrix.os == 'windows'
         shell: pwsh
+        run: ./js/scripts/verify-windows-packages.ps1 -Screenshot "artifacts/desktop-launch-${{ matrix.name }}.png"
+
+      - name: Launch packaged app (macOS)
+        if: matrix.os == 'macos'
+        shell: bash
         run: |
-          $ErrorActionPreference = 'Stop'
-          Set-Location dist/desktop/release
-          Get-ChildItem
-          $installers = Get-ChildItem 'meta-sovereign-desktop-windows-installer-*.exe'
-          $portables = Get-ChildItem 'meta-sovereign-desktop-windows-portable-*.exe'
-          if ($installers.Count -ne 1 -or $portables.Count -ne 1) { throw 'expected one installer and one portable exe' }
-          foreach ($exe in @($installers) + @($portables)) {
-            if ($exe.Length -lt 10MB) { throw "$($exe.Name) is suspiciously small" }
-          }
+          set -euo pipefail
+          arch=$(node -p 'process.arch')
+          app_dir=mac
+          if [ "$arch" = arm64 ]; then app_dir=mac-arm64; fi
+          mkdir -p artifacts
+          node experiments/issue-56/desktop-packaged-launch.mjs \
+            "dist/desktop/release/$app_dir/Meta Sovereign.app/Contents/MacOS/Meta Sovereign" \
+            artifacts/desktop-launch-macos.png
+
+      - name: Preserve packaged launch screenshot
+        if: always()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: desktop-launch-${{ matrix.name }}
+          path: artifacts/desktop-launch-${{ matrix.name }}.png
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Check provenance metadata regression
+        if: matrix.name == 'linux-x64'
+        run: node experiments/issue-56/desktop-provenance-version.mjs
 
       - name: Checksums and provenance
         shell: bash
@@ -403,7 +418,7 @@ jobs:
           BUILD_REF: ${{ needs.resolve.outputs.ref }}
         run: |
           set -euo pipefail
-          builder_version=$(npx --no-install electron-builder --version)
+          builder_version=$(node -p "require('./node_modules/electron-builder/package.json').version")
           cd dist/desktop/release
           files=()
           for f in meta-sovereign-desktop-* latest*.yml; do
@@ -459,11 +474,11 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
 
       - name: Use pinned npm
-        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - name: Install release helper dependencies
         run: npm ci --no-audit --no-fund
@@ -489,8 +504,11 @@ jobs:
           TAG: ${{ needs.resolve.outputs.tag }}
         run: |
           set -euo pipefail
+          git fetch --no-tags --depth=1 origin "refs/tags/$TAG"
+          node js/scripts/build-runner-source.mjs FETCH_HEAD dist "$TAG"
           cd dist
           cat SHA256SUMS-*.txt | sort -k2 > SHA256SUMS.txt
+          sha256sum meta-sovereign-runner-source.tar.gz* >> SHA256SUMS.txt
           {
             echo "# Meta Sovereign desktop $TAG"
             echo "repository: $GITHUB_REPOSITORY"
@@ -505,13 +523,14 @@ jobs:
       - name: Validate release assets
         env:
           TAG: ${{ needs.resolve.outputs.tag }}
-        run: node js/scripts/validate-desktop-assets.mjs --tag="$TAG" --dist=dist
+        run: node js/scripts/validate-desktop-assets.mjs --tag="$TAG" --dist=dist --runner-source=true
 
       - name: Attest build provenance
         uses: actions/attest@v4.2.2
         with:
           subject-path: |
             dist/meta-sovereign-desktop-*
+            dist/meta-sovereign-runner-source.tar.gz*
 
       - name: Upload to GitHub release
         env:
@@ -532,7 +551,7 @@ jobs:
         run: |
           set -euo pipefail
           gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name' \
-            | node js/scripts/validate-desktop-assets.mjs --tag="$TAG" --names=-
+            | node js/scripts/validate-desktop-assets.mjs --tag="$TAG" --names=- --runner-source=true
           for f in dist/*; do
             name=$(basename "$f")
             url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/download/$TAG/$name"

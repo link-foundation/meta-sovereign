@@ -1,0 +1,80 @@
+// Account-owned, one-use previews bind the exact people and privacy options.
+import {
+  scanOptions,
+  contactOptions,
+} from '../sources/telegram-chat-users-shape.js';
+import { exportTarget } from '../sources/telegram-export-target.js';
+import { greetingSendRequest } from '../sources/telegram-greeting-target.js';
+import { groupGreetingOptions } from '../sources/telegram-group-greeting-shape.js';
+import {
+  stickerRefreshOptions,
+  stickerPageOptions,
+} from '../sources/telegram-greeting-stickers-shape.js';
+
+const route =
+  (method, valid) =>
+  async (account, body = {}) => {
+    if (
+      !body ||
+      typeof body !== 'object' ||
+      Array.isArray(body) ||
+      !valid(body)
+    ) {
+      return [400, { ok: false, code: 'bad-request' }];
+    }
+    if (typeof account[method] !== 'function') {
+      return [501, { ok: false, supported: false, code: 'not-supported' }];
+    }
+    return [200, await account[method](body)];
+  };
+export const CHAT_USERS_POSTS = {
+  'chat-users-greetings-start': route('chatUsersGreetingsStart', (body) =>
+    Boolean(
+      exportTarget(body.chat) && scanOptions({ ...body, messagesLimit: 0 })
+    )
+  ),
+  'chat-users-greetings-preview': route(
+    'chatUsersGreetingsPreview',
+    (body) =>
+      typeof body.jobId === 'string' && Boolean(groupGreetingOptions(body))
+  ),
+  'chat-users-greetings-apply': route(
+    'chatUsersGreetingsApply',
+    (body) => body.confirm === true && typeof body.planId === 'string'
+  ),
+  'greeting-send-preview': route('greetingSendPreview', (body) =>
+    Boolean(greetingSendRequest(body))
+  ),
+  'greeting-send-apply': route(
+    'greetingSendApply',
+    (body) => body.confirm === true && typeof body.planId === 'string'
+  ),
+  'greeting-send-cancel': route('greetingSendCancel', () => true),
+  'greeting-stickers-refresh': route('greetingStickersRefresh', (body) =>
+    Boolean(stickerRefreshOptions(body))
+  ),
+  'greeting-stickers-status': route('greetingStickersStatus', (body) =>
+    Boolean(stickerPageOptions(body))
+  ),
+  'greeting-stickers-cancel': route('greetingStickersCancel', () => true),
+  'chat-users-start': route('chatUsersStart', (body) =>
+    Boolean(exportTarget(body.chat) && scanOptions(body))
+  ),
+  'chat-users-status': route(
+    'chatUsersStatus',
+    (body) =>
+      (body.offset === undefined ||
+        (Number.isInteger(body.offset) && body.offset >= 0)) &&
+      (body.limit === undefined ||
+        (Number.isInteger(body.limit) && body.limit >= 1 && body.limit <= 500))
+  ),
+  'chat-users-cancel': route('chatUsersCancel', () => true),
+  'chat-users-contacts-preview': route(
+    'chatUsersContactsPreview',
+    (body) => typeof body.jobId === 'string' && Boolean(contactOptions(body))
+  ),
+  'chat-users-contacts-apply': route(
+    'chatUsersContactsApply',
+    (body) => body.confirm === true && typeof body.planId === 'string'
+  ),
+};

@@ -28,7 +28,7 @@ cd meta-sovereign
 cargo run --manifest-path rust/Cargo.toml -p meta-sovereign-server -- serve
 ```
 
-> **चुनने से पहले सीमाएँ जान लें।** Rust server links को **सिर्फ़ memory में** रखता है: disk पर कुछ नहीं लिखा जाता, बंद होते ही सारा data चला जाता है। इसमें **कोई source adapters नहीं हैं**: Telegram, VK, GitHub, Upwork आदि से live fetch नहीं, outbound HTTP/TLS client नहीं (email सिर्फ़ archives ingest करता है), और automations, CV sync, browser auto-import, backups तथा `/api/export-encrypted` नहीं हैं। असली इस्तेमाल के लिए JS server (section 3) या desktop app (section 4) चुनें। Route-by-route सूची [`docs/SERVER-PARITY.hi.md`](./SERVER-PARITY.hi.md) में है।
+> **चुनने से पहले सीमाएँ जान लें।** Rust server CLI डिफ़ॉल्ट रूप से links को native text/binary checkpoints में सहेजता है; `--data` directory चुनता है और `--memory` स्पष्ट रूप से अस्थायी memory उपयोग करता है। Format और recovery की सीमाएँ [native storage](./NATIVE-STORAGE.md) में हैं। इसमें **कोई source adapters नहीं हैं**: Telegram, VK, GitHub, Upwork आदि से live fetch नहीं, outbound HTTP/TLS client नहीं (email सिर्फ़ archives ingest करता है), और automations, CV sync, browser auto-import, backups तथा `/api/export-encrypted` नहीं हैं। असली इस्तेमाल के लिए JS server (section 3) या desktop app (section 4) चुनें। Route-by-route सूची [`docs/SERVER-PARITY.hi.md`](./SERVER-PARITY.hi.md) में है।
 
 Server default रूप से <http://127.0.0.1:8787> पर listen करता है। GitHub Pages वाला SPA saved override (`localStorage` में `metaServer`) और `127.0.0.1` ports probe करके इसे खोजता है।
 
@@ -81,24 +81,42 @@ Desktop और mobile apps GitHub Pages वाले उसी SPA को built-
 
 | System  | Files (x64 और arm64)                                                       |
 | ------- | -------------------------------------------------------------------------- |
-| Linux   | `.AppImage` (खुद update होता है), `.deb`, `.tar.gz`                        |
+| Linux   | `.AppImage` (x64 खुद update होता है), `.deb`, `.tar.gz`                    |
 | macOS   | `.dmg` (Applications में drag करें), `.zip`                                |
 | Windows | `windows-installer` `.exe` (खुद update होता है), `windows-portable` `.exe` |
 
+Apple Silicon या दूसरे ARM64 system के लिए **arm64**, Intel/AMD के लिए **x64** चुनें। Install या open करने से पहले download की गई file जाँचें।
+
 पहली बार चलाना:
 
-- **macOS.** Apple Developer ID के बिना builds ad-hoc signed होते हैं, इसलिए macOS पहली launch रोकता है ("Apple could not verify…")। System Settings → Privacy & Security खोलें और **Open Anyway** click करें। ये builds खुद update नहीं होते; नए versions page से download करें।
-- **Windows.** अगर SmartScreen "Windows protected your PC" दिखाए, तो **More info** → **Run anyway** click करें।
-- **Linux.** `chmod +x meta-sovereign-desktop-linux-*.AppImage` करके चलाएँ, या `.deb` को `sudo apt install ./<file>.deb` से install करें।
+- **macOS.** Apple Developer ID के बिना builds ad-hoc signed होते हैं, इसलिए macOS पहली launch रोकता है ("Apple could not verify…")। पहले नीचे बताए अनुसार download जाँचें। Installed app खोलने का प्रयास करें, **Done** चुनें, फिर System Settings → Privacy & Security → Security में Meta Sovereign के लिए **Open Anyway** चुनें। माँगे जाने पर पहचान सत्यापित करें और **Open** चुनें। ये builds खुद update नहीं होते; नए versions page से download करें।
+- **Windows.** Installer चलाएँ या portable `.exe` सीधे चलाएँ। Windows arm64 builds को manually update करना होता है। अगर SmartScreen "Windows protected your PC" दिखाए, तो **More info** → **Run anyway** click करें।
+- **Linux.** `chmod +x meta-sovereign-desktop-linux-*.AppImage` करके चलाएँ, `.deb` को `sudo apt install ./<file>.deb` से install करें, या `.tar.gz` को folder में extract करके उसका `meta-sovereign` executable चलाएँ।
 
 Download की गई file को release के `SHA256SUMS.txt` से check करें: download page के **Verify your download** section में (file और `SHA256SUMS.txt` चुनें; कुछ भी browser से बाहर नहीं जाता) या terminal में:
 
 ```bash
 sha256sum --check --ignore-missing SHA256SUMS.txt
-gh attestation verify <file> --repo link-foundation/meta-sovereign
 ```
 
-App अपना data system के per-user app folder में रखता है, इसलिए updates के बाद भी data रहता है। Installers खुद build करने के लिए: `npm i --no-save electron-builder@^26 && npm run desktop:build -- --linux --x64` (देखें `js/scripts/build-desktop.mjs`)।
+macOS पर `shasum -a 256 <file>` और Windows PowerShell में
+`Get-FileHash -Algorithm SHA256 <file>` इस्तेमाल करें। पूरा hash `SHA256SUMS.txt`
+में उसी filename वाली entry से मिलाएँ। Release में `BUILD-PROVENANCE.txt` भी है:
+repository, workflow, tag, source commit, runner और tool versions। इनकी जाँच करें
+और GitHub attestation उपलब्ध होने पर चलाएँ:
+`gh attestation verify <file> --repo link-foundation/meta-sovereign`।
+
+जाँचे हुए macOS download के लिए Terminal विकल्प केवल `/Applications` में कॉपी
+की गई app पर लागू है (`.zip` पहले खोलें)। एक बार यह command चलाएँ, फिर app खोलें:
+
+```sh
+xattr -dr com.apple.quarantine "/Applications/Meta Sovereign.app"
+```
+
+[Apple के निर्देश एक app के first-launch exception को समझाते हैं](https://support.apple.com/en-us/102445)।
+Ad-hoc signing notarization नहीं है।
+
+App अपना data system के per-user app folder में रखता है, इसलिए updates के बाद भी data रहता है। Installers खुद build करने के लिए: `npm ci && npm run build:web && npm run desktop:build -- --linux --x64` (देखें `js/scripts/build-desktop.mjs`)।
 
 ### Mobile और development builds
 
@@ -194,7 +212,7 @@ MS_SECRET_PASSPHRASE='सिर्फ़ आपको पता लंबा pas
 - Variable सेट न हो तो कुछ encrypt नहीं होता और server पहले जैसा चलता है।
 - अगर request passphrase नहीं देता, तो `POST /api/export-encrypted` में यही passphrase default है।
 
-यह क्या encrypt **नहीं** करता: store का बाकी हिस्सा (`data.lino` और `data.bin`: contacts, messages, patterns आदि), download किया media और archives, logs, और backups (backup तभी encrypted होता है जब बनाते समय आप passphrase दें)। इन्हें disk encryption और file permissions से सुरक्षित करें। Rust server में ऐसा option नहीं है: वह सब कुछ memory में रखता है।
+यह क्या encrypt **नहीं** करता: store का बाकी हिस्सा (`data.lino` और `data.bin`: contacts, messages, patterns आदि), download किया media और archives, logs, और backups (backup तभी encrypted होता है जब बनाते समय आप passphrase दें)। इन्हें disk encryption और file permissions से सुरक्षित करें। Rust server में यह encryption option नहीं है: उसके native checkpoint files plaintext हैं।
 
 ## 8. data import
 
@@ -552,3 +570,7 @@ Operator में Next चैट को बिना पढ़ा चिह्�
 अस्थायी कनेक्शन विफल होने पर लोडिंग बिना सीमा के अपने आप फिर होती है और पिछला सफल पेज बना रहता है। संदेश कतार सभी अनुभागों में चलती रहती है और सर्वर लौटते ही फिर भेजती है। सर्वर या Telegram से जुड़ने के बाद केवल ब्राउज़र मोड का सुझाव डिफ़ॉल्ट रूप से छिपा रहता है; कनेक्शन बहाली सेटिंग में इसे चालू कर सकते हैं।
 
 अपडेट के बाद मूल host चालू रखते हुए `serve` फिर चलाएँ: नई प्रक्रिया तैयार होने तक पुरानी सेवा चलती रहती है, फिर एकमात्र store writer स्थानांतरित होता है; सार्वजनिक port और certificate बने रहते हैं। विफलता पर rollback होता है। पुराने single-process server को इस host के लिए एक प्रारंभिक restart चाहिए। [Rolling upgrades](ROLLING-SERVER.md)।
+
+[ब्राउज़र उत्तर समीक्षा, सही विकल्प की पुष्टि और स्थिति पुनर्प्राप्ति](QUESTION-BROWSER.hi.md).
+
+अलग डेस्कटॉप अनुमति, निजी आयात और सुरक्षित संग्रह के लिए [VK उपयोगकर्ता टोकन](VK-USER-TOKEN.hi.md) पढ़ें।

@@ -1,0 +1,21 @@
+{
+  "archive": "runner-image-preparation.tar.gz",
+  "files": {
+    "js/src/server/runner-control.js": "6722ad038c0728b8a6e9df424716b2b95170524632557653204e448cfd0e62c8",
+    "js/src/server/runner-docker.js": "d895622d50a7e514bb1f84337afaea2cb63f25d15673c8633a907ba6cedbec86",
+    "js/tests/runner-docker.test.js": "8204f60f212d34988c6bdf1912b52cc0d9cc86842195479db61ce3054ce496a6",
+    "experiments/issue-56/runner-docker-fixture.mjs": "709a042ec3ce1b0ff8ca6b9cb65b80444c9aa9e833205780447b1f268794dff9",
+    "experiments/issue-56/runner-docker-hosted.mjs": "645fd4125b00c4309dd8da5fe14ed6d715664550da123464a8326331ffe18c22",
+    "ci-logs/runner-image-preparation-parent.log": "a7241221c7aa6a7cd44195303d86d5cfd7431cc8e3ca2581403ce8cfd0000a9c",
+    "ci-logs/runner-image-preparation-node.log": "8661a125b4c229cfca47c442c667e4e09b4d87b8b4b977e7dc9e4a190f100f98",
+    "ci-logs/runner-image-preparation-deno.log": "b6e56d3449a326ce3a406f928699e310f5a569b6483e8b71d13ee9bcad06b685",
+    "ci-logs/runner-image-preparation-lint.log": "b116fc1bff565641da75586a10f47fe134879530e460072bf4399c59b91d87e5",
+    "ci-logs/runner-image-preparation-lint-parent.log": "4700999129a39003bdd3bf9ec2584a711d4eb89cfbce9c4edca99dd9a37f5927",
+    "ci-logs/runner-image-preparation-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/runner-image-preparation-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/runner-image-preparation-native.log": "7fa419b32cc65ecc7676594ad503d18499a6408ad88b5b9cd8c82045a04899ff",
+    "before/js/src/server/runner-control.js": "16fa1a45f7b1814a8aa5b7d930b4410849500e4ffb60b286c5347a094f78e2ed",
+    "before/js/src/server/runner-docker.js": "9d1883c924b1a7aaf61ca1a62c66cf27aa0f1ae4430de41150a648ac539c5fc7",
+    "metadata.json": "b5fea0c2420704f1ba1c5fb7fa8722c4400dc03a4a2774f5e870fb5438966b87"
+  }
+}

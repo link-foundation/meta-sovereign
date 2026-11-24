@@ -3,6 +3,17 @@
 // dictionary.
 
 export const zhChatMore = {
+  'chat.export.failedFiles':
+    '无法下载的媒体文件：{count}。导出记录保留了失败说明。',
+  'chat.export.scope': '要导出的历史记录',
+  'chat.export.scope.all': '全部历史记录',
+  'chat.export.scope.active': '当前对话',
+  'chat.export.gap': '对话间隔（小时）',
+  'chat.export.gapHint':
+    '从最后一次达到或超过此时长的间隔后开始。日期筛选仍然有效。包括群组迁移前可访问的历史记录。',
+  'chat.export.format.markdown': 'Markdown 和相互链接的结构化 JSON 分卷',
+  'chat.export.maxLines': '每个 Markdown/JSON 分卷的最大行数（32–1500）',
+  'chat.export.locating': '正在查找当前对话…',
   'chat.notify.message': '消息',
   'chat.peerBar.stranger': '非联系人',
   'chat.peerBar.registered': '注册于 {month}',

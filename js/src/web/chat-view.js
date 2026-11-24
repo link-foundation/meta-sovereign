@@ -14,6 +14,7 @@
 
 import { PeerBar } from './chat-peer-actions.js';
 import { AutomationRunButton } from './chat-automation-button.js';
+import { BrowserAnswerControls } from './question-browser-controls.js';
 import { useAutomationDismiss } from './chat-automation-dismiss.js';
 import { TranslateBar } from './chat-translate-bar.js';
 import { VoiceChatBar } from './chat-voice-chat.js';
@@ -235,7 +236,7 @@ const AutomationMenuToggle = ({ menu, activeCount, t }) =>
     ]
   );
 
-const AutomationMenu = ({ menu, autopilot }) => {
+const AutomationMenu = ({ menu, autopilot, api, chat }) => {
   const box = useAutomationDismiss(menu.open, menu.close ?? menu.toggle);
   const t = useT();
   const activeCount = menu.automations.filter(
@@ -254,6 +255,11 @@ const AutomationMenu = ({ menu, autopilot }) => {
                   { key: 'none', className: 'meta' },
                   t('chat.automation.none')
                 ),
+                el(BrowserAnswerControls, {
+                  key: `browser:${chat.key}`,
+                  api,
+                  chat,
+                }),
               ]
             : [
                 el(
@@ -349,6 +355,11 @@ const AutomationMenu = ({ menu, autopilot }) => {
                           t('chat.draft.autopilot')
                         ),
                   ]);
+                }),
+                el(BrowserAnswerControls, {
+                  key: `browser:${chat.key}`,
+                  api,
+                  chat,
                 }),
               ]
         )
@@ -486,6 +497,8 @@ const Header = ({
         key: 'm',
         menu: state.menu,
         autopilot: state.autopilot,
+        api,
+        chat,
       }),
     ]),
   ]);
@@ -538,8 +551,8 @@ const Stream = ({ state, api, actions }) => {
   const newer = useNewer(follow.box, state.history);
   useArrival(state);
   useSeen(follow.box, state.seen, state.messages);
-  const onScroll = () => {
-    follow.onScroll();
+  const onScroll = (event) => {
+    follow.onScroll(event);
     keep();
     older();
     newer();
@@ -582,6 +595,12 @@ const Stream = ({ state, api, actions }) => {
       className: `chat-scroll${empty ? ' is-empty' : ''}`,
       ref: follow.box,
       onScroll,
+      onWheelCapture: follow.onReadGesture,
+      onTouchStartCapture: follow.onReadGesture,
+      onTouchMoveCapture: follow.onReadGesture,
+      onPointerDownCapture: follow.onReadGesture,
+      onPointerMoveCapture: follow.onReadGesture,
+      onKeyDownCapture: follow.onReadGesture,
       ...drag,
     },
     [
@@ -1211,10 +1230,23 @@ const ChatTop = ({ state, api, onBack, saved, forumView, call, actions }) => {
 };
 
 // A closed topic has no composer for those who cannot manage topics (R-Y153).
-const ComposerOrClosed = ({ state, api, keys }) =>
-  topicClosedFor(state.forum?.open, state.info)
+const ComposerOrClosed = ({ state, api, keys }) => {
+  const t = useT();
+  if (state.current.hhRecordingOnly) {
+    return el(
+      'div',
+      {
+        className: 'topic-closed-bar',
+        role: 'status',
+        'data-hh-recording-only': '',
+      },
+      t('chat.hh.recordingOnly')
+    );
+  }
+  return topicClosedFor(state.forum?.open, state.info)
     ? el(TopicClosedBar)
     : el(Composer, { state, api, keys });
+};
 
 // The shortcuts of ./shortcuts.js on this screen's state.
 const useScreenShortcuts = ({

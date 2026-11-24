@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for which reactions a group allows (R-Y160), as Telegram
 // Desktop's "Reactions" in Manage group: an admin sees "Reactions" in the
 // info column, changes it to Some with two emoji (the fake records the
@@ -64,7 +65,7 @@ await page.route('**/api/telegram/available-reactions', (route) =>
 );
 const sets = [];
 await page.route('**/api/telegram/chat-reactions-set', (route) => {
-  sets.push(route.request().postDataJSON());
+  sets.push(requestBody(route.request()));
   return fulfil(route, { ok: true });
 });
 

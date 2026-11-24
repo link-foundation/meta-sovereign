@@ -1,0 +1,21 @@
+{
+  "archive": "application-batch-attachment.tar.gz",
+  "files": {
+    "application-batch-attachment-before.log": "db9db2f562a461719d295289f1d3cd43d545a1f7580f90b1e7e67f21bd21793f",
+    "application-batch-attachment-browser-before.log": "c26adb67dfd0ccc71371325ceedb9ef330bf7d934cfbeb318133260491c8d241",
+    "application-batch-attachment-browser.log": "eaf2dc5054550f3d3129b6748017be8c230ae3486b941656c55b6c4d97a7a99c",
+    "application-batch-attachment-build.log": "4ed8de7a1082247228eb5d251ad222e77f99aa88a49fa4cdf167a74fb520018f",
+    "application-batch-attachment-deno.log": "411fbc2ae3548ead7ef2aa5fbc8284a7d617902e29c0554f67ddd36130875e1b",
+    "application-batch-attachment-eslint.log": "9274646146222f824cd524cd7b95574594e231dffe0d36644333cf4c92cabf9b",
+    "application-batch-attachment-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "application-batch-attachment-mcp-effects.json": "ab57a25b81e539cb5b1be348330eaa96866879bfc3a2c402e05fbd55aede1170",
+    "application-batch-attachment-mcp-server.log": "03aa892174650e4a42eade4a181dd7c84f568b575583195df887f7852008ce83",
+    "application-batch-attachment-mcp.json": "02483726e725e710d6ee1b15a0b02a1ff03bb4d555a2ec3ff9608d41f301d165",
+    "application-batch-attachment-node.log": "6465b68c0863c3f0deb3dfb5ba377e6a00674a1147bd7bcab7792dc2cb42a294",
+    "application-batch-attachment-secretlint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "parent-worker.mjs": "ef287f6c3a06d6f6ec5f2974d560b6a5c21d52000395c5f45b9137dbbc92ac59",
+    "parent.txt": "b81baa8ea6648d755088493601d0a0e50419ef539da3b4c1cd79f81eef21f37f",
+    "source.diff": "943b6e8fc4761144cb5878c704387727592d40600878cfff1b8943d412a7b0a0",
+    "web-bundle.git-blob": "a595b3bfbf372ce9b594d9f0043091214afa293e564f4f144042c2b8e53635e5"
+  }
+}

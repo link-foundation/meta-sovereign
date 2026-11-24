@@ -36,6 +36,7 @@ export const CLASS_OF = Object.freeze({
   pre: 'MessageEntityPre',
   link: 'MessageEntityTextUrl',
   customEmoji: 'MessageEntityCustomEmoji',
+  blockquote: 'MessageEntityBlockquote',
 });
 
 const TYPE_OF = Object.fromEntries(

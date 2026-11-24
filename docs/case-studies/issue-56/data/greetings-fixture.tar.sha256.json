@@ -1,0 +1,9 @@
+{
+  "archive": "greetings-fixture.tar.gz",
+  "files": {
+    "greetings-format.log": "5f8e887ebaec3a9301940a22f1857dde6cb76b68fa8fb34bff4dcf3eab90cc89",
+    "greetings-lint.log": "82acfc27faf17aa879ac7cb9ebf9feaf57b692489a1a28946756ce30d563b3b7",
+    "greetings-webkit-after.log": "08585a9545bfb75bbefe502c157b4b14691960f0e5b39205b6cc7b1e7962ac9c",
+    "greetings-webkit-before.log": "24f2afc275ee5a7d05747648489f9a4fc183eab9cb2435a87ca2cefccead5104"
+  }
+}

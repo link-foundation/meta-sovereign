@@ -18,26 +18,25 @@
  */
 
 import { setTimeout as delay } from 'node:timers/promises';
-import { clearInterval, setInterval } from 'node:timers';
 import { typingLink } from '../sources/live-links.js';
 import { resolveAudience as resolvePeople } from '../crm/people.js';
 import { nextChatOperations } from './next-chat.js';
-import { recordOutcome } from './record-outcome.js';
 import { createPacedSender } from './paced-send.js';
-import { guardedSend, outboxKey } from './outbox.js';
+import { createDelivery } from './deliver.js';
+import { vkOutgoingFor } from './vk-outgoing-queue.js';
 import { planningRecords } from './planning-store.js';
+import { draftChatModelAnswers } from './question-chat-model.js';
+import { finalPeriodOverride } from './question-final-period.js';
+import {
+  prepareSalaryExchange,
+  withSalaryExchangeEvidence,
+} from './salary-exchange-policy.js';
 import { createAutomationRun } from './run-automation.js';
 import {
-  AUTOMATION_PREFIX,
   RUN_PREFIX,
-  STATE_PREFIX,
   automationKey,
   editId,
   withEdit,
-  hasTrigger,
-  incomingTrigger,
-  normalizeAutomation,
-  parseDuration,
   planAutomation,
 } from './automations.js';
 import {
@@ -52,6 +51,12 @@ export { stillConfirmed } from './run-automation.js';
 
 const pick = (object, keys) =>
   Object.fromEntries(keys.map((key) => [key, object[key]]));
+
+const planningAction = (action, period, salary) => ({
+  ...action,
+  ...(action.kind === 'answer-questions' ? period : {}),
+  ...(salary ? { salary } : {}),
+});
 
 /** How long a person would take to type `text`. */
 export const typingDurationMs = (text, pacing) =>
@@ -73,14 +78,26 @@ export const createAutomationRunner = ({
   store,
   send = null,
   setTyping = null,
+  markRead = null,
   resolveAudience = resolvePeople,
   self = [],
   clock = () => new Date(),
   sleep = delay,
   random = Math.random,
   log = () => {},
+  modelRunner,
+  answerFinalPeriod,
+  vkQueue = {},
 } = {}) => {
+  const period = finalPeriodOverride({ answerFinalPeriod });
   const nowIso = () => clock().toISOString();
+  const outgoing = vkOutgoingFor(store, {
+    sleep: (ms, signal) => sleep(ms, undefined, { signal }),
+    now: () => clock().getTime(),
+    random,
+    log,
+    ...vkQueue,
+  });
 
   // The automation as the user last sent it: their edit of the text is
   // carried to the next chats (R-Y86).
@@ -93,16 +110,48 @@ export const createAutomationRunner = ({
     const data = await planningRecords(store, {
       targets: options.targets,
       self,
+      inferSelf: automation.action?.kind !== 'answer-questions',
+      summaryChoices: automation.action?.kind === 'answer-questions',
     });
-    return planAutomation(data.records, automation, {
-      ...pick(options, ['targets', 'test', 'limit']),
+    const prepared = await prepareSalaryExchange(
+      store,
+      automation.action.salary,
+      {
+        now: () => options.now ?? clock().getTime(),
+      }
+    );
+    const planned = planAutomation(
+      data.records,
+      {
+        ...automation,
+        action: planningAction(automation.action, period, prepared.salary),
+      },
+      {
+        ...pick(options, ['targets', 'test', 'limit']),
+        now: options.now ?? clock().getTime(),
+        self: data.self,
+        acceptedSummaries: data.acceptedSummaries,
+        resolveAudience,
+        modelCandidates: true,
+      }
+    );
+    const drafted = await draftChatModelAnswers(store, automation, planned, {
+      runner: modelRunner,
+      signal: options.signal,
       now: options.now ?? clock().getTime(),
-      self: data.self,
-      resolveAudience,
     });
+    for (const draft of drafted.drafts) {
+      if (draft.answer) {
+        draft.answer = withSalaryExchangeEvidence(
+          draft.answer,
+          prepared.rateState
+        );
+      }
+    }
+    return drafted;
   };
 
-  const showTyping = async (automation, draft) => {
+  const showTyping = async (automation, draft, { signal } = {}) => {
     if (!automation.pacing.typing) {
       return;
     }
@@ -122,52 +171,22 @@ export const createAutomationRunner = ({
     await setTyping?.({ source: draft.source, chat: draft.chat }).catch(
       (error) => log({ event: 'typing_failed', error: error.message })
     );
-    await sleep(ms);
+    await sleep(ms, undefined, { signal });
   };
 
-  /** Send one draft now: typing, the guarded send, ledger, chat history. */
-  const deliver = async (automation, draft) => {
-    if (typeof send !== 'function') {
-      throw new Error('no sender configured; send it yourself and mark it');
-    }
-    await showTyping(automation, draft);
-    const outcome = await guardedSend({
-      store,
-      kind: 'automation',
-      owner: automation.id,
-      key: outboxKey({
-        owner: automation.id,
-        source: draft.source,
-        chat: draft.chat,
-        now: clock().getTime(),
-      }),
-      draft,
-      send,
-      clock,
-      log,
-    });
-    const record = await recordOutcome({
-      store,
-      automation,
-      draft,
-      outcome,
-      nowIso,
-      log,
-    });
-    return {
-      status: outcome.status,
-      draft,
-      record,
-      outbox: outcome.outbox,
-      ...(outcome.status === 'sent'
-        ? {}
-        : {
-            error: outcome.error,
-            ...(outcome.code ? { code: outcome.code } : {}),
-            ...(outcome.retryAfter ? { retryAfter: outcome.retryAfter } : {}),
-          }),
-    };
-  };
+  const deliver = createDelivery({
+    store,
+    answerFinalPeriod,
+    send,
+    showTyping,
+    clock,
+    log,
+    nowIso,
+    self,
+    outgoing,
+    markRead,
+    setTyping,
+  });
 
   const queue = (automation, drafts) =>
     queueDrafts(store, automation, drafts, nowIso());
@@ -190,6 +209,7 @@ export const createAutomationRunner = ({
   });
 
   return {
+    close: () => outgoing.close(),
     load,
     plan,
     /**
@@ -223,125 +243,4 @@ export const createAutomationRunner = ({
   };
 };
 
-// Only the automations are read (and copied), not the whole store.
-const enabledAutomations = async (store) =>
-  (await store.query((l) => l?.id?.startsWith(AUTOMATION_PREFIX)))
-    .map((l) => {
-      try {
-        return normalizeAutomation(l);
-      } catch {
-        return null;
-      }
-    })
-    .filter((a) => a?.enabled);
-
-/**
- * Fire `schedule` triggers every `tickMs` and `incoming` triggers on
- * every new message someone else sends — vk-bot's `executeTrigger`.
- * Triggered runs only queue drafts (see `run`): nothing is sent until
- * the user confirms.
- */
-export const createAutomationScheduler = ({
-  store,
-  runner,
-  isSelf = (sender) => sender === 'me',
-  clock = () => new Date(),
-  tickMs = 60_000,
-  log = () => {},
-} = {}) => {
-  let timer = null;
-  let unsubscribe = null;
-  let startedAt = 0;
-  // While started, the enabled automations are kept until one changes:
-  // a message arriving does not read them again.
-  let known = null;
-  const automations = () => {
-    if (!unsubscribe) {
-      return enabledAutomations(store);
-    }
-    known ??= enabledAutomations(store).catch((error) => {
-      known = null;
-      throw error;
-    });
-    return known;
-  };
-  const safely = (task) =>
-    task.catch((error) => {
-      log({ event: 'automation_failed', error: error.message });
-      return null;
-    });
-
-  const due = async (automation, now) => {
-    const trigger = automation.triggers.find((t) => t.kind === 'schedule');
-    const state = await store.get(
-      `${STATE_PREFIX}${automationKey(automation)}`
-    );
-    const last = Date.parse(state?.lastRunAt ?? '') || 0;
-    return now - last >= parseDuration(trigger.every);
-  };
-
-  const tick = async () => {
-    const now = clock().getTime();
-    const ran = [];
-    for (const automation of await automations()) {
-      if (hasTrigger(automation, 'schedule') && (await due(automation, now))) {
-        await store.put({
-          id: `${STATE_PREFIX}${automationKey(automation)}`,
-          tokens: ['automation-state', automationKey(automation)],
-          automation: automation.id,
-          lastRunAt: new Date(now).toISOString(),
-          lastTrigger: 'schedule',
-        });
-        ran.push(await safely(runner.run(automation, { trigger: 'schedule' })));
-      }
-    }
-    return ran.filter(Boolean);
-  };
-
-  const onMessage = async (message) => {
-    const at = Date.parse(message.timestamp ?? '') || 0;
-    if (isSelf(message.sender) || at < startedAt || message.service) {
-      return [];
-    }
-    const ran = [];
-    for (const automation of await automations()) {
-      if (incomingTrigger(automation, message.body)) {
-        ran.push(
-          await safely(
-            runner.run(automation, {
-              trigger: 'incoming',
-              targets: [{ source: message.source, chat: message.chat }],
-            })
-          )
-        );
-      }
-    }
-    return ran.filter(Boolean);
-  };
-
-  return {
-    tick,
-    onMessage,
-    start() {
-      startedAt = clock().getTime();
-      timer = setInterval(() => safely(tick()), tickMs);
-      timer.unref?.();
-      unsubscribe = store.subscribe?.((event) => {
-        const id = event?.link?.id ?? event?.id;
-        if (typeof id === 'string' && id.startsWith(AUTOMATION_PREFIX)) {
-          known = null;
-        }
-        if (event?.type === 'put' && event.link?.id?.startsWith('msg:')) {
-          safely(onMessage(event.link));
-        }
-      });
-    },
-    stop() {
-      clearInterval(timer);
-      unsubscribe?.();
-      unsubscribe = null;
-      known = null;
-      timer = null;
-    },
-  };
-};
+export { createAutomationScheduler } from './scheduler.js';

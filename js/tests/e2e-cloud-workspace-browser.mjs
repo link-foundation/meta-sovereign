@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
+import { LINO_TEXT, decodeWire, encodeWire } from '../src/transport/lino.js';
 import { browserOf } from './helpers/e2e-chat.mjs';
 import { watchChatPages } from './helpers/e2e-page-errors.mjs';
 import {
@@ -24,20 +25,25 @@ const signIn = async (page, key) => {
 };
 
 const writeLink = (page, link) =>
-  page.evaluate(async (body) => {
-    const res = await fetch('/links', {
-      method: 'PUT',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    return res.status;
-  }, link);
+  page.evaluate(
+    async ({ body, type }) => {
+      const res = await fetch('/links', {
+        method: 'PUT',
+        headers: { 'content-type': type },
+        body,
+      });
+      return res.status;
+    },
+    { body: encodeWire(link), type: LINO_TEXT }
+  );
 
-const linkId = (page) =>
-  page.evaluate(async () => {
+const linkId = async (page) => {
+  const wire = await page.evaluate(async () => {
     const response = await fetch('/links/fixture:cross-browser');
-    return (await response.json()).id;
+    return response.text();
   });
+  return decodeWire(wire).id;
+};
 
 try {
   if (artifacts) {
@@ -113,6 +119,17 @@ try {
 
   await page.locator('button[data-view="operator"]').click();
   await page.locator('main[data-view="operator"]').waitFor();
+  await page.locator('button[data-view="settings"]').click();
+  await page.locator('main[data-view="settings"]').waitFor();
+  assert.equal(
+    await page.locator('.browser-settings, [data-runner-settings]').count(),
+    0
+  );
+  await page.locator('button[data-view="cv"]').click();
+  await page
+    .locator('main[data-view="cv"] [data-action="cv-compare"]')
+    .waitFor();
+  assert.equal(await page.locator('[data-action="cv-read"]').count(), 0);
   await page.locator('button[data-view="connections"]').click();
   await page.locator('article[data-provider-id="telegram"]').waitFor();
   await page

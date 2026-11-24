@@ -1,0 +1,31 @@
+{
+  "archive": "import-resource-warning.tar.gz",
+  "files": {
+    "PLAN.md": "bc89bf09501810efbf51530ae51006445e0c9d58372fe121a49849aa334037a6",
+    "ci-logs/checks-08cf9ee5-bun-macos-job.json": "fe483007ca2d30cfdfdc92b0591a3b2205df271b96b5c0672fb2b3dff2eb1742",
+    "ci-logs/checks-08cf9ee5-bun-macos.log": "e54e8ae6058af947476bb3cbab191fc87f54b71e434bb868a6aa67e3a14c6659",
+    "ci-logs/checks-08cf9ee5-bun-ubuntu-job.json": "3a174b77d5214af553ecb45b392a5b8fcc8c34263d9cd0e3e46525ac4bc6a304",
+    "ci-logs/checks-08cf9ee5-bun-ubuntu.log": "dd89874ac35611713f6cfcdd8c353134d9be3788f5bca66004e19be759ae2004",
+    "ci-logs/import-resource-warning-assertions-before.log": "28d7599b04c3f078e1a8bae1363cb8a06a522b17ff4a35ff3e3a18472e1bcad3",
+    "ci-logs/import-resource-warning-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/import-resource-warning-focused.log": "781aff9ae1100091757143c086925bb0a09e199b41f08bff5b1f7ae98dd03190",
+    "ci-logs/import-resource-warning-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/import-resource-warning-format.log": "f72b243eb412c243e3892d62c7f25ff1e1b4db55218929fab5e0952efab5a81b",
+    "ci-logs/import-resource-warning-limits.log": "3a0f0e1a811d8994fddbf49a7fc4d058a23e81722ce5887ac54f6da727b3c7de",
+    "ci-logs/import-resource-warning-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/import-resource-warning-parent-replay.log": "dc9785c887b90047522788226a2c58b050bec390babac419428fa3a3d8ad0d4d",
+    "ci-logs/import-resource-warning-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/import-resource-warning-synthetic.log": "8b37fa32112bb408eeccf86128cd71ad9e2138c480d3d55510fa2ff4428b2dd7",
+    "docs/case-studies/issue-56/import-resource-warning.md": "1153c3b4c879b13128e6ac1af3f94e1c9b0faf489d9584781b5d82b25b03a38b",
+    "experiments/issue-56/collect-import-resource-warning.py": "2d73f9a297d173130a74aed2f6b7dfeb9297bdba79a38f610f9ed994048909da",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "experiments/issue-56/import-resource-warning-before.py": "6503a996da5c2b7dc6df53c2f5baa5488a8c14bcccc8501b456d153dfb27a889",
+    "experiments/issue-56/parent_replay.py": "d773a42482c77d569d3c960498f0dcc035a8922481bbdc3ff85241ea528dc4a6",
+    "experiments/issue-56/synthetic-import-resources.mjs": "56c1c6eb56a31ee0f3d0621c56049ec3a757e88253832ab3e4094e100169c48a",
+    "js/src/server/resource-diagnostics.js": "7b5cad91fe1ae29b8e514b3f567792b494437f960cb2ed80e295ebafbbf23029",
+    "js/tests/resource-diagnostics.test.js": "439665c8efdb573572bda3237ca6fbb3a4a8cc64357de704fae80f50c6d67384",
+    "js/tests/worker-import-resources.test.js": "81eee5a76d7f5b00ca6fb1b0a38dfaf66804e23c2ceed3115411f6d8985df059",
+    "before/js/tests/worker-import-resources.test.js": "d948937859977a0a8f51d0e1a69a1237eec151e31faf542264a31ca5f6c72850",
+    "metadata.json": "b261a86053e121ec5f89d65abea0ef85b5665f5c2402caacc81371d01c3cf168"
+  }
+}

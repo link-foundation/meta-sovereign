@@ -1,0 +1,13 @@
+# Owned storage reader lifetime
+
+The exact `9b718571f1b8750266a6df7029e731e431c4bbe0` checks run [42674537967](https://github.com/link-foundation/meta-sovereign/actions/runs/42674537967), created at 2026-11-09 18:29:57 UTC, reports a Deno/Windows `EBUSY: resource busy or locked, rm` in the warm replacement test. The downloaded job log `129353939947` identifies `store-handoff.test.js:14`; lines 6753–6757 retain the error. The error does not identify the locked file, so its exact Windows cause still requires verification.
+
+A bounded probe of the actual `readLinoFile()` implementation found an independently reproducible lifetime gap: it returns while its first reader still owns an open descriptor. Calling `destroy()` starts asynchronous cleanup; it does not wait for descriptor closure. Reaching the end of a readline iterator can similarly precede input closure. The reusable experiment delays cleanup of one tiny file for 50 ms, always releases it, and records `{finished:true,readerClosed:false,fd:20}` before the fix. Its assertion fails because the storage read has already returned.
+
+Both early-return and complete-stream readers now use an owned iterator that closes readline, destroys its input and awaits the input's close event before completing. Read failures retain their original error. Readers of explicitly owned file handles keep their existing separate ownership path. `MS_STORAGE_DEBUG=1` enables opening/closing diagnostics without file names or stored content; tracing is off by default.
+
+Three focused lifetime regressions verify early return, EOF and error cleanup. Those cases and the two existing warm-handoff cases pass in Node and Deno on Linux. Four small existing append/reopen/legacy-record cases also pass, as do focused lint and formatting. The actual-file probe now records `{finished:false,readerClosed:false,fd:20}` while cleanup is held, then completes after closure. Full runtime matrices remain in CI; Linux success is not presented as Windows verification.
+
+The raw Windows job log, finite probe, failing-before/passing-after logs and focused results are retained in `data/reader-lifetime.tar.gz`, with verified per-file hashes. Exact-head Windows CI remains a delivery gate for [PR 57](https://github.com/link-foundation/meta-sovereign/pull/57).
+
+Subsequent verification: the exact `862af4ba` Windows Deno, Node and Bun jobs all pass, along with the complete runtime matrix. See [the retained results](ci-862af4ba.md). The original error did not identify its file; this confirms the correction without asserting an unobserved Windows lock path.

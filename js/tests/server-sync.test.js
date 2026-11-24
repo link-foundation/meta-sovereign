@@ -11,10 +11,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 import { createMemoryStore } from '../src/storage/index.js';
 import { CURRENT_SCHEMA } from '../src/storage/migrations/index.js';
 import { createPeer, vcTick, connectSyncWebSocket } from '../src/sync/index.js';
+import { waitFor } from './helpers/wait-for.js';
 
 const settle = () => new Promise((r) => setTimeout(r, 30));
 
@@ -55,33 +56,43 @@ test('main server exposes /ws sync alongside REST', async () => {
   await handle.close();
 });
 
-test('main server exposes /rtc signaling broker', async () => {
-  const handle = await startServer({
-    port: 0,
-    store: createMemoryStore(),
-  });
+test(
+  'main server exposes /rtc signaling broker',
+  { timeout: 5000 },
+  async (t) => {
+    const handle = await startServer({
+      port: 0,
+      store: createMemoryStore(),
+    });
 
-  const a = await connectSyncWebSocket({
-    port: handle.port,
-    path: '/rtc?room=test',
-  });
-  const b = await connectSyncWebSocket({
-    port: handle.port,
-    path: '/rtc?room=test',
-  });
+    let a = null;
+    let b = null;
+    t.after(async () => {
+      await a?.close();
+      await b?.close();
+      await handle.close();
+    });
+    a = await connectSyncWebSocket({
+      port: handle.port,
+      path: '/rtc?room=test',
+    });
+    b = await connectSyncWebSocket({
+      port: handle.port,
+      path: '/rtc?room=test',
+    });
 
-  const seen = [];
-  b.transport.onMessage((e) => seen.push(e));
+    const seen = [];
+    b.transport.onMessage((e) => seen.push(e));
 
-  a.transport.send({ type: 'offer', sdp: 'x' });
-  await settle();
+    a.transport.send({ type: 'offer', sdp: 'x' });
+    await waitFor(() => seen.some((e) => e.type === 'offer' && e.sdp === 'x'), {
+      timeoutMs: 1000,
+      what: 'the signaling offer',
+    });
 
-  assert.ok(seen.some((e) => e.type === 'offer' && e.sdp === 'x'));
-
-  await a.close();
-  await b.close();
-  await handle.close();
-});
+    assert.ok(seen.some((e) => e.type === 'offer' && e.sdp === 'x'));
+  }
+);
 
 test('a stored or synced broadcast link sends nothing by itself', async () => {
   // Posting is a write to other services: only the confirmed

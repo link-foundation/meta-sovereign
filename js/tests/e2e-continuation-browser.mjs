@@ -1,5 +1,7 @@
 // A real composer, send route and store with a fake Telegram transport.
 import { assert, fulfil, openChatApp } from './helpers/e2e-chat.mjs';
+import { createWirePost, requestBody } from './helpers/http-wire.mjs';
+import { LINO_TEXT } from '../src/transport/lino.js';
 import {
   continuationFixture,
   ownMessage,
@@ -27,7 +29,7 @@ await page.route('**/api/telegram/calls', (route) =>
   fulfil(route, { ok: true, calls: [], next: null })
 );
 await page.route('**/api/telegram/dialog-state', async (route) => {
-  const { chat } = route.request().postDataJSON();
+  const { chat } = requestBody(route.request());
   return fulfil(route, {
     ok: true,
     read: await store.get(`read:telegram:${chat}`),
@@ -53,6 +55,7 @@ const bubble = (link) => page.locator(`[data-message="${link.id}"]`);
 const publicBubble = (id) => bubble({ id: `msg:telegram:${PUBLIC}:${id}` });
 const ending = (message) =>
   history.get(PUBLIC).at(-1).message.endsWith(message);
+const postSend = createWirePost(base, '/api/send', LINO_TEXT);
 
 const confirmed = async (draft) => {
   const payload = {
@@ -61,16 +64,18 @@ const confirmed = async (draft) => {
     continueLast: true,
     ...draft,
   };
-  const preview = await page.request.post(`${base}/api/send`, {
-    data: payload,
+  const preview = await postSend('', payload);
+  assert(
+    preview.status === 428,
+    `a provider write requires confirmation (${preview.status})`
+  );
+  const { confirm } = preview.answer;
+  const response = await postSend('', {
+    ...payload,
+    confirmToken: confirm.token,
   });
-  assert(preview.status() === 428, 'a provider write requires confirmation');
-  const { confirm } = await preview.json();
-  const response = await page.request.post(`${base}/api/send`, {
-    data: { ...payload, confirmToken: confirm.token },
-  });
-  assert(response.ok(), `confirmed send returned ${response.status()}`);
-  return response.json();
+  assert(response.status === 200, `confirmed send returned ${response.status}`);
+  return response.answer;
 };
 
 await finish(async () => {

@@ -1,6 +1,8 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // A real chat-menu test creates a visible draft without delivering a message.
 import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, fulfil, openChatApp } from './helpers/e2e-chat.mjs';
+import { verifyLayoutObserver } from './helpers/e2e-layout-observer.mjs';
 
 const store = createMemoryStore();
 for (const chat of ['111', '222']) {
@@ -59,13 +61,13 @@ await page.route('**/api/automations/drafts/*', (route) =>
 );
 page.on('request', (request) => {
   if (request.url().endsWith('/api/client-log')) {
-    const entry = request.postDataJSON();
+    const entry = requestBody(request);
     if (entry.event === 'chat_layout') {
       layouts.push(entry);
     }
   }
   if (request.url().endsWith('/api/automations/run')) {
-    requests.push(request.postDataJSON());
+    requests.push(requestBody(request));
   }
 });
 await page.addInitScript(() => {
@@ -251,7 +253,7 @@ const sentLayout = async () => {
   );
   assert(
     !layouts.some((entry) => entry.level === 'warn'),
-    'normal reading and sent messages do not produce false overlap warnings'
+    `normal reading and sent messages do not produce false overlap warnings: ${JSON.stringify(layouts.filter((entry) => entry.level === 'warn'))}`
   );
   await page.locator('.chat-notice.next-chat .icon-btn').click();
   await page.locator('[data-notice="draft-send"] .icon-btn').click();
@@ -276,4 +278,5 @@ await finish(async () => {
   await refusedDraftAction();
   await failedAndLateResults();
   await sentLayout();
+  await verifyLayoutObserver(page.context().browser());
 });

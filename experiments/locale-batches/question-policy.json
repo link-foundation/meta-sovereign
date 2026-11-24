@@ -1,0 +1,62 @@
+{
+  "questions.aliases": {
+    "en": "Equivalent questions, one per line",
+    "ru": "Равнозначные вопросы, по одному в строке",
+    "zh": "等价问题，每行一个",
+    "hi": "समान अर्थ वाले प्रश्न, प्रत्येक पंक्ति में एक"
+  },
+  "questions.canonical": {
+    "en": "Use this correction instead of older variants",
+    "ru": "Использовать эту правку вместо прежних вариантов",
+    "zh": "用此更正替代旧答案",
+    "hi": "पुराने विकल्पों की जगह इस सुधार का उपयोग करें"
+  },
+  "questions.policy": {
+    "en": "Answer reuse policy",
+    "ru": "Правила повторного использования ответов",
+    "zh": "答案复用规则",
+    "hi": "उत्तर दोबारा उपयोग करने के नियम"
+  },
+  "questions.policyHint": {
+    "en": "Rejected phrases are excluded from learned and saved answers, including profile substitutions. Historical messages are preserved. Punctuation variants stay separate unless you choose to combine them.",
+    "ru": "Отклонённые фразы исключаются из сохранённых и изучаемых ответов, включая подстановки профиля. История сообщений сохраняется. Варианты пунктуации учитываются отдельно, пока вы не разрешите их объединение.",
+    "zh": "拒绝的短语不会用于已保存或学习的答案，包括个人资料替换。历史消息保持不变。仅在您选择合并时才合并标点不同的答案。",
+    "hi": "अस्वीकृत वाक्यांश सहेजे और सीखे गए उत्तरों से हटाए जाते हैं, प्रोफ़ाइल से भरी गई जानकारी में भी। पुराने संदेश सुरक्षित रहते हैं। विराम चिह्न वाले विकल्प आपके चुने बिना नहीं जोड़े जाते।"
+  },
+  "questions.rejected": {
+    "en": "Rejected phrases, one per line",
+    "ru": "Отклонённые фразы, по одной в строке",
+    "zh": "拒绝的短语，每行一个",
+    "hi": "अस्वीकृत वाक्यांश, प्रत्येक पंक्ति में एक"
+  },
+  "questions.punctuationEquivalent": {
+    "en": "Combine frequencies of answers differing only by final punctuation",
+    "ru": "Объединять частоты ответов, различающихся только конечной пунктуацией",
+    "zh": "合并仅句末标点不同的答案次数",
+    "hi": "केवल अंतिम विराम चिह्न में अलग उत्तरों की गिनती जोड़ें"
+  },
+  "questions.policySaved": {
+    "en": "Answer reuse policy saved.",
+    "ru": "Правила использования ответов сохранены.",
+    "zh": "答案复用规则已保存。",
+    "hi": "उत्तर दोबारा उपयोग करने के नियम सहेजे गए।"
+  },
+  "questions.noReply": {
+    "en": "Completed answer summary; no reply needed.",
+    "ru": "Итог ответов получен; ответ не требуется.",
+    "zh": "答案汇总已完成，无需回复。",
+    "hi": "उत्तर सारांश पूरा है; जवाब आवश्यक नहीं।"
+  },
+  "questions.match.summary": {
+    "en": "Completed questionnaire summary",
+    "ru": "Итог заполненного опроса",
+    "zh": "已完成的问卷汇总",
+    "hi": "पूरी की गई प्रश्नावली का सारांश"
+  },
+  "automations.reason.question-summary-complete": {
+    "en": "Completed questionnaire; no reply needed",
+    "ru": "Опрос завершён; ответ не требуется",
+    "zh": "问卷已完成，无需回复",
+    "hi": "प्रश्नावली पूरी है; जवाब आवश्यक नहीं"
+  }
+}

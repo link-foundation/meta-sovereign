@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for the contact extras (R-Y217), as the mobile clients
 // have them: a contact's profile column holds a private note (edited in a
 // dialog, sent only by Save), "Set photo" / "Suggest photo" with the picked
@@ -118,7 +119,7 @@ for (const name of [
   'saved-contacts-reset',
 ]) {
   await page.route(`**/api/telegram/${name}`, (route) => {
-    const body = route.request().postDataJSON() ?? {};
+    const body = requestBody(route.request()) ?? {};
     calls.push([name, body]);
     return fulfil(route, answers[name]?.(body) ?? { ok: true });
   });

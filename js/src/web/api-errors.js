@@ -44,8 +44,18 @@ export const errorText = (t, code, fallback = '') => {
   return text === key ? fallback || t('error.code.unknown') : text;
 };
 
+const initialConfirmation = (status, data) =>
+  status === 428 &&
+  data?.needsConfirmation === true &&
+  typeof data.confirm?.token === 'string' &&
+  data.confirm.token.length > 0 &&
+  (!data.error || data.error === 'request failed (428)');
+
 /** The `{ code, error }` of a failed answer, or null when it succeeded. */
 export const failureOf = (status, data) => {
+  if (initialConfirmation(status, data)) {
+    return null;
+  }
   if (
     data?.ok === false ||
     (typeof data?.error === 'string' && status >= 400)

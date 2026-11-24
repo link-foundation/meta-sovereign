@@ -1,0 +1,11 @@
+{
+  "archive": "ci-25d-final.tar.gz",
+  "files": {
+    "checks-42627965933.log": "a5b80d743676e659534f16dbd86ab6952cebe1026bbcd52ccf2e9f7c96d0e360",
+    "greetings-webkit-before.log": "24f2afc275ee5a7d05747648489f9a4fc183eab9cb2435a87ca2cefccead5104",
+    "native-ci-status.json": "e961c9703a83e9de36cac1573d095fabde3adc53bd18887fc3744d7815603628",
+    "native-rust-129198209906.log": "8de2babac7b4f0b38adba3081a2cf50e3b5178450a566a36b609e53e90a22c7b",
+    "native-webkit-129198209791.log": "1aa8ffc9649443cbd0185761f39dcb3a79a72b73ab9daeea5ca54f3d325e371a",
+    "recovery-ci-runs.json": "250f693362bf4b81d37044ccd3a4a27fdceccadf3eb81eed9c81ed095c630e8b"
+  }
+}

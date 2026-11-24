@@ -1,0 +1,17 @@
+✔ verification does not scan two views of the identical live store (3.272722ms)
+✔ independent stores still report changed and missing records (0.942437ms)
+✔ startup snapshot delay lets a retiring worker leave, while explicit flush stays immediate (44.243113ms)
+✔ closing waits for an active snapshot and cancels deferred writes before a folder can move (46.834545ms)
+✔ a failing snapshot is reported once per try, and tried less often (91.353461ms)
+✔ after a failure the usual pace returns; writes during a snapshot wait for the next (162.74307ms)
+✔ normal and handoff shutdown await every service before flushing (6.852437ms)
+✔ a failed listener releases its owned store and awaits reply cleanup (156.21588ms)
+✔ normal close releases owned stores while injected stores retain caller ownership (114.020484ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1934.721804

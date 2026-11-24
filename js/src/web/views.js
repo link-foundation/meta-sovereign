@@ -18,10 +18,15 @@ import { ChatView } from './chat-view.js';
 import { OperatorView } from './operator-view.js';
 import { AutomationsView } from './automations-view.js';
 import { CvView } from './cv-view.js';
+import { FormsView } from './forms-view.js';
 import { GreetingsView } from './greetings-view.js';
 import { HistoryLibrary } from './history-library.js';
 import { useProviderLiveState } from './provider-live-state.js';
 import { FeedbackView } from './feedback-view.js';
+import { BackupView } from './backup-view.js';
+import { BroadcastResult } from './broadcast-result.js';
+import { PublicationPanel } from './publication-panel.js';
+export { BackupView } from './backup-view.js';
 import { navigateApp, backInApp } from './app-route.js';
 import { navItems } from './nav-items.js';
 import { SettingsView } from './settings-view.js';
@@ -88,7 +93,6 @@ const AsyncFrame = ({ state, children }) => {
 };
 
 const refreshReducer = (value) => value + 1;
-const BACKUPS_EVERY_MS = 15_000;
 
 export { OperatorView } from './operator-view.js';
 
@@ -698,12 +702,21 @@ export const BroadcastView = () => {
   const t = useT();
   const { state, selected, setSelected } = useSources();
   const [message, setMessage] = useState('');
-  const [status, setStatus] = useState('');
+  const [result, setResult] = useState(null);
+  const [busy, setBusy] = useState(false);
   const send = async () => {
-    const result = await api.broadcast(message, selected);
-    setStatus(
-      `queued ${result.id} to ${(result.networks ?? []).length} networks`
-    );
+    if (busy) {
+      return;
+    }
+    setBusy(true);
+    setResult(null);
+    try {
+      setResult(await api.broadcast(message, selected, () => true));
+    } catch (error) {
+      setResult({ status: 'failed', error: error.message });
+    } finally {
+      setBusy(false);
+    }
   };
   return el(AsyncFrame, { state }, (sources) => {
     if (!sources || sources.length === 0) {
@@ -711,6 +724,8 @@ export const BroadcastView = () => {
     }
     return el('div', { className: 'col' }, [
       el('h2', { key: 'h' }, t('broadcast.title')),
+      el(PublicationPanel, { key: 'publications', api: api.publications }),
+      el('h3', { key: 'legacy-title' }, t('publication.networkBroadcast')),
       el('textarea', {
         key: 'msg',
         rows: 4,
@@ -727,10 +742,16 @@ export const BroadcastView = () => {
       }),
       el(
         'button',
-        { key: 'send', type: 'button', className: 'primary', onClick: send },
-        t('common.send')
+        {
+          key: 'send',
+          type: 'button',
+          className: 'primary',
+          onClick: send,
+          disabled: busy || !message.trim() || selected.length === 0,
+        },
+        t(busy ? 'broadcast.sending' : 'common.send')
       ),
-      el('div', { key: 'status' }, status),
+      el(BroadcastResult, { key: 'status', result }),
     ]);
   });
 };
@@ -813,117 +834,6 @@ export const OutreachView = () => {
       el('pre', { key: 'out' }, output),
     ]);
   });
-};
-
-export const BackupView = () => {
-  const t = useT();
-  const { dateTime: fmtTs } = useDates();
-  const [refresh, setRefresh] = useState(0);
-  const state = useAsyncValue(() => api.listBackups(), [refresh], []);
-  // The list keeps itself current (R-Y75): scheduled backups appear by
-  // themselves, no Refresh button.
-  useEffect(() => {
-    const again = () => setRefresh(refreshReducer);
-    const timer = globalThis.setInterval(again, BACKUPS_EVERY_MS);
-    globalThis.addEventListener?.('focus', again);
-    return () => {
-      globalThis.clearInterval(timer);
-      globalThis.removeEventListener?.('focus', again);
-    };
-  }, []);
-  const [passphrase, setPassphrase] = useState('');
-  const [keep, setKeep] = useState('');
-  const [status, setStatus] = useState('');
-
-  const create = async () => {
-    const opts = { passphrase: passphrase || null };
-    const keepCount = parseInt(keep, 10);
-    if (Number.isFinite(keepCount) && keepCount > 0) {
-      opts.keep = keepCount;
-    }
-    const result = await api.createBackup(opts);
-    setStatus(JSON.stringify(result, null, 2));
-    setRefresh(refreshReducer);
-  };
-
-  const restore = async (file) => {
-    const result = await api.restoreBackup(file, passphrase || null);
-    setStatus(JSON.stringify(result, null, 2));
-    setRefresh(refreshReducer);
-  };
-
-  return el(AsyncFrame, { state }, (backups) =>
-    el('div', { className: 'col' }, [
-      el('h2', { key: 'h' }, t('backup.title')),
-      el('div', { key: 'meta', className: 'meta' }, t('backup.hint')),
-      el('div', { key: 'row', className: 'row' }, [
-        el('input', {
-          key: 'pass',
-          type: 'password',
-          placeholder: t('backup.passphrasePlaceholder'),
-          'aria-label': t('backup.passphrasePlaceholder'),
-          className: 'grow',
-          value: passphrase,
-          onChange: (event) => setPassphrase(event.target.value),
-        }),
-        el('input', {
-          key: 'keep',
-          type: 'number',
-          min: '0',
-          placeholder: t('backup.keepPlaceholder'),
-          title: t('backup.keepPlaceholder'),
-          'aria-label': t('backup.keepPlaceholder'),
-          className: 'narrow',
-          value: keep,
-          onChange: (event) => setKeep(event.target.value),
-        }),
-        el(
-          'button',
-          {
-            key: 'create',
-            type: 'button',
-            className: 'primary',
-            onClick: create,
-          },
-          t('backup.create')
-        ),
-      ]),
-      el(
-        'div',
-        { key: 'list' },
-        backups.length === 0
-          ? el(ConnectionGuide, { section: 'backup' })
-          : backups.map((backup) =>
-              el('div', { key: backup.file, className: 'card row' }, [
-                el('div', { key: 'info', className: 'col' }, [
-                  el('strong', { key: 'file' }, backup.file),
-                  el(
-                    'div',
-                    { key: 'meta', className: 'meta' },
-                    t('backup.itemMeta', {
-                      size: backup.size,
-                      timestamp: fmtTs(backup.mtime),
-                      state: backup.encrypted
-                        ? t('backup.encrypted')
-                        : t('backup.plain'),
-                    })
-                  ),
-                ]),
-                el(
-                  'button',
-                  {
-                    key: 'restore',
-                    type: 'button',
-                    onClick: () => restore(backup.file),
-                  },
-                  t('backup.restore')
-                ),
-              ])
-            )
-      ),
-      el('pre', { key: 'status' }, status),
-    ])
-  );
 };
 
 export const ProfileView = () => {
@@ -1249,6 +1159,7 @@ export const views = {
   status: StatusView,
   connections: ConnectionsView,
   cv: CvView,
+  forms: FormsView,
   greetings: GreetingsView,
   settings: SettingsView,
 };

@@ -10,6 +10,7 @@ export const startRollingServer = async ({
   storeDir,
   options = {},
   release,
+  prepareRelease,
   log = () => {},
   standbyMs,
 }) => {
@@ -50,7 +51,12 @@ export const startRollingServer = async ({
     standbyMs,
   });
   try {
-    await supervisor.start(release);
+    // Claim the public listener before any snapshot work. A busy port cannot
+    // consume a cold package copy or start an application worker.
+    const initial = prepareRelease
+      ? await prepareRelease({ port: boundPort })
+      : release;
+    await supervisor.start(initial);
   } catch (error) {
     target.close();
     sockets.forEach((socket) => socket.destroy());
@@ -65,6 +71,7 @@ export const startRollingServer = async ({
     uiUrl: hostedUiUrl(options.uiUrl),
     localUi: localUiEnabled(options.localUi),
     status: () => supervisor.status(),
+    health: () => supervisor.health(),
     upgrade: (next, changes) => supervisor.upgrade(next, changes),
     close: async () => {
       listening.listener.close();

@@ -16,6 +16,8 @@
  */
 
 import { detectAddressForm } from './address-form.js';
+import { messageTime } from './message-time.js';
+import { identityAddressPreference } from './identity-question.js';
 import { overlap, wordsOf, stemsOf } from './words.js';
 import {
   confirmedProfession,
@@ -94,21 +96,41 @@ const agreements = (sorted, isSelf) => {
   return found;
 };
 
+const preferenceOf = (sorted, isSelf) => {
+  const agreed = agreements(sorted, isSelf).at(-1);
+  const identity = identityAddressPreference(sorted, isSelf);
+  return identity &&
+    (!agreed || messageTime(identity.at) > messageTime(agreed.at))
+    ? identity
+    : agreed && { ...agreed, basis: 'agreed' };
+};
+
+const addressSelf = (messages, isSelf) => {
+  const owners = new Set(
+    messages
+      .filter((m) => m?.outgoing === true || m?.out === true || m?.out === 1)
+      .map((m) => String(m.sender))
+  );
+  return (sender) => isSelf(sender) || owners.has(String(sender));
+};
+
 /**
  * How the two address each other: `{ form, basis, at, evidence }`.
  * `basis` is `agreed` (the latest "на ты?" — "давай" kind of exchange),
- * `used` (the forms the conversation uses, ./address-form.js) or `none`.
+ * `identity` (a later personal VK identity question), `used` (the forms
+ * the conversation uses, ./address-form.js) or `none`.
  */
 export const learnAddress = (
   messages = [],
   { isSelf = (s) => s === 'me' } = {}
 ) => {
   const sorted = byTime(messages);
-  const agreed = agreements(sorted, isSelf).at(-1);
-  if (agreed) {
-    return { ...agreed, basis: 'agreed' };
+  const own = addressSelf(sorted, isSelf);
+  const preference = preferenceOf(sorted, own);
+  if (preference) {
+    return preference;
   }
-  const used = detectAddressForm(sorted, { isSelf, fallback: null });
+  const used = detectAddressForm(sorted, { isSelf: own, fallback: null });
   if (used.reason !== 'majority') {
     return { form: null, basis: 'none', at: null, evidence: [] };
   }
@@ -127,14 +149,14 @@ export const learnAddress = (
  * else what the conversation uses (`detectAddressForm`'s answer).
  */
 export const addressFormOf = (messages = [], options = {}) => {
-  const isSelf = options.isSelf ?? ((s) => s === 'me');
-  const agreed = agreements(byTime(messages), isSelf).at(-1);
-  return agreed
+  const isSelf = addressSelf(messages, options.isSelf ?? ((s) => s === 'me'));
+  const preference = preferenceOf(byTime(messages), isSelf);
+  return preference
     ? {
-        form: agreed.form,
-        reason: 'agreed',
+        form: preference.form,
+        reason: preference.basis,
         confidence: 1,
-        evidence: agreed.evidence,
+        evidence: preference.evidence,
       }
     : detectAddressForm(messages, options);
 };

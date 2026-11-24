@@ -1,0 +1,2 @@
+[e2e-chat-layout] compact measured clearance, stable history and accurate unread divider
+[e2e-chat-layout] OK (chromium)

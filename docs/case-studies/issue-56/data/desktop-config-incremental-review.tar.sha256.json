@@ -1,0 +1,31 @@
+{
+  "archive": "desktop-config-incremental-review.tar.gz",
+  "files": {
+    "ci-logs/desktop-configuration-criteria-b3364503-source-audit.json": "9bdc9d08368cf995efb5fc618f11de8065cd42e9b5cb74612e4acd6c97f70de6",
+    "ci-logs/desktop-configuration-criteria-b3364503-source-deltas.diff": "1a3a72f46ae450f9c05cf60f2ebfc082d377c7179d47f8de2ce452de0424bcaf",
+    "ci-logs/desktop-configuration-criteria-b3364503-source-review.json": "ade6a9c6df100a51d02a08847eb8d1ee0baddf335b6a8a492d43f46189bd83c4",
+    "ci-logs/desktop-configuration-criteria-incremental-source-deltas.diff": "25193a83cdcee0c20bbcbef770505b8324a452565f8e91f16bdf858da48be019",
+    "ci-logs/desktop-configuration-criteria-source-audit.json": "7f922d43b418b3c1a8729ca6fe9a6fb369d013003580e046a707340fac0df68e",
+    "ci-logs/desktop-configuration-criteria-source-deltas.diff": "4f71b0edc7b06038cda22064412fb3c913090a670d150ff43a2e0b5a4edd798d",
+    "ci-logs/desktop-configuration-criteria-source-review.json": "e7a4b01fcabcdd7de7d9bdd9f54cd39e5889caf4917554335f368c4dd161b384",
+    "experiments/issue-56/collect-desktop-config-incremental-review.py": "68b29b23675c0a162a5860658b60228007a73248689aafc107c0f4a3ba893569",
+    "experiments/issue-56/desktop_config_incremental_review.py": "72e7a8ab154e31e285ee8246d9736febb57d8b8c3ecd882a71a18e4e556257a4",
+    "experiments/issue-56/extend-desktop-config-review.py": "ef4ed65b9063c2afd9f1c561484c3a53fa21d6dbaf9c376f6eec5e7e8fe3555f",
+    "experiments/issue-56/check-desktop-config-incremental-review.py": "cdf0cd0c4bfcb83b1fd7918c8e5defed975645659dfae93da809aa230924dc2e",
+    "experiments/issue-56/collect-desktop-config-criteria-hosted.py": "9f06c4231a110bb84552889de5ed85cf3b252ce4489cfb62f85fcc18b1932f91",
+    "experiments/issue-56/audit-hosted-criteria.py": "1b212669d8b7e20aa63c41b246e0e63012a0166995458ed7657dca2268718d56",
+    "experiments/issue-56/desktop-configuration-evidence.json": "ff19838c93de5ebf18f826fbf1555364775ed8c0650e36cec731422531df8c6f",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "experiments/issue-56/hosted_evidence.py": "c32c3650a46042c24c78aac6923b7348e80ec4af709468e5c7846b2c3df37c57",
+    "ci-logs/desktop-config-incremental-review.log": "21a31ef5ae97386bd6476fb927b7b83e3cfbdfdd36193e5ed5f2edae031ef80b",
+    "ci-logs/desktop-config-incremental-refusals.log": "f678a0ddff098bb9742d47c5e33ed6f95e0844d82fa93e9989b197aaa509e6e3",
+    "ci-logs/desktop-configuration-ef34179a-audit.log": "f2d9d547815f078a89a1caa4a71ce340c0b3dbe09bd8e719b0c34c5a51774e17",
+    "docs/case-studies/issue-56/desktop-configuration-criteria-audit.md": "f31413074ad3e892c3d5470bff1f7a17073d0456c101156b520df50995d265ba",
+    "docs/case-studies/issue-56/PLAN.md": "440f43fc03b5f735aba8c3ebd44742691130be20bfdcac3fac94a47f3f5f7cd7",
+    "before/js/src/cli/help.js": "10004b05905e0499f918bc6a99e30aa73e34a8610b8d9d0956a5d072470880bc",
+    "current/js/src/cli/help.js": "36a1f1c095f3918bae37133ddbc9e388178062b75d0ba9d27f4f62e284cab7ac",
+    "before/js/src/server/index.js": "441d0d9a46969fc036599f76f6bcf01343fb255c06e12d5f60ab3159a25a0eea",
+    "current/js/src/server/index.js": "a5cdc6df7bde2b5c1f4f3174e05c36fb979512408df67c556f603289f5bda419",
+    "metadata.json": "f033fe260e6f820054db7d1e28f62dd210725860e9fbc57765e9657f0cb2afdc"
+  }
+}

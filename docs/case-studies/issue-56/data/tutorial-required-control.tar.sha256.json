@@ -1,0 +1,42 @@
+{
+  "archive": "tutorial-required-control.tar.gz",
+  "files": {
+    "ci-logs/forms-watchers-parent-full-42886382414.log": "99e03f5e08cdd18480872af8ba07eb1ac0f44666d68208dbc7fb39e6f79f2b9c",
+    "ci-logs/tutorial-control-failed-run.json": "f6723c9c6320d7b318cb510ec8d20e09f14284bab1537dfcf3dd9d7a45636220",
+    "ci-logs/tutorial-control-visible-before.log": "b9df07cc076b429bf8e2e33bc43546524f9d723d2ca55223773ca91b3abfd273",
+    "ci-logs/tutorial-control-required-before.log": "8d75272be03a2543d123e1bf15d3ba621e16cb70930d044bd78fa53837f327aa",
+    "ci-logs/tutorial-control-debug.log": "2299f3213318221e0549e72017fe8ebd1f3632beb397c27ef05792dffa33d945",
+    "ci-logs/tutorial-control-required-after.log": "00ad155ed7b44bad434a69b5938b6b98bcb77a05108cd473a182ff2207bd276c",
+    "ci-logs/tutorial-control-webkit-before.log": "ab01f3487087a9909cf0cb7e0698f48b8a3b8be43cc7d1e7e561d138c2df28e5",
+    "ci-logs/tutorial-control-webkit-after.log": "2de21aaa060af9edd2696c6823ee0f033f865c650540fa6045c0744338b14bd2",
+    "ci-logs/tutorial-control-webkit-resize.log": "2fe6539c7d2d2c7a7ac1191ef5fa065c40157565d8b76b20258294ffc43c93d9",
+    "ci-logs/tutorial-control-tests.log": "66b9938d50971e090304f9ff5254c56adf90da20cd875a4423f27580e7b5649a",
+    "ci-logs/tutorial-control-deno.log": "b3a1acaa6bea2d2b9555663a9525016e10ffa74cf0ba284ca6e657f65d6e5987",
+    "ci-logs/tutorial-control-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/tutorial-control-build.log": "953d31885c7b671c00536bd675eb82b04b0cc4851e146055cb5008174c31f767",
+    "ci-logs/tutorial-control-format.log": "9d9f6a2717be599b6d664283c0cbb335634f2f3253623dec9e66909c05b4b5ba",
+    "ci-logs/tutorial-control-current-runs.json": "71d4702db7a9d3417970fc6479ff70e4314cd4967cd4c1d4e3def35a7ab66d5d",
+    "js/src/web/tutorial.js": "74f015c1bbd441394ba1359fe237f2b1a602461bd16d6f33377028be2cc171f9",
+    "js/src/web/tutorial-clear.js": "f20ab7ccdbc9d08c192fe2df67ddc4bfeee5f7f2cb947ea9b63b8a927886d109",
+    "js/tests/tutorial-clear.test.js": "5eda3046bcfe1b4c67a2a1acccfad40b4afed10291ca53028ee4d0475e8d676b",
+    "js/tests/e2e-tutorial-browser.mjs": "6965957273173befe12594167407d7217fba2864a111af11015ac0452d37cc6e",
+    "js/tests/e2e-tutorial-card-resize-browser.mjs": "ffc7a8a43f8e48e77184df7fe5b59e7699e4b69e59d81e44238c5960acfb0cb6",
+    "js/tests/helpers/e2e-tutorial-control.mjs": "7f5bdcde9ac0ae230e74ec2b6401be173b7add4f37d492b06d35b2a020e276d4",
+    "experiments/issue-56/tutorial-control-ui.mjs": "1c90a815be61d3451640b17ba5e41fb5daa54e913ac57e5227e10bf92e465af5",
+    "experiments/issue-56/collect-tutorial-control.py": "fde99c68cca424670cb01e93302ca85cf978c578c32374cc7b8db373c4081894"
+  },
+  "screenshots": {
+    "issue-56-tutorial-required-control-after.png": "dcac34eb9a3ae0a03ffb402985d47d2822a2e2dbbed0f427ae488bc930d00a97",
+    "issue-56-tutorial-required-control-before.png": "7711f1798ade85ca9abe76a4dd86f173790202b581e1e1d79a40945de6e6f3b5",
+    "issue-56-tutorial-required-control-mcp-after.png": "ecd58af7d9cc0b4459e362b780ee717fd29b8ced665a5afe7158d05b2acddd81"
+  },
+  "node_checks": 44,
+  "deno_checks": 44,
+  "mcp": {
+    "top": 357.40625,
+    "bottom": 393.40625,
+    "viewport_height": 560,
+    "clickable": true,
+    "closed": true
+  }
+}

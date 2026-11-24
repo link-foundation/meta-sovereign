@@ -11,6 +11,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { usePref } from './chat-notify.js';
 import { SOUND_KEY, forgetRingtones, playNotifySound } from './notify-sound.js';
+import { refreshNotificationPreference } from './desktop-attention.js';
 
 const el = React.createElement;
 
@@ -239,7 +240,10 @@ export const SoundSettings = ({ api }) => {
           type: 'checkbox',
           checked: on,
           'data-action': 'notify-sound-on',
-          onChange: (event) => setOn(event.target.checked),
+          onChange: (event) => {
+            setOn(event.target.checked);
+            refreshNotificationPreference();
+          },
         }),
         ` ${t('settings.sounds.on')}`,
       ]),

@@ -18,6 +18,7 @@ const REQUIRED_FILES = [
   'manifest.webmanifest',
   'app.css',
   'app.min.js',
+  'notification-chime.wav',
   'discover.js',
   'discovery-shell.js',
   'pattern-matcher.wasm',

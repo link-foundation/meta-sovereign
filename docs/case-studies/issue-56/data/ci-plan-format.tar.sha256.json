@@ -1,0 +1,12 @@
+{
+  "archive": "ci-plan-format.tar.gz",
+  "files": {
+    "docs/case-studies/issue-56/PLAN.md": "7a5deff527b4652757636868400a692ef5e6aba69985c9f2db726aae66a6aff7",
+    "docs/case-studies/issue-56/ci-plan-format.md": "2a9f7bc168ba85bff00f1b4cc634b1e838378cd3b587b51f62b06abf80f4c533",
+    "ci-logs/checks-43798379362-lint.log": "3b3843c9b226b7155ffb9b98ee17560eebc21942739a84b9fa5286dac9811b7a",
+    "ci-logs/ci-ff8c-main-progress.json": "778b1b12666b52d5dd16811ba04f1cf30c70ce608408b705e7b896e1086d881c",
+    "ci-logs/ci-ff8c-plan-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "experiments/issue-56/collect-ci-plan-format.py": "452a4dfc7881b7264f3ebaad2c6e75c9cd1f263f4ef441c16811bb5259cf88e6",
+    "before/docs/case-studies/issue-56/PLAN.md": "08c966b20ec6e33e9e652bbf4a70facf883ea2b47d1a08603f514953322ed289"
+  }
+}

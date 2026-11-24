@@ -1,0 +1,32 @@
+{
+  "archive": "ci-runtime-evidence-checkout.tar.gz",
+  "files": {
+    ".github/workflows/release.yml": "cc4740b810b23cac92bfe10a2f2e270db217deec58189a7ae5a324b1c5b72c86",
+    "ci-logs/06953e31-node-macos-3-job.json": "bcaa23aee77d3830d208ff35cd7ee44f9e392763a97ffcbda435a968249d7ded",
+    "ci-logs/checkout-v7-git-command-manager.ts": "39ba33fed160031cca20f6481fc25e65803cbf4c0a711ce9604ac0d139e3e7e0",
+    "ci-logs/checkout-v7-git-source-provider.ts": "aaad769029fde263ba2c9fd26287ada2eed4d7d0c89676a04b78c0bfd52dc7a2",
+    "ci-logs/ci-sparse-before.log": "ed8b0a01c259e5c9c3ba4f7ec8b52483550fef0975f69b73900c6343e5653557",
+    "ci-logs/ci-sparse-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-sparse-duplication.log": "155be5d1f8ae67ce7e9c3f379ae9dffb7051df8f3b7e34ae73e59b0575222b67",
+    "ci-logs/ci-sparse-focused-deno.log": "14dd16b4a58e03738b4b1ad81882a9ec8c76527bef0d8f93118183f1a3a4be6a",
+    "ci-logs/ci-sparse-focused-node.log": "d0a816fbed8ef50ede9efe38b47ea36558bc0442f1e7639d9c19615e2094fa39",
+    "ci-logs/ci-sparse-format-docs.log": "0ad7b3665bb52f8b5761616c971a585b347fe841e07869de99701ccb6731089e",
+    "ci-logs/ci-sparse-format-final.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/ci-sparse-format-write.log": "6e2fe5f65147315369690a05a87d7bd500d951574eec94f6b3ef59ff8388fb8e",
+    "ci-logs/ci-sparse-format.log": "e5a6ea34f44273c421b28002b16ea196c2a421746b7cec46ae151fa4b75912d8",
+    "ci-logs/ci-sparse-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-sparse-merge-prefetch.log": "e955d607d893b28222c0c8300a5c2bd763d305806ee5f8967f2ec1d401ddbb34",
+    "ci-logs/ci-sparse-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-sparse-workflow-lint.log": "19afafd0ef8d88d4b7d22d848644f6e8e2f4a6b514eb8806fa00bc3fe126ebf1",
+    "ci-logs/hosted-06953e31-node-macos-3.log": "4a384a4edf9186bf7a2f1116633fae48c17c120768a1f79d4dce13f27e68119e",
+    "ci-logs/runtime-heavy-tree-sizes.log": "9c1573ea4dc04f284e593b556390b7af023d03629526277fbd346743babe8df1",
+    "ci-logs/runtime-sparse-consumers.log": "bd1ec36c2d80b382c9595e661f1a7849c59d653b76fc9c79a464bc078f73d4aa",
+    "docs/case-studies/issue-56/ci-runtime-evidence-checkout.md": "0db3f58844072d4b0eec0625bac2b5c04934206d64f66d6a5bca858a00002701",
+    "experiments/issue-56/ci-sparse-before.py": "1f3ea60cb5a8ff477f3d3fa7fe0b8ddfde10e8e9284f54220f7f7702fd3bec34",
+    "experiments/issue-56/collect-ci-sparse.py": "e36755b17a6aa38e2876cc91b1ee3dae38ddf40efb60ac38b6887de271e275c9",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "js/tests/ci-filtered-checkout.test.js": "f365cc41b400f2211506a0ba363a4a2f34f27630e490f0d8d68e4ae9147cc45f",
+    "before/.github/workflows/release.yml": "8e7d441ab40101fb91bd63a3c2fec907aea1edcb04514ae072e179d95368244b",
+    "metadata.json": "8d2a7b7f89e1507e00d901036e373d0a4eef88e63a23bd00b75eaab1f063c6fb"
+  }
+}

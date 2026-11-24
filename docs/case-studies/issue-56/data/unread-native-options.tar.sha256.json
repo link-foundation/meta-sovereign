@@ -1,0 +1,24 @@
+{
+  "archive": "unread-native-options.tar.gz",
+  "files": {
+    "js/tests/helpers/unread-native-fixture.mjs": "12e249fb67d905e752c7165f6b6b12fda71d45bf62b85a21e5ff93f7765a4f73",
+    "js/tests/helpers/e2e-unread-answers.mjs": "e1ea23be1cc3b69832757a0420e5ae27a560f46686379eea06440941ffe10ea2",
+    "js/tests/helpers/e2e-unread-bot-choices.mjs": "91601beb06e3b9055d84781ce7f15b9b5c75980b4a2d984f0336418bbea9384d",
+    "js/tests/e2e-question-unread-choices-browser.mjs": "8fd7f4ea0305e3e39d2b67d8921595ed3e0d24df6233d154937a24ba13f93fe5",
+    "js/tests/ci-contracts.test.js": "f8f207e76f2297ec4f15f7c66e58d5579eff7fd20ff1160249154091fd3783a0",
+    "js/scripts/browser-checks.json": "bcf32a1de04bc1bb5042b6abd3b8166a41730e8561549b22bc25f91c812146ac",
+    "package.json": "cf2a6d210912d4eae002fdf34cb7b55a2507c8ea1732cd4dc4fe63b325219cd2",
+    "js/src/automation/question-unread-answers.js": "99560de3a1c0bf39a68e81829542af3fdfe0ac4ebff3c8c6077dc6f8c7a5cde9",
+    "js/src/automation/question-unread-polling.js": "3d4c910096830be25b00105cae49136c501e86f3639e23a6e7d32b0012583933",
+    "experiments/issue-56/unread-bot-choice-fixture.mjs": "4ca292edb0cdac063ef6a605a199b84a2064da3f3e971288c7a14f9d0f955b74",
+    "experiments/issue-56/unread-bot-choices.mjs": "dfaf4d9f7060851878453321a56f30182465aa8a9612c0fab92b0ef5f9a8b64d",
+    "experiments/issue-56/collect-unread-native-options.py": "68c50749b66d88cebc9f3bf47a3945d67747b73cf870b205bbdd118eb411f10e",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "docs/case-studies/issue-56/unread-native-options.md": "e971c3506c26937e8892ccc5032fcd2cba2b7016ec918e12ce5e694ac2f30975",
+    "docs/screenshots/issue-56-unread-bot-choices/native-choice-and-held-draft.png": "34decf6b3502c1876db297b7f850645d8ed82ca1c2a7333089854afe7b5120c5",
+    "ci-logs/unread-bot-choices-native-initial.log": "4ad7016fa6647a0aa455bbb73d3ab1edba377d75e7bd28b2b1f2015f15b71b28",
+    "ci-logs/unread-bot-choices-native.log": "f0ec81292d7bf51389514974cff110edcc6cd197a3296e22fb688de88cd70769",
+    "ci-logs/unread-bot-choices-contract.log": "54b514655df65e945f9531efca8a30f905e78be915d6bc457aeb6acdce76789e",
+    "metadata.json": "bc4157487f1270a49a775d6abb35004c4d3ead66f9ecb98f8bad9f4f47423af7"
+  }
+}

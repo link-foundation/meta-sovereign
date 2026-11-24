@@ -19,6 +19,7 @@
 
 import { json, readBody } from './util.js';
 import { confirmed, offerConfirmation } from './confirmations.js';
+import { handleCvExperienceRoutes } from './routes-cv-experience.js';
 import {
   compareAllCvs,
   cvPlatformCatalogue,
@@ -52,7 +53,8 @@ const platformIds = (value) => {
 const liveOptions = (store, body, ctx) => ({
   store,
   vars: body.vars ?? {},
-  headless: body.headless !== false,
+  headless: body.headless,
+  browserSlot: body.browserSlot ?? 'main',
   profileDir: body.profileDir ?? null,
   artifactDir: body.artifactDir ?? ctx?.cvArtifactDir ?? null,
   save: body.save !== false,
@@ -124,7 +126,10 @@ const handleCompare = async (store, req, res, p) => {
     const entries = await entriesFor(store, body);
     return json(res, 200, {
       entries,
-      comparison: compareAllCvs(entries, { prefer: body.prefer ?? null }),
+      comparison: compareAllCvs(entries, {
+        prefer: body.prefer ?? null,
+        experience: body.experience ?? {},
+      }),
       diffs: diffAllCvs(entries, body.canonical ?? null),
     });
   });
@@ -207,6 +212,7 @@ export const handleCvRoutes = async (store, req, res, p, url, ctx) => {
     );
   }
   return (
+    (await handleCvExperienceRoutes(store, req, res, p, url, ctx)) ||
     (await handleCatalogue(store, req, res, p, url)) ||
     (await handleRead(store, req, res, p, ctx)) ||
     (await handleCompare(store, req, res, p)) ||

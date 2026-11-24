@@ -1,5 +1,6 @@
 import { networkMessageId, sortChats } from './chat-model.js';
 import { DEFAULT_OPERATOR_SCOPE } from './operator-prefs.js';
+import { hhReadRequest } from './hh-chat-read.js';
 
 export const needsAttention = (chat) => Number(chat.unread) > 0;
 export const operatorEligible = (
@@ -49,6 +50,22 @@ export const completeOperatorChat = async (api, chat, messages) => {
       throw new Error(answer?.error ?? answer?.code ?? 'server-required');
     }
   };
+  if (chat.source === 'hh') {
+    // Retained work may already be read on another device.
+    if (!chat.unread) {
+      return;
+    }
+    const request = hhReadRequest(chat, messages);
+    if (!request) {
+      throw new Error('history-required');
+    }
+    const answer = await api.messageAction('read', request);
+    check(answer);
+    if (!answer.read || answer.readState?.unreadCount !== 0) {
+      throw new Error('head-hunter-unread');
+    }
+    return;
+  }
   if (chat.source !== 'telegram') {
     check(
       await api.messageAction('read', { source: chat.source, chat: chat.chat })

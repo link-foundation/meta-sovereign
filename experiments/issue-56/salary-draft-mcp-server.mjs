@@ -1,0 +1,48 @@
+import { chromium } from 'playwright';
+import { questionBrowserServer } from './question-browser-server.mjs';
+import { saveAnswerRule } from '../../js/src/automation/question-store.js';
+import { mountSalaryHistory } from './salary-browser-history.mjs';
+
+export const salaryDraftMcpServer = async ({
+  question,
+  rules = [],
+  options,
+  recent,
+  setup = () => ({}),
+}) => {
+  const browser = await chromium.launch({
+    executablePath:
+      process.env.E2E_EXECUTABLE_PATH ?? '/opt/google/chrome/chrome',
+    headless: true,
+    args: ['--disable-dev-shm-usage'],
+  });
+  const configured = await setup(browser);
+  const fixture = await questionBrowserServer(
+    browser,
+    configured.fixtureOptions
+  );
+  try {
+    for (const rule of rules) {
+      await saveAnswerRule(fixture.store, rule);
+    }
+    await fixture.reset({ freeText: !options, question, options });
+    await mountSalaryHistory(fixture, recent);
+    await configured.prepare?.(fixture);
+    console.log(JSON.stringify({ base: fixture.base, liveProvider: false }));
+    process.stdin.resume();
+    await new Promise((resolve) => process.stdin.once('data', resolve));
+  } finally {
+    process.stdin.pause();
+    const stats = await fixture.stats();
+    await fixture.close();
+    await browser.close();
+    console.log(
+      JSON.stringify({
+        stats,
+        ...configured.stats?.(),
+        resourcesClosed: true,
+        liveProvider: false,
+      })
+    );
+  }
+};

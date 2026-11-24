@@ -1,0 +1,21 @@
+{
+  "archive": "linkedin-experience-blocks.tar.gz",
+  "files": {
+    "before/js/src/cv/linkedin-experience-dom.js": "2ad35c8d6a1786e5b880630394ec20d2d7c6f6f1fcc6bf32e2f8bf0c6b245a07",
+    "ci-logs/linkedin-experience-blocks-before.log": "d8974460dc62fdb34bb0245d415946ff16605a609bfdb2398b5f7c016dfe2413",
+    "ci-logs/linkedin-experience-blocks-chromium.log": "fdfdac1beebf5ce899a8ae2a55bfe7e8c9eac861c165751c29e5b48e8fe1dc65",
+    "ci-logs/linkedin-experience-blocks-deno.log": "0e7abe92a13c8d66f36d8927a4d6b58d491946b7ac53aa7c1aee5a2fd749a096",
+    "ci-logs/linkedin-experience-blocks-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/linkedin-experience-blocks-lint.log": "eab4ee634a6241621da61f3495032cae9fd87707a040035b1ae3e164319eeda4",
+    "ci-logs/linkedin-experience-blocks-node.log": "cf9ab05cb0b083261f79bceec67955e69f79e2f795a7cde9abacab8dabe32371",
+    "ci-logs/linkedin-experience-blocks-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/case-studies/issue-56/linkedin-experience.md": "f195a92729095ea5e4f6b49bc7a47c59f624e1a9609696d39e2f02c70a32a2fc",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "experiments/issue-56/linkedin-acquisition-native.mjs": "630bef46a279a424edb1389f8ebdaa98d9c1edcdfa8c792e32aa1b5a86a02c7b",
+    "experiments/issue-56/linkedin-experience-native.mjs": "d2e699db6fb3d71504eba02788b211d458cd722a4682b069fe78bce7f96821d5",
+    "js/src/cv/linkedin-experience-dom.js": "af3c9425471fb9447a83a8a8665844c91e2532357e4054b2c05958f648e7d0a8",
+    "js/tests/helpers/e2e-cv-linkedin-experience.mjs": "409608623bdea623ed5cc91495c2dca1faeaf2d9ce7e1eb64629a3ac2bea0cc5",
+    "metadata.json": "b12a434cea29dcf0d9f651b56aaeb0b7b79a38f1d1ed1119feda1d2812f6ff03"
+  }
+}

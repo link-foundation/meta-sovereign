@@ -1,0 +1,14 @@
+{
+  "archive": "experience-auto-comparison-recovery.tar.gz",
+  "files": {
+    "ci-logs/experience-auto-comparison-chromium.log": "03925fcacef8fed363dbc017b84ba333e8c059234087fb542a711348219d36ad",
+    "ci-logs/experience-auto-comparison-deno.log": "34a49b0755690abc187140ad3dc1863fafb14eb18c3dee891d038a3320fe275f",
+    "ci-logs/experience-auto-comparison-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/experience-auto-comparison-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/experience-auto-comparison-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/experience-auto-comparison-node.log": "ffab55d5a634dea8f5d95b856fb96c2867d1c9cc15f14350afd31bfd4a757357",
+    "ci-logs/experience-auto-comparison-parent.log": "4f521af6530d026f6f7d5994af5a3909c5513ef4da28733f6df14a3def37c898",
+    "ci-logs/experience-auto-comparison-secretlint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "metadata.json": "ee2b52e4827b714a79591f5b106691838dd19219d154efb9cb84dc7f2688ea25"
+  }
+}

@@ -3,6 +3,17 @@
 // dictionary.
 
 export const enChatMore = {
+  'chat.export.failedFiles':
+    'Media files that could not be downloaded: {count}. Their export entries retain the failure notes.',
+  'chat.export.scope': 'History to export',
+  'chat.export.scope.all': 'All history',
+  'chat.export.scope.active': 'Active conversation',
+  'chat.export.gap': 'Conversation gap (hours)',
+  'chat.export.gapHint':
+    'Start after the last gap of this length or longer. Dates still apply. Available history from before a group migration is included.',
+  'chat.export.format.markdown': 'Markdown and linked structured JSON parts',
+  'chat.export.maxLines': 'Maximum lines per Markdown/JSON part (32–1500)',
+  'chat.export.locating': 'Finding the active conversation…',
   'chat.admin.right.sendMessages': 'Send messages',
   'chat.admin.right.sendMedia':
     'Send media (photos, videos, files, music, voice, video messages, stickers and GIFs, polls)',

@@ -6,7 +6,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 
@@ -31,7 +31,6 @@ import {
 } from './helpers/telegram-fakes.mjs';
 import { withChat, rulesFrom } from '../src/web/notify-rules.js';
 import {
-  chimeWav,
   forgetRingtones,
   playNotifySound,
   soundOf,
@@ -328,10 +327,16 @@ test('none plays nothing; a ringtone is fetched once; the default chimes', async
     '/api/telegram/ringtone?id=77',
     '/api/telegram/ringtone?id=77',
   ]);
-  globalThis.URL.createObjectURL = () => 'blob:chime';
   assert.equal(await playNotifySound(api, 'default', player), 'default');
-  assert.equal(played.at(-1), 'blob:chime');
-  assert.equal(String.fromCharCode(...chimeWav().slice(0, 4)), 'RIFF');
+  assert.equal(played.at(-1), './notification-chime.wav');
+  assert.equal(
+    await playNotifySound(api, 'default', async () => false),
+    'none'
+  );
+  const chime = await readFile(
+    new URL('../src/web/notification-chime.wav', import.meta.url)
+  );
+  assert.equal(chime.subarray(0, 4).toString(), 'RIFF');
 });
 
 test('the sound list is default, none and the ringtones', () => {

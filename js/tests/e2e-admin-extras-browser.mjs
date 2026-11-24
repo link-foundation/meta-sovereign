@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for the rest of a group's and a channel's management
 // (R-Y200), as Telegram Desktop has it: the delete dialog of a
 // supergroup's admin offers "Report spam", "Ban user" and "Delete all from
@@ -71,7 +72,7 @@ for (const [name, answer] of Object.entries(fixed)) {
 const calls = [];
 const record = (name, answer) =>
   page.route(`**/api/telegram/${name}`, (route) => {
-    calls.push([name, route.request().postDataJSON()]);
+    calls.push([name, requestBody(route.request())]);
     return fulfil(route, typeof answer === 'function' ? answer() : answer);
   });
 await record('delete', { ok: true });
@@ -129,7 +130,7 @@ await page.route('**/api/telegram/admin-log', (route) =>
   })
 );
 await page.route('**/api/telegram/left-channels', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   calls.push(['left-channels', body]);
   const channel = (n) => ({
     chat: `-100900${n}`,
@@ -159,7 +160,7 @@ await page.route('**/api/telegram/profile', (route) =>
   })
 );
 await page.route('**/api/telegram/similar-join', (route) => {
-  calls.push(['similar-join', route.request().postDataJSON()]);
+  calls.push(['similar-join', requestBody(route.request())]);
   return fulfil(route, { ok: true });
 });
 

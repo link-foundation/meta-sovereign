@@ -16,6 +16,7 @@ import {
   compareAllCvs,
   cvPlatformCatalogue,
   diffAllCvs,
+  formatExperienceComparison,
   dryRunPlan,
   getCvPlatform,
   listCvPlatforms,
@@ -26,13 +27,18 @@ import {
   syncCvAcross,
 } from '../cv/index.js';
 import { confirmCli } from './confirm.js';
+import { createLinkedinExperienceCommands } from './cv-linkedin-experience-command.js';
+import { createLinkedinPositionCommands } from './cv-linkedin-position-command.js';
+import { createLinkedinAboutCommands } from './cv-linkedin-about-command.js';
+import { createExperienceCommands } from './cv-experience-commands.js';
+import { createHhExperienceCommands } from './cv-hh-experience-command.js';
+import { createHhExperienceWorkplaceCommands } from './cv-hh-experience-workplace-command.js';
+import { createExperiencePlanCommands } from './cv-experience-plan-command.js';
+import { createExperienceAutoCommands } from './cv-experience-auto-command.js';
+import { createExperienceReviewCommands } from './cv-experience-review-command.js';
+import { createFormalReportCommands } from './cv-formal-report-command.js';
 
-export const CV_HELP = `  cv-platforms  [--json]
-  cv-plan       --platform=<id> [--json]
-  cv-read       --platforms=<a,b> [--login=<l>] [--vars=<json>] [--headed] [--profile=<dir>] [--artifacts=<dir>] [--no-save] [--store=<dir>]
-  cv-diff       [--platforms=<a,b>] [--prefer=<id>] [--json] [--store=<dir>]
-  cv-sync       [--platforms=<a,b>] [--apply] [--prefer=<id>] [--paths=<a,b>] [--groups=<a,b>] [--login=<l>] [--vars=<json>] [--headed] [--store=<dir>]
-  cv-telemetry  [--run=<id>] [--platform=<id>] [--type=<event>] [--limit=<n>] [--json] [--store=<dir>]`;
+export { CV_HELP } from './help.js';
 
 /** `--platforms=a,b` (or repeated commas) — defaults to every platform. */
 export const parsePlatforms = (value) => {
@@ -82,12 +88,25 @@ export const parseVars = (args) => {
 };
 
 const flagOff = (value) => value === false || value === 'false';
+const runHeadless = (args) => {
+  if (args.headed === true || args.headed === 'true') {
+    return false;
+  }
+  if (args.headless === undefined) {
+    return undefined;
+  }
+  if (![true, false, 'true', 'false'].includes(args.headless)) {
+    throw new Error('--headless must be true or false');
+  }
+  return args.headless === true || args.headless === 'true';
+};
 
 /** Options every live command shares. */
 const liveOptions = (args, store, extra) => ({
   store,
   vars: parseVars(args),
-  headless: !(args.headed === true || args.headed === 'true'),
+  headless: runHeadless(args),
+  browserSlot: args['browser-slot'] ?? 'main',
   profileDir: args.profile ?? null,
   artifactDir: args.artifacts ?? null,
   save: !(args['no-save'] === true || flagOff(args.save)),
@@ -183,6 +202,9 @@ const diffCmd = async (args, log, openStore) => {
   }
   log(`platforms: ${entries.map((entry) => entry.platform).join(', ')}`);
   log(`agreed on ${comparison.agreed} of ${comparison.rows.length} fields`);
+  if (comparison.experience) {
+    log(formatExperienceComparison(comparison.experience));
+  }
   for (const row of comparison.rows.filter(
     (item) => item.conflict || item.missing.length
   )) {
@@ -301,9 +323,50 @@ const guarded = (fn) => async (args, log) => {
  * @param {Function} deps.openStore directory → store
  * @param {object} [deps.live] injected `commander`/`openSession` for tests
  */
-export const createCvCommands = ({ openStore, live = {} }) =>
+export const createCvCommands = ({
+  openStore,
+  openReadOnly = openStore,
+  live = {},
+}) =>
   Object.fromEntries(
     Object.entries({
+      ...createExperienceCommands(openStore),
+      ...createHhExperienceCommands(
+        { openStore, openReadOnly },
+        live.hhExperience
+      ),
+      ...createHhExperienceWorkplaceCommands(
+        { openStore, openReadOnly },
+        live.hhWorkplace
+      ),
+      ...createFormalReportCommands(
+        { openStore, openReadOnly },
+        live.formalReports
+      ),
+      ...createExperiencePlanCommands(
+        { openStore, openReadOnly },
+        live.experiencePlanning
+      ),
+      ...createExperienceAutoCommands(
+        { openStore, openReadOnly },
+        { ...live, ...live.experienceAuto }
+      ),
+      ...createExperienceReviewCommands(
+        { openStore, openReadOnly },
+        { ...live, ...live.experienceReview }
+      ),
+      ...createLinkedinExperienceCommands(
+        { openStore, openReadOnly },
+        live.experience
+      ),
+      ...createLinkedinPositionCommands(
+        { openStore, openReadOnly },
+        live.experience
+      ),
+      ...createLinkedinAboutCommands(
+        { openStore, openReadOnly },
+        live.experience
+      ),
       'cv-platforms': platformsCmd,
       'cv-plan': planCmd,
       'cv-read': (args, log) => readCmd(args, log, openStore, live),

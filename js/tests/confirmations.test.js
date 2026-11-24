@@ -10,7 +10,7 @@ import {
   createConfirmations,
   withoutToken,
 } from '../src/server/confirmations.js';
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 import { createMemoryStore } from '../src/storage/index.js';
 import { readShareTyping, writeShareTyping } from '../src/web/privacy-prefs.js';
 import { confirmCli } from '../src/cli/confirm.js';

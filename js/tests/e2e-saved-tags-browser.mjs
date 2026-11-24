@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for the reaction tags of Saved Messages (R-Y151), as
 // Telegram Desktop has them: in the user's own chat a row of chips above
 // the history lists the tags (reaction, name, count); a click filters the
@@ -65,7 +66,7 @@ await page.route('**/api/telegram/saved-tags', (route) =>
 );
 const searches = [];
 await page.route('**/api/telegram/saved-tag-search', (route) => {
-  searches.push(route.request().postDataJSON());
+  searches.push(requestBody(route.request()));
   return fulfil(route, {
     ok: true,
     more: false,
@@ -82,7 +83,7 @@ await page.route('**/api/telegram/saved-tag-search', (route) => {
 });
 const renames = [];
 await page.route('**/api/telegram/saved-tag-rename', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   renames.push(body);
   tags = tags.map((tag) =>
     tag.reaction.emoji === body.reaction.emoji

@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for message effects (R-Y149), as Telegram Desktop has
 // them: a received message with an effect shows its emoji badge by the
 // time (the burst plays when it appears and when the badge is clicked);
@@ -55,7 +56,7 @@ await page.route('**/api/telegram/history', (route) =>
   fulfil(route, { written: 0, cached: 0, complete: true })
 );
 await page.route('**/api/telegram/chat-info*', (route) => {
-  const chat = String(route.request().postDataJSON()?.chat ?? '');
+  const chat = String(requestBody(route.request())?.chat ?? '');
   return fulfil(
     route,
     chat === GROUP

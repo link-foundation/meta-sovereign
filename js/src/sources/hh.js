@@ -1,15 +1,20 @@
 /**
  * hh.ru source adapter (R-E8).
  *
- * Wraps the official hh.ru API (https://api.hh.ru) for resume
- * read/write and message threads on vacancy responses. Archive import
- * accepts pre-fetched JSON; the live adapter talks to negotiations and
- * resume endpoints with injectable fetch/baseUrl for tests.
+ * Uses the official common-chat API for current history and replies.
+ * Deprecated negotiation reads remain an explicit compatibility protocol.
+ * Resume changes use the browser CV plan, not an invented API endpoint.
  */
 
-import { buildMessageLink } from './link.js';
+import { normalizeHhMessages } from './hh-messages.js';
+import { parseHhArchive } from './hh-recording.js';
+import { pullHhChats } from './hh-chats.js';
+import { sendHhChat } from './hh-chat-send.js';
+import { hhCommonChatId, markHhChatRead } from './hh-chat-read.js';
+import { mutateHhChatMessage } from './hh-chat-actions.js';
 import {
   authHeaders,
+  codedError,
   threadTarget,
   unsupportedError,
   contentText,
@@ -19,44 +24,18 @@ import {
 
 const SOURCE = 'hh';
 
-const negotiationMessages = (negotiation) => {
-  const messages = negotiation.messages?.items ?? negotiation.messages ?? [];
-  return messages.length > 0 ? messages : [negotiation];
+const commonChatPostId = (target) => {
+  if (typeof target !== 'string' || !target.startsWith('chat:')) {
+    return null;
+  }
+  const id = hhCommonChatId(target);
+  if (!id) {
+    throw unsupportedError('HH common-chat ID is invalid');
+  }
+  return id;
 };
 
-const negotiationSender = (message, negotiation) =>
-  String(
-    message.author?.id ?? message.from ?? negotiation.employer?.id ?? 'unknown'
-  );
-
-const negotiationChat = (message, negotiation) =>
-  String(
-    negotiation.id ??
-      `vacancy:${message.vacancy?.id ?? negotiation.vacancy?.id ?? 'unknown'}`
-  );
-
-const negotiationToLinks = (negotiation) => {
-  const records = negotiationMessages(negotiation);
-  return records.map((message) =>
-    buildMessageLink({
-      source: SOURCE,
-      externalId: String(message.id ?? negotiation.id),
-      sender: negotiationSender(message, negotiation),
-      chat: negotiationChat(message, negotiation),
-      body: message.text ?? message.message ?? negotiation.text ?? '',
-      timestamp:
-        message.created_at ??
-        message.createdAt ??
-        negotiation.created_at ??
-        null,
-    })
-  );
-};
-
-export const hhNegotiationsToLinks = (payload) => {
-  const items = payload?.items ?? payload?.negotiations ?? [];
-  return items.flatMap(negotiationToLinks);
-};
+export const hhNegotiationsToLinks = (payload) => normalizeHhMessages(payload);
 
 export const createHhLive = ({
   token = null,
@@ -70,10 +49,36 @@ export const createHhLive = ({
     ...authHeaders(resolvedToken(override)),
     'User-Agent': userAgent,
   });
+  const mutateMessage = (params, options) =>
+    mutateHhChatMessage({
+      ...params,
+      fetchImpl,
+      baseUrl: options.baseUrl ?? baseUrl,
+      headers: headers(options.token),
+      timeoutMs: options.timeout,
+    });
 
   return {
     async pullMessages(options = {}) {
-      const raw = await requestJson(fetchImpl, `${baseUrl}/negotiations`, {
+      const apiBase = (options.baseUrl ?? baseUrl).replace(/\/$/u, '');
+      if (!options.protocol || options.protocol === 'chats') {
+        return pullHhChats({
+          origin: new URL(apiBase).href,
+          options,
+          read: (path, search) =>
+            requestJson(fetchImpl, `${apiBase}${path}`, {
+              headers: headers(options.token),
+              search,
+              timeoutMs: options.timeout,
+            }),
+        });
+      }
+      if (options.protocol !== 'negotiations') {
+        throw unsupportedError(
+          'HH history protocol must be chats or negotiations'
+        );
+      }
+      const raw = await requestJson(fetchImpl, `${apiBase}/negotiations`, {
         headers: headers(options.token),
         search: {
           page: options.page ?? options.offset,
@@ -102,6 +107,24 @@ export const createHhLive = ({
       if (!text) {
         throw new Error('hh message text is required');
       }
+      const chatId = commonChatPostId(negotiationId);
+      if (chatId) {
+        return sendHhChat({
+          fetchImpl,
+          baseUrl: options.baseUrl ?? baseUrl,
+          headers: headers(options.token),
+          content,
+          options,
+          chatId,
+          text,
+        });
+      }
+      const replyTo = content?.replyTo ?? null;
+      if (replyTo !== null || content?.replyQuote) {
+        throw unsupportedError(
+          'HH negotiation messages cannot preserve replies'
+        );
+      }
       return requestJson(
         fetchImpl,
         `${baseUrl}/negotiations/${negotiationId}/messages`,
@@ -111,6 +134,32 @@ export const createHhLive = ({
           body: { message: text },
         }
       );
+    },
+    async markRead({ chat, id } = {}, options = {}) {
+      const chatId = hhCommonChatId(chat);
+      if (!chatId) {
+        return { supported: false };
+      }
+      return markHhChatRead({
+        fetchImpl,
+        baseUrl: options.baseUrl ?? baseUrl,
+        headers: headers(options.token),
+        chatId,
+        id,
+        timeoutMs: options.timeout,
+      });
+    },
+    async editMessage(params, options = {}) {
+      return mutateMessage({ ...params, edit: true }, options);
+    },
+    async deleteMessages({ chat, ids, links, revoke } = {}, options = {}) {
+      if (revoke !== true || ids?.length !== 1 || links?.length !== 1) {
+        throw codedError(
+          'HeadHunter removes one message at a time from the provider chat',
+          'unsupported-action'
+        );
+      }
+      return mutateMessage({ chat, id: ids[0], link: links[0] }, options);
     },
     // No endpoint writes an applicant's resume (the CV plan researched
     // this, R-V6): report it instead of calling a URL that does not
@@ -128,21 +177,7 @@ const live = createHhLive();
 export const hhSource = {
   name: SOURCE,
   async parseArchive(archive) {
-    const obj = typeof archive === 'string' ? JSON.parse(archive) : archive;
-    const out = [];
-    for (const m of obj.negotiations ?? []) {
-      out.push(
-        buildMessageLink({
-          source: SOURCE,
-          externalId: String(m.id),
-          sender: m.author?.id ?? 'unknown',
-          chat: `vacancy:${m.vacancy?.id}`,
-          body: m.text ?? '',
-          timestamp: m.created_at,
-        })
-      );
-    }
-    return out;
+    return parseHhArchive(archive);
   },
   live,
   syncResume: (resume, options) => live.syncResume(resume, options),

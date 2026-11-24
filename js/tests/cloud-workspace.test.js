@@ -9,6 +9,12 @@ import { test } from 'node:test';
 import { loadCloudConfig } from '../src/server/cloud-config.js';
 import { startServer } from '../src/server/index.js';
 import { createMemoryStore } from '../src/storage/index.js';
+import {
+  LINO_BINARY,
+  LINO_TEXT,
+  decodeWire,
+  encodeWire,
+} from '../src/transport/lino.js';
 
 const requiresNode = { skip: Boolean(globalThis.Bun || globalThis.Deno) };
 const key = () => randomBytes(32).toString('hex');
@@ -63,10 +69,12 @@ const openWorkspace = async (host) => {
     for await (const chunk of res) {
       chunks.push(chunk);
     }
+    const raw = Buffer.concat(chunks);
     return {
       status: res.statusCode,
       headers: res.headers,
-      body: Buffer.concat(chunks).toString(),
+      body: raw.toString(),
+      value: () => decodeWire(raw, res.headers['content-type']),
     };
   };
   const login = (supplied = cloud.ownerKey, origin = cloud.origin) =>
@@ -196,19 +204,49 @@ test(
         ).status,
         403
       );
-      const data = JSON.stringify({ id: 'fixture:cloud', tokens: ['fixture'] });
-      const put = {
-        method: 'PUT',
-        body: data,
-        headers: { cookie, 'content-type': 'application/json' },
-      };
-      assert.equal((await app.request('/links', put)).status, 403);
-      put.headers.origin = app.cloud.origin;
-      assert.equal((await app.request('/links', put)).status, 200);
-      const saved = await app.request('/links/fixture:cloud', {
+      const link = { id: 'fixture:cloud', tokens: ['fixture'] };
+      const put = (type, body, origin) =>
+        app.request('/links', {
+          method: 'PUT',
+          body,
+          headers: { cookie, 'content-type': type, ...(origin && { origin }) },
+        });
+      assert.equal((await put(LINO_TEXT, encodeWire(link))).status, 403);
+      assert.equal(
+        (await put('application/json', JSON.stringify(link), app.cloud.origin))
+          .status,
+        415
+      );
+      for (const type of [LINO_TEXT, LINO_BINARY]) {
+        assert.equal(
+          (await put(type, encodeWire(link, type), app.cloud.origin)).status,
+          200
+        );
+        const saved = await app.request('/links/fixture:cloud', {
+          headers: { cookie, accept: type },
+        });
+        assert.match(saved.headers['content-type'], new RegExp(`^${type}`));
+        assert.equal(saved.value().id, 'fixture:cloud');
+      }
+      const health = await app.request('/_cloud/health');
+      assert.deepEqual(health.value(), { ok: true });
+      for (const resource of [
+        '/api/browser/policies',
+        '/api/runner',
+        '/api/vk/token',
+        '/api/forms/sessions',
+        '/api/vacancies/capabilities',
+        '/api/cv/experience/linkedin-status',
+      ]) {
+        const response = await app.request(resource, { headers: { cookie } });
+        assert.equal(response.status, 501, resource);
+        assert.equal(response.value().code, 'local-device-only', resource);
+      }
+      const forms = await app.request('/api/forms/capabilities', {
         headers: { cookie },
       });
-      assert.equal(JSON.parse(saved.body).id, 'fixture:cloud');
+      assert.equal(forms.value().available, false);
+      assert.equal(forms.value().plan, true);
     } finally {
       await app.close();
     }
@@ -254,27 +292,25 @@ test(
           headers: {
             cookie,
             origin: app.cloud.origin,
-            'content-type': 'application/json',
+            'content-type': LINO_TEXT,
           },
-          body: JSON.stringify(body),
+          body: encodeWire(body),
         });
       const contacts = async () =>
-        JSON.parse(
-          (await app.request('/api/contacts', { headers: { cookie } })).body
-        );
-      const sources = JSON.parse(
-        (await app.request(root, { headers: { cookie } })).body
-      );
+        (await app.request('/api/contacts', { headers: { cookie } })).value();
+      const sources = (
+        await app.request(root, { headers: { cookie } })
+      ).value();
       assert.equal(sources.vcard, true);
       assert.equal(sources.system.available, false);
       const system = await post('preview', { source: 'system' });
-      assert.equal(JSON.parse(system.body).code, 'local-device-only');
+      assert.equal(system.value().code, 'local-device-only');
       const preview = await post('preview', {
         source: 'vcard',
         text: 'BEGIN:VCARD\nVERSION:3.0\nUID:hosted-contact\nFN:Hosted Contact\nEMAIL:contact@example.test\nEND:VCARD',
       });
       assert.equal(preview.status, 200);
-      const { source, digest, confirm, sample } = JSON.parse(preview.body);
+      const { source, digest, confirm, sample } = preview.value();
       assert.equal(sample[0].name, 'Hosted Contact');
       assert.deepEqual(await contacts(), []);
       const applied = await post('apply', {
@@ -283,7 +319,7 @@ test(
         confirmToken: confirm.token,
       });
       assert.equal(applied.status, 200);
-      assert.equal(JSON.parse(applied.body).imported, 1);
+      assert.equal(applied.value().imported, 1);
       assert.equal((await contacts())[0].name, 'Hosted Contact');
     } finally {
       await app.close();
@@ -306,15 +342,16 @@ test(
           .status,
         401
       );
-      await main.request('/links', {
+      const saved = await main.request('/links', {
         method: 'PUT',
-        body: JSON.stringify({ id: 'fixture:isolated', tokens: ['fixture'] }),
+        body: encodeWire({ id: 'fixture:isolated', tokens: ['fixture'] }),
         headers: {
           cookie: firstCookie,
           origin: main.cloud.origin,
-          'content-type': 'application/json',
+          'content-type': LINO_TEXT,
         },
       });
+      assert.equal(saved.status, 200);
       assert.equal(
         (
           await other.request('/links/fixture:isolated', {

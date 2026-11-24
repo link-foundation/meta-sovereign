@@ -1,0 +1,31 @@
+{
+  "archive": "ci-sync-fixture-bundle.tar.gz",
+  "files": {
+    "before/js/tests/helpers/e2e-sync-peer.mjs": "b5275c81e7ab91d0d2e9528d332a6a8231428da6838edb46ab754feac3aacb62",
+    "ci-logs/checks-43677439888-webkit-1.log": "3d16a82870069ebf588750222d37d1269cc3e1b0a40cc5f44212e092ba4790c9",
+    "ci-logs/ci-corrections-deno.log": "6b3172c397e7c475ef561000b56ea048282a51c8fc547ce2cc999364190bb699",
+    "ci-logs/ci-corrections-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-corrections-format-final.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/ci-corrections-lint-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-corrections-node.log": "ad1e506949e47c3cdb7f568e6e6619ba6c96c6f1ba0696e13f20d611d2bd6b16",
+    "ci-logs/ci-corrections-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/sync-fixture-bundle-archive.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/sync-fixture-bundle-before.log": "61cf1cbd92c346918fcc9ad29d46c6398bb42d458e75341092f1a5a6471badea",
+    "ci-logs/sync-fixture-bundle-build.log": "3eac0937463a8bbaf86d9ef20fa6f959c7b66c0f41be85e7afe8104c0a320366",
+    "ci-logs/sync-fixture-bundle-deno-final.log": "89713bce0db7c76d9f863019825e74af1b9353fe794487c0eccb53a9799e0e02",
+    "ci-logs/sync-fixture-bundle-native.log": "c498d9800e94c4cb26f858c5d038f863842dd32a4e8bd4ef055e62ec9e9d09e7",
+    "ci-logs/sync-fixture-bundle-node-final.log": "2a0609c2e93a06b776404f609d2d439f14941b8c80773cdcd1565c0350627d93",
+    "ci-logs/sync-fixture-bundle-node.log": "593b3587ce9a2ad7d0139fbc641bd7802c7e8858ab1b5cd65aa8a60a5e767517",
+    "ci-logs/sync-fixture-bundle-parent.log": "b21c6b1f5cdbcaa27a82a07cc05571ac3f0665ebdd1cb06eafe965c5530e6912",
+    "docs/case-studies/issue-56/ci-sync-fixture-bundle.md": "82e0259841ce45dedf582354c7ec86b015f8c12832a2e741b641595eb601b124",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-ci-corrections.py": "b8d6bd6a9b2d23240bb09346ae2d1d6ba945669e09761e8681d0f4e4ba09ae68",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "experiments/issue-56/sync-fixture-bundle-parent.py": "bf982f1d37f32cd70b9c896eef359beec593951e47da253587dd5eae4e6ddbc0",
+    "experiments/issue-56/sync-fixture-bundle.mjs": "9c9cdfc6de9c31ee9edbe9b158ac0d3dc414864dc9b1b8b58050870da433d4ce",
+    "js/tests/helpers/e2e-sync-bundle.mjs": "6ab1f9677d7dcfd36acd8413a8e9fba75de65a53eafb0cf3e30b473d838af6c4",
+    "js/tests/helpers/e2e-sync-peer.mjs": "e2407046919c402e50d42cf668a78b4ad463a8dc3dad919c0ed804f60ab0c97d",
+    "js/tests/sync-fixture-bundle.test.js": "299f8c5b04ad39d1c836156cae38af71212bf6d6508481e3d8e15f345fb91b2f",
+    "metadata.json": "9948f129a3e3a14eb606523361a2920152e64e211020e922b2de467cc95c6900"
+  }
+}

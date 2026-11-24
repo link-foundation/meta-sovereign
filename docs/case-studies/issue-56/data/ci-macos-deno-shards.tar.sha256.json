@@ -1,0 +1,26 @@
+{
+  "archive": "ci-macos-deno-shards.tar.gz",
+  "files": {
+    ".github/workflows/release.yml": "9a7a04153eaf70bc868e5fb35cce706e6ad45cd7b01f96ced43946e58697c193",
+    "before/.github/workflows/release.yml": "aa5830d03cc9462737c1168106bd2c11d084ca32fa186097a65f667e719022e1",
+    "before/js/tests/ci-deno-shards.test.js": "bc04de8174e1d44c793de64f95fc7803f172e77afca232e9ad7cd645dee2f0d7",
+    "ci-logs/ci-macos-deno-analysis.json": "02c8c16522aa95f45abfbd96019a8615d97888e6bd4d86edf243c502743154b8",
+    "ci-logs/ci-macos-deno-before.log": "1b5c4f3f7cc53388f6df071f6f30fd465fa2781113e354bf0d3d6420d6f78aea",
+    "ci-logs/ci-macos-deno-deno.log": "e39cfd2884ef4d63dec4236f786825337cb27fa873a90e8f99a1f6311b1ce54b",
+    "ci-logs/ci-macos-deno-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/ci-macos-deno-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-macos-deno-node.log": "97fc5254699bf434e1544b10714a5980b43701d486e2d08474ec965bfd6f3407",
+    "ci-logs/ci-macos-deno-policy.log": "990ebea27086bd363aafcd9754445ba7eab4e4bad2d634c815c8280a6916cb1c",
+    "ci-logs/ci-macos-deno-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/vk-desktop-live-checks.json": "9e05624c858527f8c914b791e2b9a509cff1433f5d73d40302b227b4704ab7a9",
+    "ci-logs/vk-desktop-macos-deno-annotations.json": "794a8be0cd0029af5a5e45883d95167c3c0d2aef694fc2b2aa6c9671f36d38fd",
+    "ci-logs/vk-desktop-macos-deno.log": "f872da56d540c0a3b9d00f25cca9486149f9898d9314eddfe361a39c23e8dac6",
+    "docs/case-studies/issue-56/ci-macos-deno-shards.md": "85e3405d9833b658968a94ea85773e06e90cca1503c10439ab7e5e0fbc01eb38",
+    "experiments/issue-56/analyze-windows-deno.py": "f98dab36960c7eddc9cec07fc6a69ac74d7ac94fabc2b24b89480a5b4439d6f6",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-ci-macos-deno.py": "5fb96144b6871738eece29a434fc6aca25625c4b4d948e5b28f2daf771e66f9f",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "js/tests/ci-deno-shards.test.js": "7baedc3d3c983fa343452ac6a4a1488e68591a09086d421bbd2d096cedf6658b",
+    "metadata.json": "74763cd0174d132cf88d181ff26d4052e24e0530bafc2715afa5e1d4d1cf4427"
+  }
+}

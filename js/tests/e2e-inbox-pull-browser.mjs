@@ -13,6 +13,20 @@ import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, openChatApp } from './helpers/e2e-chat.mjs';
 import { createFakeVk, userMethods, FAKE_VK_BASE } from './helpers/fake-vk.js';
 import { fakePph, fakeUpwork } from './helpers/fake-marketplaces.js';
+import { hhCommonFixture } from '../../experiments/issue-56/hh-common-fixture.mjs';
+import {
+  verifyHhCommon,
+  verifyHhCommonActions,
+  verifyHhCommonReply,
+} from './helpers/e2e-hh-common.mjs';
+import { verifyHhProviders } from './helpers/e2e-hh-providers.mjs';
+import {
+  launchHhImportFixture,
+  verifyHhBrowserImport,
+} from './helpers/e2e-hh-browser-import.mjs';
+import { createHhLive } from '../src/sources/hh.js';
+import { createDefaultSender } from '../src/sources/browser-sender.js';
+import { verifyHhImportRead } from './helpers/e2e-hh-import-read.mjs';
 
 const store = createMemoryStore();
 await store.put({
@@ -84,10 +98,30 @@ const fakeVk = createFakeVk({
   }),
 });
 
+const hh = hhCommonFixture();
+const hhLive = createHhLive({ ...hh, token: 'fixture-token' });
+const send = createDefaultSender({
+  getSource: (source) => (source === 'hh' ? { live: hhLive } : null),
+  browser: false,
+});
+let pullNow = Date.now();
+let importPage;
 const { page, base, until, finish } = await openChatApp('inbox-pull', {
   store,
+  secure: true,
   serverOptions: {
+    autoImportLauncher: async ({ url }) => {
+      const session = await launchHhImportFixture(page.context(), url);
+      importPage = session.page;
+      return session;
+    },
+    automations: {
+      scheduler: false,
+      send,
+    },
     pulls: {
+      hh: { ...hh, maxRequests: 2 },
+      now: () => pullNow,
       vk: {
         fetchImpl: fakeVk.fetchImpl,
         baseUrl: FAKE_VK_BASE,
@@ -98,6 +132,9 @@ const { page, base, until, finish } = await openChatApp('inbox-pull', {
     },
   },
 });
+await page.addInitScript(() =>
+  globalThis.localStorage.setItem('metaSovereignReadReceipts', 'off')
+);
 
 // VK's picture CDN is answered here: the request never leaves the machine,
 // and a load proves the page's CSP lets these hosts through.
@@ -160,7 +197,7 @@ const fetchSteps = async () => {
 };
 
 const mediaSteps = async () => {
-  await page.goto(`${base}/`);
+  await page.goto(`${base}/#/chat`);
   await page.locator('[data-chat="vk:7"]').click();
   const media = page.locator('[data-remote-media]');
   await media.waitFor({ timeout: 5000 });
@@ -197,6 +234,38 @@ const mediaSteps = async () => {
 };
 
 await finish(async () => {
+  if (
+    process.env.HH_IMPORT_READ_BEFORE === '1' ||
+    process.env.HH_IMPORT_SEND_BEFORE === '1'
+  ) {
+    await verifyHhImportRead(page);
+    return;
+  }
+  if (process.env.HH_BROWSER_IMPORT_BEFORE === '1') {
+    await verifyHhBrowserImport({
+      page,
+      base,
+      native: () => importPage,
+      store,
+    });
+    return;
+  }
   await fetchSteps();
   await mediaSteps();
+  await verifyHhCommon({
+    page,
+    base,
+    store,
+    until,
+    fake: hh,
+    advance: () => {
+      pullNow += 16000;
+    },
+  });
+  await verifyHhProviders({ page, base, store, until, hh });
+  await verifyHhCommonReply({ page, base, store, fake: hh });
+  await verifyHhCommonActions({ page, store, fake: hh, until });
+  await store.delete('secret:hh:access-token');
+  await verifyHhBrowserImport({ page, base, native: () => importPage, store });
+  await verifyHhImportRead(page);
 });

@@ -33,8 +33,24 @@ const handledWebKitLoad = (error, engine, base) => {
 };
 
 /** Apply one policy to initial pages, reopened pages and popups. */
-export const watchChatPages = (context, { errors, engine, base, trace }) => {
+export const watchChatPages = (
+  context,
+  { errors, engine, base, trace, acceptDialog = () => false }
+) => {
   const watch = (page) => {
+    if (trace) {
+      page.on('requestfailed', (request) => {
+        const url = new URL(request.url());
+        // Deliberately omit query values and fragments from opt-in diagnostics.
+        trace(
+          `request failed ${JSON.stringify({
+            url: `${url.origin}${url.pathname}`,
+            navigation: request.isNavigationRequest(),
+            error: request.failure()?.errorText,
+          })}`
+        );
+      });
+    }
     page.on('pageerror', (error) => {
       const message = String(error);
       if (handledWebKitLoad(error, engine, base)) {
@@ -44,6 +60,10 @@ export const watchChatPages = (context, { errors, engine, base, trace }) => {
       }
     });
     page.on('dialog', (dialog) => {
+      if (acceptDialog(dialog)) {
+        void dialog.accept().catch((error) => errors.push(String(error)));
+        return;
+      }
       errors.push(`browser dialog: ${dialog.message()}`);
       void dialog.dismiss().catch((error) => errors.push(String(error)));
     });
@@ -51,6 +71,18 @@ export const watchChatPages = (context, { errors, engine, base, trace }) => {
   context.on('page', watch);
   context.pages().forEach(watch);
 };
+
+/** Standalone provider fixtures retain the real engine and their private origin. */
+export const watchFixturePages = (context, browser, base, errors) =>
+  watchChatPages(context, {
+    errors,
+    engine: browser.browserType().name(),
+    base,
+    trace:
+      process.env.CI_BROWSER_DEBUG === '1'
+        ? (event) => console.log(`[question-browser] ${event}`)
+        : undefined,
+  });
 
 /** Capture the pages that are still open after a close/reopen scenario. */
 export const screenshotChatPages = async (

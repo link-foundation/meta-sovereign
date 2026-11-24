@@ -1,0 +1,21 @@
+# HTTP transport (languages: en • [zh](HTTP-TRANSPORT.zh.md) • [hi](HTTP-TRANSPORT.hi.md) • [ru](HTTP-TRANSPORT.ru.md))
+
+The JavaScript server uses `lino-rest-api` for structured HTTP messages. The default response is `text/lino`. Request binary Links Notation with `Accept: application/lino-binary`. Writes accept the same media types in `Content-Type`; `text/lino-line` and `text/lino-compact` are also supported. Binary bodies encode the typed object AST, preserving strings, numbers, Unicode and empty containers.
+
+Unsupported request representations return 415. An unacceptable response representation returns 406 before a mutation runs. Specific `Accept` exclusions take precedence over wildcards. Origin, Host, passcode, redaction and request-size checks still apply. Ordinary request bodies are limited to 1 MiB; routes with an existing larger archive limit retain it. Decoders also bound input size, nesting and binary graph expansion.
+
+JSON compatibility is disabled by default. A legacy client must explicitly enable it on the server:
+
+```bash
+node js/bin/meta-sovereign.js serve --json-compatibility=true
+```
+
+The library option is `startServer({ jsonCompatibility: true })`; the environment equivalent is `MS_JSON_COMPATIBILITY=1`. In compatibility mode a client can request `application/json`, while explicit Lino requests continue to work. The new browser client uses Lino and rejects unexpected JSON replies by default. Provider APIs, downloaded files and raw media/archive uploads retain their own formats.
+
+Live change and Telegram account-notification streams use `text/event-stream` with one `text/lino-line` record per data field. The browser requests `?format=lino-line`, including against compatibility-enabled servers. Embedded newlines are escaped by the codec. JSON events require server compatibility mode; `?format=json` otherwise returns 406. Reconnection, origin checks, secret filtering and slow-client handling remain active.
+
+JavaScript WebSocket sync and WebRTC signaling negotiate `meta-sovereign-sync.lino.v2` (text) or `meta-sovereign-sync.lino-binary.v2` (binary). WebRTC data channels declare the same protocol. Clients reject a missing or mismatched selection. Legacy `meta-sovereign-sync.v1` JSON requires compatibility mode on both ends. A connection without a protocol uses text Lino by default, or legacy JSON when server compatibility is explicitly enabled. Messages and disconnected queues are limited to 4 MiB; oversized or malformed incoming frames close the connection. Existing origin, room-isolation and secret-filtering rules apply. See the [sync investigation](case-studies/issue-56/lino-sync.md) for migration and verification.
+
+JavaScript TCP sync uses the same versioned protocols. Each end sends its configured protocol plus a newline, followed by records with a four-byte unsigned big-endian byte length and the selected Lino body. The default is text; configure binary on both ends with `--sync-format=binary` (library: `format: 'application/lino-binary'`). There is no automatic fallback. Records and queues are bounded to 4 MiB, the preface to 128 bytes, and the handshake to 10 seconds. Legacy newline JSON requires `--sync-format=json --json-compatibility=true` on both ends. The listener remains loopback-only. CLI sync commands remain running until interrupted, then close connections and flush/release the store.
+
+The native Rust server now uses the same four HTTP representations and versioned text/binary WebSocket sync and signaling for its existing endpoints. It uses the official Rust `links-notation` parser/binary codec; Lino REST remains the JavaScript HTTP boundary. JSON requires `ServerOptions { json_compatibility: true, ..Default::default() }`, `meta-sovereign-rs serve --json-compatibility` or `MS_JSON_COMPATIBILITY=1`. Its HTTP body limit is 16 MiB, decoder limit 64 MiB and socket/queue limit 4 MiB. Fragmented Unicode, control frames and per-peer reencoding are supported; invalid frames close the connection. `MS_SYNC_DEBUG=1` reports rejection codes without payloads. The listener remains loopback-only. R-AA16 verification and complete native feature parity remain open; see the [native investigation](case-studies/issue-56/lino-native.md) and [requirement ledger](REQUIREMENTS.md).

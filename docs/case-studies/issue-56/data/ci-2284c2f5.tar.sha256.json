@@ -1,0 +1,12 @@
+{
+  "archive": "ci-2284c2f5.tar.gz",
+  "files": {
+    "broken-link-checker-42701232015.log": "e89a243ce5b3740848a3459a6d8de5bb2ff0dee845f7dbcd2fad660d9e00deda",
+    "checks-and-release-42701232010.log": "60095eadbc599eb8f67f356ee43819134db176cf5f099fecf7d603c51dba4662",
+    "checks-jobs.json": "6f7f152693adfd95aea313e0937d402b94b05c76c195775fe9ba02a8811f2ef6",
+    "deploy-to-github-pages-42701231955.log": "12eaddad899e295828329ac4ccba207046997d0332b958e49a87ab96eb326ae2",
+    "desktop-release-42701231626.log": "64491c03c8297b43433e2bca9be94be27f5fd0b34aa5da82cd1475435286d6c6",
+    "runs.json": "7a8884734f0730201d18758c46b659ed1ac6f8733327d18e25b092bc6c9506d7",
+    "scheduled-security-audit-42701231196.log": "969036cbb56c6af6a2657034bd726442d8209391214f444cf967d7b6b2b09bfa"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "archive": "ci-question-link-locator.tar.gz",
+  "files": {
+    "before/js/tests/helpers/e2e-question-hidden-links.mjs": "49fbdf4b7216b519a330a2fb0b5926c3a25a468f373c5e637a26ddbcd2ee28ba",
+    "ci-logs/ci-question-link-locator-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-question-link-locator-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/ci-question-link-locator-format.log": "1de8ecfbd2eec42a02ca7ef1be7ea226a101cfad738904ebce465ee4b0f705d9",
+    "ci-logs/ci-question-link-locator-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-question-link-locator-native.log": "4bfb9e938d4bdd07cc74f68e0833b22f57302d0e433362a0f04accb518962161",
+    "ci-logs/ci-question-link-locator-parent.log": "57151c025272e02e048606e8f553e32295b35eeabd59725373d9be383ca46668",
+    "ci-logs/ci-question-link-locator-recent-runs.json": "5b31b817dc1201f82bcbb1362c1510167f3819f00126ce72d4b351736007c466",
+    "ci-logs/ci-question-link-locator-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/vk-greeting-parent-ci-browser-e2e-chromium-shard-2-4-132657458807.log": "35a601d87d11ff7ed037fcd1caacc896a11b4d9ac300dc0db924167c43f92d4b",
+    "ci-logs/vk-greeting-parent-ci-checks.json": "bb571710afa1aa3839426820fdba948c070c8d5868830cdad2fdc5c161c8847b",
+    "docs/case-studies/issue-56/PLAN.md": "b5b5e4b63618f25c85093e0ba22e218f8e5a19422bc884caedff26c4d4584ce2",
+    "docs/case-studies/issue-56/README.md": "abdb1eaaac6c2666c2c69a1d4721a89174bdeb22c549804d24a6a848b4cb730e",
+    "docs/case-studies/issue-56/ci-question-link-locator.md": "8aa13d74dd0cbbf13b28bd797deace925e76c1ceb3f7b54fd93991bc1303646c",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/ci-question-link-locator.mjs": "f5b241e707f45406724958c3be12ecd6c895ba5fa4813c4935efbac924fa2c7a",
+    "experiments/issue-56/collect-ci-question-link-locator.py": "187b062217bcf7e84b87dfd3bd5df11b242fb891675d8b1201d17e81893eb5bc",
+    "experiments/issue-56/evidence_bundle.py": "635598c595ab81c67e59c1878e005f3dc986e83b9cf014115fae4dea7c629be9",
+    "js/tests/helpers/e2e-question-hidden-links.mjs": "18f0e951e0ccacbb83aa4b7c4a105de1fd350a8dcb626de79928132b0151fe8d",
+    "metadata.json": "b939a6b18cb8da4f02da348fc640a1c08bc37eb147e047fd8e01cbe1a7cc0c52"
+  }
+}

@@ -57,15 +57,39 @@ const REPLY_PREVIEW_MAX = 64;
 export const isMine = (message) =>
   message?.sender === 'me' || message?.outgoing === true;
 
+export const canReplyTo = (message) =>
+  message?.source !== 'hh' ||
+  (message.hhChat?.writeAllowed === true && message.raw?.can_reply === true);
+
 const timeOf = (message) => Date.parse(message?.timestamp ?? '') || null;
 
+const ownsHhMessage = (message) =>
+  Boolean(
+    message.hhChat?.id &&
+    message.messageId &&
+    message.raw?.id === message.messageId &&
+    message.raw.type === 'SIMPLE' &&
+    message.raw.sender_display_info?.is_current_participant === true
+  );
+
 export const canEdit = (message, now) => {
-  if (!isMine(message) || !message.body || message.pending) {
+  if (!isMine(message) || !message.body || message.pending || message.deleted) {
     return false;
+  }
+  if (message.source === 'hh') {
+    return (
+      ownsHhMessage(message) &&
+      message.raw.can_edit === true &&
+      typeof message.raw.payload?.text === 'string'
+    );
   }
   const at = timeOf(message);
   return at === null || now - at <= EDIT_LIMIT_MS;
 };
+
+export const canDeleteMessages = (messages) =>
+  !messages.some((message) => message.source === 'hh') ||
+  (messages.length === 1 && ownsHhMessage(messages[0]));
 
 /**
  * The message's t.me link: a channel's or supergroup's messages have
@@ -163,6 +187,15 @@ export const quoteOf = (message, selectedText) => {
   return quote && String(message?.body ?? '').includes(quote) ? quote : null;
 };
 
+const replyItem = (message, selectedText) => {
+  if (!canReplyTo(message)) {
+    return null;
+  }
+  return message.source !== 'hh' && quoteOf(message, selectedText)
+    ? 'quoteReply'
+    : 'reply';
+};
+
 // Copy Message Link in a group, Copy Post Link in a channel; Copy Link
 // when the pointer is on a link.
 const linkItem = ({ message, chat, info, target }) => {
@@ -200,7 +233,7 @@ const gameItems = (message) => (hasGameScores(message) ? ['gameScores'] : []);
 // chat (R-Y217), who read it, Select and the read time.
 const tailItems = (message, chat, info, hideSender) => [
   'forward',
-  'delete',
+  canDeleteMessages([message]) && 'delete',
   canReport(message, chat) && 'report',
   canBlockFromReplies(message, chat) && 'blockSender',
   ...whoItems(message, chat, info),
@@ -229,11 +262,10 @@ const singleItems = ({
   if (!sent) {
     return [message.body ? 'copy' : null, 'delete'];
   }
-  const quote = quoteOf(message, selectedText);
   const where = { personal: chat.personal, info };
   const copy = selectedText ? null : !target.photo && message.body && 'copy';
   return [
-    quote ? 'quoteReply' : 'reply',
+    replyItem(message, selectedText),
     selectedText ? 'copySelected' : null,
     canEdit(message, now) && 'edit',
     hasEditHistory(message) && 'editHistory',
@@ -266,17 +298,17 @@ const selectedItems = (message, selection, order) => {
   const sent = !message.pending;
   if (selection.has(message.id)) {
     return [
-      sent && 'reply',
+      sent && canReplyTo(message) && 'reply',
       selection.canCopy !== false && 'copySelectedItems',
       selection.canForward && 'forwardSelected',
-      'deleteSelected',
+      selection.canDelete !== false && 'deleteSelected',
       selection.canReport && 'reportSelected',
       selection.anyPinned && 'unpinSelected',
       'clearSelection',
     ].filter(Boolean);
   }
   return [
-    sent && 'reply',
+    sent && canReplyTo(message) && 'reply',
     sent && 'select',
     sent && bulkSelect(selection.ids, message.id, order) && 'selectBulk',
   ].filter(Boolean);
@@ -662,6 +694,7 @@ const TopButton = ({ action, label, count, onClick, filled = true }) =>
 export const SelectionTop = ({
   count,
   canForward = true,
+  canDelete = true,
   canReport = false,
   onClear,
   onForward,
@@ -682,13 +715,15 @@ export const SelectionTop = ({
             onClick: onForward,
           })
         : null,
-      el(TopButton, {
-        key: 'd',
-        action: 'delete',
-        label: t('chat.selection.delete'),
-        count,
-        onClick: onDelete,
-      }),
+      canDelete
+        ? el(TopButton, {
+            key: 'd',
+            action: 'delete',
+            label: t('chat.selection.delete'),
+            count,
+            onClick: onDelete,
+          })
+        : null,
       canReport
         ? el(TopButton, {
             key: 'r',

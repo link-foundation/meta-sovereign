@@ -588,6 +588,9 @@ const replyMsgIdFrom = (raw, replyToField) => {
 
 // Telegram's message ids are per chat; the other networks' are global.
 const repliedLinkId = (link, replyMsgId) => {
+  if (link.source === 'hh' && String(replyMsgId).startsWith('msg:hh:')) {
+    return replyMsgId;
+  }
   if ((link.source ?? 'telegram') !== 'telegram') {
     return `msg:${link.source}:${link.replyTo}`;
   }

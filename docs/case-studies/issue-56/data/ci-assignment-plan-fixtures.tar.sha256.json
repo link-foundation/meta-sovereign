@@ -1,0 +1,27 @@
+{
+  "archive": "ci-assignment-plan-fixtures.tar.gz",
+  "files": {
+    "before/js/tests/forms-answer-plan.test.js": "091a009a73d6f4e7d53c28ed194108bc6b941ca0253cf696e10d99914961f25a",
+    "ci-logs/assignment-plan-fixtures-deno.log": "599dd506888984ace1fd873c68c7962942ec606c9d06d9b96a05fad2fdc7c9ce",
+    "ci-logs/assignment-plan-fixtures-eslint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/assignment-plan-fixtures-format.log": "4b57a8ed439c1e980cf842cbf1dadf0c4bf1306de7fd6570165c81e950da61b1",
+    "ci-logs/assignment-plan-fixtures-node.log": "3320a1c8e4266d66df69beb8ca2dcc0e492eb3c0ac6b9fa4e934bad71a029b46",
+    "ci-logs/assignment-publisher-head-runs.json": "40036b12420910fc2e8907c374b5c1478a9affc2cc0be680944dd498cbcabc4c",
+    "ci-logs/assignment-publisher-parent-checks-jobs.json": "9ccfd69023b39ac1d586ba22104c9ac23955f929de9f2a7aeb88b8c9e8bf694f",
+    "ci-logs/checks-42961487507-job-130329818914.log": "ee343049350bd6d3b7c2a48949a8477e9e91f1f7fc209f53f0b90c94d78e7f64",
+    "ci-logs/checks-42961487507-job-130329818989.log": "1766e0e28b77f8c6b3a9d4d4f67bd6e5b1a87321fa1518d81a45abd733815ed6",
+    "ci-logs/checks-42961487507-job-130329819041.log": "dcad63becbb17a93a9c2962e8086a72f7f02381aa44c31a0b61c6ef35d3fbe09",
+    "ci-logs/checks-42961487507-job-130329819060.log": "9d578add36677880c5b14e4e45d29636360bd148bfae263a480d5cc0ff846f5a",
+    "ci-logs/checks-42961487507-job-130329819093.log": "5dacd8f452864e2dc87bdb93ba1ca42ce75d3ae44c39a14cf5be15410db15dc6",
+    "ci-logs/checks-42961487507-job-130329819102.log": "1e883e6d347b9a8ede99de32c8bfb5ae4df9b3bc6b2c9964e7fcc787dec7912e",
+    "ci-logs/checks-42961487507-job-130329819107.log": "7b68abeac55048c3f64aaa3c7327e40bb47dd8089ca2dc9c6fb485f2e3d8114c",
+    "ci-logs/checks-42961487507-job-130329819134.log": "3e99c86ece05043191a1ba4d18eb990206efd5a178164afd72dc4bd6a2f9bf83",
+    "ci-logs/checks-42961487507-job-130329819283.log": "89b3f4fc93255dd491386be5859855ff46946e6a3b8a9d750b1bc7f0ee0b51c9",
+    "docs/case-studies/issue-56/ci-assignment-plan-fixtures.md": "ade94780b103fde0ed54258eee53aa81215d748552863d9e206feb6ca155dc65",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-ci-assignment-plan.py": "e0bf27a5d0fbeceae901b06db8cc8a59a37621fb84093b08c845a036525b6b8a",
+    "experiments/issue-56/evidence_bundle.py": "fc7184f4046fbcb917bf011abd0220b7aff51509fa4a12b64c9a4dab4929b719",
+    "js/tests/forms-answer-plan.test.js": "a81aa082becc49a306e4f847ee3e1f86e769e1ec9b81477aa64d4eab0bfd551f",
+    "metadata.json": "122fd64d9725a716328bcc3ea70f046ed98d3eef41734041d6e08a70b6c7bfd9"
+  }
+}

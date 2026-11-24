@@ -1,0 +1,406 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {
+  mkdtempSync,
+  mkdirSync,
+  readFileSync,
+  writeFileSync,
+  rmSync,
+  existsSync,
+} from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import os from 'node:os';
+import path from 'node:path';
+import { parse } from 'yaml';
+import { partitionBrowserChecks } from '../scripts/browser-check-shards.mjs';
+
+const source = (file) =>
+  readFileSync(new URL(`../scripts/${file}`, import.meta.url));
+const registry = JSON.parse(source('browser-checks.json'));
+
+test('detached form learning has an independent mandatory browser entry', () => {
+  assert.equal(registry.filter((name) => name === 'forms-watchers').length, 1);
+  assert.ok(registry.includes('forms-reader'));
+});
+
+test('configured friend acceptance has an independent mandatory browser entry', () => {
+  assert.deepEqual(
+    registeredScenarios(registry.filter((name) => name === 'vk-configured')),
+    ['verifyVkConfigured']
+  );
+});
+
+const registeredScenarios = (groups) => {
+  const root = new URL('../../', import.meta.url);
+  const { scripts } = JSON.parse(readFileSync(new URL('package.json', root)));
+  return groups.flatMap((name) => {
+    const text = readFileSync(
+      new URL(scripts[`test:e2e:${name}`].slice(5), root),
+      'utf8'
+    );
+    const argumentsText = text.match(
+      /runBrowserScenarios\([^[]+\[([^\]]+)\]/u
+    )?.[1];
+    assert.ok(argumentsText, name);
+    const checks = argumentsText.match(/verify\w+/gu);
+    assert.ok(
+      checks.length <= 4,
+      `${name} combines ${checks.length} native scenarios`
+    );
+    return checks;
+  });
+};
+
+test('HeadHunter waiting review shares the native chat choice browser group', () => {
+  assert.deepEqual(
+    registeredScenarios(
+      registry.filter((name) => name === 'question-unread-choices')
+    ),
+    ['verifyUnreadBotChoices', 'verifyUnreadWaiting']
+  );
+});
+
+test('vacancy selection has its own budget while retaining all ten scenarios', () => {
+  const groups = registry.filter((name) =>
+    [
+      'vacancies',
+      'vacancy-loading',
+      'vacancy-discovery',
+      'vacancy-selection',
+    ].includes(name)
+  );
+  assert.deepEqual(
+    registeredScenarios(groups).sort(),
+    [
+      'verifyVacancies',
+      'verifyVacancySelection',
+      'verifyDiscoveryBatchHandoff',
+      'verifyFilteredVacancyDiscovery',
+      'verifyMemoryVacancyDiscovery',
+      'verifySalaryLadder',
+      'verifyVacancyMetadataVariants',
+      'verifyVacancySearchUrl',
+      'verifyVacancyLoading',
+      'verifyVacancyModern',
+    ].sort()
+  );
+  assert.deepEqual(groups, [
+    'vacancies',
+    'vacancy-loading',
+    'vacancy-discovery',
+    'vacancy-selection',
+  ]);
+  assert.deepEqual(registeredScenarios(['vacancy-selection']), [
+    'verifyVacancySelection',
+  ]);
+});
+
+test('durable question deferrals retain an independent mandatory native browser scenario', () => {
+  assert.deepEqual(
+    registeredScenarios(
+      registry.filter((name) => name === 'deferred-questions')
+    ),
+    ['verifyDeferredQuestions']
+  );
+});
+
+test('native application scenarios remain registered once in bounded groups', () => {
+  const scenarios = registeredScenarios(
+    registry.filter((name) => name.startsWith('job-application'))
+  );
+  assert.deepEqual(
+    scenarios.sort(),
+    [
+      'verifyNativeApplication',
+      'verifyNativeApplicationGuards',
+      'verifyApplicationPanel',
+      'verifyNativeApplicationRecovery',
+      'verifyNativeApplicationDraft',
+      'verifyNativeApplicationRunModes',
+      'verifyNativeApplicationDeferral',
+      'verifyNativeApplicationResume',
+      'verifyNativeApplicationHolds',
+      'verifyNativeApplicationRetries',
+      'verifyNativeApplicationSupervised',
+      'verifyNativeApplicationPopup',
+      'verifyNativeApplicationAttention',
+      'verifyApplicationAttentionChime',
+      'verifyNativeResumeVisibility',
+      'verifyPopupResumeVisibility',
+      'verifyNativeVacancySkips',
+      'verifyNativeVacancySkipRetries',
+      'verifyNativeVacancySkipPreview',
+      'verifyNativeVacancyUnavailable',
+      'verifyNativeApplicationLanguage',
+      'verifyNativeApplicationLimits',
+      'verifyNativeApplicationLimitWait',
+      'verifyNativeApplicationLimitRestore',
+      'verifyNativeHhCaptcha',
+      'verifyNativeApplicationLimitChallenge',
+      'verifyNativeApplicationPacing',
+      'verifyNativeApplicationPacingGuard',
+      'verifyNativeApplicationLimitRejection',
+      'verifyNativeApplicationConfirmations',
+      'verifyNativeLetterAttachment',
+      'verifyNativeBatchLetterAttachment',
+      'verifyNativeSearchLetterAttachment',
+      'verifyNativeApplicationBatch',
+      'verifyNativeApplicationChats',
+      'verifyNativeApplicationChoiceHold',
+      'verifyChangedRejectionPreview',
+      'verifyUnreadChoiceReviewControl',
+      'verifyNativeApplicationChatSession',
+      'verifyNativeApplicationChatWaiting',
+      'verifyNativeApplicationFeedback',
+      'verifyNativeApplicationCollection',
+      'verifyNativeVacancyPreview',
+      'verifyNativeApplicationSearchRoute',
+      'verifyNativeApplicationDeliveredReturn',
+      'verifyNativeApplicationRecruiterLearning',
+      'verifyNativeApplicationRecruiterDraft',
+      'verifyNativeApplicationRecruiterExact',
+      'verifyNativeApplicationRecruiterReuse',
+      'verifyNativeFirstRecruiterWait',
+      'verifyNativeNextRecruiterWait',
+      'verifyNativeApplicationAnswerApproval',
+      'verifyNativeApplicationAnswerContext',
+      'verifyApplicationSalary',
+      'verifyApplicationSalaryBatch',
+    ].sort()
+  );
+});
+
+test('long application workflows have separate registered budgets without nesting preview refusals', () => {
+  for (const [group, scenarios] of [
+    [
+      'job-application-attention',
+      ['verifyNativeApplicationAttention', 'verifyApplicationAttentionChime'],
+    ],
+    [
+      'job-application-feedback',
+      [
+        'verifyNativeApplicationFeedback',
+        'verifyNativeApplicationRecruiterExact',
+        'verifyNativeApplicationRecruiterReuse',
+      ],
+    ],
+    [
+      'job-application-rejection',
+      [
+        'verifyNativeApplicationLimitRejection',
+        'verifyNativeFirstRecruiterWait',
+      ],
+    ],
+    [
+      'job-application-limit-restore',
+      ['verifyNativeApplicationLimitRestore', 'verifyNativeNextRecruiterWait'],
+    ],
+    [
+      'job-application-collection',
+      ['verifyNativeApplicationCollection', 'verifyNativeVacancyPreview'],
+    ],
+    [
+      'job-application-search-route',
+      [
+        'verifyNativeApplicationSearchRoute',
+        'verifyNativeApplicationDeliveredReturn',
+        'verifyNativeApplicationRecruiterLearning',
+        'verifyNativeApplicationRecruiterDraft',
+      ],
+    ],
+    [
+      'job-application-visibility',
+      [
+        'verifyNativeResumeVisibility',
+        'verifyPopupResumeVisibility',
+        'verifyNativeVacancyUnavailable',
+      ],
+    ],
+    [
+      'job-application-vacancy-skips',
+      ['verifyNativeVacancySkips', 'verifyNativeVacancySkipRetries'],
+    ],
+    [
+      'job-application-vacancy-skip-preview',
+      ['verifyNativeVacancySkipPreview'],
+    ],
+  ]) {
+    assert.ok(registry.includes(group), group);
+    assert.deepEqual(registeredScenarios([group]), scenarios, group);
+  }
+  assert.doesNotMatch(
+    readFileSync(
+      new URL('./helpers/e2e-vacancy-skips.mjs', import.meta.url),
+      'utf8'
+    ),
+    /verifyNativeVacancySkipPreview/u,
+    'Preview refusal coverage has its own mandatory entry and must not run twice'
+  );
+});
+
+test('application salary and answer scenarios have separate mandatory deadlines', () => {
+  assert.ok(!registry.includes('job-application-language'));
+  for (const [group, expected] of [
+    [
+      'job-application-answers',
+      [
+        'verifyNativeApplicationAnswerApproval',
+        'verifyNativeApplicationAnswerContext',
+        'verifyNativeApplicationLanguage',
+      ],
+    ],
+    [
+      'job-application-salary',
+      ['verifyApplicationSalary', 'verifyApplicationSalaryBatch'],
+    ],
+  ]) {
+    assert.ok(registry.includes(group), group);
+    assert.deepEqual(registeredScenarios([group]), expected);
+  }
+});
+
+test('hosted workspaces and Telegram chat controls have mandatory browser checks', () => {
+  for (const check of ['cloud-workspace', 'continuation', 'hide-sender']) {
+    assert.ok(registry.includes(check), check);
+  }
+});
+
+test('every registered browser check resolves to an existing direct Node entry', () => {
+  const root = new URL('../../', import.meta.url);
+  const { scripts } = JSON.parse(readFileSync(new URL('package.json', root)));
+  for (const name of registry) {
+    const command =
+      name === 'browser'
+        ? 'node js/tests/e2e-browser-spa.mjs'
+        : scripts[`test:e2e:${name}`];
+    assert.match(command || '', /^node [\w./-]+\.mjs$/u, name);
+    assert.ok(existsSync(new URL(command.slice(5), root)), name);
+  }
+});
+
+test('both mandatory browser engines retain each registered check once within unchanged budgets', () => {
+  const job = parse(
+    readFileSync(
+      new URL('../../.github/workflows/release.yml', import.meta.url),
+      'utf8'
+    )
+  ).jobs['e2e-browser'];
+  assert.deepEqual(job.strategy.matrix.browser, ['chromium', 'webkit']);
+  assert.deepEqual(job.strategy.matrix.shard, [1, 2, 3, 4, 5, 6, 7, 8]);
+  assert.equal(job.strategy['fail-fast'], false);
+  assert.equal(job['timeout-minutes'], 35);
+  assert.equal(job.env.E2E_SHARD, '${{ matrix.shard }}/8');
+  assert.match(
+    job.steps.find(({ name }) => name === 'Preserve browser diagnostics').with
+      .name,
+    /matrix.shard/u
+  );
+  assert.match(
+    source('run-browser-checks.mjs').toString(),
+    /timeout: 180_000/u
+  );
+  for (const browser of job.strategy.matrix.browser) {
+    assert.ok(
+      job.strategy.matrix.include.some(
+        (entry) => entry.browser === browser && entry.runner
+      )
+    );
+    const assigned = job.strategy.matrix.shard.flatMap((index) =>
+      partitionBrowserChecks(registry, `${index}/8`)
+    );
+    for (const index of job.strategy.matrix.shard) {
+      assert.ok(partitionBrowserChecks(registry, `${index}/8`).length <= 21);
+    }
+    assert.equal(new Set(assigned).size, registry.length);
+    assert.deepEqual(assigned.sort(), [...registry].sort());
+  }
+  assert.deepEqual(partitionBrowserChecks(registry), registry);
+});
+
+test('invalid, duplicate and empty browser partitions refuse instead of omitting checks', () => {
+  for (const shard of [
+    '0/4',
+    '5/4',
+    '1/0',
+    '1/999',
+    ' 1/4',
+    '1/4 ',
+    '1',
+    'NaN/4',
+    '1/9007199254740992',
+  ]) {
+    assert.throws(() => partitionBrowserChecks(registry, shard), /E2E_SHARD/u);
+  }
+  for (const checks of [[], ['same', 'same'], ['bad check'], null]) {
+    assert.throws(() => partitionBrowserChecks(checks), /unique registry/u);
+  }
+});
+
+test('the actual browser runner executes disjoint checks and propagates a failed shard', (t) => {
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'ms-browser-shards-'));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  mkdirSync(path.join(dir, 'js/scripts'), { recursive: true });
+  mkdirSync(path.join(dir, 'js/tests/helpers'), { recursive: true });
+  for (const name of ['run-browser-checks.mjs', 'browser-check-shards.mjs']) {
+    writeFileSync(path.join(dir, 'js/scripts', name), source(name));
+  }
+  writeFileSync(
+    path.join(dir, 'js/tests/helpers/e2e-reduced-effects.mjs'),
+    '// isolated fixture\n'
+  );
+  const names = ['first', 'second', 'third', 'fourth'];
+  writeFileSync(
+    path.join(dir, 'js/scripts/browser-checks.json'),
+    JSON.stringify(names)
+  );
+  writeFileSync(
+    path.join(dir, 'package.json'),
+    JSON.stringify({
+      scripts: Object.fromEntries(
+        names.map((name) => [`test:e2e:${name}`, `node ${name}.mjs`])
+      ),
+    })
+  );
+  for (const name of names) {
+    writeFileSync(
+      path.join(dir, `${name}.mjs`),
+      `console.log('executed:${name}'); if(process.env.MS_BROWSER_SHARD_FAILURE==='${name}') process.exitCode=1;\n`
+    );
+  }
+  const invoke = (index, failure = '') => {
+    const artifact = path.join(dir, `artifacts-${index}-${failure || 'pass'}`);
+    const result = spawnSync('node', ['js/scripts/run-browser-checks.mjs'], {
+      cwd: dir,
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        NODE_OPTIONS: '--max-old-space-size=384',
+        E2E_SHARD: `${index}/4`,
+        E2E_ARTIFACT_DIR: artifact,
+        MS_BROWSER_SHARD_FAILURE: failure,
+      },
+    });
+    return {
+      result,
+      artifact,
+      summary: JSON.parse(readFileSync(path.join(artifact, 'summary.json'))),
+    };
+  };
+  for (const [position, name] of names.entries()) {
+    const { result, artifact, summary } = invoke(position + 1);
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+    assert.deepEqual(summary.checks, [name]);
+    assert.equal(summary.totalChecks, 4);
+    assert.equal(summary.shard, `${position + 1}/4`);
+    assert.deepEqual(summary.failures, []);
+    assert.match(result.stdout, new RegExp(`executed:${name}`, 'u'));
+    assert.equal(
+      names.filter((entry) => existsSync(path.join(artifact, `${entry}.log`)))
+        .length,
+      1
+    );
+  }
+  const { result, summary } = invoke(2, 'second');
+  assert.equal(result.status, 1, result.stdout + result.stderr);
+  assert.deepEqual(summary.failures, ['second']);
+});

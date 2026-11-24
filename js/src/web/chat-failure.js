@@ -57,6 +57,18 @@ export const failureText = (t, message) => {
   });
 };
 
+/** A failed queue item can still have an uncertain provider outcome. */
+export const deliveryLabel = (t, message, status = message.delivery) =>
+  status === 'failed' &&
+  [
+    'send-unknown',
+    'unknown-delivery',
+    'unknown-send',
+    'send-in-doubt',
+  ].includes(message.code)
+    ? failureText(t, message)
+    : t(`chat.delivery.${status}`);
+
 /** A message that will be tried again by itself: why, and when. */
 export const waitingText = (t, message, now = Date.now()) => {
   const seconds = Math.max(

@@ -2,7 +2,7 @@ import { describe, it, expect } from 'test-anywhere';
 import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 
 const fetchJson = async (url, init) => {
   const r = await fetch(url, init);

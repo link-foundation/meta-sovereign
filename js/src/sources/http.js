@@ -178,6 +178,7 @@ export const requestJson = async (
     headers = {},
     search = null,
     body = undefined,
+    expectedStatus,
     timeoutMs,
     write,
     retries,
@@ -225,6 +226,12 @@ export const requestJson = async (
         throw markSendOutcome(
           new Error(`HTTP ${res.status} ${res.statusText}: ${detail}`),
           { status: res.status, ambiguous: isAmbiguousStatus(res.status) }
+        );
+      }
+      if (expectedStatus !== undefined && res.status !== expectedStatus) {
+        throw markSendOutcome(
+          new Error(`HTTP ${res.status}; expected ${expectedStatus}`),
+          { status: res.status, ambiguous: true }
         );
       }
       return parsed;

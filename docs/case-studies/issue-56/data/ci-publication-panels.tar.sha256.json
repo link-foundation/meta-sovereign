@@ -1,0 +1,25 @@
+{
+  "archive": "ci-publication-panels.tar.gz",
+  "files": {
+    "ci-logs/ci-bf15-chromium3-133562826705.log": "f1ecab249544b2d719eb1a827bf357cae0b410ffee2a0b3f2247c4911913d5f0",
+    "ci-logs/publication-panel-before.log": "f8d917ee1239821f769d46db989fb5a80bf8665189a92bb9352e95cccb45549f",
+    "ci-logs/publication-panel-reproduction.log": "e2b54d81ebacc75ab02d86d13953adf8851a206215239b333a7aea5353c452cf",
+    "ci-logs/publication-panel-after.log": "08500627a59c2dfcc054ec79d88579a0e5cedae470dd4f6ade4e19a51d9dca52",
+    "ci-logs/publication-panel-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/publication-panel-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/publication-panel-mcp-scope.json": "249f7e6038c5e1cb3486ffeb67b46bba48af33a413951cdc4816f98fbb70a80c",
+    "ci-logs/publication-panel-mcp-plan.json": "aa7fc453f5d0b3801770768af25139043a1b0c0649da4f06c056980b36586bc2",
+    "ci-logs/publication-panel-mcp-server.log": "d32f3688ecaf2152cdf306f175b57befd76b947e7fb59dcfefee0f4ff30e2cb0",
+    "js/tests/helpers/e2e-cv-publication.mjs": "41c419d57ec37c16ea4c7f8a583e7aa9d153fedf6128c888f575dcaa9fa54795",
+    "before/js/tests/helpers/e2e-cv-publication.mjs": "a03f03a70298431b9159fb2dc9308669165f728c3fc7991a8ec61e41fa943bcc",
+    "js/tests/helpers/e2e-cv-publication-exports.mjs": "93f285510480f0462872358ad0c0aa0fec838097de370bf7f5eaeb7d7af537af",
+    "before/js/tests/helpers/e2e-cv-publication-exports.mjs": "c40e9803d75f0a423987ea01d62ead5300c05fd0c252c4214296603b5b647c01",
+    "experiments/issue-56/publication-panel-before.py": "c123395e75d8e7e2e9e577b8b6dd10d2fdec1e8aa7d74062f71f88059dec408d",
+    "experiments/issue-56/collect-publication-panels.py": "228e5a3b10d168f450e39213ab6cca04318a9568b9994a8826ed7035410a457f",
+    "docs/case-studies/issue-56/ci-publication-panels.md": "a9e99c38a7c3625777a9d9a5abaa80d1b2683d26b6ba456c315d67e182362a48",
+    "docs/screenshots/issue-56-publication-panels/native-review.png": "f2abfbf24d92184a5619b6fc47f2ee446a782209c2711dfca8cf61dd688dfb7b",
+    "docs/screenshots/issue-56-publication-panels/independent-panels.png": "2503f8891ac99a8da2ef32e95bc2ceb8e6ad07545b438842e796a5d4201a6c11",
+    ".playwright-mcp/console-2026-11-16T20-11-24-978Z.log": "9f4548c6ae7013dc3d110694f513c0d7cd685d9820484e8830c0ba00fae7019e",
+    "metadata.json": "f24cdef7e9669dcf84e8033c17f7bfbad5010d559c7f35b496833bfd5d5160df"
+  }
+}

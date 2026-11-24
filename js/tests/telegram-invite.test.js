@@ -99,6 +99,7 @@ test('a link checked: what it leads to, or the chat the user is in', async () =>
 test('joined only when asked; the result goes through the live handler', async () => {
   const result = {
     className: 'Updates',
+    updates: [],
     chats: [{ className: 'Chat', id: 9n }],
   };
   const { invites, log, applied } = make(() => result);
@@ -192,6 +193,7 @@ test('routes validate strictly', async () => {
 test('layer 232 wraps the join result; the updates inside are applied (R-Y220)', async () => {
   const updates = {
     className: 'Updates',
+    updates: [],
     chats: [{ className: 'Chat', id: 9n }],
   };
   const wrapped = make(() => ({
@@ -211,7 +213,8 @@ test('layer 232 wraps the join result; the updates inside are applied (R-Y220)',
     users: [],
   }));
   assert.deepEqual(await web.invites.joinChatInvite({ hash: 'FreshHash123' }), {
-    ok: true,
+    ok: false,
+    code: 'join-web-view-required',
   });
   assert.deepEqual(web.applied, []);
 });

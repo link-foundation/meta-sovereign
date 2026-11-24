@@ -1,0 +1,19 @@
+{
+  "archive": "ci-node-macos.tar.gz",
+  "files": {
+    "3eeb-checks-final.json": "48520bf6ffbfe9c4614d37255f889470bb97b3f455a0de02203764aa4bbf58af",
+    "3eeb-checks-full.log": "702acff67c7a605f0eed90029075f8a02aafeaf6316a69bbb91ceb08cda48d08",
+    "3eeb-node-macos-cancelled.log": "b7d5d4c9bf781d4d34216896015e54cfda1f6644fa43847d02d75056b146c9e9",
+    "3eeb-node-macos-job.json": "0cc923a562b8e118584deb94b9110a64aa7064c07fe59601e43b1ffe036466b3",
+    "3eeb-webkit-success.log": "0f4657b878fb2fdf21f5eb9a719da3af29cb4b501c56adb4ba26c173a9a22306",
+    "46fb-node-macos.log": "62660436eaa307113d2f71a9663db74e561fbef52ce99b55f48702d7c7102ced",
+    "node-macos-shards-before.log": "489875392f8952ef67978983f9c42883b0237d3fcc4acd6aad02d0e748986119",
+    "node-macos-shards-contracts.log": "79e8713845840d38ee17f50eca7248e84e42980992cc8e02ce55df856d1da513",
+    "node-macos-shards-coverage.log": "70be45333c407a939b79c3cb306bc74cd1619c20ce0273ec33e34df65cee25af",
+    "node-macos-shards-focused.log": "7861617edb4ae587545c67df21f93b8bd4127e950cdfb1f3689833dcc9c2d9c4",
+    "node-macos-shards-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "node-macos-shards-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "node-macos-shards-policy.log": "990ebea27086bd363aafcd9754445ba7eab4e4bad2d634c815c8280a6916cb1c",
+    "node-macos-timing.txt": "86cba16132f5433f33e4bb565c22abd1208f67d9c85a59df1cae692a67414447"
+  }
+}

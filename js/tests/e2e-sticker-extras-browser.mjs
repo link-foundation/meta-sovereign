@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for the sticker and emoji extras (R-Y206), as Telegram
 // Desktop offers them: the Stickers tab's Trending list (new sets marked
 // and read, Add, older ones on "Show more") and the emoji tab's trending
@@ -121,7 +122,7 @@ await page.route('**/api/telegram/profile', (route) =>
 );
 const post = (name, handler) =>
   page.route(`**/api/telegram/${name}`, (route) => {
-    const body = route.request().postDataJSON() ?? {};
+    const body = requestBody(route.request()) ?? {};
     fake.asked.push([name, body]);
     return fulfil(route, handler(body));
   });
@@ -215,7 +216,7 @@ await post('sticker-set-box', (body) => ({
 }));
 const reacted = [];
 await page.route('**/api/message/react', (route) => {
-  reacted.push(route.request().postDataJSON());
+  reacted.push(requestBody(route.request()));
   return fulfil(route, { ok: true });
 });
 

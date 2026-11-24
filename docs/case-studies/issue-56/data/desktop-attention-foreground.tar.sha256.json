@@ -1,0 +1,28 @@
+{
+  "archive": "desktop-attention-foreground.tar.gz",
+  "files": {
+    "verified/.changeset/visible-browser-defaults.md": "4a351f3a009b403639050a802a4c64d012fd003fbe968cb4950a6fa9c47e1747",
+    "verified/docs/case-studies/issue-56/PLAN.md": "cc4b8c13b930348cc98f1d20256269393d67ab0f012c72df68dd9854e5f71829",
+    "verified/docs/case-studies/issue-56/desktop-owner-attention.md": "21e608a343036fcfe31156d73263e29fb75b7e3e74ea1595e0027d59548772c6",
+    "verified/docs/case-studies/issue-56/reference-feature-inventory.md": "d746be9251f01245171038fd574ed7d37aede9d9ff539ab256d95316c8ad326a",
+    "verified/experiments/issue-56/desktop-attention-foreground-probe.mjs": "377590a300fccfeb8f607f1fe719fa7e73e145320d83b7b066c6debffd0d4cca",
+    "verified/js/electron/owner-attention.js": "4d4b4cfe640f56761afe59dc4d09bfb8679b3de7625896a68de2aaa070a97fe9",
+    "verified/js/src/automation/attention-foreground.js": "63d73a93e3ec53da5d7dfbce1f5ce298f07a25277c0a69f5c4722ad646ad722b",
+    "verified/js/src/forms/review-attention.js": "884397e926c91395583f08d5292fc4ec8cb678acb2f8a138529508f8d89b7a99",
+    "verified/js/src/jobs/application-attention.js": "75bc1d62d8ded56ec53e0ab015a682586500d604c0e55516143c8d49850a5dfb",
+    "verified/js/src/jobs/login-service.js": "1a72fa325bfb7d156f3be1aa8ebd1a246561753bbd5a644143bf9b2db962e49a",
+    "verified/js/src/server/owner-attention.js": "573d928abc448aa35a4f5c37cfafb1f40235e7671645e7db9fdb3b3679a47921",
+    "verified/js/tests/desktop-owner-attention.test.js": "0e9b9a882c309250df632e7015d5ac60169a910b237f43ae1f7e167967f0acb8",
+    "logs/format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "logs/lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/node.log": "21af1a04240e8ee4fdf007b04157b380ab84e80776b2b8522369846ac3d66774",
+    "logs/deno.log": "d63cf528403386d99fd3825838798671ea2cef50506d52481b5fac575293d4b5",
+    "logs/changesets.log": "3e468743fff27349d4c7394d7d4876b3f7b875610ef0e9535ef2dd5af4404cfb",
+    "logs/secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/native-before.log": "496d3d07823b061fb689f15eaf02027f41d35c44eb6381dcf5c6c0a6049c76e5",
+    "logs/native-after.log": "aab3c75cabdd11db16e8f35787d3f2c896b191fe34ed377988ccc2688f46a5a9",
+    "parent/js/electron/owner-attention.js": "fd9cbe7207b4558701946b9a9cfd96bce8b3d79c946401a53a81cd10052295c8",
+    "metadata.json": "09590a703ca4b95b8e565535ac79d6ecfdc60f80b67f0ef91a93d00c1a2c0c4b"
+  }
+}

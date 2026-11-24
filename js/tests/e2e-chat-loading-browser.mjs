@@ -1,7 +1,9 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Cached chats load automatically without adding panels above the messages.
 import { assertControlSpacing } from './helpers/e2e-controls.mjs';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, openChatApp, fulfil } from './helpers/e2e-chat.mjs';
+import { traceBrowserScenario } from './helpers/e2e-browser-scenarios.mjs';
 
 const store = createMemoryStore();
 const message = (n) => ({
@@ -28,6 +30,7 @@ for (let n = 1; n <= 120; n++) {
 const { page, base, finish } = await openChatApp('chat-loading', {
   store,
   secure: true,
+  traceRequests: process.env.CI_CHAT_LOADING_DEBUG === '1',
 });
 let storiesRequested = 0;
 let profileStoriesRequested = 0;
@@ -59,7 +62,7 @@ const release = () => pendingReads.splice(0).forEach((resume) => resume());
 let requests = 0;
 let stage = 'pending';
 await page.route('**/api/telegram/history', async (route) => {
-  const request = route.request().postDataJSON();
+  const request = requestBody(route.request());
   if (request.chat === '43') {
     return fulfil(route, { written: 0, cached: true, complete: false });
   }
@@ -176,7 +179,9 @@ const optionalStoriesSteps = async () => {
   const count = storiesRequested;
   const profiles = profileStoriesRequested;
   await page.locator('button[data-view="chat"]').click();
-  await page.reload();
+  await traceBrowserScenario('chat-loading', 'stories-disabled-reload', () =>
+    page.reload()
+  );
   await page.locator('.chat-composer').waitFor();
   assert(
     (await page.locator('[data-stories]').count()) === 0,
@@ -310,7 +315,9 @@ await finish(async () => {
     'details column also resizes'
   );
   await details.getByRole('button', { name: 'Close', exact: true }).click();
-  await page.reload();
+  await traceBrowserScenario('chat-loading', 'resized-columns-reload', () =>
+    page.reload()
+  );
   await page.locator('[data-row="msg:telegram:42:50"]').waitFor();
   assert(
     (await page.locator('.permanent-drawer').boundingBox()).width >

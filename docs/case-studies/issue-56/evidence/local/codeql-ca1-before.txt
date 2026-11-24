@@ -1,0 +1,2 @@
+CodeQL reported 1 unresolved findings:
+js/redos at js/tests/server-hardening.test.js:514

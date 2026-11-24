@@ -1,29 +1,33 @@
 //! `meta-sovereign-server` — pure-Rust HTTP + WebSocket + WebRTC
 //! signalling server for meta-sovereign (R-G2).
 //!
-//! Wire-protocol parity with the JS server in `js/src/server/`:
+//! Structured transport shared with the JS server in `js/src/server/`:
 //!
-//! - REST endpoints on `/links`, `/api/*`, `/sources` use the same JSON
-//!   shapes the SPA expects, so `js/src/web/discover.js` will pick this
-//!   server up indistinguishably from the JS one.
-//! - `/ws` is an RFC 6455 WebSocket sync transport using the same
-//!   newline-delimited JSON event protocol as `js/src/sync/ws-transport.js`.
-//! - `/rtc?room=<name>` is the WebRTC signalling broker — fans every
-//!   text frame received in a room to all other members. Matches
-//!   `js/src/sync/webrtc-signaling.js`.
+//! - Existing REST endpoints negotiate readable, single-line, compact or binary
+//!   Links Notation. Legacy JSON requires `ServerOptions::json_compatibility`.
+//! - `/ws` and `/rtc?room=<name>` negotiate versioned text/binary Lino protocols,
+//!   validate bounded frames and encode values for each recipient's format.
+//! - Internal values retain the existing JSON-shaped model; JSON is not the
+//!   default network representation. Endpoint and product parity remain open.
 //!
-//! Zero external dependencies: this crate uses only `std`. WebSocket
-//! framing is hand-rolled, mirroring `js/src/sync/ws-frame.js`.
+//! The official `links-notation` parser and binary codec own wire syntax.
+//! HTTP and WebSocket I/O use `std`; no asynchronous runtime is required.
 
 #![forbid(unsafe_code)]
 
+pub mod change_feed;
+mod checkpoint;
+mod durable;
 pub mod email;
 pub mod handlers;
 pub mod http;
 pub mod json;
+pub mod record_sync;
 pub mod routes;
 pub mod signaling;
 pub mod state;
+pub mod sync_session;
+pub mod wire;
 pub mod ws;
 
 pub use http::{LogFormat, ServerHandle, ServerOptions, serve};

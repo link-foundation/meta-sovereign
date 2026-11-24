@@ -4,10 +4,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
+import { runCli } from '../src/cli/index.js';
 import { createMemoryStore } from '../src/storage/index.js';
 import { DAY_MS } from '../src/crm/reengage.js';
 import { buildMessageLink } from '../src/sources/link.js';
-import { startServer } from '../src/server/index.js';
+import { decodeWire, LINO_TEXT } from '../src/transport/lino.js';
+import { startServer } from './helpers/legacy-server.js';
 
 const daysAgo = (n) => new Date(Date.now() - n * DAY_MS).toISOString();
 let seq = 0;
@@ -21,7 +23,7 @@ const m = (chat, sender, body, ago) =>
     timestamp: daysAgo(ago),
   });
 
-const boot = async () => {
+const boot = async ({ sendDraft } = {}) => {
   const store = createMemoryStore();
   for (const link of [
     m('101', 'me', 'Привет! Как ты?', 125),
@@ -40,6 +42,9 @@ const boot = async () => {
     automations: {
       scheduler: false,
       send: async (draft) => {
+        if (sendDraft) {
+          return sendDraft(draft);
+        }
         if (draft.text === 'fail') {
           throw Object.assign(new Error('captcha'), { code: 'captcha' });
         }
@@ -102,7 +107,17 @@ test('presets are listed, saved, edited and deleted', async () => {
     const gone = await call('DELETE', '/api/automations/reengage-dormant');
     assert.equal(gone.body.deleted, 'automation:reengage-dormant');
     const presets = await call('GET', '/api/automations/presets');
-    assert.equal(presets.body.presets.length, 4);
+    assert.equal(presets.body.presets.length, 12);
+    assert.ok(
+      presets.body.presets.some((a) => a.id === 'automation:gratitude')
+    );
+    const engagement = presets.body.presets.find(
+      (a) => a.id === 'automation:engagement'
+    );
+    assert.equal(engagement.enabled, false);
+    assert.equal(engagement.mode, 'safe');
+    assert.equal(engagement.action.kind, 'reply-engagement');
+    assert.deepEqual(engagement.action.stickerIds, ['59431']);
   } finally {
     await server.close();
   }
@@ -216,11 +231,152 @@ test('the composer sends through /api/send and stores the message', async () => 
   }
 });
 
+test('chat CLI confirms the same draft and rejects a changed draft under its send ID', async () => {
+  const { server, sent } = await boot();
+  try {
+    const argv = [
+      'chat',
+      'send',
+      '--source=vk',
+      '--chat=101',
+      '--client-id=manual-message',
+      `--url=http://127.0.0.1:${server.port}`,
+    ];
+    const run = async (...flags) => {
+      const output = [];
+      const exit = await runCli([...argv, ...flags], {
+        log: (value) => output.push(value),
+      });
+      return { exit, output: output.at(-1) };
+    };
+    const text = '--text=The exact message';
+    assert.equal((await run(text)).exit, 1);
+    assert.equal(sent.length, 0);
+    const first = await run(text, '--confirm');
+    const second = await run(text, '--confirm', '--binary');
+    assert.equal(first.exit, 0);
+    assert.deepEqual(second, first);
+    assert.equal(sent.length, 1);
+    assert.equal(first.output.includes('The exact message'), false);
+    const changed = await run('--text=Different message', '--confirm');
+    assert.equal(changed.exit, 1);
+    assert.equal(
+      decodeWire(changed.output, LINO_TEXT).code,
+      'send-id-conflict'
+    );
+    assert.equal(sent.length, 1);
+  } finally {
+    await server.close();
+  }
+});
+
+test('the composer dispatches only a verified saved HH web conversation', async () => {
+  const attempts = [];
+  const incoming = {
+    id: 'msg:hh:7:101',
+    source: 'hh',
+    chat: '7',
+    sender: 'employer',
+    via: 'browser',
+    body: 'Hello',
+    chatName: 'HeadHunter employer',
+  };
+  const outgoing = {
+    ...incoming,
+    id: 'msg:hh:7:102',
+    body: 'Reply',
+    sender: 'me',
+    chatName: undefined,
+    outgoing: true,
+    delivery: 'delivered',
+  };
+  const { server, store, confirmCall } = await boot({
+    sendDraft: (draft) => {
+      attempts.push(draft.chat);
+      if (draft.text === 'In doubt') {
+        throw Object.assign(new Error('Check the conversation'), {
+          code: 'send-unknown',
+          ambiguous: true,
+        });
+      }
+      return { via: 'browser', link: outgoing };
+    },
+  });
+  try {
+    await store.put(incoming);
+    const draft = {
+      source: 'hh',
+      chat: '7',
+      hhBrowserMessage: incoming.id,
+      text: 'Reply',
+    };
+    for (const body of [
+      { ...draft, chat: '8' },
+      { ...draft, hhBrowserMessage: 'msg:hh:7:999' },
+      { ...draft, hhBrowserMessage: null },
+    ]) {
+      const refused = await confirmCall('/api/send', body);
+      assert.equal(refused.body.code, 'unsupported-target');
+    }
+    assert.equal(attempts.length, 0);
+    const sent = await confirmCall('/api/send', draft);
+    assert.equal(sent.body.link.id, outgoing.id);
+    assert.equal(sent.body.link.chatName, incoming.chatName);
+    assert.equal((await store.get(outgoing.id)).delivery, 'delivered');
+    const uncertain = { ...draft, text: 'In doubt', clientId: 'hh-unknown' };
+    for (let i = 0; i < 2; i++) {
+      const result = await confirmCall('/api/send', uncertain);
+      assert.equal(result.body.code, 'send-unknown');
+    }
+    assert.deepEqual(attempts, ['web:7', 'web:7']);
+  } finally {
+    await server.close();
+  }
+});
+
+test('the composer resolves an opaque HH reply only from the same saved API conversation', async () => {
+  const attempts = [];
+  const { server, store, confirmCall } = await boot({
+    sendDraft: (draft) => {
+      attempts.push(draft);
+      return { via: 'api' };
+    },
+  });
+  try {
+    const id = 'msg:hh:chat:41:parent:1';
+    const parent = {
+      id,
+      source: 'hh',
+      chat: 'chat:41',
+      messageId: 'parent:1',
+      hhChat: { id: '41' },
+      raw: { can_reply: true },
+    };
+    const draft = { source: 'hh', chat: 'chat:41', text: 'Reply', replyTo: id };
+    const missing = await confirmCall('/api/send', draft);
+    assert.equal(missing.body.code, 'bad-reply');
+    await store.put({ ...parent, chat: 'chat:42' });
+    const foreign = await confirmCall('/api/send', draft);
+    assert.equal(foreign.body.code, 'bad-reply');
+    await store.put(parent);
+    assert.equal((await confirmCall('/api/send', draft)).body.status, 'sent');
+    assert.deepEqual(
+      attempts.map(({ replyTo }) => replyTo),
+      ['parent:1']
+    );
+  } finally {
+    await server.close();
+  }
+});
+
 test('a send the network took stays sent when the store write fails', async () => {
-  const { server, store, sent, confirmCall } = await boot();
-  const put = store.put.bind(store);
-  store.put = async (link) => {
+  const { server, sent, confirmCall } = await boot();
+  const put = server.store.put.bind(server.store);
+  let failedWrites = 0;
+  // Inject at the service's storage boundary, above causal admission/history.
+  server.store.put = async (link) => {
     if (link.sender === 'me') {
+      failedWrites++;
       throw Object.assign(new Error('disk full'), {
         code: 'STORE_WRITE_FAILED',
       });
@@ -233,10 +389,12 @@ test('a send the network took stays sent when the store write fails', async () =
     assert.equal(first.status, 200);
     assert.equal(first.body.status, 'sent');
     assert.equal(first.body.stored, false);
+    assert.equal(failedWrites, 1);
     // A retry of the same draft is the first one's answer, not a resend.
     const again = await confirmCall('/api/send', draft);
     assert.equal(again.status, 200);
     assert.equal(sent.length, 1);
+    assert.equal(failedWrites, 1);
   } finally {
     await server.close();
   }

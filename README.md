@@ -32,7 +32,29 @@ Without a server the hosted app runs in **browser-only mode**: contacts, pattern
 
 ## Desktop app
 
-Download the installer for your system from <https://link-foundation.github.io/meta-sovereign/download/>, or from [GitHub releases](https://github.com/link-foundation/meta-sovereign/releases): Linux (AppImage, deb, tar.gz), macOS (dmg, zip) and Windows (installer, portable), each for x64 and arm64. The desktop app bundles the server, so every feature works without starting one yourself. First-launch steps for unsigned builds, checksums and update notes are in [`docs/USER-GUIDE.md` §4](docs/USER-GUIDE.md#4-install-the-desktop-or-mobile-app).
+Download the installer for your system from <https://link-foundation.github.io/meta-sovereign/download/>, or from [GitHub releases](https://github.com/link-foundation/meta-sovereign/releases): Linux (AppImage, deb, tar.gz), macOS (dmg, zip) and Windows (installer, portable), each for x64 and arm64. The desktop app bundles the server, so every feature works without starting one yourself. First-launch steps for builds without an Apple Developer ID, checksums and update notes are in [`docs/USER-GUIDE.md` §4](docs/USER-GUIDE.md#4-install-the-desktop-or-mobile-app).
+
+### First launch on macOS
+
+Before opening an ad-hoc signed build, compare the downloaded `.dmg` or `.zip`
+with `SHA256SUMS.txt` from the same release using **Verify your download** on the
+[download page](https://link-foundation.github.io/meta-sovereign/download/).
+Continue only when the checksum matches. Copy `Meta Sovereign.app` to
+`/Applications` (expand the `.zip` first).
+
+On macOS 15 Sequoia and later, try opening the app and dismiss the unverified
+developer dialog with **Done**. Open **System Settings → Privacy & Security**,
+scroll to **Security**, choose **Open Anyway** for Meta Sovereign, authenticate
+if asked, then confirm **Open**. [Apple's current instructions](https://support.apple.com/en-us/102445)
+describe this per-app exception. An ad-hoc signature does not provide Apple
+notarization.
+
+Alternatively, after verifying that same download, remove quarantine only from
+the installed app, then open it:
+
+```sh
+xattr -dr com.apple.quarantine "/Applications/Meta Sovereign.app"
+```
 
 ## Host a workspace
 
@@ -50,7 +72,7 @@ cd meta-sovereign
 cargo run --manifest-path rust/Cargo.toml -p meta-sovereign-server -- serve
 ```
 
-> **Rust server limits.** It keeps links **in memory only**: nothing is written to disk, so everything is gone when the server stops. It has **no source adapters**: no live fetches from Telegram, VK, GitHub, Upwork or similar, no outbound HTTP or TLS client (email only ingests archives), and no automations, CV sync, browser auto-import, backups or `/api/export-encrypted`. Pick the JS server or the desktop app for real use. The route-by-route list is in [`docs/SERVER-PARITY.md`](docs/SERVER-PARITY.md).
+> **Rust server limits.** The CLI persists links in native text/binary checkpoints by default; `--data` selects the directory and `--memory` explicitly uses volatile state. See [native storage](docs/NATIVE-STORAGE.md) for recovery and format limits. It has **no source adapters**: no live fetches from Telegram, VK, GitHub, Upwork or similar, no outbound HTTP or TLS client (email only ingests archives), and no automations, CV sync, browser auto-import, backups or `/api/export-encrypted`. Pick the JS server or the desktop app for real use. The route-by-route list is in [`docs/SERVER-PARITY.md`](docs/SERVER-PARITY.md).
 
 ### JavaScript server — full feature set (Node/Bun/Deno), from source
 
@@ -104,10 +126,10 @@ The full user-facing flow — install nothing, install Rust server, install JS s
 - **Operator queue and replies**: walk unread messages chat by chat, reply suggestions from your own past answers (Tab takes one), patterns and reply variations, auto-replies on a matching message.
 - **Business and community accounts**: a VK community token runs the Bots Long Poll; Telegram Business quick replies, greeting and away messages, hours and chatbots.
 - **Memory**: structured `question → answer` facts captured from conversations, checked in the chat.
-- **Greetings**: open dialogs on VK, Telegram, WhatsApp, Messenger, X and email with a "hi" or a greeting sticker, the way [konard/vk-bot](https://github.com/konard/vk-bot) does ([`docs/GREETINGS.md`](docs/GREETINGS.md)).
+- **Greetings**: open dialogs on VK, Telegram, WhatsApp, Messenger, X and email with a "hi" or a greeting sticker, the way [konard/vk-bot](https://github.com/konard/vk-bot) does ([`docs/GREETINGS.md`](docs/GREETINGS.md)). Configure [gratitude replies](docs/VK-GRATITUDE.md) and [identity replies with address preference](docs/VK-IDENTITY.md) and [acquaintance replies](docs/VK-ACQUAINTANCE.md) and [contextual replies](docs/VK-CONTEXTUAL-REPLIES.md) in Automations.
 - **CV synchronisation** across LinkedIn, hh.ru, Habr Career, Naukri, VietnamWorks, TopCV and SuperJob through your own browser, field by field ([`docs/CV-SYNC.md`](docs/CV-SYNC.md)).
 - **Your data, safe**: a crash-safe local store ([Doublets](https://github.com/linksplatform/doublets-rs) binary + [Links Notation](https://github.com/link-foundation/links-notation) text), automatic schema migrations ([`docs/DATA-MIGRATIONS.md`](docs/DATA-MIGRATIONS.md)), streamed encrypted backups, full-disk handling, encrypted secrets, a local server that refuses other sites.
-- **Everywhere you are**: the hosted web app, a desktop app with the server inside, mobile shells, WebRTC sync between your own devices, offline writes replayed later; a pure-Rust server variant shares the on-disk format.
+- **Everywhere you are**: the hosted web app, a desktop app with the server inside, mobile shells, WebRTC sync between your own devices, offline writes replayed later; a pure-Rust server variant uses native text/binary checkpoints with a separate database envelope.
 - **Four languages**: the app and every document are in English, Russian, Hindi and Chinese.
 
 Every feature, network by network, with what is supported, partial or not supported and whether it is reachable by API or web app: [`docs/FEATURES.md`](docs/FEATURES.md). Every requirement with its evidence: [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md).

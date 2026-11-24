@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for signing in to Telegram by QR code (R-Y203), as
 // Telegram Desktop offers it: the sign-in form has "Log in by QR code" and
 // "Log in by phone number"; the QR way shows the code as an SVG drawn in the
@@ -51,7 +52,7 @@ await page.route('**/api/telegram/accounts-unread', (route) =>
 const calls = [];
 let statuses = 0;
 await page.route('**/api/auto-import/telegram/login/qr-start', (route) => {
-  calls.push(['qr-start', route.request().postDataJSON()]);
+  calls.push(['qr-start', requestBody(route.request())]);
   return fulfil(route, {
     id: 'tg-login-1-abc',
     url: 'tg://login?token=Zmlyc3RfdG9rZW4',
@@ -60,7 +61,7 @@ await page.route('**/api/auto-import/telegram/login/qr-start', (route) => {
 });
 await page.route('**/api/auto-import/telegram/login/qr-status', (route) => {
   statuses += 1;
-  calls.push(['qr-status', route.request().postDataJSON()]);
+  calls.push(['qr-status', requestBody(route.request())]);
   return statuses === 1
     ? fulfil(route, {
         id: 'tg-login-1-abc',
@@ -74,7 +75,7 @@ await page.route('**/api/auto-import/telegram/login/qr-status', (route) => {
       });
 });
 await page.route('**/api/auto-import/telegram/login/qr-cancel', (route) => {
-  calls.push(['qr-cancel', route.request().postDataJSON()]);
+  calls.push(['qr-cancel', requestBody(route.request())]);
   return fulfil(route, { cancelled: true });
 });
 

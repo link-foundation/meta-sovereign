@@ -18,6 +18,7 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { runnerSourceAsset } from '../src/transport/runner-deployment-receipt.js';
 
 import {
   CHECKSUM_ASSET_NAME,
@@ -39,18 +40,32 @@ export const checksummedNames = (text) =>
  * Validate a set of asset names (and optionally the checksum file).
  * @returns {{version: string, missing: string[], unchecksummed: string[]}}
  */
-export const validateDesktopAssets = ({ tag, names, checksums = null }) => {
+export const validateDesktopAssets = ({
+  tag,
+  names,
+  checksums = null,
+  runnerSource = false,
+}) => {
   const version = releaseVersion(tag);
   if (!version) {
     throw new Error(`cannot read a version from tag ${JSON.stringify(tag)}`);
   }
-  const missing = missingAssets(expectedReleaseAssets(version), names);
+  const source = runnerSource
+    ? [runnerSourceAsset, `${runnerSourceAsset}.lino`]
+    : [];
+  const missing = missingAssets(
+    [...expectedReleaseAssets(version), ...source],
+    names
+  );
   let unchecksummed = [];
   if (checksums !== null) {
     const installers = DOWNLOAD_OPTIONS.map((opt) =>
       assetNameFor(opt, version)
     );
-    unchecksummed = missingAssets(installers, checksummedNames(checksums));
+    unchecksummed = missingAssets(
+      [...installers, ...source],
+      checksummedNames(checksums)
+    );
   }
   return { version, missing, unchecksummed };
 };
@@ -105,6 +120,7 @@ if (isMain()) {
     tag: args.tag,
     names,
     checksums,
+    runnerSource: args['runner-source'] === 'true',
   });
   for (const name of missing) {
     console.log(`::error::missing desktop release asset ${name}`);

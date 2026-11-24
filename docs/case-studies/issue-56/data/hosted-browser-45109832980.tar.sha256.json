@@ -1,0 +1,13 @@
+{
+  "archive": "hosted-browser-45109832980.tar.gz",
+  "files": {
+    "hosted/checks-45109832980.json": "d7721c9b2b7eb75194e1789ad872ad2b5eb4ef1bf9e4ed5ff9548385b21ed19a",
+    "hosted/checks-45109832980.log": "de10931bcd7aba6618c73b2b2f32be5f908bf4c1fcb0af504c5d3bc0ae0304f2",
+    "verification/focused-continuation.log": "35acb84b2d6b9679809729f53f4fff11f03253c034304eeb5255f3ea9ef4c81f",
+    "verification/focused-hide-sender.log": "398d9fc87cca45f5d84365e2eeb2282cd1440f26b000451f89df30089569b984",
+    "verification/focused-question-unread-controls.log": "25d96b55ea73e3dcea3cdb6d0c34d887c60ba4d06d2d2a14960eea8802b46546",
+    "verification/focused-question-unread-notices.log": "c5dc7a8b8c9a3caff2e2e052e1e383c21deec65fbb16411d65c8ba20b01009df",
+    "verification/focused-question-unread-polling.log": "4429ed2cd42346f1c9926db0f04eb7321662b2509c1425a525dd3ade18212922",
+    "verification/focused-question-unread-reply-view.log": "7d87527aaab7a041370d6a2bd98bdd361daf2070e4fc7a600c77c080e52bdc97"
+  }
+}

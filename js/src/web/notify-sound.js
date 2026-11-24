@@ -2,9 +2,8 @@
 // learned, never copied): a chat has the default sound, none, or one of
 // the account's saved ringtones; the page plays the chat's when it shows
 // a notification. A ringtone is downloaded once and kept for the page's
-// life; the default is a short two-note chime made here, so nothing is
-// shipped. A failure to play (a browser that wants a click first) is
-// silent, never an error.
+// life. The default two-note chime is a same-origin asset so it can
+// play under the app's media policy. Playback refusals are silent.
 
 export const SOUND_KEY = 'metaSovereignNotifySound';
 
@@ -14,49 +13,6 @@ export const soundOf = (chat, rules) => {
     return 'default';
   }
   return rules?.exceptions?.get(String(chat.chat))?.sound ?? 'default';
-};
-
-const RATE = 22050;
-
-// A tone as 16-bit samples with a quick fade, for the chime.
-const tone = (hz, seconds) => {
-  const n = Math.round(RATE * seconds);
-  return Array.from({ length: n }, (_, i) => {
-    const fade = Math.min(1, i / 200, (n - i) / (RATE * 0.12));
-    return Math.round(Math.sin((2 * Math.PI * hz * i) / RATE) * 9000 * fade);
-  });
-};
-
-/** The default chime as a WAV `Uint8Array`. */
-export const chimeWav = () => {
-  const samples = [...tone(880, 0.14), ...tone(1175, 0.22)];
-  const bytes = new Uint8Array(44 + samples.length * 2);
-  const view = new DataView(bytes.buffer);
-  const text = (at, value) =>
-    [...value].forEach((ch, i) => view.setUint8(at + i, ch.charCodeAt(0)));
-  text(0, 'RIFF');
-  view.setUint32(4, 36 + samples.length * 2, true);
-  text(8, 'WAVEfmt ');
-  view.setUint32(16, 16, true);
-  view.setUint16(20, 1, true);
-  view.setUint16(22, 1, true);
-  view.setUint32(24, RATE, true);
-  view.setUint32(28, RATE * 2, true);
-  view.setUint16(32, 2, true);
-  view.setUint16(34, 16, true);
-  text(36, 'data');
-  view.setUint32(40, samples.length * 2, true);
-  samples.forEach((v, i) => view.setInt16(44 + i * 2, v, true));
-  return bytes;
-};
-
-let chime = null;
-const chimeUrl = () => {
-  if (!chime) {
-    const blob = new globalThis.Blob([chimeWav()], { type: 'audio/wav' });
-    chime = globalThis.URL.createObjectURL(blob);
-  }
-  return chime;
 };
 
 // ringtone id -> the promise of its address, asked once.
@@ -104,6 +60,5 @@ export const playNotifySound = async (api, sound, player = play) => {
       return String(sound);
     }
   }
-  await player(chimeUrl());
-  return 'default';
+  return (await player('./notification-chime.wav')) ? 'default' : 'none';
 };

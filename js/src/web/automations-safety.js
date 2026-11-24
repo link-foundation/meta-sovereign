@@ -2,9 +2,12 @@
 // automated send and whether it went out, with the unknown ones for the
 // user to settle), quiet hours and the "never message" list.
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useDates, useT } from './i18n.js';
 import { useLoaded } from './chat-state.js';
+import { useAcknowledgedResource } from './connections/use-acknowledged-resource.js';
+import { Busy } from './spinner.js';
+import { DEFAULT_COOLDOWN_DAYS } from '../automation/automations.js';
 
 const el = React.createElement;
 
@@ -95,50 +98,65 @@ const Field = ({ label, children }) =>
 
 const OptOutForm = ({ add }) => {
   const t = useT();
-  const [draft, setDraft] = useState({ source: '', chat: '', note: '' });
+  const empty = { source: '', chat: '', contact: '', note: '' };
+  const [draft, setDraft] = useState(empty);
+  const [kind, setKind] = useState('chat');
   const set = (name) => (event) =>
     setDraft({ ...draft, [name]: event.target.value });
   const submit = async () => {
-    if (draft.source.trim() && draft.chat.trim()) {
-      await add({
+    if (draft.source.trim() && draft[kind].trim()) {
+      const saved = await add({
         source: draft.source.trim(),
-        chat: draft.chat.trim(),
+        [kind]: draft[kind].trim(),
         note: draft.note.trim(),
       });
-      setDraft({ source: '', chat: '', note: '' });
+      if (saved) {
+        setDraft(empty);
+      }
     }
   };
-  return el(
-    'div',
-    { className: 'row optout-form' },
-    [
-      ['source', 'safety.optout.network'],
-      ['chat', 'safety.optout.chat'],
-      ['note', 'safety.optout.note'],
-    ]
-      .map(([name, label]) =>
-        el(Field, { key: name, label: t(label) }, [
-          el('input', {
-            key: 'i',
-            value: draft[name],
-            'data-field': `optout-${name}`,
-            onChange: set(name),
-          }),
-        ])
-      )
-      .concat(
-        el(
-          'button',
-          {
-            key: 'add',
-            type: 'button',
-            'data-action': 'optout-add',
-            onClick: submit,
-          },
-          t('safety.optout.add')
+  return el('div', { className: 'row optout-form' }, [
+    el(Field, { key: 'kind', label: t('safety.optout.kind') }, [
+      el(
+        'select',
+        {
+          key: 'select',
+          value: kind,
+          'data-field': 'optout-kind',
+          onChange: (event) => setKind(event.target.value),
+        },
+        ['chat', 'contact'].map((value) =>
+          el('option', { key: value, value }, t(`safety.optout.${value}Kind`))
         )
-      )
-  );
+      ),
+    ]),
+    ...[
+      ['source', 'safety.optout.network'],
+      [kind, `safety.optout.${kind}`],
+      ['note', 'safety.optout.note'],
+    ].map(([name, label]) =>
+      el(Field, { key: name, label: t(label) }, [
+        el('input', {
+          key: 'i',
+          value: draft[name],
+          'data-field': `optout-${name}`,
+          onChange: set(name),
+          ...(name === 'note' ? { maxLength: 200 } : {}),
+        }),
+      ])
+    ),
+    el(
+      'button',
+      {
+        key: 'add',
+        type: 'button',
+        'data-action': 'optout-add',
+        onClick: submit,
+        disabled: !draft.source.trim() || !draft[kind].trim(),
+      },
+      t('safety.optout.add')
+    ),
+  ]);
 };
 
 const QuietHours = ({ settings, save }) => {
@@ -146,6 +164,11 @@ const QuietHours = ({ settings, save }) => {
   const [form, setForm] = useState(null);
   const shown = form ?? settings.quietHours;
   const zone = form?.timezone ?? settings.timezone ?? '';
+  const cooldown = form?.cooldownDays ?? settings.cooldownDays ?? '';
+  const validCooldown =
+    !form?.cooldownInvalid &&
+    (cooldown === '' ||
+      (Number.isFinite(Number(cooldown)) && Number(cooldown) >= 0));
   const change = (patch) => setForm({ ...shown, timezone: zone, ...patch });
   return el('div', { className: 'col quiet-hours' }, [
     el('h4', { key: 'h' }, t('safety.quiet.title')),
@@ -185,12 +208,42 @@ const QuietHours = ({ settings, save }) => {
         onChange: (event) => change({ timezone: event.target.value }),
       }),
     ]),
+    el(Field, { key: 'cooldown', label: t('safety.cooldown.label') }, [
+      el('input', {
+        key: 'i',
+        type: 'number',
+        min: 0,
+        step: 'any',
+        value: cooldown,
+        'data-field': 'safety-cooldown',
+        'aria-invalid': validCooldown ? undefined : true,
+        'aria-describedby': 'safety-cooldown-hint',
+        onChange: (event) =>
+          change({
+            cooldownDays: event.target.value,
+            cooldownInvalid: !event.target.validity.valid,
+          }),
+      }),
+    ]),
+    el(
+      'p',
+      { key: 'cooldown-hint', id: 'safety-cooldown-hint', className: 'meta' },
+      t('safety.cooldown.hint', { days: DEFAULT_COOLDOWN_DAYS })
+    ),
+    !validCooldown
+      ? el(
+          'p',
+          { key: 'cooldown-error', role: 'alert' },
+          t('safety.cooldown.invalid')
+        )
+      : null,
     el(
       'button',
       {
         key: 's',
         type: 'button',
         'data-action': 'quiet-save',
+        disabled: !validCooldown,
         onClick: () =>
           save({
             quietHours: {
@@ -199,6 +252,7 @@ const QuietHours = ({ settings, save }) => {
               to: shown.to,
             },
             timezone: zone.trim() || null,
+            cooldownDays: cooldown === '' ? null : Number(cooldown),
           }),
       },
       t('safety.quiet.save')
@@ -208,65 +262,128 @@ const QuietHours = ({ settings, save }) => {
 
 const Settings = ({ api }) => {
   const t = useT();
-  const [tick, setTick] = useState(0);
   const [saved, setSaved] = useState(false);
-  const [settings] = useLoaded(() => api.safetySettings(), [api, tick], null);
-  if (!settings) {
-    return null;
-  }
+  const pending = useRef(false);
+  const { data, busy, error, run } = useAcknowledgedResource(async () => ({
+    ok: true,
+    settings: await api.safetySettings(),
+  }));
+  const settings = data?.settings;
   const save = async (patch) => {
-    await api.saveSafetySettings({ ...settings, ...patch });
-    setSaved(true);
-    setTick((n) => n + 1);
+    if (pending.current) {
+      return false;
+    }
+    pending.current = true;
+    setSaved(false);
+    let acknowledged = false;
+    try {
+      await run(async () => {
+        const next = await api.saveSafetySettings({ ...settings, ...patch });
+        acknowledged = true;
+        return { ok: true, settings: next };
+      });
+      setSaved(acknowledged);
+      return acknowledged;
+    } finally {
+      pending.current = false;
+    }
   };
+  if (!settings) {
+    return el(
+      'p',
+      { role: error ? 'alert' : 'status' },
+      t(error ? 'safety.failed' : 'common.loading')
+    );
+  }
   const remove = (entry) =>
     save({ optOut: settings.optOut.filter((e) => e !== entry) });
   return el('section', { className: 'card automation-optout' }, [
     el('h3', { key: 'h' }, t('safety.optout.title')),
     el('p', { key: 'i', className: 'meta' }, t('safety.optout.intro')),
-    settings.optOut.length === 0
-      ? el('p', { key: 'n', className: 'meta' }, t('safety.optout.empty'))
-      : el(
-          'ul',
-          { key: 'l', className: 'optout-list' },
-          settings.optOut.map((entry) =>
-            el(
-              'li',
-              {
-                key: `${entry.source}:${entry.chat ?? entry.contact}`,
-                'data-optout': `${entry.source}:${entry.chat ?? entry.contact}`,
-              },
-              [
-                `${entry.source}:${entry.chat ?? entry.contact} `,
-                entry.note
-                  ? el('span', { key: 'n', className: 'meta' }, entry.note)
-                  : null,
+    el(
+      'fieldset',
+      {
+        key: 'controls',
+        disabled: busy,
+        className: 'col',
+        style: { border: 0, margin: 0, padding: 0, minWidth: 0 },
+      },
+      [
+        settings.optOut.length === 0
+          ? el('p', { key: 'n', className: 'meta' }, t('safety.optout.empty'))
+          : el(
+              'ul',
+              { key: 'l', className: 'optout-list' },
+              settings.optOut.map((entry) =>
                 el(
-                  'button',
+                  'li',
                   {
-                    key: 'x',
-                    type: 'button',
-                    'data-action': 'optout-remove',
-                    onClick: () => remove(entry),
+                    key: JSON.stringify([
+                      entry.source,
+                      entry.chat,
+                      entry.contact,
+                    ]),
+                    'data-optout': `${entry.source}:${entry.chat ?? entry.contact}`,
+                    'data-optout-kind':
+                      entry.chat !== undefined
+                        ? entry.contact !== undefined
+                          ? 'chat-contact'
+                          : 'chat'
+                        : 'contact',
                   },
-                  t('safety.optout.remove')
-                ),
-              ]
-            )
-          )
-        ),
-    el(OptOutForm, {
-      key: 'f',
-      add: (entry) =>
-        save({
-          optOut: [
-            ...settings.optOut,
-            { ...entry, at: new Date().toISOString() },
-          ],
+                  [
+                    ['chat', 'contact']
+                      .filter((kind) => entry[kind] !== undefined)
+                      .map(
+                        (kind) =>
+                          `${t(`safety.optout.${kind}Kind`)} ${entry.source}:${entry[kind]}`
+                      )
+                      .join(' · '),
+                    ' ',
+                    entry.note
+                      ? el('span', { key: 'n', className: 'meta' }, entry.note)
+                      : null,
+                    el(
+                      'button',
+                      {
+                        key: 'x',
+                        type: 'button',
+                        'data-action': 'optout-remove',
+                        onClick: () => remove(entry),
+                      },
+                      t('safety.optout.remove')
+                    ),
+                  ]
+                )
+              )
+            ),
+        el(OptOutForm, {
+          key: 'f',
+          add: (entry) =>
+            save({
+              optOut: [
+                ...settings.optOut,
+                { ...entry, at: new Date().toISOString() },
+              ],
+            }),
         }),
-    }),
-    el(QuietHours, { key: 'q', settings, save }),
-    saved ? el('p', { key: 's', className: 'meta' }, t('safety.saved')) : null,
+        el(QuietHours, { key: 'q', settings, save }),
+      ]
+    ),
+    busy ? el(Busy, { key: 'busy' }, t('common.loading')) : null,
+    error ? el('p', { key: 'error', role: 'alert' }, t('safety.failed')) : null,
+    saved
+      ? el(
+          'p',
+          {
+            key: 's',
+            className: 'meta',
+            role: 'status',
+            'data-safety-saved': true,
+          },
+          t('safety.saved')
+        )
+      : null,
   ]);
 };
 

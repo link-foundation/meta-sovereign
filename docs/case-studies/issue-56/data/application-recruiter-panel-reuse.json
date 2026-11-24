@@ -1,0 +1,37 @@
+{
+  "archive": "application-recruiter-panel-reuse.tar.gz",
+  "files": {
+    "before.log": "6e180e4ebec1d1ae24f0bf8849568f4139b7d8e248a1c47a03213e365dcc620e",
+    "browser-exact-handover.log": "681ff2792518c0f219fd59f54121948609fa5e6774b5ec0d19b6c51794388bdd",
+    "browser.log": "789ab60b4f9384803f3ef27644c64fc0a12886ea594900d5cd4c97f912f5996d",
+    "build.log": "dbb08924881884ea4e10a409ead01d77988a820afaf7f4b771c8dbc140cedb81",
+    "deno.log": "0236a9c08d55a19bb21dc3a6350dca914f367eaaa588c3de5b9c9be5d448ca4a",
+    "eslint.log": "d7cd708997757442d01ae23107652e174e0c3ce70c90cbef7b151287685e6347",
+    "mcp-console.log": "c786a49cc005166a0c0932da4e49da905145713079f8afd07ee00eb6166b39e4",
+    "mcp-server.log": "390296ea2815bc4ad6219660e99a452536e7505f09e386ae7dfcdddaad2925bd",
+    "mcp.json": "283b73b8dba5027832bc721f6b7bee601442f550a5c7e2a8c2664c5a9b251af9",
+    "node-selection.log": "142635cb917a21a72c0efdc58d8b9abe0a615c55ddb3814544f45bb6f98514fa",
+    "node.log": "5701ebda54d1374860bbb0387dc5aff405e4dda2f32be63f1a5f337e386fdba9",
+    "parent-modules/application-attachment.js": "2b66796b0dfdadeb01a3ff0ce3924d7d613c01b28e7eaf725b74e681ded043f8",
+    "parent-modules/application-batch.js": "792595bdf68e33dbcee7c23ae49ac3bc207bf550761d9ef1b83634a5e147138c",
+    "parent-modules/application-options.js": "4666909d50c6efed987ba9944bc97ace516f58409f25766933f67a83d2b467c9",
+    "parent-modules/application-page.js": "0e76bc2353235ee362fd75aa395a30d98c533ea5813c3e0907e61eb521dfe476",
+    "parent-modules/application-recruiter-draft.js": "f33fcb267d03b22a5cf9fe450ca3efe24570f8f6bf85d00e73c5a618da5c731e",
+    "parent-modules/application-recruiter-panel.js": "c895ea561cd75c800975e3342a25113ab65059dcd17e028f40bafc1ba0d64b51",
+    "parent-modules/application-result.js": "73a5280e0dfd54ad00ceb4f9f319f05d5eedb91d354c35429bf83a3324c7f38e",
+    "parent-modules/application-review.js": "730e3dd71fe88093a5ae2be5ce02f3dba11f408c31a5ffb13688cbbfebb715aa",
+    "parent-modules/application-search-route.js": "0ea142be33c92862e59f56d2dce5ec32546e1f7b16be98a3af39d15dba98745b",
+    "parent-modules/application-service.js": "446917497754f297455a35ef08640baaa2db3ee9e89c4e109d79481c47d36eb1",
+    "parent-web.git-blob": "0268a67dcecd911d1de0e9b7efcce42d4f68a24a3b2f3eb228f82c0f55587ebc",
+    "parent.txt": "9524402e08bbb8a78c63e2aff0210d21287e561b9bd338db07f9f516aafe67b6",
+    "secretlint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source.diff": "216637296545770c120693dba2d4fa9899b46a6da0a836cff52fa8181408cb9b"
+  },
+  "screenshots": {
+    "reuse-before.png": "4af15db8bf477ea5b68f636dff499641af33f4d6568be9475ec027f9952cbcdf",
+    "reuse-negative.png": "72de23af13ce2903245f84cb0af5dabdeb33edcbd71272360c7eb5c028181d77",
+    "reuse-owner-choice.png": "1e8fadc02fd3582c098e799f4e190fb23a87d7bdfb5e134b220740505b7a1cbc",
+    "reuse-phone.png": "93093d74377ac9b7a4d824de0b7023dab0b6cf8a647bdb56e7dba262ad0182d6",
+    "reuse-positive.png": "67f95ed6d262dbb7642a5ad3c365a8ad9004e56499d222dd37ea28cfef584a63"
+  }
+}

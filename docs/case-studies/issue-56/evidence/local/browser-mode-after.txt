@@ -1,0 +1,14 @@
+▶ visible browser defaults
+  ✔ starts the shared factory headed and preserves explicit headless mode (2.38049ms)
+  ✔ does not override the default in the CV facade (0.846449ms)
+  ✔ uses headed CLI runs unless --headless is explicitly enabled (5.216639ms)
+  ✔ uses headed API runs and honors an explicit boolean override (6.398694ms)
+✔ visible browser defaults (17.254542ms)
+ℹ tests 4
+ℹ suites 1
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 318.522521

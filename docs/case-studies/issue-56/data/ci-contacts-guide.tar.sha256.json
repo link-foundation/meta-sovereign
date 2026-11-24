@@ -1,0 +1,20 @@
+{
+  "archive": "ci-contacts-guide.tar.gz",
+  "files": {
+    "ci-logs/links-44129087291.log": "e5dde5a906dfebce059a250e989e0bcb71fb15be420357f244695a904ada12a9",
+    "ci-logs/apple-contacts-old.headers": "3216b988222928278a8d0424e54ed852a1149b4e3cd5c56b678f0f3ab4ae520c",
+    "ci-logs/apple-contacts-canonical.headers": "b9d460c6dfa66dfa8876fe6809dd7f35e3b44369b373e8bb4969e62567f26cd4",
+    "ci-logs/apple-contacts-export-current.headers": "23078ebb53f16e9e47173e0112e7ee18df69ef4abaae80854d9f424758b60dc4",
+    "ci-logs/apple-contacts-export-guide.headers": "b1116df0f7bce96c0ea013a82decef3b5e3e31e42b3da74f155ab8cc82b0b8b9",
+    "ci-logs/apple-contacts-current-us.headers": "04ef02a40d0fa8d88f64be7cde6868c9ac615b92a17898ae0147040bd1b25a94",
+    "ci-logs/apple-contacts-export-fresh.headers": "e788a711a3fbac1dab2f5c6a4100256e669618d64730ddf54f21f3bf548e4051",
+    "ci-logs/apple-contacts-export-uk.headers": "188624f0ce66e965e20074d2d8e5d722dad961e338c24e43eef510a73f97f6f3",
+    "ci-logs/apple-contacts-export-mac.headers": "5532caad747c48f79b315da3c5f380fcf2223fcc9658acec6021d731611b0fcb",
+    "ci-logs/telegram-reference-recheck.headers": "3ed988434049048024d9a7e69478ad28e6e2c33c00f7bac34196ef2308046c48",
+    "docs/CONTACTS-IMPORT.md": "fe93fe891388324fe487a19a1d571c7c1c2903114b0ea60ad7fdf27ade360a95",
+    "docs/case-studies/issue-56/ci-contacts-guide.md": "9135f397d8a0888dfbe5df197d2c12e989459b9be92318d51810b513e14655c5",
+    "experiments/issue-56/collect-contacts-guide.py": "0c1f23747361ace7755de667eb2625ab85e601146250c6164b796e82ecdb6b22",
+    "source.diff": "302bab474462d18503e1beb47054b79ed615cc56c803588e7e744d6688516d09",
+    "metadata.json": "ccee791962e7017582936104adfa1b9d12a76c197114dc4b7d40fd22f9569dee"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "archive": "forms-show-ack.tar.gz",
+  "files": {
+    "checks/before.log": "ab6262b1446632d11a5496b9b2b85a0f22c656ac325e2c609625d9b5fe34e2fd",
+    "checks/after.log": "80aeabb11e5fc978b57ba06bb7ac863261936b9039cc53d6ff22d1e755616d44",
+    "checks/build.log": "92c3a13d919d172be287730068ef10bc44bb8581172097da4f68e71522beabb4",
+    "checks/format.log": "75dbb2b0af99247df3ac29e86ec31b5b0dd05032e89fa05e72c8dc7688ac2b63",
+    "checks/lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "checks/secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "checks/mcp.json": "6fd7be7fa703fb81c1bad45e58f5a4d22dcab412a9ca14c61c0845f16d54665f",
+    "checks/mcp-completed.json": "6e8d6d06c1d5608721a124eb41fa0f758f50fb6b2edbb509003d7d9967b8f274",
+    "checks/mcp-server.log": "8535a4c8d85cd3eb2f0096bde8f0a9f4670fcdadaec5e7e7f361fb0de066057c",
+    "checks/mcp-console.log": "aae8d4df787ecd001d12d13e5c91ac5c7b1b3012c130ecf2301db2806b0c912d",
+    "source/PLAN.md": "016b080bf72a5a4251aae636ddc2aad1afc2862fe206428229eed926ad94cac0",
+    "source/docs/case-studies/issue-56/forms-attention.md": "553e561741d7ea276f1a65ddd49f1e18cd6c3a6eb8eef5ffc1bb3f691adf7050",
+    "source/experiments/issue-56/forms-focus-reminder-mcp-server.mjs": "0ffb6049a705a7fca46f033fc6bb5947e3602ae260e11a091c63d87449b53ec3",
+    "source/js/src/web/form-attention.js": "3b1a136747623de4c8c203cdc1379cdd62546c437873b85b67d16f880a4f95d6",
+    "before/js/src/web/form-attention.js": "304c73c4a516d304267173f89a4f7cf30bfd3802046635d2e167a398bb93c415",
+    "source/js/tests/helpers/e2e-form-attention.mjs": "ec4f18fab19c8dda08ffdbe3312e118e59c5535c1d3cc7a958fe9a41568a7104",
+    "before/js/tests/helpers/e2e-form-attention.mjs": "a03a8268bb338c2419e358b81e482d90f2eae845533b33b5c47870ae4ee06eb7",
+    "metadata.json": "d282656d86caf1d6b3bfd8414ac1ee2232f9c8d8fd68947b4ccef699bc15243f"
+  }
+}

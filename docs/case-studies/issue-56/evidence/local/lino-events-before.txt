@@ -1,0 +1,114 @@
+✖ default events use single-line Lino, filter secrets and preserve origin checks (92.655465ms)
+✖ event JSON requires opt-in; Lino browser streams also work with compatibility enabled (23.966822ms)
+✖ account notification streams follow Lino policy and release watchers (2.434791ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 0
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1172.212291
+
+✖ failing tests:
+
+test at js/tests/lino-events.test.js:47:1
+✖ default events use single-line Lino, filter secrets and preserve origin checks (92.655465ms)
+  Error [ParseError]: Syntax error at line 1, column 21: Expected "(", [ \t], [\r\n], or [^ \t\n\r(:)] but ":" found.
+  1 | {"type":"put","link":{"id":"msg:telegram:42:1","chat":"42","body":"你好\nПривет\r\...
+    |                     ^
+      at Parser._parse (file:///tmp/gh-issue-solver-1794216540735/node_modules/links-notation/dist/index.js:2965:15)
+      at Parser.parse (file:///tmp/gh-issue-solver-1794216540735/node_modules/links-notation/dist/index.js:2935:17)
+      ... 4 lines matching cause stack trace ...
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    cause: SyntaxError [Error]: Expected "(", [ \t], [\r\n], or [^ \t\n\r(:)] but ":" found.
+        at peg$buildStructuredError (file:///tmp/gh-issue-solver-1794216540735/node_modules/links-notation/dist/index.js:1261:12)
+        at peg$throw (file:///tmp/gh-issue-solver-1794216540735/node_modules/links-notation/dist/index.js:2904:11)
+        at peg$parse (file:///tmp/gh-issue-solver-1794216540735/node_modules/links-notation/dist/index.js:2920:5)
+        at Parser._parse (file:///tmp/gh-issue-solver-1794216540735/node_modules/links-notation/dist/index.js:2958:25)
+        at Parser.parse (file:///tmp/gh-issue-solver-1794216540735/node_modules/links-notation/dist/index.js:2935:17)
+        at validateWireText (file:///tmp/gh-issue-solver-1794216540735/js/src/transport/lino.js:49:10)
+        at decodeWire (file:///tmp/gh-issue-solver-1794216540735/js/src/transport/lino.js:138:3)
+        at dataOf (file:///tmp/gh-issue-solver-1794216540735/js/tests/lino-events.test.js:42:10)
+        at TestContext.<anonymous> (file:///tmp/gh-issue-solver-1794216540735/js/tests/lino-events.test.js:60:20)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+      expected: [
+        [Object], [Object],
+        [Object], [Object],
+        [Object], [Object],
+        [Object]
+      ],
+      found: ':',
+      location: { source: undefined, start: [Object], end: [Object] }
+    },
+    location: { source: undefined, start: { offset: 20, line: 1, column: 21 }, end: { offset: 21, line: 1, column: 22 } },
+    offset: 20,
+    line: 1,
+    column: 21,
+    found: ':',
+    lineText: '{"type":"put","link":{"id":"msg:telegram:42:1","chat":"42","body":"你好\\nПривет\\r\\n\\"quoted\\""}}',
+    snippet: '1 | {"type":"put","link":{"id":"msg:telegram:42:1","chat":"42","body":"你好\\nПривет\\r\\...\n  |                     ^',
+    maxDepth: null
+  }
+
+test at js/tests/lino-events.test.js:70:1
+✖ event JSON requires opt-in; Lino browser streams also work with compatibility enabled (23.966822ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  200 !== 406
+  
+      at TestContext.<anonymous> (file:///tmp/gh-issue-solver-1794216540735/js/tests/lino-events.test.js:73:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 406,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at js/tests/lino-events.test.js:87:1
+✖ account notification streams follow Lino policy and release watchers (2.434791ms)
+  Error [ParseError]: Syntax error at line 1, column 20: Expected "(", [ \t], [\r\n], or [^ \t\n\r(:)] but ":" found.
+  1 | {"account":2,"chat":"42","body":"通知\nsecond line"}
+    |                    ^
+      at Parser._parse (file:///tmp/gh-issue-solver-1794216540735/node_modules/links-notation/dist/index.js:2965:15)
+      at Parser.parse (file:///tmp/gh-issue-solver-1794216540735/node_modules/links-notation/dist/index.js:2935:17)
+      ... 4 lines matching cause stack trace ...
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19) {
+    cause: SyntaxError [Error]: Expected "(", [ \t], [\r\n], or [^ \t\n\r(:)] but ":" found.
+        at peg$buildStructuredError (file:///tmp/gh-issue-solver-1794216540735/node_modules/links-notation/dist/index.js:1261:12)
+        at peg$throw (file:///tmp/gh-issue-solver-1794216540735/node_modules/links-notation/dist/index.js:2904:11)
+        at peg$parse (file:///tmp/gh-issue-solver-1794216540735/node_modules/links-notation/dist/index.js:2920:5)
+        at Parser._parse (file:///tmp/gh-issue-solver-1794216540735/node_modules/links-notation/dist/index.js:2958:25)
+        at Parser.parse (file:///tmp/gh-issue-solver-1794216540735/node_modules/links-notation/dist/index.js:2935:17)
+        at validateWireText (file:///tmp/gh-issue-solver-1794216540735/js/src/transport/lino.js:49:10)
+        at decodeWire (file:///tmp/gh-issue-solver-1794216540735/js/src/transport/lino.js:138:3)
+        at dataOf (file:///tmp/gh-issue-solver-1794216540735/js/tests/lino-events.test.js:42:10)
+        at TestContext.<anonymous> (file:///tmp/gh-issue-solver-1794216540735/js/tests/lino-events.test.js:110:22)
+        at Test.runInAsyncScope (node:async_hooks:226:14) {
+      expected: [
+        [Object], [Object],
+        [Object], [Object],
+        [Object], [Object],
+        [Object]
+      ],
+      found: ':',
+      location: { source: undefined, start: [Object], end: [Object] }
+    },
+    location: { source: undefined, start: { offset: 19, line: 1, column: 20 }, end: { offset: 20, line: 1, column: 21 } },
+    offset: 19,
+    line: 1,
+    column: 20,
+    found: ':',
+    lineText: '{"account":2,"chat":"42","body":"通知\\nsecond line"}',
+    snippet: '1 | {"account":2,"chat":"42","body":"通知\\nsecond line"}\n  |                    ^',
+    maxDepth: null
+  }

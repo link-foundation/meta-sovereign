@@ -5,7 +5,7 @@
 import { describe, it, expect } from 'test-anywhere';
 
 import { createMemoryStore } from '../src/storage/index.js';
-import { startServer, CSP } from '../src/server/index.js';
+import { startServer, CSP } from './helpers/legacy-server.js';
 import { createVkInbox } from '../src/sources/vk-sync.js';
 import { createVkLive } from '../src/sources/vk.js';
 import {

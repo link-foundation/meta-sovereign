@@ -9,7 +9,8 @@
  *      a rerun, a restart): never send twice;
  *   3. write `outbox:<key>` as `{ status: 'sending' }` BEFORE the send; if
  *      that write fails nothing is sent;
- *   4. send with the key as the draft's `clientId` (Telegram turns it into
+ *   4. recheck acknowledged consent, then send with the key as `clientId`
+ *      (Telegram turns it into
  *      the message's `random_id`, so even a lost answer cannot duplicate);
  *   5. write `sent`; a failing store write after a successful send is only
  *      logged and never becomes `failed` (the record stays `sending`, which
@@ -21,8 +22,12 @@
  * it and the user decides (`resolveOutbox`: it arrived, or it did not).
  */
 
+import { browserAnswerReceipt } from './question-browser-state.js';
 import { safeMessage } from '../server/redact.js';
 import { loadSettings, optOutEntry } from './safety.js';
+import { requireSendConsent } from './send-consent.js';
+import { vkSequenceReceipt } from './vk-sequence-receipt.js';
+import { createStoreQueue } from '../storage/serialized.js';
 
 export const OUTBOX_PREFIX = 'outbox:';
 export const DAY_MS = 24 * 60 * 60 * 1000;
@@ -130,6 +135,7 @@ export const batchStopReason = (
 };
 
 const inflightOf = new WeakMap();
+const serializeAdmission = createStoreQueue();
 const inflight = (store) => {
   if (!inflightOf.has(store)) {
     inflightOf.set(store, new Set());
@@ -189,7 +195,16 @@ const newRecord = ({ id, key, kind, owner, draft, at }) => ({
   source: draft.source,
   chat: draft.chat === undefined ? null : String(draft.chat),
   contact: draft.contact ?? null,
-  text: String(draft.text ?? '').slice(0, 2000),
+  text: String(draft.text ?? '').slice(
+    0,
+    draft.answer?.textReply ? 12000 : 2000
+  ),
+  ...(draft.answer?.textReply ? { answerType: 'text' } : {}),
+  ...(draft.sticker ? { sticker: { id: draft.sticker.id } } : {}),
+  ...(draft.sequence && draft.attachments
+    ? { attachments: draft.attachments }
+    : {}),
+  ...(draft.sequence ? { sequence: draft.sequence } : {}),
   status: 'sending',
   createdAt: at,
   at,
@@ -208,6 +223,9 @@ export const guardedSend = async ({
   draft,
   send,
   settings = null,
+  // Automatic owners supply their current cap and shared ledger prefix.
+  // Explicit per-message owner sends retain their existing confirmation policy.
+  quota = null,
   // The user pressed Send on this very message. Anything else is an
   // automated send and carries `automated: true` to the sender, which
   // refuses WhatsApp Web for it (R-Z9).
@@ -226,18 +244,33 @@ export const guardedSend = async ({
     });
   const id = outboxId(useKey);
   const running = inflight(store);
-  const stop = refusal(
-    await store.get(id),
-    id,
-    running,
-    settings ?? (await loadSettings(store)),
-    draft
-  );
-  if (stop) {
-    return stop;
-  }
-  running.add(id);
-  try {
+  const admission = await serializeAdmission(store, async () => {
+    const stop = refusal(
+      await store.get(id),
+      id,
+      running,
+      settings ?? (await loadSettings(store)),
+      draft
+    );
+    if (stop) {
+      return { stop };
+    }
+    if (quota) {
+      const links = await store.query(
+        (link) =>
+          (link?.id?.startsWith(OUTBOX_PREFIX) &&
+            link.owner === String(owner)) ||
+          (quota.runPrefix && link?.id?.startsWith(quota.runPrefix))
+      );
+      if (
+        recentSends(links, String(owner), clock().getTime(), quota.runPrefix)
+          .length >= Number(quota.dailyCap ?? Infinity)
+      ) {
+        return {
+          stop: refused('daily-cap', 'The automatic daily limit is reached'),
+        };
+      }
+    }
     const record = newRecord({
       id,
       key: useKey,
@@ -246,14 +279,25 @@ export const guardedSend = async ({
       draft,
       at: clock().toISOString(),
     });
+    running.add(id);
     try {
       await store.put(record);
+      await store.flush?.();
     } catch (error) {
-      return refused('outbox-unavailable', `not sent: ${error.message}`);
+      running.delete(id);
+      return {
+        stop: refused('outbox-unavailable', `not sent: ${error.message}`),
+      };
     }
+    return { record };
+  });
+  if (admission.stop) {
+    return admission.stop;
+  }
+  try {
     return await deliverOnce({
       store,
-      record,
+      record: admission.record,
       draft: { ...draft, automated: !userConfirmed },
       send,
       clock,
@@ -264,7 +308,36 @@ export const guardedSend = async ({
   }
 };
 
+// Admission may wait for disk while the owner saves a new opt-out. A supplied
+// planning snapshot cannot replace this fresh acknowledged record.
+const currentConsent = async (store, draft) => {
+  try {
+    await requireSendConsent(store, draft);
+    return null;
+  } catch (error) {
+    return refused(error.code, safeMessage(error));
+  }
+};
+
 const deliverOnce = async ({ store, record, draft, send, clock, log }) => {
+  const stop = await currentConsent(store, draft);
+  if (stop) {
+    // No sender was invoked. Retain a definite refusal, not an invented send
+    // or an uncertain delivery. Failed settlement still leaves the old reserve.
+    const outbox = await settle(
+      store,
+      record,
+      {
+        status: 'failed',
+        code: stop.code,
+        error: stop.error,
+        at: clock().toISOString(),
+      },
+      log
+    );
+    log({ event: 'outbox_consent_refused', id: record.id, code: stop.code });
+    return { ...stop, outbox };
+  }
   let result;
   try {
     result = await send({ clientId: record.key, ...draft });
@@ -290,7 +363,21 @@ const deliverOnce = async ({ store, record, draft, send, clock, log }) => {
       ...(error.retryAfter ? { retryAfter: error.retryAfter } : {}),
     };
   }
-  // The message is out: whatever the store does now, it stays "sent".
+  const receipt = browserAnswerReceipt(result, draft);
+  const vkReceipt = vkSequenceReceipt(result, draft);
+  if (draft.sequence && draft.source === 'vk' && !vkReceipt) {
+    const error =
+      'VK did not acknowledge a positive message ID; check the chat manually';
+    const code = 'sequence-receipt-missing';
+    const outbox = await settle(
+      store,
+      record,
+      { status: 'unknown', at: clock().toISOString(), error, code },
+      log
+    );
+    return { status: 'unknown', outbox, error, code };
+  }
+  // The acknowledged message is out: a later store failure cannot unsend it.
   const outbox = await settle(
     store,
     record,
@@ -298,6 +385,8 @@ const deliverOnce = async ({ store, record, draft, send, clock, log }) => {
       status: 'sent',
       at: clock().toISOString(),
       ...(result?.via ? { via: result.via } : {}),
+      ...(receipt ? { receipt } : {}),
+      ...(vkReceipt ? { vkReceipt } : {}),
     },
     log
   );

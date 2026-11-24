@@ -303,7 +303,11 @@ const assertClickable = async (page, label, selector) => {
     }, selector);
   // The card may still be settling (it checks again after layout).
   let hit = await read();
-  for (let i = 0; i < 12 && hit.onCard; i += 1) {
+  for (
+    let i = 0;
+    i < 12 && (!hit.found || hit.onCard || hit.offScreen);
+    i += 1
+  ) {
     await page.waitForTimeout(250);
     hit = await read();
   }
@@ -366,6 +370,19 @@ const assertPlacement = async (page, label, { focus = true } = {}) => {
       g.target.height > room
         ? { ...seen, height: Math.min(seen.height, 40) }
         : seen;
+    if (overlaps(card, probe)) {
+      await screenshot(page, `${label}-${g.step}-overlap`);
+      if (process.env.CI_TUTORIAL_DEBUG === '1') {
+        console.log(
+          '[tutorial-overlap]',
+          await page.locator('.tutorial-step').evaluate((node) => ({
+            size: [node.offsetWidth, node.offsetHeight],
+            style: node.getAttribute('style'),
+            compact: node.dataset.compact,
+          }))
+        );
+      }
+    }
     check(
       !overlaps(card, probe),
       `${where}: card ${JSON.stringify(card)} covers target ${JSON.stringify(g.target)}`

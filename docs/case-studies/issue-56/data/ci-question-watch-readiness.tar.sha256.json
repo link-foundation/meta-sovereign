@@ -1,0 +1,33 @@
+{
+  "archive": "ci-question-watch-readiness.tar.gz",
+  "files": {
+    ".github/workflows/release.yml": "22d032e37660fc42d5106e697dd2273d6fa311b1ceff8e3c14cf6d4d0eba22e8",
+    "before/.github/workflows/release.yml": "5e753f52e8c90654dbb89ff6b44337a8681b055166a920f566df4778f7220971",
+    "before/js/src/server/rolling-control.js": "a16aef3c43e4679f2a51b770a45ae915fa07215e2efdc8db4a45af8fe5533eaf",
+    "before/js/tests/rolling-cli.test.js": "0e236e7fe22927ee75eed04f7dddde39a86c35fb0e9959fc4535743a7ca8bbc9",
+    "ci-logs/ci-question-watch-readiness-before.log": "d1c37bfdb21e6b6e6acab8b274386232208857a702a36ba78adc77dbc273b919",
+    "ci-logs/ci-question-watch-readiness-deno.log": "8a63fcd6c20773dad48b6c90114d680b23a3fac7657ab1a8fbdc3f6955695a8c",
+    "ci-logs/ci-question-watch-readiness-doc-format.log": "fdcd3cf9cf4758d5692eb6bdd09dc5b1471bd9dcfbd2bd82ce41c6fdb6cfbcb1",
+    "ci-logs/ci-question-watch-readiness-duplication.log": "eb82fe305909719fb0f09c3253bb8064aa5a14e01d0f83ca788f0238481e1f3a",
+    "ci-logs/ci-question-watch-readiness-final-node.log": "e5be6180f8be96db51fe72f50b5e8d82448b1a32dda20f573d06c7bf9d9886e8",
+    "ci-logs/ci-question-watch-readiness-format.log": "87e3328fb9d00160336aac62939693a590984f954dc33145626240a0ea3b40eb",
+    "ci-logs/ci-question-watch-readiness-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-question-watch-readiness-node.log": "545e1943083599fb2aa8db139e8e2257e39ba86729943edc232300acb561a85f",
+    "ci-logs/ci-question-watch-readiness-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/question-watch-bun-windows-130475302851.log": "c2b6b3a97f8010f212d4dd88cb9c1e982c9657ee8b74239f75ee0f0b6e91c7b6",
+    "ci-logs/question-watch-final-parent-runs.json": "0357aadb7293720b09cb2652c7529a509a95b7c6454ede3ba38a656e2e384002",
+    "ci-logs/question-watch-parent-final-jobs.json": "0f6cfa7e95835d4498f45506cf346323b0fecbdaf9bbcd0d675009d60a57c28a",
+    "ci-logs/question-watch-parent-final-status.json": "202c9a63a5fd6a521e8a3d08f8719469e1e2ccb1fda5bef6fe33aed698d4074c",
+    "docs/case-studies/issue-56/ci-question-watch-readiness.md": "4987b0704d27e09f61df6b6113a5e4551bb36996f01406e836d64115d7146d4f",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-rolling-readiness.py": "2765ed0a002dd710aefee19afdae1a758cffbd29b415ea9d3b469bf8272209bf",
+    "experiments/issue-56/evidence_bundle.py": "fc7184f4046fbcb917bf011abd0220b7aff51509fa4a12b64c9a4dab4929b719",
+    "experiments/issue-56/rolling-readiness-before.py": "85462bbbe3a4a35900fdc6d254f8b7e7323b022e424f197ba09cd7e6df7c9236",
+    "js/src/server/rolling-control.js": "5b3db6ad02e60aa3f6e4c1436415d76a0bace849362e5479c08a795beb5f4d1d",
+    "js/tests/helpers/rolling-cli-readiness.mjs": "9b1e4d6abedd1e5aec301d950ddb8ecefd74fb62f2f6395c1edb7bd62af0f853",
+    "js/tests/rolling-cli-readiness.test.js": "454a2c5995ca47acac72db9468fef89ce57919801d4fd1014df7ec994da65745",
+    "js/tests/rolling-cli.test.js": "20ccfad5dc30da6f6c86b66f0e295793eab955061adcd4a3ebcb203ba76aef5f",
+    "js/tests/rolling-control.test.js": "9f2eceaadcbecf971cb01c017b2a48f6a93269c6e8ae1482978ffb7c4947c720",
+    "metadata.json": "eab91ca4db92c93ba9489500d5075684d1eabbcf2edfbe0133f80e9e59a30e6e"
+  }
+}

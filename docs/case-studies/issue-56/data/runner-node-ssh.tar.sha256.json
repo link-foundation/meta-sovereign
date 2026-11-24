@@ -1,0 +1,15 @@
+{
+  "archive": "runner-node-ssh.tar.gz",
+  "files": {
+    "ci-logs/runner-node-native-ssh-verified.log": "95fd4334d75af782d3fe710b2ec9d681f05b1a70e854fd86f9390f839e7104c6",
+    "ci-logs/runner-node-native-ssh-final.log": "8647b500d0a928b36d53441bf5e3a71d65a60bd63fe9d3fa6f2cdcea2cc434c8",
+    "ci-logs/runner-node-native-ssh-trace.log": "888ba6df61ff064d1d1a0e15bf0c48da43eedbf2de2c116d6d4d3c5098f6395c",
+    "ci-logs/runner-node-native-local-retest.log": "09e50d6be9b9e98d6ce373612c307b2d190262227fdcb60f35c319b0552e1a36",
+    "ci-logs/desktop-configuration-2810a508-audit.log": "99e8664c879b38ae44ff628d199c75967346c8294cf70e5a4eb860a1e479a0e1",
+    "ci-logs/desktop-config-incremental-refusals.log": "2e419dcd678284042a84ac2d32e1dcf45b0f3d308e3cca44227150f38436b255",
+    "experiments/issue-56/runner-node-local.mjs": "477397e5eaf9bdd9e34f69e72242c83d2c0413bce658dcc1ce56d6f488547b76",
+    "experiments/issue-56/runner-node-loopback-ssh.py": "7b1d3a2a4042594c61418df5e31a0d686a26b0b13dd342b31bf05f9fddabd95e",
+    "experiments/issue-56/runner-docker-hosted.sh": "821b438c603f3ef846307fa11786c9f2aa749c093692c01b7c132b3b0b56d217",
+    "metadata.json": "3bff2dabd711aafbcf6099929ab78b4a53e4c4ef78b6c1d58cf5ffcfd6341996"
+  }
+}

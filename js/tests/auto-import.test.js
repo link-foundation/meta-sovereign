@@ -25,10 +25,13 @@ import {
   readZipEntries,
   scrapedRowsToLinks,
 } from '../src/sources/auto-import/index.js';
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 import { isTrustedMutation } from '../src/server/routes-auto-import.js';
 import { ProviderAutoImport } from '../src/web/connections/index.js';
 import { providerCatalogue } from '../src/web/connection-guides.js';
+import { runCli } from '../src/cli/index.js';
+import { decodeWire } from '../src/transport/lino.js';
+import { startServer as startLinoServer } from '../src/server/index.js';
 
 // --- fixtures ---------------------------------------------------------
 
@@ -365,6 +368,127 @@ test('manager marks the job done when the user closes the window', async () => {
   await waitFor(() => manager.get(job.id).state === 'done');
 });
 
+test('an imported HeadHunter read stays in its slot and drains before Stop', async (t) => {
+  const calls = [];
+  const dataDir = await tmpDir();
+  const entered = Promise.withResolvers();
+  const held = Promise.withResolvers();
+  const manager = createAutoImportManager({
+    store: createMemoryStore(),
+    dataDir,
+    launcher: fakeLauncher(calls),
+  });
+  t.after(async () => {
+    held.resolve();
+    await manager.close();
+    await fs.rm(dataDir, { recursive: true, force: true });
+  });
+  const job = manager.start('hh', { slot: 'recruiting' });
+  await waitFor(() => manager.get(job.id).state === 'waiting');
+  const read = () =>
+    manager.withOpenHhImport('recruiting', async (session) => {
+      assert.equal(session, calls.sessions[0]);
+      entered.resolve();
+      await held.promise;
+      return 'confirmed';
+    });
+  assert.equal(await manager.withOpenHhImport('main', assert.fail), undefined);
+  const active = read();
+  await entered.promise;
+  await assert.rejects(read(), { code: 'hh-import-busy', read: false });
+  await assert.rejects(manager.capture(job.id), /already importing/u);
+  const stopped = manager.stop(job.id);
+  await assert.rejects(read(), { code: 'hh-import-busy', read: false });
+  assert.equal(calls.sessions[0].closed, undefined);
+  assert.equal(manager.start('hh', { slot: 'recruiting' }).id, job.id);
+  held.resolve();
+  assert.equal(await active, 'confirmed');
+  assert.equal((await stopped).state, 'done');
+  assert.equal(calls.sessions[0].closed, true);
+  assert.equal(await read(), undefined);
+});
+
+test('HeadHunter capture archives and deduplicates an owned native conversation', async (t) => {
+  const store = createMemoryStore();
+  const dataDir = await tmpDir();
+  let url = 'https://hh.ru/chat';
+  let beforeRead = async () => {};
+  let release = () => {};
+  const row = { id: '101', body: 'Interview tomorrow?', outgoing: false };
+  const read = {
+    chatName: 'Example employer',
+    unreadCount: 2,
+    latestMessageId: '101',
+  };
+  const frame = {
+    url: () => url,
+    evaluate: async () => ({ key: 'tab', rows: 1 }),
+  };
+  const manager = createAutoImportManager({
+    store,
+    dataDir,
+    launcher: async ({ url: opened }) => {
+      assert.equal(opened, 'https://hh.ru/chat');
+      return {
+        page: { url: frame.url, mainFrame: () => frame, frames: () => [frame] },
+        commander: {
+          evaluate: async ({ args: [input] }) => {
+            if (input.operation === 'history') {
+              await beforeRead();
+              return { chat: '7', messages: [row] };
+            }
+            assert.equal(input.scroll, false);
+            return read;
+          },
+        },
+        close: async () => release(),
+      };
+    },
+  });
+  t.after(async () => {
+    await manager.close();
+    await fs.rm(dataDir, { recursive: true, force: true });
+  });
+  const job = manager.start('hh');
+  assert.equal(job.canCapture, true);
+  await waitFor(() => manager.get(job.id).state === 'waiting');
+  await assert.rejects(manager.capture(job.id), { status: 409 });
+  assert.equal((await store.query()).length, 0);
+  url = 'https://hh.ru/chat/7';
+  const captured = await manager.capture(job.id);
+  assert.equal(captured.state, 'waiting');
+  assert.equal(captured.imported, 1);
+  assert.equal((await manager.capture(job.id)).imported, 1);
+  const message = await store.get('msg:hh:web:7:101');
+  assert.equal(message.body, row.body);
+  assert.equal(message.chatName, read.chatName);
+  assert.equal(message.timestamp, null);
+  assert.equal((await store.get('read:hh:web:7')).unreadCount, 2);
+  url = 'https://foreign.example/chat/7';
+  await assert.rejects(manager.capture(job.id), { status: 409 });
+  assert.equal(manager.get(job.id).imported, 1);
+
+  url = 'https://hh.ru/chat/7';
+  row.id = '105';
+  const entered = Promise.withResolvers();
+  const pending = Promise.withResolvers();
+  release = pending.resolve;
+  beforeRead = () => {
+    entered.resolve();
+    return pending.promise;
+  };
+  const interrupted = assert.rejects(manager.capture(job.id), {
+    name: 'AbortError',
+  });
+  await entered.promise;
+  await assert.rejects(manager.capture(job.id), /already importing/);
+  const stopped = await manager.stop(job.id);
+  await interrupted;
+  assert.equal(stopped.state, 'done');
+  assert.equal(stopped.imported, 1);
+  assert.equal(await store.get('msg:hh:web:7:105'), null);
+});
+
 test('manager reports launch failures and unknown providers', async () => {
   const manager = createAutoImportManager({
     store: createMemoryStore(),
@@ -458,7 +582,7 @@ test('server exposes auto-import status, jobs and guards mutations', async () =>
       headers: { 'content-type': 'text/plain' },
       body: '{"provider":"whatsapp"}',
     });
-    assert.equal(plain.status, 403);
+    assert.equal(plain.status, 415);
     assert.equal(calls.length, 0, 'no browser launched by rejected calls');
 
     const unknown = await post('/api/auto-import', { provider: 'myspace' });
@@ -477,6 +601,11 @@ test('server exposes auto-import status, jobs and guards mutations', async () =>
     assert.equal(captured.imported, 1);
     const links = await (await fetch(`${base}/links`)).json();
     assert.ok(links.some((l) => l.id === 'msg:whatsapp:web-Ann-1'));
+    const invalid = await post(`/api/auto-import/jobs/${job.id}/capture`, {
+      history: 'true',
+    });
+    assert.equal(invalid.status, 400);
+    assert.equal((await invalid.json()).code, 'auto-import-history-invalid');
 
     const done = await (
       await post(`/api/auto-import/jobs/${job.id}/stop`, {})
@@ -487,6 +616,211 @@ test('server exposes auto-import status, jobs and guards mutations', async () =>
   } finally {
     await handle.close();
   }
+});
+
+test('CLI manages the running server’s import job using text and binary Lino', async (t) => {
+  const calls = [];
+  const dataDir = await tmpDir();
+  const handle = await startLinoServer({
+    port: 0,
+    tls: false,
+    storeDir: dataDir,
+    store: createMemoryStore(),
+    enableSync: false,
+    autoImportLauncher: fakeLauncher(calls, [
+      { id: '44', chat: 'Ann', sender: 'Ann', body: 'hello' },
+    ]),
+  });
+  t.after(async () => {
+    await handle.close();
+    await fs.rm(dataDir, { recursive: true, force: true });
+  });
+  const base = `http://127.0.0.1:${handle.port}`;
+  const command = async (...args) => {
+    let output;
+    const code = await runCli(['auto-import', ...args, `--url=${base}`], {
+      log: (text) => {
+        output = text;
+      },
+    });
+    return { code, result: decodeWire(output) };
+  };
+  assert.equal((await command('status')).result.providers.hh.canCapture, true);
+  const { code, result: job } = await command(
+    'start',
+    '--source=whatsapp',
+    '--slot=capture',
+    '--binary'
+  );
+  assert.equal(code, 0);
+  assert.equal(job.slot, 'capture');
+  const id = `--id=${job.id}`;
+  await waitFor(
+    async () =>
+      (await command('status', id, '--binary')).result.state === 'waiting'
+  );
+  const history = await command('capture', id, '--history', '--binary');
+  assert.equal(
+    history.code,
+    1,
+    'unsupported history never runs a page capture'
+  );
+  assert.equal(history.result.code, 'auto-import-history-unavailable');
+  assert.equal((await command('status', id)).result.imported, 0);
+  assert.equal((await command('capture', id)).result.imported, 1);
+  assert.equal((await command('stop', id, '--binary')).result.state, 'done');
+  assert.equal((await command('capture', id)).code, 1);
+  assert.equal(calls.length, 1);
+});
+
+test('HeadHunter history reports durable windows through both Lino encodings and drains before closing', async (t) => {
+  const store = createMemoryStore();
+  const dataDir = await tmpDir();
+  const url = () => 'https://hh.ru/chat/7';
+  let startMarker = true;
+  let failAfterMove = false;
+  let moved = false;
+  let closed = false;
+  let released = false;
+  let duringRead = async () => {};
+  const frame = {
+    url,
+    evaluate: async (_fn, input) => {
+      if (input?.operation === 'release') {
+        assert.equal(closed, false);
+        released = true;
+        return { restored: input.restore };
+      }
+      return { key: 'tab', rows: 1 };
+    },
+  };
+  const handle = await startLinoServer({
+    port: 0,
+    tls: false,
+    storeDir: dataDir,
+    store,
+    enableSync: false,
+    autoImportLauncher: async () => ({
+      page: { url, mainFrame: () => frame, frames: () => [frame] },
+      commander: {
+        async evaluate({ args: [input] }) {
+          if (input.operation === 'history') {
+            await duringRead();
+            return failAfterMove && moved
+              ? { code: 'answer-chat-unverified' }
+              : {
+                  chat: '7',
+                  messages: [
+                    {
+                      id: '44',
+                      body: 'Provider row',
+                      outgoing: false,
+                      service: startMarker,
+                    },
+                  ],
+                };
+          }
+          if (input.scroll === false) {
+            return null;
+          }
+          assert.equal(
+            closed,
+            false,
+            'scroll ownership is released before the window closes'
+          );
+          if (input.operation === 'open') {
+            moved = false;
+            released = false;
+          } else if (input.operation === 'move') {
+            moved = true;
+          }
+          return {
+            state: 'ready',
+            oldest: true,
+            loading: false,
+            top: 0,
+            view: 240,
+          };
+        },
+      },
+      close: async () => {
+        assert.equal(released, true);
+        closed = true;
+      },
+    }),
+  });
+  t.after(async () => {
+    await handle.close();
+    await fs.rm(dataDir, { recursive: true, force: true });
+  });
+  const command = async (...args) => {
+    let output;
+    const code = await runCli(
+      ['auto-import', ...args, `--url=http://127.0.0.1:${handle.port}`],
+      {
+        log: (text) => {
+          output = text;
+        },
+      }
+    );
+    return { code, result: decodeWire(output) };
+  };
+  const job = (await command('start', '--source=hh')).result;
+  const id = `--id=${job.id}`;
+  await waitFor(
+    async () => (await command('status', id)).result.state === 'waiting'
+  );
+  const complete = await command('capture', id, '--history', '--binary');
+  assert.equal(complete.code, 0);
+  assert.deepEqual(complete.result.historyCapture.coverage, {
+    complete: true,
+    scope: 'conversation',
+    reason: 'provider-start',
+    passes: 1,
+  });
+  assert.equal(complete.result.historyCapture.saved, 1);
+  assert.equal(complete.result.historyCapture.restored, true);
+  assert.equal(complete.result.imported, 1);
+  assert.equal((await store.get('msg:hh:web:7:44')).body, 'Provider row');
+
+  startMarker = false;
+  failAfterMove = true;
+  const partial = await command('capture', id, '--history');
+  assert.equal(partial.code, 1);
+  assert.equal(
+    partial.result.historyCapture.coverage.reason,
+    'document-changed'
+  );
+  assert.equal(partial.result.historyCapture.saved, 1);
+
+  const entered = Promise.withResolvers();
+  const held = Promise.withResolvers();
+  duringRead = () => {
+    entered.resolve();
+    return held.promise;
+  };
+  const capture = command('capture', id, '--history');
+  await Promise.race([
+    entered.promise,
+    capture.then(() =>
+      assert.fail('capture ended before reaching the provider')
+    ),
+  ]);
+  const stop = command('stop', id);
+  try {
+    await waitFor(
+      async () => (await command('status', id)).result.state === 'done'
+    );
+    assert.equal(closed, false);
+  } finally {
+    held.resolve();
+  }
+  assert.equal(
+    (await capture).result.historyCapture.coverage.reason,
+    'cancelled'
+  );
+  assert.equal((await stop).result.historyCapture.restored, true);
+  assert.equal(closed, true);
 });
 
 // --- Connections panel ------------------------------------------------

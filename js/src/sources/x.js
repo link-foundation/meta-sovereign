@@ -9,14 +9,14 @@
 import { buildMessageLink } from './link.js';
 import { xDmsToLinks } from './archive/x-dms.js';
 import {
-  authHeaders,
   contentTarget,
   contentText,
-  requestJson,
-  resolveOption,
   codedError,
   unsupportedError,
 } from './http.js';
+import { createXAuth } from './x-auth.js';
+import { createXPublications } from './x-publication.js';
+import { createXRequest } from './x-request.js';
 
 const SOURCE = 'x';
 
@@ -199,17 +199,23 @@ const xDmPath = (content, options) => {
   );
 };
 
-export const createXLive = ({
-  token = null,
-  userId = null,
-  fetchImpl = globalThis.fetch,
-  baseUrl = 'https://api.x.com',
-} = {}) => {
-  const resolvedToken = (override) =>
-    resolveOption(override ?? token, 'X_ACCESS_TOKEN', 'X access token');
-  const headers = (override) => authHeaders(resolvedToken(override));
+export const createXLive = (configuration = {}) => {
+  const {
+    userId = null,
+    fetchImpl = globalThis.fetch,
+    baseUrl = 'https://api.x.com',
+  } = configuration;
+  const auth = createXAuth(configuration);
+  const request = createXRequest({
+    fetchImpl,
+    baseUrl,
+    auth,
+    debug: configuration.debug,
+    debugLog: configuration.debugLog,
+  });
 
   const adapter = {
+    ...createXPublications({ request, auth }),
     async pullMessages(options = {}) {
       const links = [];
       const raws = [];
@@ -218,10 +224,7 @@ export const createXLive = ({
       const requests = xPullRequests(options, userId);
       for (const { kind, path, search } of requests) {
         try {
-          const raw = await requestJson(fetchImpl, `${baseUrl}${path}`, {
-            headers: headers(options.token),
-            search,
-          });
+          const raw = await request(path, { search }, options);
           links.push(...xUpdatesToLinks(raw));
           raws.push(raw);
           nextOffset ??= raw?.meta?.next_token ?? null;
@@ -249,10 +252,11 @@ export const createXLive = ({
       ).filter(Boolean);
       let count = 0;
       for (const id of messageIds) {
-        await requestJson(fetchImpl, `${baseUrl}/2/dm_events/${id}`, {
-          method: 'DELETE',
-          headers: headers(options.token),
-        });
+        await request(
+          `/2/dm_events/${encodeURIComponent(id)}`,
+          { method: 'DELETE' },
+          options
+        );
         count += 1;
       }
       return { ok: true, deleted: count };
@@ -268,23 +272,7 @@ export const createXLive = ({
         throw codedError('x message text is required', 'bad-draft');
       }
       const path = xDmPath(content, options);
-      return requestJson(fetchImpl, `${baseUrl}${path}`, {
-        method: 'POST',
-        headers: headers(options.token),
-        body: { text },
-      });
-    },
-    /** The explicit, named action that publishes a public post (R-Z4). */
-    async publishPost(content, options = {}) {
-      const text = contentText(content);
-      if (!text) {
-        throw codedError('x post text is required', 'bad-draft');
-      }
-      return requestJson(fetchImpl, `${baseUrl}/2/tweets`, {
-        method: 'POST',
-        headers: headers(options.token),
-        body: { text },
-      });
+      return request(path, { method: 'POST', body: { text } }, options);
     },
     /** Broadcast: a public post. Anything addressed to a chat is a DM. */
     async post(content, options = {}) {
@@ -298,11 +286,10 @@ export const createXLive = ({
         ? adapter.sendMessage(content, options)
         : adapter.publishPost(content, options);
     },
-    // The profile endpoint is v1.1 and needs an OAuth 1.0a user context;
-    // a bearer token cannot call it, so it is reported, not attempted.
+    // Profile updates use a separate v1.1 endpoint, not a public post.
     async syncProfile() {
       throw unsupportedError(
-        'X profile updates need OAuth 1.0a user-context credentials, which are not configured; edit the profile on x.com'
+        'X profile updates are not supported by this adapter; edit the profile on x.com'
       );
     },
   };

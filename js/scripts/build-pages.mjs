@@ -52,6 +52,7 @@ const STATIC_FILES = [
   'app.css',
   'app.js',
   'app.min.js',
+  'notification-chime.wav',
   'client.js',
   'discover.js',
   'discovery-shell.js',

@@ -1,0 +1,23 @@
+{
+  "archive": "follow-telegram.tar.gz",
+  "files": {
+    "ci-logs/follow-telegram-before-dismissal.log": "91cbdebbe8663dd293390c011bb5b98e8fbdff328f72179215c980bd27dc3c03",
+    "ci-logs/follow-telegram-before-flush.log": "752db34ab9e3fef62d66fc7aa231d79a677c8778c1496dee2f3ca9590ceca36a",
+    "ci-logs/follow-telegram-browser.log": "90668fc8a248b6658ad189a050918839f197eff0ba60bc9e30ed3fcecaf4a5f7",
+    "ci-logs/follow-telegram-build.log": "010a11695de7d66a838cfeb3a2279b00eea64fc440316b514b748e5f49d33c4d",
+    "ci-logs/follow-telegram-diff-check.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/follow-telegram-draft-interfaces.log": "ac4792d26dda10e06c163539ac7f802e5e118868e9a1d682628860c532ae526a",
+    "ci-logs/follow-telegram-draft-test.log": "28ec5c9551eb8f6683a89973f60470704c91300cc4d315b6e29e4e77fa5d591d",
+    "ci-logs/follow-telegram-format-draft.log": "7650c531a8097da007fec12c76c583ad841eccbdc2b3ab2bf76295979c862dea",
+    "ci-logs/follow-telegram-format.log": "530eaed3996255064fb076da84549e39dc835684bb7e317ad464ac3e93777cd7",
+    "ci-logs/follow-telegram-lint-draft.log": "b600dcfa2f2bf6d7a9b9ffaaa648d7a8913d316992928b934b477b5a35f92be8",
+    "ci-logs/follow-telegram-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/follow-telegram-sdk.log": "4fc319f56749bcce50fe43f4b15f6d5bc8a564c1595435e76a19081cf6b71c79",
+    "ci-logs/follow-telegram-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/follow-telegram-tests.log": "57493445d2cc8a6b5e1da789c69a6f9f74c32b27b25508439e9d96db131f7bd3",
+    "ci-logs/follow-telegram-latest-runs.json": "2e18be2be09f4e405d7e880d8ed435e2bc1e49e019776ef1c6ec3c561169edff",
+    "experiments/issue-56/follow-telegram-regression.py": "d0ad0e870ea816a84f6127d23a6d5485764364c7b8eeafb73a2eda5b507509d5",
+    "experiments/issue-56/collect-follow-telegram-evidence.py": "8528552a2b5d3cd4d5e4da56152549bce2eb0683d4520e1ecedd6fc13b77041b",
+    "metadata.json": "0dba25e8fa2bc030cf6a00076d21247f73e4fe127a8a1dd99590d2a70466804f"
+  }
+}

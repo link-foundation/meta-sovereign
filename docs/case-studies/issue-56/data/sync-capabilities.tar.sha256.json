@@ -1,0 +1,12 @@
+{
+  "archive": "sync-capabilities.tar.gz",
+  "files": {
+    "mcp-observations.json": "6dbe8e67996099c81fae983ff71e7c8dcc2d803b2e116cf1b1ec943882c953f1",
+    "sync-capabilities-after.log": "31730a167eaa9c617f3599fca691c89c64c025bdf0cd4045e81aad1f441509a8",
+    "sync-capabilities-before.log": "0786341277f76ee6b501170e07819ca4467de342bd4a4facd5758aec65e4659a",
+    "sync-capabilities-browser.log": "ec4e653887bc2b218910247a85336163b29e4ca457b1d1e3b986713ae2bc8b79",
+    "sync-capabilities-build.log": "c3e6a5d6412a893560fb72bb9aba9feb15c9a4ae8b9f4c4d5930f3aad7721f42",
+    "sync-capabilities-final.log": "be3221fbafaf083aa81ed4706ac9fda2ddf89e4dce82646a64f882e7f37e8392",
+    "sync-capabilities-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

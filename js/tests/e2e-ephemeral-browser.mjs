@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for ephemeral messages (layer 232, R-Y223), as Telegram's
 // apps show them: a bot's message for this user only is drawn inline among
 // the chat's messages by date with the ordinary bubble (text, inline
@@ -108,7 +109,7 @@ await page.route(
 );
 const pressed = [];
 await page.route('**/api/telegram/ephemeral-callback', (route) => {
-  pressed.push(route.request().postDataJSON());
+  pressed.push(requestBody(route.request()));
   fulfil(route, { ok: true, message: 'Rules accepted', alert: false });
 });
 let normalPressed = 0;

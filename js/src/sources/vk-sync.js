@@ -13,7 +13,7 @@
  * `older` (./vk-older.js) is scroll-back for a VK chat (R-Z20).
  */
 
-import { putAll } from '../storage/universal.js';
+import { storeSourceMessages } from './store-messages.js';
 import { liveOptionsFrom } from './index.js';
 import { createVkLive } from './vk.js';
 import { VK_COMMUNITY_RPS, VK_USER_RPS } from './vk-limits.js';
@@ -21,6 +21,7 @@ import { loadPullState, savePullState } from './pull-runner.js';
 import { codedError } from './http.js';
 import { createVkLongPoll, detectMode, stamp } from './vk-longpoll.js';
 import { createVkOlder } from './vk-older.js';
+import { createVkLiveHistory } from './vk-live-history.js';
 
 const SOURCE = 'vk';
 const BACKFILL_CHATS = 3;
@@ -56,12 +57,21 @@ export const createVkInbox = ({
         requestsPerSecond,
         sleep,
       });
-      cached = { token, requestsPerSecond, live };
+      cached = { token, requestsPerSecond, live, verified: false };
     }
     return cached.live;
   };
 
-  // The saved state, with the kind of token found out once.
+  const assertCurrent = async (live) => {
+    if (cached?.live !== live || cached.token !== (await tokenOf())) {
+      throw codedError(
+        'VK credentials changed during the read',
+        'vk-credential-changed'
+      );
+    }
+  };
+
+  // Recheck identity once per native client, including after token replacement.
   const context = async () => {
     const token = await tokenOf();
     if (!token) {
@@ -69,10 +79,24 @@ export const createVkInbox = ({
     }
     let state = await loadPullState(store, SOURCE);
     let live = liveFor(token, state.mode);
-    if (!state.mode) {
+    if (!cached.verified) {
       const found = await detectMode(live.call);
-      state = await savePullState(store, SOURCE, found);
+      await assertCurrent(live);
+      const changed =
+        state.mode &&
+        (state.mode !== found.mode ||
+          (Number.isSafeInteger(state.selfId) &&
+            state.selfId !== found.selfId) ||
+          (Number.isSafeInteger(state.groupId) &&
+            state.groupId !== found.groupId));
+      state = await savePullState(store, SOURCE, {
+        selfId: null,
+        groupId: null,
+        ...found,
+        ...(changed ? { ts: null, backfill: {} } : {}),
+      });
       live = liveFor(token, found.mode);
+      cached.verified = true;
     }
     return { state, live };
   };
@@ -80,7 +104,7 @@ export const createVkInbox = ({
   // The newest message of each conversation, stored.
   const catchUp = async (live) => {
     const result = await live.pullMessages({ count: 50 });
-    await putAll(store, stamp(result.links));
+    await storeSourceMessages(store, SOURCE, stamp(result.links));
     return result;
   };
 
@@ -89,8 +113,10 @@ export const createVkInbox = ({
     context,
     catchUp,
     ready,
+    assertCurrent,
     fetchImpl,
     sleep,
+    beforeMessages: createVkLiveHistory({ store, assertCurrent }),
     ...pollOptions,
   });
 
@@ -108,7 +134,7 @@ export const createVkInbox = ({
         offset: Number(done[peerId] ?? 0),
         maxPages: BACKFILL_PAGES,
       });
-      await putAll(store, stamp(page.links));
+      await storeSourceMessages(store, SOURCE, stamp(page.links));
       imported += page.links.length;
       done[peerId] = page.nextOffset ?? 'done';
       // Saved after the write: a failed write is read again.

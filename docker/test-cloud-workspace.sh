@@ -88,7 +88,8 @@ second_cookie="$(sign_in "$second_port" "$second_host" "$second")"
 [[ -n "$first_cookie" && -n "$second_cookie" ]]
 assert_status 401 "$second_port" "$second_host" /links -H "Cookie: $first_cookie"
 assert_status 200 "$first_port" "$first_host" /links -H "Cookie: $first_cookie" \
-  -X PUT -H 'Content-Type: application/json' --data '{"id":"fixture:compose","tokens":["fixture"]}'
+  -X PUT -H 'Content-Type: text/lino' \
+  --data-binary $'(\n  id "fixture:compose"\n  tokens (\n    "fixture"\n  )\n)'
 assert_status 404 "$second_port" "$second_host" /links/fixture:compose -H "Cookie: $second_cookie"
 
 # The workspace can receive requests from the ingress, but cannot open a

@@ -1,0 +1,137 @@
+const entries = {
+  en: {
+    aboutStart: 'Prepare About in Experience window',
+    aboutSaving: 'Saving the reviewed About text…',
+    aboutSaved: 'HeadHunter saved the About text. A fresh export confirms it.',
+    start: 'Prepare in Experience window',
+    save: 'Save in HeadHunter',
+    skip: 'Skip and discard',
+    leave: 'Leave draft open',
+    stop: 'Stop review',
+    refresh: 'Check saved review status',
+    reset: 'Start another review',
+    opening: 'Opening the HeadHunter Experience window…',
+    'waiting-login': 'Sign in to HeadHunter in the Experience window.',
+    preparing: 'Filling the approved fields…',
+    prepared: 'Review the draft in the HeadHunter Experience window.',
+    saving: 'Saving the reviewed workplace…',
+    skipping: 'Discarding the prepared draft…',
+    verifying: 'Checking fresh HeadHunter exports…',
+    saved: 'HeadHunter saved the workplace. Fresh exports confirm it.',
+    skipped: 'The prepared draft was discarded.',
+    stopped: 'Review stopped. The browser draft stays open if it was prepared.',
+    closed: 'The Experience editor was closed.',
+    failed:
+      'The review could not proceed. Check the Experience window and the current HeadHunter export.',
+    ambiguous:
+      'Several HeadHunter records match this workplace. Create a review with the exact record ID.',
+    unconfirmed:
+      'The provider outcome is unconfirmed. Check HeadHunter and get a fresh export before trying again.',
+    interrupted:
+      'Review was interrupted. Check the Experience window and the current HeadHunter export.',
+    unknown: 'Checking the existing review request.',
+  },
+  ru: {
+    aboutStart: 'Подготовить раздел «О себе» в окне «Опыт работы»',
+    aboutSaving: 'Сохраняем проверенный текст «О себе»…',
+    aboutSaved:
+      'HeadHunter сохранил текст «О себе». Свежая выгрузка подтверждает это.',
+    start: 'Подготовить в окне «Опыт работы»',
+    save: 'Сохранить на HeadHunter',
+    skip: 'Пропустить и отменить изменения',
+    leave: 'Оставить черновик открытым',
+    stop: 'Остановить проверку',
+    refresh: 'Проверить состояние запроса',
+    reset: 'Начать новую проверку',
+    opening: 'Открываем окно «Опыт работы» на HeadHunter…',
+    'waiting-login': 'Войдите в HeadHunter в окне «Опыт работы».',
+    preparing: 'Заполняем одобренные поля…',
+    prepared: 'Проверьте черновик в окне «Опыт работы» на HeadHunter.',
+    saving: 'Сохраняем проверенное место работы…',
+    skipping: 'Отменяем изменения в черновике…',
+    verifying: 'Проверяем свежие выгрузки HeadHunter…',
+    saved:
+      'HeadHunter сохранил место работы. Это подтверждают свежие выгрузки.',
+    skipped: 'Изменения в черновике отменены.',
+    stopped: 'Проверка остановлена. Подготовленный черновик остаётся открытым.',
+    closed: 'Редактор опыта работы закрыт.',
+    failed:
+      'Не удалось продолжить проверку. Проверьте окно «Опыт работы» и текущую выгрузку HeadHunter.',
+    ambiguous:
+      'Этому месту работы соответствует несколько записей HeadHunter. Создайте проверку с точным ID записи.',
+    unconfirmed:
+      'Результат не подтверждён. Перед повтором проверьте HeadHunter и получите свежую выгрузку.',
+    interrupted:
+      'Проверка прервана. Проверьте окно «Опыт работы» и текущую выгрузку HeadHunter.',
+    unknown: 'Проверяем существующий запрос.',
+  },
+  hi: {
+    aboutStart: 'अनुभव विंडो में परिचय तैयार करें',
+    aboutSaving: 'समीक्षा किया गया परिचय सहेजा जा रहा है…',
+    aboutSaved: 'HeadHunter ने परिचय सहेजा। नया निर्यात इसकी पुष्टि करता है।',
+    start: 'अनुभव विंडो में तैयार करें',
+    save: 'HeadHunter में सहेजें',
+    skip: 'छोड़ें और बदलाव रद्द करें',
+    leave: 'ड्राफ़्ट खुला छोड़ें',
+    stop: 'समीक्षा रोकें',
+    refresh: 'समीक्षा की स्थिति जाँचें',
+    reset: 'नई समीक्षा शुरू करें',
+    opening: 'HeadHunter अनुभव विंडो खुल रही है…',
+    'waiting-login': 'अनुभव विंडो में HeadHunter में साइन इन करें।',
+    preparing: 'मंज़ूर किए गए फ़ील्ड भरे जा रहे हैं…',
+    prepared: 'HeadHunter अनुभव विंडो में ड्राफ़्ट की समीक्षा करें।',
+    saving: 'समीक्षा की गई नौकरी सहेजी जा रही है…',
+    skipping: 'तैयार ड्राफ़्ट के बदलाव रद्द हो रहे हैं…',
+    verifying: 'HeadHunter के नए निर्यात जाँचे जा रहे हैं…',
+    saved: 'HeadHunter ने नौकरी सहेजी। नए निर्यात इसकी पुष्टि करते हैं।',
+    skipped: 'तैयार ड्राफ़्ट के बदलाव रद्द कर दिए गए।',
+    stopped: 'समीक्षा रुक गई। तैयार किया गया ड्राफ़्ट खुला है।',
+    closed: 'अनुभव संपादक बंद हो गया।',
+    failed:
+      'समीक्षा जारी नहीं हो सकी। अनुभव विंडो और मौजूदा HeadHunter निर्यात देखें।',
+    ambiguous:
+      'इस कार्यस्थल से कई HeadHunter रिकॉर्ड मेल खाते हैं। सटीक रिकॉर्ड आईडी के साथ समीक्षा बनाएँ।',
+    unconfirmed:
+      'नतीजे की पुष्टि नहीं हुई। दोबारा कोशिश करने से पहले HeadHunter देखें और नया निर्यात पाएँ।',
+    interrupted:
+      'समीक्षा बीच में रुकी। अनुभव विंडो और मौजूदा HeadHunter निर्यात देखें।',
+    unknown: 'मौजूदा समीक्षा अनुरोध जाँचा जा रहा है।',
+  },
+  zh: {
+    aboutStart: '在工作经历窗口中准备个人简介',
+    aboutSaving: '正在保存已审阅的个人简介…',
+    aboutSaved: 'HeadHunter 已保存个人简介。新的导出已验证结果。',
+    start: '在工作经历窗口中准备',
+    save: '保存到 HeadHunter',
+    skip: '跳过并放弃更改',
+    leave: '保留打开的草稿',
+    stop: '停止审阅',
+    refresh: '查看审阅状态',
+    reset: '开始新的审阅',
+    opening: '正在打开 HeadHunter 工作经历窗口…',
+    'waiting-login': '请在工作经历窗口中登录 HeadHunter。',
+    preparing: '正在填写已批准的字段…',
+    prepared: '请在 HeadHunter 工作经历窗口中审阅草稿。',
+    saving: '正在保存已审阅的工作经历…',
+    skipping: '正在放弃草稿中的更改…',
+    verifying: '正在核对新的 HeadHunter 导出…',
+    saved: 'HeadHunter 已保存工作经历。新的导出已验证结果。',
+    skipped: '已放弃草稿中的更改。',
+    stopped: '审阅已停止。已准备的草稿会保持打开。',
+    closed: '工作经历编辑器已关闭。',
+    failed: '无法继续审阅。请查看工作经历窗口和当前的 HeadHunter 导出。',
+    ambiguous:
+      '有多个 HeadHunter 记录与这段经历匹配。请使用确切的记录 ID 创建审核。',
+    unconfirmed: '结果尚未确认。重试前请查看 HeadHunter 并获取新的导出。',
+    interrupted: '审阅已中断。请查看工作经历窗口和当前的 HeadHunter 导出。',
+    unknown: '正在检查现有的审阅请求。',
+  },
+};
+
+export const hhWorkplaceLocale = (language) =>
+  Object.fromEntries(
+    Object.entries(entries[language]).map(([key, value]) => [
+      `hhWorkplace.${key}`,
+      value,
+    ])
+  );

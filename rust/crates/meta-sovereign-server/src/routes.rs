@@ -191,7 +191,18 @@ fn dispatch_email(state: &ServerState, req: &Request, kind: &str) -> Response {
         "send" => email::send(state, &body),
         _ => return Response::json(404, "{\"error\":\"unknown email route\"}"),
     };
-    Response::json(200, &json::encode(&value))
+    Response::json(
+        if value.get("error").is_some() {
+            if value.get("status") == Some(&json::Value::Number(503.0)) {
+                503
+            } else {
+                400
+            }
+        } else {
+            200
+        },
+        &json::encode(&value),
+    )
 }
 
 #[cfg(test)]

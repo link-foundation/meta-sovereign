@@ -1,0 +1,52 @@
+✖ unnegotiated sync defaults to Lino text in both directions (76.900377ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 287.123127
+
+✖ failing tests:
+
+test at ../ms-sync-baseline-DgQNdN/baseline.test.mjs:58:1
+✖ unnegotiated sync defaults to Lino text in both directions (76.900377ms)
+  Error [ParseError]: Syntax error at line 1, column 21: Expected "(", [ \t], [\r\n], or [^ \t\n\r(:)] but ":" found.
+  1 | {"type":"put","link":{"id":"l:юникод","tokens":["quotes \"'\\","one\r\ntwo","🚀"...
+    |                     ^
+      at Parser._parse (file:///tmp/gh-issue-solver-1794216540735/node_modules/links-notation/dist/index.js:2965:15)
+      at Parser.parse (file:///tmp/gh-issue-solver-1794216540735/node_modules/links-notation/dist/index.js:2935:17)
+      ... 4 lines matching cause stack trace ...
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    cause: SyntaxError [Error]: Expected "(", [ \t], [\r\n], or [^ \t\n\r(:)] but ":" found.
+        at peg$buildStructuredError (file:///tmp/gh-issue-solver-1794216540735/node_modules/links-notation/dist/index.js:1261:12)
+        at peg$throw (file:///tmp/gh-issue-solver-1794216540735/node_modules/links-notation/dist/index.js:2904:11)
+        at peg$parse (file:///tmp/gh-issue-solver-1794216540735/node_modules/links-notation/dist/index.js:2920:5)
+        at Parser._parse (file:///tmp/gh-issue-solver-1794216540735/node_modules/links-notation/dist/index.js:2958:25)
+        at Parser.parse (file:///tmp/gh-issue-solver-1794216540735/node_modules/links-notation/dist/index.js:2935:17)
+        at validateWireText (file:///tmp/gh-issue-solver-1794216540735/js/src/transport/lino.js:50:10)
+        at decodeWire (file:///tmp/gh-issue-solver-1794216540735/js/src/transport/lino.js:139:3)
+        at TestContext.<anonymous> (file:///tmp/ms-sync-baseline-DgQNdN/baseline.test.mjs:70:24)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async Test.run (node:internal/test_runner/test:1409:7) {
+      expected: [
+        [Object], [Object],
+        [Object], [Object],
+        [Object], [Object],
+        [Object]
+      ],
+      found: ':',
+      location: { source: undefined, start: [Object], end: [Object] }
+    },
+    location: { source: undefined, start: { offset: 20, line: 1, column: 21 }, end: { offset: 21, line: 1, column: 22 } },
+    offset: 20,
+    line: 1,
+    column: 21,
+    found: ':',
+    lineText: `{"type":"put","link":{"id":"l:юникод","tokens":["quotes \\"'\\\\","one\\r\\ntwo","🚀"],"empty":[],"single":[true],"absent":null,"n":42}}`,
+    snippet: `1 | {"type":"put","link":{"id":"l:юникод","tokens":["quotes \\"'\\\\","one\\r\\ntwo","🚀"...\n  |                     ^`,
+    maxDepth: null
+  }
+Expected baseline failure reproduced.

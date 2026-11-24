@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for story interactions (R-Y148), as Telegram Desktop
 // has them: a ring on the chat row of someone with stories opens them
 // (a click on the avatar); a private reply box (playback waits while it
@@ -97,13 +98,13 @@ const sent = { reply: [], react: [], views: [], remove: [], hide: [] };
 await page.route('**/api/telegram/stories', (route) =>
   fulfil(route, {
     ok: true,
-    peers: route.request().postDataJSON()?.hidden ? [] : PEERS,
+    peers: requestBody(route.request())?.hidden ? [] : PEERS,
     state: 'S',
     more: false,
   })
 );
 await page.route('**/api/telegram/stories-peer', (route) => {
-  const { chat } = route.request().postDataJSON();
+  const { chat } = requestBody(route.request());
   const peer = PEERS.find((p) => p.peer === chat);
   return fulfil(route, { ok: true, peer, stories: STORIES[chat] ?? [] });
 });
@@ -115,7 +116,7 @@ await page.route(/\/api\/telegram\/story\?/, (route) =>
 );
 const record = (name, list, answer) =>
   page.route(`**/api/telegram/${name}`, (route) => {
-    const body = route.request().postDataJSON();
+    const body = requestBody(route.request());
     list.push(body);
     return fulfil(route, answer(body));
   });

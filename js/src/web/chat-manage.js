@@ -16,6 +16,7 @@ import { aside } from './chat-group-stickers.js';
 import { usePalettes } from './chat-person-extras.js';
 import { ColorEditor, colorBody, sameColor } from './chat-profile-extras.js';
 import { EmojiStatusDialog, EmojiStatusRow } from './chat-emoji-status.js';
+import { useRemovalConfirm, removalError } from './chat-removal-result.js';
 import {
   PublicLinkDialog,
   canSetType,
@@ -43,22 +44,14 @@ export const canLook = (chat, info, api) =>
 
 const DeleteDialog = ({ api, chat, info, close, done }) => {
   const t = useT();
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState(null);
+  const confirmation = useRemovalConfirm(
+    (request) => api.telegramRemoveChat(request),
+    done
+  );
   useEsc(close);
   const kind = info?.broadcast ? 'Channel' : 'Group';
-  const yes = async () => {
-    setBusy(true);
-    const answer = await api
-      .telegramRemoveChat({ chat: String(chat.chat), action: 'destroy' })
-      .catch(() => null);
-    setBusy(false);
-    if (answer?.ok) {
-      done();
-    } else {
-      setError(errorText(t, answer?.code ?? answer?.error ?? 'failed'));
-    }
-  };
+  const yes = () =>
+    confirmation.run({ chat: String(chat.chat), action: 'destroy' });
   const name = chat.name || String(chat.chat);
   return el(
     'div',
@@ -72,7 +65,13 @@ const DeleteDialog = ({ api, chat, info, close, done }) => {
     el('div', { className: 'delete-dialog' }, [
       el('h3', { key: 'h' }, t(`chat.manage.delete${kind}Title`, { name })),
       el('p', { key: 'p' }, t('chat.manage.deleteBody', { name })),
-      error ? el('p', { key: 'e', role: 'alert' }, error) : null,
+      confirmation.result?.ok === false
+        ? el(
+            'p',
+            { key: 'e', role: 'alert' },
+            removalError(t, confirmation.result)
+          )
+        : null,
       el('div', { key: 'b', className: 'delete-dialog-btns' }, [
         el(
           'button',
@@ -86,7 +85,7 @@ const DeleteDialog = ({ api, chat, info, close, done }) => {
             type: 'button',
             className: 'danger',
             'data-action': 'delete-confirm',
-            disabled: busy,
+            disabled: confirmation.busy || confirmation.blocked,
             onClick: yes,
           },
           t('chat.manage.deleteConfirm')

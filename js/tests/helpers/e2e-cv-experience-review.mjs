@@ -1,0 +1,318 @@
+import assert from 'node:assert/strict';
+import { randomBytes } from 'node:crypto';
+import { mkdir, readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { cvPrepareBrowserFixture } from '../../../experiments/issue-56/cv-prepare-browser-fixture.mjs';
+import { interruptOwnedReviewAcquisition } from '../../../experiments/issue-56/experience-review-fixture.mjs';
+import { experienceAutoKey } from '../../src/cv/experience-auto-record.js';
+import {
+  experienceReviewKey,
+  newExperienceReview,
+  reviewChildId,
+} from '../../src/cv/experience-review-record.js';
+
+const reviewAction = (page, name) =>
+  page.locator(`[data-experience-review-action="${name}"]`);
+const reviewPhase = (page, name) =>
+  page.locator(`[data-experience-review-phase="${name}"]`).waitFor();
+const reviewPanels = async (page) => {
+  await page.locator('[data-experience-documents] summary').first().click();
+  const auto = page.locator('[data-experience-auto]');
+  await auto.locator('summary').click();
+  return auto;
+};
+const openReview = async ({ page, base, queue }) => {
+  page.setDefaultTimeout(10000);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${base}/#/cv`);
+  const auto = await reviewPanels(page);
+  const field = (name) =>
+    auto.locator(`[data-experience-auto-field="${name}"]`);
+  await field('url').fill(queue.input.url);
+  await field('hash').fill(queue.input.hash);
+  await field('to').selectOption('hh');
+  return auto;
+};
+const reloadReview = async (page, requestId) => {
+  await page.evaluate((id) => {
+    globalThis.localStorage.setItem('ms.cv.experience-review', id);
+  }, requestId);
+  await page.reload();
+  await reviewPanels(page);
+  await reviewPhase(page, 'interrupted');
+};
+const routeBundle = async (page, path) => {
+  const body = await readFile(path);
+  await page.route('**/app.min.js*', (route) =>
+    route.fulfill({ body, contentType: 'application/javascript' })
+  );
+};
+const providerCounts = (provider) =>
+  provider.evaluate(() => [
+    globalThis.fixtureOpeners,
+    globalThis.fixtureSaves,
+    globalThis.fixtureCancels,
+  ]);
+const capture = async (name, target) => {
+  const directory = process.env.EXPERIENCE_REVIEW_SCREENSHOTS;
+  if (directory) {
+    await mkdir(directory, { recursive: true });
+    await target.scrollIntoViewIfNeeded();
+    await target.page().screenshot({ path: join(directory, `${name}.png`) });
+  }
+};
+
+const verifyReviewSave = async (browser) => {
+  const fixture = await cvPrepareBrowserFixture(browser, { reviewQueue: true });
+  const { page, provider, queue, counters } = fixture;
+  const before = process.env.EXPERIENCE_REVIEW_BEFORE_BUNDLE;
+  const checkpointBefore =
+    process.env.EXPERIENCE_REVIEW_CHECKPOINT_BEFORE_BUNDLE;
+  const action = (name) => reviewAction(page, name);
+  const phase = (name) => reviewPhase(page, name);
+  const countersInPage = () => providerCounts(provider);
+  try {
+    if (before || checkpointBefore) {
+      await routeBundle(page, before || checkpointBefore);
+    }
+    const auto = await openReview(fixture);
+    if (before) {
+      await capture(
+        'before',
+        auto.locator('[data-experience-auto-action="start"]')
+      );
+      assert.equal(
+        await action('start').count(),
+        1,
+        'one command should acquire and start reviewed changes'
+      );
+      return;
+    }
+    await action('start').click();
+    await phase('prepared');
+    await page
+      .locator('[data-experience-review] [data-experience-plan-field="about"]')
+      .waitFor();
+    const native = provider.locator('textarea[data-qa="resume-editor-about"]');
+    assert.equal(await native.inputValue(), queue.source.profile.about);
+    assert.deepEqual(await countersInPage(), [1, 0, 0]);
+    assert.ok(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= globalThis.innerWidth + 1
+      )
+    );
+    await capture('prepared-phone', action('save'));
+    await capture('native-draft', native);
+    await action('save').click();
+    await phase('completed');
+    const saved = page.locator('[data-experience-review-outcome="saved"]');
+    assert.match(await saved.textContent(), /Saved and verified/u);
+    assert.match(
+      await saved.getAttribute('data-experience-review-revision'),
+      /^[0-9a-f]{64}$/u
+    );
+    assert.deepEqual(await countersInPage(), [1, 1, 0]);
+    assert.equal(counters.attached, counters.detached);
+    await capture('saved-phone', saved);
+    await page.reload();
+    await reviewPanels(page);
+    await phase('completed');
+    assert.deepEqual(await countersInPage(), [1, 1, 0]);
+
+    const requestId = await page.evaluate(() =>
+      globalThis.localStorage.getItem('ms.cv.experience-review')
+    );
+    const completed = await fixture.store.get(experienceReviewKey(requestId));
+    assert.equal(completed.phase, 'completed');
+    assert.deepEqual(completed.pending, []);
+    assert.equal(completed.current, null);
+    // The final queue write changes only this phase from its acknowledged checkpoint.
+    await fixture.store.put({ ...completed, phase: 'selecting' });
+    await action('status').click();
+    await phase('interrupted');
+    const review = page.locator('[data-experience-review]');
+    assert.match(await saved.textContent(), /Saved and verified/u);
+    if (checkpointBefore) {
+      assert.equal(await action('resume').count(), 0);
+      await capture('checkpoint-before', review);
+    } else {
+      await action('resume').waitFor();
+      await capture('checkpoint-after', review);
+      await action('resume').click();
+      await phase('completed');
+      assert.equal(
+        await saved.getAttribute('data-experience-review-revision'),
+        completed.history[0].revision
+      );
+      assert.deepEqual(await fixture.store.get(completed.id), completed);
+      await capture('checkpoint-completed', review);
+    }
+    assert.deepEqual(await countersInPage(), [1, 1, 0]);
+    assert.equal(counters.attached, counters.detached);
+    assert.deepEqual(fixture.errors, []);
+  } finally {
+    await fixture.close();
+  }
+};
+
+const verifyReviewAcquisition = async (browser) => {
+  const fixture = await cvPrepareBrowserFixture(browser, { reviewQueue: true });
+  const { page, provider, queue, counters } = fixture;
+  const before = process.env.EXPERIENCE_REVIEW_ACQUISITION_BEFORE_BUNDLE;
+  const action = (name) => reviewAction(page, name);
+  const phase = (name) => reviewPhase(page, name);
+  try {
+    if (before) {
+      await routeBundle(page, before);
+    }
+    const auto = await openReview(fixture);
+    await auto.locator('[data-experience-auto-action="start"]').click();
+    await auto.locator('[data-experience-auto-phase="completed"]').waitFor();
+    const autoRequestId = await page.evaluate(() =>
+      globalThis.localStorage.getItem('ms.cv.experience-auto')
+    );
+    const original = await fixture.store.get(experienceAutoKey(autoRequestId));
+    await fixture.store.put({ ...original, phase: 'planning', plan: null });
+    const acquisition = await fixture.seedReviewAcquisition(autoRequestId);
+    await reloadReview(page, acquisition.requestId);
+    const review = page.locator('[data-experience-review]');
+    assert.deepEqual(await providerCounts(provider), [0, 0, 0]);
+    await capture(before ? 'acquisition-before' : 'acquisition-after', review);
+    assert.equal(
+      await action('resume').count(),
+      1,
+      'recover the verified preparation'
+    );
+    await action('resume').click();
+    await phase('prepared');
+    const native = provider.locator('textarea[data-qa="resume-editor-about"]');
+    assert.equal(await native.inputValue(), queue.source.profile.about);
+    const resumed = await fixture.store.get(acquisition.id);
+    assert.equal(resumed.comparison.requestId, original.plan.requestId);
+    assert.equal(resumed.comparison.fingerprint, original.plan.fingerprint);
+    assert.equal(resumed.comparison.hh, original.hh);
+    assert.deepEqual(await providerCounts(provider), [1, 0, 0]);
+    await capture('acquisition-prepared', action('save'));
+    await action('skip').click();
+    await phase('completed');
+    assert.match(
+      await review
+        .locator('[data-experience-review-outcome="skipped"]')
+        .textContent(),
+      /Discarded/u
+    );
+    assert.deepEqual(await providerCounts(provider), [1, 0, 1]);
+    await verifyReviewOpening(fixture, resumed);
+    assert.equal(counters.attached, counters.detached);
+    assert.deepEqual(fixture.errors, []);
+  } finally {
+    await fixture.close();
+  }
+};
+
+const verifyReviewOpening = async ({ page, provider, store }, prepared) => {
+  const requestId = 'recover-cv-opening';
+  const row = newExperienceReview(
+    requestId,
+    { ...prepared.options, requestId },
+    randomBytes(16).toString('hex')
+  );
+  const request = reviewChildId(row, 'native');
+  await store.put({
+    ...row,
+    phase: 'opening',
+    auto: prepared.auto,
+    comparison: prepared.comparison,
+    pending: prepared.pending,
+    current: {
+      ...prepared.current,
+      canSave: false,
+      input: { ...prepared.current.input, requestId: request },
+    },
+  });
+  await reloadReview(page, requestId);
+  assert.deepEqual(await providerCounts(provider), [1, 0, 1]);
+  await reviewAction(page, 'resume').click();
+  await reviewPhase(page, 'prepared');
+  assert.equal((await store.get(row.id)).current.input.requestId, request);
+  assert.deepEqual(await providerCounts(provider), [2, 0, 1]);
+  await reviewAction(page, 'skip').click();
+  await reviewPhase(page, 'completed');
+  assert.equal((await store.get(row.id)).history[0].outcome, 'skipped');
+  assert.deepEqual(await providerCounts(provider), [2, 0, 2]);
+};
+
+const verifyReviewOwnedAcquisition = async (browser) => {
+  const fixture = await cvPrepareBrowserFixture(browser, { reviewQueue: true });
+  const { page, provider, queue, store } = fixture;
+  const before = process.env.EXPERIENCE_REVIEW_OWNED_BEFORE_BUNDLE;
+  try {
+    if (before) {
+      await routeBundle(page, before);
+    }
+    await openReview(fixture);
+    const { review, original } = await interruptOwnedReviewAcquisition(fixture);
+    let resumes = 0;
+    await page.route('**/api/cv/experience/review-resume', async (route) => {
+      resumes++;
+      await route.continue();
+    });
+    await reloadReview(page, review.requestId);
+    const card = page.locator('[data-experience-review]');
+    assert.deepEqual(await providerCounts(provider), [0, 0, 0]);
+    assert.equal(resumes, 0);
+    assert.equal(fixture.acquisitionReads(), 1);
+    await capture(before ? 'owned-before' : 'owned-after', card);
+    const resume = reviewAction(page, 'resume');
+    assert.equal(
+      await resume.count(),
+      1,
+      'recover the review-owned preparation'
+    );
+    assert.match(
+      await card.getByRole('status').textContent(),
+      /Review interrupted/u
+    );
+    await resume.click();
+    await reviewPhase(page, 'prepared');
+    const native = provider.locator('textarea[data-qa="resume-editor-about"]');
+    assert.equal(await native.inputValue(), queue.source.profile.about);
+    const restored = await store.get(review.id);
+    assert.equal(restored.comparison.requestId, original.plan.requestId);
+    assert.equal(restored.comparison.hh, original.hh);
+    assert.equal(restored.comparison.linkedin, original.linkedin);
+    await capture('owned-prepared', reviewAction(page, 'save'));
+    await reviewAction(page, 'skip').click();
+    await reviewPhase(page, 'completed');
+    assert.equal(resumes, 1);
+    assert.equal(fixture.acquisitionReads(), 1);
+    assert.deepEqual(await providerCounts(provider), [1, 0, 1]);
+    assert.equal(fixture.counters.attached, fixture.counters.detached);
+    assert.deepEqual(fixture.errors, []);
+    return { resumes, reads: fixture.acquisitionReads(), editor: 'skipped' };
+  } finally {
+    await fixture.close();
+  }
+};
+
+export const verifyCvExperienceReview = async (browser) => {
+  if (process.env.EXPERIENCE_REVIEW_OWNED_ONLY) {
+    return verifyReviewOwnedAcquisition(browser);
+  }
+  if (!process.env.EXPERIENCE_REVIEW_ACQUISITION_BEFORE_BUNDLE) {
+    await verifyReviewSave(browser);
+  }
+  if (
+    !process.env.EXPERIENCE_REVIEW_BEFORE_BUNDLE &&
+    !process.env.EXPERIENCE_REVIEW_CHECKPOINT_BEFORE_BUNDLE
+  ) {
+    await verifyReviewAcquisition(browser);
+  }
+  if (
+    !process.env.EXPERIENCE_REVIEW_BEFORE_BUNDLE &&
+    !process.env.EXPERIENCE_REVIEW_CHECKPOINT_BEFORE_BUNDLE &&
+    !process.env.EXPERIENCE_REVIEW_ACQUISITION_BEFORE_BUNDLE
+  ) {
+    return verifyReviewOwnedAcquisition(browser);
+  }
+};

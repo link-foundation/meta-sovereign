@@ -6,13 +6,18 @@ import { ChatScreen } from './chat-view.js';
 import { ConnectionGuide } from './connection-guide.js';
 import { LoadError } from './api-errors.js';
 import { useOperatorUnread } from './operator-unread.js';
-import { navigateApp, operatorHash, appNavigation } from './app-route.js';
+import { navigateApp, operatorHash } from './app-route.js';
+import { syncOperatorRoute } from './operator-route.js';
 import { useOperatorScope } from './operator-prefs.js';
 import { postponeOperatorChat, useOperatorOrder } from './operator-order.js';
 import { PageLoading } from './spinner.js';
 import { Icon } from './icons.js';
 import { useOperatorWork, finishOperatorWork } from './operator-work.js';
 import { traceClient } from './client-log.js';
+import {
+  ChatProviderFilter,
+  filterChatProvider,
+} from './chat-provider-filter.js';
 import {
   completeOperatorChat,
   needsAttention,
@@ -36,7 +41,9 @@ const useOperator = (api, t) => {
   const [scope] = useOperatorScope();
   const work = useOperatorWork();
   const [order, setOrder] = useOperatorOrder(state.all, state.loading, work);
-  const queue = operatorQueue(state.all, handled, scope, order, work);
+  const provider = state.provider;
+  const scoped = filterChatProvider(state.all, provider.selected);
+  const queue = operatorQueue(scoped, handled, scope, order, work);
   const latest = useRef(null);
   const unread = useOperatorUnread(api, state, queue, work);
   useEffect(() => {
@@ -50,12 +57,7 @@ const useOperator = (api, t) => {
   }, [api, unread.current?.key, unread.current?.unread]);
   latest.current = { state, queue, order, busy: busy || !unread.current };
   useEffect(() => {
-    if (unread.current && appNavigation().snapshot().view === 'operator') {
-      navigateApp(
-        { view: 'operator', anchor: operatorHash(unread.current.key) },
-        { replace: true }
-      );
-    }
+    syncOperatorRoute(unread.current, queue);
   }, [unread.current?.key]);
   // Once the read acknowledgement arrives, a later manual unread mark
   // on the same message may enqueue this conversation again.
@@ -165,6 +167,7 @@ const useOperator = (api, t) => {
     advance,
     done,
     unread,
+    provider,
   };
 };
 
@@ -198,8 +201,17 @@ const needsConnection = (state) =>
 
 export const OperatorView = ({ api = defaultApi }) => {
   const t = useT();
-  const { state, current, queue, busy, error, advance, done, unread } =
-    useOperator(api, t);
+  const {
+    state,
+    current,
+    queue,
+    busy,
+    error,
+    advance,
+    done,
+    unread,
+    provider,
+  } = useOperator(api, t);
   if (!state.loading && needsConnection(state)) {
     return el(ConnectionGuide, { section: 'operator' });
   }
@@ -224,6 +236,7 @@ export const OperatorView = ({ api = defaultApi }) => {
           ),
         ]),
         el('div', { key: 'actions', className: 'row' }, [
+          el(ChatProviderFilter, { key: 'provider', filter: provider }),
           el(
             'button',
             {

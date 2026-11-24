@@ -2,7 +2,7 @@ import { randomBytes } from 'node:crypto';
 import { once } from 'node:events';
 import { mkdtemp, rm } from 'node:fs/promises';
 import http from 'node:http';
-import https from 'node:https';
+import http2 from 'node:http2';
 import os from 'node:os';
 import path from 'node:path';
 import { startServer } from '../../src/server/index.js';
@@ -17,23 +17,42 @@ const logo = Buffer.from(
 export const startWorkspaceFixture = async () => {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'ms-cloud-browser-'));
   let handle;
-  const proxy = https.createServer(makeLocalCertificate(), (req, res) => {
+  // Match the deployed ingress, which multiplexes live events and requests.
+  const proxy = http2.createSecureServer(makeLocalCertificate(), (req, res) => {
+    const {
+      ':authority': host,
+      ':method': _method,
+      ':path': _path,
+      ':scheme': _scheme,
+      ...headers
+    } = req.headers;
     const upstream = http.request(
       {
         hostname: '127.0.0.1',
         port: handle.port,
         path: req.url,
         method: req.method,
-        headers: req.headers,
+        headers: { ...headers, host },
       },
       (answer) => {
-        res.writeHead(answer.statusCode, answer.headers);
+        const {
+          connection: _connection,
+          'keep-alive': _keepAlive,
+          'transfer-encoding': _transferEncoding,
+          ...headers
+        } = answer.headers;
+        res.writeHead(answer.statusCode, headers);
         answer.pipe(res);
         res.on('close', () => answer.destroy());
       }
     );
     upstream.on('error', () => res.destroy());
     req.pipe(upstream);
+  });
+  const sessions = new Set();
+  proxy.on('session', (session) => {
+    sessions.add(session);
+    session.on('close', () => sessions.delete(session));
   });
   proxy.listen(0, '127.0.0.1');
   await once(proxy, 'listening');
@@ -71,7 +90,9 @@ export const startWorkspaceFixture = async () => {
     ownerKey,
     async close() {
       proxy.close();
-      proxy.closeAllConnections();
+      for (const session of sessions) {
+        session.destroy();
+      }
       await handle.close();
       await rm(dir, { recursive: true, force: true });
     },

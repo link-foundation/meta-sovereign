@@ -31,7 +31,7 @@ import {
   useMediaRetry,
 } from './media-loading.js';
 import { Icon } from './icons.js';
-import { failureText, isPaidFailure } from './chat-failure.js';
+import { failureText } from './chat-failure.js';
 import { MediaPhoto } from './chat-photo.js';
 import { AlbumGrid } from './chat-album.js';
 import { WebPreview } from './chat-webpage.js';
@@ -42,7 +42,7 @@ import { statusOfLink } from './emoji-status-model.js';
 import { peerColorClass } from './peer-color.js';
 import { MessageText } from './message-text.js';
 import { useTranslated } from './translate-store.js';
-import { menuItems } from './chat-selection.js';
+import { canReplyTo, menuItems, isMine } from './chat-selection.js';
 import { useRowHandlers } from './chat-row.js';
 import { GameCard } from './chat-games.js';
 import { MediaAudio, MediaCard, MediaFile, MediaVideo } from './chat-media.js';
@@ -679,6 +679,7 @@ export const DeleteDialog = ({
   message,
   messages = message ? [message] : [],
   isGroup,
+  inHeadHunter = false,
   moderation = null,
   onClose,
   onDelete,
@@ -691,6 +692,24 @@ export const DeleteDialog = ({
     ? { moderation: { ...picked, user: moderation.user } }
     : {};
   const allMine = messages.every((m) => m.sender === 'me');
+  const remove = (revoke) => {
+    onClose();
+    onDelete({ revoke, ...extra });
+  };
+  const deleteButton = (key, danger, text, revoke) =>
+    el(
+      'button',
+      {
+        key,
+        type: 'button',
+        className: danger ? 'danger' : undefined,
+        onClick: () => remove(revoke),
+      },
+      t(text)
+    );
+  const scope = inHeadHunter
+    ? 'chat.deleteInHeadHunter'
+    : 'chat.deleteForEveryone';
   return el(
     'div',
     {
@@ -710,35 +729,12 @@ export const DeleteDialog = ({
         ? el(ModerationBoxes, { key: 'mod', ...moderation, picked, setPicked })
         : null,
       el('div', { key: 'btns', className: 'delete-dialog-btns' }, [
-        el(
-          'button',
-          {
-            key: 'me',
-            type: 'button',
-            onClick: () => {
-              onClose();
-              onDelete({ revoke: false, ...extra });
-            },
-          },
-          t('chat.deleteForMe')
-        ),
-        ...(isGroup || !allMine
-          ? []
-          : [
-              el(
-                'button',
-                {
-                  key: 'all',
-                  type: 'button',
-                  className: 'danger',
-                  onClick: () => {
-                    onClose();
-                    onDelete({ revoke: true, ...extra });
-                  },
-                },
-                t('chat.deleteForEveryone')
-              ),
-            ]),
+        inHeadHunter
+          ? null
+          : deleteButton('me', false, 'chat.deleteForMe', false),
+        inHeadHunter || (!isGroup && allMine)
+          ? deleteButton('all', true, scope, true)
+          : null,
         el(
           'button',
           { key: 'cancel', type: 'button', onClick: onClose },
@@ -1219,7 +1215,7 @@ export const MessageBubble = ({
   const [menu, setMenu] = useState(null);
   const row = useRef(null);
   const bubble = useRef(null);
-  const mine = message.sender === 'me';
+  const mine = isMine(message);
   const leaving = useLeavingRow(row, message);
   const revision = message.versionHead;
   const mediaApi = useMemo(
@@ -1321,15 +1317,17 @@ const withKeyboard = (bubble, message, onAction) =>
         'div',
         {
           key: 'bub',
-          className:
-            message.sender === 'me' ? 'bubble-stack out' : 'bubble-stack in',
+          className: isMine(message) ? 'bubble-stack out' : 'bubble-stack in',
         },
         [bubble, el(InlineKeyboard, { key: 'kb', message, onAction })]
       )
     : bubble;
 
 const canFastReply = (message, mine, onAction) =>
-  !mine && !message.pending && typeof onAction === 'function';
+  !mine &&
+  !message.pending &&
+  canReplyTo(message) &&
+  typeof onAction === 'function';
 
 // Desktop's corner "Reply": in a group, at an incoming bubble's top
 // right while the pointer is on it.
@@ -1389,13 +1387,7 @@ const BubbleActionsInner = ({ message, composer }) => {
   const t = useT();
   if (message.delivery === 'failed') {
     return el('div', { className: 'bubble-failed', role: 'alert' }, [
-      el(
-        'span',
-        { key: 'why' },
-        isPaidFailure(message.code)
-          ? failureText(t, message)
-          : (message.error ?? t('chat.failure.other', { error: '' }))
-      ),
+      el('span', { key: 'why' }, failureText(t, message)),
       el(
         'button',
         {

@@ -1,0 +1,18 @@
+{
+  "archive": "discovery-batch-handoff.tar.gz",
+  "files": {
+    "application-batch-discovery.js": "79619a8cc21062dfb2bdb6e07e33a8181e64ad6c2e2db4cdb3e16c9a1fbd8e7a",
+    "discovery-batch-before.log": "579c920cee7e13233e829065cce00c41eef0ae235a3e15d1032fbb11cd5e92d9",
+    "discovery-batch-browser-before.log": "cc97fbaf86f2dfb8091f546c89ab1555070b343f9ab558e2f69727f83bf22080",
+    "discovery-batch-browser-final.log": "0db74a2d4d17507470ca1712015f50d538b32e15551764a932c3e1b13d15e6c9",
+    "discovery-batch-build.log": "c11fbc0810d0c08f3f3abb11fd0314edfa55c64bbaae0d363e1ac6e1d9f4feb8",
+    "discovery-batch-deno.log": "80428fcc3be4ad95b3b60941d1aeba83f4080de5043dae4e001e8c66e9fef871",
+    "discovery-batch-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "discovery-batch-lint.log": "94fc1e6fed6f4428516005bad0f8a0fe427afae9db7bcb7c544c10263c4548ab",
+    "discovery-batch-mcp-effects.json": "99de91bd3a91a02a0338fe8a1d8c803b2083805b61109564495efa8f4c76303f",
+    "discovery-batch-mcp-server.log": "f8e7df68c7c0d972bd8b8b72d9e9a9f86bb8ec08d294cbfc771608a64531dec3",
+    "discovery-batch-node.log": "a798cb4858567cfbcdc3960c1708b245816bb85288b9a07e335969e39a07c544",
+    "discovery-batch-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source.diff": "a380d7ab8bdd277152fef87143e26b6f1a45e8137b638fb307dc0ee2934cdbb8"
+  }
+}

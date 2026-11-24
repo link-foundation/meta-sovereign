@@ -1,0 +1,23 @@
+{
+  "archive": "option-clear-retry.tar.gz",
+  "files": {
+    "js/tests/question-browser-watch.test.js": "360349dde4bd7665e6bdaae621ea9d4b75ec8023ec4881013f3529b2db410c69",
+    "js/tests/helpers/e2e-question-browser-watch.mjs": "862d88a721eacbb4121fafc32021879795ccbba2efbc50067a326eaf3079f4ba",
+    "js/tests/e2e-question-controls-browser.mjs": "4ffa6be30ea0041e782384da561292a83fa02f40e41c519a7c286488baa533bc",
+    "js/src/automation/question-watch-cycle.js": "4adb0f3fd830e2deb259853493cd492571139f8471a4d49d7745f7606bdf35ca",
+    "js/src/sources/browser-choice-controller.js": "4e16b103458ddb2035aee50abf5f59a967ade5355a04a65e5d0a9e01f2713a7e",
+    "experiments/issue-56/question-watch-fixture.mjs": "bd0dbbf0659db669c7621c4f1b635ecc12cceef521445855324aef0d1395d1bf",
+    "experiments/issue-56/question-watch-ui.mjs": "ffc2c4afecb91f38bcdabad8d9b716f519024f787e8c14f0f06a81af38eab647",
+    "experiments/issue-56/collect-option-clear-retry.py": "dba7676261cbc4e66d2e22cbd1d4a66e73a06a7cc680ca5cbfc8bd3cea2e4793",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "experiments/issue-56/hosted_evidence.py": "12c6d209ec927021d430ee2d36590bb4d1de298a4d910906d3f6806e2e2d0510",
+    "docs/case-studies/issue-56/option-clear-retry.md": "a6770424661508868944d41cff4445db69112d8aa3bfc591fe5541f8bfe90187",
+    "ci-logs/question-watch-clear-retry-node.log": "ab665463eea3630434f8acc32a45cebc7c60364230d12e97e696753abcca08ab",
+    "ci-logs/question-watch-clear-retry-native.log": "7cf290aad90b3134e299a1657ce731a52c2202359540cdfb6549b6ad2caef188",
+    "ci-logs/salary-options-reference-readme.json": "874d06064c55e26f44237d6d981c91454bca5a0ecae0dc1fd24c9c12d837fc09",
+    "references/README.md": "e6451a03fccfbe0f41ee09cc283a9ac6a38e1c7ad6369131fcf801c27c8507af",
+    "ci-logs/qa14-reference-source.json": "a6db9a116ba1575ad1177544bbf134f62440265b773c8bbb9f67cd96e13950f0",
+    "references/src/chat-options.mjs": "9c689cfea5e689f20cc359247042264cafc0e1a7dfb1dbc7ea8ddcd3a62b718a",
+    "metadata.json": "791378da311042a4bb4183bd556f394965b58e78f2c123cd6efe9bc9b909a726"
+  }
+}

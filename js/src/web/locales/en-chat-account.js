@@ -6,8 +6,7 @@ export const enChatAccount = {
   'chat.versions.edited': 'Edited messages',
   'chat.versions.local':
     'Versions saved by this server remain available after the service changes or deletes the message.',
-  'chat.versions.partial':
-    'Versions from before this server first observed the message were not captured.',
+  'chat.versions.partial': 'Some earlier versions may be unavailable.',
   'chat.versions.mediaMissing':
     'No attachment bytes were retained for this version.',
   'chat.versions.attachment': 'Attachment',
@@ -402,7 +401,11 @@ export const enChatAccount = {
     'Chats and people on this list are never messaged by an automation, the autopilot, greetings or a broadcast. Blocked, left, deleted accounts, bots and channels are skipped on their own.',
   'safety.optout.empty': 'Nobody is on the list.',
   'safety.optout.network': 'Network',
-  'safety.optout.chat': 'Chat or person id',
+  'safety.optout.kind': 'Never message',
+  'safety.optout.chatKind': 'Chat',
+  'safety.optout.contactKind': 'Person',
+  'safety.optout.chat': 'Chat ID',
+  'safety.optout.contact': 'Person ID',
   'safety.optout.note': 'Note',
   'safety.optout.add': 'Add',
   'safety.optout.remove': 'Remove',
@@ -413,6 +416,13 @@ export const enChatAccount = {
   'safety.quiet.zone': 'Time zone (empty: this computer)',
   'safety.quiet.save': 'Save',
   'safety.saved': 'Saved',
+  'safety.cooldown.label': 'Default wait between automated messages (days)',
+  'safety.cooldown.hint':
+    'Used when an automation has no own cooldown; its silence condition still applies. Empty: {days} days.',
+  'safety.cooldown.invalid':
+    'Enter zero or more days, or leave this empty for the default.',
+  'safety.failed':
+    'Settings were not confirmed. Your changes have not been marked as saved.',
   'email.pull.button': 'Fetch mail now',
   'email.pull.working': 'Fetching mail…',
   'email.pull.done': 'Fetched {count} new messages',
@@ -425,6 +435,16 @@ export const enChatAccount = {
   'email.download': 'Download',
   'pull.fetchNow': 'Fetch now',
   'pull.fetching': 'Fetching…',
+  'pull.history.changed':
+    'The chat list changed while reading. Read {count} messages; fetch again to recheck coverage.',
+  'pull.history.hint':
+    'Read HH history on demand. Fetch again to continue a partial read. This does not mark messages as read.',
+  'pull.history.complete':
+    'Read {count} messages. Available API history checked: {total} messages across {chats} chats.',
+  'pull.history.partial':
+    'Read {count} messages. History is partial ({total} messages, {chats} chats finished). Fetch again to continue.',
+  'pull.history.limited':
+    'Read {count} messages. Reached the API chat-list limit; older chats may be missing.',
   'pull.done': 'Fetched. {count} messages read.',
   'pull.rateLimited': 'Fetched a moment ago. Try again in {seconds} s.',
   'pull.notConnected': 'Save the access token first, then fetch.',

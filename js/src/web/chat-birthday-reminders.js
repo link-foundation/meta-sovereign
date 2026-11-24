@@ -11,7 +11,7 @@ import {
   readBirthdayGreeting,
   reminderBirthdays,
 } from './birthday-reminders.js';
-import { traceClient } from './client-log.js';
+import { debugBrowser, traceClient } from './client-log.js';
 import { READ_RECOVERED_EVENT } from './read-retry.js';
 
 const EMPTY = [];
@@ -44,14 +44,20 @@ const useBirthdayList = (api, enabled, account, day, revision) => {
       .then((answer) => {
         if (live && activeAccount() === account && answer?.ok) {
           setList({ account, day, birthdays: answer.birthdays ?? [] });
+        } else if (live && activeAccount() === account) {
+          setList({ account, day, birthdays: EMPTY, unavailable: true });
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        if (live && activeAccount() === account) {
+          setList({ account, day, birthdays: EMPTY, unavailable: true });
+        }
+      });
     return () => {
       live = false;
     };
   }, [api, enabled, account, day, revision]);
-  return list?.account === account && list.day === day ? list.birthdays : EMPTY;
+  return list?.account === account && list.day === day ? list : null;
 };
 
 const checkHistory = async (api, ids, day, remember, cancelled) => {
@@ -85,6 +91,7 @@ const useGreetedBirthdays = (
   { enabled, todayIds, account, day, revision, chats, messages }
 ) => {
   const [greeted, setGreeted] = useState(null);
+  const [checked, setChecked] = useState(null);
   const [attempt, setAttempt] = useState(0);
   const remember = useCallback(
     (ids) => {
@@ -126,8 +133,16 @@ const useGreetedBirthdays = (
     let live = true;
     let retryTimer = null;
     const cancelled = () => !live || activeAccount() !== account;
+    debugBrowser('birthday_history', {
+      phase: 'pending',
+      contacts: todayIds.split(',').length,
+    });
     checkHistory(api, todayIds.split(','), day, remember, cancelled).then(
       (failed) => {
+        if (!cancelled()) {
+          setChecked({ account, day: day.start, todayIds, failed });
+          debugBrowser('birthday_history', { phase: 'settled', failed });
+        }
         if (!cancelled() && failed) {
           retryTimer = globalThis.setTimeout(
             () => setAttempt((n) => n + 1),
@@ -141,9 +156,18 @@ const useGreetedBirthdays = (
       globalThis.clearTimeout(retryTimer);
     };
   }, [api, enabled, todayIds, account, day, revision, attempt, remember]);
-  return greeted?.account === account && greeted.day === day.start
-    ? greeted.ids
-    : new Set();
+  const current =
+    checked?.account === account &&
+    checked.day === day.start &&
+    checked.todayIds === todayIds;
+  return {
+    hidden:
+      greeted?.account === account && greeted.day === day.start
+        ? greeted.ids
+        : new Set(),
+    pending: enabled && Boolean(todayIds) && !current,
+    unavailable: enabled && current && checked.failed,
+  };
 };
 
 export const useBirthdayReminders = (
@@ -161,7 +185,8 @@ export const useBirthdayReminders = (
   const revision = useBirthdayRevision(enabled);
   const list = useBirthdayList(api, enabled, account, dayStart, revision);
   const visible = useMemo(
-    () => reminderBirthdays(list, tomorrow, new Date(dayStart)),
+    () =>
+      reminderBirthdays(list?.birthdays ?? EMPTY, tomorrow, new Date(dayStart)),
     [list, tomorrow, dayStart]
   );
   const todayIds = visible
@@ -169,7 +194,7 @@ export const useBirthdayReminders = (
     .map((one) => String(one.chat))
     .sort()
     .join(',');
-  const hidden = useGreetedBirthdays(api, {
+  const greetings = useGreetedBirthdays(api, {
     enabled: enabled && hideGreeted,
     todayIds,
     account,
@@ -178,9 +203,28 @@ export const useBirthdayReminders = (
     chats,
     messages,
   });
-  return enabled
-    ? visible.filter(
-        (one) => !hideGreeted || one.days !== 0 || !hidden.has(String(one.chat))
-      )
-    : EMPTY;
+  const pending =
+    (enabled && Boolean(api?.telegramContactBirthdays) && !list) ||
+    greetings.pending;
+  const status = !enabled
+    ? 'disabled'
+    : pending
+      ? 'loading'
+      : list?.unavailable || greetings.unavailable
+        ? 'unavailable'
+        : 'ready';
+  return {
+    status,
+    // Do not briefly insert already-greeted contacts above a pressed chat row
+    // while their existing delivered greetings are still being read.
+    list:
+      enabled && !pending
+        ? visible.filter(
+            (one) =>
+              !hideGreeted ||
+              one.days !== 0 ||
+              !greetings.hidden.has(String(one.chat))
+          )
+        : EMPTY,
+  };
 };

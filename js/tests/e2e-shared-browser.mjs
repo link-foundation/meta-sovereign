@@ -1,3 +1,4 @@
+import { fulfilWire, requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for a chat's profile column and its shared media
 // (R-Y111), as Telegram Desktop has them: the chat's photo, name,
 // @username and about text; a row for each kind it has, with how many;
@@ -96,7 +97,7 @@ const errors = [];
 page.on('pageerror', (e) => errors.push(String(e)));
 
 const fulfil = (route, body) =>
-  route.fulfill({
+  fulfilWire(route, {
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify(body),
@@ -114,7 +115,7 @@ await page.route('**/api/telegram/history', (route) =>
   fulfil(route, { written: 0, cached: true, complete: true, newest: false })
 );
 await page.route('**/api/telegram/history-at', (route) =>
-  fulfil(route, { ok: true, id: route.request().postDataJSON().id })
+  fulfil(route, { ok: true, id: requestBody(route.request()).id })
 );
 await page.route('**/api/telegram/chat-info*', (route) => {
   const group = new URL(route.request().url()).search.includes(GROUP);
@@ -134,7 +135,7 @@ await page.route('**/api/telegram/chat-info*', (route) => {
 });
 const asked = [];
 await page.route('**/api/telegram/shared-counts', (route) => {
-  const { chat } = route.request().postDataJSON();
+  const { chat } = requestBody(route.request());
   fulfil(route, {
     ok: true,
     counts:
@@ -160,7 +161,7 @@ await page.route('**/api/telegram/shared-counts', (route) => {
   });
 });
 await page.route('**/api/telegram/shared-media', async (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   asked.push(body);
   const ids = body.kind === 'photos' ? PHOTOS : FILES.map(([id]) => id);
   const messages = await Promise.all(

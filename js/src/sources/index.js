@@ -19,7 +19,7 @@
 
 import { emailSource } from './email.js';
 import { emailOptionsFrom, secretValue } from './email-store.js';
-import { putAll } from '../storage/universal.js';
+import { storeSourceMessages } from './store-messages.js';
 import { telegramSource } from './telegram.js';
 import { vkSource } from './vk.js';
 import { xSource } from './x.js';
@@ -123,7 +123,7 @@ export const stampSourceLink = (link, source) => {
 export const importInto = async (store, source, archive) => {
   const adapter = getSource(source);
   const messages = await adapter.parseArchive(archive);
-  return putAll(store, messages);
+  return storeSourceMessages(store, source, messages);
 };
 
 // The names the connection screens save a network's token under.
@@ -141,6 +141,7 @@ const OPTION_KEYS = {
 const secretToken = async (store, source, explicitId) => {
   const ids = [
     explicitId,
+    source === 'vk' ? 'secret:vk:user-token' : null,
     ...TOKEN_KEYS.map((key) => `secret:${source}:${key}`),
   ].filter(Boolean);
   for (const id of ids) {
@@ -204,8 +205,9 @@ export const pullBrowserInto = async (
       )
     );
   }
-  await putAll(
+  await storeSourceMessages(
     store,
+    source,
     links.map((link) => stampSourceLink(link, source))
   );
   return {
@@ -262,18 +264,23 @@ const pullApiInto = async (store, source, options = {}) => {
   const given = Object.fromEntries(
     Object.entries(options).filter(([, value]) => value !== undefined)
   );
-  const result = await live.pullMessages({ ...saved, ...given, token });
+  const result = await live.pullMessages({ ...saved, ...given, token, store });
   const links = result.links ?? [];
-  await putAll(
+  await storeSourceMessages(
     store,
+    source,
     links.map((link) => stampSourceLink(link, source))
   );
   // What the pull remembers is written once the links are stored (R-Z5).
   await result.afterStore?.();
-  return {
-    source,
-    imported: links.length,
-    nextOffset: result.nextOffset ?? null,
-    rawCount: result.rawCount ?? links.length,
-  };
+  return apiPullResult(source, links, result);
 };
+
+const apiPullResult = (source, links, result) => ({
+  source,
+  imported: links.length,
+  nextOffset: result.nextOffset ?? null,
+  rawCount: result.rawCount ?? links.length,
+  ...(result.history ? { history: result.history } : {}),
+  ...(result.nextCursor ? { nextCursor: result.nextCursor } : {}),
+});

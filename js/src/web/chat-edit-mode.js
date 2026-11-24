@@ -43,9 +43,11 @@ export const editOutcome = ({ message, text, before }) => {
  * (an empty text is then allowed), the link preview's choice for text.
  */
 export const editBody = ({ message, text, preview }) =>
-  hasMedia(message)
-    ? { ids: [message.id], text, caption: true }
-    : { ids: [message.id], text, ...(preview ?? {}) };
+  message.source === 'hh'
+    ? { ids: [message.id], text, previousText: message.body }
+    : hasMedia(message)
+      ? { ids: [message.id], text, caption: true }
+      : { ids: [message.id], text, ...(preview ?? {}) };
 
 /** The bar over the box while editing. */
 export const EditBar = ({ message, onCancel }) => {

@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for the Contacts window and read times in private chats
 // (R-Y189), as Telegram Desktop has them: the list's menu has Contacts, a
 // window with every contact's avatar, name and status ("online", "last
@@ -84,7 +85,7 @@ await page.route('**/api/telegram/chat-contacts', (route) =>
 );
 const readAsked = [];
 await page.route('**/api/telegram/message-read-time', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   readAsked.push(body.id);
   if (body.id === 2) {
     return fulfil(route, { ok: true, read: true, date: Date.now() - 600_000 });

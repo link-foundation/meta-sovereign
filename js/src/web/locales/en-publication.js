@@ -1,0 +1,96 @@
+export const enPublication = {
+  'publication.title': 'Saved publication destinations',
+  'publication.debug':
+    'Record redacted diagnostics (no message text or credentials)',
+  'publication.hint':
+    'Publish one message to selected Telegram channels or groups, VK walls and X accounts. Review the destinations before publishing.',
+  'publication.compose': 'Compose',
+  'publication.destinations': 'Destinations & credentials',
+  'publication.history': 'Published posts',
+  'publication.selectDestinations': 'Publication destinations',
+  'publication.noDestinations':
+    'Add an enabled destination in Destinations & credentials.',
+  'publication.selectAll': 'Select all',
+  'publication.selectNone': 'Clear selection',
+  'publication.text': 'Publication text',
+  'publication.publish': 'Publish reviewed message',
+  'publication.new': 'New publication',
+  'publication.refreshHistory': 'Check history',
+  'publication.review': 'Review this publication',
+  'publication.permissionHint':
+    'A saved credential or successful identity test does not establish write permission. Each destination reports its actual delivery result.',
+  'publication.configured': 'Credential available',
+  'publication.notWritable': 'Selected credential is missing or read-only',
+  'publication.authenticatedAccount': 'Authenticated account',
+  'publication.previewChanged':
+    'Destination or credential settings changed. Review the updated preview and publish again.',
+  'publication.pendingHint':
+    'Delivery is uncertain or still running. Check history and the destinations before starting another publication. This request will not be sent again automatically.',
+  'publication.newAfterUnknown':
+    'Have you checked the original destinations? Starting a new publication uses a new request ID and may repeat a message that already arrived.',
+  'publication.storageRequired':
+    'The browser cannot retain this request ID. Enable local storage before publishing so an interruption can be recovered.',
+  'publication.noHistory': 'No saved publications yet.',
+  'publication.deletePost': 'Delete published post',
+  'publication.deleteAsk':
+    'Delete the recorded post from {label}? This changes the provider destination.',
+  'publication.deletion.deleted': 'Deletion confirmed.',
+  'publication.deletion.failed':
+    'Deletion failed. The publication receipt is retained.',
+  'publication.deletion.unknown':
+    'Deletion is uncertain. Check the destination before another deletion attempt.',
+  'publication.deletion.deleting': 'Deleting…',
+  'publication.test': 'Test identity',
+  'publication.identityVerified':
+    'Identity verified with a read-only request. Write permission is checked when publishing.',
+  'publication.destinationEditor': 'Add or edit a destination',
+  'publication.id': 'Destination ID',
+  'publication.label': 'Destination name',
+  'publication.network': 'Network',
+  'publication.kind': 'Destination type',
+  'publication.destination': 'Telegram chat ID / @username or VK wall ID',
+  'publication.authMode': 'Authentication mode',
+  'publication.format': 'Text format',
+  'publication.enabled': 'Enabled',
+  'publication.fromGroup': 'Publish as the VK community',
+  'publication.signed': 'Sign the community post with the author',
+  'publication.edit': 'Edit',
+  'publication.remove': 'Remove destination',
+  'publication.destinationSaved': 'Destination saved.',
+  'publication.destinationRemoved':
+    'Destination removed. Published post receipts are retained.',
+  'publication.credentials': 'Publication credentials',
+  'publication.credentialsHint':
+    'Values are stored in this server’s secret records. Blank fields preserve saved values. Clearing removes the saved value; an environment or older connection credential may still apply.',
+  'publication.credentialNetwork': 'Credential provider',
+  'publication.credentialsSaved':
+    'Credential settings saved. Values are not returned.',
+  'publication.present': 'A saved or environment credential is available.',
+  'publication.missing': 'No credential available.',
+  'publication.clearSaved': 'Clear saved {field}',
+  'publication.telegramLogin': 'Telegram user login, 2FA and saved sessions',
+  'publication.botToken': 'Telegram bot token',
+  'publication.userToken': 'VK user token',
+  'publication.communityToken': 'VK community token',
+  'publication.apiKey': 'X API key',
+  'publication.apiKeySecret': 'X API key secret',
+  'publication.accessToken': 'X user access token',
+  'publication.accessTokenSecret': 'X access token secret',
+  'publication.bearerToken': 'X app-only bearer token',
+  'publication.networkBroadcast': 'Network broadcast',
+  'publication.option.channel': 'Telegram channel',
+  'publication.option.group': 'Telegram group',
+  'publication.option.personal-wall': 'VK personal wall',
+  'publication.option.community-wall': 'VK community wall',
+  'publication.option.account': 'Authenticated X account',
+  'publication.option.auto':
+    'Automatic (Telegram prefers bot; X prefers OAuth 1.0a)',
+  'publication.option.bot': 'Telegram Bot API',
+  'publication.option.user': 'User session / user token',
+  'publication.option.community': 'VK community token',
+  'publication.option.oauth1-user': 'X OAuth 1.0a user',
+  'publication.option.oauth2-user': 'X OAuth 2.0 user',
+  'publication.option.app-only': 'X app-only (read-only)',
+  'publication.option.plain': 'Plain text',
+  'publication.option.html': 'Telegram HTML',
+};

@@ -1,0 +1,28 @@
+{
+  "archive": "ci-deno-shards.tar.gz",
+  "files": {
+    ".github/workflows/release.yml": "e18fd9c27fc4eee62c200316553083b5e1ddfccd4a6907db92ff951d18982fc9",
+    "before/.github/workflows/release.yml": "3831fd8f34221eb91837b31195d0d45ea3c3dd2515c9a94b17d5b328bab2318c",
+    "before/js/tests/ci-contracts.test.js": "33cbf2de8368f4c43caaaf0e7d627df48a7473b4ba608256de84229e08b72554",
+    "ci-logs/deno-shards-before.log": "419f9ffb2ec4813d6fa3464390db51bae83f42e16de1aedf6bacc08fd6388152",
+    "ci-logs/deno-shards-deno.log": "7aff24c749515d9a45fa055173d1a897705d2d18b0bac9bfb895c1851abb1521",
+    "ci-logs/deno-shards-format.log": "e7d6a3c70a5465cf8b55d764fc97282b2cff5a5b50374f83062ccf10fe565eec",
+    "ci-logs/deno-shards-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/deno-shards-node.log": "a1be943d35ba14ae1eab21a2385cf84cd0a9b7db1892f06f71ce38ffe99a45a7",
+    "ci-logs/deno-shards-workflows.log": "990ebea27086bd363aafcd9754445ba7eab4e4bad2d634c815c8280a6916cb1c",
+    "ci-logs/resume-current-runs.json": "9215ce24a579fa6306397217850ea669fc074d26f0427e6ff2acb9370efa3d5a",
+    "ci-logs/resume-deno-annotations.json": "d4a7ac7ee9d33cb310c9f989bd9e7483f9189be8fcab2e7a62b89048b1b4cb5c",
+    "ci-logs/resume-deno-job.json": "058c75c57a1de9bbfdb852c2403b1c4130de5af41bf24245746bd5aa7a9328c0",
+    "ci-logs/resume-parent-windows-deno.log": "f27a4ba320c54edf9c94d93ab7b8bb8b38a13aedf617690b81244c0dd720a6d8",
+    "ci-logs/resume-published-checks.json": "df4a9fc287655088808ec0225ea5132d02ec6074953e1ec5c8b3e904e8a3df9c",
+    "ci-logs/resume-published-checks.log": "7a775d29182ef93d40487e34ecbedba223c5789e498094e0a226c643bb952300",
+    "docs/case-studies/issue-56/ci-deno-shards.md": "a638686ea4f07d5c1ffa5ba59d71d6c4c828eee8a32e574593f2b65273869fcb",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-ci-deno-shards.py": "f103ccb866809907fd8159e753128ff8b44d7dbd8a1716262d98bfa8f8abbbb5",
+    "experiments/issue-56/evidence_bundle.py": "54ab3b457200a9d64babdf120e660df1fe305549e6520d682db92f7c1bfd5060",
+    "js/tests/ci-contracts.test.js": "f1358a0281109837598fb9739d108f0cd782d11e4ddbb1f693513c7625e78962",
+    "js/tests/ci-deno-shards.test.js": "ff5a789ad63d637afcfdefca6b6cf8f02ab77ed2fe31fb736620b4b5fc39dc09",
+    "js/tests/ci-node-shards.test.js": "2e89a4d10d90b4fd3738d767a3ffc68f0510cd7caf33bf8773851073c7f5fdf8",
+    "metadata.json": "c236f276abd3a18b75c115c765221b466142be13a83f24905c6da1b342a5d5ed"
+  }
+}

@@ -1,14 +1,40 @@
 import { registerDefaultHandlers } from './handlers-bootstrap.js';
+import { closeTelegramLogins } from './telegram-login-registry.js';
+import { traceShutdown } from './shutdown-trace.js';
 
 const stopAccounts = (ctx, handoff) =>
   Promise.allSettled(
-    [ctx.telegramAccount, ctx.telegramAccounts, ctx.telegramExtras].map(
-      (service) =>
+    ['telegramAccount', 'telegramAccounts', 'telegramExtras'].map((name) =>
+      traceShutdown(
+        name,
         Promise.resolve().then(() =>
-          service?.stop(handoff ? { handoff: true } : undefined)
+          ctx[name]?.stop(handoff ? { handoff: true } : undefined)
         )
+      )
     )
   );
+
+const stopExperienceExport = async (ctx) => {
+  ctx.cvExperienceClosing = true;
+  await Promise.allSettled([
+    traceShutdown('cvExperienceReview', ctx.cvExperienceReview?.close()),
+  ]);
+  await Promise.allSettled([
+    traceShutdown('cvExperienceAuto', ctx.cvExperienceAuto?.close()),
+  ]);
+  return Promise.allSettled([
+    traceShutdown('cvExperience', ctx.cvExperience?.close()),
+    traceShutdown('cvHhAcquisition', ctx.cvHhAcquisition?.close()),
+    traceShutdown('cvHhWorkplaceJobs', ctx.cvHhWorkplaceJobs?.close()),
+    traceShutdown('cvLinkedinAboutJobs', ctx.cvLinkedinAboutJobs?.close()),
+    traceShutdown('cvExperiencePlans', ctx.cvExperiencePlans?.close()),
+    traceShutdown(
+      'cvLinkedinPositionJobs',
+      ctx.cvLinkedinPositionJobs?.close()
+    ),
+    traceShutdown('cvFormalReports', ctx.cvFormalReports?.close()),
+  ]);
+};
 
 export const createRuntimeLifecycle = ({
   server,
@@ -19,6 +45,7 @@ export const createRuntimeLifecycle = ({
   sockets,
   flush,
   flushLog,
+  releaseStore,
 }) => {
   let bus = null;
   let started = false;
@@ -34,14 +61,30 @@ export const createRuntimeLifecycle = ({
     server.requestGate.activate();
   };
   const stopRuntime = () => {
+    ctx.publicationsClosing = true;
+    ctx.followClosing = true;
+    ctx.vacanciesClosing = true;
+    const experienceDone = stopExperienceExport(ctx);
     bus?.close();
-    ctx.replies.close().catch(() => {});
-    ctx.closeAutomations().catch(() => {});
     ctx.chatIndex.close();
     ctx.knowledge?.close();
     return Promise.allSettled([
-      ctx.stopJobs(),
-      ctx.marketplaceSessions?.stop(),
+      traceShutdown('replies', ctx.replies.close()),
+      traceShutdown('automations', ctx.closeAutomations()),
+      traceShutdown('jobs', ctx.stopJobs()),
+      traceShutdown('marketplaceSessions', ctx.marketplaceSessions?.stop()),
+      traceShutdown('publications', ctx.publications?.close()),
+      traceShutdown('followBacklinks', ctx.followBacklinks?.stop()),
+      traceShutdown('followDiscovery', ctx.followDiscovery?.stop()),
+      traceShutdown('vkCache', ctx.vkCache?.close()),
+      traceShutdown('vkStickers', ctx.vkStickers?.close()),
+      traceShutdown('vkToken', ctx.vkToken?.close()),
+      traceShutdown('runnerSessions', ctx.runnerSessions?.close()),
+      traceShutdown('forms', ctx.forms?.stop()),
+      traceShutdown('vacancies', ctx.vacancies?.stop()),
+      experienceDone,
+      traceShutdown('answerModel', ctx.answerModel?.stop?.()),
+      traceShutdown('telegramLogins', closeTelegramLogins(ctx)),
     ]);
   };
   return {
@@ -80,13 +123,14 @@ export const createRuntimeLifecycle = ({
           socket.destroy();
         }
       })
-        .then(() => (handoff ? accountsDone : jobsDone))
+        .then(() => Promise.all([accountsDone, jobsDone]))
         .then(() => {
           trace('flush_started');
           return Promise.resolve(handoff ? flushLog?.() : flush()).catch(
             () => {}
           );
         })
+        .finally(() => releaseStore?.())
         .then((result) => {
           trace('close_finished');
           return result;

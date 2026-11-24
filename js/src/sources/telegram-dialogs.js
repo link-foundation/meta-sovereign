@@ -17,6 +17,12 @@
  * once and the next update about it changes nothing.
  */
 
+import {
+  telegramOperationUpdates,
+  traceTelegramMembership,
+  invokeTelegramWrite,
+} from './telegram-membership-receipt.js';
+
 const SOURCE = 'telegram';
 
 export const DIALOG_ACTIONS = Object.freeze([
@@ -122,16 +128,18 @@ export const createDialogActions = (env, { userClient, apply }) => {
         new Api.messages.ToggleDialogPin({ peer, pinned: action === 'pin' })
       );
     } else if (action === 'mute' || action === 'unmute') {
-      await client.invoke(
+      return invokeTelegramWrite(
+        client,
         new Api.account.UpdateNotifySettings({
-          peer,
+          peer: new Api.InputNotifyPeer({ peer }),
           settings: new Api.InputPeerNotifySettings({ muteUntil }),
         })
       );
     } else if (action === 'archive' || action === 'unarchive') {
       const input =
         typeof peer === 'object' ? peer : await client.getInputEntity(peer);
-      return client.invoke(
+      return invokeTelegramWrite(
+        client,
         new Api.folders.EditPeerFolders({
           folderPeers: [
             new Api.InputFolderPeer({
@@ -169,7 +177,20 @@ export const createDialogActions = (env, { userClient, apply }) => {
     const answer = await env.connection.withPeer(client, target, (peer) =>
       ask(client, Api, { action, chat: target, peer, muteUntil })
     );
-    if (answer) {
+    if (['mute', 'unmute', 'archive', 'unarchive'].includes(action)) {
+      const acknowledged =
+        action === 'mute' || action === 'unmute'
+          ? answer === true
+          : Boolean(telegramOperationUpdates(answer));
+      if (!acknowledged) {
+        traceTelegramMembership(env, action, {
+          ok: false,
+          code: 'outcome-unknown',
+        });
+        return { ok: false, code: 'outcome-unknown', chat: target, action };
+      }
+    }
+    if (telegramOperationUpdates(answer)) {
       await apply(client, answer);
     }
     const folder = Number((await readOf(target))?.folder ?? 0) === 1 ? 1 : 0;

@@ -1,0 +1,158 @@
+{
+  "questions.contexts": {
+    "en": "Context values",
+    "ru": "Значения по контексту",
+    "zh": "上下文值",
+    "hi": "संदर्भ के मान"
+  },
+  "questions.contextHint": {
+    "en": "Set words that select profile values for a currency, work format or another context. The question takes priority, then recent conversation, vacancy pay, vacancy description and your default. Missing values stay unavailable.",
+    "ru": "Задайте слова для выбора значений профиля по валюте, формату работы или другому контексту. Приоритет: вопрос, недавняя беседа, оплата в вакансии, описание вакансии, ваше значение по умолчанию. Отсутствующие значения не подменяются.",
+    "zh": "设置关键词，按币种、工作方式或其他上下文选择资料值。优先顺序为当前问题、近期对话、职位薪酬、职位描述和默认值。缺失值不会被其他选项替代。",
+    "hi": "मुद्रा, काम करने के तरीके या अन्य संदर्भ के लिए प्रोफ़ाइल मान चुनने वाले शब्द सेट करें। प्राथमिकता: प्रश्न, हाल की बातचीत, नौकरी का वेतन, विवरण और आपका डिफ़ॉल्ट। अनुपलब्ध मान भरे नहीं जाते।"
+  },
+  "questions.contextGroup": {
+    "en": "Context group",
+    "ru": "Группа контекста",
+    "zh": "上下文组",
+    "hi": "संदर्भ समूह"
+  },
+  "questions.contextKey": {
+    "en": "Context field, e.g. currency",
+    "ru": "Поле контекста, например currency",
+    "zh": "上下文字段，例如 currency",
+    "hi": "संदर्भ फ़ील्ड, जैसे currency"
+  },
+  "questions.contextChoice": {
+    "en": "Context choice",
+    "ru": "Вариант контекста",
+    "zh": "上下文选项",
+    "hi": "संदर्भ विकल्प"
+  },
+  "questions.contextChoiceId": {
+    "en": "Choice value, e.g. USD",
+    "ru": "Значение варианта, например USD",
+    "zh": "选项值，例如 USD",
+    "hi": "विकल्प का मान, जैसे USD"
+  },
+  "questions.contextKeywords": {
+    "en": "Words that select this choice, one per line",
+    "ru": "Слова для выбора варианта, по одному в строке",
+    "zh": "选择此选项的关键词，每行一个",
+    "hi": "यह विकल्प चुनने वाले शब्द, प्रत्येक पंक्ति में एक"
+  },
+  "questions.contextDefault": {
+    "en": "Default when context is absent",
+    "ru": "Значение при отсутствии контекста",
+    "zh": "无上下文时的默认值",
+    "hi": "संदर्भ न होने पर डिफ़ॉल्ट"
+  },
+  "questions.contextNoDefault": {
+    "en": "Require context",
+    "ru": "Требовать контекст",
+    "zh": "需要上下文",
+    "hi": "संदर्भ आवश्यक है"
+  },
+  "questions.contextAddGroup": {
+    "en": "Add context group",
+    "ru": "Добавить группу контекста",
+    "zh": "添加上下文组",
+    "hi": "संदर्भ समूह जोड़ें"
+  },
+  "questions.contextRemoveGroup": {
+    "en": "Remove context group",
+    "ru": "Удалить группу контекста",
+    "zh": "移除上下文组",
+    "hi": "संदर्भ समूह हटाएँ"
+  },
+  "questions.contextAddChoice": {
+    "en": "Add context choice",
+    "ru": "Добавить вариант контекста",
+    "zh": "添加上下文选项",
+    "hi": "संदर्भ विकल्प जोड़ें"
+  },
+  "questions.contextRemoveChoice": {
+    "en": "Remove context choice",
+    "ru": "Удалить вариант контекста",
+    "zh": "移除上下文选项",
+    "hi": "संदर्भ विकल्प हटाएँ"
+  },
+  "questions.contextPreview": {
+    "en": "Conversation and vacancy for preview",
+    "ru": "Беседа и вакансия для предпросмотра",
+    "zh": "预览所用的对话和职位",
+    "hi": "पूर्वावलोकन के लिए बातचीत और नौकरी"
+  },
+  "questions.contextPreviewHint": {
+    "en": "These fields are only for this preview. Sending uses the actual conversation and attached vacancy context.",
+    "ru": "Эти поля используются только для предпросмотра. При отправке используются реальная беседа и привязанный контекст вакансии.",
+    "zh": "这些字段仅用于本次预览。发送时使用实际对话及其关联的职位上下文。",
+    "hi": "ये फ़ील्ड केवल इस पूर्वावलोकन के लिए हैं। भेजते समय वास्तविक बातचीत और उससे जुड़ी नौकरी का संदर्भ उपयोग होता है।"
+  },
+  "questions.contextRecent": {
+    "en": "Recent messages, newest first, one per line",
+    "ru": "Недавние сообщения, от новых к старым, по одному в строке",
+    "zh": "近期消息，每行一条，最新的在前",
+    "hi": "हाल के संदेश, सबसे नया पहले, प्रत्येक पंक्ति में एक"
+  },
+  "questions.contextPay": {
+    "en": "Vacancy pay context",
+    "ru": "Контекст оплаты в вакансии",
+    "zh": "职位薪酬上下文",
+    "hi": "नौकरी के वेतन का संदर्भ"
+  },
+  "questions.contextDescription": {
+    "en": "Vacancy description",
+    "ru": "Описание вакансии",
+    "zh": "职位描述",
+    "hi": "नौकरी का विवरण"
+  },
+  "questions.contextEvidence": {
+    "en": "Why these values were selected",
+    "ru": "Почему выбраны эти значения",
+    "zh": "选择这些值的原因",
+    "hi": "ये मान क्यों चुने गए"
+  },
+  "questions.contextSource.question": {
+    "en": "Current question",
+    "ru": "Текущий вопрос",
+    "zh": "当前问题",
+    "hi": "वर्तमान प्रश्न"
+  },
+  "questions.contextSource.conversation": {
+    "en": "Recent conversation",
+    "ru": "Недавняя беседа",
+    "zh": "近期对话",
+    "hi": "हाल की बातचीत"
+  },
+  "questions.contextSource.vacancy-pay": {
+    "en": "Vacancy pay",
+    "ru": "Оплата в вакансии",
+    "zh": "职位薪酬",
+    "hi": "नौकरी का वेतन"
+  },
+  "questions.contextSource.vacancy-description": {
+    "en": "Vacancy description",
+    "ru": "Описание вакансии",
+    "zh": "职位描述",
+    "hi": "नौकरी का विवरण"
+  },
+  "questions.contextSource.default": {
+    "en": "Configured default",
+    "ru": "Заданное значение по умолчанию",
+    "zh": "已配置的默认值",
+    "hi": "सेट किया गया डिफ़ॉल्ट"
+  },
+  "questions.contextSource.missing": {
+    "en": "Context unavailable",
+    "ru": "Контекст недоступен",
+    "zh": "上下文不可用",
+    "hi": "संदर्भ उपलब्ध नहीं है"
+  },
+  "questions.contextSource.ambiguous": {
+    "en": "Ambiguous context",
+    "ru": "Неоднозначный контекст",
+    "zh": "上下文不明确",
+    "hi": "संदर्भ अस्पष्ट है"
+  }
+}

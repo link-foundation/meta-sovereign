@@ -1,0 +1,28 @@
+{
+  "archive": "assignment-input.tar.gz",
+  "files": {
+    "before/js/src/assignments/commands.js": "daa5d3f524b314b5b6e6e708e4b76f1fb3de2c8ee12ea43dbf57662a616590ff",
+    "ci-logs/assignment-input-before.log": "8a1f7d9905828976bb8a61b5cc304fcce1641713f45e4a802d87a11ec9fe6ef8",
+    "ci-logs/assignment-input-deno.log": "9f0b52d086132ac04339f42fd03b0a9bfa33507e3d896b98542a78abbfc18a6e",
+    "ci-logs/assignment-input-evidence.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/assignment-input-format.log": "4e586d7510ecd47932a0906cfdfa256c79d387826817ca50393858268124f5f0",
+    "ci-logs/assignment-input-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/assignment-input-node.log": "42b082fd046f5427a67d70faf38276b394a26428b4957e34f138f7a1c08969d4",
+    "ci-logs/assignment-input-parent-node.log": "511606598d5bbb485e8919f7cbdc9e5bad0a59b64a0732e933646c62a96df3f1",
+    "ci-logs/assignment-input-parent.log": "02c7f4beca6136458d2c53c4d9a2be3783b7d9a5f1b860c99588c5c29b877ee7",
+    "ci-logs/assignment-input-pr57.json": "6c0f2b64b4c0d0d0174b5ed74e93935fe01174face08349b2936c7c535dc098e",
+    "ci-logs/assignment-input-runs.json": "c878f6b0f178b9f64fab8f5d9c775fd79d1a82858f894caf992d42cfc44f4dbe",
+    "ci-logs/assignment-input-secret.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/summary-choice-checks-progress.json": "c3c724b502d9ac02a5f3167b79ba74bc028b9f3a740f0ac9fcf407bcff27bf9c",
+    "ci-logs/summary-choice-job-130438063887.log": "6d171fb558122414bd9632e3b843ca92f2d7d10c2a267bc080f979cddcfa54f6",
+    "docs/case-studies/issue-56/ci-assignment-stdin.md": "6819b44879b8c0c49539cc581755f6f258b6a81b1d42692564173813300a8931",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/assignment-input-before.py": "d7a50a8f2c7c1ae0a0e7f87cd37d8553be1416b593b43c63ad1bd4228c0e7a1b",
+    "experiments/issue-56/collect-assignment-input.py": "4c2c666a9eb95d2978e0b096ec4c366cdc14ef4cb801bd8e22d8da28a528464e",
+    "experiments/issue-56/evidence_bundle.py": "fc7184f4046fbcb917bf011abd0220b7aff51509fa4a12b64c9a4dab4929b719",
+    "js/src/assignments/commands.js": "b2b65002c72deb181d55edc6ea9e04d3f289a8d7f9095530b2d00ff3dd712428",
+    "js/tests/assignment-command-input.test.js": "fb56718d737838e86fe2b27e780978e69c25ab15db59b8f315bf82d07c95210e",
+    "js/tests/assignment-template-history.test.js": "37314f868bef35cda43c216646e83df9eb766f3fca5965f47a1feeb8e0e35613",
+    "metadata.json": "da70e9cbf52c70c0aa95a76c48d67d050c01189d9c12475bde6f636afeb44987"
+  }
+}

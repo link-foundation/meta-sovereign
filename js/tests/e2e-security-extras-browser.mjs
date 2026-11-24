@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for the remaining Privacy and Security items (R-Y218),
 // as the official clients have them: the login email (masked, changed with
 // a code mailed to the new address, errors in words), "Forgot password?"
@@ -152,7 +153,7 @@ for (const name of [
   'invalidate-codes',
 ]) {
   await page.route(`**/api/telegram/${name}`, (route) => {
-    const body = route.request().postDataJSON() ?? {};
+    const body = requestBody(route.request()) ?? {};
     if (name !== 'security' && name !== 'passkeys') {
       calls.push([name, body]);
     }

@@ -1,0 +1,30 @@
+{
+  "archive": "draft-ownership.tar.gz",
+  "files": {
+    "ci-logs/draft-ownership-before.log": "38374634b94a86de4ebbd332d2fe561b3698fc149375da2a89820dae8aeef742",
+    "ci-logs/draft-ownership-build.log": "8aeffa151ed4d12fb527fce6a239d37d9c30998a1ebfccc602e79f4f849919a5",
+    "ci-logs/draft-ownership-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/draft-ownership-doc-format.log": "d0ae3af399b7bbb2747e2e5aafe0285a88031e5e9631b60040997ea1cb95db04",
+    "ci-logs/draft-ownership-doc-limits.log": "fe8e4a3173b8a2311abfc17c059f56d2969845bb3985ec710c710eb6687746b5",
+    "ci-logs/draft-ownership-duplication.log": "ddd738f0fe12ae537d524bf238f41032e54a8d0f0f4897ae11a65ac2e579c6be",
+    "ci-logs/draft-ownership-focused.log": "3fc7cfe54800225779ecd6e45a717f9f4ca0cedb369a26cb37556cb09a064cc7",
+    "ci-logs/draft-ownership-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/draft-ownership-format.log": "ef0dc175db6e98c91491731fffcda7945cae12349c07c6f91e3c75c50f55fbf5",
+    "ci-logs/draft-ownership-limits.log": "721ebf9a9431d6b28a910573a18cf8f9b94d73f16b4d9efe0678215721bad8b9",
+    "ci-logs/draft-ownership-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/draft-ownership-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/case-studies/issue-56/draft-ownership.md": "4d2663c21c5a979ec9123657a07b479bad21acf194cc5232181bf1d3e4257473",
+    "experiments/issue-56/collect-draft-ownership.py": "7acebcbc46b7f5e61b4a3be01765fcd8b3057e18a0460d4f566e53adc5ee6fb7",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "js/src/automation/drafts.js": "3810ab81355b2125366500b93c11d2a0eeb33e2f090d4b18d0bb578045f5770d",
+    "js/src/automation/run-automation.js": "039d73e3ac7f60230243f06330355bad5a809f70f2f0a638637b2cb1498d817d",
+    "js/src/automation/runner.js": "11c6861a131f53ef47708098c240b9480982cbde7d38c70654fa5a6d5af3ee41",
+    "js/src/storage/serialized.js": "5e655b78c4bcaf4156a97cee04a1f49a1e04a74dff265910c009261b08b27ee6",
+    "js/src/web/automation-api.js": "bf62b851e5419a966eb5cae6f098b818582f608d200d0cdcf7050ac018482b35",
+    "js/tests/automations.test.js": "6541ba9b5620b4c676bf8b8c6f6b9d98a5be6b7998321f8f960bf20ad47d4e70",
+    "js/tests/chat-answer-model.test.js": "18cd5d1eb5d7cc2c4e1a6c123c8443e0cf51f0100aa00cc369fbe420f1248151",
+    "js/tests/draft-ownership.test.js": "fcd7773e4956368e6dd44ebdc4186bec2fe7845b543e7a07ca822950a8a0b220",
+    "before/js/src/automation/drafts.js": "6311ebcdcf807320b2973b932cdcfd8ad431fcedc247dd44fd604ad05ded5eb5",
+    "metadata.json": "27642f95862e7315062f6d7a002fc7fb1f863c50bfc39053e175455548a1b8ab"
+  }
+}

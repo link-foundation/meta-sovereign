@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for a sticker set's box and removing a set (R-Y124),
 // as Telegram Desktop's: a click on a sticker in a chat opens a dialog
 // with the set's title and stickers and an "Add N stickers" button (or
@@ -117,7 +118,7 @@ await page.route('**/api/telegram/history', (route) =>
 );
 await page.route('**/api/telegram/stickers', (route) => fulfil(route, PANEL));
 await page.route('**/api/telegram/sticker-set', (route) => {
-  const { id } = route.request().postDataJSON();
+  const { id } = requestBody(route.request());
   fulfil(route, {
     ok: true,
     id,
@@ -143,14 +144,14 @@ await page.route('**/api/telegram/media?*', (route) =>
 );
 const boxes = [];
 await page.route('**/api/telegram/sticker-set-box', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   boxes.push(body);
   const box = BOXES[body.id ?? body.shortName];
   return fulfil(route, box ?? { ok: false, error: 'unknown set' });
 });
 const installs = [];
 await page.route('**/api/telegram/sticker-set-install', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   installs.push(body);
   if (body.install === false) {
     PANEL.sets = PANEL.sets.filter((s) => s.id !== body.id);
@@ -159,7 +160,7 @@ await page.route('**/api/telegram/sticker-set-install', (route) => {
 });
 const sends = [];
 await page.route('**/api/telegram/send-document', (route) => {
-  sends.push(route.request().postDataJSON());
+  sends.push(requestBody(route.request()));
   return fulfil(route, { ok: true, chat: CHAT });
 });
 

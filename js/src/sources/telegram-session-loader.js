@@ -14,6 +14,11 @@ export const deferTelegramDiskSession = (require) => {
   const seeded = new Module(file);
   seeded.filename = file;
   Object.defineProperty(seeded.exports, '__esModule', { value: true });
+  // The 1.232.1 generated entry point imports this namespace explicitly;
+  // older releases read the same public classes directly from exports.
+  Object.defineProperty(seeded.exports, 'sessions_exports', {
+    value: seeded.exports,
+  });
   for (const [name, module] of [
     ['MemorySession', './Memory'],
     ['StringSession', './StringSession'],

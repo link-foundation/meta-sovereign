@@ -1,0 +1,28 @@
+{
+  "archive": "ci-lino-sync-navigation.tar.gz",
+  "files": {
+    ".github/workflows/release.yml": "c16c6af8960dbe5f61fbd715f5d6d7749b1fff654cd5a2eaa5af3a45345fe83e",
+    "ci-logs/lino-sync-doc-format.log": "93c1a2232edbf5b76e77a35b4426385a666e7cf38326379281d9e15c4330d385",
+    "ci-logs/lino-sync-native-trace.log": "17a99154cfc8da4acb1bba882c1dc5d7f8431638a0621ea5ddc316547ca7da6c",
+    "ci-logs/lino-sync-navigation-trace.log": "f63a71a7f4fb0215aeb5c995d5b66a9f14267e743ef3444684bb3e34508d8e85",
+    "ci-logs/lino-sync-parent-artifacts.json": "e6b1f9417e739799279eb046f5c90130f1c22c219b4fa83dea93a6664462e56b",
+    "ci-logs/lino-sync-parent-browser.zip": "77c763662a58949006b7759160e2c31050f93d139db44afe031146759a97eba8",
+    "ci-logs/lino-sync-trace-duplication.log": "af44cb0bc22f4a24b071dd1094d7bace161d2d008600cf574921957bad9210f2",
+    "ci-logs/lino-sync-trace-format.log": "a04ea5c7925bc2e78dc352a06c0a44998a394c84d398df1ef702e92247a65d5e",
+    "ci-logs/lino-sync-trace-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/lino-sync-trace-policy.log": "990ebea27086bd363aafcd9754445ba7eab4e4bad2d634c815c8280a6916cb1c",
+    "ci-logs/lino-sync-trace-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/unread-reply-view-job-130925134777.log": "d5946652ec880007cd7edfaabe25e42d8b71b4a2fde40064e2c4ed692dfc45d5",
+    "docs/case-studies/issue-56/PLAN.md": "32eef144c0666990f9751293c71fad68e8b6cff532578e55e1f21ed43cc83eaa",
+    "docs/case-studies/issue-56/README.md": "60890c1da9024f074805856eaba85ed002b8cf445dbcd0623f8a60b3280ebb8d",
+    "docs/case-studies/issue-56/ci-lino-sync-navigation.md": "d51f1b79f66cf9a8cdc6c7b7a381ce7317d8c336daa7f48390c190281fc45875",
+    "docs/screenshots/issue-56-lino-sync/parent-webkit.png": "d34b427821f12df34df8abccc64c362ac57ad5ca7c0fc0d54fbd596c0199c324",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-ci-lino-sync-navigation.py": "ab0a55ceb701bcc3907468ad1f309e093546284d792acc7b2310e4f6e0fa19f2",
+    "experiments/issue-56/evidence_bundle.py": "54ab3b457200a9d64babdf120e660df1fe305549e6520d682db92f7c1bfd5060",
+    "experiments/issue-56/trace-lino-sync.py": "7e6c1dc0f68ed518331ae833800f82c9a298bc51f7f99c5c5381fef9b327d8c7",
+    "js/tests/e2e-lino-sync.mjs": "c8e95b91922314e01e6f68c4a059903fee0dfaa6ea2dbf352b8ef631b7e4483d",
+    "js/tests/helpers/e2e-lino-sync-trace.mjs": "cfe8acb75cd89701022279558a6ac813e36e7d9e492d3373bb99a110ff6cbd0a",
+    "metadata.json": "ce59f3da40ba8e04dd5cf97517ef72184ad94d2aa04a12a20e6f3d3413e55830"
+  }
+}

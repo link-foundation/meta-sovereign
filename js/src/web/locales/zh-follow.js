@@ -1,0 +1,83 @@
+export const zhFollow = {
+  'followRead.title': '读取超时重试',
+  'followRead.hint':
+    '仅重试超时的读取。服务拒绝和结果不确定的写入绝不会自动重复。总尝试次数包含首次调用。',
+  'followRead.attempts': '读取总尝试次数（1–10）',
+  'followRead.retryDelayMs': '首次重试延迟（毫秒）',
+  'followRead.retryMaxDelayMs': '最大重试延迟（毫秒）',
+  'followRead.summary':
+    '读取：最多 {attempts} 次尝试 · 首次延迟 {delay} 毫秒 · 最大 {max} 毫秒',
+  'followRead.stop': '停止读取或后续步骤',
+  'followChats.timeout': '达到配置的尝试次数后读取仍超时。已保存的结果将保留。',
+  'followChats.bad-request':
+    '请输入有效范围：1–10 次尝试，延迟 0–60000 毫秒，最大延迟 0–300000 毫秒且不小于首次延迟。',
+  'followChats.cancelled': '已取消；未再发起读取。',
+  'followChats.stopped': '已停止；未再发起读取。',
+  'followChats.account-changed': '连接的账号已更改。请使用当前账号重新加载。',
+  'followChats.cancel-failed': '停止请求失败。当前读取仍可能完成。',
+  'followChats.title': 'Follow：发现 VK 群组',
+  'followChats.hint':
+    '通过已连接的服务器读取 VK 群组。平台分页包含其他会话类型，因此筛选后空白的页面也可能有下一页。Telegram 线索指标题中的 Telegram 相关词语或最新消息中识别出的链接；此处不搜索旧历史。仍受平台访问权限限制。',
+  'followChats.scope': 'VK 群组发现',
+  'followChats.limit': '每个平台页面的会话数',
+  'followChats.telegramOnly': '仅显示有 Telegram 线索的群组',
+  'followChats.load': '加载群聊',
+  'followChats.details': '显示成员和最近消息',
+  'followChats.page':
+    '平台偏移量 {offset} · 返回 {scanned} 条记录 · 总计 {total}',
+  'followChats.empty': '本页没有匹配的群组。',
+  'followChats.previous': '上一页会话',
+  'followChats.next': '下一页会话',
+  'followChats.previousMembers': '上一页成员',
+  'followChats.nextMembers': '下一页成员',
+  'followChats.partial':
+    'VK 在达到所报告总数之前停止返回记录。覆盖范围仍不完整。',
+  'followChats.members': '群组成员',
+  'followChats.messages': '最新消息（有限预览）',
+  'followChats.messageIdentity': '消息 {id} · 发送者 {sender}',
+  'followChats.memberCount': '{count} 位成员',
+  'followChats.owner': '群主',
+  'followChats.admin': '管理员',
+  'followChats.untitled': '未命名群组',
+  'followChats.unknown': '未知',
+  'followChats.not-connected':
+    '请在此服务器连接 VK 后加载群组。已有结果已保留。',
+  'followChats.follow-server-required': '请连接配置了 VK 的服务器以发现群组。',
+  'followChats.unsupported': '此处不支持该平台的实时群组发现。',
+  'followChats.captcha':
+    'VK 要求验证码。请先在连接设置中完成验证，再重新加载。',
+  'followChats.rate-limited': 'VK 限制了请求。已有结果已保留；请稍后再加载。',
+  'followChats.failed':
+    '无法确认群组发现结果。已有结果已保留。重新加载前请检查连接和平台权限。',
+  'follow.title': 'Follow：发现 Telegram 链接',
+  'follow.hint':
+    '从各平台已缓存的接收消息中提取链接。每条记录保留来源消息。识别链接不会验证访问权限或加入聊天。 使用已连接服务器的缓存；未配置服务器时，使用此浏览器的存储。',
+  'follow.scope': '缓存消息范围',
+  'follow.source': '平台（留空：全部）',
+  'follow.chat': '聊天 ID（留空：全部）',
+  'follow.self': '您的账号标识，用逗号分隔',
+  'follow.limit': '接收消息数量上限（0：整个缓存档案）',
+  'follow.filterHint':
+    '排除发出的消息。如果导入消息没有发出标记，请提供您的账号 ID。缓存可能含有私人邀请链接，请妥善保密。',
+  'follow.load': '加载缓存记录',
+  'follow.extract': '提取接收消息链接',
+  'follow.clear': '清空筛选范围内的缓存',
+  'follow.clearAsk': '删除符合这些筛选条件的链接缓存记录？来源消息将保留。',
+  'follow.confirmClear': '清除这些记录',
+  'follow.cancel': '取消',
+  'follow.working': '处理中…',
+  'follow.extracted':
+    '已扫描 {messages} 条匹配接收消息中的 {scanned} 条。找到 {found} 条记录，新增 {added} 条。',
+  'follow.limited':
+    '提取不完整：已达到消息上限，或 {count} 条消息的字段超过提取限制。现有记录已保留。',
+  'follow.cleared': '已删除 {count} 条缓存记录。',
+  'follow.failed': '无法确认缓存操作。重试前请加载缓存以检查状态。',
+  'follow.total': '{count} 条包含来源消息的缓存记录',
+  'follow.kind.public': '待验证的公开用户名',
+  'follow.kind.invite': '待验证的私人邀请',
+  'follow.kind.message': '公开消息链接',
+  'follow.kind.private-message': '私人消息链接；需要已有访问权限',
+  'follow.provenance': '{source} · 聊天 {chat} · 发送者 {sender}',
+  'follow.previous': '上一页记录',
+  'follow.next': '下一页记录',
+};

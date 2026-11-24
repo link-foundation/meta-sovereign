@@ -1,0 +1,59 @@
+export const hiAssignment = {
+  'assignment.standalone': 'असाइनमेंट निर्देशों से ड्राफ़्ट बनाएँ',
+  'assignment.standalone-hint':
+    'निर्देश चिपकाएँ या दस्तावेज़ का URL दें, फिर प्रकाशन से पहले अंग्रेज़ी इश्यू की समीक्षा करें।',
+  'assignment.instructions-text': 'असाइनमेंट के निर्देश',
+  'assignment.instructions-pasted': 'प्रयुक्त निर्देश: चिपकाया गया पाठ',
+  'assignment.language': 'टेम्पलेट की भाषा',
+  'assignment.language-auto': 'रिक्ति या असाइनमेंट के आधार पर',
+  'assignment.language-owner': 'आपकी चुनी हुई भाषा: {language}',
+  'assignment.language-reviewed': 'टेम्पलेट की भाषा: {language}',
+  'assignment.title': 'असाइनमेंट का रिपॉज़िटरी प्रकाशित करें',
+  'assignment.hint':
+    'कॉन्फ़िगर किए गए स्थानीय मॉडल से नियोक्ता के नाम के बिना अंग्रेज़ी में इश्यू का मसौदा बनाएँ। प्रकाशित करने से पहले आवश्यकताएँ, स्टैक, टेम्पलेट और दृश्यता जाँचें। रिक्ति का लिंक अलग ब्राउज़र में खुलेगा; सहेजी गई HH चैट से यह अपने आप मिल सकता है।',
+  'assignment.instructions': 'निर्देश दस्तावेज़ का URL (वैकल्पिक)',
+  'assignment.instructions-detected': 'फ़ॉर्म में निर्देशों के लिंक',
+  'assignment.instructions-select': 'लिंक चुनें या URL डालें',
+  'assignment.instructions-required': 'निर्देश दस्तावेज़ का URL',
+  'assignment.instructions-hint':
+    'HTML, सादा पाठ, सीधे खुलने वाला Markdown या चयन योग्य पाठ वाला PDF अलग ब्राउज़र में खोलें।',
+  'assignment.instructions-unreadable':
+    'पूरे निर्देश पढ़े नहीं जा सके। अगर पेज साइन इन या सत्यापन माँगे, तो पहले उसे पूरा करें। आप पढ़ने योग्य पाठ संस्करण भी दे सकते हैं।',
+  'assignment.instructions-unavailable':
+    'निर्देश दस्तावेज़ लोड नहीं हो सका। URL और अपनी पहुँच जाँचकर फिर कोशिश करें।',
+  'assignment.instructions-timeout':
+    'निर्देश दस्तावेज़ पढ़ने का समय समाप्त हो गया। फिर कोशिश करें या पढ़ने योग्य पाठ संस्करण दें।',
+  'assignment.instructions-used': 'प्रयुक्त निर्देश: {title}',
+  'assignment.instructions-pdf-used': 'प्रयुक्त PDF पाठ: {title}',
+  'assignment.target': 'GitHub मालिक/रिपॉज़िटरी',
+  'assignment.visibility': 'रिपॉज़िटरी की दृश्यता',
+  'assignment.visibility.private': 'निजी',
+  'assignment.visibility.public': 'सार्वजनिक',
+  'assignment.vacancy': 'HH रिक्ति का URL या आईडी (वैकल्पिक)',
+  'assignment.refresh': 'सहेजे गए स्नैपशॉट की जगह रिक्ति फिर से पढ़ें',
+  'assignment.employers':
+    'हटाने के लिए नियोक्ता के अन्य नाम (हर पंक्ति में एक)',
+  'assignment.restore': 'सहेजा गया ड्राफ़्ट फिर खोलें',
+  'assignment.draft': 'इश्यू और रिपॉज़िटरी योजना का मसौदा बनाएँ',
+  'assignment.drafting': 'मसौदा बन रहा है…',
+  'assignment.publish': 'समीक्षित रिपॉज़िटरी और इश्यू प्रकाशित करें',
+  'assignment.publishing': 'प्रकाशन और पुष्टि की जाँच…',
+  'assignment.recover': 'उसी प्रकाशन का परिणाम पुनः प्राप्त करें',
+  'assignment.template': 'टेम्पलेट: {repository} · {source}',
+  'assignment.source.live': 'वर्तमान Hive Mind तालिका',
+  'assignment.source.fallback':
+    'अंतर्निहित वैकल्पिक सूची; वर्तमान सुझाव उपलब्ध नहीं है',
+  'assignment.template.create': 'इस टेम्पलेट से रिपॉज़िटरी बनाएँ।',
+  'assignment.template.merge':
+    'मौजूदा फ़ाइलें सुरक्षित रखते हुए टेम्पलेट का इतिहास और अनुपस्थित वर्कफ़्लो जोड़ें।',
+  'assignment.template.keep': 'मौजूदा रिपॉज़िटरी और पाइपलाइन रखें।',
+  'assignment.vacancy-used': 'प्रयुक्त रिक्ति: {title}',
+  'assignment.verified':
+    'रिपॉज़िटरी, पाइपलाइन और इश्यू की पुष्टि हुई। असाइनमेंट का कार्यान्वयन अभी पूरा करना और जाँचना बाकी है।',
+  'assignment.uncertain':
+    'प्रकाशन की पुष्टि नहीं हुई ({code}; चरण {stage})। पुष्टि जाँचने के लिए उसी प्रकाशन का परिणाम पुनः प्राप्त करें; अनिश्चित निर्माण दोहराया नहीं जाता।',
+  'assignment.review-changed':
+    'फ़ॉर्म बदल गया है। दोबारा मसौदा बनाने से पहले मौजूदा पेज को पढ़ें और उसकी योजना बनाएँ।',
+  'assignment.error':
+    'परिणाम की पुष्टि नहीं हुई ({code})। आपके इनपुट और प्रकाशन का प्रयास सुरक्षित हैं।',
+};

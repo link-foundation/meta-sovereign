@@ -1,0 +1,31 @@
+{
+  "archive": "provider-publications.tar.gz",
+  "files": {
+    "issue-56-broadcast-cli-report.md": "fab8a0153f97e634a8dde2567301266c3588b51c4fd053578a860d49e3708914",
+    "issue-56-broadcast-upstream-head.json": "34c07b4d6e000ad4513f3c1c49937c26dbd520d44278a724cf847a7f9fa9ad72",
+    "issue-56-telegram-bot-api.html": "1c7c6cddebb2a8a9d0258495c41fdd7a2d2b5803b6b29b5d432cbca8e481bfc7",
+    "issue-56-upstream-broadcast-cli-issue.json": "d728a394236dcc8a038ea0f8d23f8c165fc32f8d02fc8ec883ff11b59ee1121e",
+    "issue-56-vk-schema-head.json": "62cd9e77125140a4c130614d970aec3deecaef3138150f3eb1ccb66d357bedfc",
+    "issue-56-vk-wall-schema.json": "5e95860f78c3991990565e305c3ccb5319c6cc943fbd420afb44a18c5d1502a5",
+    "provenance.json": "b1610e16bc4496a63ced775aba83144777609800379a1e793fad5cf182085d6e",
+    "provider-publications-before.log": "cbaa8c60045b412b19bf5f61866335e6c6fa35db697368b1540ceeef2411b357",
+    "provider-publications-browser-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "provider-publications-browser.log": "884f0f125992b7891c03839b665833f528404478cbc73a8c21799db75c31821e",
+    "provider-publications-build.log": "dc6870be19406b83fe244bd871481410192860ea3d2da16840f9a42331e545c5",
+    "provider-publications-docs-format.log": "cb648439a37e2d2f042fc0a3c98bb50aa9d44199a292e15187d4b5be5c5ae8de",
+    "provider-publications-example.log": "a6e746ea7a7bbac311e9589edef174b2e8124ffba84918926ad8ded690ba549e",
+    "provider-publications-final-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "provider-publications-final.log": "42cb0f3f825a057b6c1120c93a83e3cee94e80b702afbe5035501859d3be2051",
+    "provider-publications-focused.log": "51ccf19226258c2f3ce2dbb71fc8351ec0368072633364d3ba1e7dee0b3d19df",
+    "provider-publications-format-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "provider-publications-format-validation.log": "5af7bd7a1aca3b295b6285a2ee7921a38b32b8417c6480b6bad67ca8300107e9",
+    "provider-publications-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "provider-publications-validation.log": "09913db064b802a116cb793366f5592c3dc93793880444bdbe91954120357da1",
+    "reference-README.md": "e4f279d081968c26e68d317971f448b6468a3b15c137691dc69e214fa81b1a20",
+    "reference-broadcast.mjs": "1e3669bb7b7d491e285d88e06318730b59ced62cee1d78862d695a3c41db45c8",
+    "reference-telegram.mjs": "6e2f4337d675a58429133a74d27914c2eb1702abe46b593e4861219a7a0468dd",
+    "reference-vk.mjs": "4f5970cf9663b453064700dc313f5e69d9a3616bd11af0ada31b7a0e8aa96896",
+    "telegram-publication-outcome-before.log": "15f56636b45eea5dd17fc4ed1f53556883f993cfd1f2687ad33b84596962421d",
+    "vk-developer-page-browser.json": "fcabc14ee66793f0362a47bb62b6641267301bf579d6e61bf3ef823623f1bf8f"
+  }
+}

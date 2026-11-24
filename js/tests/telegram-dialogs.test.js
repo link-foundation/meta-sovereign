@@ -40,6 +40,7 @@ const Api = {
   account: { UpdateNotifySettings: tl('account.UpdateNotifySettings') },
   folders: { EditPeerFolders: tl('folders.EditPeerFolders') },
   InputPeerNotifySettings: tl('InputPeerNotifySettings'),
+  InputNotifyPeer: tl('InputNotifyPeer'),
   InputFolderPeer: tl('InputFolderPeer'),
 };
 

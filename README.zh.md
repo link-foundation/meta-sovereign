@@ -26,7 +26,26 @@ meta-sovereign 在网上**代表一个人或一个组织**。连接 Telegram、V
 
 ## 桌面应用
 
-从 <https://link-foundation.github.io/meta-sovereign/download/> 或 [GitHub releases](https://github.com/link-foundation/meta-sovereign/releases) 下载适合你系统的安装包：Linux（AppImage、deb、tar.gz）、macOS（dmg、zip）和 Windows（安装版、便携版），均提供 x64 和 arm64。桌面应用内置服务器，因此无需自己启动服务器即可使用全部功能。未签名构建的首次启动步骤、校验和与更新说明见 [`docs/USER-GUIDE.zh.md` §4](docs/USER-GUIDE.zh.md#4-安装桌面或移动-app)。
+从 <https://link-foundation.github.io/meta-sovereign/download/> 或 [GitHub releases](https://github.com/link-foundation/meta-sovereign/releases) 下载适合你系统的安装包：Linux（AppImage、deb、tar.gz）、macOS（dmg、zip）和 Windows（安装版、便携版），均提供 x64 和 arm64。桌面应用内置服务器，因此无需自己启动服务器即可使用全部功能。未使用 Apple Developer ID 签名构建的首次启动步骤、校验和与更新说明见 [`docs/USER-GUIDE.zh.md` §4](docs/USER-GUIDE.zh.md#4-安装桌面或移动-app)。
+
+### macOS 首次启动
+
+打开临时签名（ad-hoc）的构建前，请在[下载页](https://link-foundation.github.io/meta-sovereign/download/)
+的 **Verify your download** 中，用同一版本的 `SHA256SUMS.txt` 校验下载的 `.dmg`
+或 `.zip`。仅在校验和一致后继续。将 `Meta Sovereign.app` 复制到 `/Applications`
+（先解压 `.zip`）。
+
+在 macOS 15 Sequoia 及更新版本中，先尝试打开应用，在开发者未验证的提示中点击
+**Done**。打开 **System Settings → Privacy & Security**，滚动到 **Security**，
+为 Meta Sovereign 点击 **Open Anyway**，按提示验证身份，再点击 **Open**。
+[Apple 的说明](https://support.apple.com/en-us/102445)介绍了此单个应用的例外。
+临时签名不代表经过 Apple 公证。
+
+或者，在校验同一下载文件后，仅移除已安装应用的隔离标记，再打开应用：
+
+```sh
+xattr -dr com.apple.quarantine "/Applications/Meta Sovereign.app"
+```
 
 ## 托管工作区
 
@@ -44,7 +63,7 @@ cd meta-sovereign
 cargo run --manifest-path rust/Cargo.toml -p meta-sovereign-server -- serve
 ```
 
-> **Rust 服务器的限制。** 它只把 links 保存在**内存**中：不会写入磁盘，服务器停止后所有数据都会丢失。它**没有 source adapters**：不能从 Telegram、VK、GitHub、Upwork 等实时拉取，没有出站 HTTP/TLS 客户端（email 只能导入归档），也没有自动化、CV 同步、浏览器 auto-import、备份和 `/api/export-encrypted`。实际使用请选择 JS 服务器或桌面 app。逐条路由列表见 [`docs/SERVER-PARITY.zh.md`](docs/SERVER-PARITY.zh.md)。
+> **Rust 服务器的限制。** CLI 默认将 links 保存到原生文本/二进制检查点；`--data` 指定目录，`--memory` 显式使用临时内存。格式和恢复限制见 [native storage](docs/NATIVE-STORAGE.md)。它**没有 source adapters**：不能从 Telegram、VK、GitHub、Upwork 等实时拉取，没有出站 HTTP/TLS 客户端（email 只能导入归档），也没有自动化、CV 同步、浏览器 auto-import、备份和 `/api/export-encrypted`。实际使用请选择 JS 服务器或桌面 app。逐条路由列表见 [`docs/SERVER-PARITY.zh.md`](docs/SERVER-PARITY.zh.md)。
 
 ### JavaScript 服务器 — 功能完整（Node/Bun/Deno），从源码运行
 
@@ -98,7 +117,7 @@ SPA 按以下顺序选择服务器（[`js/src/web/discover.js`](js/src/web/disco
 - **问候**：像 [konard/vk-bot](https://github.com/konard/vk-bot) 一样，在 VK、Telegram、WhatsApp、Messenger、X 和电子邮件中用一句“你好”或问候贴纸开启对话（[`docs/GREETINGS.zh.md`](docs/GREETINGS.zh.md)）。
 - **简历同步**：通过您自己的浏览器在 LinkedIn、hh.ru、Habr Career、Naukri、VietnamWorks、TopCV 和 SuperJob 之间逐字段同步（[`docs/CV-SYNC.zh.md`](docs/CV-SYNC.zh.md)）。
 - **数据安全**：抗崩溃的本地存储（[Doublets](https://github.com/linksplatform/doublets-rs) + [Links Notation](https://github.com/link-foundation/links-notation)），自动数据结构迁移（[`docs/DATA-MIGRATIONS.zh.md`](docs/DATA-MIGRATIONS.zh.md)），流式加密备份，磁盘写满时的处理，加密的密钥，拒绝其他网站访问的本地服务器。
-- **随处可用**：网页应用、内置服务器的桌面应用、移动外壳、设备间 WebRTC 同步、离线写入稍后补发；纯 Rust 服务器使用相同的磁盘格式。
+- **随处可用**：网页应用、内置服务器的桌面应用、移动外壳、设备间 WebRTC 同步、离线写入稍后补发；纯 Rust 服务器使用文本/二进制检查点，数据库封装单独定义。
 - **四种语言**：应用和所有文档都有英文、俄文、印地文和中文版本。
 
 逐个网络的每项功能——已支持、部分支持或不支持，以及是否可通过 API 或网页应用实现：[`docs/FEATURES.zh.md`](docs/FEATURES.zh.md)。每条需求及其证据：[`docs/REQUIREMENTS.zh.md`](docs/REQUIREMENTS.zh.md)。

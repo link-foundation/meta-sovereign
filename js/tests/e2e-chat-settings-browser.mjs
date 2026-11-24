@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for a group's and a channel's settings (R-Y165), as
 // Telegram Desktop's Manage group / channel: the creator of a channel turns
 // on Sign messages (then Show authors' profiles appears) and Restrict
@@ -103,7 +104,7 @@ await page.route('**/api/telegram/chat-info*', (route) => {
 const sets = [];
 let setReply = () => ({ ok: true });
 await page.route('**/api/telegram/chat-setting', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   sets.push(body);
   return fulfil(route, setReply(body));
 });
@@ -112,7 +113,7 @@ await page.route('**/api/telegram/discussion-groups', (route) =>
   fulfil(route, { ok: true, groups: [{ id: '-1009', title: 'Fake Talk' }] })
 );
 await page.route('**/api/telegram/discussion-set', (route) => {
-  links.push(route.request().postDataJSON());
+  links.push(requestBody(route.request()));
   return fulfil(route, { ok: true });
 });
 

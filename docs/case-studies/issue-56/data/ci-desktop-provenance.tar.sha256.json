@@ -1,0 +1,22 @@
+{
+  "archive": "ci-desktop-provenance.tar.gz",
+  "files": {
+    ".changeset/visible-browser-defaults.md": "e6ad0873a674a841b024ff72b8775122165c00f4d52e04c6c6fb2209e18f1d86",
+    ".github/workflows/desktop-release.yml": "dfc9fd9b5ca6bebc191d0ba46d52fe5d59b91cfb3c9f8ca94cc1b81735696f39",
+    "before/.github/workflows/desktop-release.yml": "a65ebc0c5edf2c00833b741d47dd04176e853fc8f830158ac11eeca428caf4dc",
+    "ci-logs/desktop-provenance-contracts.log": "990ebea27086bd363aafcd9754445ba7eab4e4bad2d634c815c8280a6916cb1c",
+    "ci-logs/desktop-provenance-focused.log": "3c8cd3b4ae9e592794a7dc27ded57f9c2a324432a109ed222eba71479172bab0",
+    "ci-logs/desktop-provenance-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/desktop-provenance-format.log": "d42005d666e5cb4812056a28ef5574c991411c072ddc9d3bb4305189c79f7e60",
+    "ci-logs/desktop-provenance-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/desktop-provenance-parent.log": "eb578e4494ec5bc24849339867a5a0ce35fa7a5cf6ce65ac6347dde70a7ba903",
+    "ci-logs/native-durable-parent-desktop.json": "08dd83f234267ac77b0b4f4243101429cc772be06d624e396b69fa3a2efaa16c",
+    "ci-logs/native-durable-parent-desktop.log": "0e762fb7f04ae4b1170de749320efa60315e0e9c9e6ce4d1d57d3f7b1694eb47",
+    "docs/case-studies/issue-56/ci-desktop-provenance.md": "f0effc8fb201ac5aa6ceff0ff40f10efca21eb156fc0024e6e1880ec32654913",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-desktop-provenance.py": "9fa81546c528e140e0d421938912bac3e71ddeaaf16c570be00b6ec8e0fb0342",
+    "experiments/issue-56/desktop-provenance-version.mjs": "83e1cbf1c5f22bfb53b5096de84276643fa5f009676ec33c06b96d5184a4c2ea",
+    "experiments/issue-56/evidence_bundle.py": "0dd54c470e5050d5587c8344cfcbb37223575feda2b0a63b56bfe7252f6d8abb",
+    "metadata.json": "38abca893b64778ca8330dd9f097e7c5921ca09d598e943c82a1e2c30a1d34ce"
+  }
+}

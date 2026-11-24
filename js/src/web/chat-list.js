@@ -13,6 +13,7 @@ import { mediaLabel } from './chat-message.js';
 import { parseMessageParts, strippedJpegDataUrl } from './message-parts.js';
 import { mediaSrc } from './media-src.js';
 import { FolderTags } from './chat-folder-tags.js';
+import { deliveryLabel } from './chat-failure.js';
 import {
   accountDeleted,
   chatDisplayName,
@@ -193,7 +194,7 @@ const PreviewLine = ({ t, preview, draft }) =>
         ]
   );
 
-const PendingMark = ({ status, t }) => {
+const PendingMark = ({ status, message, t }) => {
   if (!status) {
     return null;
   }
@@ -203,7 +204,7 @@ const PendingMark = ({ status, t }) => {
       : status === 'waiting'
         ? 'waiting'
         : 'sending';
-  const label = t(`chat.delivery.${delivery}`);
+  const label = deliveryLabel(t, message ?? {}, delivery);
   return el(
     'span',
     {
@@ -310,7 +311,12 @@ export const ChatItem = ({
               : null,
           ]),
           el('span', { key: 't', className: 'chat-item-time' }, [
-            el(PendingMark, { key: 'pending', status: chat.pendingStatus, t }),
+            el(PendingMark, {
+              key: 'pending',
+              status: chat.pendingStatus,
+              message: chat.last.message,
+              t,
+            }),
             chatTime(chat.last.at),
           ]),
         ]),

@@ -6,6 +6,7 @@
 // — and points users to the dedicated connection surface.
 
 import React from 'react';
+import { refreshNotificationPreference } from './desktop-attention.js';
 import { useT } from './i18n.js';
 import { workspaceName } from './cloud-workspace.js';
 import { TelegramNotifySettings } from './settings-notify.js';
@@ -29,6 +30,9 @@ import { useReadReceipts, useShareTyping } from './privacy-prefs.js';
 import { ConversationSettings } from './settings-conversation.js';
 import { BirthdaySettings } from './settings-birthdays.js';
 import { FeedbackSettings } from './settings-feedback.js';
+import { BrowserSettings } from './settings-browser.js';
+import { DiagnosticSettings } from './settings-diagnostics.js';
+import { RunnerSettings } from './settings-runner.js';
 import { HiddenSenderSettings } from './settings-hidden-senders.js';
 import { useContinueLast } from './continuation-pref.js';
 import {
@@ -73,6 +77,16 @@ export const AppearanceSettings = ({ appearance }) => {
         t('settings.appearance.title')
       ),
       el('p', { key: 'p', className: 'meta' }, t('settings.appearance.intro')),
+      el(
+        'button',
+        {
+          key: 'reset',
+          type: 'button',
+          'data-action': 'appearance-reset',
+          onClick: appearance.reset,
+        },
+        t('settings.appearance.reset')
+      ),
       el(
         'div',
         { key: 'c', className: 'row appearance-row' },
@@ -256,9 +270,11 @@ export const NotificationSettings = () => {
   const [permission, setPermission] = React.useState(permissionNow);
   const turn = async (on) => {
     setNotify(on);
+    refreshNotificationPreference();
     if (on && permission === 'default') {
       const answer = await globalThis.Notification.requestPermission();
       setPermission(answer);
+      refreshNotificationPreference();
     }
   };
   return el(
@@ -346,6 +362,9 @@ export const SettingsView = () => {
       t('settings.openConnections')
     ),
     el(AppearanceSettings, { key: 'appearance', appearance }),
+    workspaceName() ? null : el(BrowserSettings, { key: 'browser', api }),
+    el(DiagnosticSettings, { key: 'diagnostics', api }),
+    workspaceName() ? null : el(RunnerSettings, { key: 'runner', api }),
     el(FolderTabSettings, { key: 'folder-tabs' }),
     el(StoriesSettings, { key: 'stories' }),
     el(BirthdaySettings, { key: 'birthdays' }),

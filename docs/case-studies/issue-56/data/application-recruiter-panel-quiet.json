@@ -1,0 +1,37 @@
+{
+  "archive": "application-recruiter-panel-quiet.tar.gz",
+  "files": {
+    "before.log": "c6b9098818a670f23ab76cc7e701947979cae679dcfc88b0b15501928cf218d7",
+    "build.log": "2885b58d23332d1583cefa7abda8ad4b864c36af56a8819327fe1ac46c75f697",
+    "deno.log": "721f722cc58f560dbb84d600dfcd0f8d6ecf6b22fde168b7c0bd136d15f7a20c",
+    "eslint.log": "dbf346250e6fce58bca73ddc41114bcfc111bff2ebf5eb2914747003aa73b14d",
+    "first.log": "14a0131604f7ab80a7327e2f0018f988e86f7510aa57e9cbf66f10fd87c9e8b7",
+    "format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "format.log": "f7ff8d3c16441fc88f53518a3e8e12045592778c3776a495444d1763512700f7",
+    "mcp-console.log": "3ccd379ea17a15bb4f0a6218c1a98f19700504a7c55857decef04de1ddaca4eb",
+    "mcp-server.log": "5027bdfdb2f750d3eab4a564770a39de8a23f6f24ef85d3025bbf47ba5f2ea79",
+    "mcp.json": "e74949fa74e28017e613f53b90916430e3768400af64f7132996d2cb0f50f3d3",
+    "next.log": "512462d246f41fcd4826b238a426db414337c484b334c864e07e909a7a607bf6",
+    "node.log": "328f496fd841310dd3f49dddbc94da4bdbc650e3d0b804b6757b6893acc90ce5",
+    "parent-modules/application-attachment.js": "2b66796b0dfdadeb01a3ff0ce3924d7d613c01b28e7eaf725b74e681ded043f8",
+    "parent-modules/application-batch.js": "9926ba611a07517f0d9e3184edb77df815ab56beccd7b0d6769bb4f52246102f",
+    "parent-modules/application-journal.js": "18d6aca42668189640385de4d482f5801d76c1bb2c3e937270e4f8f14fbb25d0",
+    "parent-modules/application-options.js": "989e3b0259e8a78eec762aa3b2db1bb08e4f65be6ee81bcd3794d02b1ef38eee",
+    "parent-modules/application-page.js": "0e76bc2353235ee362fd75aa395a30d98c533ea5813c3e0907e61eb521dfe476",
+    "parent-modules/application-recruiter-panel.js": "a20064cedd62d9e70500d614bf1710401e8b47a58bbe08cb9b8b809f6f7bc0bc",
+    "parent-modules/application-result.js": "8b9aee2e31ecb97157dd3ec5923fae38939b3ddde6a5c6a3ca1c0c92e26017e3",
+    "parent-modules/application-review.js": "c0357c0ec2c241e3450ff153528ada19eae314d12b6e26a64e198b660d1585a5",
+    "parent-modules/application-search-route.js": "0ea142be33c92862e59f56d2dce5ec32546e1f7b16be98a3af39d15dba98745b",
+    "parent-modules/application-service.js": "446917497754f297455a35ef08640baaa2db3ee9e89c4e109d79481c47d36eb1",
+    "parent-modules/browser-choice-controller.js": "db788bb0bd87cac578b460b45489a0bc9a82508e9ccaace6cabe621fab14976f",
+    "parent-web.git-blob": "ec5d7d78ec08cf13e8745ca2c7c2e4248f8a309d1b8d6df85c93fdeee3ec90fb",
+    "parent.txt": "768153383b5dc56de2c91713b0479b5119660a78c6a70712a709646c2bf426dd",
+    "secretlint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source.diff": "822037887d673fa271da7838023e23b82f5feef4b31b9967a7dc69f765cc4382"
+  },
+  "screenshots": {
+    "before.png": "4c860f5a059ff46dff5853960b1c655e5365e9e05779ae3ad254331de975b9ae",
+    "first-after.png": "835282d92a637b18b130075be336ca694d7b06ec6f73426fb06950a3acd82b6b",
+    "next-after.png": "b8b58d050f8c6d2355f3519dc4b980991440a75a2757d3eccc430168752c31d3"
+  }
+}

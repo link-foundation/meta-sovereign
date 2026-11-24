@@ -1,7 +1,12 @@
+import { zhChatInvite } from './zh-chat-invite.js';
+
 // The chat screen's words in Chinese, split from ./zh.js to keep
 // each file small; its keys are part of the zh dictionary.
 
 export const zhChat = {
+  ...zhChatInvite,
+  'chat.provider.label': '聊天服务',
+  'chat.provider.all': '所有服务',
   'chat.history.complete': '已加载所有可用消息',
   'chat.history.loading': '正在加载消息…',
   'chat.history.wait': 'Telegram 要求等待，稍后将自动重试…',
@@ -168,6 +173,9 @@ export const zhChat = {
   'chat.delivery.sent': '已发送',
   'chat.delivery.read': '已读',
   'chat.delivery.failed': '未发送',
+  'chat.delivery.unknown': '送达状态未确认',
+  'chat.hh.recordingOnly':
+    'HeadHunter 存档。要发送消息，请在 HeadHunter 中打开并记录此对话。',
   'chat.failure.floodWait': 'Telegram 要求等待 {seconds} 秒后再发送。',
   'chat.failure.forbidden': '你不能在此聊天中发言。',
   'chat.failure.unknownChat': '你的账号无法访问此聊天。',
@@ -289,18 +297,6 @@ export const zhChat = {
   'chat.topics.forum': '话题',
   'chat.topics.forumHint': '将群组显示为话题列表。',
   'chat.pollNew.title': '新投票',
-  'chat.invite.channel': '频道',
-  'chat.invite.group': '群组',
-  'chat.invite.join': '加入',
-  'chat.invite.request': '申请加入',
-  'chat.invite.cancel': '取消',
-  'chat.invite.loading': '正在检查邀请链接…',
-  'chat.invite.requestSent': '加入申请已发送。',
-  'chat.invite.err.invite-expired': '此邀请链接已过期。',
-  'chat.invite.err.invite-invalid': '此邀请链接无效。',
-  'chat.invite.err.chat-full': '该群组已满。',
-  'chat.invite.err.too-many-chats': '你加入的群组和频道太多了。',
-  'chat.invite.err.failed': '出错了，请重试。',
   'chat.members.title': '成员',
   'chat.members.owner': '群主',
   'chat.members.admin': '管理员',
@@ -538,6 +534,7 @@ export const zhChat = {
   'chat.forwardBar.you': '你',
   'chat.delete': '删除',
   'chat.deleteForMe': '仅对我删除',
+  'chat.deleteInHeadHunter': '在 HeadHunter 中删除',
   'chat.deleteForEveryone': '对所有人删除',
   'chat.deleteConfirm': '删除此消息？',
   'chat.copy': '复制文本',

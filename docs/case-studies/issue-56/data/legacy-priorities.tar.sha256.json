@@ -1,0 +1,28 @@
+{
+  "archive": "legacy-priorities.tar.gz",
+  "files": {
+    "js/src/automation/vk-friends-settings.js": "757fb290006faa8f455bfa01bc5830a48731a495b15b07c96999cfdcbabff75f",
+    "js/src/automation/vk-maintenance-settings.js": "6f35a9d3261be60d81e3991b29ffe6316ffba7dce4d90f809391c551dc3073b2",
+    "js/src/automation/vk-personal-settings.js": "6c6f3cda74dd6f663a88f3f86470cf82b95f1c6e8ade07b87cdc5080400dcd86",
+    "js/tests/vk-legacy-priorities.test.js": "46713ab9ae14f617c9112451f09d3cb1721fc6e385a3ab64ce2afd083f84ea37",
+    "experiments/issue-56/legacy-priority-before.py": "ef1d4f9f6a93dad9c6c0ccac5346534a168d9b56d60f8b17dfc248bb98187038",
+    "experiments/issue-56/collect-legacy-priorities.py": "636d083396dd636b44ad34f28795592aca42903c9756467fa17a0f92b5f39fc8",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "docs/case-studies/issue-56/legacy-priorities.md": "01d39d2d1cddfa7a8ed1490fcf9d0679f1ce01ed77e63622d48c0d838e29d421",
+    "ci-logs/vk-legacy-priority-before.log": "f74f8b9ef4d24eef0d6cc459dda5facfc82d1791caf05f1ac4de4025f4edeca2",
+    "ci-logs/vk-legacy-priority-after.log": "c867d4d9ba8659b7655edc4f54e979dfdc57e436cf2dd7a972f706dfe7b5af28",
+    "ci-logs/vk-legacy-priority-focused.log": "d2018b61dbd25279cc164cd8432c20590596d540cd9500dc8d2774d0558767d4",
+    "ci-logs/vk-legacy-priority-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/vk-legacy-priority-web-build.log": "86eef1d109ddfb8d971871157207172dcb847f50f394e159cf9aa2007d76c5e8",
+    "ci-logs/vk-legacy-priority-before-helper.log": "ad159ac099e2d73a9bfc8fca94312b73526198a129e78f7e1a14da836d2bed81",
+    "ci-logs/vk-legacy-priority-import-error.log": "6dadb43314075cd3254e065ddc930e22e392f681a9592b8595f2b217b2ca4745",
+    "ci-logs/vk-legacy-priority-close-fixture-error.log": "761ab17db30a054913b0dd681d4eaffc80d2b2ceeef76fbb38bb88a6ce8a50f9",
+    "ci-logs/vk-desktop-reference-list-values.source": "2683482b8b4b229158db566203fb25208dbd6fbbb0f35d4c61b49b5142e98c0a",
+    "ci-logs/vk-desktop-reference-config.source": "b58d5212d0254ef32f4263ed8f7d13240f54a0a07db7aad437c082271ecd882b",
+    "ci-logs/vk-desktop-reference-list-values.test.source": "fc88883d940f40e4bcb0798527059f6115203484c83d5bc8d30060422a5aa200",
+    "before/js/src/automation/vk-friends-settings.js": "3a432096a7872a486305431808fa09208be2c79bc323024150b54e09dd84698d",
+    "before/js/src/automation/vk-maintenance-settings.js": "af35937c06e17e17952652d823afdc4bcd3e6870b62c7710765e79583784ce64",
+    "before/js/src/automation/vk-personal-settings.js": "aecbbe2a57bcaed2a6bf71ebaaa5f98bc91321360df5785cabddc3d66bf6724d",
+    "metadata.json": "919773278d3e02915ef0183581a749c0bbc37e46741892defa79545f6917e283"
+  }
+}

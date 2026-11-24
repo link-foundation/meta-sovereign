@@ -23,6 +23,7 @@
 import { json, readBody } from './util.js';
 import { isTrustedMutation } from './routes-auto-import.js';
 import { previewFields } from '../sources/telegram-link-preview.js';
+import { storeHhReadState } from '../sources/hh-chat-read.js';
 
 import { markDeleted as tombstone } from '../storage/soft-delete.js';
 
@@ -34,7 +35,11 @@ const fail = (res, status, code, error) =>
 
 /** The network's own id of a message: the last part of its link id. */
 export const externalIdOf = (link) =>
-  String(link.messageId ?? String(link.id).split(':').pop());
+  String(
+    link.messageId ??
+      (link.hhChat ? link.raw?.id : undefined) ??
+      String(link.id).split(':').pop()
+  );
 
 // The messages a request names, all from one chat of one network.
 const messagesOf = async (store, body) => {
@@ -57,6 +62,94 @@ const messagesOf = async (store, body) => {
 };
 
 const now = () => new Date().toISOString();
+
+const exactHhAction = (body, links) =>
+  links[0]?.source !== 'hh' || (body.ids.length === 1 && links.length === 1);
+
+const beforeEdit = (body, [saved]) => {
+  if (saved.source === 'hh' && saved.body !== body.previousText) {
+    throw Object.assign(
+      new Error('The message changed. Reopen the editor to review it.'),
+      {
+        code: 'history-changed',
+      }
+    );
+  }
+};
+
+const confirmHhMutation = (link, result) => {
+  if (
+    link.source === 'hh' &&
+    (result?.via !== 'api' || result.messageId !== externalIdOf(link))
+  ) {
+    throw Object.assign(
+      new Error('HeadHunter did not confirm the selected message changed'),
+      {
+        code: 'mutation-unconfirmed',
+      }
+    );
+  }
+};
+
+const afterEdit = async (store, body, [saved], target, result) => {
+  confirmHhMutation(saved, result);
+  const edited = now();
+  const change = { body: body.text || '📎', edited };
+  if (saved.source !== 'hh') {
+    return store.put({ ...saved, ...change });
+  }
+  const current = await store.get(saved.id);
+  if (!current || current.deleted || current.body !== saved.body) {
+    return;
+  }
+  await store.put({
+    ...current,
+    ...change,
+    raw: {
+      ...current.raw,
+      payload: { ...current.raw?.payload, text: body.text },
+    },
+  });
+};
+
+const badHhReadBoundary = (body, links) => {
+  const [link] = links;
+  if (link?.source !== 'hh' && body.source !== 'hh') {
+    return false;
+  }
+  if (body.ids === undefined) {
+    return false;
+  }
+  return (
+    !Array.isArray(body.ids) ||
+    body.ids.length !== 1 ||
+    !link ||
+    (body.source && body.source !== link.source) ||
+    (body.chat && String(body.chat) !== String(link.chat))
+  );
+};
+
+const afterHhRead = async (store, target, result) => {
+  const state = result?.readState;
+  if (
+    state?.id === `read:hh:${target.chat}` &&
+    state.source === 'hh' &&
+    state.chat === target.chat &&
+    Number.isSafeInteger(state.unreadCount) &&
+    state.unreadCount >= 0
+  ) {
+    return { readState: await storeHhReadState(store, state) };
+  }
+  if (result?.via === 'browser') {
+    throw Object.assign(
+      new Error('HeadHunter has not confirmed the read state'),
+      {
+        code: 'read-unconfirmed',
+        read: false,
+      }
+    );
+  }
+};
 
 // Our own reaction on a message, among the others'.
 const withReaction = (reactions = [], emoji) => {
@@ -81,6 +174,7 @@ const ACTIONS = {
     // the link preview fields as a send has them (R-Y145, R-Y146).
     check: (body, links) =>
       links.length === 1 &&
+      exactHhAction(body, links) &&
       typeof body.text === 'string' &&
       (body.text.trim() || body.caption === true) &&
       previewFields(body)
@@ -92,18 +186,30 @@ const ACTIONS = {
       link,
       ...previewFields(body),
     }),
-    after: (store, body, [link]) =>
-      store.put({ ...link, body: body.text || '📎', edited: now() }),
+    before: beforeEdit,
+    after: afterEdit,
   },
   delete: {
-    check: (body, links) => (links.length ? null : 'message ids are needed'),
+    check: (body, links) => {
+      if (!links.length) {
+        return 'message ids are needed';
+      }
+      if (
+        links[0].source === 'hh' &&
+        (!exactHhAction(body, links) || body.revoke !== true)
+      ) {
+        return 'select one message to delete from the HeadHunter chat';
+      }
+      return null;
+    },
     params: (body, links) => ({
       ids: links.map(externalIdOf),
       revoke: Boolean(body.revoke),
       links,
     }),
-    after: async (store, body, links) => {
+    after: async (store, body, links, target, result) => {
       for (const link of links) {
+        confirmHhMutation(link, result);
         await store.put(
           tombstone(link, { by: 'user', reason: 'deleted-in-app', at: now() })
         );
@@ -128,10 +234,14 @@ const ACTIONS = {
       }),
   },
   read: {
-    check: (body, links) =>
-      links.length || (body.source && body.chat)
+    check: (body, links) => {
+      if (badHhReadBoundary(body, links)) {
+        return 'one saved message from this chat is needed';
+      }
+      return links.length || (body.source && body.chat)
         ? null
-        : 'source and chat are needed',
+        : 'source and chat are needed';
+    },
     params: (body, links) => {
       const ids = links.map(externalIdOf).map(Number).filter(Number.isFinite);
       return {
@@ -140,7 +250,10 @@ const ACTIONS = {
         link: links.at(-1),
       };
     },
-    after: async (store, body, links, target) => {
+    after: async (store, body, links, target, result) => {
+      if (target.source === 'hh') {
+        return afterHhRead(store, target, result);
+      }
       const id = `read:${target.source}:${target.chat}`;
       const read = (await store.get(id)) ?? {
         id,
@@ -176,10 +289,21 @@ const ACTIONS = {
 
 // An item pulled before its network id was kept is refused (R-Z11).
 const FAILURE_STATUS = {
+  'bad-draft': 400,
   'flood-wait': 429,
   'unsupported-action': 501,
   'no-external-id': 409,
+  'history-changed': 409,
+  'hh-import-busy': 409,
 };
+
+const actionFailure = (res, error) =>
+  json(res, FAILURE_STATUS[error.code] ?? 502, {
+    error: error.message,
+    code: error.code ?? 'action-failed',
+    ...(error.read === false ? { read: false } : {}),
+    ...(error.retryAfter ? { retryAfter: error.retryAfter } : {}),
+  }) ?? true;
 
 const handleAction = async (store, req, res, ctx, name) => {
   const action = ACTIONS[name];
@@ -194,12 +318,16 @@ const handleAction = async (store, req, res, ctx, name) => {
     chat: String(links[0]?.chat ?? body.chat),
   };
   try {
+    action.before?.(body, links);
     const result = await ctx.send.perform(name, {
       ...target,
       ...action.params(body, links),
     });
-    await action.after(store, body, links, target);
-    return json(res, 200, { ok: true, ...result, links: undefined }) ?? true;
+    const after = await action.after(store, body, links, target, result);
+    return (
+      json(res, 200, { ok: true, ...result, ...after, links: undefined }) ??
+      true
+    );
   } catch (error) {
     ctx.log?.({
       level: 'warn',
@@ -208,14 +336,7 @@ const handleAction = async (store, req, res, ctx, name) => {
       source: target.source,
       code: error.code ?? null,
     });
-    const status = FAILURE_STATUS[error.code] ?? 502;
-    return (
-      json(res, status, {
-        error: error.message,
-        code: error.code ?? 'action-failed',
-        ...(error.retryAfter ? { retryAfter: error.retryAfter } : {}),
-      }) ?? true
-    );
+    return actionFailure(res, error);
   }
 };
 

@@ -1,0 +1,27 @@
+{
+  "archive": "desktop-attention-packaging.tar.gz",
+  "files": {
+    ".changeset/visible-browser-defaults.md": "05dba921772394255dd28390de385f87cc104fc8c8d746ee0fe023b69286a58b",
+    "docs/case-studies/issue-56/PLAN.md": "d9e0800d7b080f45d8f32983563898ca8cf3b73d41da16d8165424ec7bc32189",
+    "docs/case-studies/issue-56/README.md": "7b8b2d532a87664fa6893d5bfecb65f6584ee4eb3e01f4f1b473bb8e28a2fa63",
+    "docs/case-studies/issue-56/desktop-attention-packaging.md": "9a76f2542778b57cfa9d26403d48bbedc06adadc33cba265e38a788943d27e39",
+    "js/electron/owner-attention.js": "19b0f812ebcf88db36ba4b1e453417385bc31ae4adc1a6e00ebcd2d5d33c6ce7",
+    "js/src/web/i18n.js": "8762dc5efd27fec18fd52d59f276e9d100a45844bcf173e6f3590c9d5bd5bd49",
+    "js/src/web/translate.js": "f81ed6329e24b8d72a771eeb962d6c0b93afc905a18533146a6e2f12aa3f4d5e",
+    "js/tests/desktop-runtime-packaging.test.js": "1257050e759b85bb84a45252d62fe5bed9561233cde02dc0c2fca1bca2b4b755",
+    "parent/js/electron/owner-attention.js": "4d4b4cfe640f56761afe59dc4d09bfb8679b3de7625896a68de2aaa070a97fe9",
+    "parent/js/src/web/i18n.js": "15637a1a98b06de7128ad60014f68521a5a94767ff09e2f51b4be897725a2c93",
+    "local/desktop-isolation-build-web.log": "ae3b4a3eccad959de8036c2388c3ca3b4b8020c670d54c4d2510a4423f192bd6",
+    "local/desktop-isolation-changeset.log": "3e468743fff27349d4c7394d7d4876b3f7b875610ef0e9535ef2dd5af4404cfb",
+    "local/desktop-isolation-deno.log": "8ad8b10c94ebfad31c70f2f72d6898b46278b3dcdc5f82dee8d34270feb4b279",
+    "local/desktop-isolation-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/desktop-isolation-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "local/desktop-isolation-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local/desktop-isolation-node.log": "deefa51d9c1e82f803ced24760d81e1afc9b3bb22d36899ff3d36d48c2a0afb0",
+    "local/desktop-isolation-parent.log": "3ed398bbbd0f2a3259f0f6d8de3cdbd47379e257da0327a0ddc2384f4cef58cc",
+    "local/desktop-isolation-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "hosted/windows-x64-137617589363.log": "afb40e7a395e779440c63828281d9a92701e3ba933609c4568d37fac5b4d1af1",
+    "hosted/windows-arm64-137617589360.log": "6c8039138030fac5b0dfd5a283d79c894c9a79a422f6438e490872e051c1c879",
+    "metadata.json": "3f33ec8d4138bcae30f343fdffe15a61018327f22d2ba058ab367a77b9f735ee"
+  }
+}

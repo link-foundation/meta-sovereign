@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for pinning chats in Saved Messages (R-Y174), as
 // Telegram Desktop has it: in "View as chats" each sub-chat has Pin or
 // Unpin; pinned ones show first with a pin icon. Nothing is sent until the
@@ -69,7 +70,7 @@ await page.route('**/api/telegram/saved-dialogs', (route) =>
 const sent = [];
 let reply = { ok: true };
 await page.route('**/api/telegram/saved-pin', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   sent.push(body);
   if (reply.ok) {
     pins = body.pinned

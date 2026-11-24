@@ -99,7 +99,13 @@ export const createPullRunner = ({
       const result = (await job.run()) ?? {};
       const lastOkAt = new Date(now()).toISOString();
       await savePullState(store, source, { lastOkAt, lastError: null });
-      return { ok: true, source, lastOkAt, imported: result.imported ?? 0 };
+      return {
+        ok: true,
+        source,
+        lastOkAt,
+        imported: result.imported ?? 0,
+        ...(result.history ? { history: result.history } : {}),
+      };
     } catch (error) {
       const out = failure(error, { source });
       log?.({ level: 'warn', event: 'pull_failed', source, code: out.code });

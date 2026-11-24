@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for managing a forum's topics (R-Y153), as Telegram
 // Desktop does: a "+" makes a topic (its name and colour posted, the new
 // topic shown); a right-click offers Edit (renames it), Close (a lock in
@@ -99,7 +100,7 @@ await page.route('**/api/telegram/topic-icons', (route) =>
   fulfil(route, { ok: true, icons: [{ id: '11', emoji: '💡' }] })
 );
 await page.route('**/api/telegram/topic-create', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   calls.create.push(body);
   topics = [
     ...topics,
@@ -111,7 +112,7 @@ await page.route('**/api/telegram/topic-create', (route) => {
   return fulfil(route, { ok: true });
 });
 await page.route('**/api/telegram/topic-edit', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   calls.edit.push(body);
   change(body.topic, {
     ...(body.title === undefined ? {} : { title: body.title }),
@@ -120,13 +121,13 @@ await page.route('**/api/telegram/topic-edit', (route) => {
   return fulfil(route, { ok: true });
 });
 await page.route('**/api/telegram/topic-pin', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   calls.pin.push(body);
   change(body.topic, { pinned: body.pinned });
   return fulfil(route, { ok: true });
 });
 await page.route('**/api/telegram/topic-delete', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   calls.remove.push(body);
   topics = topics.filter((t) => t.id !== body.topic);
   return fulfil(route, { ok: true });

@@ -28,10 +28,7 @@ import {
 } from '../greetings/index.js';
 import { confirmCli } from './confirm.js';
 
-export const GREETINGS_HELP = `  greetings-stickers [--live] [--networks=vk,telegram] [--json] [--store=<dir>]
-  greetings-select   [--stickers=vk:21,facebook:<id>] [--sets=<a,b>] [--language=en|ru|zh|hi|vi] [--prefer=sticker|text] [--json] [--store=<dir>]
-  greetings-plan     [--mode=initiate|reply] [--networks=<a,b>] [--me=<id,id>] [--limit=<n>] [--stale-days=<n>] [--json] [--store=<dir>]
-  greetings-send     (greetings-plan flags) [--delay-ms=<ms>] [--daily-cap=<n>] [--max-per-run=<n>] [--dry-run] [--json] [--store=<dir>]`;
+export { GREETINGS_HELP } from './help.js';
 
 /** vk-bot waits 30 s between greetings. */
 export const DEFAULT_SEND_DELAY_MS = 30_000;
@@ -125,12 +122,22 @@ const selectionInput = (args, current) => ({
   ...(args.sets ? { telegramSets: parseList(args.sets) ?? [] } : {}),
   ...(args.language ? { language: args.language } : {}),
   ...(args.prefer ? { prefer: args.prefer } : {}),
+  ...(args.texts !== undefined
+    ? {
+        texts: {
+          ...current.texts,
+          [args.language ?? current.language]: String(args.texts).split(
+            /\r?\n/u
+          ),
+        },
+      }
+    : {}),
 });
 
 const selectCmd = async (args, log, deps) => {
   const store = await storeOf(args, deps.openStore);
   const current = await loadGreetingSelection(store);
-  const changed = ['stickers', 'sets', 'language', 'prefer'].some(
+  const changed = ['stickers', 'sets', 'language', 'prefer', 'texts'].some(
     (key) => args[key] !== undefined
   );
   const selection = changed
@@ -141,6 +148,9 @@ const selectCmd = async (args, log, deps) => {
     return 0;
   }
   log(`language ${selection.language}, prefer ${selection.prefer}`);
+  selection.texts[selection.language].forEach((text) =>
+    log(`  text ${JSON.stringify(text)}`)
+  );
   selection.stickers.forEach((sticker) => log(`  ${stickerLine(sticker)}`));
   log(`  telegram sets: ${selection.telegramSets.join(', ') || '(none)'}`);
   return 0;

@@ -94,3 +94,35 @@ test('client connection to wrong path is refused', async () => {
   );
   await listener.close();
 });
+
+test(
+  'a disconnected socket leaves a running endpoint and its replacement works',
+  { timeout: 5000 },
+  async () => {
+    const server = http.createServer();
+    const handle = attachSyncWebSocket(server);
+    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+    const port = server.address().port;
+    let client;
+    try {
+      client = await connectSyncWebSocket({ port });
+      assert.equal(handle.socketCount(), 1);
+      await client.close();
+      for (let retry = 0; retry < 30 && handle.socketCount(); retry++) {
+        await settle();
+      }
+      assert.equal(handle.socketCount(), 0, 'TCP end removes the old socket');
+      client = await connectSyncWebSocket({ port });
+      assert.equal(handle.socketCount(), 1);
+      const received = new Promise((resolve) => {
+        client.transport.onMessage(resolve);
+      });
+      handle.transport.send({ type: 'hello', schemaVersion: 1 });
+      assert.deepEqual(await received, { type: 'hello', schemaVersion: 1 });
+    } finally {
+      await client?.close();
+      handle.close();
+      await new Promise((resolve) => server.close(resolve));
+    }
+  }
+);

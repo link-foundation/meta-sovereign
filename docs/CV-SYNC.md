@@ -222,8 +222,9 @@ meta-sovereign cv-sync --platforms=linkedin --groups=intro --apply
 meta-sovereign cv-telemetry --type=step.miss
 ```
 
-The first `cv-read` for a platform opens a headed browser
-(`--headed`), the user signs in once, and the session is kept in a
+Every `cv-read` and live `cv-sync` opens a headed browser by default.
+Use `--headless` (or API `headless: true`) for an invisible run;
+`--headed` remains supported. The user signs in once, and the session is kept in a
 per-platform profile directory (`--profile=<dir>`). Subsequent runs
 reuse it. Credentials are never asked for, stored or transmitted by
 this repository.
@@ -234,6 +235,8 @@ the SPA's **CV** screen, which lists platforms with their draft
 counts, shows the comparison matrix, and refuses to run a live read
 from a browser tab — a browser cannot drive another browser, so the
 SPA links to the CLI instead.
+
+Saved HH owner-save snapshots can also be reviewed and explicitly published to an existing Git repository. See [snapshot publication](CV-SNAPSHOT-PUBLICATION.md) for CLI, HTTP and UI controls, preservation guarantees and uncertain-outcome recovery.
 
 ## 9. Testing
 
@@ -248,3 +251,21 @@ something: it derives the page from the plan's selectors, so a plan
 and its fixture cannot drift apart, and the e2e exercises the shipped
 path — `openBrowserSession` → browser-commander → runner → telemetry —
 rather than a mock of it.
+
+## Persistent browser preferences (R-AA2)
+
+Settings → Browser automation configures defaults, workflows and provider/slot pairs. Priority: explicit run option → slot → workflow → default → visible. Inherit skips a slot/workflow override. Changes apply to the next launch. Interactive QR sign-in stays visible. CV, message sending, imports and marketplace sessions share this resolver. The jobs/forms keys are reserved; setting them alone does not run a workflow.
+
+Named slots have separate persistent profiles; main keeps its existing path. CV CLI accepts `--browser-slot=forms`; CV API and import-start requests accept `browserSlot`. Explicit CV `--profile` supplies an exact directory. Portable links contain preferences only, without cookies, profiles or credentials.
+
+```sh
+meta-sovereign browser-configure --scope=case --key=cv --mode=headless
+meta-sovereign browser-configure --scope=slot --key=hh/forms --mode=visible
+meta-sovereign browser-policies --platform=hh --slot=forms --case=cv
+```
+
+`GET /api/browser/policies?platform=hh&slot=forms&useCase=cv`
+
+`POST /api/browser/policies` → `{ "scope": "slot", "key": "hh/forms", "headless": false }`
+
+For an approved HH workplace change, enter the existing record’s numeric ID in CV sync. Preparation can navigate from the CV overview to the complete workplace list, including older jobs, and open its unique native Edit control. Any open workplace or About draft blocks navigation. The opened record and unchanged saved fields are verified again before preparation. Save and Cancel remain with the owner; a prepared receipt does not confirm a provider save.

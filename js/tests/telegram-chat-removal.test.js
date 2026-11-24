@@ -39,7 +39,7 @@ const Api = {
   InputUserSelf: tl('InputUserSelf'),
 };
 
-const setup = async (chat, { offsets = [0] } = {}) => {
+const setup = async (chat, { offsets = [0], reply } = {}) => {
   const store = createMemoryStore();
   for (const id of [1, 2, 3]) {
     await store.put({
@@ -64,16 +64,36 @@ const setup = async (chat, { offsets = [0] } = {}) => {
   const observed = [];
   const left = [...offsets];
   const client = {
+    getMe: async () => ({ id: 1n }),
     invoke: async (request) => {
       calls.push(request);
+      if (reply) {
+        return reply(request);
+      }
       if (request.className.endsWith('DeleteHistory')) {
+        if (request.className === 'channels.DeleteHistory') {
+          return { className: 'Updates', updates: [], users: [], chats: [] };
+        }
         return {
           pts: 10 + calls.length,
           ptsCount: 1,
           offset: left.shift() ?? 0,
         };
       }
-      return { className: 'Updates', updates: [], users: [], chats: [] };
+      return request.className === 'messages.DeleteChat'
+        ? true
+        : {
+            className: 'Updates',
+            updates: [],
+            users: [],
+            chats: [
+              {
+                className: chat.startsWith('-100') ? 'Channel' : 'Chat',
+                id: BigInt(chat.slice(chat.startsWith('-100') ? 4 : 1)),
+                left: true,
+              },
+            ],
+          };
     },
   };
   const env = {
@@ -158,7 +178,10 @@ test('leave a channel; clear a supergroup up to its newest message (R-Y100)', as
     ['channels.LeaveChannel']
   );
   const cleared = await setup('-1005');
-  await cleared.actions.removeChat({ chat: '-1005', action: 'clear' });
+  assert.equal(
+    (await cleared.actions.removeChat({ chat: '-1005', action: 'clear' })).ok,
+    true
+  );
   assert.equal(cleared.calls[0].className, 'channels.DeleteHistory');
   assert.equal(cleared.calls[0].maxId, 3);
   assert.equal(cleared.calls[0].forEveryone, false);
@@ -298,4 +321,94 @@ test('a group cleared stays; once left it is gone (R-Y100)', async () => {
   assert.deepEqual(await shown(), ['-77', '999']);
   await actions.removeChat({ chat: '-77', action: 'leave' });
   assert.deepEqual(await shown(), ['999']);
+});
+
+test('unconfirmed or mismatched leave responses retain the chat and never delete history', async () => {
+  for (const chat of ['-77', '-1005']) {
+    for (const answer of [
+      undefined,
+      false,
+      {},
+      { className: 'Updates', updates: [], users: [], chats: [] },
+      {
+        className: 'Updates',
+        users: [],
+        updates: [],
+        chats: [{ className: 'Channel', id: 999n, left: true }],
+      },
+      {
+        className: 'Updates',
+        users: [],
+        updates: [
+          {
+            className: 'UpdateChatParticipantDelete',
+            chatId: 77n,
+            userId: 99n,
+          },
+        ],
+        chats: [],
+      },
+    ]) {
+      const fixture = await setup(chat, { reply: () => answer });
+      const result = await fixture.actions.removeChat({
+        chat,
+        action: 'leave',
+      });
+      assert.equal(
+        result.ok,
+        false,
+        `${chat}: unresolved membership cannot succeed`
+      );
+      assert.equal(result.code, 'outcome-unknown');
+      assert.equal(
+        fixture.calls.length,
+        1,
+        'no history request follows an unconfirmed leave'
+      );
+      assert.ok(
+        (await fixture.shown()).includes(chat),
+        'local messages remain visible'
+      );
+    }
+  }
+});
+
+test('a failed destroy acknowledgement preserves local messages', async () => {
+  for (const chat of ['-77', '-1005']) {
+    const fixture = await setup(chat, { reply: () => false });
+    const result = await fixture.actions.removeChat({
+      chat,
+      action: 'destroy',
+    });
+    assert.equal(result.ok, false);
+    assert.ok((await fixture.shown()).includes(chat));
+  }
+});
+
+test('an acknowledged basic-group leave survives uncertain history cleanup', async () => {
+  const fixture = await setup('-77', {
+    reply: (r) =>
+      r.className === 'messages.DeleteChatUser'
+        ? {
+            className: 'Updates',
+            users: [],
+            chats: [],
+            updates: [
+              {
+                className: 'UpdateChatParticipantDelete',
+                chatId: 77n,
+                userId: 1n,
+              },
+            ],
+          }
+        : undefined,
+  });
+  const result = await fixture.actions.removeChat({
+    chat: '-77',
+    action: 'leave',
+  });
+  assert.equal(result.ok, false);
+  assert.equal(result.membership, 'confirmed');
+  assert.equal(result.code, 'history-outcome-unknown');
+  assert.ok((await fixture.shown()).includes('-77'));
 });

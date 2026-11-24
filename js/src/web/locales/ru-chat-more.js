@@ -3,6 +3,18 @@
 // dictionary.
 
 export const ruChatMore = {
+  'chat.export.failedFiles':
+    'Не удалось скачать медиафайлы: {count}. В записях экспорта сохранены примечания об ошибках.',
+  'chat.export.scope': 'История для экспорта',
+  'chat.export.scope.all': 'Вся история',
+  'chat.export.scope.active': 'Текущая беседа',
+  'chat.export.gap': 'Пауза между беседами (часы)',
+  'chat.export.gapHint':
+    'Начало после последней паузы не короче указанной. Фильтр дат сохраняется. Доступная история до преобразования группы также включается.',
+  'chat.export.format.markdown':
+    'Markdown и связанные части структурированного JSON',
+  'chat.export.maxLines': 'Максимум строк в части Markdown/JSON (32–1500)',
+  'chat.export.locating': 'Поиск текущей беседы…',
   'chat.automation.find': 'Найти следующий подходящий чат',
   'chat.automation.finding': 'Поиск подходящего чата…',
   'chat.automation.findHint':

@@ -1,0 +1,23 @@
+{
+  "archive": "application-chat-session.tar.gz",
+  "files": {
+    "ci-logs/Checks-and-release-45313535323-lint-job-sanitized.log": "5f57211caa2726d9243d21213b37aeb4e92da87f1ca692268b63d9eec56a4b59",
+    "ci-logs/application-chat-session-browser.log": "2b5591d54d3148b0d7dc42fd31445da974ebec9dc0360b59ecdaae7fabfaa6b9",
+    "ci-logs/application-chat-session-build.log": "cdcf8e4f6b3cd5e0a3ddd86d235d2d850e63597ee365c2459ff24310c46c3f52",
+    "ci-logs/application-chat-session-deno.log": "1f564fa7fec28772688c58ed38b0771f96becff7bf51f37838616532119fb9da",
+    "ci-logs/application-chat-session-final-format.log": "2941e4554b8ac9e56c55f1d561b10c95c3e93e99417bce694684d14adbe2df34",
+    "ci-logs/application-chat-session-lint.log": "bce16e3a8a7fc4c5002b33f9720ce4952bb51216a11f01c971196dc24d937acb",
+    "ci-logs/application-chat-session-mcp-server.log": "65a3675a81312a89f21c40d8d1fa0c202803bc303bddf80c53b9deace618a0cd",
+    "ci-logs/application-chat-session-mcp.json": "fface174fbccec51deaf606fba534d600a12485adb09c99ae151359c23533381",
+    "ci-logs/application-chat-session-node.log": "844565def05e4d86c134c9c3551a7bfa7ec6b185adf76ff79a7d555012739188",
+    "ci-logs/application-chat-session-parent-browser.log": "2cf6d865688258de96b5d94a7d731dfcea719b2b6209cf6c4c82d0b6573bb023",
+    "ci-logs/application-chat-session-parent-build.log": "75a9b46ad9276cb46799d60a5fa6f27210b90e8d518865bbc9dbc641717033df",
+    "ci-logs/application-chat-session-parent-inventory-format.log": "e2d8f47fd0046edfaf67d91dc91f5da9e2d1e591270c3e242a1eec088d0cc9f9",
+    "ci-logs/application-chat-session-parent-unit.log": "23847abf1a6f945a25d70ebc2cd164584e92dc90ed365a1f50033ab3643a93a3",
+    "ci-logs/application-chat-session-shards.log": "a48b7cf8ac7e1ba119df39dd252f993c1fea0cebd5a5ece559eb3e0a4fa63666",
+    "ci-logs/application-chat-session-webkit-batch-attempt.log": "276f73b64c827debc50ffa635968f25abcf46823461279ead5a1f3e11cc32dff",
+    "ci-logs/application-chat-session-webkit-routed-headers.log": "2e49dd9d79b706ef90008479ce37544de9e329e46ed4d20ed93c345e9086531b",
+    "ci-logs/application-chat-session-webkit.log": "af1ee15c6664f75e7c91d8d3a5c4ae4bbc1d0f5403a11a647009d4a8aba752df",
+    "metadata.json": "fcc26872c6058cd967b01f29cdaa695264f4dfff57ee6a3d49ecf59320d48423"
+  }
+}

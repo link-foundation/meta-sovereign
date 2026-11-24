@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for translating a message (R-Y132), as Telegram
 // Desktop does: the menu of a message with text has "Translate…", which
 // opens a box with the original and the translation (drawn with its
@@ -54,7 +55,7 @@ await page.route('**/api/telegram/chat-info*', (route) =>
 );
 const asked = [];
 await page.route('**/api/telegram/translate', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   asked.push(body);
   if (body.ids[0] === 2) {
     return fulfil(route, {

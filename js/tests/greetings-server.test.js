@@ -6,7 +6,7 @@ import { describe, it, expect } from 'test-anywhere';
 
 import { buildMessageLink } from '../src/sources/link.js';
 import { createMemoryStore } from '../src/storage/index.js';
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 import {
   greetingLinkId,
   greetingTexts,

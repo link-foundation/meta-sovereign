@@ -1,0 +1,28 @@
+{
+  "archive": "telegram-backlinks.tar.gz",
+  "files": {
+    "ci-logs/checks-42770414315.log": "517f4c3ac1202907540b323641bf757bd37af102e67f0d158f53e2a3d4134a25",
+    "ci-logs/telegram-backlink-inspection-before.log": "8475bb46e1355589bebd1e563c300acdd264338db959b8032a8144e1315d4aa1",
+    "ci-logs/telegram-backlinks-browser-final.log": "52f35de162ef790f5b0a3d917a9e71b74456570126e9af14929e0c36b0098a29",
+    "ci-logs/telegram-backlinks-browser-format.log": "fd789fc17441edf093a81295b3aca987b05a88fcf647b231cfeeb3ae62cbb4b5",
+    "ci-logs/telegram-backlinks-browser.log": "52f35de162ef790f5b0a3d917a9e71b74456570126e9af14929e0c36b0098a29",
+    "ci-logs/telegram-backlinks-bundle.log": "0ed14c3fc2ad7e0197b8004e6343e63c40ea0288e4533c7e51da13cfc53e6061",
+    "ci-logs/telegram-backlinks-compatibility.log": "492d857d874471640ca6b55e01d588daedb53007c31833eee9580413babb6af0",
+    "ci-logs/telegram-backlinks-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/telegram-backlinks-focused.log": "0b25b6f9c68f9378315c832ddf4e02c5db5610fede4cebb32875523bd40d4e96",
+    "ci-logs/telegram-backlinks-format.log": "182500909c0a70c671e789c6470e2f48fc175033b4ff8c8b1d2a2bee545a2ef5",
+    "ci-logs/telegram-backlinks-lint-fix-runs.json": "1f7558daffaea6e0cd6be24884106cb43549c16c3fd73871c53d2c639663808f",
+    "ci-logs/telegram-backlinks-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/telegram-backlinks-mcp.log": "64688107406cb6c3e6d46c3fa6551449d7292666b53c10c04ca2d3417f164ca0",
+    "ci-logs/telegram-backlinks-readback-format.log": "7f66e37fd7154809e856d364281e9d044aa6397b0abc8c27ff150c8d3c3e9495",
+    "ci-logs/telegram-backlinks-runtime-format.log": "2bffd132a9d1ab70cbd6816b27d33837294cb5dca5e4be3b3de03a8e3de54ca6",
+    "ci-logs/telegram-backlinks-sdk.log": "d669150ea6e54fa533f3ad6aa603cce6d4e0b5519af4975f81dda0cf565db21b",
+    "ci-logs/telegram-backlinks-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/telegram-backlinks-selector-format.log": "7104ed945eb9c496c51a7cec61d484401f63ee9f2ce91c2bd3bc542874918ac5",
+    "ci-logs/telegram-backlinks-vk-browser.log": "5be5a9c802b1598a8467cb1b8a8c531a1b126b765ece9067fdb5aea187241a69",
+    "experiments/issue-56/collect-telegram-backlink-evidence.py": "643700abea5f712c099544c5613bdca40702eb03d33914a07a205fbbe7306763",
+    "experiments/issue-56/telegram-backlink-draft.mjs": "028a97df8ba5e9bcf232c86367cbbb1b5105935bda7fa48b3240e3e135a691ca",
+    "experiments/issue-56/telegram-backlinks-ui.mjs": "e20c0b8eff85aabe84f7cd783b6988c526db3768eeb7e679d4e5a9e8c31cbc66",
+    "metadata.json": "de25f5d474dec4e7ec90a9e15ecfd1a9ae3db33a18b35f491bb2b30aa0934bbb"
+  }
+}

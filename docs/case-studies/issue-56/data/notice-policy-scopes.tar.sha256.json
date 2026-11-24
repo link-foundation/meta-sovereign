@@ -1,0 +1,18 @@
+{
+  "archive": "notice-policy-scopes.tar.gz",
+  "files": {
+    "ci-logs/notice-policy-scopes-build.log": "8cc494e3db91ef50d59f4a85d11ab9f992e41a6983e4722b2cbda799198c7e5c",
+    "ci-logs/notice-policy-scopes-chromium-parent-final.log": "a88643e578d4b2a9d26d66e3a91e21e7041b9d4cae1ed76ce350f1578e42b2e4",
+    "ci-logs/notice-policy-scopes-chromium.log": "e8ab2fe80cde742baa034b6b1d1e364cd298dfc16726539cf368a7ee702bc0ed",
+    "ci-logs/notice-policy-scopes-deno.log": "47572dbb88e54d938c02c2d0a14d9d559c45620800fc752a02ed44af37eb5a31",
+    "ci-logs/notice-policy-scopes-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/notice-policy-scopes-lint.log": "65493f72be3c52e7dc1217c3a4d319d058d07d64fd24fcdc7e6796b922ca52e5",
+    "ci-logs/notice-policy-scopes-mcp-server.log": "e23ccab047d956de886b26236d674500c35538e72cf8ae0692a01ab3fbf1dbab",
+    "ci-logs/notice-policy-scopes-mcp.json": "4279fcf252a823877525d4634c9f60a6aaca75cbb359668d983a9d384beefef7",
+    "ci-logs/notice-policy-scopes-node.log": "065fa844bdfe4e89bef7dc049426a237c35b96fd2fc7d7f97799bd998667f4a3",
+    "ci-logs/notice-policy-scopes-parent.log": "07d925a76c9d2259f50e04aff4bd9aad7cfceb9218c586231c9366707c995886",
+    "ci-logs/notice-policy-scopes-prettier.log": "2941e4554b8ac9e56c55f1d561b10c95c3e93e99417bce694684d14adbe2df34",
+    "ci-logs/notice-policy-scopes-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "metadata.json": "10c7bb4a49ce7183f7e3d9924d0e505f7099a92d2a84aebf629622ca1cd888d1"
+  }
+}

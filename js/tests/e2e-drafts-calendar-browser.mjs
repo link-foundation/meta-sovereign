@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for cloud drafts, the calendar's counts and frequent
 // contacts (R-Y207), as Telegram Desktop has them:
 //  - a draft typed on the phone shows in the chat list ("Draft:" in red)
@@ -104,7 +105,7 @@ await page.route('**/api/telegram/drafts-clear', (route) => {
 // The calendar: days before the offset date, newest first, as counted
 // from the messages above.
 await page.route('**/api/telegram/calendar', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   asked.before.push(body.before);
   const days = new Map();
   for (const m of sent) {
@@ -144,13 +145,13 @@ await page.route('**/api/telegram/top-peers', (route) => {
   });
 });
 await page.route('**/api/telegram/top-peers-remove', (route) => {
-  const { chat } = route.request().postDataJSON();
+  const { chat } = requestBody(route.request());
   asked.removed.push(chat);
   top.peers = top.peers.filter((p) => p.chat !== chat);
   return fulfil(route, { ok: true });
 });
 await page.route('**/api/telegram/top-peers-toggle', (route) => {
-  const { enabled } = route.request().postDataJSON();
+  const { enabled } = requestBody(route.request());
   asked.toggled.push(enabled);
   top.enabled = enabled;
   return fulfil(route, { ok: true, enabled });

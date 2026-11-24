@@ -19,7 +19,10 @@ import { telegramConnectionState } from '../provider-live-state.js';
 import { RecommendedHeader } from './recommended.js';
 import { api } from '../dom.js';
 import { useLocaleContext, useT } from '../i18n.js';
-import { LocalServerHelp } from '../connection-guide.js';
+import {
+  LocalServerHelp,
+  translateGuideValue as tx,
+} from '../connection-guide.js';
 import {
   buildProbeHeaders,
   buildProbeUrl,
@@ -42,20 +45,44 @@ import { Busy } from '../spinner.js';
 import { EmailPullRow } from './email-pull.js';
 import { FETCHABLE, FetchNow } from './fetch-now.js';
 import { GithubInbox } from './github-inbox.js';
+import { VkSendQueue } from './vk-send-queue.js';
+import { VkAttachments } from './vk-attachments.js';
+import { VkOnline } from './vk-online.js';
+import { VkFriends } from './vk-friends.js';
+import { VkMaintenance } from './vk-maintenance.js';
+import { VkCancelled } from './vk-cancelled.js';
+import { VkGreet } from './vk-greet.js';
+import { VkReengage } from './vk-reengage.js';
+import { VkWall } from './vk-wall.js';
+import { VkBirthday } from './vk-birthday.js';
+import { VkRetention } from './vk-retention.js';
+import { VkDiscovery } from './vk-discovery.js';
+import { VkCache } from './vk-cache.js';
+import { VkStickerCatalog } from '../vk-sticker-catalog.js';
 import { MarketplaceAccounts } from '../marketplace-accounts.js';
+import { VkToken } from './vk-token.js';
 import { workspaceName } from '../cloud-workspace.js';
+import { isHhRecording, parseHhArchive } from '../../sources/hh-recording.js';
 
 const el = React.createElement;
-
-const tx = (t, value, key) => {
-  if (key) {
-    const translated = t(key);
-    if (translated !== key) {
-      return translated;
-    }
-  }
-  return value;
-};
+const VkConnectionJobs = () =>
+  el(React.Fragment, null, [
+    workspaceName() ? null : el(VkToken, { key: 'token' }),
+    el(VkAttachments, { key: 'attachments' }),
+    el(VkSendQueue, { key: 'send-queue' }),
+    el(VkOnline, { key: 'online' }),
+    el(VkFriends, { key: 'friends' }),
+    el(VkMaintenance, { key: 'maintenance' }),
+    el(VkCancelled, { key: 'cancelled' }),
+    el(VkGreet, { key: 'greet' }),
+    el(VkReengage, { key: 'reengage' }),
+    el(VkWall, { key: 'wall' }),
+    el(VkBirthday, { key: 'birthday' }),
+    el(VkRetention, { key: 'retention' }),
+    el(VkDiscovery, { key: 'discovery' }),
+    el(VkCache, { key: 'cache' }),
+    el(VkStickerCatalog, { key: 'stickers' }),
+  ]);
 
 // A status that is still at work ("Saving…") shows Telegram's arc
 // (R-Y84); one that is done is plain text.
@@ -311,34 +338,53 @@ const ProviderCredentialsForm = ({
   ]);
 };
 
+const archiveInput = (raw) => {
+  if (typeof raw !== 'string') {
+    return raw;
+  }
+  const trimmed = raw.trim();
+  if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+    try {
+      return JSON.parse(trimmed);
+    } catch {
+      return trimmed;
+    }
+  }
+  return trimmed;
+};
+
 const ProviderArchiveImport = ({ providerId, provider }) => {
   const t = useT();
   const [paste, setPaste] = useState('');
   const [status, setStatus] = useState('');
 
-  const importPayload = async (raw, label) => {
+  const importPayload = async (raw, label, file) => {
     if (!raw || (typeof raw === 'string' && raw.trim().length === 0)) {
       setStatus(t('settings.nothingToImport'));
       return;
     }
     setStatus(working(t('settings.importing', { label })));
     try {
-      const mod = await import('../../sources/index.js');
-      const adapter = mod.getSource(providerId);
-      let archive = raw;
-      if (typeof raw === 'string') {
-        const trimmed = raw.trim();
-        if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
-          try {
-            archive = JSON.parse(trimmed);
-          } catch {
-            archive = trimmed;
-          }
-        } else {
-          archive = trimmed;
-        }
+      const archive = archiveInput(raw);
+      if (providerId === 'hh' && isHhRecording(archive)) {
+        await uploadArchive(
+          file ??
+            new globalThis.File([raw], 'chat-history.json', {
+              type: 'application/json',
+            })
+        );
+        return;
       }
-      const messages = await adapter.parseArchive(archive);
+      // The legacy HH format needs only its parser. The full source registry
+      // loads native browser commands that cannot run under the browser CSP.
+      const messages =
+        providerId === 'hh'
+          ? parseHhArchive(archive)
+          : await (
+              await import('../../sources/index.js')
+            )
+              .getSource(providerId)
+              .parseArchive(archive);
       let count = 0;
       for (const message of messages ?? []) {
         await api.put(message);
@@ -352,9 +398,9 @@ const ProviderArchiveImport = ({ providerId, provider }) => {
     }
   };
 
-  // A zip export (WhatsApp with media, Facebook, X, ...) is streamed to the
-  // server, which reads it in place (R-Z9, R-Z23).
-  const importZip = async (file) => {
+  // Container exports and recordings with immutable edits use the server's
+  // archive importer so the file is admitted with its history intact.
+  const uploadArchive = async (file) => {
     setStatus(working(t('settings.importing', { label: file.name })));
     const answer = await api.archiveUpload(providerId, file, {
       onProgress: (share) =>
@@ -383,7 +429,7 @@ const ProviderArchiveImport = ({ providerId, provider }) => {
       return;
     }
     if (/\.zip$/i.test(file.name)) {
-      await importZip(file);
+      await uploadArchive(file);
       return;
     }
     // Mail is read as bytes, so every part keeps its own charset (R-Z5).
@@ -391,7 +437,7 @@ const ProviderArchiveImport = ({ providerId, provider }) => {
       providerId === 'email'
         ? new Uint8Array(await file.arrayBuffer())
         : await file.text();
-    await importPayload(content, file.name);
+    await importPayload(content, file.name, file);
   };
 
   const onPaste = async () => {
@@ -508,11 +554,14 @@ const AUTO_IMPORT_POLL_MS = 1500;
 const autoImportStateText = (t, job) =>
   job.state === 'failed'
     ? t('autoImport.state.failed', { error: job.error ?? '' })
-    : t(`autoImport.state.${job.state}`);
+    : t(
+        `autoImport.state.${job.state === 'waiting' && job.canCapture ? 'waitingCapture' : job.state}`
+      );
 
 // Loads the server's auto-import status, adopts a job already running
 // for this provider (e.g. after a page reload) and polls it while active.
 const useAutoImportJob = (providerId, initialStatus, initialJob) => {
+  const t = useT();
   const [status, setStatus] = useState(initialStatus);
   const [job, setJob] = useState(initialJob);
   const [error, setError] = useState('');
@@ -553,7 +602,11 @@ const useAutoImportJob = (providerId, initialStatus, initialJob) => {
 
   const apply = (result) => {
     if (result?.error) {
-      setError(result.error);
+      setError(
+        result.code === 'hh-capture-open-chat'
+          ? t('autoImport.openHhChat')
+          : result.error
+      );
     } else if (result?.id) {
       setError('');
       setJob(result);
@@ -565,7 +618,16 @@ const useAutoImportJob = (providerId, initialStatus, initialJob) => {
 
 const AutoImportActions = ({ providerId, status, job, active, apply }) => {
   const t = useT();
-  const canCapture = Boolean(status?.providers?.[providerId]?.canCapture);
+  const [capturing, setCapturing] = useState(false);
+  const capabilities = status?.providers?.[providerId];
+  const capture = async (options) => {
+    setCapturing(true);
+    try {
+      apply(await api.autoImportAction(job.id, 'capture', options));
+    } finally {
+      setCapturing(false);
+    }
+  };
   const button = (key, label, onClick, extra = {}) =>
     el(
       'button',
@@ -589,19 +651,40 @@ const AutoImportActions = ({ providerId, status, job, active, apply }) => {
       job ? el(AutoImportState, { key: 'state', job }) : null,
     ]);
   }
+  const disabled = capturing || job.state !== 'waiting';
   return el('div', { className: 'row' }, [
-    canCapture
+    capabilities?.canCapture
+      ? button('capture', 'autoImport.capture', () => capture({}), {
+          className: 'primary',
+          disabled,
+        })
+      : null,
+    capabilities?.canCaptureHistory
       ? button(
-          'capture',
-          'autoImport.capture',
-          async () => apply(await api.autoImportAction(job.id, 'capture')),
-          { className: 'primary', disabled: job.state !== 'waiting' }
+          'history',
+          'autoImport.history',
+          () => capture({ history: true }),
+          { disabled }
         )
       : null,
     button('finish', 'autoImport.finish', async () =>
       apply(await api.autoImportAction(job.id, 'stop'))
     ),
-    el(AutoImportState, { key: 'state', job }),
+    el(AutoImportState, {
+      key: 'state',
+      job: capturing ? { ...job, state: 'importing' } : job,
+    }),
+  ]);
+};
+
+const AutoImportHistoryState = ({ report }) => {
+  const t = useT();
+  const status = report.coverage.complete
+    ? 'autoImport.historyComplete'
+    : 'autoImport.historyPartial';
+  return el('p', { className: 'meta', role: 'status' }, [
+    t(status, { count: report.saved }),
+    report.restored ? null : ` ${t('autoImport.historyPositionUnconfirmed')}`,
   ]);
 };
 
@@ -610,7 +693,7 @@ const AutoImportState = ({ job }) => {
   const text = `${autoImportStateText(t, job)} ${t('autoImport.imported', {
     count: job.imported,
   })}`;
-  return AUTO_IMPORT_ACTIVE.has(job.state)
+  return ['launching', 'importing'].includes(job.state)
     ? el(Busy, { as: 'span' }, text)
     : el('span', { className: 'meta', role: 'status' }, text);
 };
@@ -647,6 +730,8 @@ const AutoImportIntro = ({ providerId, provider, status, job }) => {
   const { locale } = useLocaleContext();
   const service = tx(t, provider.label, provider.labelKey);
   const canCapture = Boolean(status?.providers?.[providerId]?.canCapture);
+  const captureIntro =
+    providerId === 'hh' ? 'autoImport.introHh' : 'autoImport.introCapture';
   const signIn = job ? null : status?.signIns?.[providerId];
   return el(React.Fragment, null, [
     el(RecommendedHeader, {
@@ -659,7 +744,7 @@ const AutoImportIntro = ({ providerId, provider, status, job }) => {
     el(
       'p',
       { key: 'intro' },
-      t(canCapture ? 'autoImport.introCapture' : 'autoImport.intro', {
+      t(canCapture ? captureIntro : 'autoImport.intro', {
         service,
       })
     ),
@@ -713,6 +798,12 @@ export const ProviderAutoImport = ({
       }),
       error
         ? el('p', { key: 'error', className: 'meta', role: 'alert' }, error)
+        : null,
+      job?.historyCapture
+        ? el(AutoImportHistoryState, {
+            key: 'history',
+            report: job.historyCapture,
+          })
         : null,
       job?.files?.length
         ? el(AutoImportFiles, { key: 'files', files: job.files })
@@ -771,6 +862,7 @@ export const ProviderConnectionControls = ({
       providerId === 'email' ? el(EmailPullRow, { key: 'email-pull' }) : null,
       el(ProviderArchiveImport, { key: 'arch', providerId, provider }),
       providerId === 'github' ? el(GithubInbox, { key: 'inbox' }) : null,
+      providerId === 'vk' ? el(VkConnectionJobs, { key: 'vk-jobs' }) : null,
       el(ConnectionProbeRow, {
         key: 'probe',
         provider,

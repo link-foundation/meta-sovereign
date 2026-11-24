@@ -1,0 +1,33 @@
+{
+  "archive": "ci-salary-browser-groups.tar.gz",
+  "files": {
+    "package.json": "09c9e8216167e3fc0e2eef6ee6dee0a0e2768666a88ec003f55ca57301bba09a",
+    "js/scripts/browser-checks.json": "01dc78cafc43642e0c7fdad527a70bbd7fad608e856ece63d40d949bb9e47d59",
+    "js/tests/ci-contracts.test.js": "61d6efa49ea6da7870bf1dabb25c41bc3fdb96efb9de58ec1c31d3ca50bacb6f",
+    "js/tests/e2e-question-controls-browser.mjs": "a7c199ec101b2d006cd48bd827911aa243d51f5e45ecf46652ce746262ab2e87",
+    "js/tests/e2e-question-salary-context-browser.mjs": "faf3db94de96069c75465bafcd02505b8b0583716959acd25aa8a0a03850066b",
+    "js/tests/e2e-question-salary-wording-browser.mjs": "fa069552d0f38bc966774aa2cab0138a105414a268e09f084c067a345ea90750",
+    "experiments/issue-56/collect-salary-context-hosted.py": "9cfa7e6e4b85da4bf311d26e0359beb1522154c5308b03bfe497f779af517288",
+    "experiments/issue-56/collect-ci-salary-browser-groups.py": "8df317590d09148872054f3fb012035c50a48c515db08ba1e8dfbd3abed8187f",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "docs/case-studies/issue-56/ci-salary-browser-groups.md": "a8e0e2b09a11fe272d2787b1bb35f10acdc32a761ab67994d0cdef0b3ca4c8e2",
+    "ci-logs/06953e31-webkit-2-job.json": "1a09ed9ee60b71fc8188e1ca5cff515c2f7da7231de36a44b3fb447679230265",
+    "ci-logs/hosted-06953e31-webkit-2.log": "e3f5766eef2976dab0a7c7dcb2de17692ed2d3d37967d92e3c39dea9b1458a88",
+    "ci-logs/ci-salary-browser-groups-before.log": "89a434aca8cd9528265b00e52837e0ca26a0e3483587f635198b10853d419040",
+    "ci-logs/ci-salary-browser-groups-registration.log": "6bd2f11894609562144db15745bf53421ed2a1d664ca860ed151f977d0756378",
+    "ci-logs/ci-salary-browser-groups-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-salary-browser-groups-duplication.log": "05dcd32e11cbfc4745dd74e4f31ac3bac37334481e9b39fd24657a2cd947f591",
+    "ci-logs/ci-salary-browser-groups-native.log": "c9a7703dc1fb5c42f42fe9814961a8c0c8829bc087f81f2fe4e349cb11444599",
+    "ci-logs/ci-salary-browser-groups-after.log": "cf1b99c52c27e5de97b4b420b0c30508bc00ef8f0ce2522c96b5da6b1d80482c",
+    "ci-logs/ci-salary-browser-groups-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/ci-salary-browser-groups-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-salary-browser-groups-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-salary-browser-groups-doc-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "before/package.json": "cf2a6d210912d4eae002fdf34cb7b55a2507c8ea1732cd4dc4fe63b325219cd2",
+    "before/js/scripts/browser-checks.json": "bcf32a1de04bc1bb5042b6abd3b8166a41730e8561549b22bc25f91c812146ac",
+    "before/js/tests/ci-contracts.test.js": "f8f207e76f2297ec4f15f7c66e58d5579eff7fd20ff1160249154091fd3783a0",
+    "before/js/tests/e2e-question-controls-browser.mjs": "4ffa6be30ea0041e782384da561292a83fa02f40e41c519a7c286488baa533bc",
+    "before/experiments/issue-56/collect-salary-context-hosted.py": "f1f0143f7f582292fd21501e679206083acb318ee8089cae37eebdf165c47668",
+    "metadata.json": "dc9280335c1b2915706774a14a19d6a26bef017bb18c26b64aa0333eddad4032"
+  }
+}

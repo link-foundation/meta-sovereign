@@ -1,0 +1,32 @@
+{
+  "archive": "ci-locked-prettier.tar.gz",
+  "files": {
+    "before/docs/REQUIREMENTS.hi.md": "0e9e119ed477b06dfd537787b71e37dcdb0e2c4aa11dbc1aa47f6918ec577aa6",
+    "before/docs/REQUIREMENTS.md": "967d3aec1150cfde6020ea2aa289a6e033fb1065736c1b3820ccafd8c5f24d3d",
+    "before/docs/REQUIREMENTS.ru.md": "844511f64d19ac1e5fd37f4c94842209eb784d8cb18f6303bbe6791a37fa6ccb",
+    "before/docs/REQUIREMENTS.zh.md": "e1661251da8fe53a4ffb650570b0e94ccc93b4461cb0d33a80f9ec994872a7fd",
+    "before/js/src/web/locales/hi-vacancy.js": "92d46f3432fe4ad46fdc60e27d18d3406fb4b68bcc5494f585a6904041e63757",
+    "ci-logs/ci-locked-prettier-after.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/ci-locked-prettier-before.log": "59787e2f29f401532fbbaad67fbfa2a5ce9499ce8d16bb674b7f75fee06f5f35",
+    "ci-logs/ci-locked-prettier-hi-corrected.js": "c65ece400f6d9262cf489addde05f704fd70e983410291b578f39f689f1e95b9",
+    "ci-logs/ci-locked-prettier-lint.log": "4f8a78edc48c9ee82f388e07cda37917d597d96365ef435bc6ad062229a79d00",
+    "ci-logs/ci-locked-prettier-published-lint.log": "875b56437398611e566e19894017a9e36ea58c313e89409b932430193915e449",
+    "ci-logs/ci-locked-prettier-requirements-after.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/ci-locked-prettier-requirements-before.log": "2120fb58bd539d9e169325429edcfb9ca0935af0deb786a10516da52aa4f2821",
+    "ci-logs/ci-locked-prettier-versions.json": "4535f7a1571e75b84e0cce5562b04a292c40dd6fd579be80202016a9f8e4ebb1",
+    "ci-logs/cv-workplace-identity-locked-ci.json": "c513965fc096956e03f9aa8fd16d537ac9a8bba3ebd13b84b0a42e866b284477",
+    "ci-logs/cv-workplace-identity-parent-checks.json": "d401ccd177a6448c299a4006e18e003355440284881f6b257d5eb95c7f01ab4f",
+    "ci-logs/cv-workplace-identity-parent-lint-annotations.json": "daa43a889c50dfb6f492a3390e309b6380b4a238e44b87b76299aeb2682c6ea2",
+    "ci-logs/cv-workplace-identity-parent-lint.log": "2418efde6e153ad4789b256aaece3bded1cfa37f58ede3b78d5b09e8a6a0d85e",
+    "docs/REQUIREMENTS.hi.md": "f3eb8b028a21b968968a987afb3ba20369d2e612fe8a9bce8b067d6b65cb9d74",
+    "docs/REQUIREMENTS.md": "1d2ca0b35d3e032c655a9c9289851f8662dab61ca4d1379c28feb90ccbd3dc0c",
+    "docs/REQUIREMENTS.ru.md": "3f4546314cb2a9495f6839f78a6464a92a35dcdc9efa792181ddd5094d197996",
+    "docs/REQUIREMENTS.zh.md": "6efd0de38325f0e1bfcfe7fa91f70ffac1293b63507a77f44a409842d1987ad7",
+    "docs/case-studies/issue-56/ci-locked-prettier.md": "80e727840f6e4569cf50887650a031ed0aeb8d412cd14abe802f98c47bee0631",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-ci-locked-prettier.py": "e5bfd8dc34fbd57aae97bbd964029c7a47c8ceac893f703fe42138914a787705",
+    "experiments/issue-56/evidence_bundle.py": "54ab3b457200a9d64babdf120e660df1fe305549e6520d682db92f7c1bfd5060",
+    "metadata.json": "a3fe851e7e18b8835613e9df9ecc92b94a885f98a462d130b7a6f9c120001f85",
+    "package-lock.json": "4f3edf143cf93a32c3284dad79819421240e1ed165a0cfaaaa8c0b584871e3e0"
+  }
+}

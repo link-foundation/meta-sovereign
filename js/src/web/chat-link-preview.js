@@ -11,56 +11,15 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { Icon } from './icons.js';
 import { mediaSrc } from './media-src.js';
+import { linkOf } from '../message-links.js';
+
+export { linkOf } from '../message-links.js';
 
 const el = React.createElement;
 
 const DEBOUNCE_MS = 600;
 const AGAIN_MS = 1500;
 const TRIES = 3;
-
-// A link: http(s)://…, or a bare domain (example.com/path) as Telegram's
-// entity parser takes it; not an e-mail address and not a file name.
-const LINK =
-  /(?<![\w@.\-/])(?:https?:\/\/[^\s<>"']+|(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,24}(?::\d{1,5})?(?:[/?#][^\s<>"']*)?)/gi;
-const FILE_ENDINGS = new Set([
-  'txt',
-  'md',
-  'js',
-  'mjs',
-  'json',
-  'py',
-  'png',
-  'jpg',
-  'jpeg',
-  'gif',
-  'pdf',
-  'zip',
-  'exe',
-  'doc',
-  'docx',
-  'csv',
-  'log',
-  'css',
-  'rs',
-  'ts',
-  'sh',
-]);
-const TRAILING = /[.,;:!?)\]}»”’]+$/;
-
-/** The first link in `text` (as typed, without trailing punctuation). */
-export const linkOf = (text) => {
-  for (const match of String(text ?? '').matchAll(LINK)) {
-    const link = match[0].replace(TRAILING, '');
-    if (/^https?:\/\/./i.test(link)) {
-      return link;
-    }
-    const host = link.split(/[/?#:]/)[0];
-    if (!FILE_ENDINGS.has(host.split('.').at(-1).toLowerCase())) {
-      return link;
-    }
-  }
-  return null;
-};
 
 /** What a send carries about the preview; null when nothing was chosen. */
 export const choiceOf = ({ link, dismissed, invert, size }) => {

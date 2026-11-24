@@ -6,11 +6,16 @@ import {
 import { startRollingServer } from '../server/rolling-host.js';
 
 const changesFrom = (args) => ({
+  automationDefaults: args.automationDefaults ?? {},
+  ...(args.verbose !== undefined ? { verbose: args.verbose } : {}),
   ...(args['allow-origin'] !== undefined
     ? { allowOrigins: args['allow-origin'] }
     : {}),
   ...(args['ui-url'] !== undefined ? { uiUrl: args['ui-url'] } : {}),
   ...(args['local-ui'] !== undefined ? { localUi: args['local-ui'] } : {}),
+  ...(args['json-compatibility'] !== undefined
+    ? { jsonCompatibility: String(args['json-compatibility']) === 'true' }
+    : {}),
   ...(args.tls !== undefined ? { tls: String(args.tls) !== 'false' } : {}),
 });
 
@@ -49,17 +54,32 @@ export const startRollingCliServer = async ({
   options,
   log,
 }) => {
-  const release = await stageServerRelease({ storeDir });
+  const began = globalThis.performance.now();
+  const phase = (name) => {
+    if (process.env.MS_LIFECYCLE_DEBUG === '1') {
+      console.error(
+        `[rolling-start] ${name} after ${Math.round(globalThis.performance.now() - began)} ms`
+      );
+    }
+  };
+  phase('binding');
   const handle = await startRollingServer({
     storeDir,
     port,
-    options,
-    release,
+    options: { automationDefaults: {}, ...options },
+    prepareRelease: async () => {
+      phase('staging');
+      const release = await stageServerRelease({ storeDir });
+      phase('release_ready');
+      return release;
+    },
     log,
   });
+  phase('worker_ready');
   let control;
   try {
     control = await createServerControl({ storeDir, handle, log });
+    phase('control_ready');
   } catch (error) {
     await handle.close();
     throw error;

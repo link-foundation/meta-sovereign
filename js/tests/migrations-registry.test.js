@@ -54,3 +54,17 @@ test('migration modules are browser-safe: no node: imports', async () => {
     );
   }
 });
+
+// Native peers must admit the same data schema as browser and CLI stores.
+test('native synchronization schema matches the migration registry', async () => {
+  const native = await fs.readFile(
+    new URL(
+      '../../rust/crates/meta-sovereign-server/src/sync_session.rs',
+      import.meta.url
+    ),
+    'utf8'
+  );
+  const declared = native.match(/pub const SCHEMA: f64 = (\d+)\.0;/);
+  assert.ok(declared, 'native schema declaration is explicit');
+  assert.equal(Number(declared[1]), CURRENT_SCHEMA);
+});

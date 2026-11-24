@@ -1,0 +1,24 @@
+✖ desktop builds pass the builder gate and preserve updater-6 block maps (12.369361ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 797.745209
+
+✖ failing tests:
+
+test at js/tests/desktop-updater-compatibility.test.js:31:1
+✖ desktop builds pass the builder gate and preserve updater-6 block maps (12.369361ms)
+  Error: electron-updater ^6.8.11 does not satisfy electronUpdaterCompatibility ">=7" of linux, mac, win (the default is ">=7" since electron-builder 27). Upgrade electron-updater to 7, or set electronUpdaterCompatibility to a range that includes "<7" (e.g. ">=6"), which switches the build to the JSON block map. See https://www.electron.build/docs/migration/v27-build-changes#block-map-format-follows-electronupdatercompatibility
+      at checkMetadata (file:///tmp/gh-issue-solver-1794216540735/node_modules/app-builder-lib/src/util/packageMetadata.ts:109:11)
+      at validate (file:///tmp/gh-issue-solver-1794216540735/js/tests/desktop-updater-compatibility.test.js:27:3)
+      at TestContext.<anonymous> (file:///tmp/gh-issue-solver-1794216540735/js/tests/desktop-updater-compatibility.test.js:34:24)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    code: 'ERR_ELECTRON_BUILDER_INVALID_CONFIGURATION'
+  }

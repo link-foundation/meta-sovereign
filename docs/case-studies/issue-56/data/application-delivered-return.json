@@ -1,0 +1,30 @@
+{
+  "archive": "application-delivered-return.tar.gz",
+  "files": {
+    "application-delivered-return-browser-before.log": "4a7c39e17ce1c56121f95a22e720d6d334bc53be29e2b7d93c09f0ac51510501",
+    "application-delivered-return-browser-fallback.log": "ba84b5491b1ac1e9446497376f5e4b72554bf5c35468fc93546417314bf3e22d",
+    "application-delivered-return-browser-recheck.log": "1bc9be49464346a9fc7f0bff85860b1144a58a51fa4a69c756611f095cae90b2",
+    "application-delivered-return-browser.log": "636c1f1a03fbe6d8e2446dabeaef05b61397c9598fa16f314e15aa2e99723a5d",
+    "application-delivered-return-build.log": "1a1e7f4c93e39816dbddcf9fa06a6d98b7bfcc06fbd60fd24d7e9ff924624388",
+    "application-delivered-return-deno.log": "c1976b62f29223b2bf7a8859c61a242de96fea5548ced97198f5a771f2e37584",
+    "application-delivered-return-eslint.log": "dc8af3ac7d6b52a8d75f2643127bb8af02e23dd63ce3273527911c72413eb768",
+    "application-delivered-return-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "application-delivered-return-mcp-console.log": "ddebec5c4c3d99e74ea341b56b62c22f0e4cb6ff14319376c14f7ce6144ebfe3",
+    "application-delivered-return-mcp-effects.json": "4f698263261cd16702b52b085ea9bd1012f872462fb796f8db49c9576bdabd2b",
+    "application-delivered-return-mcp-server.log": "281ad705a35ebc08e6f451a39d3014cb6c302da2ebbb1ec3acacd6d718aa4676",
+    "application-delivered-return-mcp.json": "d03275f333cb90b7d367cbc92de80c143388203028ab524a523c315b6bba8f71",
+    "application-delivered-return-node.log": "12a85daa426bb9efb15ebecb50d7a4edf3f979952544dfc1b4782cf80dbca90a",
+    "application-delivered-return-parent.log": "15283d1c499b7f4561b3412200c5bec325ff34f3d46e161d0078f41c4a8ec18b",
+    "application-delivered-return-secretlint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "parent-modules/application-actions.js": "c701cb983eb63cc6790b02d997db2170218fa0603205edbab28d555e5dd02158",
+    "parent-modules/application-attachment.js": "993194d7c096b684b9ba67101f86e326eba1f5d4bc46321c02e63d098668019e",
+    "parent-modules/application-options.js": "f1de5ae58fc2179f5ff0e5b4adcd0485af7fcb066bec0e446568b4de57c1c314",
+    "parent-modules/application-page.js": "367ccefddc0ca23f89d1cb2ddd4ee38f6a5e8d27f885a087e2873858e440b595",
+    "parent-modules/application-review.js": "0ba03a39ca8d0f2edbf0af034975c535e70a18e468f2524b2ff576fc0a87d81a",
+    "parent-modules/application-search-route.js": "aa48bcd8f23c43aa1f2b0791b3f08d9664a78efa1e43fcbd3bb8c1866d11f0af",
+    "parent-web.git-blob": "9e5ac393652fbd248b4505c6c9e208c07b9389dffe6acea5cad3c728bbb8bc9b",
+    "parent.txt": "8ed3e3b251618db2cf6054fed1bf5f4dc3b03579a0d5aa26d65ee00b83d1edbc",
+    "source.diff": "4767565eca57c2651c34e35bf8482d128be49cd39ec0afdac94be3b16e87de60",
+    "web-bundle.git-blob": "5282c112251802441ac6876a55f7bac5f03d18152d2cc0060363974663c2fdcd"
+  }
+}

@@ -12,6 +12,7 @@
 
 import { putAll } from '../storage/universal.js';
 import { stamp } from './vk-longpoll.js';
+import { collectVkAttachments } from './vk-attachment-metadata.js';
 
 const SOURCE = 'vk';
 export const OLDER_PAGE = 50;
@@ -41,6 +42,9 @@ const olderNow = async (
     }
   }
   await putAll(store, fresh);
+  // Revisit the whole fetched page if an earlier metadata write failed after
+  // its messages landed. Existing message IDs must not hide a failed collect.
+  await collectVkAttachments(store, page.links);
   const complete = page.rawCount === 0;
   if (complete) {
     await store.put({

@@ -9,6 +9,7 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { createHtmlWriter } from './telegram-export-html.js';
+import { createMarkdownWriter } from './telegram-export-markdown.js';
 
 /** The key the names map uses for a chat id: `user7`, `chat5`, `channel9`. */
 export const keyOfChat = (chat) => {
@@ -29,7 +30,7 @@ export const exportIdOf = (chat) => {
  * `{ name, type, id }` of the chat, from what the first answer told of it
  * (`entities`: key → `{ title, bot, self, username, megagroup }`).
  */
-export const chatMeta = ({ chat, chatName, entities }) => {
+export const chatMeta = ({ chat, chatName, entities, sourceChat }) => {
   const key = keyOfChat(chat);
   const known = entities.get(key) ?? {};
   const name = known.title || chatName || `chat ${exportIdOf(chat)}`;
@@ -44,7 +45,12 @@ export const chatMeta = ({ chat, chatName, entities }) => {
     const scope = known.username ? 'public' : 'private';
     type = `${scope}_${known.megagroup ? 'supergroup' : 'channel'}`;
   }
-  return { name, type, id: exportIdOf(chat) };
+  return {
+    name,
+    type,
+    id: exportIdOf(chat),
+    ...(sourceChat ? { source_chat: sourceChat } : {}),
+  };
 };
 
 const openJson = async (file, meta) => {
@@ -71,22 +77,47 @@ const openJson = async (file, meta) => {
  * Opens the folder's writers for `formats` (`'json'`, `'html'`):
  * `{ add(msg, segments), close() }`.
  */
-export const openOutput = async ({ folder, formats, meta }) => {
+export const openOutput = async ({ folder, formats, meta, maxLines }) => {
   await fs.mkdir(folder, { recursive: true });
-  const json = formats.includes('json')
-    ? await openJson(path.join(folder, 'result.json'), meta)
-    : null;
-  const html = formats.includes('html')
-    ? await createHtmlWriter({ dir: folder, title: meta.name })
-    : null;
+  const writers = [];
+  try {
+    if (formats.includes('json')) {
+      writers.push(await openJson(path.join(folder, 'result.json'), meta));
+    }
+    if (formats.includes('html')) {
+      writers.push(
+        await createHtmlWriter({
+          dir: folder,
+          title: meta.name,
+          chat: meta.source_chat,
+        })
+      );
+    }
+    if (formats.includes('markdown')) {
+      writers.push(await createMarkdownWriter({ folder, meta, maxLines }));
+    }
+  } catch (error) {
+    await Promise.allSettled(writers.map((writer) => writer.close()));
+    throw error;
+  }
+  let closed = false;
   return {
     add: async (msg, segments) => {
-      await json?.add(msg);
-      await html?.add(msg, segments);
+      for (const writer of writers) {
+        await writer.add(msg, segments);
+      }
     },
     close: async () => {
-      await json?.close();
-      await html?.close();
+      if (!closed) {
+        closed = true;
+        const results = await Promise.allSettled(
+          writers.map((writer) => writer.close())
+        );
+        const failure = results.find((result) => result.status === 'rejected');
+        if (failure) {
+          throw failure.reason;
+        }
+      }
     },
   };
 };

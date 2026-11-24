@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for close friends and adding a contact by phone
 // (R-Y169), as Telegram Desktop has them: Privacy and security has a
 // Close friends editor (the contacts with checks, the current close
@@ -64,12 +65,12 @@ await page.route('**/api/telegram/close-friends', (route) =>
 );
 const saved = [];
 await page.route('**/api/telegram/close-friends-set', (route) => {
-  saved.push(route.request().postDataJSON());
+  saved.push(requestBody(route.request()));
   return fulfil(route, { ok: true, count: saved.at(-1).ids.length });
 });
 const imports = [];
 await page.route('**/api/telegram/contact-import', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   imports.push(body);
   return fulfil(
     route,

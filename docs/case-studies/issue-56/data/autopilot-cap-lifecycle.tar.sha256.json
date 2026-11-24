@@ -1,0 +1,33 @@
+{
+  "archive": "autopilot-cap-lifecycle.tar.gz",
+  "files": {
+    "ci-logs/autopilot-cap-lifecycle-before.log": "45cd55706c23e352e0b7ed5ce6308dc83140c06688fbc38116e9107bf801e6b8",
+    "ci-logs/autopilot-cap-lifecycle-build.log": "a23ae554f910200b4d64856af1088df82661cc547ee445004fb89117e1000456",
+    "ci-logs/autopilot-cap-lifecycle-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/autopilot-cap-lifecycle-doc-format.log": "db10ef0c48a5806857ea3538da1c5d10e4fae402149d73bc06269e0c418753ec",
+    "ci-logs/autopilot-cap-lifecycle-doc-limits.log": "fe8e4a3173b8a2311abfc17c059f56d2969845bb3985ec710c710eb6687746b5",
+    "ci-logs/autopilot-cap-lifecycle-duplication.log": "610b559c0973bc77c7fa91c7231bd842fc1867c05f3620ef339be116d79a0862",
+    "ci-logs/autopilot-cap-lifecycle-focused.log": "77d5ebae93f90c6e3773ad51a8fbaab505115c034a79c59be019fc5e70b4325c",
+    "ci-logs/autopilot-cap-lifecycle-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/autopilot-cap-lifecycle-format.log": "f802c2b732fa35a1a353f49900f1bf0fe201b1bb707f35c92b6147ef9baa63b6",
+    "ci-logs/autopilot-cap-lifecycle-initial-before.log": "92b0785dbdb0133f5b3925c6a9411b3163b1deffa2ae97e381819554724dbe7d",
+    "ci-logs/autopilot-cap-lifecycle-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/autopilot-cap-lifecycle-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/autopilot-cap-lifecycle-source-limits.log": "c7fb3301324f66c89b93f97ef72490f683166b42c86c6da521bfd33299bf007c",
+    "docs/case-studies/issue-56/autopilot-cap-lifecycle.md": "76eb3e6facdfed4d79e12cc7327050c444287dc10827a0a3e23a46bc3c58aabb",
+    "experiments/issue-56/automatic-cap-fixture.mjs": "7a8d71c4ccce451bf01de5ea575594d8699ad4f33ea90328c74d37365a20d7ce",
+    "experiments/issue-56/collect-autopilot-cap-lifecycle.py": "053e6d33da12b307f0229fcef0aed3c3c7b8a8f6906721cc1a655cf85f79efe9",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "experiments/issue-56/probe-autopilot-cap-lifecycle.py": "bd701287d0dfd697263ebe2c0ee046c35447d9de8f004bc9525a926a12979ef3",
+    "js/src/automation/autopilot.js": "3f0c34d26f7989e3157fe9101a798c126a8873dfae82008a2cdeeeb74e40c4e9",
+    "js/src/automation/deliver.js": "810549a2a6d23e0c7049f980c670af15c414e1e6ea8b628574988c90744a392e",
+    "js/src/automation/outbox.js": "abb7ade9f51dcbb3001149785c57466c42671c841c58f302384fb81f39d8d7e6",
+    "js/src/automation/runner.js": "11c6861a131f53ef47708098c240b9480982cbde7d38c70654fa5a6d5af3ee41",
+    "js/tests/automatic-cap.test.js": "ff4d7294dc6f868a6ca910163d9fd463e89c8fe316030e83060aeda8844b29ce",
+    "js/tests/automation-next.test.js": "f90faf197b6aadfc49f55828a671bbbaa92335da0e314f99b8664ab7f0e2c769",
+    "js/tests/autopilot-cap-lifecycle.test.js": "b3e837a7f319d58a292e5a5f5b3aed070defd4de89bf65e3a8a3ec855b490f16",
+    "js/tests/send-safety.test.js": "3af3dec2008dd12650a14b17cd0ab48838bbf63e07186df45a9817b132a09b4f",
+    "before/js/src/automation/autopilot.js": "3bdcd76089262fe1e8f096a4c2a541d5349b1037b4dc731ad8cdc7976ab1680b",
+    "metadata.json": "ae834d423b2da7ef99047ed09eca220061741f5ba2e9a39640e5b7a8e8822ab6"
+  }
+}

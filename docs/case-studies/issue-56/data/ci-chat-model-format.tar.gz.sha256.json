@@ -1,0 +1,12 @@
+{
+  "sha256": "8ee2b371f58d7b89452eadfeeed20a89e38fa0016b477f6e11a6c4fc001c265f",
+  "files": {
+    "ci-logs/chat-model-checks-42956039503.log": "87236037b825accb5e1ed2ad31f806fbe072fae138478a340da7cbb9311ee631",
+    "ci-logs/assignment-parent-runs.json": "d0827fc443725fbbeb9d84e61747e5b687f74fb44666279447401c045a59048b",
+    "ci-logs/chat-model-mcp-format-before.log": "49a372e4107260c978f4397dfd31b7df49c6cccede10f8f549ce0d1936f551e5",
+    "ci-logs/chat-model-mcp-format-after.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/chat-model-mcp-format-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "experiments/issue-56/chat-model-mcp.mjs": "6e86bd28925efaf313423c8e68cf3c9bf8e0cdc1809e3f962e2303dd57d6324d",
+    "docs/case-studies/issue-56/ci-chat-model-format.md": "ed952a801664468b8caad5eb70e67a2961808adde4f6a621388323e5a4bb385c"
+  }
+}

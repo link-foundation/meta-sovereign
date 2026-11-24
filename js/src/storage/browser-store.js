@@ -1,4 +1,21 @@
+import {
+  changedLink,
+  changedBatch,
+  atomicBatch,
+  mutationEvent,
+  admitMutation,
+} from './mutation.js';
 import { getLocalStorage } from './local-storage.js';
+import {
+  coordinateSnapshots,
+  snapshotNotifications,
+} from './browser-coordination.js';
+import { createSnapshotWriter } from './browser-snapshot-writer.js';
+import {
+  versionedSnapshotDriver,
+  saveIndexedSnapshot,
+  saveLocalSnapshot,
+} from './browser-snapshot.js';
 
 /**
  * Browser-side links store for offline-first operation.
@@ -13,15 +30,19 @@ import { getLocalStorage } from './local-storage.js';
  * The store keeps the live data in a JS `Map` for synchronous, fast
  * lookups and persists snapshots to a pluggable *driver*. Drivers
  * expose `load() -> Promise<snapshot|null>` and `save(snapshot) ->
- * Promise<void>`; ship-in drivers cover IndexedDB, localStorage, and
+ * Promise<void|version>`; ship-in drivers cover IndexedDB, localStorage, and
  * an in-memory driver used by tests. Browser code picks the best
  * driver at boot via `pickBrowserDriver()`.
  *
- * Snapshot shape: `{ links: Link[] }`. We persist on every mutation
- * (debounced via micro-task batching) so a tab refresh never loses
- * data. The driver layer keeps the store synchronous in spirit even
- * though the API is async, and lets us pivot to file-system storage
- * (Electron) by adding another driver.
+ * Snapshot shape: `{ links: Link[] }`. Memory and subscription events
+ * update immediately. Mutation promises wait for a coalesced, ordered
+ * driver save and reject on failure; flush explicitly retries the current
+ * memory state. At most one save and one pending batch exist. Built-in durable
+ * drivers compare the opening's revision atomically before replacement and
+ * reject stale primitive stores without overwriting committed data. The production
+ * migrated opening enables causal per-record merging and root notifications. localStorage writes
+ * require Web Locks; a busy or unsupported lock rejects explicitly. Additional drivers
+ * can provide file-system storage (Electron) with the same contract.
  */
 
 const SNAPSHOT_KEY = 'meta-sovereign:store-snapshot';
@@ -43,23 +64,28 @@ export const createInMemoryDriver = () => {
 
 export const createLocalStorageDriver = (
   storage = getLocalStorage(),
-  key = SNAPSHOT_KEY
-) => ({
-  async load() {
-    const raw = storage.getItem(key);
-    if (!raw) {
-      return null;
-    }
-    try {
-      return JSON.parse(raw);
-    } catch {
-      return null;
-    }
-  },
-  async save(snapshot) {
-    storage.setItem(key, JSON.stringify(snapshot));
-  },
-});
+  key = SNAPSHOT_KEY,
+  { locks = globalThis.navigator?.locks, notifications } = {}
+) =>
+  versionedSnapshotDriver({
+    notifications:
+      notifications ??
+      snapshotNotifications(JSON.stringify(['local', key]), { key }),
+    async load() {
+      const raw = storage.getItem(key);
+      if (!raw) {
+        return null;
+      }
+      try {
+        return JSON.parse(raw);
+      } catch {
+        return null;
+      }
+    },
+    async save(snapshot, expected) {
+      await saveLocalSnapshot(storage, key, locks, snapshot, expected);
+    },
+  });
 
 const idbReq = (req) =>
   new Promise((resolve, reject) => {
@@ -72,6 +98,7 @@ export const createIndexedDbDriver = ({
   dbName = 'meta-sovereign',
   storeName = 'snapshot',
   key = 'current',
+  notifications,
 } = {}) => {
   let dbPromise = null;
   const open = () => {
@@ -90,7 +117,12 @@ export const createIndexedDbDriver = ({
     });
     return dbPromise;
   };
-  return {
+  return versionedSnapshotDriver({
+    notifications:
+      notifications ??
+      snapshotNotifications(
+        JSON.stringify(['indexedDB', dbName, storeName, key])
+      ),
     async load() {
       const db = await open();
       const tx = db.transaction(storeName, 'readonly');
@@ -98,19 +130,11 @@ export const createIndexedDbDriver = ({
       const value = await idbReq(obj.get(key));
       return value ?? null;
     },
-    async save(snapshot) {
+    async save(snapshot, expected) {
       const db = await open();
-      const tx = db.transaction(storeName, 'readwrite');
-      const txDone = new Promise((resolve, reject) => {
-        tx.oncomplete = () => resolve();
-        tx.onabort = () => reject(tx.error);
-        tx.onerror = () => reject(tx.error);
-      });
-      const obj = tx.objectStore(storeName);
-      await idbReq(obj.put(snapshot, key));
-      await txDone;
+      await saveIndexedSnapshot(db, storeName, key, snapshot, expected);
     },
-  };
+  });
 };
 
 const createBestSnapshotDriver = (key = SNAPSHOT_KEY) => {
@@ -208,17 +232,22 @@ export const createDoubletsWebDriver = ({
 
   return {
     kind: 'doublets-web',
+    revisioned: snapshotDriver.revisioned,
+    watch: snapshotDriver.watch,
     async load() {
-      const loaded = (await snapshotDriver.load()) ?? { links: [] };
+      const loaded = await snapshotDriver.load();
       rebuild(loaded);
-      return { links: current.links.map(cloneLink) };
+      return loaded ? { ...loaded, links: current.links.map(cloneLink) } : null;
     },
-    async save(snapshot) {
+    async save(snapshot, options) {
       rebuild(snapshot);
-      await snapshotDriver.save({
-        links: current.links.map(cloneLink),
-        doubletsWeb: this.stats(),
-      });
+      return snapshotDriver.save(
+        {
+          links: current.links.map(cloneLink),
+          doubletsWeb: this.stats(),
+        },
+        options
+      );
     },
     stats() {
       return {
@@ -329,48 +358,75 @@ export const createBrowserStore = async ({
     }
   }
 
-  let saveQueued = false;
-  const queueSave = () => {
-    if (saveQueued) {
-      return;
+  const writer = createSnapshotWriter({
+    driver,
+    snapshot,
+    data,
+    cloneLink,
+    emit,
+  });
+  const queueSave = writer.save;
+  const capture = (link) => {
+    if (!link || typeof link.id !== 'string') {
+      throw new Error('link.id is required');
     }
-    saveQueued = true;
-    Promise.resolve().then(async () => {
-      saveQueued = false;
-      await driver.save({ links: [...data.values()] });
-    });
+    return cloneLink(link);
   };
 
   return {
-    async put(link) {
-      if (!link || typeof link.id !== 'string') {
-        throw new Error('link.id is required');
-      }
-      data.set(link.id, cloneLink(link));
-      queueSave();
-      emit({ type: 'put', link: cloneLink(link) });
+    [coordinateSnapshots]: writer.coordinate,
+    async put(link, options) {
+      const record = capture(link);
+      data.set(record.id, record);
+      const saved = queueSave();
+      admitMutation('put', record.id, options);
+      emit(mutationEvent('put', cloneLink(record), options));
+      await saved;
       return link;
     },
-    async putMany(links) {
-      for (const link of links) {
-        await this.put(link);
+    async putMany(links, options) {
+      const records = links.map(capture);
+      if (!records.length) {
+        return links;
       }
+      for (const record of records) {
+        data.set(record.id, record);
+      }
+      const saved = queueSave();
+      for (const record of records) {
+        admitMutation('put', record.id, options);
+        emit(mutationEvent('put', cloneLink(record), options));
+      }
+      await saved;
       return links;
     },
-    async get(id) {
+    async [atomicBatch](links, change, options) {
+      return this.putMany(
+        changedBatch(links, change, (id) => data.get(id), cloneLink),
+        options
+      );
+    },
+    async update(id, change, options) {
+      const before = data.get(id);
+      return this.put(
+        changedLink(id, change, before ? cloneLink(before) : null),
+        options
+      );
+    },
+    async get(id, project = cloneLink) {
       const v = data.get(id);
-      return v ? cloneLink(v) : null;
+      return v ? project(v) : null;
     },
     /** How many links are held (R-Z17). */
     size: () => data.size,
     /** The matching links in batches of copies (the migration runner, R-Z17). */
-    async scan(filter, batchSize, onBatch) {
+    async scan(filter, batchSize, onBatch, project = cloneLink) {
       let batch = [];
       let looked = 0;
       for (const link of [...data.values()]) {
         looked += 1;
         if (!filter || filter(link)) {
-          batch.push(cloneLink(link));
+          batch.push(project(link));
           if (batch.length >= batchSize) {
             const full = batch;
             batch = [];
@@ -383,13 +439,15 @@ export const createBrowserStore = async ({
       }
       return looked;
     },
-    async delete(id) {
+    async delete(id, options) {
       const existed = data.has(id);
       const link = data.get(id);
+      admitMutation('delete', id, options);
       data.delete(id);
       if (existed) {
-        queueSave();
-        emit({ type: 'delete', link: cloneLink(link) });
+        const saved = queueSave();
+        emit(mutationEvent('delete', cloneLink(link), options));
+        await saved;
       }
       return existed;
     },
@@ -401,9 +459,11 @@ export const createBrowserStore = async ({
       handlers.add(handler);
       return () => handlers.delete(handler);
     },
-    /** Force-flush the persistence layer (useful in tests). */
+    /** Persist current memory after prior saves, including failed writes. */
     async flush() {
-      await driver.save({ links: [...data.values()] });
+      await queueSave();
     },
+    refresh: writer.refresh,
+    close: writer.close,
   };
 };

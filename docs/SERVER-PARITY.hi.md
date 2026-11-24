@@ -1,5 +1,7 @@
 # Server parity matrix — JS server vs. Rust server (languages: [en](SERVER-PARITY.md) • [zh](SERVER-PARITY.zh.md) • hi • [ru](SERVER-PARITY.ru.md))
 
+Native CLI डिफ़ॉल्ट रूप से rich records और causal deletion metadata को अपनी directory में text/binary checkpoints के रूप में सहेजता है। `--data` directory चुनता है; `--memory` स्पष्ट रूप से अस्थायी memory उपयोग करता है। Recovery और format की सीमाएँ [native storage](NATIVE-STORAGE.md) में हैं। CLI अब schema-13 WebSocket replication, checkpoint के बाद reconciliation ACK और सीमित live fan-out लागू करता है; [सत्यापन और सीमाएँ](case-studies/issue-56/native-sync-session.md) देखें। सभी native provider सुविधाएँ अभी पूरी नहीं हैं।
+
 यह page JavaScript server (`js/src/server/index.js` + `routes-*.js`) और
 pure-Rust server (`rust/crates/meta-sovereign-server/src/routes.rs` +
 `handlers.rs`) के HTTP routes और transport surfaces गिनता है ताकि user

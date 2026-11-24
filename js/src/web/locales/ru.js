@@ -1,3 +1,24 @@
+import { autoImportLocale } from './auto-import.js';
+import { ruSending } from './sending.js';
+import { ruCloud } from './cloud.js';
+import { vkProviderJobsLocale } from './vk-provider-jobs.js';
+import { vkAttachmentsLocale } from './vk-attachments.js';
+import { ruGratitude } from './ru-gratitude.js';
+import { ruGreetingCatalog } from './ru-greeting-catalog.js';
+import { ruQuestions } from './ru-questions.js';
+import { ruVacancy } from './ru-vacancy.js';
+import { ruAnswerModel } from './ru-answer-model.js';
+import { ruBrowserAnswer } from './ru-browser-answer.js';
+import { ruForms } from './ru-forms.js';
+import { ruSharedProfile } from './ru-shared-profile.js';
+import { ruProfileImport } from './ru-profile-import.js';
+import { ruChatRemoval } from './ru-chat-removal.js';
+import { ruFollowTelegram } from './ru-follow-telegram.js';
+import { ruFollow } from './ru-follow.js';
+import { ruTelegramGreetings } from './ru-telegram-greetings.js';
+import { ruChatUsers } from './ru-chat-users.js';
+import { ruPublication } from './ru-publication.js';
+import { ruBrowser } from './ru-browser.js';
 // Russian locale (issue #18). Keys must mirror ./en.js exactly; the
 // parity test in js/tests/i18n.test.js fails the build if they
 // drift. Reviewed against the Telegram Desktop ru.strings file
@@ -11,14 +32,53 @@ import { ruChatAccount } from './ru-chat-account.js';
 import { ruFolders } from './ru-folders.js';
 import { ruTranscribe } from './ru-transcribe.js';
 import { ruGithub } from './ru-github.js';
-
 import { ruConversation } from './ru-conversation.js';
-
 import { ruFeedback } from './ru-feedback.js';
 
 import { ruStickers } from './ru-stickers.js';
 
 export const ru = {
+  ...vkProviderJobsLocale('ru'),
+  ...vkAttachmentsLocale('ru'),
+  ...ruGratitude,
+  ...ruVacancy,
+  ...ruForms,
+  ...ruAnswerModel,
+  ...ruBrowserAnswer,
+  ...ruSharedProfile,
+  ...ruProfileImport,
+  ...ruChatRemoval,
+  ...ruFollow,
+  ...ruFollowTelegram,
+  ...ruFollowBacklink,
+  ...ruTelegramGreetings,
+  ...ruChatUsers,
+  ...ruPublication,
+  'backup.schedule': 'Автоматическое восстановление',
+  'backup.scheduleHint':
+    'Сохраните настройки для плановых и разовых копий. Первая автоматическая копия создаётся через выбранный интервал.',
+  'backup.hours': 'Интервал в часах (0 — отключить)',
+  'backup.retention': 'Копий каждого формата (0 — хранить все)',
+  'backup.formats': 'Независимые копии для восстановления',
+  'backup.format.text': 'Текстовая копия Lino',
+  'backup.format.binary': 'Двоичная копия Lino',
+  'backup.format.archive': 'Архив для восстановления',
+  'backup.save': 'Сохранить настройки копирования',
+  'backup.saved': 'Настройки копирования сохранены.',
+  'backup.created': 'Архив проверен; независимых копий проверено: {count}.',
+  'backup.restored': 'Восстановлено записей: {count}.',
+  'backup.working': 'Выполняется…',
+  'backup.failed':
+    'Не удалось подтвердить результат. Проверьте список файлов перед повтором.',
+  'backup.refused': 'Операция не выполнена: {reason}',
+  'backup.empty': 'Файлов для восстановления пока нет.',
+  'backup.rawHint':
+    'Независимые копии не содержат секретных записей, даже если архив зашифрован. Остальные данные в них остаются. Храните файлы в защищённом месте.',
+  'backup.unavailable':
+    'Для файловых копий нужен подключённый сервер с хранилищем архивов. Подключите поддерживаемый сервер для настройки.',
+  'backup.restoreAsk':
+    'Восстановить {file}? Записи будут объединены с данными сервера и заменят записи с теми же ID. Перед изменениями файл полностью проверяется.',
+  ...ruBrowser,
   ...ruStickers,
   ...ruFeedback,
   ...ruConversation,
@@ -37,27 +97,7 @@ export const ru = {
   ...ruTranscribe,
   ...ruGithub,
   appName: 'meta-sovereign',
-  'cloud.signOut': 'Выйти',
-  'cloud.connectionsIntro':
-    'Выберите сервис, чтобы подключить аккаунт или загрузить архив.',
-  'cloud.contactsImportHint':
-    'Загрузите файл vCard для предварительного просмотра и импорта контактов.',
-  'cloud.contactsReading': 'Читаем файл vCard…',
-  'cloud.unreachable':
-    'Сервер рабочего пространства недоступен. Проверьте подключение и повторите попытку.',
-  'cloud.browserProvider':
-    'Здесь можно загрузить экспортированный архив. Для входа через браузер требуется приложение на вашем устройстве.',
-  'cloud.whatsapp':
-    'Подключите API WhatsApp Business или импортируйте архив чата. Вход в личный WhatsApp Web выполняется на вашем устройстве.',
-  'cloud.cv':
-    'Сравните сохранённые снимки резюме. Чтение и обновление резюме на сайтах выполняется на вашем устройстве.',
-  'cloud.marketplaces':
-    'Просматривайте сохранённые профили площадок. Снимки профилей из браузера с активным сеансом создаются на вашем устройстве.',
-  'cloud.tourPick':
-    'Выберите сервис для подключения по API или импорта архива.',
-  'cloud.tourSetupTitle': 'Подключите сервис или импортируйте архив',
-  'cloud.tourSetup':
-    'Следуйте инструкциям для вашего сервиса. Введите учётные данные или загрузите архив, если сервис это поддерживает.',
+  ...ruCloud,
   skipLink: 'Перейти к основному содержимому',
   'header.theme': 'Тема',
   'header.themeAria': 'Переключить тёмный режим',
@@ -65,7 +105,7 @@ export const ru = {
   'header.tutorialAria': 'Открыть руководство',
   'header.language': 'Язык',
   'header.languageAria': 'Выбрать язык интерфейса',
-  'header.systemDefault': 'Системный',
+  'header.systemDefault': 'Настройки приложения или системы',
   'header.online': 'Онлайн',
   'header.offline': 'Оффлайн',
   'header.reconnecting': 'Переподключение',
@@ -241,6 +281,19 @@ export const ru = {
   'audience.queryPlaceholder': 'например, network:telegram AND chat:general',
   'audience.contactsCount': 'Контактов: {count}',
   'broadcast.title': 'Рассылка',
+  'broadcast.sending': 'Отправка…',
+  'broadcast.sent': 'Отправлено.',
+  'broadcast.partial':
+    'Отправлено в часть адресов. Проверьте остальные результаты.',
+  'broadcast.failed': 'В этом запуске не отправлено.',
+  'broadcast.unknown':
+    'Доставка не подтверждена. Проверьте адрес назначения перед повтором.',
+  'broadcast.queued': 'В очереди; доставка ещё не подтверждена.',
+  'broadcast.cancelled': 'Отменено.',
+  'broadcast.unavailable':
+    'Для отправки подключите поддерживаемый сервер. В очередь ничего не добавлено.',
+  'broadcast.counts':
+    '{sent} отправлено · {failed} не отправлено · {unknown} не подтверждено · {queued} в очереди',
   'broadcast.placeholder': 'Сообщение для всех выбранных сетей',
   'outreach.title': 'Точечная рассылка',
   'outreach.hint':
@@ -401,15 +454,11 @@ export const ru = {
   'connections.openDetail': 'Настроить',
   'connections.controlsTitle': 'Управление подключением',
   'autoImport.title': 'Импорт через браузер',
-  'autoImport.intro':
-    'Откроет {service} в отдельном окне браузера. Войдите, запустите там выгрузку данных — каждый скачанный файл импортируется автоматически. Вход сохранится до следующего раза.',
-  'autoImport.introCapture':
-    'Откроет {service} в отдельном окне браузера. Войдите, откройте чат и нажмите «Сохранить этот чат». Скачанные файлы выгрузки тоже импортируются автоматически.',
+  ...autoImportLocale.ru,
   'autoImport.start': 'Открыть браузер',
   'autoImport.capture': 'Сохранить этот чат',
   'autoImport.finish': 'Готово',
   'autoImport.state.launching': 'Открываем браузер…',
-  'autoImport.state.waiting': 'Браузер открыт. Ждём вашу выгрузку…',
   'autoImport.state.importing': 'Импортируем…',
   'autoImport.state.done': 'Готово.',
   'autoImport.state.stopped': 'Остановлено после долгого простоя.',
@@ -437,18 +486,7 @@ export const ru = {
     'Обновить профиль в {networks}? Люди там увидят изменения.',
   'profile.confirmPublish.resume':
     'Обновить резюме в {networks}? Работодатели там увидят изменения.',
-  'settings.sending.title': 'Отправка сообщений',
-  'settings.sending.continueLast':
-    'Продолжать моё последнее сообщение в публичных чатах',
-  'settings.sending.continueHint':
-    'В публичных группах и каналах Telegram дополнение добавляется к вашему последнему текстовому сообщению, пока оно остаётся самым новым.',
-  'settings.privacy.title': 'Конфиденциальность',
-  'settings.shareTyping': 'Показывать собеседнику, что я печатаю',
-  'settings.shareTypingHint':
-    'По умолчанию выключено. Когда включено, VK и Telegram показывают «печатает…» тому, кому вы пишете.',
-  'settings.readReceipts': 'Отмечать чаты прочитанными, когда я их читаю',
-  'settings.readReceiptsHint':
-    'По умолчанию включено, как в приложениях Telegram. Когда выключено, чтение чата здесь не отмечает его прочитанным в Telegram: отправитель не видит ✓✓, счётчики непрочитанных остаются.',
+  ...ruSending,
   'settings.notify.title': 'Уведомления',
   'settings.notify.on': 'Показывать новые сообщения уведомлениями',
   'settings.notify.preview': 'Показывать отправителя и текст',
@@ -529,6 +567,8 @@ export const ru = {
   'telegramSessions.less': 'Свернуть',
   'telegramSessions.signIn': 'Войти',
   'telegramSessions.connected': 'Подключено',
+  'telegramSessions.unconfirmed':
+    'Импорт сессии не подтверждён. Прежнее подключение сохранено; проверьте Telegram и повторите попытку.',
 
   // Вход в пользовательский аккаунт Telegram через MTProto (GramJS), как в konard/telegram-bot.
   'telegramLogin.title': 'Войти в свой аккаунт Telegram',
@@ -837,13 +877,13 @@ export const ru = {
   'connections.habr-career.errorHints.401':
     'career.habr.com отклонил токен. Перевыпустите его в Настройках -> Токены.',
   'connections.hh.label': 'hh.ru',
-  'connections.hh.archive.title': 'Импорт архива откликов hh.ru',
+  'connections.hh.archive.title': 'Импорт переписки hh.ru',
   'connections.hh.archive.hint':
-    'Откройте https://hh.ru/applicant/negotiations, используйте JSON-экспорт, сохраните файл и загрузите его сюда.',
-  'connections.hh.archive.fileHint': 'negotiations.json',
+    'Импортируйте JSON с сообщениями откликов. Для импорта chat-history.json с сохранёнными правками подключитесь к серверу. Для чтения через API введите токен и нажмите «Загрузить сейчас».',
+  'connections.hh.archive.fileHint': 'chat-history.json / negotiations.json',
   'connections.hh.api.title': 'Подключите API hh.ru',
   'connections.hh.api.hint':
-    'Зарегистрируйте приложение на https://dev.hh.ru/, выполните OAuth2 client-credentials/authorization-code и вставьте access token как «secret:hh:token».',
+    'Зарегистрируйте приложение на https://dev.hh.ru/, авторизуйте свой аккаунт HH через OAuth и вставьте пользовательский токен ниже. Доступ к чатам зависит от прав приложения и аккаунта.',
   'connections.hh.fields.token.label': 'Токен доступа',
   'connections.hh.errorHints.401':
     'hh.ru отклонил токен. Обновите его через своё приложение на https://dev.hh.ru/.',
@@ -1153,6 +1193,7 @@ export const ru = {
   'settings.folderTabs.start': 'В начале',
   'settings.folderTabs.hint':
     '«Все» и «Непрочитанные» — первые две вкладки от выбранного края. Остальные папки сохраняют свой порядок; Telegram не меняется.',
+  'settings.appearance.reset': 'Использовать настройки приложения',
   'settings.appearance.title': 'Внешний вид',
   'settings.appearance.intro':
     'Тема и оформление действуют на всех экранах и сохраняются в этом браузере. Кнопка «Тема» в шапке переключает светлую и тёмную.',
@@ -1179,10 +1220,7 @@ export const ru = {
   'greetings.telegramDefault':
     'Стикеры, которые Telegram предлагает в пустом чате, приходят из пользовательского API ({method} «{emoticon}»), а бот его вызвать не может. Вместо этого получите стикеры из наборов ниже или добавьте свои наборы.',
   'greetings.sets': 'Наборы стикеров Telegram',
-  'greetings.language': 'Язык приветствия',
-  'greetings.prefer': 'Отправлять',
-  'greetings.prefer.sticker': 'Стикер, где это возможно',
-  'greetings.prefer.text': 'Текстовое приветствие',
+  ...ruGreetingCatalog,
   'greetings.listLive': 'Получить стикеры из сетей',
   'greetings.save': 'Сохранить выбор',
   'greetings.saved': 'Выбор сохранён.',
@@ -1251,4 +1289,7 @@ export const ru = {
     'Прошлая отправка могла уйти — повтор не выполнялся',
   'error.code.timeout': 'Время ожидания истекло',
   'error.code.network': 'Локальный сервер не отвечает',
+
+  ...ruQuestions,
 };
+import { ruFollowBacklink } from './ru-follow-backlink.js';

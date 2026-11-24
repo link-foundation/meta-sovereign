@@ -37,6 +37,11 @@ const stable = (value) => {
   return JSON.stringify(value ?? null);
 };
 
+export const confirmationDigest = (action, payload) =>
+  createHash('sha256')
+    .update(`${action}\u0000${stable(payload)}`)
+    .digest('hex');
+
 /** The body without the token itself. */
 export const withoutToken = (body = {}) => {
   const { confirmToken: _token, ...rest } = body ?? {};
@@ -49,10 +54,6 @@ export const createConfirmations = ({
   maxPending = MAX_PENDING,
 } = {}) => {
   const pending = new Map();
-  const digest = (action, payload) =>
-    createHash('sha256')
-      .update(`${action}\u0000${stable(payload)}`)
-      .digest('hex');
   const prune = () => {
     const at = now();
     for (const [token, entry] of pending) {
@@ -67,7 +68,11 @@ export const createConfirmations = ({
       prune();
       const token = randomBytes(18).toString('base64url');
       const expires = now() + ttlMs;
-      pending.set(token, { digest: digest(action, payload), expires, data });
+      pending.set(token, {
+        digest: confirmationDigest(action, payload),
+        expires,
+        data,
+      });
       return { token, expiresAt: new Date(expires).toISOString() };
     },
     /** `{data}` once for a live token issued for this action+payload. */
@@ -78,7 +83,8 @@ export const createConfirmations = ({
       }
       pending.delete(token);
       const valid =
-        entry.expires > now() && entry.digest === digest(action, payload);
+        entry.expires > now() &&
+        entry.digest === confirmationDigest(action, payload);
       return valid ? { data: entry.data } : null;
     },
   };

@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for a new group, a new channel and editing a chat's info
 // (R-Y129), as Telegram Desktop does them: the list's "+" offers New group
 // and New channel; a group is made in two steps (pick contacts with a
@@ -62,11 +63,11 @@ await page.route('**/api/telegram/chat-contacts', (route) =>
 );
 const created = [];
 await page.route('**/api/telegram/group-create', (route) => {
-  created.push(['group', route.request().postDataJSON()]);
+  created.push(['group', requestBody(route.request())]);
   return fulfil(route, { ok: true, chat: '-77', title: 'Team' });
 });
 await page.route('**/api/telegram/channel-create', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   created.push(['channel', body]);
   return body.title === 'Full'
     ? fulfil(route, { ok: false, error: 'x', code: 'too-many-chats' })
@@ -74,7 +75,7 @@ await page.route('**/api/telegram/channel-create', (route) => {
 });
 const edits = [];
 await page.route('**/api/telegram/chat-edit', (route) => {
-  edits.push(route.request().postDataJSON());
+  edits.push(requestBody(route.request()));
   return fulfil(route, { ok: true });
 });
 let uploads = 0;

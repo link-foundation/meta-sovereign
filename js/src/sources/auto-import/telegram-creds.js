@@ -35,6 +35,11 @@ import path from 'node:path';
 import { renameDurable } from '../../storage/durable.js';
 import crypto from 'node:crypto';
 import { timedRequest } from '../http.js';
+import {
+  parseLegacyTelegramConfig,
+  readLegacyTelegramText,
+} from '../telegram-legacy-config.js';
+import { putAll } from '../../storage/universal.js';
 
 const statusError = (message, status) =>
   Object.assign(new Error(message), { status });
@@ -311,7 +316,31 @@ const envRecords = (file, roots, fields) => {
 
 // One env file -> zero or more credential records (with raw values).
 const recordsFromEnv = async (file, roots) => {
-  const fields = parseEnv(await fs.readFile(file, 'utf8'))
+  const text = await readLegacyTelegramText(file);
+  if (
+    /^\s*(?:export\s+)?TELEGRAM_USER_(?:BOT_API_ID|BOT_API_HASH|BOT_PHONE|SESSION)\s*=/m.test(
+      text
+    )
+  ) {
+    const config = parseLegacyTelegramConfig(text, false);
+    const fields = [
+      ['api-id', config.apiId],
+      ['api-hash', config.apiHash],
+      ['phone', config.phone],
+      ['user-session', config.session],
+    ]
+      .filter(([, value]) => value)
+      .map(([kind, value]) => ({
+        kind,
+        value,
+        key: kind === 'user-session' ? 'TELEGRAM_USER_SESSION' : kind,
+      }));
+    const bots = parseEnv(text)
+      .map((field) => ({ ...field, kind: classifyField(field) }))
+      .filter((field) => field.kind === 'bot-token');
+    return envRecords(file, roots, [...fields, ...bots]);
+  }
+  const fields = parseEnv(text)
     .map((f) => ({ ...f, kind: classifyField(f) }))
     .filter((f) => f.kind);
   return envRecords(file, roots, fields);
@@ -321,7 +350,7 @@ const recordsFromEnv = async (file, roots) => {
 const siblingApiContext = async (file) => {
   try {
     const sibling = path.join(path.dirname(file), '.env');
-    const fields = parseEnv(await fs.readFile(sibling, 'utf8')).map((f) => ({
+    const fields = parseEnv(await readLegacyTelegramText(sibling)).map((f) => ({
       ...f,
       kind: classifyField(f),
     }));
@@ -343,7 +372,7 @@ const recordFromSession = async (file, roots) => {
       value: null,
     };
   }
-  const value = (await fs.readFile(file, 'utf8')).trim();
+  const value = (await readLegacyTelegramText(file)).trim();
   if (!USER_SESSION.test(value)) {
     return null;
   }
@@ -435,7 +464,7 @@ const publicEntry = (record) => {
     hint: record.value ? maskEnds(record.value) : null,
     phone: record.phone ? maskHint(record.phone) : null,
     active: record.active ?? null,
-    account: record.account ?? null,
+    account: record.account ? accountView(record.account) : null,
   };
 };
 
@@ -525,6 +554,9 @@ const identifyUser = async (record, mtproto) => {
     apiHash: record.apiHash,
     session: record.value,
   }).then((client) => client.getMe());
+  if (!/^[1-9]\d{0,19}$/.test(String(me?.id ?? '')) || me.bot || me.deleted) {
+    throw statusError('Telegram did not verify a user account', 503);
+  }
   const name = [me.firstName, me.lastName].filter(Boolean).join(' ');
   const phone = me.phone ?? (phoneKey(record.phone) || null);
   // GramJS ids are BigInt; keep them as strings so the result stays
@@ -637,6 +669,8 @@ const mergeByPhone = (records) => {
 
 const accountView = (account) => ({
   kind: account.kind,
+  id: account.id ?? null,
+  username: account.username ?? null,
   label: account.label,
   verified: Boolean(account.verified),
   phone: account.phone ? maskHint(account.phone) : null,
@@ -735,6 +769,32 @@ const secretLinks = (record, stamp) => {
   return links;
 };
 
+const verifyForUse = async (record, mtproto) => {
+  if (
+    !mtproto ||
+    !/^[1-9]\d{0,9}$/.test(String(record.apiId ?? '')) ||
+    !/^[a-fA-F0-9]{32}$/.test(record.apiHash ?? '')
+  ) {
+    throw statusError(
+      'Telegram verification is unavailable; retain the existing connection and retry',
+      503
+    );
+  }
+  let account;
+  try {
+    account = await identifyUser(record, mtproto);
+  } catch {
+    throw statusError(
+      'Telegram could not verify this session; the existing connection is unchanged',
+      503
+    );
+  }
+  if (record.account?.verified && record.account.id !== account.id) {
+    throw statusError('Telegram account changed; scan and review again', 409);
+  }
+  record.account = account;
+};
+
 export const createTelegramCreds = ({
   dataDir,
   fetchImpl = globalThis.fetch,
@@ -773,19 +833,24 @@ export const createTelegramCreds = ({
     await renameDurable(temp, cacheFile); // (R-Z19)
   };
 
-  const verifyAll = (records) =>
-    Promise.all(
-      records.map((record) =>
-        verifyRecord(record, { fetchImpl, mtproto, timeout: verifyTimeout })
-      )
-    );
+  const verifyAll = async (records) => {
+    for (let offset = 0; offset < records.length; offset += 3) {
+      await Promise.all(
+        records
+          .slice(offset, offset + 3)
+          .map((record) =>
+            verifyRecord(record, { fetchImpl, mtproto, timeout: verifyTimeout })
+          )
+      );
+    }
+  };
 
   const scan = async ({ roots } = {}) => {
     const scanRoots = roots?.length
       ? roots
       : await defaultRoots({ homeDir, cwd });
     // Collapse duplicates first, so each distinct credential is checked
-    // once however many repos hold it, then verify them all at once.
+    // once however many repos hold it, then verify them in small batches.
     const records = dedupeRecords(await collectRecords(scanRoots));
     await verifyAll(records);
     mergeByPhone(records);
@@ -850,13 +915,15 @@ export const createTelegramCreds = ({
     if (!store) {
       throw statusError('a store is required to connect', 500);
     }
-    for (const link of secretLinks(record, new Date(now()).toISOString())) {
-      await store.put(link);
+    if (record.kind === 'user-session') {
+      await verifyForUse(record, mtproto);
     }
+    await putAll(store, secretLinks(record, new Date(now()).toISOString()));
     return {
+      ok: true,
       kind: record.kind,
       hint: maskEnds(record.value),
-      account: record.account ?? null,
+      account: record.account ? accountView(record.account) : null,
     };
   };
 

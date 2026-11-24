@@ -17,6 +17,9 @@ const pad = (n) => String(n).padStart(2, '0');
 
 /** A time's local day as `YYYY-MM-DD` (null when it is not a time). */
 export const dayKeyOf = (ts) => {
+  if (ts === null || ts === undefined || ts === '') {
+    return null;
+  }
   const date = new Date(ts);
   if (Number.isNaN(date.getTime())) {
     return null;

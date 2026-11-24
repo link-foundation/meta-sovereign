@@ -1,0 +1,11 @@
+✔ default events use single-line Lino, filter secrets and preserve origin checks (114.498477ms)
+✔ event JSON requires opt-in; Lino browser streams also work with compatibility enabled (47.752927ms)
+✔ account notification streams follow Lino policy and release watchers (5.211109ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1297.459468

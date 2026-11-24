@@ -3,10 +3,16 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import React from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 
 import { failureText } from '../src/web/chat-failure.js';
-import { afterFailure } from '../src/web/chat-outbox.js';
-import { translate } from '../src/web/i18n.js';
+import { afterFailure, restoreOutbox } from '../src/web/chat-outbox.js';
+import { LocaleContext, translate } from '../src/web/i18n.js';
+import { MessageBubble } from '../src/web/chat-message.js';
+import { ChatItem } from '../src/web/chat-list.js';
+import { pendingChatPreviews } from '../src/web/chat-pending-preview.js';
+import { deliveryStatus, summarizeChats } from '../src/web/chat-model.js';
 
 const t = (key) => key;
 
@@ -27,4 +33,116 @@ test('a maybe-delivered message is not tried again by itself', () => {
   const next = afterFailure(item, { code: 'send-unknown' }, 0);
   assert.equal(next.status, 'failed');
   assert.equal(next.retryAt, null);
+});
+
+test('a lost HeadHunter web send stays pending review after disconnect or reload', () => {
+  const link = {
+    id: 'msg:hh:7:101',
+    source: 'hh',
+    chat: '7',
+    sender: 'employer',
+    body: 'Hello',
+    via: 'browser',
+  };
+  const [native] = summarizeChats([link]);
+  assert.equal(native.hhBrowserMessage, link.id);
+  const [mixed] = summarizeChats([
+    link,
+    { ...link, id: 'msg:hh:202', via: 'api' },
+  ]);
+  assert.equal(mixed.hhBrowserMessage, null);
+  const item = {
+    ...native,
+    status: 'sending',
+    clientId: 'hh-outbox',
+    text: 'Reply',
+    at: '2026-11-23T00:00:00Z',
+  };
+  const loss = afterFailure(item, { code: 'network' });
+  assert.equal(loss.code, 'send-unknown');
+  assert.equal(loss.status, 'failed');
+  assert.equal(loss.retryAt, null);
+  assert.deepEqual(restoreOutbox([item]), [loss]);
+});
+
+test('a HeadHunter recording needs a native observation before Chat can send', () => {
+  const archived = {
+    id: 'msg:hh:web:7:101',
+    source: 'hh',
+    chat: 'web:7',
+    via: 'archive',
+    body: 'Archived reply',
+    outgoing: true,
+    delivery: 'unknown',
+    timestamp: null,
+    raw: { hhRecording: { historyComplete: true } },
+  };
+  const native = {
+    ...archived,
+    id: 'msg:hh:web:7:102',
+    via: 'browser',
+    timestamp: '2026-11-23T12:00:00Z',
+  };
+  assert.equal(summarizeChats([archived])[0].hhRecordingOnly, true);
+  const [chat] = summarizeChats([archived, native]);
+  assert.equal(chat.hhBrowserMessage, native.id);
+  assert.equal(chat.hhRecordingOnly, undefined);
+  assert.equal(deliveryStatus(archived, 102), 'unknown');
+  assert.equal(deliveryStatus({ ...archived, delivery: 'pending' }), 'sending');
+});
+
+test('shared failed bubbles and directory labels explain uncertain sends in every locale', () => {
+  const link = {
+    id: 'msg:telegram:42:1',
+    source: 'telegram',
+    chat: '42',
+    sender: '42',
+    body: 'Question',
+    timestamp: '2026-01-01T12:00:00Z',
+  };
+  const item = {
+    key: 'telegram:42',
+    source: 'telegram',
+    chat: '42',
+    clientId: 'uncertain',
+    text: 'Retained response',
+    at: '2026-01-02T12:00:00Z',
+    status: 'failed',
+    code: 'send-unknown',
+  };
+  const chat = pendingChatPreviews(summarizeChats([link]), [item])[0];
+  for (const locale of ['en', 'ru', 'zh', 'hi']) {
+    const words = (key, vars) => translate(locale, key, vars);
+    const render = (component, props) =>
+      renderToStaticMarkup(
+        React.createElement(
+          LocaleContext.Provider,
+          { value: { locale, t: words } },
+          React.createElement(component, props)
+        )
+      );
+    const message = {
+      ...link,
+      id: 'pending:uncertain',
+      sender: 'me',
+      body: item.text,
+      delivery: 'failed',
+      code: item.code,
+      error: 'private backend diagnostic',
+    };
+    const bubble = render(MessageBubble, {
+      message,
+      composer: {},
+      msgById: new Map(),
+    });
+    const row = render(ChatItem, { chat });
+    const guidance = words('chat.failure.sendUnknown');
+    assert.ok(bubble.includes(guidance), locale);
+    assert.ok(row.includes(guidance), locale);
+    assert.ok(!bubble.includes('private backend diagnostic'), locale);
+    assert.ok(
+      !bubble.includes(`aria-label="${words('chat.delivery.failed')}"`),
+      locale
+    );
+  }
 });

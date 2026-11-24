@@ -1,0 +1,19 @@
+✔ sync-listen CLI stays alive for TCP replication and releases its store on shutdown (1772.092526ms)
+✔ sync-connect CLI stays alive for TCP replication and releases its store on shutdown (1785.691763ms)
+✔ TCP defaults to versioned Lino and delivers queued snapshots after selection (35.549976ms)
+✔ TCP binary peers retain first records before handlers attach and exchange both ways (52.354323ms)
+✔ TCP refuses protocol mismatch and JSON without explicit compatibility (7.228163ms)
+✔ explicit TCP JSON mode interoperates with legacy newline clients (6.736747ms)
+✔ default TCP rejects a legacy JSON preface and oversized declared records (144.844476ms)
+✔ TCP framing preserves bytewise UTF-8 and multiple coalesced text/binary records (28.04213ms)
+▶ sync over TCP transport
+  ✔ replicates a put from one store to another (41.563114ms)
+✔ sync over TCP transport (44.279631ms)
+ℹ tests 9
+ℹ suites 1
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4705.698382

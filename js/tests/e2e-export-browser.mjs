@@ -16,7 +16,11 @@ import path from 'node:path';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { createHistoryExport } from '../src/sources/telegram-export.js';
 import { assert, fulfil, openChatApp } from './helpers/e2e-chat.mjs';
-import { Api, FIXTURE, fakeClient, helpers } from './helpers/export-fakes.mjs';
+import { FIXTURE, helpers } from './helpers/export-fakes.mjs';
+import {
+  windowApi as Api,
+  windowClient,
+} from './helpers/export-window-fakes.mjs';
 
 const CHAT = '7';
 const store = createMemoryStore();
@@ -41,14 +45,21 @@ const gate = new Promise((resolve) => {
   release = resolve;
 });
 let held = false;
-const { client } = fakeClient(FIXTURE.slice(0, 6), {
-  onDownload: async () => {
-    if (!held) {
-      held = true;
-      await gate;
-    }
-  },
-});
+let failDownloads = false;
+const { client } = windowClient(
+  { [CHAT]: FIXTURE.slice(0, 6) },
+  {
+    onDownload: async () => {
+      if (failDownloads) {
+        throw new Error('FILE_REFERENCE_EXPIRED');
+      }
+      if (!held) {
+        held = true;
+        await gate;
+      }
+    },
+  }
+);
 const revealed = [];
 const account = createHistoryExport(
   {
@@ -186,6 +197,99 @@ const finishedRun = async () => {
   await gone(dialog, 'Escape closes');
 };
 
+const markdownRun = async () => {
+  const out = path.join(root, 'active');
+  await openDialog();
+  await dialog.locator('[data-field="scope"]').selectOption('active');
+  await dialog.locator('[data-field="gap"]').fill('4');
+  await dialog.locator('[data-field="format"]').selectOption('markdown');
+  await dialog.locator('[data-field="maxLines"]').fill('32');
+  await page.setViewportSize({ width: 390, height: 844 });
+  const layout = await dialog.locator('.export-media').evaluate((media) => {
+    const voice = media
+      .querySelector('[data-option="voice"]')
+      .closest('label')
+      .querySelector('span')
+      .getBoundingClientRect();
+    const round = media
+      .querySelector('[data-option="roundVideo"]')
+      .getBoundingClientRect();
+    return {
+      gap: round.left - voice.right,
+      width: document.documentElement.scrollWidth,
+    };
+  });
+  assert(
+    layout.gap >= 4,
+    `media labels remain separate on mobile: ${JSON.stringify(layout)}`
+  );
+  assert(layout.width === 390, 'export does not overflow the mobile viewport');
+  await typeFolder(out);
+  await dialog.locator('[data-state="done"]').waitFor({ timeout: 8000 });
+  const data = JSON.parse(await readFile(path.join(out, 'history-1.json')));
+  assert(
+    data.messages.length === 1 && data.messages[0].id === 6,
+    'only the latest conversation is exported'
+  );
+  const markdown = await readFile(path.join(out, 'history-1.md'), 'utf8');
+  assert(
+    markdown.split('\n').length <= 32,
+    'Markdown respects the configured part limit'
+  );
+  assert(
+    markdown.includes('[Structured data](history-1.json)'),
+    'linked structured data'
+  );
+  assert(
+    (await stat(path.join(out, data.messages[0].file))).size > 0,
+    'actual media downloaded'
+  );
+  await page.keyboard.press('Escape');
+  await gone(dialog, 'active export closes');
+};
+
+const failedMediaRun = async () => {
+  failDownloads = true;
+  const defaultsRequested = Promise.withResolvers();
+  const defaultsReady = Promise.withResolvers();
+  const defaultsRoute = async (route) => {
+    defaultsRequested.resolve();
+    await defaultsReady.promise;
+    await route.continue();
+  };
+  const endpoint = '**/api/telegram/export-defaults';
+  await page.route(endpoint, defaultsRoute);
+  try {
+    await openDialog();
+    await defaultsRequested.promise;
+    assert(
+      await dialog.locator('[data-field="folder"]').isDisabled(),
+      'a late default folder cannot interrupt editing the destination'
+    );
+  } finally {
+    defaultsReady.resolve();
+    await page.unroute(endpoint, defaultsRoute);
+  }
+  const out = path.join(root, 'failed-media');
+  await dialog.locator('[data-field="scope"]').selectOption('active');
+  await dialog.locator('[data-field="format"]').selectOption('markdown');
+  await typeFolder(out);
+  await dialog.locator('[data-state="done"]').waitFor({ timeout: 8000 });
+  assert(
+    (await account.exportStatus()).job.folder === out,
+    'delayed defaults preserve the exact requested destination'
+  );
+  assert(
+    (await text('[data-export="failedFiles"]')).includes('1'),
+    'failed media count is visible'
+  );
+  const data = JSON.parse(await readFile(path.join(out, 'history-1.json')));
+  assert(
+    data.messages[0].file.startsWith('('),
+    'failed media has a truthful note'
+  );
+};
+
 await finish(async () => {
   await page.goto(`${base}/`);
   await page.locator(`[data-chat="telegram:${CHAT}"]`).click();
@@ -193,5 +297,7 @@ await finish(async () => {
   await refusals();
   await cancelledRun();
   await finishedRun();
+  await markdownRun();
+  await failedMediaRun();
   await rm(root, { recursive: true, force: true });
 });

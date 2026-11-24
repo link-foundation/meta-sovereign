@@ -1,0 +1,55 @@
+{
+  "messages_chat_preview": {
+    "type": "object",
+    "properties": {
+      "admin_id": {
+        "type": "integer",
+        "format": "int64",
+        "entity": "owner",
+        "minimum": 0,
+        "required": true
+      },
+      "joined": {
+        "type": "boolean"
+      },
+      "local_id": {
+        "type": "integer"
+      },
+      "members": {
+        "type": "array",
+        "required": true,
+        "items": {
+          "type": "integer",
+          "format": "int64",
+          "entity": "owner"
+        }
+      },
+      "members_count": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "title": {
+        "type": "string",
+        "required": true
+      },
+      "is_member": {
+        "type": "boolean"
+      },
+      "photo": {
+        "$ref": "../messages/objects.json#/definitions/messages_chat_settings_photo"
+      },
+      "is_don": {
+        "type": "boolean"
+      },
+      "is_nft": {
+        "type": "boolean"
+      },
+      "is_group_channel": {
+        "type": "boolean"
+      },
+      "button": {
+        "$ref": "../base/objects.json#/definitions/base_link_button"
+      }
+    }
+  }
+}

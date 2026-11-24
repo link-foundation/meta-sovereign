@@ -1,0 +1,632 @@
+import path from 'node:path';
+import { openBrowserSession } from '../cv/browser.js';
+import { createReviewedPrefill } from '../forms/review-prefill.js';
+import { acknowledgedRead, acknowledgedWrite } from './acknowledged-store.js';
+import {
+  applicationKey,
+  applicationSettings,
+  applicationFailure as fail,
+  applicationView,
+  applicationDelay,
+} from './application-options.js';
+import {
+  applicationTarget,
+  readApplicationPage,
+  writeApplicationLetter,
+  dispatchApplication,
+  applicationSearchPage,
+  applicationAttachmentDocument,
+} from './application-page.js';
+import {
+  readApplicationJournal,
+  saveApplicationJournal,
+} from './application-journal.js';
+import { ApplicationReview } from './application-review.js';
+import { readApplicationRecruiterPanel } from './application-recruiter-panel.js';
+import { ApplicationSalary } from './application-salary.js';
+import { ApplicationContextRecovery } from './application-context-recovery.js';
+import { ApplicationDrafts } from './application-drafts.js';
+import { ApplicationActions } from './application-actions.js';
+import { ApplicationAttachment } from './application-attachment.js';
+import { ApplicationRunModes } from './application-run-modes.js';
+import { ApplicationDeferrals } from './application-deferrals.js';
+import { ApplicationQuestionDeferrals } from './application-question-deferrals.js';
+import { storedDeferredQuestions } from './deferred-questions.js';
+import { ApplicationHolds } from './application-holds.js';
+import { ApplicationAttention } from './application-attention.js';
+import { ApplicationRetries } from './application-retries.js';
+import { ApplicationFullForm } from './application-full-form.js';
+import { ApplicationLanguagePolicy } from './application-language-policy.js';
+import { ApplicationLimits } from './application-limits.js';
+import { ApplicationLimitBackups } from './application-limit-backups.js';
+import { ApplicationLimitWait } from './application-limit-wait.js';
+import { ApplicationContinuation } from './application-continuation.js';
+import { ApplicationBatch } from './application-batch.js';
+import { ApplicationPacing } from './application-pacing.js';
+import { ApplicationChats } from './application-chats.js';
+import { ApplicationLimitRejections } from './application-limit-rejections.js';
+import { watchApplicationFeedback } from './application-feedback.js';
+import { scrollApplicationVacancy } from './application-preview.js';
+import { assertVacancyNotSkipped } from './vacancy-skip-service.js';
+import { clearRunVacancies } from '../assignments/vacancy-run-context.js';
+import { jobsBrowserOptions } from './options.js';
+import {
+  ApplicationResumes,
+  dispatchResumeChoice,
+} from './application-resumes.js';
+
+const owners = new WeakMap();
+export const applicationOwned = (store) => owners.has(store);
+
+const applicationArtifactRoot = (storeDir) =>
+  storeDir ? path.join(storeDir, 'resume-exports') : undefined;
+const applicationTrace = () =>
+  process.env.MS_JOBS_APPLICATION_DEBUG === '1'
+    ? (value) => console.error(value)
+    : () => {};
+
+const previewDependencies = ({
+  previewVacancy = scrollApplicationVacancy,
+  previewWait = applicationDelay,
+}) => ({ previewVacancy, previewWait });
+
+/** One owned browser; journals reserve dispatch before any provider effect. */
+class ApplicationService {
+  constructor({
+    store,
+    storeDir,
+    artifactRoot = applicationArtifactRoot(storeDir),
+    run,
+    openSession = openBrowserSession,
+    filling = createReviewedPrefill({ store }),
+    idleMs = 15 * 60 * 1000,
+    readPage = readApplicationPage,
+    target = applicationTarget,
+    writeLetter = writeApplicationLetter,
+    dispatch = dispatchApplication,
+    searchPage = applicationSearchPage,
+    attachmentDocument = applicationAttachmentDocument,
+    readRecruiterPanel = readApplicationRecruiterPanel,
+    selectResume = dispatchResumeChoice,
+    watchFeedback = watchApplicationFeedback,
+    now = Date.now,
+    readVerification,
+    limitWait,
+    pacingRandom,
+    questionWatchMs,
+    batchWait,
+    chatRunner,
+    chatLog = () => {},
+    prefillLinkedForm,
+    createChats = () =>
+      new ApplicationChats({
+        store,
+        storeDir,
+        openSession,
+        runner: chatRunner,
+        prefillLinkedForm,
+        log: chatLog,
+      }),
+    trace = applicationTrace(),
+    previewVacancy,
+    previewWait,
+  }) {
+    Object.assign(this, {
+      store,
+      storeDir,
+      artifactRoot,
+      run,
+      openSession,
+      filling,
+      idleMs,
+      readPage,
+      target,
+      writeLetter,
+      dispatch,
+      searchPage,
+      attachmentDocument,
+      readRecruiterPanel,
+      selectResume,
+      watchFeedback,
+      trace,
+      createChats,
+      now,
+      ...previewDependencies({ previewVacancy, previewWait }),
+    });
+    this.review = new ApplicationReview(this);
+    this.skipContext = Object.freeze({
+      runId: globalThis.crypto.randomUUID(),
+      trace: this.trace,
+    });
+    this.salary = new ApplicationSalary(this, now);
+    this.context = new ApplicationContextRecovery(this);
+    this.actions = new ApplicationActions(this);
+    this.attachment = new ApplicationAttachment(this);
+    this.continuation = new ApplicationContinuation(this);
+    this.drafts = new ApplicationDrafts(this);
+    this.modes = new ApplicationRunModes();
+    this.deferrals = new ApplicationDeferrals(this);
+    this.questionDeferrals = new ApplicationQuestionDeferrals(
+      this,
+      questionWatchMs
+    );
+    this.holds = new ApplicationHolds(this.trace);
+    this.attention = new ApplicationAttention({ now, readVerification });
+    this.retries = new ApplicationRetries(this, now);
+    this.resumes = new ApplicationResumes(this);
+    this.fullForm = new ApplicationFullForm(this);
+    this.language = new ApplicationLanguagePolicy(this);
+    this.limits = new ApplicationLimits(this, now);
+    this.limitBackups = new ApplicationLimitBackups(this);
+    this.limitWait = new ApplicationLimitWait(this, now, limitWait);
+    this.pacing = new ApplicationPacing(this, now, pacingRandom);
+    this.limitRejections = new ApplicationLimitRejections(this, now);
+    this.batch = new ApplicationBatch(this, now, batchWait);
+  }
+  save(record) {
+    return saveApplicationJournal(this.store, record);
+  }
+  async close() {
+    this.questionDeferrals.stopWatch();
+    this.limitWait.abort();
+    globalThis.clearTimeout(this.timer);
+    const record = this.current;
+    if (!record) {
+      return;
+    }
+    record.closing = true;
+    try {
+      try {
+        await record.stopFeedback?.();
+        await this.filling.clear(record);
+      } finally {
+        await record.browser?.close();
+      }
+    } finally {
+      record.closing = false;
+    }
+    this.current = null;
+    if (owners.get(this.store) === this) {
+      owners.delete(this.store);
+    }
+    record.active = false;
+    record.continuation = null;
+    return { ...applicationView(record), state: 'closed' };
+  }
+  touch() {
+    this.questionDeferrals.watch();
+    globalThis.clearTimeout(this.timer);
+    if (
+      !this.current ||
+      this.stopped ||
+      this.current.hold ||
+      this.current.recruiterChat ||
+      this.current.page?.attachment?.submit ||
+      (this.current.page?.scope &&
+        this.current.page.submit &&
+        !this.current.page.delivered)
+    ) {
+      return;
+    }
+    this.timer = globalThis.setTimeout(() => {
+      this.operate(() => this.close()).catch((error) =>
+        this.trace({
+          event: 'application-idle-close-refused',
+          code: error.code ?? 'unknown',
+        })
+      );
+    }, this.idleMs);
+    this.timer.unref?.();
+  }
+  operate(operation) {
+    if (this.stopped) {
+      return Promise.reject(fail('stopped'));
+    }
+    const next = acknowledgedWrite(this.store, this.run, async (signal) => {
+      this.questionDeferrals.stopWatch();
+      globalThis.clearTimeout(this.timer);
+      try {
+        return await this.perform(operation, signal);
+      } finally {
+        this.touch();
+      }
+    });
+    this.task = next;
+    next
+      .finally(() => {
+        if (this.task === next) {
+          this.task = null;
+        }
+      })
+      .catch(() => {});
+    return next;
+  }
+  async perform(operation, signal) {
+    let result;
+    let failure;
+    try {
+      result = await operation(signal);
+    } catch (error) {
+      failure = error;
+    }
+    try {
+      // Only a mode-interrupted action may finish by backing up its held form.
+      // A failed read/save must keep that form open without a second save attempt.
+      if (!failure || failure.code === 'jobs-application-state') {
+        const backed = await this.limitBackups.automatic(signal);
+        let questionDeferred;
+        result =
+          (await this.limitRejections.observe(signal)) ??
+          backed ??
+          (await this.retries.automatic(signal)) ??
+          (await this.salary.automatic(signal)) ??
+          (questionDeferred = await this.questionDeferrals.automatic(signal)) ??
+          (await this.deferrals.automatic(signal)) ??
+          result;
+        // The policy guard deliberately interrupted dispatch. Its acknowledged
+        // preservation and owned close are the completed action for this turn.
+        if (questionDeferred) {
+          failure = null;
+        }
+      }
+    } catch (error) {
+      this.trace({
+        event: 'application-automatic-deferral-refused',
+        code: error.code ?? 'unknown',
+      });
+      failure ??= error;
+    }
+    if (failure) {
+      throw failure;
+    }
+    return result;
+  }
+  signalMode(input) {
+    if (this.stopped) {
+      throw fail('stopped');
+    }
+    const { browserSlot } = jobsBrowserOptions(input);
+    const modes = this.modes.signal(
+      this.current,
+      browserSlot,
+      input.noQuestionnaires
+    );
+    this.trace({ event: 'application-run-mode-signal', ...modes });
+    // An active operation processes its latest policy before releasing ownership.
+    // At idle, acquire the same writer and inspect fresh native values first.
+    const record = this.current;
+    if (
+      !this.task &&
+      modes.noQuestionnaires &&
+      record?.browserSlot === browserSlot &&
+      record.page?.questions
+    ) {
+      this.operate((signal) => this.review.inspect(record, signal)).catch(
+        (error) =>
+          this.trace({
+            event: 'application-signal-deferral-refused',
+            code: error.code ?? 'unknown',
+          })
+      );
+    }
+    return { ok: true, browserSlot, ...modes };
+  }
+  owned(input) {
+    const key = applicationKey(input);
+    const record = this.current;
+    if (
+      !record ||
+      record.id !== key.id ||
+      input.requestId !== record.requestId
+    ) {
+      throw fail('missing');
+    }
+    if (input.revision !== record.revision) {
+      throw fail('changed');
+    }
+    return record;
+  }
+  async ownerAttention() {
+    const owner = owners.get(this.store);
+    const record = owner?.current;
+    const notice = await owner?.attention.current(
+      record,
+      () => !owner.stopped && owner.current === record
+    );
+    return { ok: true, attention: notice ? [notice] : [] };
+  }
+  focusAttention(input) {
+    const owner = owners.get(this.store) ?? this;
+    const record = owner.current;
+    return owner.attention.focus(
+      record,
+      () => !owner.stopped && owner.current === record,
+      input
+    );
+  }
+  status(input) {
+    const key = applicationKey(input);
+    return acknowledgedRead(this.store, async () => {
+      const saved =
+        this.current?.id === key.id
+          ? this.current
+          : await this.store.get(key.id);
+      if (!saved) {
+        return {
+          ok: true,
+          mode: 'hh-application-missing',
+          url: key.url,
+          browserSlot: key.browserSlot,
+          requestId: input.requestId ?? null,
+        };
+      }
+      const row =
+        saved === this.current ? saved : readApplicationJournal(saved, key);
+      if (input.requestId !== undefined && input.requestId !== row.requestId) {
+        throw fail('conflict');
+      }
+      return applicationView(
+        this.current === row
+          ? { ...row, applicationLimit: await this.limits.read() }
+          : {
+              ...row,
+              applicationLimit: await this.limits.read(),
+              hold: this.holds.read(key.id),
+              ...this.modes.read(row.browserSlot),
+              state:
+                row.delivery === 'provider-confirmed'
+                  ? 'delivered'
+                  : 'interrupted',
+            }
+      );
+    });
+  }
+  async restore(options, input) {
+    const saved = await this.store.get(options.id);
+    if (!saved) {
+      return { options };
+    }
+    const previous = readApplicationJournal(saved, options);
+    if (previous.requestId !== options.requestId) {
+      // A never-dispatched request may be replaced. Unknown/provider-confirmed
+      // intent remains reserved for this vacancy even under a fresh request ID.
+      if (
+        previous.attempted.enter ||
+        previous.attempted.submit ||
+        previous.delivery !== 'none'
+      ) {
+        throw fail('conflict');
+      }
+      return { options };
+    }
+    if (input.recover === true) {
+      options = previous.options;
+    }
+    if (previous.signature !== JSON.stringify(options)) {
+      throw fail('conflict');
+    }
+    return { options, previous };
+  }
+  async open(input, signal) {
+    let options = applicationSettings(input);
+    if (this.retries.waiting(options)) {
+      throw fail('retry-wait');
+    }
+    if (this.current) {
+      const record = this.current;
+      const same =
+        record.id === options.id && record.requestId === options.requestId;
+      if (!same) {
+        throw fail('busy');
+      }
+      if (!input.recover && JSON.stringify(options) !== record.signature) {
+        throw fail('conflict');
+      }
+      return applicationView(record);
+    }
+    if (owners.has(this.store)) {
+      throw fail('busy');
+    }
+    await assertVacancyNotSkipped(this.store, options, this.skipContext);
+    await this.questionDeferrals.assertVacancyAllowed(options);
+    const restored = await this.restore(options, input);
+    options = restored.options;
+    if (restored.previous && !input.recover) {
+      return applicationView({
+        ...restored.previous,
+        hold: this.holds.read(options.id),
+        ...this.modes.read(options.browserSlot),
+        state:
+          restored.previous.delivery === 'provider-confirmed'
+            ? 'delivered'
+            : 'interrupted',
+      });
+    }
+    const record = {
+      ...options,
+      options,
+      signature: JSON.stringify(options),
+      state: 'opening',
+      delivery: 'none',
+      attempted: { enter: false, submit: false },
+      ...restored.previous,
+      salaryTierFloorRub: this.batch.salary.floor(options),
+      id: options.id,
+      ...this.modes.read(options.browserSlot),
+      hold: this.holds.read(options.id),
+      browser: null,
+      active: true,
+    };
+    await this.pacing.admit(options, restored.previous, signal);
+    record.acknowledged = restored.previous;
+    this.current = record;
+    owners.set(this.store, this);
+    try {
+      await this.save(record);
+      signal.throwIfAborted();
+      record.browser = await this.openSession({
+        store: this.store,
+        platform: 'hh',
+        useCase: 'jobs',
+        slot: options.browserSlot,
+        headless: options.headless,
+      });
+      signal.throwIfAborted();
+      record.stopFeedback = await this.watchFeedback(record.browser, options);
+      this.trace({
+        event: 'application-feedback-policy',
+        watching: Boolean(record.stopFeedback),
+      });
+      signal.throwIfAborted();
+      this.trace({
+        event: 'application-opening-location',
+        recovered: Boolean(restored.previous),
+        location: record.resumeUrl ? 'questionnaire' : 'vacancy',
+      });
+      await record.browser.commander.goto({
+        url: record.resumeUrl ?? options.formUrl ?? options.url,
+        waitUntil: 'domcontentloaded',
+        timeout: 30000,
+      });
+      signal.throwIfAborted();
+      this.trace({ event: 'application-opening-document-ready' });
+      const result = await this.review.inspect(record, signal);
+      this.trace({
+        event: 'application-opening-reviewed',
+        state: record.state,
+      });
+      return result;
+    } catch (error) {
+      return this.openingFailure(record, error);
+    }
+  }
+  async openingFailure(record, error) {
+    if (
+      record.browser &&
+      (record.hold === 'daily-limit' || record.page?.scope)
+    ) {
+      // A refused checkpoint cannot authorize losing the owner's held form.
+      this.trace({
+        event: 'application-limit-opening-held',
+        code: error.code ?? 'unknown',
+      });
+      throw error;
+    }
+    // Other opening failures drain the browser, including failed journal writes.
+    record.state = 'interrupted';
+    record.code = error.code ?? 'jobs-application-unavailable';
+    try {
+      await this.save(record);
+    } finally {
+      await this.close();
+    }
+    throw error;
+  }
+  async stop() {
+    this.stopped = true;
+    this.questionDeferrals.stopWatch();
+    await this.batch.drain();
+    this.limitWait.abort();
+    globalThis.clearTimeout(this.timer);
+    await this.task?.catch(() => {});
+    await this.questionDeferrals.work;
+    await this.limitWait.drain();
+    await this.close();
+    this.modes.clear();
+    clearRunVacancies(this.store, this);
+    this.deferrals.clear();
+    this.holds.clear();
+    this.retries.clear();
+    this.salary.deferred.clear();
+  }
+}
+export const createApplicationService = (options) => {
+  const service = new ApplicationService(options);
+  return {
+    batchOwned: () => Boolean(service.batch.runtime),
+    retryWaiting: (input) => service.retries.waiting(input),
+    skipContext: () => service.skipContext,
+    operations: {
+      // Foreground CLI signals only: the HTTP route allowlist does not expose
+      // this interruption channel. It changes RAM policy without waiting behind
+      // an exact-answer review delay or performing a provider action.
+      'application-signal-mode': (input) => service.signalMode(input),
+      'application-open': (input) =>
+        service.operate((signal) => service.open(input, signal)),
+      'application-batch-start': (input) => service.batch.start(input),
+      'application-batch-status': (input) => service.batch.status(input),
+      'application-batch-stop': (input) => service.batch.stop(input),
+      'application-batch-mode': (input) => service.batch.mode(input),
+      'application-batch-chat-skip': (input) => service.batch.skipChat(input),
+      // Foreground CLI lifecycle only; HTTP status remains an immediate read.
+      'application-batch-drain': () => service.batch.runtime?.work,
+      'application-status': (input) => service.status(input),
+      'application-attention': () => service.ownerAttention(),
+      'application-attention-focus': (input) => service.focusAttention(input),
+      'application-wait': (input) =>
+        input.action === 'stop'
+          ? service.limitWait.stop(input)
+          : input.action === 'start'
+            ? service.limitWait.start(input)
+            : Promise.reject(fail('input')),
+      'application-queue': (input) =>
+        acknowledgedRead(service.store, () => service.deferrals.list(input)),
+      'questions-stored': (input) =>
+        acknowledgedRead(service.store, () =>
+          storedDeferredQuestions(service.store, input)
+        ),
+      'question-change': (input) =>
+        service.operate((signal) =>
+          service.questionDeferrals.change(input, signal)
+        ),
+      'application-defer-questions': (input) =>
+        service.operate((signal) =>
+          service.questionDeferrals.defer(service.owned(input), input, signal)
+        ),
+      'application-defer': (input) =>
+        service.operate((signal) =>
+          service.deferrals.defer(service.owned(input), input, signal)
+        ),
+      'application-retry': (input) =>
+        service.operate((signal) => service.deferrals.retry(input, signal)),
+      'application-read': (input) =>
+        service.operate((signal) =>
+          service.review.inspect(service.owned(input), signal)
+        ),
+      'application-continue': (input) =>
+        service.operate((signal) =>
+          service.continuation.run(service.owned(input), input, signal)
+        ),
+      'application-advance': (input) =>
+        service.operate((signal) =>
+          service.actions.advance(service.owned(input), input, signal)
+        ),
+      'application-prefill': (input) =>
+        service.operate((signal) =>
+          service.actions.prefill(service.owned(input), input, signal)
+        ),
+      'application-resume': (input) =>
+        service.operate((signal) =>
+          service.resumes.change(service.owned(input), input, signal)
+        ),
+      'application-backup': (input) =>
+        service.operate((signal) =>
+          service.drafts.backup(service.owned(input), input, signal)
+        ),
+      'application-restore': (input) =>
+        service.operate((signal) =>
+          service.drafts.restore(service.owned(input), input, signal)
+        ),
+      'application-mode': (input) =>
+        service.operate((signal) => service.actions.changeMode(input, signal)),
+      'application-close': (input) =>
+        service.operate(() => service.batch.closeReview(service.owned(input))),
+    },
+    cancel: async () => {
+      await service.batch.drain();
+      await service.limitWait.drain();
+      return service.close();
+    },
+    stop: () => service.stop(),
+  };
+};

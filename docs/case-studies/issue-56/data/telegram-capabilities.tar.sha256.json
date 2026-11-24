@@ -1,0 +1,18 @@
+{
+  "archive": "telegram-capabilities.tar.gz",
+  "files": {
+    "46fb-checks-latest.json": "135435025f9efdcbdf432e58a372a84f36e308317034924bbe054e04c40076d4",
+    "46fb-checks-status.json": "5078c64efc0876918b14ff4836b0e5a4bfb28ef04a8568649c50cb53a4bb642a",
+    "mcp-console.log": "07e03060b271a89d00ea5c82c0e155ccdf06dbcf8584306d673024b8036e2459",
+    "telegram-capabilities-before.log": "cf5c6d191eb677d1a8f8b412f31514feb91cf5f96f98ab56ff910a3bc79ae783",
+    "telegram-capabilities-browser-after.log": "2e135c07839575665bc07ce359887789e71ec40d5c8087bfd8b8702d788f2148",
+    "telegram-capabilities-browser-before.log": "cf9fe0568f2c0bba2bb93d95ca1a81d08cc4d3f230f4dd799864e5775cddd4a8",
+    "telegram-capabilities-build.log": "6580d7658e7d1f6545c2de5fa70a5ef76a59db87df5589f74bef27befc6f08e7",
+    "telegram-capabilities-doc-format.log": "dc4624bac72fa3642466908d4e0d880e2ed47a0cac701f19c428a0090b136ac4",
+    "telegram-capabilities-final.log": "9dd62508e09932eea0bee4950aaf25f8a98c6ad33efbc94c6c336eba55285c61",
+    "telegram-capabilities-focused.log": "c5dcbcbb7b1d9de3af27076884331306acccd6e4ed7cd1f0edf5901e923785e4",
+    "telegram-capabilities-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "telegram-capabilities-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "telegram-capabilities-mcp.json": "08d000ea9482a3a211c0c52edad7d4a56052d2b20071e70ef54f0574f7090d0e"
+  }
+}

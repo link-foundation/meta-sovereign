@@ -1,3 +1,4 @@
+import { fulfilWire } from './helpers/http-wire.mjs';
 // Real browser e2e for the GitHub repository picker and "Fetch now"
 // (R-Z11): on the GitHub Connections card the user opens the picker, filters
 // and ticks repositories, saves the choice (owner/repo stored in settings)
@@ -133,7 +134,7 @@ await finish(async () => {
   let tries = 0;
   await page.route('**/api/github/notifications/read', (route) => {
     tries += 1;
-    return route.fulfill({
+    return fulfilWire(route, {
       status: 502,
       contentType: 'application/json',
       body: JSON.stringify({

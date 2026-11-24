@@ -1,0 +1,21 @@
+{
+  "archive": "hh-chat-cli.tar.gz",
+  "files": {
+    "after/automations-server.test.js": "d74319ba0182aaa4ae972c61b03024b4964fcacd62afb887d59c365df8740eb1",
+    "after/chat-command.js": "1cbb08e28bcf56e4e60ea29d57d868bbd8b3dc664bf152174d6af4fd8bc56d3f",
+    "after/e2e-hh-import-read.mjs": "9546387e647a28102353454f0cac483d4b9dec497ebc7a59f6ee2c9d60d2a0e1",
+    "after/routes-automations.js": "7a348cc47a98e03a94e51dc8254b30f432eaef6554b1eb0a9edfb21c8e6a7b45",
+    "after/server-lino-client.js": "63fcda5667427f00094b5b6d0a2103d40b5aa43cd56e4db0ccba0535f3016025",
+    "before/commands.js": "31324e375b99aa08c285738712b87743baf6716d5f87b00c5dcf10d7226bcc60",
+    "before/routes-automations.js": "28fa80bac7d9ae0da8ac3ca7a19812984d422798feae110dfcbc4f0d2776d271",
+    "logs/hh-chat-cli-before.log": "0c0de867b09176034f0306d4cbe32c170091b4254c622c1d7310cab006572bf0",
+    "logs/hh-chat-cli-browser.log": "12b698f7f913d4f2ab7b66beb9906907ddfcb47fd144f750b8e8485651105034",
+    "logs/hh-chat-cli-deno.log": "7c6cbc20c91272d5d55327ea16f5ea396eb326d638129b37e074f62e98cd8bb5",
+    "logs/hh-chat-cli-draft-before.log": "85efcf8730c93caa8d5e538c1083d2e8fca092f66bce6a3db55c9ef7e65bc87f",
+    "logs/hh-chat-cli-eslint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/hh-chat-cli-node.log": "5be05beef49d7ee1c6ff64a52e5ebd087744cc644fb1e5cddaf2764cc00fd47d",
+    "logs/hh-chat-cli-prettier.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "logs/hh-chat-cli-secretlint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "parent.txt": "b7bdb6476a3431acea9bd6358afae1d9546e41c7ced929b3aae6ee55c2e4b165"
+  }
+}

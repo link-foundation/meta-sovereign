@@ -1,0 +1,23 @@
+{
+  "archive": "browser-preparation-hosted.tar.gz",
+  "files": {
+    "ci-logs/browser-preparation-hosted-run.json": "a2b8d1b96f53b807570f6565f59be1459eca5b78ccf8622752e4324f5bd960d3",
+    "ci-logs/browser-preparation-current-jobs.json": "b5095e4a3c407683326aa044fca8524cc4a25ac842f169ff808a5fe60c3ce302",
+    "ci-logs/browser-preparation-current-artifacts.json": "d24f7b018fe6e91b9fbd5b2db8a443fcd473b37698d86d1ae2cd03410ee20efb",
+    "ci-logs/browser-preparation-hosted-chromium-1.log": "3be87e7f5100f1fde3aeb594954d76e1e05e87b06c52113a2b5f99d371fc7d23",
+    "ci-logs/browser-preparation-hosted-desktop.json": "5b8517df050121278fcf9ba2c3dd6ebd27aecaee700c7276e0076925fed8ab00",
+    "ci-logs/browser-preparation-hosted-artifact/browser-preparation.log": "24396b0b9f10478c4670b446356704dc169dafdc793be024d6ac6e41ee23fc95",
+    "ci-logs/browser-preparation-hosted-artifact/summary.json": "958b5ba27a7f7f4a203e0f564e9beb54110e1399d7797dfafe12ba5220a242f8",
+    "docs/screenshots/issue-56-browser-preparation-hosted.png": "f5bd0eed302e5bdcc9f50005b58debd9c9e32ebfef13b2ad581e0915ff7838a1",
+    "docs/case-studies/issue-56/browser-preparation.md": "a972e41c500a953d77bdc21bd2fdd1fae73e0e3d6abfaf80850a27253f10461f",
+    "experiments/issue-56/collect-browser-preparation-hosted.py": "7632412b154cc4f51637b523f4e9fde6cd068b2a37021a0807e3302a48207b35",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "published/js/src/browser/preparation.js": "7f28b36524d478ba9556262b367127fcbc3ee9c63887db013fcebd97f1c3205f",
+    "published/js/src/cv/browser.js": "b463452452d45ce93cb11a8687587d04aed7abf3f11514d0377a11727881a278",
+    "published/js/src/server/runner-transport.js": "b6bda1fbec2a68c5a20f92b3e27dec4c36d8977fed5ae6c6f2d3a02ce471a20f",
+    "published/js/src/server/worker-client.js": "60ab816888a26db1de28005a8851f7fb82279d2ff9840dca3049ee25d49dd9bd",
+    "published/experiments/issue-56/browser-preparation-native.mjs": "242de9730ea46affe7e7876a82a72ee60b527b0b23fb78cd6eeefc2ddc9ec232",
+    "published/.github/workflows/release.yml": "3d6a610e3d8e8b4e290a23691417062e250e03887ce1867f6a4618dab5b7623d",
+    "metadata.json": "08fadc62e8ce7a96d6af9c4d84a267dae2995be0132e7a681c4e23347eab9f5c"
+  }
+}

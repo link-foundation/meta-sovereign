@@ -10,7 +10,7 @@ import path from 'node:path';
 import { promises as fs } from 'node:fs';
 
 import { createMemoryStore } from '../src/storage/universal.js';
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 import {
   accountDir,
   borrowSecrets,
@@ -32,6 +32,7 @@ import {
 import { saveExtraAccount } from '../src/sources/telegram-accounts.js';
 import { acquaintanceConversation } from './helpers/conversation-fixture.js';
 import { CONVERSATION_SETTINGS_ID } from '../src/crm/conversation-policy.js';
+import { snapshotLocks } from './helpers/snapshot-locks.mjs';
 
 const secret = (name, value) => ({
   id: `secret:telegram:${name}`,
@@ -746,6 +747,13 @@ test('an extra account keeps its own copy in the browser (R-Y202)', async () => 
   const { pickBrowserDriver } = await import('../src/storage/browser-store.js');
   const items = new Map();
   const had = Object.getOwnPropertyDescriptor(globalThis, 'localStorage');
+  const hadNavigator = Object.getOwnPropertyDescriptor(globalThis, 'navigator');
+  // Supply both pieces of the browser persistence fixture. Bun deliberately
+  // has no native Web Locks; this test checks account keys, not browser APIs.
+  Object.defineProperty(globalThis, 'navigator', {
+    configurable: true,
+    value: { locks: snapshotLocks() },
+  });
   Object.defineProperty(globalThis, 'localStorage', {
     configurable: true,
     value: {
@@ -773,6 +781,11 @@ test('an extra account keeps its own copy in the browser (R-Y202)', async () => 
       Object.defineProperty(globalThis, 'localStorage', had);
     } else {
       delete globalThis.localStorage;
+    }
+    if (hadNavigator) {
+      Object.defineProperty(globalThis, 'navigator', hadNavigator);
+    } else {
+      delete globalThis.navigator;
     }
   }
 });

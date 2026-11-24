@@ -1,9 +1,20 @@
 import http from 'node:http';
 import net from 'node:net';
 import { relayWorkerRequest } from './worker-request.js';
-import { handleCors, hostAllowed, parseAllowedOrigins } from './cors.js';
+import { applyCors, hostAllowed, parseAllowedOrigins } from './cors-policy.js';
 import { withHostedOrigin } from './hosted-ui.js';
-import { json } from './util.js';
+
+// Healthy proxy traffic forwards bytes without consuming the error codec.
+// Observe lazy-load failures too: an HTTP listener cannot leave a rejected
+// callback promise or an unanswered socket behind.
+const proxyFailure = async (res, status, body) => {
+  try {
+    const { json } = await import('./util.js');
+    json(res, status, body);
+  } catch {
+    res.destroy();
+  }
+};
 
 const HOP = new Set([
   'connection',
@@ -50,12 +61,16 @@ export const createWorkerProxy = ({
     { requestTimeout: 30 * 60_000 },
     async (req, res) => {
       if (!hostAllowed(req, port())) {
-        return json(res, 421, {
+        return proxyFailure(res, 421, {
           code: 'bad-host',
           error: 'unexpected Host header',
         });
       }
-      if (handleCors(req, res, allowed)) {
+      if (
+        applyCors(req, res, allowed, (response, status, code, error) => {
+          void proxyFailure(response, status, { code, error });
+        })
+      ) {
         return;
       }
       const abort = new AbortController();
@@ -75,7 +90,7 @@ export const createWorkerProxy = ({
         if (res.headersSent) {
           res.destroy();
         } else if (!res.destroyed) {
-          json(res, 502, {
+          await proxyFailure(res, 502, {
             code: 'network',
             error: 'local worker is reconnecting',
           });

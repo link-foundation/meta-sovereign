@@ -14,7 +14,7 @@ import {
 } from './app-route.js';
 import { telegramStatusFor } from './telegram-status.js';
 import { logOnce } from './api-errors.js';
-import { traceClient } from './client-log.js';
+import { debugBrowser, traceClient } from './client-log.js';
 import { useDraftPresentation } from './chat-draft-state.js';
 import { useFindMatchingChat } from './chat-automation-find.js';
 import {
@@ -47,6 +47,8 @@ import {
 import { localizePreset } from './automations-model.js';
 import { readReadReceipts, readShareTyping } from './privacy-prefs.js';
 import { useComposer, useLiveLinks } from './chat-live.js';
+import { hhReadRequest } from './hh-chat-read.js';
+import { filterChatProvider, useChatProvider } from './chat-provider-filter.js';
 import { useNotifications } from './chat-notify.js';
 import { useReplyTargets } from './chat-replies.js';
 import { useEphemeral } from './chat-ephemeral.js';
@@ -441,30 +443,39 @@ const useUnreadLine = (current, inboxMaxId, loaded, messages) => {
  * it read there too — through the API, or the network's web app — once
  * per chat until new messages arrive.
  */
-const useOtherReadMarker = (api, current, enabled = readReadReceipts) => {
-  const marked = useRef(new Map()); // chat key → the unread count marked
+const useOtherReadMarker = (api, current, messages, enabled) => {
+  const marked = useRef(new Map());
   const key = current?.key;
   const unread = current?.unread ?? 0;
+  const boundary =
+    current?.source === 'hh' ? hhReadRequest(current, messages)?.ids[0] : null;
+  const revision = boundary ?? unread;
   useEffect(() => {
     if (
       !current ||
       current.source === 'telegram' ||
       unread <= 0 ||
-      marked.current.get(key) === unread ||
+      (current.source === 'hh' && !boundary) ||
+      marked.current.get(key) === revision ||
       typeof api.messageAction !== 'function' ||
       !enabled() ||
       !pageActive()
     ) {
       return;
     }
-    marked.current.set(key, unread);
+    marked.current.set(key, revision);
     api
-      .messageAction('read', { source: current.source, chat: current.chat })
+      .messageAction('read', {
+        source: current.source,
+        chat: current.chat,
+        ...(boundary ? { ids: [boundary] } : {}),
+      })
       .then(
-        (answer) => answer?.error && marked.current.delete(key),
+        (answer) =>
+          (answer?.error || answer?.ok === false) && marked.current.delete(key),
         () => marked.current.delete(key)
       );
-  }, [api, key, unread]);
+  }, [api, key, unread, boundary]);
 };
 
 // What reading the open chat needs: where it was read up to, the marker
@@ -484,7 +495,7 @@ const useReading = (
     : 0;
   const inboxMaxId = current?.topic ? (topicRead ?? chatRead) : chatRead;
   const enabled = () => autoRead && readReadReceipts();
-  useOtherReadMarker(api, current, enabled);
+  useOtherReadMarker(api, current, messages, enabled);
   return {
     seen: useReadMarker(api, current, inboxMaxId, enabled),
     unreadAfter: useUnreadLine(current, inboxMaxId, links !== null, messages),
@@ -511,6 +522,9 @@ export const runNotice = (result) => {
       kind: result.queued.length ? 'queued' : 'nothing',
       count: result.queued.length,
       reason: result.excluded?.[0]?.reason ?? null,
+      ...(result.excluded?.some((entry) => entry.answer?.model)
+        ? { excluded: result.excluded }
+        : {}),
     };
   }
   if (!Array.isArray(result.results)) {
@@ -664,6 +678,15 @@ const useNextChat = (api, current, show) => {
   return { next, look, open, dismiss: () => setNext(null) };
 };
 
+const sequenceNotice = (code, result) => {
+  if (code === 'sequence-partial') {
+    return { messageKey: 'engagement.partial' };
+  }
+  return result?.status === 'unknown' && code?.startsWith('sequence-')
+    ? { messageKey: 'engagement.uncertain' }
+    : {};
+};
+
 export const draftActionNotice = (action, result) => {
   const complete =
     action === 'form'
@@ -676,9 +699,23 @@ export const draftActionNotice = (action, result) => {
       kind: 'failed',
       code,
       error: result?.error ?? code ?? 'no-answer',
+      ...sequenceNotice(code, result),
     };
   }
   return action === 'form' ? null : { kind: `draft-${action}` };
+};
+
+const refreshOrderedDrafts = async (api, draft, setDrafts) => {
+  if (!draft.engagement) {
+    return;
+  }
+  // A failed HTTP response may omit the durable partial progress.
+  const pending = await api
+    .drafts({ source: draft.source, chat: draft.chat })
+    .catch(() => null);
+  if (pending) {
+    setDrafts(pending);
+  }
 };
 
 const useDrafts = ({ api, current, tick, after, show, setNotice }) => {
@@ -717,6 +754,7 @@ const useDrafts = ({ api, current, tick, after, show, setNotice }) => {
       code: result?.status ?? (result?.id ? 'draft' : 'no-answer'),
     });
     if (notice?.kind === 'failed') {
+      await refreshOrderedDrafts(api, draft, setDrafts);
       after(notice);
       return result;
     }
@@ -992,6 +1030,8 @@ const shownFilter = (filter, folders) => {
   return { filter: isFolderFilter(filter) ? 'all' : filter, folder: null };
 };
 
+const NO_PROVIDER_FOLDERS = [];
+
 const useChatList = (links, target, query, folders, visibility) => {
   const summarize = useMemo(() => createChatSummarizer(), []);
   const directory = useMemo(
@@ -1008,6 +1048,15 @@ const useChatList = (links, target, query, folders, visibility) => {
     }
     return [emptyChat(links ?? [], target), ...list];
   }, [directory, target, links]);
+  const provider = useChatProvider(all);
+  const relevantFolders =
+    provider.selected === 'all' || provider.selected === 'telegram'
+      ? folders
+      : NO_PROVIDER_FOLDERS;
+  const scoped = useMemo(
+    () => filterChatProvider(all, provider.selected),
+    [all, provider.selected]
+  );
   const [remembered, setFilter] = useChatFilter();
   const [kindFilter, setKindFilter] = useRemembered(
     'meta-sovereign.chat.kind',
@@ -1019,10 +1068,10 @@ const useChatList = (links, target, query, folders, visibility) => {
   // and through every folder.
   const [folder, setFolder] = useState('main');
   const people = useMemo(() => peopleOf(links ?? []), [links]);
-  const shown = shownFilter(remembered, folders);
+  const shown = shownFilter(remembered, relevantFolders);
   const tabFolder = query ? null : shown.folder;
   const filter = shown.filter;
-  const hasFolders = folders.some((f) => !f.all);
+  const hasFolders = relevantFolders.some((f) => !f.all);
   const chooseFilter = (value) => {
     setFilter(value);
     if (!hasFolders) {
@@ -1030,6 +1079,8 @@ const useChatList = (links, target, query, folders, visibility) => {
     }
   };
   const kind = hasFolders ? kindFilter : filter;
+  const archive = useMemo(() => archiveSummary(scoped), [scoped]);
+  const activeFolder = archive.count > 0 && !shown.folder ? folder : 'main';
   // The folder tags on the rows, but the open folder's (R-Y180).
   const tags = useMemo(
     () => tagMap(all, folders, people, tabFolder?.id ?? null),
@@ -1040,24 +1091,30 @@ const useChatList = (links, target, query, folders, visibility) => {
       sortChats(
         filterChats(
           tabFolder
-            ? chatsInFolder(all, tabFolder, people)
+            ? chatsInFolder(scoped, tabFolder, people)
             : query
-              ? searchChats(all, query)
-              : folderChats(all, folder),
+              ? searchChats(scoped, query)
+              : folderChats(scoped, activeFolder),
           kind
         ),
         sort
       ),
-    [links, query, all, kind, sort, folder, tabFolder, people]
+    [links, query, scoped, kind, sort, activeFolder, tabFolder, people]
   );
-  const archive = useMemo(() => archiveSummary(all), [all]);
   const tabs = useMemo(
-    () => folderTabs(folders, { all, people, fallback: OWN_TABS, allFirst }),
-    [folders, all, people, allFirst]
+    () =>
+      folderTabs(relevantFolders, {
+        all: scoped,
+        people,
+        fallback: OWN_TABS,
+        allFirst,
+      }),
+    [relevantFolders, scoped, people, allFirst]
   );
   return {
     all,
     chats,
+    provider,
     filter,
     setFilter: chooseFilter,
     kindFilter: hasFolders ? kindFilter : null,
@@ -1066,7 +1123,7 @@ const useChatList = (links, target, query, folders, visibility) => {
     sort,
     setSort,
     // A folder lists its archived chats among the rest, as Telegram's.
-    folder: archive.count > 0 && !shown.folder ? folder : 'main',
+    folder: activeFolder,
     setFolder,
     archive: shown.folder ? NO_ARCHIVE : archive,
     tags,
@@ -1098,6 +1155,7 @@ const useOpening = ({
   const [toEnd, setToEnd] = useState(0);
   return {
     select: (key) => {
+      debugBrowser('chat-select', { from: current?.key ?? null, to: key });
       if (key === current?.key) {
         setToEnd((n) => n + 1);
       }
@@ -1179,11 +1237,13 @@ const useCurrentChat = (all, target, selectFirst) => {
   );
   useEffect(() => {
     if (target) {
+      debugBrowser('chat-route', { source: target.source, chat: target.chat });
       setActive(chatKey(target.source, target.chat));
     }
   }, [target?.source, target?.chat]);
   useEffect(() => {
     if (selectFirst && all.length && !all.some((c) => c.key === active)) {
+      debugBrowser('chat-fallback', { from: active, to: all[0].key });
       setActive(all[0].key);
     }
   }, [all, active, selectFirst]);
@@ -1253,7 +1313,7 @@ export const useChatState = (
   const folderTools = useFolderTools(api, folders, list.all);
   // New chats in shared folders the user joined (R-Y211).
   const folderUpdates = useChatlistUpdates(api, folders);
-  const { all, chats, filter, setFilter, sort, setSort } = list;
+  const { all, chats, sort } = list;
   usePublishChatFeed(all, links);
   const [active, setActive, current] = useCurrentChat(all, target, selectFirst);
   // A chat's name by its key (where a forward came from).
@@ -1330,7 +1390,7 @@ export const useChatState = (
     addLinks: add,
     live,
     telegram,
-    all,
+    ...list,
     chats: usePendingChatList(chats, composer.pending, sort),
     total: all.length,
     chatName,
@@ -1338,22 +1398,10 @@ export const useChatState = (
     hasChat: (key) => all.some((c) => c.key === key),
     query,
     setQuery,
-    filter,
-    setFilter,
-    tabs: list.tabs,
-    kindFilter: list.kindFilter,
-    setKindFilter: list.setKindFilter,
-    // Folder tags by chat key (R-Y180).
-    tags: list.tags,
     // The tabs' menu: edit, delete, reorder (R-Y164).
     folderTools,
     folders,
     folderUpdates,
-    sort,
-    setSort,
-    folder: list.folder,
-    setFolder: list.setFolder,
-    archive: list.archive,
     prefetch,
     moreChats,
     history,

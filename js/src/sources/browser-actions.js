@@ -13,9 +13,10 @@
  * update, never silently.
  */
 
-/* global document, MouseEvent -- the page-side helpers run in the page */
+/* global document, window, MouseEvent -- the page-side helpers run in the page */
 
 import { setTimeout as sleep } from 'node:timers/promises';
+import { readHhBrowserChat } from './browser-hh-read.js';
 
 /** The attribute the target message gets while an action runs. */
 export const TARGET_ATTRIBUTE = 'data-ms-target';
@@ -70,7 +71,16 @@ export const scrollToNewest = (spec) => {
  * Page-side: the visible chat list. A chat's id is its `idAttribute`, or
  * what `linkPattern` captures from the `link` element's href.
  */
-export const extractChats = (spec) => {
+export const extractChats = (spec, row) => {
+  const container = () => {
+    if (!spec.listToken) {
+      return { root: document };
+    }
+    const owned = window[Symbol.for('meta-sovereign.browser-chat-list.v1')];
+    return owned?.token === spec.listToken && owned.root?.isConnected
+      ? owned
+      : null;
+  };
   const squash = (value) =>
     String(value ?? '')
       .replace(/\s+/g, ' ')
@@ -85,11 +95,8 @@ export const extractChats = (spec) => {
     );
   };
   const pattern = spec.linkPattern ? new RegExp(spec.linkPattern) : null;
-  const idOf = (node) => {
-    const own = spec.idAttribute ? node.getAttribute(spec.idAttribute) : null;
-    if (own) {
-      return own;
-    }
+  const idPattern = spec.idPattern ? new RegExp(spec.idPattern) : null;
+  const linkedIdOf = (node) => {
     const link = spec.link
       ? node.matches?.(spec.link)
         ? node
@@ -99,23 +106,67 @@ export const extractChats = (spec) => {
     const match = pattern ? pattern.exec(href) : null;
     return match ? decodeURIComponent(match[1]) : null;
   };
-  return Array.from(document.querySelectorAll(spec.item))
-    .slice(0, spec.limit)
-    .map((node) => {
-      const title = text(node, spec.title, spec.titleAttribute);
-      const unreadText = text(node, spec.unread);
-      return {
-        chat: idOf(node) ?? (title ? `title:${title}` : null),
-        title: title || null,
-        preview: text(node, spec.preview) || null,
-        time: text(node, spec.time) || null,
-        unread: spec.unread
-          ? Number.parseInt(unreadText, 10) ||
-            (node.querySelector(spec.unread) ? 1 : 0)
-          : 0,
-      };
-    })
-    .filter((row) => row.chat);
+  const idOf = (node) => {
+    const own = spec.idAttribute ? node.getAttribute(spec.idAttribute) : null;
+    if (!idPattern) {
+      return own || linkedIdOf(node);
+    }
+    const id = own ? idPattern.exec(own)?.[1] : null;
+    if (own && !id) {
+      return null;
+    }
+    const linked = linkedIdOf(node);
+    return id && linked && id !== linked ? null : (id ?? linked);
+  };
+  const rowOf = (node) => {
+    const title = text(node, spec.title, spec.titleAttribute);
+    return {
+      chat: idOf(node) ?? (!spec.requireId && title ? `title:${title}` : null),
+      title: title || null,
+      preview: text(node, spec.preview) || null,
+      time: text(node, spec.time) || null,
+      unread: unreadOf(node),
+      ...(spec.includeDirection &&
+        spec.lastOutgoing && {
+          lastOutgoing: [...node.querySelectorAll(spec.lastOutgoing)].some(
+            (marker) =>
+              marker.getClientRects().length > 0 &&
+              !marker.closest('[hidden], [inert], [aria-hidden="true"]') &&
+              window.getComputedStyle(marker).visibility === 'visible'
+          ),
+        }),
+    };
+  };
+  const unreadOf = (node) => {
+    if (!spec.unread) {
+      return 0;
+    }
+    const count = Number.parseInt(text(node, spec.unread), 10);
+    return Number.isFinite(count)
+      ? Math.max(0, count)
+      : node.querySelector(spec.unread)
+        ? 1
+        : 0;
+  };
+  const seen = new Set();
+  const rows = [];
+  const owned = container();
+  const nodes = row ? [row] : owned?.root.querySelectorAll(spec.item);
+  for (const node of nodes ?? []) {
+    if (rows.length >= spec.limit) {
+      break;
+    }
+    if (owned.visible && !owned.visible(node)) {
+      continue;
+    }
+    const row = rowOf(node);
+    if (!row.chat || (spec.uniqueIds && seen.has(row.chat))) {
+      continue;
+    }
+    seen.add(row.chat);
+    rows.push(row);
+  }
+  return rows;
 };
 
 /** Page-side: select the composer's text, so typing replaces it. */
@@ -356,8 +407,15 @@ const forwardMessages = async (
   });
 };
 
-const markRead = async (ctx, { source, chat }) => {
+const markRead = async (ctx, { source, chat, id }) => {
   const ui = ctx.uiFor(source);
+  if (source === 'hh') {
+    return ctx.done(
+      source,
+      chat,
+      await readHhBrowserChat(ctx, ui, { chat, id })
+    );
+  }
   const seen = await ctx.inChat(source, chat, (commander) =>
     commander.evaluate({ fn: scrollToNewest, args: [ui.messages] })
   );

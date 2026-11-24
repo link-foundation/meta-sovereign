@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for "Seen by" and who reacted (R-Y127), as Telegram's
 // apps show them: the menu of one's own message in a small group has
 // "Seen by…", which lists who read it with the time; a message with
@@ -46,7 +47,7 @@ await page.route('**/api/telegram/chat-info*', (route) =>
 );
 const asked = [];
 await page.route('**/api/telegram/readers', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   asked.push(['readers', body]);
   if (body.id === 3) {
     return fulfil(route, { ok: false, error: 'MSG_TOO_OLD', code: 'too-old' });
@@ -68,7 +69,7 @@ const item = (name, emoji, date, my = false) => ({
   my,
 });
 await page.route('**/api/telegram/reactors', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   asked.push(['reactors', body]);
   const now = Date.now();
   if (body.emoji === '🔥') {

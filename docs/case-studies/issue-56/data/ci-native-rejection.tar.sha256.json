@@ -1,0 +1,16 @@
+{
+  "archive": "ci-native-rejection.tar.gz",
+  "files": {
+    "c974-checks-failure-full.log": "c8f4489869dbeba1ba680086c40af167b0a890d09f2949a8af1458e9af23ce66",
+    "c974-checks-status.json": "014a110de831f1fb159c67ff50e62b3fc0e8d3fa2ac324dbc5d181b1b6b02f53",
+    "c974-node-macos.log": "0136d93ae475b9e62a079e2acfb47c6ab8d85397144a7305d1420142c73e0de3",
+    "c974-run-metadata.json": "59a274d668e9c402353b36e5807377dbd19bb9b4754a17e985f9e92a96aeabcc",
+    "c974-rust-failure.log": "767f4765401232ecaa290f30d4b99dfbca493cb250757e63ee88c28b71747bbc",
+    "native-rejection-after.log": "d1aeacbd95ee7a7c03b021b528d83d5e56098ea0a920b80eb07d5895c56c6dd8",
+    "native-rejection-before.log": "a95d770267b969cadd5c2bc3213ebcaed1c2b3282e5a36ac7b871e3cc3d7b59c",
+    "native-rejection-clippy.log": "0fa8216c7d9b477bbb5b3e19f1e73eb0af1a4a7b3c9c415494e7b215d11625ed",
+    "native-rejection-format.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native-rejection-regression-before.log": "99812860e0545fa72be611cc96390575315ea7b8e34b4cd441b8700fac5a3633",
+    "native-rejection-run-list.json": "d63daedb68d8929ea413ae71fc2be03210388c9fec99e003e70fb4de55f4446b"
+  }
+}

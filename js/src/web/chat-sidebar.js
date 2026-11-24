@@ -32,6 +32,7 @@ import { TopPeersSection } from './chat-top-peers.js';
 import { useDraftsSync } from './chat-drafts-clear.js';
 import { useSelectedTab } from './chat-tab-scroll.js';
 import { VirtualChats, useListHandler } from './chat-list-window.js';
+import { ChatProviderFilter } from './chat-provider-filter.js';
 
 const el = React.createElement;
 
@@ -290,7 +291,9 @@ const ChatRow = React.memo(ChatItem, (a, b) =>
 
 // A search across Telegram needs the user's account connected.
 const globalOn = (state) =>
-  Boolean(state.telegram?.connected) && state.telegram?.kind === 'user';
+  Boolean(state.telegram?.connected) &&
+  state.telegram?.kind === 'user' &&
+  ['all', 'telegram'].includes(state.provider?.selected ?? 'all');
 
 // Whether the search across Telegram has, or may yet have, something.
 const globalShows = (global) =>
@@ -357,6 +360,7 @@ const virtualProps = (state, root, chats, item, t) => ({
     state.kindFilter,
     state.folder,
     state.sort,
+    state.provider?.selected,
   ]),
   selected: state.current?.key,
   item,
@@ -441,6 +445,7 @@ export const Sidebar = ({ state, api }) => {
           }
         },
       }),
+      el(ChatProviderFilter, { key: 'provider', filter: state.provider }),
       // The popular mini apps, while the search is in use (R-Y194).
       el(AppsSection, {
         key: 'apps',

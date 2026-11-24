@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for a channel post's comments (R-Y126), as Telegram's
 // apps show them: a post with comments has "N comments" at its foot, one
 // without "Leave a comment"; a click opens the panel with the post on
@@ -68,7 +69,7 @@ await page.route('**/api/telegram/chat-info*', (route) =>
 const asked = [];
 const sent = [];
 await page.route('**/api/telegram/comments', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   asked.push(body);
   const group = { chat: GROUP, title: 'Fake Chat' };
   if (body.post === 2) {
@@ -94,11 +95,11 @@ await page.route('**/api/telegram/comments', (route) => {
 });
 const reads = [];
 await page.route('**/api/telegram/comments-read', (route) => {
-  reads.push(route.request().postDataJSON());
+  reads.push(requestBody(route.request()));
   return fulfil(route, { ok: true });
 });
 await page.route('**/api/telegram/comment-send', (route) => {
-  sent.push(route.request().postDataJSON());
+  sent.push(requestBody(route.request()));
   return fulfil(route, { ok: true, chat: GROUP });
 });
 

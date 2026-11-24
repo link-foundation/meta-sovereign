@@ -26,7 +26,27 @@ Server के बिना hosted app **browser-only mode** में चलत�
 
 ## Desktop app
 
-अपने system का installer <https://link-foundation.github.io/meta-sovereign/download/> से या [GitHub releases](https://github.com/link-foundation/meta-sovereign/releases) से download करें: Linux (AppImage, deb, tar.gz), macOS (dmg, zip) और Windows (installer, portable), हर एक x64 और arm64 के लिए। Desktop app में server bundled है, इसलिए खुद server start किए बिना हर feature काम करता है। Unsigned builds की पहली launch, checksums और updates [`docs/USER-GUIDE.hi.md` §4](docs/USER-GUIDE.hi.md#4-desktop-या-mobile-app-install-करें) में हैं।
+अपने system का installer <https://link-foundation.github.io/meta-sovereign/download/> से या [GitHub releases](https://github.com/link-foundation/meta-sovereign/releases) से download करें: Linux (AppImage, deb, tar.gz), macOS (dmg, zip) और Windows (installer, portable), हर एक x64 और arm64 के लिए। Desktop app में server bundled है, इसलिए खुद server start किए बिना हर feature काम करता है। Apple Developer ID के बिना builds की पहली launch, checksums और updates [`docs/USER-GUIDE.hi.md` §4](docs/USER-GUIDE.hi.md#4-desktop-या-mobile-app-install-करें) में हैं।
+
+### macOS पर पहली बार खोलना
+
+Ad-hoc signed build खोलने से पहले [download page](https://link-foundation.github.io/meta-sovereign/download/)
+के **Verify your download** में उसी release की `SHA256SUMS.txt` से डाउनलोड की गई
+`.dmg` या `.zip` जाँचें। Checksum मिलने पर ही आगे बढ़ें। `Meta Sovereign.app` को
+`/Applications` में कॉपी करें (`.zip` पहले खोलें)।
+
+macOS 15 Sequoia और बाद के versions में app खोलने का प्रयास करें और unverified
+developer dialog में **Done** चुनें। **System Settings → Privacy & Security**
+खोलें, **Security** तक जाएँ, Meta Sovereign के लिए **Open Anyway** चुनें,
+माँगे जाने पर पहचान सत्यापित करें, फिर **Open** चुनें। [Apple के निर्देश](https://support.apple.com/en-us/102445)
+इस एक app के exception को समझाते हैं। Ad-hoc signature Apple notarization नहीं है।
+
+वैकल्पिक रूप से, उसी download का checksum जाँचने के बाद केवल installed app का
+quarantine flag हटाएँ, फिर app खोलें:
+
+```sh
+xattr -dr com.apple.quarantine "/Applications/Meta Sovereign.app"
+```
 
 ## कार्यस्थान होस्ट करें
 
@@ -44,7 +64,7 @@ cd meta-sovereign
 cargo run --manifest-path rust/Cargo.toml -p meta-sovereign-server -- serve
 ```
 
-> **Rust server की सीमाएँ।** यह links को **सिर्फ़ memory में** रखता है: disk पर कुछ नहीं लिखा जाता, इसलिए server बंद होते ही सारा data चला जाता है। इसमें **कोई source adapters नहीं हैं**: Telegram, VK, GitHub, Upwork आदि से live fetch नहीं, outbound HTTP/TLS client नहीं (email सिर्फ़ archives ingest करता है), और automations, CV sync, browser auto-import, backups तथा `/api/export-encrypted` नहीं हैं। असली इस्तेमाल के लिए JS server या desktop app चुनें। Route-by-route सूची [`docs/SERVER-PARITY.hi.md`](docs/SERVER-PARITY.hi.md) में है।
+> **Rust server की सीमाएँ।** CLI डिफ़ॉल्ट रूप से links को native text/binary checkpoints में सहेजता है; `--data` directory चुनता है और `--memory` स्पष्ट रूप से अस्थायी memory उपयोग करता है। Format और recovery की सीमाएँ [native storage](docs/NATIVE-STORAGE.md) में हैं। इसमें **कोई source adapters नहीं हैं**: Telegram, VK, GitHub, Upwork आदि से live fetch नहीं, outbound HTTP/TLS client नहीं (email सिर्फ़ archives ingest करता है), और automations, CV sync, browser auto-import, backups तथा `/api/export-encrypted` नहीं हैं। असली इस्तेमाल के लिए JS server या desktop app चुनें। Route-by-route सूची [`docs/SERVER-PARITY.hi.md`](docs/SERVER-PARITY.hi.md) में है।
 
 ### JavaScript server — पूरा feature set (Node/Bun/Deno), source से
 
@@ -98,7 +118,7 @@ SPA server को इस क्रम में चुनता है ([`js/src
 - **अभिवादन**: VK, Telegram, WhatsApp, Messenger, X और ईमेल पर "hi" या स्टिकर से बातचीत शुरू करें, [konard/vk-bot](https://github.com/konard/vk-bot) की तरह ([`docs/GREETINGS.hi.md`](docs/GREETINGS.hi.md))।
 - **CV सिंक**: LinkedIn, hh.ru, Habr Career, Naukri, VietnamWorks, TopCV और SuperJob पर आपके अपने ब्राउज़र से, फ़ील्ड-दर-फ़ील्ड ([`docs/CV-SYNC.hi.md`](docs/CV-SYNC.hi.md))।
 - **आपका डेटा सुरक्षित**: crash-safe लोकल स्टोर ([Doublets](https://github.com/linksplatform/doublets-rs) + [Links Notation](https://github.com/link-foundation/links-notation)), स्वचालित schema migrations ([`docs/DATA-MIGRATIONS.hi.md`](docs/DATA-MIGRATIONS.hi.md)), streamed एन्क्रिप्टेड बैकअप, भरी डिस्क का प्रबंधन, एन्क्रिप्टेड secrets, एक लोकल सर्वर जो दूसरी साइटों को मना करता है।
-- **हर जगह**: वेब ऐप, सर्वर सहित डेस्कटॉप ऐप, मोबाइल shells, आपके उपकरणों के बीच WebRTC सिंक, ऑफ़लाइन लिखे को बाद में भेजना; pure-Rust सर्वर वही on-disk format उपयोग करता है।
+- **हर जगह**: वेब ऐप, सर्वर सहित डेस्कटॉप ऐप, मोबाइल shells, आपके उपकरणों के बीच WebRTC सिंक, ऑफ़लाइन लिखे को बाद में भेजना; pure-Rust सर्वर text/binary checkpoints के लिए अलग database envelope उपयोग करता है।
 - **चार भाषाएँ**: ऐप और हर दस्तावेज़ अंग्रेज़ी, रूसी, हिंदी और चीनी में।
 
 हर नेटवर्क की हर सुविधा — समर्थित, आंशिक या असमर्थित, और API या वेब ऐप से पहुँच: [`docs/FEATURES.hi.md`](docs/FEATURES.hi.md)। हर आवश्यकता और उसका प्रमाण: [`docs/REQUIREMENTS.hi.md`](docs/REQUIREMENTS.hi.md)।

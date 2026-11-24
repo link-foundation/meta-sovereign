@@ -1,0 +1,31 @@
+{
+  "archive": "ci-snapshot-observers.tar.gz",
+  "files": {
+    ".changeset/visible-browser-defaults.md": "80ef9735c3d4368d4ff089201af3fdc241f94160f0ff49e5b2e99f242bea95dc",
+    "PLAN.md": "182573819936ef4327d3e0a747ed5c9b34909a310d0870491e691f24265afae1",
+    "ci-logs/b980-bun-macos-134820578729.log": "456b085da4efe021e5dc8f1f5e11c6fc8b53881e510facffde33727e6e3edb0c",
+    "ci-logs/snapshot-observer-bun.log": "2302810cbdbe5fc6af96b492a375e2ba5b32dfef816120fd6f3f56767b5195f4",
+    "ci-logs/snapshot-observer-doc-limits.log": "fe8e4a3173b8a2311abfc17c059f56d2969845bb3985ec710c710eb6687746b5",
+    "ci-logs/snapshot-observer-focused.log": "7b6629a2c590bd976415ba4f3dc799d783541affdbda476e2c2f8a45b1e14c77",
+    "ci-logs/snapshot-observer-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/snapshot-observer-format.log": "84b1e77d1d17ccdd8d9bc3479e1603253ce86e76a4ad3a0aa9e5d19790e490cb",
+    "ci-logs/snapshot-observer-hosted-job.json": "bfd3c6ca8dfa52641a427545a2948c72d0ad372e0f353408899592421d57e962",
+    "ci-logs/snapshot-observer-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/snapshot-observer-parent.log": "1f27d385b4a903ca8f6625abea26d1b12d9d530788f7eee0c7846e34d4e3f2cf",
+    "ci-logs/snapshot-observer-run.json": "3f285e0aa644a1b08e316ba986a51a1b016e590d5d4b7cc357d98f2e7e589066",
+    "ci-logs/snapshot-observer-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/snapshot-observer-source-limits.log": "34f9c2f9727818eb027ec7cb1642b106b1286ecf7563bd45c18718a6a5419565",
+    "ci-logs/snapshot-observer-whitespace.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/case-studies/issue-56/README.md": "36db30960e10017284cf43b4fd90217a46ea2c7ea876763e9f88a68e75229092",
+    "docs/case-studies/issue-56/ci-snapshot-observers.md": "4d2ec0f5516fe5874aa76f33ef7e574dc7a1da65b7083671891b73eb4d797f2c",
+    "experiments/issue-56/collect-ci-snapshot-observers.py": "e0ee0514a52d12e81ac3338d25e9d4541fdbfdd7305ebefb0533283b4addca9c",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "experiments/issue-56/previous-module.mjs": "7b6c3bb5bdcfa4e7a84755f804db0bd83c9ae10d3e6982bb08d9dd8d7ac57661",
+    "experiments/issue-56/snapshot-observer-parent.mjs": "7c32b484459fd6d96ef4bc6cf247276896161a3f609ab954bb74ab1bb5232c92",
+    "js/src/storage/doublets-mirror.js": "7bc4d1874190616ff7e0b8ca9a4387a8a4e340f975d602f9c7f96afa01c3905b",
+    "js/src/storage/snapshot-memory.js": "f898d04fd37419c00ea0c42a4aad231be001e7a7dc96f35a515b2db03c40b52b",
+    "js/src/storage/snapshot-worker-control.js": "db8f6a81235bfd96af0ed3b6635969ec296a8d2d11d3fab8ac01840f448b9498",
+    "js/tests/snapshot-worker-cancellation.test.js": "5d5aaad87ce7f9f874f0696304ec73e26821de3d7413edff04e7f35e9938609c",
+    "before/js/tests/snapshot-worker-cancellation.test.js": "5e8b0bbcc714047dc44b163e03a9adac23f64483f70891bfe41fccfb1cc05491"
+  }
+}

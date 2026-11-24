@@ -1,0 +1,2120 @@
+### 2026-11-24 Reveal confirmed replies from an inactive HeadHunter watch (QA17)
+
+- [x] Reproduce one confirmed send whose output is clipped in each pane direction.
+- [x] Recognize the provider’s one composer clear after dispatch and verify that real owner focus, a later draft and manual scrolling retain the owner’s view.
+- [x] Verify the exact outgoing bubble and single receipt in Chromium and independent phone Playwright. [Evidence](notice-reply-view.md).
+- [ ] Verify the exact hosted head, authenticated HeadHunter and the remaining provider coverage.
+
+### 2026-11-24 Check already-open HeadHunter acknowledgements before unread chats (QA17)
+
+- [x] Reproduce the bounded pass visiting chat 8 while the already-read selected chat 7 has a recognized update.
+- [x] Verify the selected turn in place with the shared notice planner before reading any unread row. Apply the pass limit, disclose the observed scope, and de-duplicate the selected chat.
+- [x] Verify a finite pass and subsequent repeating pass, including one native provider receipt per eligible chat and no replay. [Evidence](notice-selected.md).
+- [x] Verify guarded reply visibility on the individual watch. [Evidence](notice-reply-view.md).
+- [ ] Continue authenticated provider verification and exact-head CI.
+
+### 2026-11-24 Reuse saved thanks for recognized HeadHunter application updates (QA17)
+
+- [x] Compare the pinned C4 examples and reproduce the missing mode on the published parent.
+- [x] Match complete passive application updates in Russian and English. Reuse scoped, approved saved thanks and keep ambiguous answers, conflicting links and pending requests for review.
+- [x] Verify a native completed bot handover followed by a human update, with the owner active before the guarded send. Check the explicit policy and provider receipt on a phone viewport.
+- [x] Verify that an inactive unread run checks the selected chat before the list. [Evidence](notice-selected.md).
+- [x] Verify that a confirmed individual-watch reply is revealed while preserving owner changes. [Evidence](notice-reply-view.md).
+- [ ] Continue authenticated verification and exact-head CI.
+
+### 2026-11-24 Keep linked recruiter notices for review (QA04 and QA17)
+
+- [x] Reproduce automatic replies or dropped pending context for linked notices against the published parent.
+- [x] Apply shared link detection to current-chat and sequential unread notice policies.
+- [x] Verify focused Node and Deno tests and the routed native Chromium before and after scenarios.
+- [x] Capture independent Playwright review, verify the displayed destination and drain the watch. [Evidence](notice-link.md).
+- [ ] Inspect hosted checks and verify the remaining authenticated coverage.
+
+### 2026-11-24 Watch HeadHunter conversations awaiting an owner reply (HH10)
+
+- [x] Compare pinned `--watch` and `--auto` behavior. Reproduce ignored waiting scope and missing owner-only admission in focused checks on the published parent.
+- [x] Add explicit owner-only watch scope, exact held-message Skip, and recoverable receipts across CLI, Lino and the shared unread controls.
+- [x] Verify the published-parent and fixed native browser flow, preserve screenshots and repeat the localized shared flow in Playwright MCP. [Reproduction and evidence](unread-waiting.md).
+- [x] Connect confirmed application delivery to the supervised application watch. Verify the child detects the new chat and preserves independent application progress while a reply is held. [Reproduction and evidence](application-chat-waiting.md).
+- [ ] Inspect exact hosted checks and verify authenticated acceptance. Keep HH10 open until all listed requirements are verified.
+
+### 2026-11-24 Leave application-owned bot choices for review (HH10)
+
+- [x] Reproduce the unattended native choice dispatch in the published parent and the missing review-only intent in two focused regressions.
+- [x] Bind application-owned runs to choice review. Expose the same choice policy in standalone CLI, both Lino encodings and shared unread controls.
+- [x] Verify retained options, held-only polling and independent application delivery. Preserve the parent and fixed screenshots. [Reproduction and evidence](application-chat-choices.md).
+- [ ] Verify the exact published head in GitHub Actions.
+- [ ] Verify authenticated HeadHunter acceptance and the remaining HH10 workflows.
+
+### 2026-11-24 Learn verified earlier replies during sequential review (HH10)
+
+- [x] Reproduce a native visit that advances without saving the captured employer question and notice replies.
+- [x] Reuse the archive answer learner on acknowledged bounded history. Preserve review-only patterns, refuse ambiguous turns and keep writes recoverable.
+- [x] Verify the foreground CLI, both Lino encodings, browser receipts and a phone render. [Evidence](unread-history-learning.md).
+- [ ] Verify the exact hosted head and the authenticated HeadHunter workflow. All 30 unchecked acceptance criteria remain required.
+
+### 2026-11-24 Learn from completed unread recruiter summaries (HH10)
+
+- [x] Reproduce advancement with zero saved facts and advancement after a stale summary on the published parent.
+- [x] Save unapproved proposals from the freshly verified, acknowledged native bubble before advancing. Hold when evidence or storage acknowledgment fails.
+- [x] Verify 91 checks per runtime, CLI and both Lino encodings, production Chromium and independent phone playback. [Before and after evidence](unread-summary-learning.md).
+- [ ] Verify the exact published head in GitHub Actions and complete authenticated HeadHunter acceptance.
+
+### 2026-11-23 Added requests inside a word-prefix wildcard (QA04)
+
+- [x] Reproduce inherited approval on the published matcher and browser, and record the four failing direct, shared-provider and control regressions.
+- [x] Check joined suffixes for new intent while retaining supported safe suffixes and fixed wording. Register the native guard in the hosted template scenario group.
+- [x] Verify 88 checks per runtime, both Lino encodings, six shared provider fixtures, Chromium and independent Playwright MCP. [Reproduction and screenshots](question-template-requests.md#a-word-prefix-wildcard-absorbs-a-new-request).
+- [ ] Inspect exact hosted results and verify the remaining QA04 provider contexts.
+
+### 2026-11-23 Diagnose the isolation tool on an unconfirmed runner (VD01)
+
+- [x] Reproduce the missing backend observation with the published parent.
+- [x] Distinguish a missing executable from failed daemon access or an unconfirmed remote lookup without touching the active peer.
+- [x] Verify both Lino encodings, connected CLI, native tools over authenticated SSH and the refreshed Settings diagnosis. [Reproduction and screenshots](runner-backend-inspection.md).
+- [ ] Verify the hosted runner lifecycles and packaged runtime targets against the current source.
+
+### 2026-11-23 Prepare reviewed release source for a fresh runner (VD01)
+
+- [x] Reproduce the absent source review and apply flow with the published parent bundle and a fresh target.
+- [x] Bind approval to the exact selected host, application path, archive and lockfile. Stage and verify the release checkout independently of Start and preserve the active peer.
+- [x] Verify the direct CLI, connected CLI, shared Settings flow and both Lino encodings. Preserve parent/current screenshots and cold/warm evidence. [Source deployment case](runner-source-deployment.md).
+- [ ] Verify the source publishing workflow and remote operating-system prerequisites on the exact hosted source.
+
+### 2026-11-23 Docker image preparation during explicit Start (VD01)
+
+- [x] Reproduce the switch handing missing image preparation to the launcher after stopping the active Screen peer.
+- [x] Verify the configured image before the switch. Pull only after confirmed absence and launch using the inspected local image ID.
+- [x] Verify 34 focused checks on each of Node and Deno and compare native Docker diagnostics. [Docker image preparation](runner-docker.md#prepare-the-configured-docker-image-before-switching).
+- [x] Verify one cold native pull and warm reuse per transport against an owned digest-pinned loopback registry, both directly and through authenticated SSH. Confirm image removal and registry closure.
+- [ ] Verify the same experiment through hosted SSH, the existing full runner lifecycle and automatic application preparation.
+
+### 2026-11-23 Docker cleanup refusal during a runner switch (VD01 and VD02)
+
+- [x] Reproduce a working local Screen session stopping after the selected SSH host refuses to remove an exited container.
+- [x] Require positively observed target preparation before stopping the active peer. Verify 31 focused Node and 31 Deno checks. [Runner switch evidence](runner-docker.md#refused-cleanup-keeps-the-active-screen-session).
+- [ ] Verify the new refusal step in the exact hosted SSH lifecycle and continue automatic application and image preparation for VD01.
+
+### 2026-11-23 Question marks that move between clauses (QA04)
+
+- [x] Reproduce the old approval in the direct matcher, CLI preview, Lino API and native browser review.
+- [x] Align saved question marks and sentence boundaries while preserving ordinary qualifiers, dotted abbreviations and an optional final question mark.
+- [x] Verify 60 focused checks per runtime, six provider plans, both Lino encodings, the production Chromium before-and-after review and independent mobile Playwright MCP. [Reproduction and screenshots](question-template-requests.md#a-question-mark-moves-to-a-different-clause).
+- [ ] Inspect the exact hosted results and verify the remaining QA04 provider contexts.
+
+### 2026-11-23 Added requests inside an approved template (QA04)
+
+- [x] Reproduce the matcher granting template approval when a wildcard absorbs an added request. Preserve four failing parent assertions and the published-browser review.
+- [x] Keep the original clause punctuation inside wildcard spans. Share the existing question recognizer and cover conventional invitation, call, assignment and form wording in the four supported locales.
+- [x] Verify ordinary wording and added-request refusal through shared provider plans, both Lino encodings, production Chromium and mobile Playwright MCP. [Template request case](question-template-requests.md).
+- [ ] Verify exact hosted workflows and the remaining provider contexts for QA04.
+
+### 2026-11-23 Manual archive imports across providers (QA02 and QA06)
+
+- [x] Reproduce the shared Connections policy error with a Messenger snippet on the published bundle. Preserve the existing streamed ZIP check.
+- [x] Defer GitHub's runtime gzip import and verify Messenger paste and Telegram file import with the existing policy.
+- [x] Verify 44 Node checks, 41 Deno checks and five steps, production Chromium, and independent Playwright MCP with the API unavailable. [Manual archive case](manual-archive-import.md).
+- [ ] Inspect the exact hosted Chromium and WebKit checks and continue complete authenticated provider history and parity.
+
+### 2026-11-23 Archived HeadHunter recorder imports (HH09, HH11, QA02 and QA06)
+
+- [x] Trace the pinned recorder's keyed chat file, edited wording, capture time and coverage back to its native DOM reader.
+- [x] Reuse native Chat IDs and the immutable version store. Retain unknown send timing and delivery without overwriting current messages or restoring deleted rows.
+- [x] Reproduce the empty import and the separate Connections policy error on `0a3283ab`.
+- [x] Verify 78 checks per runtime, the actual CLI, both Lino encodings, excluded learning and retry safety. Confirm Chat and Questions in production Chromium and the mobile flow in Playwright MCP. [Recorder case](hh-recording-import.md).
+- [ ] Inspect hosted workflows and continue complete authenticated provider history and parity.
+
+### 2026-11-23 HeadHunter older-message capture (HH09, HH10, HH11 and QA02)
+
+- [x] Reproduce the missing import control and the CLI treating `--history` as a loaded-window capture.
+- [x] Reuse the existing bounded conversation traversal and archive verified windows under the native chat ID. Retain coverage, durable counts and restoration in the receipt.
+- [x] Verify both Lino encodings, partial coverage and cancellation drainage in 64 Node and 64 Deno checks. Verify the registered Chromium scenario and independent Playwright MCP.
+- [ ] Verify an authenticated provider, the wider criteria and exact-source hosted checks.
+
+2026-11-23 HeadHunter browser import (HH09 and QA02):
+
+- [x] Reproduce the missing native capture control and keep the downloaded-file path available.
+- [x] Reuse verified conversation ownership and stable message IDs. Bind unread state to the visible boundary and drain capture on stop.
+- [x] Verify localized Connections, the running-server CLI and both Lino transports. Verify direct and embedded panes and the saved conversation in Chat and Operator.
+- [ ] Verify the authenticated provider, broader history and remaining actions. HH09 and QA02 stay open.
+
+2026-11-23 HeadHunter common-chat changes (HH09):
+
+- [x] Reproduce the missing edit control and misleading local-delete scope in the previous Chat bundle. Confirm the documented mutation endpoints and receipts.
+- [x] Require the exact provider message and ownership, current edit permission, current text, and a positive acknowledgement before updating local history.
+- [x] Verify the focused adapter, route, and browser controls and record before/after screenshots.
+- [ ] Verify authenticated native web behavior and remaining messaging capabilities. HH09 stays open.
+
+2026-11-23 HeadHunter common-chat replies (HH09):
+
+- [x] Reproduce lost reply references and a synthetic local ID after a successful public API send. Confirm HeadHunter's whole-message reply field, permissions and HTTP receipt.
+- [x] Validate the saved target and current provider permission before issuing a reply. Record the opaque reply ID and returned send ID so the next history pull updates the same bubble.
+- [x] Verify the registered Chromium flow and compare both bundles in independent Chromium. Keep native web and legacy negotiation capabilities distinct.
+- [ ] Verify live-provider behavior, the remaining messaging actions and exact-source GitHub checks. HH09 stays open.
+
+2026-11-23 HeadHunter native Chat sends (HH09):
+
+- [x] Reproduce the saved native conversation falling through to the negotiation API; use its stored browser message to verify the correct route.
+- [x] Confirm one native dispatch using the exact pane, a new outgoing message and its provider delivery state. Preserve provider drafts and choices and stop on an uncertain result.
+- [x] Compare the previous Chat bundle and the current bundle in independent Chromium with the same fixture. Verify the current browser and provider use one send and keep the actual browser message ID.
+- [ ] Complete remaining HeadHunter actions and verify an authenticated native web conversation and source-bound GitHub checks. HH09 stays open.
+
+2026-11-23 HeadHunter read receipts and provider scope (HH09):
+
+- [x] Verify the public HeadHunter read operation, identifier format, acknowledgement and unread count against its OpenAPI specification. Reproduce the missing adapter method and the false local read acknowledgement.
+- [x] Write only the matching provider message boundary, keep provider unread counts after concurrent delivery, and preserve cached counts when no snapshot is available.
+- [x] Carry authoritative unread state through history pulls, Chat and Operator. Verify provider scopes and read behavior in Chromium, with a separate regression for an arrival during review.
+- [x] Verify the native fallback with Chromium fixtures for an already-open conversation, stale boundaries, uncounted badges and concurrent arrivals. Keep the unread state when a read cannot be confirmed.
+- [ ] Verify the authenticated native web path, remaining messaging capabilities and exact-source CI. HH09 stays open.
+
+2026-11-18 MCP fixture serialization correction:
+
+- [x] Preserve exact `aa095a98` CodeQL job and SARIF; distinguish the remaining fixture-string finding from the preceding trusted-source terminator correction.
+- [x] Keep trusted callbacks intact and serialize fixture values through escaped JSON parsing. Preserve special property names, optional data, script delimiters, line separators and existing work-file callbacks.
+- [x] Reproduce five focused failures and all three actual generator boundary failures on published `aa095a98`; pass nine corrected focused checks and three generator probes with owned temporary files removed and no browser/provider work.
+- [x] Pass scoped lint, formatting, secrets and file limits and preserve independently hashed evidence. Compile the fourth changed generator without opening a browser or provider.
+- [ ] Publish the atomic correction only to the prepared branch and require the resulting hosted CodeQL result without changing its rules or exceptions. Full duplication/runtime/browser checks stay hosted.
+- [ ] Complete HH03's remaining private cache/configuration and analysis-bundle contracts and every other unfinished criterion. Current acceptance remains 88/118; all thirty unfinished criteria remain required and PR57 stays draft/unmerged.
+
+2026-11-18 current desktop configuration verification:
+
+- [x] Refresh the complete issue and all PR comment types; no new human requirements are present. Keep every original unfinished criterion in scope.
+- [x] Independently rehash all 1,137 selected archive entries at `ef34179a`; inspect the complete two-file, 22-line difference from the original complete source review and its current consumers.
+- [x] Preserve both source reviews and actual Git deltas; refuse seven contradictory review inputs without running a local test matrix.
+- [ ] Require all five successful exact-source workflows, every selected named test and both engines' native configuration/log/default/legacy/token receipts, plus actual Electron and five packaged launches. Investigate any failed job using its preserved complete logs before acceptance.
+- [ ] Publish only verified acceptance evidence and check the resulting commit's CI. Continue all thirty unfinished criteria; PR57 stays draft and unmerged.
+
+2026-11-18 HH application route parity investigation:
+
+- [x] Read the pinned route/configuration/native-test sources and compare actual shared entry paths. The reference can return through the original search before opening the canonical full form, avoiding an Apply shortcut that may submit immediately.
+- [x] Implement the missing route option across CLI/environment/file, both Lino encodings, frozen single/batch settings and shared localized controls, retaining strict document/Stop/draft guards and legacy signatures.
+- [x] Reproduce 22 assertions against the exact published parent, retain two controls and pass 80 focused checks. Verify bounded native before/after routes, four actual DOM refusals and independent MCP recovery, translations and phone width with zero Apply/Send clicks.
+- [ ] Preserve independently hashed source-bound route evidence and complete the remaining cache/insight audit before accepting HH03. Retain the MCP bundle cache-write console diagnostics without claiming their cause is known.
+- [ ] Review exact-source hosted checks and finish all remaining requirements. Current acceptance stays 88/118; all thirty unfinished criteria remain required.
+
+2026-11-18 native browser answer consent:
+
+- [x] Trace choices, text, watched and inactive replies after browser/session/document/arm waits; preserve 44 exact-parent assertion failures and ten independent controls.
+- [x] Bind original consent identity and use the existing pre/post-arm dispatch guards. Recheck Stop/document ownership after acknowledged settings reads and preserve issued receipts and read-only inspection.
+- [x] Pass 151 focused checks with finite owned fixtures; complete scoped static checks and independently hash source-bound evidence before committing this atomic correction.
+- [ ] Investigate exact 79addf4d Windows/Deno rolling startup: full job log lines 13394 and 15663–15687 show readiness expires while the server import remains unfinished. Preserve deadlines, identify the cause and add a finite regression. Full runtime/browser checks stay hosted.
+- [ ] Inspect exact published-source CI and finish all thirty original criteria. Current acceptance remains 88/118; PR57 stays draft and unmerged.
+
+2026-11-18 current consent during native browser waits:
+
+- [x] Trace session/login, shared queue, composer, typing and send-button waits after transport entry. Reproduce 28 actual-parent failures with five positive/uncertain controls through finite fake sessions.
+- [x] Recheck acknowledged chat/person consent before browser work, after composer focus and after the final native button lookup; preserve already-issued success and uncertainty and close every owned session.
+- [x] Pass 79 focused checks and scoped lint, format, secrets and source/document limits. Preserve actual-parent and initial fixture diagnostics; independently verify the source-bound archive before committing this atomic correction.
+- [ ] Review the exact published-source hosted gate and continue every remaining provider/trigger and issue-wide requirement. Current acceptance stays 88/118, with 30 unfinished; PR57 remains draft/unmerged.
+
+2026-11-18 restored saved-answer disclosure verification:
+
+- [x] Preserve the exact `72dc9552` WebKit shard-7 failure, annotations and valid native screenshot; identify the blind post-reload toggle.
+- [x] Reproduce the same hidden-question lookup on the actual published entry with a finite restored-open precondition; preserve all persistence assertions and isolated cleanup.
+- [x] Use the existing conditional disclosure helper; pass the corrected focused native probe and scoped lint/format/secrets without changing production UI or CI deadlines.
+- [ ] Publish this correction and the committed provider-consent/source-review units only to the prepared branch; review all exact-head workflows.
+- [ ] Continue all 30 unfinished acceptance criteria. PR57 stays draft and unmerged.
+
+2026-11-17 runner graceful Stop and weighted browser coverage:
+
+- [x] Reproduce native Stop returning before a finite 3.5-second cleanup; trace successful signal dispatch versus actual screen drainage.
+- [x] Observe shutdown within a bounded monotonic window while retaining the controller lease, cancellation and unknown/stuck refusals; six actual-parent regressions fail and 22 corrected focused checks pass.
+- [x] Preserve current-commit Chromium shard-3 failure and reproduce weighted-preview ambiguity with match inspection enabled; retain exact main text, candidates, review and persistence assertions.
+- [x] Pass scoped static checks and preserve independently hashed before/after sources and logs; the duplication gate remains 6.49%.
+- [ ] Commit each unit and push only to the prepared branch.
+- [ ] Review the full exact-source hosted gate, then finish every pending acceptance audit and original requirement. PR57 stays draft and unmerged.
+
+2026-11-17 external form-learning acceptance audit (QA23):
+
+- [x] Reconcile B2/B3/B11/B14/B23/B24, including the later full-minute owner-edit extension and unchanged no-auto-submit behavior.
+- [x] Independently verify 105 original evidence entries and retain current production source comparisons; review learner, observer, writer, detached worker and cleanup paths.
+- [ ] Require all five exact-source workflows, named focused checks, both native learning scenarios and the full-minute detached Chromium receipt; manually review before accepting QA23.
+- [ ] Publish only to the prepared branch and continue all unfinished requirements. PR57 stays draft and unmerged.
+
+2026-11-17 hosted EC2 browser dependency downloads:
+
+- [x] Preserve the exact `5e438e1b` Pages timeout, all log bytes and annotations; identify an unrecognized EC2 archive rather than a browser assertion failure.
+- [x] Reproduce one failure and five positive setup controls; recognize regional EC2 hosts while retaining failover metadata, source boundaries and existing deadlines.
+- [x] Pass all 26 focused setup/workflow checks with one worker and no host package changes.
+- [x] Pass scoped lint/format/secrets, workflow policy, source/doc limits and the unchanged 6.49% duplication gate; preserve the parent helper and complete failure evidence.
+- [ ] Independently hash the evidence and publish only to the prepared branch; review actual hosted source changes, package downloads and the full exact-commit gate. All 35 unfinished criteria remain required.
+
+2026-11-17 generic form-reader acceptance audit (QA21):
+
+- [x] Reconcile the full pinned B10/B13 reading contract with current labels, groups, cross-origin frames, CLI, both Lino encodings and shared UI.
+- [x] Verify all 35 original archive entries, recover declared source hashes from published `7c18eee6` and retain 19 changed-source comparisons without treating integrity as acceptance.
+- [x] Review current reader/inspection, CLI/API/UI paths and the awaited native assertions; distinguish already implemented automatic prefilling from the broader unfinished workflows.
+- [ ] Require all five exact-source workflows, every named focused check and both registered native reader completions; collect and manually review the bounded acceptance evidence.
+- [ ] Update only verified criteria, publish only to the prepared branch and continue every unfinished requirement. PR57 stays draft and unmerged.
+
+2026-11-17 standalone weighted matching input boundary:
+
+- [x] Reproduce direct weighted calls admitting 6,001-character input against exact `e574976e`; preserve the admitted boundary/ordered positive control.
+- [x] Refuse non-text and oversized weighted inputs before tokenization or budget admission; retain ordered behavior and rebuild the actual bundle.
+- [x] Pass 12 focused checks, lint/format/secrets, source/doc limits and the unchanged 6.49% duplication gate; preserve source and independently hashed evidence.
+- [ ] Publish only to the prepared branch, review exact-source CI and continue all 35 unfinished requirements.
+
+2026-11-17 preserve strict link-check successes between runs:
+
+- [x] Preserve and read both exact `1b449fb5` failed attempts: two initial GitHub 503 entries, then eighteen entries across seventeen different source URLs; native recovery and strict failure controls passed.
+- [x] Trace the action and native cache: ephemeral checkouts discard the existing one-day cache, repeating hundreds of successful requests. Verify successful and failed response behavior with isolated native checks.
+- [x] Restore a ref/policy-scoped cache and save partial successes before strict failure, retaining one-day expiry, uncached failures, all status checks and the existing job deadline.
+- [x] Reproduce one workflow failure and four native controls against exact `502b0b07`; pass all five corrected controls and the focused report check. Scoped checks, strict YAML-policy verification and the unchanged 6.49% duplication gate pass; preserve and independently rehash the complete evidence.
+- [ ] Publish only to the prepared branch and review exact-source restore/save and all CI results. The preceding unchanged cold-cache `502b0b07` link run passes independently; all 35 original unfinished criteria remain required.
+
+Active weighted question rewording (QA02):
+
+- [x] Compare the complete pinned database and PR 123 with the shared question matcher; identify ordered-token-only rewording.
+- [x] Implement an explicit weighted choice, strict configuration, shared review controls and finite work admission.
+- [x] Verify parent failures and focused shared-path behavior, then preserve browser evidence and static checks.
+- [ ] Publish and review exact-source CI. Provider acquisition and the complete original contract remain required.
+
+2026-11-17 layered runner configuration (VD07 remains required):
+
+- [x] Read the complete pinned desktop configuration contract and trace shared CLI/API/UI profile reads, revisions and retained session addresses.
+- [x] Add bounded global/local runner profile precedence and explicit CLI field overrides without credential fields or automatic starts.
+- [x] Reproduce against the exact parent; verify shared profile edits, stale revisions, refused local files, retained Stop addresses and ephemeral overrides with focused tests.
+- [ ] Preserve source/log evidence, pass scoped static checks, commit/push only to the prepared branch and inspect exact-head CI. Complete VD07 and every unfinished criterion remain required.
+
+2026-11-17 VK question attachment destinations (QA04 remains required):
+
+- [x] Trace actual VK live/history/archive adapters and reproduce missing direct link/document/wall destinations in saved-answer review.
+- [x] Bind native and normalized bounded targets into shared planning, frozen history and final admission; retain ordinary-message behavior and refusal diagnostics.
+- [x] Verify 25 failures and two positive controls on the exact parent; pass 50 focused checks, 36 compatibility checks, CLI, both Lino formats and actual before/after browser/MCP views with drained fixtures. Native chronology and private learning are covered separately.
+- [x] Pass scoped lint/format/secrets, source/doc limits and the unchanged 6.49% duplication gate; preserve and independently rehash source/log/screenshot evidence.
+- [ ] Publish the atomic correction and inspect exact-head hosted validation. Complete QA04 and all other unfinished criteria remain required.
+
+2026-11-17 native link checker transient retries:
+
+- [x] Preserve all 14 HTTP 503 entries from exact `2769b823` run 44171573167; read upstream issue 2319 and merged correction 2324.
+- [x] Reproduce four failures and two positive passes on stable 0.24.2; pass six corrected native retry controls, four existing pacing controls and all eleven finite source rechecks on the verified official nightly.
+- [x] Retain host pacing, all existing assertions, exclusions and strict failure handling; add mandatory native recovery controls to hosted validation.
+- [x] Preserve and independently rehash all 38 source/log evidence entries; scoped formatting, secrets, source/doc limits and the unchanged 6.49% duplication gate pass.
+- [x] Publish native retries and Stop ownership on `6d1dcc24`; its strict link workflow passes. Other exact-head workflows and all 35 original unfinished criteria remain required.
+
+2026-11-17 autopilot Stop ownership (QA20 remains required):
+
+- [x] Reproduce 18 failures on published `2769b823`: Stop permits later sends, acknowledges held provider requests early and loses terminal state ownership.
+- [x] Carry cancellation through planning, typing, VK pacing and final provider admission; drain issued effects and retain truthful sent/unknown receipts.
+- [x] Serialize controls for each automation while preserving independent owners; drain all owners on server shutdown and retain restart policy.
+- [x] Verify 72 focused checks, including ordered replies, concurrent controls and existing safety tests with one worker; reproduce 22 failures and one positive pass in the final 23-case parent probe.
+- [x] Pass clean scoped lint/format/secrets, source/documentation limits and the unchanged 6.49% duplication gate; preserve and independently rehash final source-bound evidence.
+- [ ] Publish the atomic correction, inspect all exact-head CI and continue all 35 unfinished original criteria. PR57 stays draft and unmerged.
+
+2026-11-17 strict GitHub link pacing:
+
+- [x] Preserve exact `448c2234` run 44168812180: 43 HTTP 503 entries across 32 GitHub source URLs; distinguish successful finite rechecks from hosted acceptance.
+- [x] Serialize and space only GitHub requests without changing status acceptance, exclusions, retries or the strict final failure; include explicit configuration and path triggers.
+- [x] Reproduce one failure in four native checks with parent defaults; pass all four with the actual settings, including permanent 404/503 negative controls and drained loopback fixtures.
+- [x] Complete scoped static checks; preserve and independently rehash the exact workflow/config/source/log archive. Publication remains on the prepared branch only.
+- [ ] Inspect every exact-head hosted workflow and continue all 35 unfinished original criteria. PR57 stays draft and unmerged.
+
+2026-11-17 autopilot cap lifecycle (QA20 remains required):
+
+- [x] Reproduce two failures against published `448c2234`: an empty zero cap creates an invalid wake date; a lowered saved limit permits a second planning attempt after durable refusal.
+- [x] Reread the saved automation at loop boundaries and retain a finite one-day empty-cap wait without changing existing receipt expiries.
+- [x] Pass 72 focused checks with one worker and rebuild the actual production bundle; drain every owned finite wait.
+- [x] Complete static checks; collect and independently rehash the final source/log archive before the atomic commit. Publication remains on the prepared branch only.
+- [ ] Review exact-source hosted validation and continue all 35 unfinished criteria. PR57 stays draft and unmerged.
+
+2026-11-17 atomic automatic send capacity (QA20 remains required):
+
+- [x] Reproduce 24 failures in 36 finite checks against published parent `6f7bdd6f`, including simultaneous distinct-target cap snapshots and bypass through single-step delivery.
+- [x] Share serialized durable outbox admission across automatic batches and steps; retain uncertainty reservations, owner review and independent-owner progress.
+- [x] Pass 90 focused checks with one worker and rebuild the actual production browser bundle.
+- [x] Complete scoped static checks, collect and independently rehash all 38 final source/log archive entries.
+- [x] Publish the atomic correction at `448c2234`; exact-source hosted verification and all 35 unfinished original criteria remain required. PR57 stays draft and unmerged.
+
+2026-11-17 VK person consent propagation (QA19/QA20 remain required):
+
+- [x] Reproduce explicit person opt-outs being ignored by independent VK previews and final provider admission; include positive foreign-provider controls.
+- [x] Carry verified private-user identity through shared safety targets and queued message drafts; preserve group/community distinctions.
+- [x] Pass scoped lint/format/secrets, source/documentation limits and the unchanged duplication gate; rebuild after 45 final parent failures and 107 focused passes across thirteen policy variants.
+- [x] Collect and independently rehash all 67 archive entries.
+- [x] Publish the atomic correction at `6f7bdd6f`; exact-source hosted validation remains required, as do all 35 unfinished criteria.
+
+2026-11-17 manual HH login CLI admission repair:
+
+- [x] Preserve exact published Windows Node, Linux Bun and Linux Deno failure logs; reproduce the missing names and public entry-point refusal.
+- [x] Register all three login commands while retaining lazy help; pass 15 focused checks including the unchanged complete command comparison.
+- [x] Finish scoped lint/format/secrets, source/documentation limits and the unchanged 6.49% duplication gate; preserve and independently verify all 24 archive entries.
+- [x] Publish the atomic correction on the prepared branch at `fe44affd` (included in `6f7bdd6f`).
+- [ ] Require fresh exact-source hosted validation and continue all 35 unfinished criteria.
+
+2026-11-17 pending draft ownership (QA20 remains required):
+
+- [x] Reproduce two failures against the published parent: delayed ordinary planning and overlapping preview queues overwrite the pending owner wording.
+- [x] Preserve every pending action draft through the shared queue and serialize queue writes per store using the existing recoverable operation family.
+- [x] Pass 37 focused checks with one worker, including five shared provider identities, refused-write recovery and existing model/CLI/Lino behavior; rebuild the actual web bundle.
+- [x] Complete static checks and collect/independently rehash the source/log evidence.
+- [x] Publish this atomic unit only to the prepared branch at `010c255b` (included in `6f7bdd6f`); exact-source hosted verification remains required.
+- [ ] Require exact-source hosted verification and continue all 35 unfinished original criteria. PR57 stays draft and unmerged.
+
+2026-11-17 strict picomatch audit repair:
+
+- [x] Preserve both failed exact-source workflow logs and identify the new repeated-extglob advisory plus the independent inventory formatting failure.
+- [x] Reproduce the unsafe generated expression without a hostile parent execution. Package only the reviewed parser patch over the exact released source with deterministic hashes and original license.
+- [x] Pass 31 focused portable/desktop checks, four checks per isolated Bun/Deno installer fixture and unchanged strict registry audit with zero findings; retain type checking, partitions, assertions and deadlines.
+- [x] Pass scoped lint/format/secrets, source/documentation limits and the unchanged 6.49% duplication gate; preserve independently rehashed source/log/archive entries.
+- [x] Publish both the person opt-out and CI repair commits only to the prepared branch at `d517e9d4`; exact-source hosted verification continues.
+- [ ] Review every exact-head hosted workflow, then continue all 35 unfinished original requirements. PR57 stays draft and unmerged.
+
+2026-11-17 distinct person opt-outs (QA19 remains required):
+
+- [x] Reproduce the missing person selector against the published parent; preserve independent MCP before inspection and screenshot.
+- [x] Expose explicit translated Chat/Person scopes, distinct same-ID rows and precise removal through acknowledged shared settings.
+- [x] Pass 46 focused portable checks and all three native safety scenarios; independently verify reload, removal, four languages and phone layout with zero live effects and drained fixtures.
+- [x] Collect and rehash all 53 source/log/screenshot archive entries; preserve exact parent and final bundle hash.
+- [ ] Publish this atomic unit and require exact-source hosted verification. Full QA19 and all 35 unfinished criteria remain required.
+
+2026-11-17 complete independent VK acceptance:
+
+- [x] Review the full pinned six-switch configuration and Bot Behavior 16, independent settings/admission/lifecycle, shared CLI/Lino/controls, six positive disk-reopen/disable cases and both native semantic receipts.
+- [x] Verify all five workflows at `20e603f1` succeed (72 successful jobs, six intentional skips); preserve actual runner-acquisition failures and successful unchanged retries.
+- [x] Collect the checked hosted archive and manual VD03 mapping; accept only VD03. Current inventory is 83 verified and 35 unfinished. Historical counts below describe earlier checkpoints.
+- [x] Commit the four subsequent manual-login and shared-safeguard feature units with focused tests, actual browser evidence and screenshots.
+- [ ] Publish the feature and acceptance commits, review all five workflows at their exact source, then continue every unfinished criterion. PR57 stays draft and unmerged.
+
+Active contact guide link recovery:
+
+- [x] Preserve published `b5999ae5` link run `44129087291`, its complete 745-line log and bounded response rechecks with anonymous cookies omitted from committed evidence.
+- [x] Replace only the repeatably dead Apple contact guide with the checker-discovered exact archive; retain the pinned GitHub source after its successful recheck and keep strict checker rules.
+- [ ] Publish the repair and inspect all exact-head workflows; all 36 original unfinished criteria remain required.
+
+Active acceptance checkpoint (`6c20f4dc`):
+
+- [x] Five complete workflows succeed: 72 jobs pass and six release/deployment jobs intentionally skip; every test and native build passes. Preserve three actual runner-allocation failures and their unchanged successful retry.
+- [x] Review complete QA12/QA14/QA15/VD09 contracts, current-source comparisons, named checks and native semantic receipts; accept only these four criteria. See [the evidence review](hosted-criteria-6c20.md).
+- [ ] Publish independent VK, desktop appearance and HH profile/cookie checks and inspect all five workflows at their exact source. Current inventory: 82 verified, 36 unchecked. Every unfinished requirement remains required in PR57, which stays draft/unmerged.
+
+The chronological notes below retain their checkpoint counts; the current acceptance record above supersedes those counts.
+
+Active shared desktop appearance verification (VD06):
+
+- [x] Read the complete pinned Desktop UI contract, existing runner switching/feedback and single-window ownership, shared theme and language implementation, and existing portable/native checks.
+- [x] Add a bounded native group for actual Russian/English detection, retained explicit choices, reset, light/dark/system and live system changes; the focused Chromium group passes with zero runner/provider actions.
+- [x] Preserve the passing focused native group, initial harness failure, strict static checks, final desktop/phone screenshots and [checked source/evidence](desktop-appearance.md).
+- [ ] Publish and require hosted verification and the complete VD06 mapping before acceptance; browser-local preferences do not yet provide every requested configuration interface.
+
+Active independent VK policy verification (VD03):
+
+- [x] Map all six pinned switches to their own policy, state, routes and shared controls. Verify eight prior archives (1,007 entries); retain changed-source audit without treating integrity as acceptance.
+- [x] Six bounded real-Lino checks pass on Node/Bun/Deno: isolated scheduled provider acknowledgement after reopen, unchanged siblings, disabled calls prevented after two days, retained receipts and six cleared timers.
+- [x] Add a mandatory native group for twelve acknowledged toggles and six reloads; focused Chromium and independent MCP checks retain fields with zero provider effects/page exceptions.
+- [ ] Publish checked evidence, inspect all five workflows at one SHA and review complete VD03 acceptance. All forty unfinished criteria remain required.
+
+Active Windows Bun publication investigation:
+
+- [x] Preserve published `5f982b17` Windows Bun job `134128955900`, timestamps and complete 14,005-line log. Lines 2,901–2,910 report the binary Lino native-export publication case reaching its existing 20-second deadline; the text case and all other tests pass.
+- [x] The six original cases pass in a focused Linux Bun attempt, without reproducing the Windows cause. Add opt-in numbered Git/HTTP/shutdown boundaries, enabled only for Windows Bun CI, without changing behavior, deadlines or assertions.
+- [x] Node 9/Bun 7/Deno 7 focused checks and the final trace privacy check pass. Preserve the exact failure, negative reproduction and final static checks in [the checked investigation](ci-publication-boundaries.md); the historical cause remains unproven.
+- [ ] Publish atomically and inspect all five workflows at the same source commit. Every original unfinished criterion remains required.
+
+Active VK online refresh admission correction (VD03 remains required):
+
+- [x] Reproduce fifteen actual-parent cases where owner settings remain blocked or an unissued POST survives disable, interval, token or Stop changes. Preserve five positive controls, including a token acquired after its rotation.
+- [x] Separate refresh execution from settings serialization and use the actual adapter's post-rate-wait callback on every bounded error-6 attempt. Keep manual refresh, already issued receipts, unknown outcomes and independent job owners.
+- [x] Node 34/Deno 34, strict scoped lint/format/secrets, file limits and unchanged duplication gate (6.49%) pass; regenerate the production web bundle and preserve checked evidence, including the corrected first-read fixture assumption.
+- [ ] Publish atomically and inspect every exact-head hosted workflow. No original unfinished criterion is accepted by this correction alone.
+
+Active release workflow line-limit correction:
+
+- [x] Preserve exact published `9846a827` Checks run `44105002455` and file-limit job `134115587678`. Raw lines 380–382 report 1,506 workflow lines; runtime/browser dependents are skipped.
+- [x] Extract the unchanged two documentation gate bodies into focused shell helpers. Actual published workflow fails the existing limit; current 1,458-line workflow passes. Six bounded fixture comparisons preserve exit status and output, including both negative gates.
+- [x] Preserve checked evidence for six gate comparisons, Node 2/Deno 2, shell syntax, full file limits, formatting, workflow lint, secret lint and the unchanged 6.5% duplication threshold (6.49%).
+- [ ] Publish atomically and inspect every exact-head hosted workflow. Every original unfinished criterion remains required; PR57 stays draft/unmerged.
+
+Active macOS runtime checkout repair:
+
+- [x] Preserve exact-source `06953e31` Node partition 3 cancellation and setup timestamps. Checkout takes 147 seconds; setup leaves less than four minutes for tests, with no assertion failure in the log.
+- [x] Exclude only the three archived-evidence directories from runtime worktrees while preserving full history, actual source/fixtures/docs, every partition and the existing deadline. Verify official checkout sequencing and the complete fresh-base merge in a bounded fixture.
+- [x] The published workflow fails the new contract; both focused Node/Deno checks pass after correction, including changed archive retrieval without materialization.
+- [ ] Preserve checked evidence, publish and inspect exact-head hosted completion. All forty original unfinished criteria remain required in PR57.
+
+Active salary browser CI grouping repair:
+
+- [x] Preserve exact-source `06953e31` WebKit partition 2. All four native question controls and two salary scenarios pass before the aggregate three-minute deadline interrupts vocabulary; six completed scenarios account for 176 seconds. No individual vocabulary hang is established.
+- [x] Give salary context and wording separate mandatory three-scenario groups without moving existing partitions or increasing deadlines. Preserve focused environment entry points; extend the existing parent-failing workflow contract and exact-source collector mapping.
+- [x] Seven focused contract/registry checks and one native WebKit context group pass. The latter completes three top-level scenarios in 111 seconds with owner drafts/rules retained and zero sends; local full matrices remain excluded.
+- [ ] Preserve checked evidence, publish the atomic repair and inspect every exact-head workflow. All forty original unfinished criteria remain required; PR57 stays draft/unmerged.
+
+Active current-source acceptance audit (`06953e31`):
+
+- [x] Refresh issue and all three PR feedback endpoints; retain the complete original scope and all 40 unfinished criteria.
+- [x] Map the complete QA12/QA14/QA15 salary/context/native-choice contracts to current production source and mandatory portable/native coverage. Retain historical source differences and original failures.
+- [x] Map VD09's complete packaging/installation contract; inspect all five current native launch receipts, both Mac bundle/image signatures and bounded checksum/provenance metadata. Validate the shared metadata reader against historical/current artifacts; 25 named portable desktop checks and the existing 88 option-choice checks appear exactly once in the current successful Node log.
+- [x] Map QA13's complete current-target/calculation/rate/form-guidance contract and retain its unfinished provider discovery/submission paths. Verify nine archives and 94 named current-source checks; require six native receipts plus complete groups in both engines without treating isolated arithmetic as full provider coverage.
+- [ ] Require all five complete successful workflows for the same published source. Preserve actual failures and fix their causes if any; queued jobs are unfinished verification.
+- [ ] Run checked collectors, read semantic receipts, update only fully verified inventory criteria and preserve the draft PR. Continue every remaining original requirement in this single PR.
+
+Active online status scheduling (VK10):
+
+- [x] Read the complete pinned trigger and caller; check the current official user-token method schema. Preserve the 14-minute example as an opt-in default.
+- [x] Draft persisted configuration, serialized acknowledged outcomes, due scheduling, owned server lifecycle and CLI/default Lino/shared four-language controls. Keep missing-token and unconfirmed outcomes accurate.
+- [x] Reproduce absent behavior on the published parent and verify focused tests, restart/failure/overlap cases, one native browser scenario and independent MCP review with before/after screenshots. Node 29 and Deno 26 feature/compatibility checks pass; two registry and two MCP generation checks pass separately. The draft browser CSP import and Deno fixture-global errors are preserved and corrected.
+- [ ] Archive checked evidence, publish atomically and inspect exact-head hosted workflows. Continue all original incomplete criteria; PR57 stays draft/unmerged.
+
+Active incoming VK attachment metadata (VK09):
+
+- [x] Read the complete pinned attachment trigger. Draft a separately enabled first-observed collection across archive, live, older-history, automatic-import and individual message writes; preserve message counts and cursor acknowledgement order.
+- [x] Verify stable provider/type/owner identity, deduplication, restart, bounded metadata, cursor recovery, explicit pause/resume and read-only access through focused CLI, both Lino encodings and offline checks. Reproduce the missing feature on the actual parent.
+- [x] Verify the shared four-language VK connection controls in one native browser scenario and independent MCP review, with before/after desktop/phone screenshots, zero provider effects and owned resource drainage.
+- [x] Preserve checked source/log evidence and publish atomically. All five exact-head workflows and 66 jobs pass on `9e934842`; [hosted receipt](hosted-verification-9e93.md) verifies VK09. All 70 remaining unchecked original criteria stay required; PR57 remains draft/unmerged.
+
+Active preset catalog and sync-bundle CI corrections:
+
+- [x] Preserve exact-head `e386d58b` runtime failures and reproduce both catalog regressions with existing tests. Retain the all-preset English identity contract and assert the new disabled safe preset.
+- [x] Preserve the exact `d6841cad` WebKit route-reset failure, reproduce it against the published helper, and await the real bounded bundle before navigation. Three focused regressions and one native two-context convergence scenario pass without deadline changes.
+- [x] Focused Node 17/Deno 17 and scoped static checks pass; retain checked source/log evidence. The latest Windows Bun release-copy and readiness tests pass, without establishing the earlier latency cause.
+- [ ] Publish both atomic corrections and inspect every exact-head workflow. All 78 unchecked original criteria remain required; PR57 stays draft/unmerged.
+
+Active ordered VK acquaintance follow-up (VK06):
+
+- [x] Read the complete pinned engage trigger and all twenty positive examples. Add a disabled personal-only preset after the actual adjacent outgoing acquaintance question, configurable sticker IDs and introduction variants.
+- [x] Verify frozen two-step permission, distinct durable receipts, exact context before each effect, partial progress, definite-failure resume after review, uncertainty refusal and no acknowledged-step replay through restart. Cover CLI, both default Lino encodings and scheduler/offline planning with focused regressions.
+- [x] Verify the common plan/Chat/Operator review in one native scenario and independent four-language MCP review; preserve before/after phone/desktop screenshots and checked evidence. Native/MCP and focused verification pass; preserve checked evidence and publish atomically.
+- [ ] Inspect every exact-head workflow; every unmet issue criterion remains required.
+
+Active inactive-peer sync fixture correction:
+
+- [x] Match published `c930cf39` Checks `43673148877` and WebKit shard 2 job `132688300301`; preserve complete logs. Lines 1713–1721 show successful reconciliation followed by a five-second receive-completion predicate timeout. All four companion workflows pass.
+- [x] Reproduce the exact published helper with paused frame callbacks and a finite 250 ms completion-flag delay. Native owner persistence/replication and the remote merge all finish, but the frame-based predicate still times out. Timer polling passes without increasing any deadline; retain bounded failure state for a future distinct cause.
+- [x] The relevant native WebKit sync group passes, including the controlled frame pause, three peers, reconnection, catch-up, deletion and no page exceptions. The original hosted failure did not log its hook state; do not claim its scheduling cause was directly measured.
+- [ ] Preserve checked evidence, publish this correction with the two completed atomic units, and inspect every exact-head workflow. Continue all original incomplete criteria and the saved unverified VK06 ordered-delivery draft; PR57 stays draft/unmerged.
+
+Active contextual VK replies (VK05/VK07/VK08):
+
+- [x] Read all four pinned triggers and tests; reproduce four missing presets on actual parent `c930cf39`. Add disabled personal recognition, configurable address variants/catalogs and the shared acknowledged daily cooldown. Freeze the actual adjacent outgoing turn and first-exchange count.
+- [x] Ten focused Node/Deno cases pass, including every pinned positive example, refusal before typing/after admission, durable restart, CLI/offline/scheduler and eight positive mocked VK adapter receipts through both default Lino encodings.
+- [x] Focused compatibility 34 and registry 2 pass after source restoration. Four native WebKit before/after scenarios and independent four-language MCP review per preset pass, with phone screenshots, zero sends/page exceptions and drained resources.
+- [ ] Retain checked evidence, publish atomically and inspect all exact-head workflows. VK06 and every other original incomplete criterion remain required; PR57 stays draft/unmerged.
+
+Active configurable acquaintance replies (VK04):
+
+- [x] Read the complete pinned trigger and tests; reproduce the absent action on actual parent `e56d8854`. Add disabled private incoming whole-question recognition, editable formal/informal introductions, optional bounded alternative catalogs and acknowledged per-chat daily cooldown.
+- [x] Six focused Node/Deno checks and 28 compatibility checks pass, including stable preview choice, later form override, explicit owner edits, preserved catalog after confirmed send, late policy changes, durable restart, CLI/offline and both default Lino APIs with mocked actual VK receipts. One native WebKit before/after and independent four-language MCP inspection pass with phone evidence, zero sends and drained resources. Full matrices remain in CI.
+- [ ] Preserve checked evidence, publish this atomic feature and inspect every exact-head workflow. Every original unchecked criterion remains required; PR57 stays draft and unmerged.
+
+# Issue 56 / PR 57 work plan
+
+Active VK fixture diagnostic correction:
+
+- [x] Preserve exact published `53a84792` Checks run `43668793618`, its complete workflow and 1,859-line WebKit shard log. Lines 1342–1352 show the native same-origin fetch diagnostic bypassing the existing shared fixture policy. All four companion workflows pass.
+- [x] Replay the captured native Error against the actual parent; apply the existing engine/origin policy to all three VK callers. Thirteen focused checks and one rebuilt native WebKit gratitude scenario pass, retaining genuine errors, foreign origins, other engines, deadlines and zero sends.
+- [ ] Preserve checked evidence, publish this atomic fixture correction with the completed identity unit, and inspect every exact-head workflow. VK02/VK03 and all 78 unchecked criteria remain active; PR57 stays draft and unmerged.
+
+Active email alternative destination identity (QA04 remains incomplete):
+
+- [x] Reproduce assignment links hidden by plain MIME/Gmail/JMAP alternatives on the current published code; target-only edits leave approved drafts valid. Audit Graph's hidden mailto links through its actual normalizer.
+- [x] Extract bounded destination identity from existing safe trees before planning/history projections; retain full targets and explicit refusal for sanitized or incomplete tree metadata. Preserve ordinary mail and confirmed delivery.
+- [x] Add parent-failing focused Node/Deno regressions, verify actual native/MCP review and before/after screenshots using owned fixtures, and register focused hosted coverage without expanding local matrices.
+- [ ] Preserve checked evidence, publish atomic changes and inspect exact-head CI. Continue all 79 remaining unchecked criteria; this unit alone does not complete QA04 or issue 56.
+
+Hosted verification `d34db92c` completed: all five workflows and every browser
+shard pass. [Recorded evidence](hosted-verification-d34.md) closes the remaining
+verification for QA03 and VD10; 79 inventory rows remain unchecked. PR57 stays
+draft. Structured Telegram fix `7ba65f1e` is published with its checked archive;
+its exact-head workflows remain pending. Continue every unfinished criterion.
+
+Active structured Telegram question destinations (QA04 remains incomplete):
+
+- [x] Reproduce lost Bot API, caption, MTProto and Desktop-export link destinations with the actual import/planning paths, including a destination-only edit after frozen review. All four parent probes approve and retain the stale draft; five of seven integrated regression checks fail on the actual parent.
+- [x] Preserve bounded full destinations without rewriting the visible body; refuse ambiguous metadata and retain target identity at the final stored-history check. Extract before both raw-record projections; share literal review evidence across CLI, API-backed previews, Chat and Operator.
+- [x] Seven focused Node/Deno checks and 39 compatibility checks pass, including foreground CLI/both Lino, send refusal and one ordinary positive receipt. Isolated native/MCP review passes with actual-parent/current screenshots, four locales, phone layout, zero provider effects and drained owned resources. Keep full runtime/browser matrices in CI; preserved MCP console diagnostics are not claimed clean.
+- [ ] Preserve checked evidence, publish atomically and inspect exact-head workflows. Continue every original incomplete criterion; this unit alone cannot complete QA04 or issue 56.
+
+Active hosted selection fixture clock correction:
+
+- [x] Match `060048e9` run `43656081415`, preserve Chromium shard 1 job `132635591776` and inspect its valid 2200px failure screenshot. Log lines 971–974 fail the seam assertion; the artifact shows a real Today divider between messages 12 (23:59) and 13 (00:00).
+- [x] Reproduce the exact fixture at a finite 00:07 UTC clock, then keep the intended adjacent-row sample within one UTC day. The parent has a 65.59px date gap and two pixel colors; the corrected fixture has a 3.20px seam and one color. Selected/cleared geometry stays within one pixel. Every selection/geometry/pixel assertion, viewport, engine and deadline remains; production CSS is unchanged.
+- [x] One focused native 2200px before/after comparison passes with screenshots, zero page exceptions and drained owned resources. Scoped lint/format/secrets/diff and the unchanged duplication gate (6.49%) pass. Full local matrices were not run.
+- [ ] Preserve checked evidence, publish atomically and inspect exact-head hosted workflows. Every original incomplete criterion remains active.
+
+Active native question anchor identity correction (QA04 remains incomplete):
+
+- [x] Reproduce an actual hidden-anchor destination mutation on `438f2bf4`: identical captured questions permit one owned native choice after the href changes. Preserve the finite disposable probe and its log.
+- [x] Preserve bounded, ordered full destinations through native history, pending turns, archived planning and frozen choice/text actions. Require fresh review for destinations absent from the visible question, including accepted-summary and model paths; retain body bytes and positive receipts. Split-question aggregation also retains the review reason before watcher admission.
+- [x] Show literal destinations in the shared four-language pending-message review. Ten focused Node/Deno regressions fail against the parent and pass after correction; 42 existing compatibility checks, one native before/after scenario and independent four-language MCP review pass. Browser/runtime matrices remain in CI. Console diagnostics are preserved without a clean-console claim.
+- [ ] Preserve checked evidence, publish atomically and inspect all exact-head hosted workflows. Every original incomplete criterion remains active.
+
+Active question-template link identity correction (QA04 remains incomplete):
+
+- [x] Reproduce four actual parent regressions: extra URLs with an already linked template, bare/action links and exact URL normalization changes. Preserve native before screenshots.
+- [x] Bind full targets before normalization, including ambiguous file/domain names; retain case folding for unchanged bare technical names, HTTP preview compatibility and fresh approximate review.
+- [x] Focused Node 11/Deno 11, 34 compatibility checks, foreground CLI/both Lino, five provider plans and native/MCP before/after evidence pass. Existing saved-template positive delivery and no-replay coverage pass. Scoped strict lint, format, secrets, diff and the unchanged duplication gate pass.
+- [ ] Preserve checked evidence, publish atomically and inspect every exact-head hosted workflow. All 81 original incomplete requirements remain active.
+
+Active hosted canonical-path fixture correction:
+
+- [x] Preserve four actual `74576648` runtime failures and reproduce the alias mismatch on Linux. Use the canonical reviewed path returned by the existing UI hook; retain source/slot/locale assertions and add changed-target refusal. Focused alias Node 1/Deno 1 pass; commit `42fd0c6d`.
+- [ ] Preserve checked evidence, publish with the desktop availability unit and inspect exact-head hosted checks. Every original incomplete criterion remains required.
+
+Active desktop landing availability audit (VD10 remains incomplete):
+
+- [x] Reproduce a `starter` upload being offered as a desktop download on `74576648`; preserve a native before screenshot and a minimal failing catalogue/cache regression.
+- [x] Admit only uploaded, nonempty release assets with an actual download URL; use the same decision for release selection, download buttons, checksum/provenance links and the session cache. Preserve missing-platform and API-error fallbacks.
+- [ ] Run focused catalogue/page checks and one native/MCP review, compare the current public release metadata without downloading installers, preserve evidence and inspect exact-head hosted checks. Complete VD10 only when its full landing behavior is verified; all other incomplete rows remain required.
+
+Active native-export snapshot publication source (HH23 remains incomplete):
+
+- [x] Admit an explicit native export identity through the existing publication review, recheck its private structured file and receipt, sanitize again and freeze the exact provenance. Preserve owner-save plans and every private artifact.
+- [x] Expose the source through foreground CLI, both Lino encodings and the shared four-language CV publication controls. Refuse missing/tampered/wrong-slot artifacts and changed receipts before Git effects; retain read-only recovery.
+- [ ] Reproduce missing source support on `9945c266`, run focused regressions and one native/MCP scenario, preserve before/after evidence, publish atomically and inspect exact-head hosted checks. All original incomplete criteria remain required.
+
+Native-export focused Node 35/Deno 25, native Chromium and independent MCP pass with private bytes retained, one local push, no provider sessions and read-only source recovery. The existing owner-save scenario also passes. Parent `9945c266` has a missing capability expectation; preserve the seven failed runtime logs and publish its separately committed focused correction. Every original incomplete row remains required.
+
+Active explicit saved résumé snapshot publication (HH23 remains incomplete):
+
+- [x] Freeze a reviewed selection from verified owner-save snapshots, sanitize and round-trip its Lino again, and bind confirmation to exact content, repository, branch and remote baseline. Publish only generated `.lino` paths; preserve pending plans, private exports, PDFs, backups and unrelated staged changes.
+- [x] Reuse owned finite Git commands, require an existing remote branch matching local HEAD, acknowledge a durable attempt before effects and refuse uncertain replay or changed inputs. Check the exact committed paths/content and remote receipt before reporting success.
+- [x] Carry plan/publish/read-only status through foreground CLI, both Lino encodings and four-language UI. Exact-parent missing-operation regression, focused Node 29/Deno 19 and finite native/MCP evidence pass, including private index/filter/tag boundaries, changed targets, failed acknowledgements and drained cancellation. Before/after desktop/phone screenshots are retained.
+- [ ] Preserve checked source/log evidence, publish the atomic unit and inspect every exact-head hosted workflow. Publication from remaining import/edit pipelines and all 81 original incomplete criteria remain required.
+
+Active viewed-vacancy configuration compatibility (HH08 remains incomplete):
+
+- [x] Use the installed Lino configuration library to resolve the survey default from CLI, environment and local/selected `.lenv` files without mutating process settings. Freeze only at explicit single/batch start; status stays read-only.
+- [x] Reproduce absent configuration on published `21b7afcb` (two failures). Focused Node 13/Deno 4, production packaging and lightweight help checks pass, with no submissions or host environment mutation. Retain the public native-state observation without treating visited styling as positive viewed-state evidence.
+- [x] Preserve evidence and publish `4c06685a`; all five exact-head workflows pass, including Checks `43642480999` and all 45 jobs. Native viewed-state exclusion and every original incomplete requirement remain active.
+
+Active native survey browser registration CI correction:
+
+- [x] Preserve exact `21b7afcb` Checks `43640819417` and workflow-contract job `132588015295`: complete log lines 635–650 refuse five scenarios in the existing four-scenario group. The other four workflows pass. Focused published configuration fails one of five checks.
+- [x] Keep the existing four policy scenarios and give the survey its own mandatory registry entry. Include its exact-once inventory, preserve both engines/four shards and every deadline; focused five checks and scoped lint pass. Preserve the checked archive and publish `f0884815`.
+- [ ] Inspect all exact-head hosted checks; continue all 81 original incomplete requirements.
+
+Active batch-owned review controls regression:
+
+- [x] Preserve exact published discovery head `8007a002`, Checks `43635159024` and Chromium shard 3 job `132572456753`: log lines 2222–2244 show a disabled confirmation checkbox, with the original ten-second deadline retained. Workspace busy classification now includes the active batch and disables its own review.
+- [x] Reproduce the active-batch panel refusal with a minimal regression. Admit only the matching active batch review; preserve status and inactive identity release after advancement. Retain other workspace operations, mismatched identities, current-step confirmation and native guards.
+- [x] Reproduce the independent two-clock Start admission failure with a finite advancing clock. Capture one start time for expiry, retaining the 24-hour limit; Node/Deno regression passes without browser work.
+- [x] Focused Node 16/Deno 4 and the unchanged finite native batch scenario pass. Independent MCP, before/after desktop and phone evidence, no replay and resource drainage pass.
+- [ ] Preserve evidence, publish all atomic units and inspect every exact-head check. Continue all 81 original incomplete requirements.
+
+Active viewed-vacancy feedback policy (HH05/HH08 remain incomplete):
+
+- [x] Add the reference's configurable default “Maybe I'll apply later” response to the dedicated native HH survey, including while an explicitly opened application review waits. Preserve a different owner reason, preview, verification gates and application controls.
+- [x] Freeze the setting across CLI, both Lino encodings, journals and four-language UI. Status and restart must not create an observer or provider effect; retain legacy journal and batch signatures.
+- [x] Reproduce missing parent behavior; verify focused service/control checks, one native Chromium scenario and independent MCP, with before/after phone/desktop evidence and drained resources.
+- [ ] Preserve evidence, publish the atomic unit and inspect exact-head CI. Continue every original incomplete requirement; this survey does not establish native viewed-card skipping or complete HH05/HH08.
+
+Active bounded automatic vacancy discovery (HH02/HH03/HH05 remain incomplete):
+
+- [x] Reuse exact native pagination and frozen search/filter settings to collect finite successful descriptions, canonical deduplication and explicit selection reasons. Keep owner exclusions and responded state, stop at observed exhaustion or configured bounds, and preserve acknowledged progress on refusal/interruption without recovery replay.
+- [x] Expose start/status/stop through foreground CLI, text/binary Lino and four-language UI. Let reviewed eligible URLs populate a finite batch without starting it. Keep shared browser ownership, Stop/shutdown drainage and truthful unsupported states.
+- [x] Add finite parent-failing regressions, focused service/control checks and one native Chromium/MCP scenario with before/after desktop/phone evidence. Preserve logs/source hashes and inspect exact-head CI; all original incomplete requirements stay active.
+
+Focused Node 47/Deno 21, actual-parent service/native failures and current native/MCP checks pass. Both browser checks observe two pages, three cards, two descriptions, zero provider clicks, no replay, four locales and drained resources. Preserve the checked evidence, publish and inspect exact-head CI; every original incomplete criterion remains active.
+
+Active finite-batch CLI admission CI correction:
+
+- [x] Match exact head `281d6dcc` and timestamps for Checks `43629631473`; preserve eight complete failing runtime job logs. Each fails `cli-help-imports.test.js:51` because the new batch start/status registrations are missing from lightweight admission. The actual-parent public-entry regression also fails before any workspace is opened.
+- [x] Admit both existing commands without changing help imports, unknown-command behavior, deadlines or provider execution. Focused Node 12/Deno 11 pass, with one Node-specific import-hook test ignored on Deno. The complete registration catalog and public-entry file-validation/status regressions pass; the exact parent fails both admission cases.
+- [ ] Preserve checksummed evidence, publish the acknowledged résumé correction plus this atomic admission correction, and inspect all exact-head workflows. Continue every original incomplete requirement; PR57 remains draft and unmerged.
+
+Active acknowledged résumé cache recovery (HH02 remains incomplete):
+
+- [x] Reproduce rejected native discovery replacing the actual browser store's in-memory cache on published `281d6dcc`, both with and without an earlier successful list. Hold concurrent service readers until the save or rollback finishes; preserve the acknowledged list through restart.
+- [x] Verify reload recovery in one focused native Chromium scenario and independent Playwright MCP, with before/after desktop and phone screenshots and zero provider clicks.
+- [x] Preserve the checked 74-file source, parent-failure, focused Node/Deno, native/MCP, screenshot and hosted-failure archive. Scoped gates and the unchanged duplication threshold pass; the controlled snapshot-refusal fixture is shared by all three durability regressions with their assertions retained.
+- [ ] Publish the atomic correction and inspect exact-head hosted checks. Continue every original incomplete requirement; this correction does not complete HH02 or issue 56.
+
+Focused Node 30 and Deno 30 pass, including all three shared snapshot-refusal regressions. Native/MCP recovery passes with three retained entries, one refused write, no provider clicks/replay and drained resources. Four batch-parent workflows pass; Checks has runtime failures because the two new commands are missing from lightweight admission. Preserve full logs and correct that separately; no aggregate pass is claimed.
+
+Active finite paced application batches (HH06/HH08 remain incomplete):
+
+- [x] Freeze a bounded vacancy list and delivery limit with the existing application settings; release the writer while pacing, pause safely, count only native confirmed deliveries, and retain explicit per-step confirmations.
+- [x] Revisit this worker's backed RAM queue when questionnaires become enabled, preserving exclusions, original retry deadlines, fresh CV/draft guards and unknown delivery reservations. Durable batch receipts cannot recreate a worker.
+- [x] Carry start/status/stop/mode controls through foreground CLI, both Lino encodings and four-language UI. Add focused service/lifecycle/control regressions and finite native/MCP evidence, with before/after screenshots.
+- [ ] Preserve evidence, publish atomic work and inspect exact-head CI. Continue automatic discovery, authenticated scope and every original incomplete requirement; no original row is completed by a finite-list prerequisite alone.
+
+Focused Node 64/Deno 30 pass. Native Chromium reports two deliveries/two RAM revisits/zero entry clicks; independent MCP reports one delivery/one revisit/one Send/zero entry clicks. Four locales, phone layout, no recovery replay and owned resource drainage pass. Publication and exact-head CI remain pending.
+
+Active independently configured application confirmations (HH08 remains incomplete):
+
+- [x] Freeze independent answers, cover-letter, questionnaire Send and short-popup confirmation choices in review settings, with Send as the default and a supervised override. Reuse guarded exact-answer writes and native sending; keep manual actions available and preview free of effects.
+- [x] Add an explicitly invoked continuation operation that stops at the next selected confirmation or missing-answer boundary. A confirmation authorizes only its displayed step/revision; changed forms, holds, pauses and uncertain sends refuse. The exact-answer exception requires this continuation's own empty-field autofill, verified unchanged against the same native document.
+- [x] Carry settings and continuation through CLI, both Lino encodings and four-language UI, with read-only recovery and fresh consent after each step. Reproduce the missing parent behavior, verify focused service/control checks and native/MCP evidence, retain screenshots. Focused Node 63 plus one fixture regression, Deno 34 and native/MCP pass; exact-head CI is tracked separately.
+- [x] Preserve the checked 111-file source, regression, native/MCP, screenshot and hosted receipt archive.
+- [x] Published `af668771`; all five exact-head hosted workflows pass, including Checks `43624524344` and all eight browser lanes.
+- [ ] Continue the full paced batch runner, automatic RAM revisits and every original incomplete requirement; this unit alone cannot complete HH08.
+
+Active acknowledged daily-rejection recovery (HH06 remains incomplete):
+
+- [x] Reproduce an automation-issued Send followed by a fresh native daily-limit rejection: preserve its actual draft and original two-hour pause, distinguish the witnessed rejection from an unknown/older outcome.
+- [x] Retain immutable acknowledged rejection evidence bound to the issued action and failed document. Allow explicit wait-and-restore consent to release only that rejected reservation after a verified fresh form; preserve unknown dispatches, owner changes, failed saves and separate Send confirmation.
+- [x] Verify exact-parent service/native failures, 105 focused Node/41 Deno checks and native/MCP restoration without another Send; retain four-language and phone screenshots. Concurrent journal-digest changes refuse recovery. Static checks and the unchanged duplication gate pass.
+- [x] Preserve the checked 110-file source, regression, native/MCP, screenshot and hosted-failure evidence archive.
+- [x] Published through `6ad826b0`; all five exact-head workflows pass, including all runtime/OS pairs and eight browser lanes. Full batch work and every original unchecked criterion remain required.
+
+Active exact-parent Windows Node CI:
+
+- [x] Preserve `6b1e9dea` run `43617379351`: original Windows job `132516105839` exhausts initial CLI readiness while copying its cold immutable snapshot; original WebKit job `132516105683` fails action download before checkout/tests. No deadline changed; retain complete job logs and annotations.
+- [x] Rerun failed jobs only. Windows rerun `132522363805` reaches the unchanged ten-minute job deadline after setup leaves approximately 134 seconds for tests. Complete 4,616-line log and annotations distinguish aggregate job exhaustion from a specific test hang. WebKit rerun `132522363215` passes all assigned browser scenarios; preserve its complete log.
+- [x] Reuse native Node sharding for Windows, preserving every test, per-test/job deadlines and runtime/OS coverage. The finite regression fails on the parent configuration and passes both OS cases after the change, including injected shard failure propagation. Preserve checksummed logs and source evidence.
+- [x] Published `6ad826b0`: all five hosted workflows pass, including Windows Node shards 1/3, 2/3 and 3/3. The original cold snapshot latency remains unmeasured beyond phase traces; all original incomplete criteria remain required.
+
+Active pacing action-guard feedback:
+
+- [x] Reproduce native CAPTCHA/delivery arriving after the frozen review but before guarded dispatch: two of three finite service cases and the native guard fail on `9a78b6d9`; every attempted action still refuses safely.
+- [x] Acknowledge the same fresh native outcome before the unchanged action refusal; deduplicate a later inspection, preserve daily-limit priority and zero challenge reads/actions.
+- [x] Verify Node 40/Deno 35 and both finite native Chromium scenarios; preserve the 48-file checksummed archive. Give pacing its own mandatory browser entry, retaining all prior scenarios and deadlines.
+- [x] Publish saved pacing and guard commits through `6b1e9dea`; retain the passing parent workflows.
+- [ ] Inspect every exact-head check for `6b1e9dea`. Continue all 81 original incomplete requirements.
+
+Active CV Save recovery CI fixture:
+
+- [x] Preserve macOS Node shard 3 job `132499772549` from exact head `ec835b0b`; reproduce its 100 ms recovery-budget exhaustion with a finite 120 ms synthetic probe delay.
+- [x] Inject a logical clock for this fixture; preserve production polling/deadline and five-read limit. Focused Node 17/Deno 6 and scoped gates pass; retain the checksummed source and CI evidence.
+- [x] Publish `0aa60851` and verify all five exact-head hosted workflows pass, including Checks `43613931687`, all eight browser lanes and macOS Node shard 3. Retain full workflow logs and metadata.
+- [ ] Continue all 81 original incomplete rows; PR57 stays draft and unmerged.
+
+Active optional paced application reviews (HH06/HH08 remain incomplete):
+
+- [x] Add one acknowledged private workspace schedule for explicitly paced reviews: zero selects adaptive 1–4 minute timing starting at two minutes; a positive seconds value selects fixed timing. Count time already spent on the vacancy. Persist native delivery/CAPTCHA feedback, stable random variation, bounded cooldown and restart state without reading challenge contents.
+- [x] Gate new review admission across slots, including callers omitting the flag while the saved window is active. Reopening the same review does not reset its deadline. Preserve preview, daily-limit, reservation and manual-hold semantics; failed acknowledgements refuse new browser work.
+- [x] Carry the optional interval through CLI, text/binary Lino and four-language application settings. Show saved schedule/counters and explicit read-to-refresh recovery in the shared queue. Add actual-parent failure, focused deterministic tests, one native browser/MCP flow and retained screenshots. Exact-head CI remains pending after publication. Focused Node 44/Deno 19, native Chromium plus the existing worker-policy scenario and independent MCP pass; all owned resources close.
+- [x] Preserve the 110-file checksummed pacing archive and screenshots.
+- [ ] Publish and inspect exact-head CI.
+- [ ] Continue the full paced batch runner, automatic RAM-queue revisits, authenticated account scope and every original incomplete requirement. A single-review admission unit does not establish full reference parity or complete HH06/HH08.
+
+Active Windows Deno CLI timeout (`cd2a3337`, run `43606682331`):
+
+- [x] Verify SHA/timestamps and preserve the complete 147,661-line workflow log, 5,230-line Windows shard log, pipeline log and annotations. Lines 3551–3557 and 5181–5195 show the unsuccessful CLI child importing the entrypoint but not reaching ordinary-command readiness before the unchanged ten-second deadline. All eight browser lanes and four companion workflows pass.
+- [x] Reproduce unnecessary ordinary/provider imports on the exact published parent. Move existing usage text to a pure module and admit help/unknown commands before loading that graph; preserve all 116 registrations, exact help bytes, exit statuses and default-off phase tracing. The probe drops from 793 source modules to nine; Node 16/Deno 13 pass, with three Node-hook checks explicitly ignored on Deno. The original Windows import delay remains unmeasured; all deadlines and assertions remain.
+- [ ] Publish any verified atomic correction and inspect all exact-head checks. Continue all original incomplete requirements; PR57 stays draft and unmerged.
+
+Active daily-limit/CAPTCHA coexistence:
+
+- [x] Reproduce refusal to back up and dismiss a disjoint native CAPTCHA over an HH application pause. Preserve full owner answers/letter and actual Q&A before any dismissal; retain the original workspace deadline.
+- [x] Scope capture to the verified native application form; reject nested challenges, external label/option references, incomplete/unsupported fields and changed documents. Keep ordinary CAPTCHA inspection blocked and every Send/renew/answer control untouched.
+- [x] Reuse acknowledged draft/Q&A preservation, recheck after each awaited checkpoint and synchronously bind only the native close control. Cover failed persistence, owner edits, late/remounted gates, expiry and ambiguity; drain finite fixtures.
+- [x] Publish the 67-file checksummed evidence and atomic unit as `fffdc0b2`, retaining all original incomplete criteria. Its exact-head main run `43611012827` remains in progress; no aggregate pass is claimed. PR57 stays draft and unmerged.
+
+Active HH CV/assignment verification boundaries:
+
+- [x] Reproduce content reads past both native HH text markers in assignment, CV about, editor/saved-record and workplace recheck paths. Published parent `63f9f559` fails 12/22 focused regressions and the finite native assignment probe; ten hidden cases pass.
+- [x] Return blocked metadata before content reads and reuse the guarded workplace controls reader. Focused Node 59/Deno 59 and the integrated native HH scenario pass; preserve ordinary reads, late-gate refusal, inert record identity, four locales, phone layout and zero sends. The original focused workplace browser scenario also passes. Owned resources drain before restoring the bundle.
+- [ ] Preserve checksummed evidence, publish the atomic unit and inspect every exact-head hosted check. Continue safe daily-limit backup/dismissal, authenticated scope, paced batches and all 81 original incomplete inventory rows; PR57 stays draft and unmerged.
+
+Active automatic Follow disclosure diagnostic:
+
+- [x] Preserve exact `c976dc98` WebKit shard 2 job `132465586160`, all 1,637 lines and the validated closed-disclosure artifact. Lines 1517–1540 show the first chats-field fill timeout; original cause remains unproven.
+- [x] Extend the existing bounded, default-off trace to the automatic fixture without changing its native clicks, assertions or deadlines. One focused WebKit replay passes VK/Telegram retry and phone layout; all fixtures drain.
+- [ ] Publish and inspect exact-head hosted checks; use the trace on any recurrence. Continue HH daily-limit/CAPTCHA coexistence and all original incomplete requirements.
+
+Active exact-parent hosted failures (`c976dc98`, run `43600700798`):
+
+- [x] Confirm the SHA and 2026-11-14 13:37:29 UTC timestamp. Preserve complete logs for Ubuntu Deno job `132465586330` (8,896 lines), Chromium shard 2 `132465586203` (1,847 lines), and cancelled macOS Node shard 1 `132465586315` (1,176 lines). Four companion workflows pass; main workflow remains unfinished.
+- [x] Reproduce the Deno signaling assertion at job-log lines 8859–8872: a fixed 30 ms sleep precedes the offer assertion and failure skips resource cleanup. The exact parent fails with a finite 120 ms callback delay; the corrected bounded predicate passes, as do Node 9/Deno 9. Fixture cleanup runs on assertion failure. Published as `63f9f559`; original hosted delivery delay remains unmeasured.
+- [x] Reproduce a concrete native daily-limit wait race: the deadline crosses during acknowledged backup after inspection computed an active flag. Exact parent `ef99739b` refuses incorrectly; a newer shared pause still refuses. Re-read the saved pause at expiry and retain every guard. Node 65/Deno 65 and the finite native waiting scenario pass; zero sends and drained fixtures. Original hosted interleaving remains unmeasured. Honor the existing CI screenshot directory without changing deadlines/scenarios/engines.
+- [x] Preserve the Chromium artifact summary and complete failed log. macOS Node shard 1 annotations establish the ten-minute job deadline, with roughly five minutes consumed before tests. Its final output alone does not establish a specific test hang; investigate if it recurs on the new head.
+- [ ] Publish useful atomic corrections and inspect every exact-head hosted check. Continue every original incomplete requirement; PR57 stays draft and unmerged.
+
+Active HH discovery verification boundaries (HH02/HH03/HH06 remain incomplete):
+
+- [x] Reproduce the same native text markers being missed by résumé-list, vacancy-search and vacancy-detail readers. All 12 visible-boundary cases fail on published parent `c976dc98`; 12 hidden-marker cases pass. Return only blocked metadata before reading cards, state templates or employer prose; preserve ordinary successful snapshots.
+- [x] Verify focused Node 63/Deno 63 and the existing finite native CAPTCHA scenario plus independent MCP. Three discovery readers, both native markers, zero challenge reads/actions or sends, four locales and phone layout pass; all owned fixtures close. Preserve checksummed evidence.
+- [ ] Publish the atomic discovery unit and inspect every exact-head hosted check, including the parent failures above.
+- [ ] Continue safe daily-limit capture/dismissal, authenticated scope, paced batches and all 81 original unchecked criteria. PR57 remains draft and unmerged.
+
+Active HH CAPTCHA recognition and answer privacy (HH06/HH08 remain incomplete):
+
+- [x] Reproduce the published parent's failure to recognize HH's `account-captcha-input` and `captchaText` boundaries: 10 of 11 focused cases fail on actual parent `b4257480`; its native screenshot exposes the synthetic answer. Detect visible fields before reading form values, instructions or HTML, including with an unrelated completed token; hidden fields do not create a hold.
+- [x] Preserve native daily-limit priority, all synchronous dispatch guards and manual owner completion. Final focused Node 56 / Deno 51, native Chromium and independent MCP pass with zero challenge reads/actions and zero sends, four locales, phone layout and drained fixtures. Ordinary form behavior and all existing deadlines remain intact.
+- [ ] Preserve checksummed source/log/screenshot evidence (prepared), publish and inspect every exact-head hosted check. Parent restoration run `43598794698` has a WebKit shard 4 checkout cancellation before tests; its complete 148-line log and sole cancellation annotation are retained, with cause unproven. Daily-limit-specific backup/dismissal, authenticated scope, pacing and all original unchecked requirements remain active.
+
+Active confirmed restoration after the daily-limit refresh (HH06 remains incomplete):
+
+- [x] Offer an explicit wait-and-restore consent through foreground CLI, both Lino encodings and four-language controls. Ordinary waiting retains separate later restoration. Restore only the fresh same-vacancy document through existing protected empty-control writes; never send or release unknown reservations.
+- [x] Reproduce the published parent, verify preservation of later answers/letters, refusal after owner/policy/persistence changes, stop/drain, non-replaying recovery and one native/MCP before/after flow. Keep all existing deadlines and scenario coverage. Focused final Node/Deno checks and both existing native limits scenarios pass; independent MCP reports one entry, one refresh, zero sends and drained resources.
+- [ ] Preserve checksummed evidence and publish the atomic unit (`b4257480`, complete); inspect every exact-head hosted check (pending). Authenticated account scope, CAPTCHA dismissal, paced batches and all original unchecked rows remain required.
+
+Active exact-parent WebKit résumé validation timeout:
+
+- [x] Match `cac7f7d3` run `43591479049` and failed macOS WebKit shard 4 job `132437782294`; retain complete workflow/job/pipeline logs and inspect the artifact. Job lines 1000–1001 exhaust the existing 30-second validation wait. The artifact has no résumé failure screenshot.
+- [x] Run one isolated native input probe; trusted input and disabled search agree locally. Preserve the original cause as unproven. Add bounded, opt-in, value-free input/focus diagnostics and honor the CI screenshot directory without changing scenario/engine/deadline coverage.
+- [x] Verify focused privacy/registration checks and the newly built résumé scenario, publish checksummed evidence and inspect every exact-head hosted check. All five workflows pass for diagnostic head `e2bc1bd9`, including Checks run `43596139531`; WebKit shard 4 job `132451955406` passes all six résumé cases (job-log lines 997–1009). Bounded trace lines 1013–1014 show trusted input and rendered invalid state. The original macOS cause remains unproven. Continue every original unchecked criterion.
+
+Active exact-parent macOS Deno HH CLI timeout:
+
+- [x] Match published `6899b33b` main run `43579541371` to failed macOS Deno job `132403292910`. Save its complete 11,248-line job log; test at lines 5756–5763 times out at 15 seconds, with failure summary at 11201–11215. Broad runtime suite otherwise reports 5,565 passing cases; this does not make the workflow passing.
+- [x] Measure bounded CLI/fixture phases. The unchanged Linux Deno CLI closes promptly; a partial header does too on Node. A deliberately unfinished response keeps legacy closure pending for the 500 ms window; the existing owned-socket helper drains it. Reuse that helper and add default-off, payload-free phase markers without increasing the 15-second deadline. Five focused Node and five Deno checks pass.
+- [ ] Preserve evidence and publish the fixture-ownership/diagnostic unit. Inspect exact-head CI and establish the original macOS timeout cause if it recurs; the controlled experiment alone does not establish that cause. Continue every original incomplete criterion.
+
+Active full-form review before potentially immediate entry (HH06 remains incomplete):
+
+- [x] Open the same vacancy's native full form through a separately confirmed, synchronously guarded navigation. Preserve existing entry behavior and delivery reservations; preview, pauses, stale pages and an existing live form must refuse navigation.
+- [x] Carry the action through foreground CLI, both Lino encodings and four-language controls. Verify fresh résumé/answer review and read-only recovery with no entry/send clicks; retain parent regression and before/after screenshots. Node 11, Deno 11, compatibility 53, native Chromium 1 and independent MCP 1 pass; zero entry/send clicks and all owned fixtures drained.
+- [x] Preserve checksummed evidence and publish the full-form unit as `c40c0c86`. All owned fixtures are drained and publication left a clean working tree.
+- [ ] Inspect exact-head hosted checks. Continue automatic selection, durable owner overrides, standard-letter language and all original unchecked criteria.
+
+Active confirmed employer-context résumé choice (HH06 remains incomplete):
+
+- [x] Derive a bounded decision from employer questions, dollar pay and the full vacancy description, excluding owner answers, cover letters and CV titles. Preserve unreadable/unknown states and the collected salary across recovery.
+- [x] Reuse the owned native chooser and checked same-slot exports for one explicitly confirmed contextual choice. Prefer an already matching CV without reopening its menu; refuse missing evidence, changed context and unsafe targets. Keep previews read only and preserve answers/letters/submission reservations.
+- [ ] Expose truthful decision reasons through CLI, both Lino formats and four-language browser controls. Reproduce the exact parent, verify focused Node/Deno and one native/MCP case, preserve screenshots/checksummed evidence and drain fixtures. Local verification passes: Node 32, Deno 17, recovery/ownership/session/dictionaries 44, native Chromium 1 and independent MCP 1. Publication and exact-head CI remain pending.
+- [ ] Continue automatic selection before potentially immediate entry, same-document owner overrides across worker restarts, language-aware standard letters, authenticated parity and all 81 original unchecked criteria. PR57 stays draft and unmerged.
+
+Active hosted startup / worker channel ownership:
+
+- [x] Preserve exact `1e6582c3` run `43572547657`, failed macOS Node shard 2/3 job `132380690633` and its complete log. Initial readiness expires at 10,034 ms (lines 2239–2272); cleanup then reports `ENOTEMPTY` (3115–3117). All eight browser shards and the other four workflows pass.
+- [x] Reproduce two separate worker-channel bugs against published `02303fc7`: input EOF during initialization leaves its new listener alive, while a broken output pipe raises unhandled `EPIPE`. Terminate/drain failed fixtures; keep the original macOS timing explicitly unproven.
+- [x] Stop accepting new messages, await already accepted work, then close worker resources exactly once after either channel loss. Verify seven focused Node checks, eight Deno checks and one existing startup/repeated-serve/upgrade case. Add off-by-default phase-only tracing to separate pre-init imports from worker initialization. Existing readiness and CI deadlines remain unchanged.
+- [ ] Publish checksummed evidence and verify every exact-head hosted check. Investigate any remaining startup delay from its actual trace; continue all 81 original unchecked criteria. Keep PR57 draft and unmerged.
+
+Active explicit native application résumé choice (HH02/HH06 remain incomplete):
+
+- [x] Read the bound native chooser without opening it during inspection. Open and choose only after separate current confirmation; verify the native radio hash against a matching checked export from this browser slot. Preserve owner answers, letters, preview, reservations and read-only recovery.
+- [x] Expose the operation through foreground CLI, both Lino formats and four-language controls. Refuse stale documents/revisions, ambiguous or unsafe controls, missing evidence, ineffective writes and interrupted ownership; never infer CV language from its title.
+- [ ] Reproduce the published parent, verify focused Node/Deno and one native/MCP scenario, preserve screenshots and checksummed evidence, drain fixtures and inspect exact-head CI. Continue automatic language policy, live provider parity and every original unchecked criterion.
+
+Published `1e6582c3` includes verified-export search suggestions and the two exact-parent CI corrections. All five hosted workflows started at 2026-11-14 07:45:08 UTC; main run `43572547657` failed only macOS Node shard 2/3 job `132380690633`; all eight browser shards and the other four workflows pass. The complete 143,968-line workflow and 3,138-line failed job logs are preserved locally. Failed-job lines 2239–2272 show initial readiness expiring at 10,034 ms after release readiness at 3,977 ms, with no worker-ready phase. Lines 3115–3117 report concurrent temporary-directory cleanup (`ENOTEMPTY`). The original import/startup delay is unmeasured; investigate shutdown ownership and startup phase costs without increasing deadlines. The working tree was clean after publication and `origin/main` at `1dc57835` is an ancestor. Every original incomplete criterion remains required.
+
+Active exact-head application group timeout:
+
+- [x] Match WebKit shard 2 job `132370299236` in exact-head run `43569152391` to `e8533c0c`. Preserve all 1,617 log lines and its artifact. Ten native scenarios pass before the eleventh starts with roughly 12 seconds left; the runner expires at 180,127 ms.
+- [x] Reproduce the overloaded eleven-scenario group with a focused registration regression. Split it into groups of four, three and four; preserve all eleven scenarios exactly once, both engines, four shards, the 180-second group deadline and the 35-minute job deadline. All five focused runner checks pass. Do not infer an individual scenario hang from the aggregate timeout.
+- [x] Publish the correction and verify exact-head hosted browser CI while continuing every original unchecked criterion. Keep PR57 draft and unmerged.
+
+Active exact-head unread-view failure:
+
+- [x] Match Chromium shard 4 job `132370298746` in run `43569152391` to published `e8533c0c`. Preserve its complete 1,449-line log and browser artifact. Lines 1153–1164 report `browser-chat-view-chat-unavailable`; lines 1174–1189 report successful owner-state restoration.
+- [x] Reproduce a native render completing between target lookup and scroll status against the published reveal code. Recheck the settled target, preserve genuine absence refusal, and verify two finite native cases, two independent MCP cases and 20 focused Node checks. Keep all original deadlines and guards. The precise original hosted render timing remains unmeasured.
+- [x] Publish the atomic correction and verify exact-head hosted browser CI while continuing every original incomplete criterion. PR57 remains draft and unmerged.
+
+Active export-proven résumé suggestions (HH02 and HH06 remain incomplete):
+
+- [x] Prefer the requested language from checked, same-slot export artifacts whose hash, title and observed update still match the native list. Preserve explicit owner choices and disclose title-only fallback. Keep proofs out of durable list records and revalidate artifacts on server cache reads.
+- [x] Carry strict portable evidence through CLI, both Lino formats and four-language search controls. Cover stale or corrupted exports, slot isolation, cancellation, offline snapshots and zero provider mutations with focused regression checks.
+- [ ] Reproduce the exact published parent, verify one native browser and independent MCP scenario, preserve before/after screenshots and checksummed evidence, publish and review exact-head CI. Continue native application résumé selection and every original unchecked criterion; keep PR57 draft and unmerged.
+
+Active native popup recovery (HH06 remains incomplete):
+
+- [x] Preserve an acknowledged unsent native popup checkpoint without releasing the original entry reservation. Reopening the browser only reads; a separately confirmed re-entry may apply immediately and must consume that checkpoint before dispatch.
+- [x] Refuse legacy, failed-checkpoint, uncertain-send, held, paused, stale or changed-page re-entry. Preserve actual drafts, owner values, full-form recovery, zero-effect preview and separately confirmed restoration/submission across CLI, both Lino formats and four-language controls. Register the additive schema change without rewriting acknowledged legacy journals.
+- [ ] Reproduce the exact-parent failure, run focused tests and one native/MCP scenario, preserve before/after screenshots and checksummed evidence, drain fixtures, publish and inspect exact-head CI. Complete every remaining original criterion before marking the PR ready.
+
+Active supervised single-application review (HH08 remains incomplete):
+
+- [x] Add an opt-in preset that confirms answers, letter and sending separately, disables automatic exact sending and ends the foreground command after one confirmed delivery. Preserve zero-effect preview and existing combined prefill behavior outside the preset.
+- [x] Carry the frozen preset and separately scoped prefill actions through CLI, both Lino routes, recovery and four-language browser controls. Preserve legacy journals, owner values, native guards, failed-write uncertainty and renewed confirmation after each accepted revision. All 184 focused Node checks, 14 Deno checks, seven finite native session checks and scoped Clippy pass. One native Chromium scenario and independent MCP verify separate fills, renewed confirmation, four-locale recovery and phone layout; all owned fixtures close.
+- [ ] Reproduce the published-parent failure; verify focused Node/Deno and one native/MCP scenario, preserve screenshots and checksummed evidence, drain fixtures and inspect exact-head hosted checks. Automatic paced revisits, recruiter-panel handling and every unchecked original criterion remain required.
+
+Active generic-error retry preservation (HH08 remains incomplete):
+
+- [x] Capture the bound native generic-error form without enabling dispatch. Acknowledge every safe actual draft/Q&A value before closing; keep the live form after read/save failures, verification, validation, limits, pauses or preview.
+- [x] Queue the vacancy only in worker RAM for five hours, exclude it from ordinary search/reopening until due, isolate slots and preserve separately saved exclusions. A durable recovery draft never becomes a persistent exclusion.
+- [x] Preserve acknowledged failed-dispatch history before allowing a due, explicitly confirmed fresh review. Refuse uncertain outcomes without fresh native generic-error evidence; restoration and sending keep separate confirmations.
+- [x] Verify exact-parent failure, 141 focused Node cases, 31 new Deno cases, 35 selection/dictionary checks, all nine native Chromium scenarios and independent MCP through CLI, both Lino routes and four-language controls. After shared fixture consolidation, all 60 affected Node and 31 new Deno cases pass; unchanged static gates pass. Preserve checksummed source/log/reference/screenshots evidence.
+- [x] Publish the retry unit as `f523ccc5` and confirm all five exact-head hosted workflows pass, including main run `43563472873`. Continue automatic pacing/revisits and every other unchecked original requirement; the PR remains draft and unmerged.
+
+Active native provider-error and verification holds (HH08 remains incomplete):
+
+- [x] Detect visible native application errors without treating unrelated page text as an error. Retain a RAM-only hold per vacancy and browser slot through banner dismissal, explicit close/reopen and failed acknowledgements; clear it only on freshly confirmed delivery or worker shutdown.
+- [x] Block automatic sending, late native dispatch and automatic questionnaire closure while held. Preserve explicit fresh review, owner answers, separate manual confirmation and durable uncertain-dispatch reservations.
+- [x] Expose truthful hold states through both wire formats, CLI and four-language browser controls. Reproduce the exact-parent failure, run focused checks and one native/MCP scenario, preserve before/after screenshots and drain fixtures. All 110 focused Node, 15 new Deno and 25 dictionary checks pass; the final shared MCP fixture also preserves existing automatic deferral/restoration behavior.
+- [x] Publish the atomic hold unit as `37d0a3c9` and confirm all five exact-head hosted workflows pass, including main run `43560242200`. The following retry unit, queue pacing/revisits, supervised presets and every unchecked original requirement remain active. Keep PR57 draft and unmerged.
+
+Active automatic questionnaire deferral prerequisite (HH08 remains incomplete):
+
+- [x] Reuse acknowledged actual-answer preservation at the owned operation boundary when questionnaire mode is enabled. Keep pauses, preview, unsafe captures, storage failures and uncertain submissions open; respect mode changes during checkpoints.
+- [x] Process idle foreground signals without overlapping owned operations. Let CLI/API/UI re-enable questions after automatic closure using fresh inactive-journal identity; preserve separate review/restoration/send confirmation.
+- [x] Exact-parent Node/native/MCP reproductions, 95 focused Node checks, 12 new Deno cases, 25 dictionary checks, final native/MCP before/after and fixture drain pass. Checksummed evidence is published as `c4a40d2c`; every exact-head hosted check passes, including main run `43557439839`.
+- [ ] Continue queue pacing/revisits, generic-error five-hour retries, supervised presets and every original unchecked criterion. Keep PR57 draft and unmerged.
+
+Active backed questionnaire deferral prerequisite (HH08 remains incomplete):
+
+- [x] Save the complete actual native draft and private Q&A observations, then acknowledge eligible unapproved answer learning before closing. Refuse stale, unsupported or failed saves and keep live questionnaires through idle time.
+- [x] Add a bounded RAM-only per-slot queue and explicitly confirmed fresh-review reopening. Preserve run policies, saved exclusions, delivery reservations and separate restoration/submission confirmation. Reset only the queue on worker restart; durable drafts remain recoverable.
+- [x] Expose deferral and queue review through CLI, both Lino routes and four-language browser controls. Verify exact-parent failure, 83 focused application checks, production Chromium and independent MCP before/after screenshots; close all fixtures. Shared-form (27), dictionary (25), Deno (21) and all seven affected native scenarios pass. Final gates and publication remain.
+- [x] Preserve checksummed evidence and publish the atomic unit as `24ef1b88`. Every exact-head hosted check passes, including main run `43554063889`. Continue automatic mode-driven deferral, generic-error five-hour retries, supervised test presets and every unchecked original criterion. Keep PR57 draft and unmerged.
+
+Active worker application policies (HH08 remains incomplete):
+
+- [x] Draft worker-owned, browser-slot-isolated pause/questionnaire choices across vacancy reviews. Exclude them from durable journals, reset on worker restart and retain explicit read/backup while held.
+- [x] Draft POSIX foreground signals that can interrupt an active exact-answer delay and its last native guard. Preserve acknowledged mode updates and a later signal during successful or failed storage.
+- [x] Verify exact-parent loss, 62 focused application cases, 15 shared-prefill cases, 11 sequential Deno cases and four dictionary checks. Production native Chromium and independent MCP confirm retained choices, held questionnaires and review-only resume; all owned fixtures close. Preserve before/after screens and the initial asynchronous-checkbox probe failures.
+- [x] Publish checksummed [run-policy evidence](application-run-modes.md) as `5e622049` and confirm every hosted check for that exact head passes. The next backed-deferral unit and all remaining original criteria stay active; PR57 remains draft and unmerged.
+
+Active native application draft prerequisite for HH06/HH08:
+
+- [x] Add explicit private acknowledged backups of freshly inspected bound questionnaires and actual owner letters. Refuse incomplete, unsafe or unsupported captures; retain previous acknowledged drafts and the live form after failed storage. Automatic backup before future deferral remains required.
+- [x] Add separately confirmed restoration into matching empty native controls using existing owned form targets, full-document revalidation and verified readback. Preserve changed owner values, scope, reservations and manual submission; never learn or send while restoring.
+- [x] Expose backup, saved-answer review and explicit restore through CLI, both Lino formats and four-language application controls. Verify exact-parent absence/loss, 66 focused checks, four dictionary checks, production browser/MCP and before/after evidence; preserve the initial native guard failure too. See [draft evidence](application-drafts.md).
+- [ ] Continue the RAM-only queue, run-wide modes and supervised one-application test preset required by the pinned HH guide (README lines 368–389 and 468–479). Existing zero-effect preview remains available. Complete every original unchecked criterion and exact-head CI before marking PR57 ready.
+
+Active hosted Windows Deno snapshot interval failure:
+
+- [x] Match Windows 2025 Deno shard 3 job `132290872116` to exact published `4f482c34`, and preserve its complete 5,292-line log. Lines 5244–5257 report one snapshot record instead of three in the interval test.
+- [x] Reproduce the invalid five-second assertion against the exact published scheduler with a bounded controlled 600 ms write. Await actual file writes with an injected finite scheduling clock; verify minimum/adaptive intervals, coalescing, immediate flush and throwing diagnostics in three Node/three Deno checks, plus six existing mirror checks. Preserve full hosted logs and confirmed supersession annotation in [the evidence](ci-snapshot-interval.md). Production timing policy and deadlines stay unchanged; the original runner's precise write cost was not measured.
+- [x] Publish the atomic correction as `d0a5e5e5`; its exact-head Windows Deno shard 3 (`132305077741`) and all four CodeQL jobs pass. The aggregate workflow still has unfinished jobs; every final-head check remains required.
+
+Active native full-form recovery correction:
+
+- [x] Reproduce exact published `e1c10104` reopening at the vacancy while its entry reservation blocks further entry. Preserve Node/native failures and independent MCP before screenshot; replace mock document retention with a fresh browser document.
+- [x] Checkpoint only an acknowledged bound questionnaire URL; validate exact HH origin, credentials, route and vacancy ID before browser launch. Preserve original settings and entry/submission reservations; keep legacy journals readable and failed put/flush locations rolled back.
+- [x] Verify fresh explicit review, no automatic entry/prefill/submit, uncertain submission refusal, renewed confirmations and read-only reload through focused tests, production Chromium and independent MCP. Close all fixture browsers and preserve before/after screenshots.
+- [ ] Publish checksummed [recovery evidence](application-recovery.md), verify scoped gates and inspect exact-head CI. Continue deferred retries, full session/popup policies and every unchecked original criterion; PR57 stays draft and unmerged.
+
+Active native application browser controls:
+
+- [x] Add four-language vacancy-bound review, frozen owner settings, full vacancy/form evidence and freshly confirmed native actions. Preserve private durable reservations and truthful missing, unknown and live-browser states.
+- [x] Verify seven controller cases, existing service/interface/ownership compatibility, all four locale renders and dictionary parity. Confirm one actual native entry/submission through a dropped response and reload without replay; capture exact published before and desktop/phone/unknown/delivered after screens.
+- [x] Independently verify preview restart, pause/resume, reversible current-review deferral and delivered replay refusal through Playwright MCP; close and drain all owned fixture resources. Preserve the draft checkbox/SSR failures alongside final results.
+- [ ] Publish checksummed [application controls evidence](application-controls.md), inspect every exact-head gate and complete deferred retries, recovered native forms and every remaining original criterion. The PR stays draft and unmerged.
+
+Active hosted negative URL probe finding:
+
+- [x] Inspect exact `20d47bb1` security job `132268444304` and preserve its complete log, actual SARIF and the remaining probe finding at lines 8890–8892. Native selectors no longer trigger the gate.
+- [x] Remove the obsolete unsafe prefix predicate from the experiment; retain its four exact-URL decoy refusals without a suppression.
+- [x] Publish the probe correction as `81d55350`. Its security audit passes; the main workflow still has unfinished browser/runtime jobs. Exact final-head gates remain required.
+- [ ] Complete native application session/deferred policies and every original unchecked criterion. PR #57 stays draft and unmerged.
+
+Active hosted native application fixture URL findings:
+
+- [x] Preserve `5a687049` CodeQL job `132263470967`, its 8,964-line log and actual SARIF. The gate reports two incomplete URL checks at log lines 8897–8898, both in native fixture page discovery.
+- [x] Select the exact owned full-form URL, including its vacancy ID. A finite four-candidate decoy probe and both native Chromium application scenarios pass; there are no page errors or CodeQL suppressions.
+- [ ] Publish this correction and inspect the current-head CodeQL gates and all other hosted checks. Continue every unfinished original criterion.
+
+Active hosted stale-tab replacement failure:
+
+- [x] Match WebKit shard 3 job `132250412027` to `8d16669e`; preserve the complete workflow/job logs, 38-file browser artifact and the mismatch at job-log lines 1941–1985. The current `5a687049` workflows are a separate, unfinished run.
+- [x] Reproduce an unchanged opening reviving removed children against exact `5a687049` in one focused regression, native WebKit and independent Playwright MCP over both IndexedDB/localStorage. Preserve the controlled concurrent-save draft refusal too.
+- [x] Compare each public record with its opening baseline before joining independently changed records. Keep concurrent child unions, causal deletion, private conflicts and the finite save retry budget. Gate native concurrent admission explicitly and separately verify later replacement.
+- [x] Publish the correction as `9c931111` with checksummed evidence; its exact-head CI remains pending. Continue native application UI, deferred policies and every unchecked original requirement; keep PR #57 draft and unmerged.
+
+Active native application executor (HH06–HH08 remain incomplete):
+
+- [x] Draft owned native review, full vacancy context, durable pre-dispatch reservations, exact-only filling, verified letters, bounded delay and session-only pause/deferral. Sixteen focused service and ownership checks pass on the draft.
+- [x] Verify real native DOM admission, entry/submission outcomes, replaced controls, letter toggles and full-form navigation using two isolated finite Chromium scenarios. Four late changes refuse dispatch; no page errors occur.
+- [x] Verify the executor CLI, text/binary HTTP Lino routes and browser API receipts in 20 focused checks. Confirmed absence is distinct from unknown reads. Browser UI controls and deferred retry policies remain unfinished; `apply` stays false.
+- [x] Publish the owned executor and retained parent/native evidence as `5a687049`; keep its full hosted checks pending. Browser controls and deferred retries remain unfinished.
+- [ ] Complete deferred retry policies and all remaining HH06–HH08 and original inventory criteria. Keep PR #57 draft and unmerged until every acceptance criterion is verified.
+
+Active hosted repeated-unread assertion:
+
+- [x] Match Chromium shard 2 job `132238675692` to published `236f42a7` and preserve its complete 1,897-line log and 30-file artifact. The assertion compares the active list viewport with a completed pass receipt; draft, selection, route and message scroll agree.
+- [x] Read the actual native navigation/filter restoration and polling admission paths. An unchanged focused local Chromium scenario passes; that alone does not resolve the hosted failure.
+- [x] Reproduce the overlapping third pass with finite fixture gates. Keep every native read, full owner-state assertion, focus refusal, stop/drain and reload recovery check. The exact published assertion fails at the held third native filter change; the corrected Chromium scenario passes all five cases and 16 focused Node checks pass. Existing deadlines are unchanged.
+- [ ] Publish the atomic test correction and inspect every exact-head hosted check. Resume the stashed native application draft and all unchecked original criteria. The draft stays unmerged.
+
+Active hosted directory keyboard failure:
+
+- [x] Match the failing run to published `222f2e80`, preserve WebKit shard 1's complete log and artifact, and inspect the valid failure screenshot. The failure is Home focus from chat 150 to chat 1; a normal focused local WebKit run passes.
+- [x] Preserve the separate macOS Node shard 3 checkout cancellation and GitHub's ten-minute deadline annotation. No test step started; the log endpoint currently returns BlobNotFound.
+- [x] Add bounded, default-off focus/scroll diagnostics and reproduce the pending viewport-frame dependency with a finite native fixture before changing behavior. Exact published `1ea671cf` fails the bounded Home assertion; restoring its frame recovers focus. The original hosted scheduling trigger remains unproven.
+- [x] Remove the verified dependency, preserve keyboard/selection/viewport behavior, run only focused checks, and capture native/MCP before/after evidence. Eighteen focused Node checks, six held-frame native keyboard moves and four independent MCP moves pass. The final MCP fixture reports no page or console errors; all owned resources close. All existing deadlines remain unchanged.
+- [ ] Publish the atomic correction, update PR 57 and verify its exact-head hosted checks. Continue the application executor, session policies and every original unchecked requirement; the draft remains unmerged.
+
+Active native hosted reference artifact:
+
+- [x] Preserve exact `9db8d8d9` Rust and API Docs failure logs. Official-codec durable tests now all pass; the network check starts the parent's executable from the shared Cargo output.
+- [x] Preserve and restore the current CLI while running an isolated parent copy. Verify actual small Cargo binaries and failure cleanup, plus the original/corrected CLI header with warnings-denied rustdoc.
+- [x] Publish [the correction](ci-native-reference-artifact.md) as `3ad29517`; actual native HTTP/restart and warnings-denied documentation pass in hosted jobs `132152543260` and `132152542905`. Continue native synchronization and every original unchecked requirement.
+
+Active native WebSocket application:
+
+- [ ] Reproduce the published CLI's unapplied sync mutations with the production JavaScript peer.
+- [x] Draft schema-13 admission, private/schema exclusion and causal deletion validation. Finite checks pass; full network verification remains hosted.
+- [x] Draft checkpoint-gated incoming admission, one remote/session scan and one outstanding record. Verify failed persistence, duplicate controls and a stable opening boundary despite middle-key insertions.
+- [ ] Verify directed initial/reconnect scans, failed admission, duplicate/out-of-order controls, mismatched schema and session cleanup with finite std-only checks and hosted official-codec/network checks.
+- [ ] Verify drafted bounded live owner/remote fan-out through two real JavaScript peers and durable restart in hosted CI, then continue editable-tab merging and all remaining requirements. See [native session evidence](native-sync-session.md).
+
+Active desktop provenance failure:
+
+- [x] Preserve exact `0f245481` desktop run `43492615795`: Windows ARM64 packaging and smoke pass, then the npm version launcher exits `-2147483644` at full log line 3035.
+- [x] Read installed builder metadata without launching its CLI, and reproduce the failed actual shell step with a finite unavailable-launcher fixture. Check checksum and provenance contents and register the regression in hosted packaging.
+- [ ] Archive [the evidence](ci-desktop-provenance.md), publish, and verify every corrected-head check. Keep the unrelated hosted disclosure investigation and all original requirements active.
+
+Active native durable admission:
+
+- [x] Draft an unchanged-CLI restart-loss regression and register an exact-parent native build on provisioned CI; the real parent executable has not been built on this limited host.
+- [x] Draft full rich records, assignment/deletion clocks and private local metadata in recoverable text/binary Links Notation checkpoints, with exclusive writable ownership, bounded decoding and pre-admission persistence.
+- [x] Pass nine finite std-only admission/filesystem checks, scoped Clippy, ten owner-route checks and nine rich/number checks. Cover nested directory durability, staging/refusal, uncertain publication and 503 errors; keep the unchanged 6.5% duplication gate.
+- [x] Verify actual codec reopen, stale replica packets, corruption, owner conflicts, failed batches and native HTTP restart in hosted Rust job `132152543260` on `3ad29517`, retaining the expected exact-parent failure. Full builds remain hosted.
+- [ ] Preserve checksummed evidence, publish and verify exact-head checks. Then continue schema-gated native transport/reconciliation, live tab merging and every unchecked original requirement.
+
+Active hosted Telegram Backlinks disclosure:
+
+- [x] Preserve exact `bd954afd` WebKit shard 3 failure and artifact metadata; verify and inspect the closed-disclosure screenshot.
+- [x] Extend the existing default-off trace to the Telegram fixture without changing its click, assertions or deadlines. One focused WebKit workflow and one independent MCP opening pass locally.
+- [ ] Publish [recurrence diagnostics](ci-telegram-backlinks.md), inspect the next exact-head hosted trace and determine the actual cause. Local passes do not establish a hosted fix.
+
+Active native owner causality:
+
+- [x] Reproduce native HTTP owner-edit rollback, deletion resurrection, recreation loss and absent write clocks against published `bd954afd`.
+- [x] Stamp native owner writes atomically with a fresh writer per state opening, retain payload-free owner deletion clocks, validate before mutation and cover all native mutating endpoints.
+- [x] Verify ten focused real-router regressions and twelve production JavaScript owner cases, including atomic email refusal, counter exhaustion and three concurrent writes. Scoped Clippy passes below 224 MiB.
+- [ ] Preserve [owner-clock evidence](native-owner-clocks.md), publish this atomic unit and inspect exact-head hosted checks before continuing durable storage and schema-gated transport.
+
+Active native rich-record convergence and CI duplication:
+
+- [x] Reproduce four state/mirror failures on exact published `b24e1ca5`: discarded clocks, assignment stamps and versions, plus public deletion exposure.
+- [x] Draft checked finite rich-record merge, shared original-assignment ranking, private-record refusal, atomic remote state admission and hidden payload-free deletion records. Add JavaScript-generated rich fixtures and bounded malformed/concurrent admission tests.
+- [x] Preserve hosted `b24e1ca5` lint job `132087249139`: generated Rust fixture literals increase duplication to 6.58%, above the unchanged 6.5% gate. Convert those expectations to data consumed by one shared test helper; preserve all thirteen typed fixtures and per-case tests.
+- [x] Verify focused Rust/Clippy and generated fixtures, including 26 direct number-string cases. Preserve every typed assertion while replacing generated literals with data. Share fourteen deterministic archive tails and prove 28 byte-for-byte comparisons against published evidence; retain the existing four writer checks.
+- [ ] Archive the exact-parent evidence, publish this unit and inspect all exact-head hosted checks.
+- [ ] Implement native durable causal persistence, schema-gated transport application and reconciliation, automatic editable-tab merging and every other unchecked original criterion. A checked in-memory boundary alone does not complete replication.
+
+Active Bun browser account fixture compatibility:
+
+- [x] Preserve complete Linux and Windows Bun failures on `8b1c19ba`, reproduce the selected account-storage case and supply the existing lock fixture without weakening production protection. Both focused runtimes pass; publish `c0fc2d23` with [checksummed evidence](ci-browser-account-locks.md).
+- [ ] Inspect exact corrected-head hosted checks and continue every unchecked original requirement.
+
+Active typed native register convergence:
+
+- [x] Reproduce equal-clock argument bias, synthetic assignment promotion, randomized children and retained zero counters against exact published `8b1c19ba` with four failing finite cases.
+- [x] Retain original typed assignment clocks, normalize safe counters, canonicalize children and match JavaScript UTF-16/numeric-property/version ranking without new dependencies. Preserve trusted APIs and add fallible admission helpers.
+- [x] Pass eight focused regressions and thirteen production-JavaScript-generated permutation fixtures; run scoped Clippy below 190 MiB and register fixture drift checks in existing native CI.
+- [ ] Preserve evidence, publish this atomic unit and inspect exact-head hosted checks. See [native register](native-register.md).
+- [ ] Implement native rich-record admission, durable causal persistence, deletion and reconciliation, automatic editable-tab merging and every other unchecked original criterion. Typed-core convergence is only one prerequisite.
+
+Active concurrent browser snapshot protection:
+
+- [x] Reproduce stale insert/edit/delete/bulk/flush overwrites on exact published `eefc6f7d`, including a reused driver and two native tabs sharing IndexedDB/localStorage.
+- [x] Compare and replace atomically in one IndexedDB transaction or one nonqueued Web Lock. Bind the expected revision to each open store, preserve legacy roots, reject unsafe fallback writes and retain unsaved owner memory on conflicts.
+- [x] Verify seven exact-parent failures, 29 focused persistence/error checks, 32 existing causal/offline/registry checks, actual native WebKit tabs and independent MCP before/after data. Register both hosted browser engines; retain the draft first-save retry failure and final correction.
+- [x] Preserve evidence and publish the atomic correction as `8b1c19ba`. See [snapshot ownership](browser-snapshot-ownership.md).
+- [ ] Inspect every exact-head hosted check; `8b1c19ba` run `43481124739` is unfinished. Previous completed `eefc6f7d` runtime jobs pass, but three browser shards are superseded by cancellation.
+- [ ] Continue live tab merging, native sync parity and every unchecked original feature requirement. Conflict refusal alone does not complete simultaneous editable tabs.
+
+Active bounded initial/reconnect reconciliation:
+
+- [x] Reproduce missing preconnection records, offline edits and deletion clocks on published `4bfeaf2c`, including a later client on a shared hub transport.
+- [x] Negotiate optional addressed sessions after matching schema; stream raw causal records with one record awaiting acknowledgement per remote, finite initial scan bounds, bounded session state, cancellation and explicit errors. Never expose private/schema records or acknowledge unapplied writes.
+- [x] Verify minimal parent/final regressions, acknowledgement backpressure, stale/duplicate/wrong-recipient control packets, schema refusal, hub isolation, durable reopen and one focused native browser scenario. Keep full matrices hosted.
+- [ ] Preserve evidence, commit/publish an atomic unit and inspect exact-head CI; continue native parity, shared multi-tab persistence and every unchecked original feature requirement.
+
+Active published `4bfeaf2c` compatibility failures:
+
+- [x] Preserve exact-head metadata and completed failing runtime job logs; Linux Node has eight failures at lines 6526–6656.
+- [x] Reproduce and correct causal-wrapper send-failure injection, cache deletion visibility, initial schema counts, raw binary mirror assertions and publication target normalization without weakening owner input validation. Twelve affected-name checks and twelve overlapping publication checks pass; three new destination regressions fail on the exact parent.
+- [ ] Run only focused affected checks locally, publish the atomic correction and inspect every exact-head hosted check. Keep remaining original issue scope active.
+- [ ] Investigate the separate Windows Bun initial rolling-start failure (job `132046618096`, lines 7058–7093) without raising readiness or job deadlines; retain complete parent workflow/job logs and compare the next exact-head result.
+
+Active WebRTC queued sends and departure readiness:
+
+- [x] Preserve exact published `96a54d99` failure, complete workflow/job logs, artifact metadata and inspected valid screenshot; reproduce two finite lifecycle failures before correction.
+- [x] Isolate queued native send errors, dispose failed/late channels and retain explicit delivery failure reporting without replay. Nineteen focused checks pass. A final native rerun disproves the queue-only diagnosis; preserve the ordinary-send failure and app-free native diagnostic probe. Wait for actual broker departure disposal before remaining-pair writes, retain page-error checks and verify the native WebKit scenario.
+- [x] Report the native console/pageerror classification with a reproducer and workaround upstream: microsoft/playwright#44103.
+- [ ] Preserve checksummed evidence, publish the causal-write/deletion/lifecycle units and inspect every exact-head hosted check.
+- [ ] Continue bounded initial/reconnect reconciliation, native parity and every unchecked original requirement; these safeguards do not complete offline synchronization.
+
+Active durable causal deletion safeguards:
+
+- [x] Reproduce old-packet resurrection after actual durable reopen and stale deletion of explicit recreation against `a874e936`.
+- [x] Retain payload-free deletion clocks below history, hide markers from public reads, reserve schema 13 and mark empty durable roots before admitting new-format writes.
+- [x] Catch draft regressions in recreated history and edited chat counts; preserve owner history, feedback indexes, private records and read-only guards.
+- [x] Finish focused compatibility checks and independent actual IndexedDB parent/final probes; archive and commit `980e1f0b`. Native WebKit first reproduces the existing RTC error, then passes with the separately tested lifecycle correction; publication and exact-head hosted checks remain required.
+- [ ] Repair the exact `96a54d99` hosted RTC send lifecycle failure (run `43462136209`, job `132013458396`), retain failing-before tests and inspect all checks on the new published SHA.
+- [ ] Continue bounded offline/reconnect reconciliation, native parity and every unchecked original requirement. Durable deletion metadata alone does not synchronize disconnected history.
+
+Active ordinary-write causal clocks:
+
+- [x] Reproduce stale-packet rollback after ordinary durable/server edits on published `96a54d99`.
+- [x] Stamp ordinary production writes at atomic storage admission, prepare complete bulk clocks before events, preserve replicated clocks and return admitted records through history/offline APIs. Use distinct actors per writable opening and schema 12 without rewriting history.
+- [x] Verify focused storage/history/API/migration/handoff checks, exact-parent failures, one rebuilt native WebKit WebRTC scenario and independent actual IndexedDB parent/final reopen probes.
+- [ ] Preserve checksummed evidence, publish and inspect exact-head hosted checks. Continue durable offline reconciliation, deletion history, native parity and every remaining original criterion.
+
+Hosted checks for published `fc7c095c` all pass. The later `96a54d99` Checks run fails only in WebKit shard 1 at queued RTC send disposal; all other workflows pass. Retain exact-SHA verification before declaring the correction verified.
+
+Active delivery-order-independent JavaScript merge rules:
+
+- [x] Reproduce equal-clock ties, three-way synthetic-clock promotion, key/child insertion order, decimal counter width and explicit-zero clock failures against published `fc7c095c`.
+- [x] Retain the original winning write clock separately from joined observations, use a deterministic total rank, canonical child unions and safe own-property counters, and reserve the field through schema 11 with collision refusal.
+- [x] Verify 109 focused Node checks, actual text/binary file reopen and TCP/WebSocket exchange, one rebuilt native WebKit scenario and independent real IndexedDB parent/final MCP probes.
+- [ ] Preserve checksummed evidence, publish and inspect exact-head hosted checks. Continue ordinary-write causal stamping, durable reconnect/deletion reconciliation, native parity and every remaining original requirement.
+
+Hosted confirmation of cold immutable release staging: all three Windows Deno shards pass on published `ff43da4f`; job `131986863539` retains 1,888 passes, zero failures and complete startup below the unchanged deadline. The superseded run's aggregate fails because later checks were cancelled after publication of `fc7c095c`, not because this Windows job failed. Exact final-head checks remain required.
+
+Active ordered browser snapshot durability:
+
+- [x] Reproduce early write acknowledgement, stale overlapping saves/flush and partial bulk admission using finite delayed drivers against published `ff43da4f`.
+- [x] Serialize/coalesce snapshot saves with at most one pending snapshot, retain immediate memory/events, acknowledge driver completion and expose failures with explicit flush recovery.
+- [x] Verify 64 focused browser storage/offline/receive/relay checks, the rebuilt native WebKit scenario and independent actual IndexedDB parent/final probes through Playwright MCP.
+- [ ] Preserve evidence, publish and inspect exact-head hosted checks. Continue durable reconnect/deletion reconciliation, ordinary-edit convergence and every remaining original requirement.
+
+Active cold immutable release staging:
+
+- [x] Preserve the exact Windows Deno failure: 1,620-file cold staging consumes most of the unchanged ten-second CLI readiness budget before the control pipe exists.
+- [x] Reproduce the four-copy batch barrier with a finite fourteen-file fixture and one explicitly gated copy; keep all other copy slots working without increasing concurrency or deadlines.
+- [x] Preserve failed-copy draining, atomic publication, complete snapshot verification and source-edit refusal; thirteen focused checks pass, including both real CLI checks, with one Deno-only check skipped under Node.
+- [ ] Publish checksummed evidence and inspect exact-head hosted Windows Deno and other checks. Continue all unfinished issue criteria.
+
+Active live hub forwarding:
+
+- [x] Reproduce missing three-peer forwarding with and without schema negotiation, and a hub cycle with a downstream leaf, against published `f4a8fac1`.
+- [x] Relay accepted remote operations across connected hub transports with bounded duplicate/loop prevention; preserve local/remote admission order, secret/schema guards and explicit failure reporting.
+- [x] Verify 76 focused peer/storage/wire/schema checks and real text/binary WebSocket/TCP cases; six finite cases fail on the exact published parent and the native WebKit mesh scenario passes.
+- [ ] Preserve [hub forwarding evidence](sync-hub-relay.md), publish and inspect exact-head CI.
+- [ ] Resolve exact parent Windows Deno cold release staging: job `131967810018`, raw log lines 2244–2260 and 5088–5109 show 8.5-second snapshot copying and missing control pipe at the unchanged ten-second readiness deadline.
+- [ ] Continue durable offline reconciliation, ordinary unversioned-edit convergence and every other unchecked requirement. Live forwarding does not complete multiserver synchronization.
+
+Active text-log mutation admission:
+
+- [x] Reproduce nine subscriber-triggered put/bulk/delete reorderings, interrupted bulk memory admission and an early flush returning before called writes are staged against published `e8ff3c84`.
+- [x] Reserve append admission before reentrant subscribers; capture encoded records before mutable subscriber/caller inputs can change them. Preserve immediate memory writes and disk group commit.
+- [x] Verify 52 focused storage/sync/persistence/receive/handoff checks and 13 bounded append/failure checks. All 15 regression cases fail against the exact published parent.
+- [ ] Preserve [mutation admission evidence](lino-mutation-admission.md), publish and inspect exact-head CI. Continue all other unchecked criteria.
+
+Active receive isolation and atomic merge:
+
+- [x] Reproduce local edit suppression, stale overlapping receives and same-record edits against published `ea957225` with finite focused fixtures.
+- [x] Tag only replicated mutations in transient events, serialize incoming work and merge atomically through memory/browser/durable/history wrappers without persisting or transmitting the marker.
+- [x] Verify 46 focused Node checks, the exact-parent native failure, native WebKit race/mesh and an independent MCP race. Preserve message history, secret/schema isolation, durable reopen, transport error reporting and failure recovery.
+- [x] Reproduce the exact hosted SPA hash-navigation fixture timeout and verify a fresh fixture document with the same 20-second deadline.
+- [ ] Preserve [receive isolation evidence](sync-receive-isolation.md), publish and inspect exact-head CI.
+- [ ] Continue offline history reconciliation and every other unchecked original criterion; live receive isolation alone does not provide catch-up.
+
+Active ordinary WebSocket cleanup and Windows Deno startup:
+
+- [x] Merge the independently published peer mesh forward, preserving both histories and the alternative lifecycle evidence.
+- [x] Reproduce ordinary WebSocket TCP-end retention against the actual parent; verify replacement connections with 22 focused merged Node checks and one native WebKit scenario.
+- [x] Reproduce Deno child auto-installation despite installed modules; use manual resolution and verify five focused Deno checks plus a real CLI startup/upgrade without increasing deadlines.
+- [ ] Publish preserved evidence, inspect exact-head CI and resolve cold dependency initialization before the Windows Deno readiness deadline without raising that deadline.
+- [ ] Continue offline record/deletion reconciliation and every other unchecked original feature requirement. These socket fixes do not complete the issue.
+
+Active merged sync/membership validation:
+
+- [x] Merge both published feature histories forward, retain original evidence, rebuild the combined browser bundle and retain one changeset.
+- [x] Verify 26 combined focused checks, 23 workplace checks, six native WebKit scenarios and zero scoped lint warnings; preserve the refactor failure caught before publication.
+- [x] Preserve exact parent Bun logs, reproduce the missing translation capability expectation and verify its focused correction. See [integration evidence](ci-mesh-membership-integration.md).
+- [ ] Publish the combined correction and inspect every exact-head hosted check. Continue offline reconciliation, complete shared-copy/new-identity workflows and every other unchecked requirement.
+
+Active addressed WebRTC connection lifecycle:
+
+- [x] Integrate both published readiness fixes forward and publish `3483c8b1`; retain actual offline rediscovery and atomic guarded reads.
+- [x] Reproduce three-peer convergence against the actual parent bundle/server; preserve the earlier connected-peer deletion failure.
+- [x] Share server-owned room identities and directed signaling in Node/Bun; isolate one connection per remote peer, departure cleanup and bounded early ICE handling.
+- [x] Verify 18 focused room/mesh/transport checks and one native WebKit scenario covering a third peer, connected reload, fresh bidirectional writes, deletion, secrets and signaling-only server state.
+- [ ] Preserve [native and independent MCP evidence](webrtc-mesh.md), publish only the prepared branch and inspect all exact-head CI checks. Continue every unchecked original feature requirement.
+
+Active separately reviewed shared-workplace deselection:
+
+- [x] Read pinned copy/detach behavior and integrate published translation/sync work without discarding either implementation.
+- [x] Draft immutable complete membership review and native target-only deselection through CLI, both Lino encodings and four locales. Refuse orphaning and leave Save/Cancel to the owner.
+- [x] Reproduce actual-parent service/UI failures; verify focused tampering, stale membership, owner concurrency and phone lost-reply recovery on isolated native fixtures.
+- [ ] Preserve evidence/screenshots, publish the atomic unit and inspect exact-head hosted CI.
+- [ ] Continue complete shared copy/new-record identity, durable batches and every other unchecked original criterion. Standalone deselection does not complete HH14–HH20.
+
+Active exact-head CI and connection lifecycle:
+
+- [x] Preserve parent WebKit job 131312063036 and identify offline rediscovery replacing the document after API readiness.
+- [x] Reproduce the exact parent TypeError with real offline rediscovery; poll readiness without falsely confirming deletion. The focused native WebKit check passes with unchanged deadlines.
+- [x] Commit translation comparison and merge the independently published full-field review forward. Combined focused Node checks pass 28 cases; six native translation cases pass after one unreproduced disabled-button timeout.
+- [ ] Publish preserved evidence, inspect all exact-head hosted checks, then repair the independently reproduced stale RTC channel on connected-peer reload.
+- [ ] Continue full HH/LinkedIn synchronization, live latest translator checks, upstream failure publication and every remaining requirement.
+
+[Rediscovery evidence and remaining connection limits](ci-lino-sync-rediscovery.md).
+
+Active HH22 translation comparison:
+
+The comparison draft passes 23 focused Node checks, 19 Deno checks, two actual-parent failures, six native WebKit scenarios and five independent MCP scenarios. Eleven synthetic model calls and one drained Stop are observed per browser run; no provider session or live model call is claimed. [Evidence and remaining limits](cv-translation.md). Parent hosted WebKit shard 4 fails at Lino peer rediscovery (`__msApi.get` during reload); preserve job logs and investigate without raising deadlines.
+
+- [x] Implement explicit bounded RU/EN comparison requests with configurable Haiku, Luna and Formal AI adapters, exact source/target/model provenance and private versioned caches. Retry failed results only on a new explicit request.
+- [x] Persist request IDs before translator admission, recover lost replies and interrupted runs without replay, abort/drain on Stop, and reject invalid answers without treating fallback source text as a translation.
+- [x] Share comparison, read-only recovery and variant/failure review through CLI, text/binary Lino and four localized CV controls; keep provider writes separate and truthful.
+- [ ] Verify actual-parent failure, focused Node/Deno and process bounds, independent MCP desktop/phone controls and checksummed evidence. Publish an atomic commit and inspect exact-head hosted checks.
+- [ ] Continue full HH/LinkedIn import, field comparison, reviewed sync, Formal AI failure publication and every other unchecked issue requirement; this unit alone does not complete HH21/HH22.
+
+Active hosted WebKit sync readiness correction:
+
+- [x] Preserve exact failed parent run/job/timestamp evidence and deterministically reproduce offline rediscovery before sync API reads.
+- [x] Require actual peer/signaling readiness before writes, preserve real WebRTC convergence/deletion/secret isolation and existing deadlines, and verify the recovery path locally with one engine.
+- [ ] Preserve the regression/evidence, publish only the prepared branch and inspect exact-head hosted CI.
+- [ ] Continue every unchecked original feature criterion; passing CI does not complete missing requirements.
+
+Active complete existing-workplace field review/preparation:
+
+- [x] Inventory native controls and pinned dictionary behavior; reproduce the missing full-field review on published `2389fc8e`.
+- [x] Save an immutable exact-export/job/record-bound proposed draft, explicitly review its complete field differences and revalidate source artifacts before browser admission.
+- [x] Prepare company, position, description, month-precise dates/current status, website, localized area and industry identities in the exact existing single-CV workplace; preserve every unrelated field, memberships and owner edits. Leave native Save/Cancel to the owner.
+- [x] Share review, recovery and draft-only receipts through CLI, both Lino formats and four-language CV controls. Verify focused parent-failing checks and native desktop/phone evidence with no full local suite.
+- [ ] Preserve evidence, commit and push only the prepared branch, review exact-head hosted checks, then continue shared copy/detach, new identities, durable batches and every remaining requirement.
+
+Nine new checks pass per Node/Deno; the mandatory native preparation group passes all 21 scenarios. Four new cases drain seven attachments with zero provider Saves and no page errors. A shared cancellation receipt regression is reproduced and fixed. Parent hosted WebKit shard 4 still fails during offline rediscovery; inspect and correct its connection-readiness assumption separately. See [field-review evidence](cv-workplace-fields.md).
+
+Active reviewed workplace description preparation:
+
+Preparation `0b14bcd6` is integrated with independent readback guards `16a73620` in a regular merge. All 69 focused Node/69 Deno checks pass on the combined sources, with explicit successful Deno exit; the five preparation/eight Save-observation native cases pass. Parent native-helper cancellation was a superseded concurrency request with no test steps or log blob; retain its annotations and require exact combined-head hosted checks. Original archives and both implementations are preserved.
+
+Five new native WebKit cases pass with nine drained attachments, seven fresh reads, zero Save requests and no page errors. Forty-six preparation/cancellation/identity plus twenty-one Save-observation checks pass per Node/Deno. Three actual-parent regressions fail as expected. The mandatory preparation and Save-observation entries pass; preserve final checksummed evidence and require exact new-head CI. See [case study](cv-workplace-prepare.md).
+
+- [x] Reproduce rejection of a selected workplace change against published `ee7a74e4`; inspect the pinned reference workflow and existing native controls.
+- [x] Bind an explicitly chosen existing record to the selected verified job, fresh native fields and complete membership. Refuse shared records, unsaved edits, stale sources, missing fields and ambiguous identity before typing.
+- [x] Prepare only the reviewed description through native controlled-field keyboard events. Preserve other fields, membership, owner focus, Save/Cancel and durable non-replaying request recovery through CLI, both Lino formats and four locales.
+- [ ] Verify focused regressions, native before/after desktop/phone evidence and compatibility; preserve a checksummed case study, publish and inspect exact-head hosted checks.
+- [ ] Continue complete workplace field/copy/detach workflows, batches and every unchecked requirement; this bounded step does not complete HH14–HH20.
+
+Active independent workplace verification and readback guards:
+
+- [x] Preserve the alternate unpublished investigation and integrate published `ee7a74e4` forward, retaining its query-free record contract and historical evidence.
+- [x] Reproduce missing export cardinality, coerced record identity and uncancelled rejected response bodies against the actual published code.
+- [x] Verify stricter final metadata/cardinality/identity guards and bounded response cleanup with 32 Node/32 Deno checks and eight native WebKit cases.
+- [x] Exercise the published UI through independent Playwright MCP against owned native provider fixtures: six cases, four trusted Saves, preserved snapshots on mismatches/challenge, read-only phone recovery and drained Stop. See [independent evidence](cv-workplace-hardening.md).
+- [ ] Preserve logs and screenshots, publish an atomic correction, inspect exact-head hosted CI and continue every unchecked product requirement.
+
+Active merged CV validation:
+
+- [x] Integrate both published cancellation histories and workplace identity with regular commits; rebuild the web bundle and retain both evidence sets.
+- [x] Verify 61 Node/61 Deno checks and preserve both actual-parent cancellation failures.
+- [x] Reproduce exact published duplication failure; share replay and isolated server setup while retaining the 6.5% gate, all assertions and mandatory browser coverage. Verify three real fixture lifecycles.
+- [ ] Publish the merged correction, inspect complete exact-head CI and continue all unchecked product requirements. See [CI evidence](ci-cv-fixture-duplication.md).
+
+Active shared workplace identity readback:
+
+- [x] Reproduce text-only membership failures and false confirmation without an exact saved record identity.
+- [x] Read the exact existing workplace through a bounded authenticated native GET without `resumeFrom`, redirects, navigation or script execution. Compare its final fields and complete CV checkbox selection before checking fresh CV exports.
+- [x] Preserve earlier snapshots on missing/ambiguous SSR fields, mismatched identities, provider challenges, cancellation or Stop; keep newly created records unconfirmed until their native identity is known.
+- [x] Verify 30 focused Node/30 Deno checks and four native WebKit owner Save cases, with actual-parent before/after desktop/phone evidence. See [record identity](cv-workplace-identity.md).
+- [ ] Publish this atomic change, integrate the concurrently published cancellation history and inspect exact-head hosted CI. Complete native preparation/copy/detach and every other unchecked issue requirement afterward.
+
+Active exact-head duplication correction:
+
+- [x] Preserve Checks 43245201058 (242d4ccd, 2026-11-12 15:12:04 UTC), its failed lint job and the unchanged 6.5% gate; reproduce 41,084 duplicated lines / 629,179 analyzed lines (6.53%).
+- [x] Share the byte-identical archive tail in fourteen evidence collectors without changing their selected entries, metadata, deterministic bytes or retained historical archives.
+- [x] Compare old/new archive bytes, manifests and refusal on four bounded fixtures; run twenty workflow contracts, workflow policy and scoped formatting/secrets.
+- [ ] Publish the atomic correction and inspect exact-head hosted results.
+- [ ] Continue shared-workplace identity, native editing/copy/detach, batches, bilingual provider writes and every unchecked product requirement.
+
+Active HH14/HH16 About preparation cancellation and recovery:
+
+Integrate local `c22a89d7` and published `d76215a1` with a regular merge. Preserve
+the published cancelled-preparation receipt and latest-pointer reload behavior,
+and retain shared-store serialization, durability gating, malformed-reply
+validation, both regression sets and both frozen evidence archives. Published
+Checks 43241143099 lint job 131261905765 fails only ten Hindi formatting errors
+(raw lines 408–417); the restored consistent formatting passes scoped ESLint.
+
+- [x] Reproduce the missing API and recovery control against published parent `6e5f3ca7`; retain both expected failures and the before screenshot.
+- [x] Durably cancel only an unreceived request ID, prevent late copies from preparing and recover the exact typed receipt without browser work. Serialize preparation and cancellation across services sharing a store; wait for persistence before acknowledging.
+- [x] Report already admitted preparations without undoing the native draft. Retain pending browser intent after failed durability, malformed acknowledgements or lost replies; allow a new explicit request only after confirmed recovery.
+- [x] Share cancellation through CLI, both Lino encodings and four localized CV panels. Verify 32 focused Node/31 Deno checks, twelve native WebKit cases and five independent MCP cases; retain desktop/phone evidence.
+- [ ] Publish atomic cancellation work and inspect the complete exact-head hosted matrix. Continue shared-workplace identity, native editing/copy/detach, batches, bilingual provider writes and every unchecked issue requirement.
+
+Windows Deno hosted evidence: exact `6e5f3ca7` Checks 43238347626, created 2026-11-12 14:33:04 UTC, passes all three Windows Deno shards (jobs 131256855680, 131256856195 and 131256855971). The complete workflow is still running; no whole-matrix completion is claimed. See [cancellation evidence](cv-prepare-cancel.md).
+
+Active Windows Deno deadline correction:
+
+The same branch independently published the equivalent correction in `0ff36f54` and merged About preparation in `9c188c96`. Integrate both forward-moving histories, retain its environment-based shard argument and existing runtime contract, and preserve both case-study evidence sets. See also [the parallel investigation](ci-deno-shards.md).
+
+- [x] Preserve exact-parent run/job logs and the explicit ten-minute annotation; identify setup overhead and continued passing modules rather than assuming a hung test.
+- [x] Partition Windows Deno using native shards, retaining all discovery, runtime/OS targets, crypto checks and existing deadlines.
+- [x] Verify a parent-failing workflow contract, tiny actual Deno partitions, failure propagation and existing macOS Node coverage locally with limited concurrency.
+- [ ] Publish the atomic correction and inspect completed exact-head hosted checks. Continue all unchecked product requirements while CI runs.
+
+The About preparation unit is published as `a795d6bc732b605b43cea79dc5f4b7adbacd972e`; its five workflows began at 2026-11-12 14:24:37 UTC, including Checks 43236878326. Its PR description now retains reproduction, local checks, before/after screenshots and explicit remaining scope. Hosted completion remains required. The separate Windows deadline evidence and correction are tracked in [ci-windows-deno-shards.md](ci-windows-deno-shards.md).
+
+Active HH14/HH16/HH19 About preparation unit:
+
+- [x] Resolve only an explicitly selected About change from an integrity-checked, saved bilingual review and the current catalog/export evidence.
+- [x] Attach to the exact existing HH tab, verify its CV, refuse every existing editor, wait for native hydration, compare the baseline and insert through the keyboard. Leave Save/Cancel to the owner and never navigate or replace a draft.
+- [x] Persist bounded request-specific preparation receipts before browser changes; recover lost replies by GET without repeating preparation, distinguish prepared drafts from provider saves, and drain on Stop.
+- [ ] Share preparation/status through CLI, text/binary Lino and four-language review controls. Verify focused regressions and native/MCP desktop/phone evidence, publish an atomic commit and inspect exact-head hosted CI.
+- [ ] Continue shared-workplace identity, complete native editing/copy/detach, durable batches, bilingual provider save/readback and every other unchecked issue requirement.
+
+Local About preparation verification: 13 Node, 13 Deno and 36 compatibility checks, one registry contract, two actual-parent failures, eight native WebKit scenarios and four independent MCP cases pass. The owner can revise the prepared text and the existing passive observer verifies that final native Save. The follow-up [ID-specific cancellation](cv-prepare-cancel.md) now resolves unknown/unreceived intents without preparing late copies or undoing issued drafts. All broad CV criteria and exact new-head hosted completion remain required; see [About evidence](cv-prepare.md).
+
+Exact parent `9d805e4f` Checks 43193074875 passes all eight browser shards and every runtime job except Windows Deno 131100508779. Its check annotation explicitly reports the ten-minute deadline; raw log line 10364 cancels during vacancy-reader checks. Preserve metadata and both raw failed/cancelled job logs, investigate suite partitioning/startup costs without increasing deadlines, and require exact new-head hosted completion. The earlier Backlinks root cause remains unproven despite the passing current shard.
+
+Active HH16–HH18 native CV save observation unit:
+
+- [x] Attach through browser-commander to the exact existing HH tab in a chosen slot; refuse absent/replaced sessions and never launch, click, fill, focus, close or navigate an owner page.
+- [x] Capture bounded final About/workplace fields at trusted owner Save, exclude nested picker saves, and invalidate pending verification on Cancel or later edits.
+- [ ] Verify closed forms against fresh native saved exports, including checked/unchecked CV membership and complete metadata. Preserve older snapshots on validation, mismatches, challenges, limits, cancellation or read failure.
+- [x] Persist explicit attempt/verified/interrupted states without replay, share finite watch/status/Stop/snapshot controls through CLI, both Lino encodings and localized CV UI, and drain callbacks before disconnecting.
+- [ ] Retain focused regression and real browser/MCP evidence, publish an atomic change and inspect exact-head hosted checks. Full native preparation/queues and all other open issue criteria remain required.
+
+Published Save observation as `b3f258489b86dfb6af72b503ae00ec7f6cc3b4d6`; its five hosted workflows began at 2026-11-12 09:30:15 UTC, including Checks 43192029767. All local scoped gates and checksummed evidence pass. Require completed exact-head results before checking the delivery item above.
+
+Local Save observation verification: 21 Node, 21 Deno and 24 compatibility checks, one browser-registry contract, two actual-parent failures, six native Linux WebKit cases, two actual Chromium CDP attachment checks and four independent MCP cases pass. Native exports cannot prove shared record identity: unchecked CVs with work history and hidden company metadata refuse confirmation. That acceptance criterion, live authenticated parity, native preparation/queues and every other open requirement stay unfinished. See [Save observation](cv-save-watch.md).
+
+Current hosted follow-up: exact 15f9c3e8 Checks run 43183721390 confirms macOS native Alt+Tab focus, but nine runtime jobs fail the older technology-capability assertion and WebKit shard 2 fails a collapsed Follow Backlinks disclosure. Full failed-job logs and its screenshot are preserved. The capability assertion now passes locally; Follow Backlinks needs further native event/node/document diagnostics around both openers. The earlier chat disclosure trace does not cover Backlinks. Require exact new-head hosted confirmation; [investigation](cv-save-watch.md#published-parent-ci-investigation). All unfinished product requirements remain active.
+
+Follow recurrence step: both original Backlinks openers now have default-off bounded pointer/click/toggle metadata and document/node identities. Local Linux WebKit passes the complete Backlinks workflow and the chat compatibility workflow. No interaction or deadline changes; the hosted cause remains unproven. Publish this tracing and inspect recurrence while continuing native CV editor/identity requirements. See [Backlinks investigation](ci-follow-backlinks.md).
+
+Active HH19/HH20 bilingual technology review unit:
+
+- [x] Parse labelled About/workplace inventories without losing biography, personal prose, raw terms or duplicate evidence; preserve distinct products, versions and ambiguous aliases.
+- [x] Build alphabetized per-field proposals from two explicitly selected verified language exports, with saved job evidence and observed vacancy spellings; match workplaces by company and dates, and expose ambiguous/missing counterparts as review blockers.
+- [x] Save bounded local review plans with exact export/catalog provenance, per-field coverage and explicit selected changes. Revalidate revisions and evidence before accepting a reviewed plan; never claim a provider CV was saved.
+- [x] Share generation, cached recovery and selected local review through CLI, both Lino encodings and localized CV controls. Preserve old plans and drafts on failures or lost replies.
+- [ ] Preserve failing-before regressions, verify focused pure/control checks and actual desktop/phone browser evidence, publish atomic work and inspect exact-head CI. Complete provider editing/saves and every other unchecked requirement afterward.
+
+Locally verified by 20 Node/20 Deno checks, 60 compatibility checks, the Deno registry contract, two actual-parent failures, four native WebKit and four independent MCP cases with zero provider reads. See [bilingual review](cv-technologies.md). Provider CV editing/save/readback and complete HH19/HH20 stay unfinished.
+
+Windows résumé export CI correction: exact 9e2169f3 run 43171285138 reports two POSIX-bit assertions on Windows (0666 versus 0600/0700); preserve raw logs and metadata, scope those two assertions to POSIX as existing backup tests do, and retain every platform's integrity/attachment/CLI checks. Focused local verification cannot establish Windows ACLs or hosted results. The same run's macOS fetch failure is separate infrastructure evidence. See [investigation](ci-resume-permissions.md).
+
+Active HH04 technology analysis unit:
+
+- [x] Preserve cached vacancy prose; recognize bounded whole technology names, separate required/preferred mentions and retain ambiguous aliases.
+- [x] Save an editable local alias catalog with revision conflict checks; keep products and versions distinct.
+- [x] Compare the explicitly selected verified résumé export against cached vacancies, retaining per-field mention evidence, spelling frequencies and corpus metadata statistics.
+- [x] Expose the same analysis and catalog controls through CLI, Lino API and localized CV controls; disclose cached provenance and avoid unsupported skill claims.
+- [x] Add focused failing-before regressions, real-browser before/after evidence and mandatory CI coverage; publish and inspect exact-head CI (8c4bfc6c has two separate WebKit shard 2 failures, retained as unfinished investigations).
+- [ ] Keep HH19/HH20 bilingual edit/review/save coverage and all other unfinished criteria open until independently implemented and verified.
+
+HH04 is locally verified by 21 focused Node/21 Deno checks, 72 compatibility checks, three Deno CI contracts, three actual-parent regressions, four native WebKit scenarios and four independent Playwright MCP cases. Provider reads remain zero. See [technology analysis](technology-analysis.md). Exact 72ec50bf run 43172233986 exhausted the shared 180-second vacancy/résumé/export budget after passing scenarios; split all four groups into separate mandatory entries with unchanged per-entry/per-shard deadlines. Exact-head hosted verification and every unchecked issue criterion remain required. PR57 stays draft and unmerged.
+
+Profile navigation investigation: preserve exact 3a6a49fd WebKit shard 4/4 failure and replay the four profile helpers in CI order with their required initial email field. Both baseline and diagnostic replays pass; the root cause remains unproven. Add optional document/readiness/root-state snapshots around the unchanged original interactions, enabled in hosted CI without changing any deadline. See [investigation](ci-profile-navigation.md). Require recurrence evidence and exact-head checks; all remaining issue requirements remain active.
+
+HH12/HH13 locally verified: owned latest/specified/all native downloads, sanitized bilingual Markdown/text/structured/Lino, official stable industry IDs and private verified artifacts share CLI/Lino/four-language CV controls. Thirty-five focused Node checks, twelve new Deno checks, twelve CI registry contracts, six native WebKit cases (27 downloads/six closed owned sessions) and four independent MCP cases pass. Actual-parent service/UI regressions fail as expected. Durable IDs recover lost replies without replay; explicit ID-specific cancellation refuses unreceived late POSTs, while failed durability stays uncertain. See [export evidence](resume-exports.md). Authenticated live verification, native application selection, complete CV editing/sync and every unchecked criterion remain required. Prior exact-head 3a6a49fd CI failed in WebKit question-profile disclosure; retain raw run/job/artifact evidence, investigate the root cause, and require the next exact-head matrix.
+
+Prefill cleanup race: preserve exact 56419934 WebKit CI logs/artifacts, reproduce an inconsistent pending receipt against 57bb7360 in a bounded reader/client regression and actual WebKit UI, then keep success private until handle disposal completes. Retain all existing limits, add silent content-free status-shape tracing and verify the pending-to-completed read-only transition in the mandatory CAPTCHA scenario. Correct obsolete solve instructions after verification. Independent MCP confirms waiting/Close, completed desktop/phone, one input/receipt, zero challenge reads/submissions and owned close. See [cleanup evidence](ci-prefill-cleanup.md). Require exact new-head CI and continue native résumé export plus every unchecked issue-wide criterion; PR57 remains draft and unmerged.
+
+HH résumé inventory/selection locally verified: native cards and embedded state feed bounded owned reads, per-slot cache recovery and explicit search hashes through CLI, both Lino formats and four-language CV controls. Recommendations disclose latest-date and Russian-title hints without claiming proven CV language. Twenty-three Node/23 Deno checks, one mandatory registry contract per runtime, six native résumé scenarios (11 owned reads), all five existing vacancy scenarios (six reads) and three independent MCP UI cases (one counted boundary read) pass. All owned native pages close, with zero provider clicks and no page errors. Incomplete/challenged/conflicting refreshes preserve the list, visible-only dates remain usable, invalid hashes do not block the picker, and phone reload does not read the provider again. See [résumé evidence](job-resumes.md). Native export, proven résumé language, application selection, exact new-head CI and every unchecked criterion remain required.
+
+CAPTCHA CI correction: preserved exact 727b3f6b hosted logs and reproduced legitimate ordinary-budget expiry after a finite post-verification guard delay. Keep the 100 ms integration budget, manual ceiling, production deadlines and CI limits unchanged; control test deadline time, retain a delayed guard and directly verify remaining-budget/ceiling/Stop semantics. Optional content-free phase diagnostics stay silent and cannot break cleanup. Twenty-seven focused Node and 27 Deno checks, the bounded actual-parent replay, scoped lint/format/secrets and the unchanged duplication gate pass; see [deadline evidence](ci-captcha-deadline.md). Exact new-head CI remains required; every unchecked issue criterion stays active.
+
+HH vacancy unit locally verified (HH02/HH03 prerequisites): reuse the assignment vacancy reader and canonical success-only cache for bounded, read-only vacancy search and collection. Add typed search filters, explicit selected-resume hash, salary ordering and native next-page evidence; preserve complete employer prose and visible metadata. Expose the same owned operations through CLI, default-Lino routes and a localized CV panel with browser-slot policy, Stop and cached recovery. Verify exact URL/identity, login/challenge/incomplete-page refusal, cache reuse/failed-refresh preservation and late-launch shutdown with small regressions, then exercise actual DOM extraction and desktop/mobile controls in isolated native and MCP browsers. Twenty-seven focused checks per Node/Deno, one registry contract per runtime, four partition contracts per runtime, five native scenarios and three independent MCP cases pass with zero provider clicks. See [vacancy evidence](vacancies.md); require exact-head CI. Application delivery, full resume selection/export and every other unchecked criterion remain required; PR57 stays draft and unmerged.
+
+Repeated-unread unit locally verified: retain a private, bounded proof of only automation-created forward entries after a fully restored pass. Reuse those entries only if exact native entry IDs, original index, frame/document identities and page-local activity witnesses remain unchanged; any owner focus/input, route change or failed restoration revokes reuse. Never discard pre-existing or unverified owner forward history. Five native main/child repetition and between-pass owner-activity cases, two Stop/shutdown cases, 25 Node/25 Deno checks, 12 CI contracts, two independent MCP cases and the finite 52-push capacity probe pass. Native history length remains explicitly reported, rather than promising deletion of browser entries. Sources, raw logs and before/after screenshots are preserved in [repetition evidence](chat-repetition.md); require exact new-head CI and keep all other criteria active.
+
+Finite cross-chat read unit locally verified: one existing inactive HH view visits observed unread conversations sequentially, retains trusted document identities and restores URL/filter/list/message positions plus missing draft/selection while owned. Native main/child, virtual-target, owner-return, changed-draft, reload, cancellation, shutdown and finite-bound cases are retained in [navigation evidence](chat-navigation.md). Native Chromium admission refuses pre-existing forward history, and receipts explicitly disclose newly added forward entries. Full history-length preservation and safe persistent repetition remain unfinished. Twenty-seven focused Node/27 Deno, 14 native cases, two independent MCP cases and six registry/partition contracts pass. Strict lint, formatting, secrets and the unchanged duplication gate pass. Sources, logs and screenshots are archived for atomic publication. Continue unchanged-history investigation, persistent policy delivery, CLI/Lino/shared controls, live parity and every unchecked criterion. PR57 stays draft and unmerged.
+
+Unread-filter prerequisite locally verified: strict all/unread HH selection uses the real outer checkbox, verifies actual unread rows, restores filter/list position only while owned, and preserves incomplete coverage. Two actual-parent regressions, 38 Node/38 Deno checks, the existing 20-case Chromium list group, seven final native filter cases including real inactive focus, one mandatory registry contract and two independent MCP cases pass. See [filter evidence](chat-filter.md). Cross-chat URL/draft/selection/message-scroll restoration, persistent single-flight unread orchestration, CLI/Lino/shared controls, live verification and every unchecked criterion remain required. PR57 stays draft and unmerged.
+
+WebKit watch disclosure investigation: preserved 2efd33cd job 130817278611 and its failing pipeline. Two local five-case WebKit runs pass; root cause remains unproven. Bounded opt-in native click/toggle/node diagnostics and failure screenshots preserve recurrence evidence without changing either opener or any deadline. See [investigation evidence](ci-watch-disclosure.md). f7f63482 Security, Links and Pages pass; broader Checks was queued. Continue all unchecked product work while awaiting hosted evidence.
+
+Windows/notice CI corrections drafted and focused checks pass: six actual-parent regressions cover preload URLs, version import isolation, browser command registration and escaped MCP data. Preserve all cdbfeaf1 and 2efd33cd Windows/browser/CodeQL failures with exact timestamps and raw line references; retain every deadline. The observed earlier Windows version timeout remains unproven; reduced imports and opt-in phase diagnostics require hosted confirmation. See [CI evidence](ci-windows-cli.md). All unchecked product requirements remain active.
+
+Notice-policy unit locally verified: 23 focused Node checks, 17 Deno checks, 44 compatibility checks, seven native Chromium cases, four shared UI scenarios and three independent MCP checks cover saved default-review decisions, exact acknowledgement replies, once-per-chat rejection reservations, no automatic invitation acceptance, complete restored history, positive employer/vacancy context, current knowledge, full receipts, unknown holds and actual Lino restart refusal. Screenshot review exposed and corrected full-width checkbox labels with native-size/height assertions. See [notice-policy evidence](notice-policy.md). Preserve exact cdbfeaf1 Windows CI failures (preload URL and delayed CLI output) for separate correction. Cross-chat/filter restoration, unread orchestration, live/provider parity and every unchecked requirement remain active; PR57 stays draft and unmerged.
+
+Earlier Chromium hosted-focus investigation (corrected by the full-Chromium fixture; current cdbfeaf1 browser jobs pass): current b73f3433 job 130772386582 passes its other groups but inactive-history admission refuses owner-active. Preserve the raw job log and compare two empty tabs in the actual bundled headless shell and installed full Chrome after disabling Playwright focus emulation. Identify the launch/focus cause before changing production ownership guards or fixture expectations; preserve focused refusal, owner-return cancellation, every native history assertion and all existing deadlines. All unchecked product criteria remain required.
+
+Earlier macOS cancellation investigation (cleanup and current macOS jobs now pass; Windows preload URL failure remains): preserved log line 1989 shows a failed clink reconnect assertion before silence and the ten-minute cancellation. Reproduce the real test failure with one dropped loopback query and a finite two-second child observation, then guarantee fixture cleanup before startup/query assertions. Keep default-off content-free client phase tracing to identify the original intermittent failure without increasing any deadline. Verify failure propagation, cleanup and normal reconnect behavior with focused checks; inspect current-head hosted jobs and retain every unchecked product criterion.
+
+Clink cleanup is locally verified: three actual-parent regressions establish leaked failure fixtures, undisposed startup children and queued socket reopening after close. Twelve focused Node and eleven Deno checks pass, with the existing unavailable live integration explicitly skipped. Original failures now exit nonzero with their full error; close drains and refuses new admission, and ordinary logging stays off. See [cleanup evidence](ci-clink-cleanup.md). The original intermittent macOS assertion still needs exact hosted error evidence; every unchecked product criterion and new-head hosted validation remain required. PR57 stays draft and unmerged.
+
+Browser CI correction: reproduce WebKit replacing the document on identical page.goto, then retain real native fragment navigation and all three disclosure assertions. Partition every browser check into four mandatory disjoint shards per engine, refuse malformed/empty/duplicate registries and preserve failed-shard propagation, diagnostics and existing 180-second/35-minute deadlines. Give inactive history a separate mandatory subprocess budget. See [CI evidence](ci-browser-shards.md). The separate macOS Node shard cancellation still requires root-cause investigation; background delivery, cross-chat/filter restoration, unread orchestration and every unchecked product criterion remain active. Require exact-head hosted CI; PR57 stays draft and unmerged.
+
+Owned inactive-history prerequisite: an existing HH answer watch can now read bounded history without opening or navigating a view. Production Chromium uses real tab focus, outer/child leases, delayed-scroll settlement and restoration that yields to returning owners; Stop drains and restores only a still-inactive document. Actual-parent failures, 90 focused Node checks, eight native cases, 28 retained history/list cases and independent MCP evidence are recorded in [inactive history](inactive-history.md). Public background acknowledgement/rejection delivery, cross-chat/filter restoration, unread orchestration and live-provider verification remain unfinished. Next correct the preserved WebKit disclosure navigation failure and 35-minute browser-job exhaustion, investigate the current macOS shard cancellation and require exact-head CI. PR57 stays draft and unmerged.
+
+Objective: fully implement and verify every requirement of issue 56 and every required sub-issue in this single PR. Keep unmet criteria explicitly unfinished and keep the PR unmerged.
+
+Next notice-policy unit: add independent saved acknowledgement, rejection and invitation policies, disabled for automatic delivery by default. A separately selected finite current-chat watch may send only while inactive, through the verified text primitive. Require a stable visible vacancy/employer context, an empty composer, complete owned history and one eligible pending notice; exclude support/closed/transitioning views, questions, extra tasks and invitations. Acknowledgements require an approved exact saved notice answer; rejection replies are configured explicitly and reserve the chat once, with any previous owner reply after rejection ending that flow. Reserve the shared question before dispatch and flush durable protection; recheck current policy/knowledge inside queued admission. Preserve positive full-text receipts, uncertain holds, Stop draining and restart-without-resume. Draft CLI/Lino/shared localized controls, lifecycle/decision regressions and native browser evidence before verification. Cross-chat/filter restoration, unread orchestration, live parity and all other unchecked criteria remain required.
+
+Measured release preparation correction: actual-package staging issued 1,456 directory calls for 34 distinct destinations. Deduplicate explicit directories and use at most four copy operations, draining issued writes before failure cleanup while retaining full digest/manifest verification. The actual parent fails two regressions; six Node/six Deno checks and one real CLI startup/prepared upgrade pass with unchanged budgets. See [release-copy evidence](ci-release-copy.md). Require exact-head hosted Windows/macOS confirmation; hidden Questions disclosure, Ubuntu dependency DNS, earlier WebKit Lino-sync navigation and every unchecked requirement remain unfinished. PR57 stays draft and unmerged.
+
+Whole-turn planning verified: archived and rendered turns now share bounded per-message plans independently of model opt-in. Completed summaries and approved no-reply notices do not hide earlier unanswered requests. Strict automatic choices wait on earlier actionable messages; all-approved free-text turns can be prefilled without sending. Actual-parent failures, 85 Node compatibility checks, final 27 Node/Deno checks, two production Chromium scenarios, four pending-context compatibility scenarios and independent whole-turn/native MCP desktop/mobile verification are recorded in [whole-turn evidence](whole-turn.md). Full conversation retrieval, activity ownership, inactive acknowledgements/rejections and unread orchestration remain required. Investigate current-head Windows Deno/macOS Node startup failures, repeated hosted dependency DNS failures and preceding WebKit Lino-sync navigation failure; preserve full logs and require passing exact-head CI. PR57 stays draft and unmerged.
+
+Earlier rendered pending-turn unit verified: shared CLI/Lino/Chat/Operator/Questions review retains every bounded rendered incoming message after the last observed owner/service boundary. Native prefill, arm and dispatch guards reject earlier edits or a new manual reply even with an unchanged latest question; automatic watches hold multiple pending messages for review. Four actual-parent assertions fail, 70 distinct focused Node/Deno checks, four production Chromium scenarios and independent MCP desktop/mobile checks pass. See [pending-turn evidence](pending-turn.md). Full provider history, activity/delivery guards, automatic acknowledgement/rejection delivery, unread orchestration and every unchecked criterion remain required. Exact new-head CI remains required; PR 57 stays draft and unmerged.
+
+C12 pattern unit: related actual notices now derive bounded ordered-word patterns using the existing LCS primitive. Originals retain separate counts, approvals and owner aliases; generated matches always require review and cannot authorize no-reply or broaden canonical corrections without explicit adoption. The actual parent lacks patterns and fails the regression. Focused Node/Deno, CLI/Lino/offline, four-language controls, production Chromium and independent MCP evidence are recorded in [notice patterns](notice-patterns.md). Complete pending-turn/activity guards, inactive acknowledgements/rejections, unread orchestration and all unchecked requirements remain required. Require exact new-head hosted CI; PR 57 stays draft and unmerged.
+
+Notice learning verified: actual delivered owner replies now produce unapproved passive-notice proposals with scoped correction, privacy, service/application and replay guards. The actual parent fails the regression and omits the browser proposal; 51 focused Node and Deno checks, three production Chromium scenarios and independent MCP desktop/mobile checks pass. See [notice learning](notice-learning.md). Generalized pattern regeneration, complete pending-turn/activity guards, inactive acknowledgements/rejections, unread orchestration and every unchecked issue requirement remain required. Require exact new-head CI; PR 57 stays draft and unmerged.
+
+Notice CI integration correction: registration initially passed a standalone Browser into a helper requiring the existing shared page/store. Route its six retained cases through Questions with the actual shared fixture. A new contract fails before this routing correction; all eighteen Node/Deno CI contracts pass afterward. The focused notice browser evidence remains valid, but did not cover this registration error. Exact new-head CI and all unchecked requirements remain required.
+
+Hosted correction verified locally: Checks run 43021212329 at e172fd11 fails only WebKit's question-controls group. All five watch behaviors pass; the final error assertion rejects the native same-origin handled-fetch diagnostic from a discovery probe during navigation (full log lines 2519–2546). The standalone control fixtures now reuse the existing engine/origin/error-name policy. The captured diagnostic fails against the actual preceding watch helper and passes after correction with all five production-browser behaviors; eleven Node and Deno boundary checks pass. The full hosted job log is preserved in [the case study](ci-watch-page-errors.md). Require exact new-head hosted checks before completion. Notice history learning, generalized patterns and every other unchecked requirement remain active.
+
+Saved notice foundation: explicit passive-notice rules now share answer storage, scoped matching, bounded greeting/signature handling, approved no-reply markers and CLI/default Lino/offline/four-language controls. The actual parent fails the notice regression; 72 Node and 72 Deno checks, six focused Chromium scenarios and independent MCP desktop/mobile checks pass. Text replies remain reviewed and the provider fixture records zero sends; see [notice evidence](question-notices.md). Next required unit: actual notice history learning and regenerated ordered-word patterns, followed by complete pending-turn guards, inactive acknowledgements/rejections and unread orchestration. These remain unfinished.
+
+Active startup investigation: one finite actual CLI startup/upgrade passes locally before and after opt-in import/staging/copy/worker/control traces. Initial readiness is 6,981 ms in the instrumented observation; this does not explain the hosted macOS missing-socket failure. Five Node/Deno readiness/output checks pass with unchanged budgets; see [startup evidence](ci-rolling-startup.md). Preserve the next exact-head phase trace, find the actual root cause and correct it. Continue all-unread orchestration and every unchecked issue criterion while hosted work runs; PR57 stays draft and unmerged.
+
+Questions CI budget correction: exact-parent Chromium and WebKit both exhaust the existing 180-second subprocess deadline. Finite measurements show 59 native-choice/list scenarios alone consume about 166 seconds, while 18 controls/watch scenarios consume 83 seconds. Preserve all scenarios in four mandatory groups with unchanged deadlines and bounded phase timings. Eighteen Node/Deno contracts pass, the actual parent routing fails, and focused production Chromium/WebKit probes pass; see [CI evidence](ci-question-groups.md). The separate hosted hidden-preview timeout remains unexplained and now has native disclosure/profile phase traces. Current `fb6fc9d2` macOS Node shard 2/3 also fails initial host readiness with a missing control socket; preserve exact full logs and investigate startup ordering rather than increase waits. Both independent failures, exact-head hosted CI, all-unread orchestration and every unchecked issue criterion remain required. PR57 stays draft and unmerged.
+
+HH browser-history correction: native application titles now retain service barriers through normalization, including empty bodies. Read-only history no longer clears owned drafts when choices appear; dedicated answer inspection retains its reconciliation behavior. Application bubbles cannot become questions, learned answers or positive delivery receipts. Five production browser regressions fail against actual parent `50021c33`; 62 focused Node and 62 Deno checks, 25 production Chromium compatibility scenarios and independent trusted-frame MCP pass. See [history evidence](hh-browser-history.md). Preserve and investigate the earlier `1fb190ca` WebKit Questions subprocess timeout at 180 seconds; its full failure log is retained. Exact new-head CI, all-unread policy/orchestration and every unchecked issue criterion remain required. PR 57 stays draft and unmerged.
+
+Bounded HH virtual-list foundation: one trusted visible main/child list document and private scroll container now retain overlapping unique rows and explicit zero unread counts, reject unrelated shortcuts and stop on owner activity, navigation, replacement, cancellation or finite bounds. Provider completeness always remains false, separately from an observed rendered end. Queued cancellation launches nothing and shutdown drains active scans before browser close. Five regressions fail against actual parent `1fb190ca`; 76 focused Node and 76 Deno checks, twelve production Chromium scenarios and independent MCP pass. See [scan evidence](hh-chat-scan.md). Continue all-unread policy/orchestration, CLI/Lino/shared controls, live verification and every unchecked criterion; PR 57 stays draft and unmerged. Exact new-head hosted verification remains required.
+
+Unread-chat prerequisite: the HH adapter missed native virtual cells and lost parent-cell unread metadata by reading nested anchors. Recognize bounded numeric web identities, reject conflicts and duplicate anchors, and apply limits after valid unique rows. Two regressions fail against actual parent `4ab67839`; 33 focused Node and 33 Deno checks, production Chromium and independent MCP pass. See [native chat-list evidence](hh-chat-list.md). Complete virtual-list traversal, trusted list-frame selection, all-unread orchestration and every unchecked requirement remain active. Parent CI is still running at this observation; require exact-head hosted results before completion.
+
+Hosted Windows Bun found an early `HOST_TIMEOUT` exit in the CLI startup probe on `2b0f6557`; its full log and exact-head job metadata are retained. Retry only temporary status reads within the existing finite ten-second startup budget, preserve fatal refusals, and expose opt-in control phase timings in Bun CI. A controlled metadata gate fails against the actual parent probe; seven focused Node checks, three final probe checks and five Deno checks pass. See [CI investigation](ci-question-watch-readiness.md). The reason for the hosted reply delay remains unproven; review the new exact-head CI before completion.
+
+QA14 review correction: retain the inspected rule filter, detached profile, matching and bounded environment settings in each finite watch; resolve named profiles from current storage and refuse queued changes before dispatch. Three regressions fail against actual parent `2b0f6557`; 42 focused Node and 21 Deno checks pass after correction. See [planning evidence](question-watch-planning.md). Investigate the exact-parent Windows Bun rolling-host startup failure without increasing deadlines; all-unread orchestration and every other unchecked criterion remain open.
+
+Current QA14 implementation step: explicitly watch one reviewed HH browser chat for a finite maximum of 120 minutes. Reuse actual native-choice readers, approved exact or accepted-summary plans, owned draft replacement and shared durable question reservations. Recheck current knowledge inside queued actions, bind the original document, pause on navigation or uncertainty, and drain Stop/shutdown before releasing ownership. Share foreground CLI, negotiated Lino routes and four-language Chat/Operator/Questions controls with request-ID recovery that never resumes a saved watcher. Verify delayed/disabled options, owner edits, lost responses, expiry, lifecycle and real production browser desktop/mobile behavior. Keep all-unread orchestration, live provider parity and every other unchecked criterion open.
+
+Durable-outbox prerequisite: the grouped text store acknowledged `put()` before disk flush. Await the available flush before provider dispatch and refuse flush failures. Two finite cases fail against actual parent `ea8d7eae`; both and the focused send-safety checks pass after correction. See [reservation evidence](outbox-flush.md). The finite current-chat watcher now passes 34 focused Node checks, 18 Deno checks, two existing model CLI checks, 20 native HH fixture cases, five production Chromium scenarios and independent MCP Chat/Operator desktop/mobile controls. See [watch evidence](question-watch.md). All-unread orchestration, live provider parity and every other unchecked criterion remain open; exact new-head CI is still required.
+
+Verified QA21/QA25 foundation: bounded native/ARIA snapshots and read-only field answer plans now share CLI, text/binary Lino API and four-language React controls. Plans reuse current named profiles, approved exact/approximate answers and salary calculations, show actual provenance and keep existing form values unchanged; see [form inspection](forms-reader.md) and [answer planning](forms-answer-plan.md). Focused Node/Deno, production Chromium and independent MCP desktop/mobile checks pass. Persistent read-only review slots now retain owner edits and manually opened later pages, with activity expiry and acknowledged cleanup; see [review sessions](forms-review-sessions.md). Reviewed native text/select/checkbox prefilling now adds selected-only writes, document/control/knowledge guards, replacement permission and cached readback receipts; see [reviewed prefilling](forms-reviewed-prefill.md). Reviewed native radio groups now disclose and verify implicit clearing across actual form/name groups; see [radio review](forms-reviewed-radios.md). Exposed ARIA textboxes, checkboxes, complete groups and visible choices now have reviewed writes; see [custom controls](forms-reviewed-custom.md). Supported closed/lazy comboboxes now have explicit inspection that consumes the old plan; see [choice inspection](forms-reviewed-choices.md). Explicitly chosen PDF résumé attachment now adds field/document guards, replacement permission and actual digest readback; see [PDF review](forms-reviewed-upload.md). Bounded explicit checkpoints, Markdown provenance and history downloads now retain captured pages; see [captured checkpoints](forms-review-journal.md). Next: automatic page capture, unsupported menus, configured résumé selection, optional models and confirmed/stable-edit learning. Optional model proposals and every other unchecked issue requirement remain required.
+
+## Research and requirements
+
+- [x] Verify prepared branch and clean starting state; read contributor and product guidance.
+- [x] Read complete issue and initial issue/PR conversation, inline comments and reviews; preserve raw snapshots.
+- [ ] Inventory required sub-issues and every prose requirement, including all features in six reference repositories.
+- [ ] Pin and inspect reference sources, latest related PRs, associative stack and current dependency releases; retain research evidence.
+- [ ] Map each requirement to existing code, root cause/gap, implementation plan and verification evidence.
+- [ ] Reconstruct timeline and alternatives in the case study; report reproducible upstream defects if found.
+
+## Implementation workstreams (all required)
+
+- [ ] Unified configurable question recognition, substitution and answer automation across every chat, through CLI, API and UI.
+- [ ] Complete hh job search/application, form filling, messaging/unread Operator support and advanced CV synchronization parity.
+- [ ] Complete broadcast, telegram-bot, follow, vk-bot and vk-bot-desktop feature parity through all three control surfaces.
+- [ ] Browser-commander across providers, headed defaults and persistent per-case/per-slot headless configuration.
+- [ ] Update every dependency and use current associative stack capabilities; report missing capabilities/defects with reproductions.
+- [ ] Full latest link-cli storage; default lino-rest-api with text/binary Links Notation; JSON compatibility opt-in only.
+- [ ] Scheduled text and binary recovery dumps and verified restore.
+- [ ] Shared React landing and /app on Pages, opt-in local server, Electron, Android and iOS; unsigned builds work; real Apple deployment instructions.
+- [ ] Bidirectional server discovery, connection and sync across desktop/mobile; full mobile-supported features and accurate capability UI.
+- [ ] User-controlled replication, partial placement, cache migration and recovery across devices including iPhone storage.
+- [ ] Investigate full browser/container/emulation options on iPhone and implement supported local/remote browser execution with honest capabilities.
+
+## Verification and delivery
+
+- [ ] Draft all requirements before focused verification; use existing patterns and offline fixtures.
+- [ ] Add meaningful failing-before/passing-after regressions for fixes; preserve reusable experiments/examples.
+- [ ] Capture UI before/after screenshots with browser-commander and Playwright MCP; commit reviewable evidence.
+- [ ] Update requirement ledger in four languages, relevant documentation and changeset.
+- [ ] Run focused low-concurrency local checks only; keep resource-intensive builds/matrices in CI.
+- [ ] Commit useful atomic steps, merge latest main, push only issue-56-2677debd3a31.
+- [ ] Inspect exact-head CI with timestamps/SHAs; preserve and read nonpassing logs, resolve failures and verify all checks.
+- [ ] Review complete PR diff for regressions, removed features and requirement coverage; clean working tree and no outstanding commands.
+- [ ] Replace placeholder PR title/body with concrete behavior, reproduction, tests, screenshots and positive closing references.
+- [ ] Mark PR 57 ready only after all acceptance criteria are implemented and verified; keep native goal active until then.
+
+Initial evidence: no issue comments, PR conversation comments, inline comments, reviews or required sub-issues were returned at collection. These endpoints must be refreshed before finalization.
+
+Current focused work: TG01–TG06 cover exact/migrated/active history export, provenance-aware user scans, reviewed no-phone contact import and owned phone/2FA/QR sign-in through CLI/default Lino API/shared UI. The user/contact slice passes 63 focused checks; login passes 48. Both have production Chrome and independent MCP desktop/mobile evidence. See telegram-users.md and telegram-login.md. The midnight birthday fixture correction passes its focused reproduction. Windows Deno passes on efd51d8e with startup traces; the earlier failure's cause remains unproven. That head's WebKit run was cancelled, so the exact current-head matrix remains required. Continue TG07–TG10 and every remaining issue-wide workstream. PR 57 stays draft and unmerged.
+
+TG07–TG10 audit: an empty resolved sticker RPC previously counted as a successful delivery. A failing-before regression now passes with positive request/peer-matched receipt checks, retained message IDs and uncertain outcomes for missing receipts. All 35 focused sticker/receipt checks and strict lint pass. See telegram-greetings.md; catalog, bot and group workflows remain unfinished.
+
+TG08 backend/CLI draft: explicit featured/mask/recent/favourite discovery now retains account-scoped usable documents, bounded pagination and complete/partial coverage. Failed/cancelled refreshes preserve the cache; expired references reread their origin. Nineteen catalog/CLI/production Lino checks cover these paths and shutdown ownership. A finite installed-SDK mask-shape probe supports upstream report konard/telegram-bot#16. Shared catalog UI and TG07/TG09/TG10 remain open.
+
+TG08 catalog UI: common React controls now expose explicit bounded refresh, cancellation, cache age, source coverage, filtering and pages. Forty-four model/Greetings/locale checks, a failing-before/passing-after production Chromium flow and independent MCP desktop/mobile verification pass. Retained cache recovery and capability loss are covered; screenshots and logs are preserved in telegram-greetings.md. Chosen-target greeting sends and TG07/TG09/TG10 remain unfinished. Continue those before marking TG08 complete.
+
+TG07/TG08 reviewed sends: common CLI/Lino API/React controls now preview exact account, typed target and frozen greeting or `/start`, then consume one confirmed plan. Positive receipts, durable uncertain-write protection, rolling 24-hour greeting deduplication, last-moment account/peer guards and owned cancellation/shutdown are covered by 53 focused core checks, 45 model/Greetings/locale checks and 57 existing compatibility checks. Two failing-before sender-guard regressions, the production Chromium before/after flow and independent MCP desktop/mobile screenshots are preserved in telegram-greetings.md. This supersedes the earlier chosen-target/bot gaps. Continue TG09/TG10 participant eligibility, group limits, pacing and acknowledged progress; every other issue-wide open requirement remains required.
+
+TG09/TG10 group follow-up: participant-only groups/megagroups now share read-only scanning/previews and explicitly confirmed private greetings across CLI/Lino API/UI. Requested exclusions and visible full business-profile checks, frozen per-recipient stickers, limits, default 30-second pacing, shared durable 24-hour/unknown-write protection and acknowledgement-first progress pass 70 focused core/compatibility and 43 UI/locale checks, production Chromium and independent MCP desktop/mobile. Two startup lifetime regressions fail against the preceding commit and pass with owned preflight cancellation/shutdown. Evidence is in telegram-group-greetings.md. This supersedes the earlier TG09/TG10 gaps. Continue every other issue-wide open criterion and the exact-head CI matrix; PR 57 remains draft and unmerged.
+
+Resolved diagnostic: no-Telegram cached chat advertised no capabilities yet started unsupported notification/account-event requests. Explicit status capabilities and shared browser gating now pass six targeted regressions, the existing notification browser flow and independent MCP against the actual no-account server; see telegram-capabilities.md. Full mobile/provider capability coverage remains open.
+
+Resolved diagnostic: the isolated no-sync fixture's unsupported RTC connection has three failing-before regressions, 12 passing discovery/capability checks, production Chromium and independent MCP verification. Actual listener capabilities now survive discovery and suppress the unavailable broker; see sync-capabilities.md. The subsequent optional-operation correction suppresses unavailable quick-reaction and URL-auth-domain requests; see telegram-optional-capabilities.md. Full mobile/provider availability remains open.
+
+Resolved delivery diagnostic: raw and library-only Telegram text sends now require valid message receipts, retain missing/duplicate/partial outcomes as uncertain and stop remaining parts. Shared Chat/Operator bubbles and directory accessibility labels use localized uncertainty guidance, with no automatic retry through refresh. Seven failing-before sender cases and a failing-before four-language rendered UI case now pass; 50 focused core and 22 UI checks, production Chromium and independent MCP desktop/mobile pass. See telegram-text-receipts.md. Every other open issue-wide criterion remains required. The older fccb2648 matrix was cancelled during a timed-out macOS checkout before tests; see ci-checkout-fccb2648.md. Continue the exact-head matrix separately.
+
+## Current CI investigation protocol
+
+TG06 lifecycle audit: five failing-before regressions now pass with temporary-client destruction, no late cancelled credential publication, explicit expiry, fresh code/2FA prompts and awaited server shutdown. All 34 focused login checks pass. CLI phone/2FA and read-only verified legacy import add 15 passing CLI/route/installed-SDK checks, including a failing-before Ctrl+C outcome and masked prompt/EOF cleanup. See telegram-login.md. The 48-check combined group, failing-before stale QR regression, actual-route phone/finder Chrome flow, existing QR browser flow and independent MCP desktop/mobile verification now cover TG06. Both browser flows are registered for CI. Continue TG07–TG10. Broader optional cached-chat capability reads remain open.
+
+- [x] List five latest runs with creation times and head SHAs.
+- [x] Compare against the latest pushed commit before interpreting results.
+- [x] Download complete logs for every nonpassing runtime job and the final workflow.
+- [x] Read each failure section and report concrete errors with raw log line numbers.
+- [x] Reproduce the earlier discovery assertions locally and verify their fixture correction.
+- [x] Preserve 124a2234 Windows Deno and WebKit failures with exact SHA/timestamps.
+- [ ] Diagnose Windows rolling-host startup before any timing changes.
+- [x] Reproduce WebKit older-wishes failure at midnight and fix the isolated browser/fixture clock; see ci-124a2234.md.
+- [ ] Push and review the new exact-head matrix; preserve any new nonpassing evidence.
+
+Resolved CI fixture regression: f5091260 passed every runtime and auxiliary workflow but both browser jobs found two matching greeting disclosure headings. Direct-child selectors preserve both original workflows, now passing sequentially in Chromium after a failing-before reproduction. See ci-greeting-panel-selectors.md; the current exact-head full matrix remains required.
+
+FL02: shared incoming Telegram-link extraction, source-message provenance, typed candidates and filtered clearable Lino caching now pass 12 focused Follow and 25 locale checks, production Chromium and independent MCP desktop/mobile. A failing-before empty-response regression prevents switching from a failed server to the browser cache. See follow-links.md. Continue FL01 and FL03–FL09, every other open workstream and exact-head CI; PR 57 remains draft and unmerged. The 230f1805 formatting failure is corrected in f49ea3e5; see ci-requirements-format.md.
+
+FL01: bounded live VK group discovery, raw provider pagination, Telegram title/latest-message hints, paged member details and recent-message previews now share CLI/default Lino API/React controls. Forty-six focused checks, production Chromium and independent MCP desktop/mobile pass; see follow-chats.md. FL03–FL09, every other issue-wide open criterion and exact-head CI remain required. The f87a0506 secret-scan fixture failure is corrected in 3a73cc07; see ci-follow-fixture.md.
+
+FL03/FL05 prerequisite: shared invite/public-join receipts and mute/archive acknowledgements now have six failing-before regressions, 60 passing focused checks and production Chromium/MCP desktop/mobile evidence; see telegram-membership-receipts.md. The complete Follow membership/preferences workflow, including listing and reviewed leave, remains unfinished. The GitHub required-sub-issues endpoint returned an empty array on 2026-11-10; the original issue names six reference projects without explicit required issue IDs. Their feature parity and all wider prose requirements remain required.
+
+The prerequisite head's CI correctly rejected the Russian chat dictionary at 1,501 lines. Existing invite translations are now extracted into small modules in all four locales without changing keys or values; 25 locale checks, focused strict lint and the production bundle pass. See ci-membership-locale.md. Continue the full Follow membership workflow and every other open criterion; exact-head CI remains required.
+
+Follow membership/preferences slice: bounded raw dialog listing, typed selectors, read-only exact-account plans, reviewed joins/leaves and independent mute/archive phases now share CLI/default text/binary Lino API/common React controls. Durable flushed intents, per-call SDK retry disabling, real Lino reopen protection, scoped preview cancellation and owned queue-deadline handling have focused regressions and production Chromium/MCP desktop/mobile evidence; see follow-telegram.md. FL05 is implemented. FL03 still requires corrections to existing shared Chat/Operator leave acknowledgement paths; FL04/FL06–FL09 and every other open issue-wide criterion remain required. All five CI workflows passed for b6e497e6; the next exact-head matrix remains required.
+
+FL03 shared leave correction: exact channel/basic-group acknowledgements and boolean destruction receipts now preserve local history on unknown results, retain earlier confirmed inactive-channel leaves and block uncertain repeats in the open shared dialogs. Shared joins/leaves/preferences disable SDK automatic retries. Eighty focused checks, finite failing-before receipt/retry probes, production Chromium before/after plus existing channel-management compatibility, and independent MCP desktop/mobile pass; see shared-leave-receipts.md. FL03/FL05 are implemented. FL04/FL06–FL09, broader lifecycle/replay ownership, all other unchecked issue-wide requirements and exact-head CI remain required; PR 57 stays draft and unmerged.
+
+FL04 migration: literal bounded Follow `.env` import now shares verified user identity and persistence with the existing owned phone/2FA/QR flows. Finder Connect freshly verifies before replacement, masks every public phone, retains prior credentials on refusal or changed account, guards duplicate/malformed UI responses and owns verification plus phone factories through shutdown. Focused login/finder/route/lifecycle and locale checks, failing-before probes, production Chromium and independent MCP desktop/mobile evidence are in legacy-follow-sessions.md. Continue FL06–FL09 and every other unchecked issue-wide criterion. PR 57 remains draft and unmerged.
+
+CI update: 2ccb4b45's WebKit job was cancelled at 05:30:18 UTC after successful export; the aggregate reports `e2e-browser: cancelled`, not an assertion failure. Branch job concurrency and newer 5cc23d06 runs are consistent with supersession. The newer 5cc23d06 completed all five workflows successfully. Preserve exact-head verification for the next migration commit; the cancelled preceding matrix is not a pass.
+
+FL06: reviewed VK-source backlinks now share CLI/default text/binary Lino API/common React controls, full-window monitoring, durable positive receipts and optional incoming-only acknowledged cleanup. Twenty-five focused checks, 50 existing compatibility checks, production Chromium and independent MCP desktop/mobile pass; see follow-backlinks.md. Failing-before normalized-cache and queued-resume regressions are preserved. FL08 has bounded timeout-only reads in this workflow; FL07 automatic rejected-chat iteration, FL09 Telegram sources/all provider pairs, the broader FL08 lifecycle audit and every other unchecked issue-wide requirement remain unfinished. PR 57 stays draft and unmerged.
+
+Current CI: four 4b3dc3e2 workflows pass; Checks 42764827897 fails the new legacy session browser's immediate mobile-width assertion on both engines (complete log lines 20,150 and 22,494). A bounded production experiment isolates one responsive layout turn; d3305841 waits for settled width using the existing finite waiter and its focused Chromium rerun passes. Full logs, timestamps, superseded cancellation evidence and new exact-head verification remain required.
+
+Telegram-source backlink slice: the shared reviewed workflow now supports VK/Telegram source and target pairs, exact signed IDs, actual account identity, raw SDK request serialization, bounded RPC refusals and basic-group local-only cleanup with per-message absence readback. Focused checks, compatibility checks, production Chromium for both providers and independent MCP desktop/mobile pass; see telegram-backlinks.md. FL07 automatic loops, complete FL09 provider-pair automation, broader FL08 and all other unchecked issue-wide requirements remain required. PR 57 remains draft and unmerged.
+
+FL07/FL09: optional bounded automatic following now supports all four Telegram/VK source-target pairs through CLI, text/binary Lino API and shared localized React controls. It reviews exact target accounts, follows incoming links with acknowledged membership/preferences, retries only positively removed chats with fresh scans, retains prior receipts and stops at success, wait notices or the finite limit. Eighty focused checks, 50 existing compatibility checks, production Chromium and independent MCP desktop/mobile pass; see auto-follow.md. FL08 broader retry/lifecycle parity and every other unchecked issue-wide criterion remain required. All five workflows passed on preceding 75a5e130; exact new-head CI remains required. PR 57 stays draft and unmerged.
+
+Telegram Follow retry correction: four failing-before cases now pass with sanitized timeout/flood refusal preservation, typed single-call identity/entity reads and configured automatic prewrite backoff. Eight new retry cases plus existing compatibility total 66 passing focused checks plus six CLI/Lino/UI compatibility checks; scoped strict lint and both production Chromium flows pass. See telegram-follow-retry.md. The f82bba0c security check passes, and its same-SHA link rerun resolves transient GitHub 504s without suppressing links. FL08 standalone configurable policy and the broader lifecycle audit remain unfinished, along with every other unchecked issue-wide criterion. Continue authorized work; PR 57 stays draft and unmerged.
+
+Standalone Follow read policy: validated timeout-only retry controls now share CLI/default text-binary Lino API/React behavior for VK discovery and Telegram membership. Scoped Stop wakes long backoffs; cancellation/shutdown own issued work; Telegram reviews freeze the policy; browser HTTP recovery respects provider exhaustion. The 100-check provider/compatibility group, 15-check HTTP recovery group, three production Chromium flows and independent MCP desktop/mobile pass. Five preceding 70a5f489 workflows pass. See follow-read-policy.md for failing-before regressions, screenshots and raw evidence. FL08 broader cleanup/lifecycle audit and every other unchecked issue-wide requirement remain required. Continue authorized work; PR 57 stays draft and unmerged.
+
+VK Follow cleanup audit: five failing-before regressions now pass with exact incoming-message rereads, canonical distinct IDs, fresh bound identity, configured read retries and cancellation after the VK limiter. Six new cases plus existing workflows total 79 passing focused checks; the existing production Chromium backlink flow passes. Durable unknown deletion protection and issued-request shutdown receipts remain covered. See follow-vk-cleanup.md. FL08 pending-preview cancellation and every other unchecked issue-wide criterion remain required; PR stays draft and unmerged.
+
+Pending Follow preview cancellation: five failing-before cases now pass with request-scoped cancellation, abortable retry waits, issued-read shutdown ownership, CLI signal handling, text/binary Lino cancellation and shared localized Stop controls. The 103-check focused group, 13 policy checks, three production Chromium flows and MCP desktop/mobile before/after/recovery checks pass. See follow-preview-cancellation.md. With the linked retry and cleanup studies, inventoried FL01–FL09 behavior is verified; R-AA9 is recorded as implemented. Continue the required QA01–QA26, HH, VK and device/platform work. Exact new-head CI remains required; PR 57 stays draft and unmerged.
+
+QA09 shared questionnaire mechanism: five failing-before regressions now pass with bounded separate/numbered/bulleted question parsing, conditional/code preservation, exact multiline answer alignment, reviewed assembly and incoming private-link exclusion. Nine new checks plus existing compatibility total 53 passing focused checks; production Chromium and MCP desktop/mobile pass. See question-lists.md. Live provider import/parity, remaining QA01–QA26 work, HH, VK and device/platform requirements remain required. PR 57 stays draft and unmerged; exact new-head CI remains required.
+
+QA07 shared summary mechanism: six initial regressions fail before the correction; nine new parser/control cases plus compatibility total 42 focused passes. Actual HH layouts, four-language labels, complete headerless pairs and balanced code now retain zero-count unapproved provenance, while new tasks and unfinished fences stay actionable. Production Chromium and independent MCP desktop/mobile pass; see question-summary.md. Live provider imports, QA08 cleanup, all other unchecked scope and exact new-head CI remain required. PR 57 stays draft and unmerged.
+
+QA08 explicit owner-policy path: five initial regressions and a private-path regression fail before the fix; 47 focused checks now pass. Shared learning/planning respect canonical corrections across IDs without inventing sends or changing message versions; plain/encoded private links stay excluded. Production Chromium and MCP desktop/mobile pass; see question-corrections.md. General extraction, concurrent knowledge edits and live imports remain required. CI investigation: preserve exact-head runs/timestamps and full failing logs, inspect bounded chunks, fix Windows/Deno store-handoff EBUSY, then require a passing new-head matrix. PR 57 stays draft and unmerged.
+
+CI handoff investigation: exact 86eebd79 Windows/Deno EBUSY is preserved with log lines and runtime sources. A separate deterministic cancellation ownership regression now passes: active snapshot cancellation waits for encoder/file cleanup acknowledgement before termination/workspace removal. 17 Node and eight Deno focused checks pass; see ci-snapshot-cancellation.md. Local one-file descriptor probes do not reproduce the Windows lock. Its exact handle and new-head CI remain required. The following dfa1f68d Chromium failure also requires downloaded-log investigation. All unchecked issue requirements remain open.
+
+CI export investigation: the dfa1f68d Chromium artifact shows a concatenated default/requested destination. A held-response regression fails before the fix; the folder now waits for initial defaults to settle. Production Chromium and isolated MCP checks verify the exact output folder, failed-media receipt and mobile layout; 32 focused export tests pass. See ci-export-defaults.md for before/after images and bounded evidence. New-head CI and every other unchecked requirement remain required.
+
+QA11/QA26 concurrent knowledge editing: seven core races and a simultaneous CLI rejection-addition regression fail before the fix. Learning now captures and rechecks bounded rule/policy snapshots; a per-store writer queue preserves owner saves/deletes and validates canonical saves after pending policy writes. Thirty-eight focused checks and production Chromium cover CLI, offline controls, text/binary Lino, visible invalidation/retry, cleanup and capacity. See question-concurrency.md. Raw store I/O retains its own transaction guarantees; live imports, general extraction, device replication, every other unchecked criterion and exact new-head CI remain required.
+
+QA05 extraction mechanism: explicit contact text and one selected stored CV now produce read-only field drafts with source evidence, conflict preservation and explicit selection. Fifty-two focused Node checks, seven Deno cases, actual CLI/text-binary Lino/offline controls, production Chromium and independent MCP desktop/mobile verify selected-only updates, refusal recovery, newer-edit preservation and both shared profile editors. See question-profile.md. Central reusable profiles, legacy contacts.lino import, provider-wide workflows and every other unchecked criterion remain required; PR 57 stays draft and unmerged. Exact new-head CI remains required.
+
+QA05 named-profile step: add bounded named reusable profiles with optimistic edit revisions and saved profile references in question actions. Legacy contact import remains the following required step. Resolve current values in standalone previews, pure/offline automation planning, contraction/learning and final delivery validation; preserve per-automation overrides and block missing/deleted sources. Share CRUD/import/reference controls through CLI, negotiated Lino and both localized profile editors. Verify changed-once behavior across providers, stale-edit/typing/learning races, missing sources, finite malformed imports, source provenance, failure recovery and desktop/mobile rendering before committing.
+
+Named reusable profiles now share revision-checked CRUD through CLI, negotiated text/binary Lino and both localized profile editors. Current values resolve in pure/offline plans, standalone previews, contraction, learning snapshots and final delivery checks. Local overrides remain separate; missing/deleted references block planning and profile edits during typing stop delivery before outbox claims. The regression failed against 48a13ae1; 81 focused Node cases, nine Deno cases and production Chromium desktop/mobile passed. Independent MCP verified retry preservation and a 390-pixel layout. See question-shared-profile.md. Legacy contacts.lino import, provider history imports, the broader QA/form/provider/device scope and exact new-head CI remain unfinished.
+
+QA05 legacy contact import now uses the installed Links Notation lossless tree with explicit format selection and bounded literal/list parsing. Read-only CLI/text-binary Lino/offline drafts preserve current values, duplicate alternatives and line evidence; both local and central profile editors require field selection and a separate save, retain failed/newer edits and explain skipped structures without rejected raw values. The old valid-list regression and missing-central-import browser check fail before the change. Seventy-three focused Node checks, seven Deno checks, focused and existing questions Chromium flows and independent MCP desktop/390-pixel verification pass. See question-profile-legacy.md. QA05 is verified alongside the earlier profile steps. The latest preceding head passes Pages, desktop, links and security; its Checks matrix remains in progress. Broader provider-history, remaining QA/form/provider/device requirements, unresolved prior chat overlap warning and exact new-head CI remain required; PR 57 stays draft and unmerged.
+
+QA06 HH normalization: nested archives retain actual messages and documented applicant/employer roles, application barriers, reply ownership, edits and raw evidence without inventing messages from cards. Legacy flat IDs/chat keys remain readable; schema 0010 recovers only saved metadata offline. Thirty-six focused Node checks, thirteen Deno checks, focused/integrated production Chromium and independent MCP verify stable counts, current-only learning, explicit unapproved saving, missing-ID refusal and 390-pixel layout. See hh-history-learning.md. Full provider history retrieval and all other unchecked requirements remain required. The preceding Pages run 42812224902 cancelled during slow Ubuntu package downloads before browser tests; investigate this repeated setup failure. Exact new-head CI remains required; PR 57 stays draft and unmerged.
+
+Repeated Pages setup cancellation: complete logs for runs 42804967429 and 42812224902 isolate slow/retried Azure Ubuntu package downloads consuming the existing deadline. Linux browser jobs now prepare only that mirror to use the primary HTTPS archive, preserving suites, signing keys, security sources and macOS behavior. The failing-before workflow regression, both-format temporary-file checks and existing contracts pass 23 focused checks; strict lint and workflow policy pass. See ci-browser-apt.md. Hosted new-head CI must verify actual transfers and browser assertions; no job timeout or coverage changed. Continue full provider history retrieval and all unchecked issue-wide criteria.
+
+Modern HH API history: bounded oldest-first common-chat reads, account/host-bound post-storage cursors, available-window coverage and guarded text receipts now share CLI/text-binary Lino/manual Connections controls. Actual current-participant direction renders correctly in shared Chat/Operator. Finite regressions, focused Node/Deno, production Chromium and independent MCP desktop/mobile pass; inbox-pull is now in the mandatory browser registry. See hh-common-history.md. All five preceding e280197a workflows pass; its Pages log also proves the APT helper updated zero files on the hosted mirror-list format, requiring a separate correction. Full HH browser/unread parity and every other unchecked issue criterion remain required; PR 57 stays draft and unmerged.
+
+Hosted APT follow-up: passing e280197a Pages updated zero files (line 245), read apt-mirrors.txt (258) and still downloaded from Azure (262–265). A pinned primary runner configuration and a failing-before temporary mirror-list fixture establish the missed format. The helper now rewrites that known file while retaining priorities, source indirection and unrelated sources. See ci-browser-apt.md. Hosted new-head confirmation and every unchecked product requirement remain required.
+
+Persistent read-only review sessions now share isolated browser/profile slots, current-page rereads, visibility/focus capability, duplicate/capacity refusals, trusted activity expiry and acknowledged close/shutdown through CLI/text-binary Lino/shared four-language UI. Thirty-nine focused Node checks, twelve Deno checks, production Chromium before/after and independent MCP desktop/mobile pass; see forms-review-sessions.md. All five preceding 0176fe7d hosted workflows pass. Continue reviewed prefilling, accumulated multipage/submission/edit learning, optional models and every other unchecked issue criterion; PR 57 remains draft and unmerged.
+
+Reviewed native prefilling now shares explicit selection/replacement, document-bound targets, current-knowledge checks, per-field actual results and lost-response recovery through CLI/text-binary Lino/four-language UI. Fifty-one focused Node checks, fifteen Deno checks, production Chromium and independent MCP desktop/mobile pass; see forms-reviewed-prefill.md. Boolean contact-label matching and an awaited-storage owner-edit race have failing-before regressions. Continue native radio/custom controls, optional models, accumulated pages/submission/stable-edit learning and every other unchecked criterion; PR 57 stays draft and unmerged. Exact new-head hosted CI remains required.
+
+Native radio review now shares form-owner/name grouping, complete-peer validation, disclosed clearing, affected-answer replacement permission and verified peer receipts through CLI/Lino/four-language UI. Fifty-five focused Node checks, nineteen Deno checks, production Chromium and independent MCP desktop/mobile pass; see forms-reviewed-radios.md. A hidden peer added after planning refuses before interaction, and unrelated groups remain selected. Continue custom controls, models, accumulated pages, stable-edit/submission learning and every other unchecked requirement. PR 57 stays draft and unmerged; exact new-head hosted CI remains required.
+
+Exposed custom-control review extends the native foundation with editable ARIA textboxes, known-state checkboxes, complete radiogroups and visible single-choice listbox/combobox options. Exact private option bindings refuse identical replacements, and readback checks selection plus disclosed clearing. Sixty focused Node checks, twenty-four Deno checks, production Chromium and independent MCP desktop/mobile pass, with six selected fields, one cleared peer and zero submissions. See forms-reviewed-custom.md for verification and explicit remaining scope. Continue unknown menus/uploads, optional models, accumulated pages, edit/submission learning, assignments and every other unchecked criterion; PR 57 stays draft and unmerged.
+
+QA21/QA25 closed choices: explicit CLI/Lino/localized inspection opens the held combobox once, confirms unchanged answers, consumes the old plan and preserves cached response recovery without another click. Fresh plans bind newly exposed and lazy cross-origin options before selected application. Thirty Node checks, ten Deno checks, production Chromium and independent MCP desktop/mobile pass. See forms-reviewed-choices.md. e975396a CI failed on macOS ARM64 runner acquisition (no steps); preserved annotations identify capacity constraints. Current-head CI and every remaining requirement stay required; PR 57 remains draft and unmerged.
+
+Current link mitigation: three same-SHA link-check attempts failed on changing GitHub HTTP 503s. Four concurrent requests, bounded backoff and no transient-error caching retain strict validation; see [CI link evidence](ci-links-concurrency.md). Verify the next exact-head hosted result.
+
+CI form-effect investigation: exact PDF and link-mitigation heads fail the unchanged duplication gate at 6.51%; complete logs and timestamps identify the gate before dependent browser/runtime jobs. Consolidate guarded disclosure/upload execution and isolated HTTP/browser helpers, retain pre-issue refusal, post-issue uncertainty, actual readback, cached recovery and cleanup. Focused checks and new-head hosted CI must verify the change. The c6ad8846 hosted link check passes 1,857 links with zero errors. See ci-forms-effects.md. Continue accumulated pages, learning, models and every other unchecked criterion; PR stays draft and unmerged.
+
+Captured-page journal: retain up to 32 explicit read/plan/action checkpoints and 4 MiB per owned review session, report evictions, preserve actual/current versus proposed values and mark unavailable readback. Save private unique flushed Markdown reports, retain browser receipts on disk failures and await issued writes through shutdown. CLI/Lino/four-language history offers downloads without fill authority. Thirty-seven focused Node checks, ten Deno checks, production Chromium and independent MCP desktop/mobile verify the foundation; see forms-review-journal.md. Automatic page capture, confirmed/stable-edit learning, models, assignments and every other unchecked criterion remain required. PR 57 stays draft and unmerged; exact new-head hosted CI remains required.
+
+Next unit: generic passive capture in each owned review browser, default on with a CLI/API/UI opt-out. Reuse the bounded document reader for load, edit and navigation checkpoints; exclude hidden frames, bound pending work, retain omission/failure states and await captures on close. Report observed Next controls without clicking them. Verify a fast two-page owner navigation, unchanged live-plan authority, no submission or learning, both transports, cleanup and desktop/mobile rendering. Confirmed-submission/stable-edit learning and detached lifetime remain separate required follow-up work.
+
+Automatic owned-session capture now preserves actual answers across rapid Next navigation, separately captures visible documents, reports bounded omissions/failures and supports CLI/API/localized opt-out. Twenty-eight focused Node checks, nine Deno checks, production Chromium and independent MCP desktop/mobile pass, with zero submissions and unchanged answer knowledge. Existing manual-history and original plan-download assertions also pass. See forms-automatic-capture.md. The preceding exact-head Checks failure in both engines is the accidental plan filename rename; compatibility is restored without weakening the assertion. Continue default-on detached per-slot watchers, confirmed-submission and stable-edit learning, models, assignments and every unchecked issue requirement; PR 57 remains draft and unmerged.
+
+Next required learning unit: bind observations to explicitly planned documents and fields; record actual values from each planned page. Learn unapproved reusable proposals only after observed owner submission completion, or after an owner change remains unchanged for one minute. Preserve prefill baselines, contacts as placeholders, rejection/correction policy and current profile/knowledge guards. Skip empty/clarification/question-back/assignment/salary values and unchanged contacts or already-known answers. Expose default-on learning with CLI `--no-learn`, API/UI opt-out, observed completion/learning errors and saved-report evidence. Verify failed/unsent submissions, multilingual confirmation, rapid page transitions, stable-change cancellation, duplicate events, owner edits during storage and cleanup with focused tests plus the real production browser. Detached per-slot lifetime remains a subsequent required unit.
+
+Owned-session learning now saves unapproved actual answers across explicitly planned pages after observed submission completion or one stable minute of owner editing. Per-control gesture evidence, live readback inside the knowledge writer queue, current contact/policy guards, bounded retries, partial-write counts and inspectable journal evidence share CLI/Lino/four-language controls and opt-out. Thirty-nine focused Node checks, eighteen Deno checks, production Chromium and independent MCP desktop/mobile pass; see forms-answer-learning.md. All five preceding 321058d3 workflows pass. Detached default-on per-slot watchers, configured résumé selection, optional models, assignments, complete provider workflows and every other unchecked issue criterion remain unfinished; PR 57 stays draft and unmerged.
+
+Next required unit: detached default-on per-slot learning watchers that survive the initiating CLI command, attach to the intended browser through CDP, retain planned-page actual values and apply the same stable/submission policy. Bound ownership, storage, logs and shutdown, expose inspectable status and stop behavior, honor --no-learn and verify process/server separation without consuming the owner’s running app.
+
+The detached-watcher store prerequisite now routes proposals through the active writer's existing knowledge queue. It rechecks the watcher before policy lookup and every write, preserves confirmed partial counts, bounds/authenticates local Lino frames, serializes local writer lifetimes, and refuses to replace an active writer that exposes no bridge. Focused Node checks cover current policy, changed live answers, simultaneous saves, partial writes, malformed frame sizes, authentication and cleanup. This infrastructure does not yet supply detached monitoring; browser/process lifetime work remains active.
+
+Detached per-slot learning now survives CLI quit/EOF with exact profile/target CDP attachment, page-preserving reuse, full-minute stable learning, active-writer coordination, bounded private reports and explicit status/history/Stop. Focused Node/Deno checks and the actual CLI/Chromium regression cover process separation, retained receipts, reuse and acknowledged cleanup; see forms-detached-watchers.md. This supersedes the earlier detached-lifetime gap. Unlimited configurable slots, configured résumé selection, optional model context, assignments, complete provider workflows and every other unchecked issue criterion remain required. PR 57 stays draft and unmerged; the new commit requires its own hosted matrix.
+
+Configured résumé reuse (B8): reproduce the ignored saved-PDF case; add one owner-selected stored PDF with metadata-only status, optimistic revisions, explicit save/delete and plan-bound attachment across CLI, Lino HTTP and shared Forms controls. Verify stale plans/configuration, byte digests, replacement consent and non-replaying recovery; capture before/after desktop/mobile views, test portable storage and offline controls, then run focused checks and review current-SHA CI. All other unchecked issue-wide criteria remain required; PR 57 stays draft and unmerged.
+
+Additional browser root cause: a configured-resume status refusal went through the generic read wrapper, returned null and falsely selected an empty browser store. Preserve status refusals in a dedicated server reader; add a failing-before browser regression plus focused API checks, then verify unknown state and explicit retry recovery. Preserve completed parent run 42886382414 logs; investigate the separate WebKit short-desktop tutorial offscreen-target failure at full-log line 93361 after committing this PDF unit.
+
+Configured-PDF selection and reviewed reuse now pass 46 focused Node checks, 46 Deno checks, production Chromium native/cross-origin attachment and independent MCP desktop/mobile verification. Actual digest readback, revision/replacement guards, cached recovery after Forget and explicit unknown-status retry are retained; see forms-configured-resume.md. This verifies the saved-selection mechanism, not automatic provider filling or path discovery. The preceding 38b69101 commit passes all five hosted workflows; the new unit requires its own matrix. The earlier WebKit offscreen tutorial failure remains an investigation item despite the newer run passing. Unlimited slots, models, assignments, complete provider workflows and every other unchecked criterion remain required; PR 57 stays draft and unmerged.
+
+The prior WebKit short-desktop/tall-card failure now has deterministic failing-before unit and real-browser regressions. Required-control clearance includes viewport/header bounds, and reveal retries share the actual button rather than resetting the section scroll. Forty-four Node and 44 Deno checks, WebKit resize plus focused short-desktop walkthrough and independent MCP pass; see ci-tutorial-control.md. The earlier passing matrix did not explain the latent failure; new-head CI remains required. Continue unlimited slots and every other unchecked issue-wide criterion; PR 57 stays draft and unmerged.
+
+Next capacity unit: remove the CLI's four-URL restriction and the core's sixteen-session ceiling. Keep a default of four active review browsers, add a persistent revisioned owner-selected positive capacity through CLI/Lino/shared controls, and reserve each opening atomically against current capacity. Start batch browsers sequentially, validate every URL/slot before launch, preserve duplicate-slot refusal and existing detached lifetime, and refuse capacity reductions below currently owned slots. Verify beyond-sixteen capacity with mocks, both wire formats, stale/write-failed settings, concurrent reservations, invalid-batch no-launch behavior and actual low-count browser controls. This implements configurable slot capacity; automatic multi-form prefilling remains required separately.
+
+Capacity/batch mechanism verified: 47 Node tests, 47 Deno tests, production Chromium and independent MCP desktop/mobile pass. Settings survive reopen, reservations and writes serialize, stale saves retain drafts, owner answers survive refusals and cleanup confirms zero submissions; see forms-review-capacity.md. B1 automatic prefilling, optional models, assignments, authenticated provider parity and every other unchecked issue criterion remain required. Continue those workflows; PR 57 stays draft and unmerged.
+
+Next required unit: optional Claude Code drafts for unresolved questions/forms using an explicitly selected stored CV, current profile, bounded recent context and nearest approved saved answers. Draft one bounded batch without tools, persist no model sessions, mark unknown personal facts for clarification, preserve deterministic answers and owner edits, and expose actual configured/disabled/unavailable/refused states. Share configuration and opt-in through CLI, trusted Lino and four-language controls. Revalidate frozen context before reviewed application without a second model request; abort/drain child work on stop. Verify deterministic failing-before planning, mocked process/transport/lifecycle tests, production browser and independent MCP; leave authenticated provider/model-account checks honestly unverified when unavailable.
+
+Optional model drafting mechanism verified with 71 Node and 71 Deno tests, finite failing-before planner/UI evidence, production Chromium and independent MCP desktop/mobile review. Settings use optimistic revisions; selected CV/current context/approved references feed one bounded tool-free child; unknown facts require clarification; actual application revalidates frozen context without a second model request. Bare mode requires API/provider credentials rather than subscription login. See forms-model-drafts.md. Live provider/account verification, automatic chat drafting, assignments, automatic multi-form filling and every other unchecked issue criterion remain required. The older tutorial run was externally cancelled during WebKit and its final gate failed; preserve complete logs and inspect the current commit matrix. PR 57 stays draft and unmerged.
+
+CI counter isolation unit: preserve the completed Chromium job log for run 42904657245, reproduce the failure with only learning → capacity → model, then compare each non-submitting scenario against its starting fixture counter. Keep the explicit one owner submission learning assertion, actual browser cleanup and positive model receipt checks. Validate failing-before/passing-after sequential browser evidence and strict changed-test lint; leave complete matrices on hosted CI.
+
+The focused sequence fails against the old capacity counter and passes after both later scenarios compare their initial counts. The final receipt confirms exactly one owner submission and three closed browsers; model drafting still makes one request and reads back the actual value. Strict changed-test lint and formatting pass. See ci-forms-submission-counter.md. Exact new-head hosted matrices and every unchecked issue requirement remain required; PR 57 stays draft and unmerged.
+
+Next B15 unit: reproduce literal Markdown in a model-produced form proposal. Convert bounded drafts to plain text through the shared model contract, preserving code contents, identifiers, URLs and exact offered choices; recheck rejection policy after conversion. Keep deterministic saved answers and owner input untouched, preserve frozen-context application and verify failing-before Node/browser evidence, focused Node/Deno checks, actual Chromium field readback and independent MCP desktop/mobile views.
+
+Additional exact-parent CI investigation: capacity commit 60eb49c5's WebKit job 130147210202 fails at complete job-log line 2299 in the existing lost-response prefilling scenario. Target-document traces show one-millisecond identity differences at lines 2295–2298. Preserve the log and investigate document identity stability separately after the plain-draft unit; the counter correction does not explain this failure.
+
+B15 plain-model drafting now passes 18 focused Node/Deno checks, the production Chromium review and independent MCP desktop/mobile verification. Literal Markdown fails before the conversion; actual readback afterward is plain, with one model request, preserved owner values, clarification, closed browsers and zero submissions. See forms-plain-drafts.md. Exact new-head CI, the separate WebKit document-identity failure and all other unchecked issue requirements remain required; PR 57 stays draft and unmerged.
+
+The model parent's lint job 130164660346 identifies four unformatted changed requirement ledgers at full log lines 406–411. Apply the required formatter to those exact files as part of the plain-draft ledger update and retain a passing targeted format check. Its four existing ESLint warnings are separate and did not fail the job. Preserve exact new-head hosted verification.
+
+WebKit identity investigation: preserve exact-parent job 130147210202 and its unchanged-URL, one-millisecond differences. Probe a finite local page without external traffic, then add a deterministic clock-jitter regression, retain real same-URL reload refusal and verify only the affected prefilling sequence in WebKit. Replace clock-derived authority with stable document identity if the evidence supports it; retain default-off identity traces, actual field readback, lost-response recovery and zero submissions. Inspect exact-head hosted CI after the atomic fix.
+
+The deterministic clock-drift regression fails in old inspection and in the original WebKit lost-response assertion. Stable per-document tokens now preserve actual same-document review, automatic capture and learning; real same-URL reload and owner changes still refuse. Fifty-eight focused Node and 58 Deno checks, strict changed-code lint and focused production WebKit pass. The latest dc74e618 hosted log isolates the feature inventory as the remaining formatting failure; format that exact file without relaxing a gate. Independent MCP also confirms one issued application, six recovered readback receipts, actual values, preserved unselected email, phone layout and acknowledged close with zero submissions. Retain the verified evidence archive, push and inspect current-head hosted checks. Continue every unchecked issue criterion; PR 57 stays draft and unmerged.
+
+Next B5 unit: reproduce saved Yes/No answers being offered for link text fields without a selected profile. Share explicit link intent and HTTP(S)/provider validation across saved and model proposals; keep boolean controls and ordinary saved contact reuse. Verify specific résumé/GitHub/LinkedIn routing, all available links for a combined request, missing contacts, misleading hosts and unchanged owner input with failing-before tests, focused Node/Deno checks, production browser readback and independent MCP. All other unchecked criteria remain required; PR 57 stays draft and unmerged.
+
+B5 configured-link routing now passes 45 Node and 45 Deno checks, failing-before/passing-after production Chromium and independent MCP desktop/mobile verification. Saved/model boolean text and wrong providers cannot become link proposals; missing contacts stay open, combined requests include available links, actual fields have two readback receipts, owner content is preserved and submissions remain zero. See forms-link-answers.md. Automatic CV extraction/filling, complete provider workflows and every other unchecked criterion remain required; PR 57 stays draft and unmerged. The preceding document-identity commit still requires its complete hosted matrix.
+
+B4/B4a contact-source unit: reproduce missing canonical birth date/résumé URL and GitHub-as-website conflicts; add explicit bounded exported-Markdown contact extraction with line evidence, valid ISO dates, all GitHub links and current-value protection. Share CLI/text-binary Lino/offline/localized controls, retain explicit field selection and separate saving, and verify downstream form proposals. Seven initial parser regressions and the production browser fail before the fix. Fifty-six Node and 56 Deno checks, strict changed-code lint, production Chromium and independent MCP desktop/phone checks pass; see resume-profile-import.md. Automatic source export/discovery, complete private/cover-letter parity, automatic filling and every other unchecked criterion remain required. PR 57 stays draft and unmerged.
+
+Hosted CI investigation: list recent runs with timestamps and SHAs, compare them with the latest commit, preserve every non-passing completed job log, inspect actual failures in bounded chunks, and record precise errors and log lines. The preceding eea31cdb run 42917035254 exposes seven Automation render failures per runtime from question-controls.js dereferencing absent api.answerModel and a Chromium full-forms failure waiting for model settings after reload. Keep the currently queued 07ca5e13 matrix distinct. Reproduce each cause with the smallest relevant test/sequence, fix it without extending waits, then push and require current-head hosted verification. All unchecked product criteria remain open.
+
+Optional-model render guard verified: the local Automation file reproduces three failures before the fix; the other four hosted failures are in Autopilot rendering. All 16 checks across both affected files pass in Node and Deno after guarding the optional API. See ci-optional-model-render.md for exact runtime-job lines and preserved logs. The learning → capacity → model Chromium probe passes, so the separate hosted reload failure is not explained yet. Downloaded WebKit artifacts additionally show a refused question-save edit reset and navigation to Contacts failing while Settings remains visible. Continue targeted diagnosis, preserve screenshots and use default-off tracing where needed. Every unchecked issue criterion remains required; PR stays draft and unmerged.
+
+Answer receipt validation: an independent MCP malformed-refusal probe exposes an actual undefined-rule render crash, separate from the earlier valid-refusal hosted failure. Three API cases fail before the fix; all 18 focused Node and 18 Deno checks, seven compatibility checks, expanded four-case production WebKit and independent MCP desktop/phone checks pass afterward. Save/list/delete confirmation now preserves owner input on missing or mismatched receipts; explicit contraction and offline behavior remain covered. See question-response-confirmation.md and its verified archive. Keep the three earlier hosted model/question/navigation failures open; new bounded default-off diagnostics and a pre-reload model-name assertion must inform the next hosted run. No retries or timeout changes. Continue every unchecked issue criterion; PR 57 stays draft and unmerged.
+
+B25 configured city/time-zone unit: five initial regressions and the production browser reproduce omitted МСК/UTC values and incomplete city-only proposals. Shared label recognition and explicit four-language source extraction now pass 37 focused Node and 37 Deno checks, strict lint/formatting, production Chromium and independent MCP desktop/phone verification. Four actual values have confirmed receipts, owner content stays intact, no submission occurs and all fixture browsers close; see forms-timezone.md. Automatic source discovery/filling, complete provider parity and every other unchecked criterion remain required. The three earlier hosted input/navigation failures remain unexplained; continue current-SHA CI investigation without retries or timeout changes. PR 57 stays draft and unmerged.
+
+A4/B6 subject preservation: five initial regressions and the production browser fail before the fix. Shared literal subject checks now reject different technologies, currencies and employment arrangements while preserving known aliases, explicit owner alternatives, scoped rules and review. Thirty-three Node/Deno checks, actual CLI/both Lino transports, production Chromium and independent MCP desktop/phone pass; see forms-subjects.md. One actual applied field, owner input retained, closed browsers and zero submissions are recorded. The bounded catalog, broader rewording similarity, full provider/form parity and every unchecked criterion remain required. Current-head CI remains required; PR 57 stays draft and unmerged.
+
+B26/B27 pay-context unit in progress: reproduce missing vacancy minimum/comfortable-rate guidance and form-description priority. Add a bounded shared pay parser, preserve owner targets and explicit comfort rates, read only visible introduction text before the first question, scope that text to its frame, and prevent pay-specific answers from entering reusable learning. Cover selected named profiles, CLI/text-binary Lino, actual reviewed field receipts, protected owner input, screenshots and independent MCP. Keep complete provider vacancy discovery and every unchecked criterion active.
+
+B26/B27 shared pay guidance now preserves lower vacancy minimums, frame-specific visible introduction priority and an explicit comfortable rate. Seven initial regressions and the production browser fail before the fix; 37 focused Node/Deno checks, CLI/both Lino transports, production Chromium and independent MCP pass with one actual field receipt, protected owner content, closed browsers and zero submissions. See forms-pay-guidance.md. Parent CI fails the actual duplication gate, not lint/formatting; shared browser/evidence helpers reduce repetition without relaxing the threshold, and five collectors verify temporary archives. New-head hosted CI, full provider vacancy discovery, automatic filling, the three earlier unexplained hosted browser failures and every unchecked criterion remain required. PR 57 stays draft and unmerged.
+
+Next QA02/B6 matching unit: preserve the fixed-threshold/case/limited-results reproductions, validate shared optional threshold and case controls, retain approximate review and subject/policy guards, and expose every eligible ranked match through bounded pagination. Carry settings through saved automations, form planning, CLI and both Lino transports; verify focused Node/Deno, production Chromium, independent MCP and desktop/phone screenshots. Broader fuzzy rewording and every unchecked criterion remain required.
+
+Matching options and inspection are verified by 45 focused Node/Deno checks, 21 Node compatibility checks, production Chromium and independent MCP. Twelve candidates span two pages; actual selected-only form application confirms one receipt, preserved case refusal/owner input, close and zero submissions. Strict settings, case-aware canonical corrections and template context compatibility retain subject guards. See question-matching-options.md. Parent c3912720 CI additionally exposes a model reload edit race and Bun/macOS temporary-file cleanup race; deterministic held-response and existing failed-write regressions pass after the fixes, with normal round-trip and independent MCP evidence in ci-c3912720.md. The parent WebKit job subsequently passed at 01:26:08 UTC; preserve its completed workflow and inspect all exact new-head hosted matrices. Full fuzzy rewording/provider parity and every unchecked criterion remain required; PR 57 stays draft and unmerged.
+
+Automatic current-page prefilling now passes 30 focused Node checks, the same 30 in Deno, actual multi-URL CLI and both Lino transports, production Chromium native/cross-origin/multipage checks and independent Playwright MCP desktop/mobile. Existing values and unresolved facts survive; actual PDFs, per-field provenance and cached receipts are verified with zero submissions. See [automatic prefilling](forms-automatic-prefill.md). All five workflows for preceding head b1206126 pass. Continue visual prefill controls, CAPTCHA waiting, assignment repositories/issues, contact/path discovery, full provider workflows and every other unchecked criterion; PR 57 stays draft and unmerged.
+
+Next required UI step: expose automatic empty-field prefilling beside the existing shared planning settings only for an owned session with the advertised capability. State clearly that saved PDFs may upload immediately and the owner controls Next/submission. Freeze a distinct request and its settings until an interrupted/malformed response is recovered, retain actual per-field/file receipts and unresolved questions, and invalidate the previous manual plan before issuing. Verify missing capability, lost/mismatched receipts, overlap protection, four-language copy, real production UI and desktop/mobile screenshots; keep all other open criteria required.
+
+Shared automatic-prefill controls now expose the owned-session capability, preserve the frozen original request across a lost response/profile change, clear the old manual plan and display actual field/PDF receipts, provenance and open questions. Forty-three Node/Deno checks, production Chromium and independent Playwright MCP desktop/phone pass; see [automatic controls](forms-automatic-controls.md). Browser readback confirms six field writes, two PDFs, manual page two, closed reviews and zero submissions. Continue CAPTCHA waiting, assignment workflows, contact/path discovery, chat/model automation, full provider parity and every unchecked requirement. PR 57 remains draft and unmerged.
+
+B9 CAPTCHA unit: exclude visible known challenge documents/controls from answer reading, model prompts, learning and automatic writes; refuse empty inspections as completed forms. Keep one owned automatic request waiting at most 30 minutes for manual solving, pause only its ordinary action deadline during that bounded wait, and resume with a fresh guarded plan on the intended destination. Return waiting receipts promptly, expose read-only status/recovery and usable Focus/Close controls, drain cancellation and never solve/click/submit challenges. Cover manual release, timeout, navigation, unknown reads, one pending poll, lost responses, CLI and both Lino formats, production browser/MCP, screenshots and exact-head CI. Full challenge/provider coverage and all unchecked requirements remain active.
+
+Manual CAPTCHA waiting now passes 63 focused Node and 63 Deno checks, production Chromium lost-response recovery and independent MCP desktop/phone verification. The owner completes the synthetic gate; the application reads no challenge answer, writes one actual email after release and closes without submission. Read-only status, frozen original settings, cancellation, bounded deadlines, Focus/Close and knowledge/model exclusion are covered; see [manual verification](forms-captcha.md). The preceding ee447589 Checks run failed the aggregate WebKit Forms process budget after its pay checks passed. Mandatory Forms checks now run in three bounded fixture groups with the unchanged timeout; 17 CI contracts pass in Node/Deno and the answer group passes Chromium. Full live challenge/provider coverage, assignments, discovery, chat/model automation and every unchecked criterion remain unfinished. PR 57 stays draft and unmerged; new-head hosted CI is required.
+
+Next C3/QA18 unit: preserve saved answers while drafting unresolved parts of the latest unanswered employer messages with the configured optional model. Persist an explicit automation opt-in, share bounded context and actual disabled/unavailable/refused states across CLI/Lino/offline/shared controls, and keep all model output in review. Bind drafts to the unanswered turn and frozen model knowledge, recheck after model completion and before delivery without regenerating, and retain pending owner edits. Verify failing-before regressions, focused Node/Deno and both transports, then production browser and independent MCP desktop/mobile screenshots. Live authenticated providers and every unchecked issue-wide criterion remain required.
+
+C3/QA18 shared chat model drafting: explicit saved opt-in now fills unresolved parts of the latest consecutive unanswered turn while retaining approved text. Model output always queues for review, including automatic mode; turn/choice/knowledge/action guards recheck without regeneration and preserve pending owner edits. Four parent regressions and a narrow stale-choice regression fail before correction. Sixty-five focused Node/Deno checks, production Chromium and independent MCP desktop/phone verify actual review text, refusal/retry, transport/origin guards, cancellation and zero sends. See [chat model drafts](chat-model-drafts.md). Live provider/model execution, full matching/provider workflows, assignments and every unchecked issue criterion remain required. Exact new-head CI remains required; PR 57 stays draft and unmerged.
+
+Next B17/B18 assignment prerequisite: reproduce saved/model answers and PDF uploads being offered before a form's test-assignment repository exists. Add bounded shared recognition, a private per-form hold that survives page changes/restarts, and an explicitly verified GitHub repository association bound to the observed assignment revision. Refuse stale/malformed verification and preserve all owner values. Share the hold/link/readback contract through CLI, both Lino transports, reviewed/automatic filling and four-language controls; verify finite before/after regressions, focused Node/Deno and actual browser/MCP screenshots. This prerequisite does not complete B16/B19–B22 repository creation, English restatement or pipeline/stack selection; those remain required next, together with every unchecked issue-wide criterion. PR 57 remains draft and unmerged.
+
+B17/B18 shared assignment prerequisite now holds every ordinary proposal, automatic write and PDF until an existing GitHub repository is explicitly verified for the current task revision. Ninety-five focused Node/Deno checks, three failing-before regressions, production Chromium and independent MCP verify two selected readback receipts, protected owner values, zero uploads/submissions and cleanup. See [assignment prerequisite](forms-assignment-prerequisite.md). Automatic repository/issue publishing, English restatement, vacancy/template selection and deliverables remain next; every unchecked criterion stays active. Parent 50ddab32 CI exposes nine identical runtime failures caused by consecutive-question assembly escaping its opt-in. Both planning and validation now preserve the latest-message behavior when opted out; the unchanged context regression and 38 focused Node/Deno checks pass. See [CI investigation](ci-chat-turn-opt-in.md). Exact new-head hosted verification remains required; PR 57 stays draft and unmerged.
+
+Current-head b7a95bda CI investigation: preserve the complete Checks run 42960668703 and failed job 130326310576, verify timestamps/SHA, and inspect the actual secret-scan finding. Reproduce the single synthetic BasicAuth fixture finding, construct that rejected URL through the URL API while preserving the security assertion and unchanged scanner, then run focused assignment tests and scoped lint/format/secret checks. Commit and push the atomic correction before continuing B16/B19–B22 publishing. Keep the hosted matrices and every unchecked issue criterion required.
+
+The single synthetic URL finding reproduces before the fixture correction; 19 focused Node/Deno checks and scoped Secretlint/ESLint/formatting pass afterward. No scanner rule or exclusion changes. See [exact-head CI evidence](ci-assignment-secret-fixture.md), including completed parent Chromium/WebKit results and all nine runtime failures. Push this atomic correction and inspect its own hosted matrices; every unchecked criterion remains required.
+
+Next B16/B19–B22 publisher unit: read the current primary Hive Mind template table before using a disclosed fallback; bind a bounded tool-free English restatement and vacancy-based stack to the held assignment revision. Check known employer aliases/inflections, English text and six-word source overlap. Preview the actual target, visibility, template and written-deliverable instructions before publishing. Persist issued-effect state, reconcile real repository/pipeline/marked-issue readback on reruns, preserve existing work and refuse unknown writes without duplicate creation. Release the existing whole-form hold only after confirmed repository/issue/pipeline receipts. Share CLI/Lino/UI, owned cancellation and actual per-phase states; verify finite failing-before regressions, focused Node/Deno, production browser and independent MCP evidence. Implement private vacancy/redirect association as part of the same required workflow. Keep all other unchecked issue criteria required.
+
+B16/B19–B22 publication now has a reviewable CLI/Lino/shared UI implementation, actual template-history tests, vacancy/redirect provenance and durable issued-effect recovery. Focused 77 Node/45 Deno checks, production Chromium and independent MCP verify one repository/issue, reload restoration, protected owner input, a held form until readback and zero submissions; see [assignment publication](assignment-publication.md). Two isolated recovery regressions fail without their guards. Final scoped checks, evidence collection, commit/push and exact-head hosted CI are next. Live provider/model execution, linked-document acquisition, complete assignment handoff/notifications and every unchecked issue criterion remain required; PR 57 stays draft and unmerged. Parent 55189505 currently passes all completed runtime/native/security jobs and four auxiliary workflows; WebKit is still running; macOS Node shard 1/2 hit the ten-minute job deadline. Preserved annotation and raw log line 3544 identify cancellation after over three minutes of setup and nearly seven minutes of tests. Balance the hosted workload without extending the deadline; exact new-head verification remains required.
+
+Publication is committed and pushed as dd155b0c; its user/CLI/API guide, screenshots, verified archive and PR description are updated. Parent 55189505 is now complete: Chromium, WebKit and the other runtime targets passed; macOS Node shard 1/2 exceeded the existing deadline and the pipeline gate correctly failed. The same target now uses three shards with unchanged job/test deadlines and concurrency. Eighteen focused Node/Deno CI contracts prove complete fixture coverage and failure propagation; see [macOS shard evidence](ci-macos-shards.md). New-head hosted verification, linked documents, full assignment handoff/notifications and every unchecked requirement remain required. PR 57 stays draft and unmerged.
+
+Next assignment-source unit: read explicitly selected linked instruction pages through a separate owned assignments browser, retain bounded private source text and public provenance in the frozen draft, and apply employer/copy checks to both form and source. Preserve actual document/redirect identity and refuse unknown, challenge, login, empty or truncated reads before invoking the model. Share the source URL through CLI, text/binary Lino and four-language controls, retain it on refusal/restoration, and test late launch/cancellation and source integrity. Written tasks retain both the specific Deliverable and stack instructions and a final Stack section. Verify failing-before cases, focused Node/Deno and real browser/MCP evidence; complete handoff/notifications, live execution and every unchecked issue criterion remain required.
+
+Explicit linked HTML/plain-text instructions now have private frozen source context, positive navigation/HTTP receipts, actual redirect evidence and CLI/Lino/four-language controls. Four parent regressions fail first; focused Node/Deno, production Chromium and independent MCP verify visible-text bounds, source integrity, both required written headings and restoration without rereading. See [linked instructions](assignment-source.md). Other document formats, automatic discovery, full assignment handoff/notifications, live execution and every unchecked requirement remain active. Parent 9feb1d62 passed all three macOS Node shards within the existing deadline; Ubuntu Node exposed an uninstrumented Git fixture failure and Windows Deno exposed rolling upgrade output missing its completion message. Preserve actual failed logs and investigate both. PR 57 stays draft and unmerged.
+
+CI output investigation: preserve exact 9feb1d62 run 42968481378 and all three failed-job logs; verify timestamps/SHA before interpretation. Two finite actual-entry regressions fail before the correction and pass after setting exitCode; await child stdio close in the rolling fixture. Deno's four focused checks and the targeted traced Node rolling upgrade pass. Keep the separate local initial-readiness failure and the unconfirmed Ubuntu Git failure visible; inspect exact private synthetic stderr on the next run. Review current-head complete CI before claiming either CI failure resolved. All unchecked issue scope remains required. See [CLI output evidence](ci-cli-output.md).
+
+New CodeQL review 4534718634 targets the synthetic instruction-URL substring assertion. Replace it with exact reviewed title/body plus marker equality; retain alert 57 and the actual review/job log, verify all twelve source checks in Node/Deno, and require current-head annotation clearance. See [exact publication proof](ci-assignment-source-proof.md). No production URL behavior changes.
+
+QA14 choice audit at pinned reference fa0991b8: exact option strings alone cannot distinguish missing/disabled bot controls from free text. First propagate an explicit strict-options contract through the shared planner, frozen turn, model preview and delivery revalidation. Empty strict options must remain pending without a model call; later controls, disabled states and owner edits invalidate stale drafts. Preserve existing form option behavior and generic conversation suggestions. Then implement the actual guarded browser choice reader/click/readback across owned HH chat/application frames and shared provider adapters, durable uncertain-click handling, unchanged automatic-draft cleanup and retry behavior, followed by CLI/Lino/common UI and real browser/MCP before/after evidence. QA14 remains unfinished until every part is verified. Recent merged reference chat PR search returned no results; source requirements and four current reference files are retained under ci-logs/qa-buttons-reference. Do not copy their implementation.
+
+QA14 guard verified: eleven of twelve focused regressions fail against parent 19605f22; all twelve pass after correction. Combined Node checks pass 77, Deno checks 49, including CLI/Lino/offline preview, current strict-state revalidation, exact labels and zero ordinary writes. The actual browser choice reader/click, delay/retry/automatic-draft ownership and shared visual controls remain next; QA14 stays unchecked. Current parent CI passes CodeQL and all completed runtime/native/static jobs; Windows and browser lanes remain pending at this observation. See [guard evidence](question-strict-options.md).
+
+QA14 browser primitives: configured adapters now share bounded choice inspection, guarded native clicks with positive receipts, frozen current-question checks and private unchanged-draft ownership. Two parent unit regressions and the missing-metadata browser regression fail before correction. Focused Node/Deno and isolated production Chromium/MCP checks pass; see [provider choice evidence](provider-choices.md). Built-in HH chat/application frame routing, completed-summary choice recovery, CLI/Lino/React execution and every unchecked issue criterion remain active. Current parent 33eac5b5 CI fails WebKit automation-chat on a measured `bottomGap: -29` warning (job log line 2314); actual logs/artifact are preserved and the root cause is still under investigation. PR57 remains draft and unmerged.
+
+WebKit layout investigation: actual parent hook reproduction confirms an observer-order warning before tail correction. One confirmation frame for a suspected overlap preserves real persistent warnings, current reading intent and cancellation. Three Node/three Deno checks, three isolated WebKit cases, the focused production automation-chat WebKit flow and independent MCP desktop/mobile pass. See [CI layout evidence](ci-layout-observer.md). Exact new-head hosted verification and every unchecked issue criterion remain required.
+
+Active QA14 HH unit: add explicit numeric web-chat routing, official application-page selection and one verified visible main/cross-origin/nested document. Revalidate document identity and owner page around reads and native clicks, preserve drafts and uncertain reservations, and reject duplicate/hidden/wrong-chat frames. Built-in HH free-text browser sends remain unavailable until their own guarded receipt path is implemented. Verify focused contracts, failing-parent and actual-browser/MCP evidence before pushing; continue shared execution controls, summary recovery/watchers and every unchecked requirement afterward.
+
+QA14 HH routing verified: built-in explicit numeric chat/application references now select one trusted visible main or child document, preserving native receipts, outgoing direction and owner drafts. The parent registration fails the browser regression; 39 Node, 39 Deno, 17 routed HH Chromium cases, 20 existing configured-provider cases and independent MCP desktop/mobile checks pass. Navigation after arming cleans hooks while retaining uncertain reservations. See [HH frame evidence](hh-browser-choices.md). Shared execution controls, completed-summary recovery, durable reload recovery/watchers and every other unchecked criterion remain required. Parent 2a0fb639 passes all completed workflows/jobs; hosted WebKit remains running at this observation. PR57 remains draft and unmerged.
+
+Active QA14 shared execution unit: expose current browser choice inspection, saved-answer planning, owned prefill, exact reviewed selection and status recovery through one service used by CLI, text/binary Lino and localized React controls. Freeze the inspected question/options privately; use one durable question reservation shared with automation delivery, require a provider receipt and retain unknown outcomes across document/server reloads. Capability checks must not launch a browser; unsupported/offline controls must not claim success. Verify parent regressions, bounded mocked service/transport tests and production browser/MCP screenshots. Completed-summary recovery, watchers and every unchecked requirement remain active afterward.
+
+QA14 shared reviewed workflow verified: 78 focused Node checks, ten isolated production Chromium cases, parent CLI/API/UI regressions and independent MCP desktop/mobile pass. Actual Lino-store reopen retains positive and uncertain receipts without another provider call. Reload restores both the review and its target. See [shared browser answers](question-browser.md). Completed-summary recovery, automatic provider watchers and every other unchecked issue criterion remain active; PR57 stays draft and unmerged.
+
+QA14 completed-summary recovery verified: unique completed incoming summary evidence now selects one exact current native option across stored chats without approving rules or increasing counts. Conflicts, bounded scans, owner messages and changed evidence stay for review. Parent planner and real UI reproduce the defect; 74 focused Node, 16 Deno, three production Chromium cases and independent MCP desktop/phone pass. See [summary choice evidence](summary-choice.md). The exact-parent Deno fixture import failure is corrected by isolating its control-only module; Ubuntu assignment-input CI failure remains under active investigation. Automatic provider watchers, live provider parity and every unchecked issue criterion remain required. PR57 stays draft and unmerged.
+
+CI assignment stdin race corrected: an actual-parent deterministic closed-pipe probe reproduces assignment-input despite a zero command exit. Empty-input commands now avoid an unused pipe; payload errors still refuse and retain default-off private error codes. Seven Node and seven Deno focused checks pass, including real tiny Git histories and cleanup; see [stdin evidence](ci-assignment-stdin.md). Exact-head hosted verification, automatic provider watchers, live parity and all unchecked acceptance criteria remain active.
+
+CI whole-turn integration: preserve completed 4916921f workflow 43048313548 logs and map runtime failures before changing assertions. Three old context fixtures assume earlier notices can be dropped; use explicitly approved no-reply pay notices, retain unknown/unapproved messages as numbered review, and assert whole-turn refusal for unusable records. Pending-message edits now invalidate the frozen turn before outbox admission. The finite watch waits for persistent draft presence and actual one-prefill/zero-send effects instead of a transient three-millisecond phase. The bounded trace, 38 focused Node/Bun/Deno checks, production WebKit matching and independent MCP opening pass; see ci-pending-context.md. Keep default-off opening/toggle diagnostics for the still unexplained closed disclosure, retain all timing budgets and require exact new-head hosted checks. Every unchecked issue criterion remains required; PR 57 stays draft and unmerged.
+
+Active D visibility unit: reproduce actual-parent native-choice receipts whose outgoing bubble stays hidden in ordinary/reversed panes. Reveal the positively identified bubble once; track owner wheel/touch/keyboard/input/pointer activity, retain restored drafts and conversation selection, and never erase a delivery receipt after a view failure. Preserve all historical/duplicate/incoming receipt refusals. The actual parent fails two reveal checks; eleven focused production Chromium cases, twenty existing choice cases, six Node boundary checks and independent MCP pass. Verify scoped lint/format/secrets and unchanged duplication gate, retain before/after screenshots and evidence, commit/push and require exact-head hosted CI. Guarded acknowledgement/rejection text sends, unread orchestration and every other unchecked issue requirement remain active.
+
+Active C9/D history prerequisite: traverse overlapping mounted message windows in one verified HH conversation, with finite time, pass, row and byte limits. Prove completeness only at the native original application marker; a stable rendered edge stays incomplete. Preserve provider chronology without ordering IDs, retain owner drafts and the original reading anchor, stop on owner input, navigation, gaps or changed messages, and drain queued/cancelled scans. Verify failing-parent admission, focused unit and real-browser ordinary/reversed/virtualized cases, independent MCP and exact-head CI. This prerequisite does not complete background acknowledgement/rejection delivery or any broader unchecked criterion.
+
+History prerequisite locally verified: nineteen focused Node checks, thirty production Chromium cases and independent Playwright MCP pass. Actual-parent admission fails; ordinary and reversed panes recover the earlier manual reply and preserve the reading anchor, draft and selection. Stalled history remains incomplete and new owner input survives. Scoped lint, formatting, secrets and the unchanged 6.5% duplication gate pass (6.49%). See [conversation history](conversation-history.md) for archived sources, logs and before/after screenshots. Exact-head hosted CI and the Ubuntu dependency-install failure remain under investigation; background delivery, full provider parity and every unchecked issue criterion remain required. PR 57 stays draft and unmerged.
+
+CI archive fallback correction: completed parent e0b0bbdc passes WebKit and all runtime/static/native jobs, while Chromium fails before tests resolving Ubuntu package hosts. The repository helper removed Azure from the runner's native failover list. Two actual-parent regressions fail; preserving URLs and exchanging only primary/Azure priorities passes twenty-seven focused CI checks, strict lint and workflow policy. See [APT fallback evidence](ci-apt-fallback.md). Exact-head CI must still establish whether the fallback is reachable and verify the new history cases; external DNS, prior unexplained browser failures and all unchecked issue criteria remain required.
+
+Active C9/D text-delivery prerequisite: add an explicit frozen-turn HH reply operation while keeping plain HH sends unavailable. Reuse native dispatch ownership and require one distinct outgoing bubble after the frozen question. Refuse closed/read-only/ambiguous controls, preserve drafts, stop before a changed question or owner activity, retain uncertain attempts and drain shutdown. Verify actual-parent admission and before/after browser evidence, focused mocked boundaries, native production main/frame cases and independent MCP. This does not complete persistent acknowledgement/rejection reservations, inactive-window restoration, shared unread orchestration or live provider verification; all unchecked issue requirements remain required.
+
+Text-delivery prerequisite locally verified: twenty-eight focused Node checks, thirty-six text cases, fifty-six native-choice/visibility compatibility cases and five independent MCP cases pass. Parent admission and mandatory CI registration fail before implementation. Self-review also reproduces and corrects lost uncertain drafts when native options appear; three mode-switch cases and twenty existing provider cases cover the correction. The controls and late-change groups retain separate unchanged 180-second CI budgets. See [native text evidence](text-reply.md). Persistent background acknowledgement/rejection attempts, inactive owner restoration, shared unread orchestration and live provider verification remain unfinished.
+
+CI follow-up: the collector-only commit ff7a9d71 passes all four hosted security languages, including Python's prior hostname-assertion finding. The preceding 1a35532c Checks run fails macOS initial host readiness after 10,001 ms: opt-in traces record 4,198 ms of CLI imports and 3,666 ms of immutable release preparation before the control socket is available. Full logs and exact SHA/time metadata are preserved in the text evidence archive. Investigate this recurring startup path without increasing test deadlines; later passing jobs do not explain the failure. Browser cancellations at 17:11:47 after the follow-up push are not assertion results. Exact new-head CI and every unchecked criterion remain required. PR 57 stays draft and unmerged.
+
+Active cold CLI import investigation: measure the actual module graph during one finite invalid serve invocation; reproduce eager provider/server/ordinary-command loading on the committed parent. Keep the rolling host lightweight by loading those consumers only when selected, while sharing argument/store/error handling and preserving foreground, TLS, logging, signals, repeat serve and upgrade behavior. Draft all changes before focused regression/compatibility and one isolated real startup/upgrade check. Preserve measured phase evidence without claiming Linux timings resolve macOS; retain the ten-second readiness and thirty-second test budgets. Every unchecked issue criterion and exact-head CI remain required.
+
+Cold CLI import correction locally verified: the actual parent fails the new graph regression, loading 823 application modules including 310 provider modules before rejecting an invalid serve option. The selected-serve path loads 37 and no providers. Fourteen focused Node checks, including one real startup/reuse/prepared-upgrade case, pass; initial readiness is 3,930 ms locally with all deadlines unchanged. See [CLI import evidence](ci-cli-imports.md). These single Linux observations do not establish macOS startup success. Parent ff7a9d71 browser logs now expose separate hidden Questions summary and combined history-group deadline failures; preserve and investigate both without raising budgets. Exact-head hosted CI and every unchecked criterion remain required.
+
+History group correction: parent ff7a9d71 completes list extraction/virtual scans in about 82/87 seconds, then exceeds the unchanged 180-second group budget during history in both engines. Register the byte-identical history scenario in its own mandatory group, keep all list/scan cases, and reject both missing and duplicate registrations. Eighteen focused Node CI contracts and syntax checks verify this correction; the existing actual-browser/MCP history evidence remains intact. See [history grouping](ci-history-group.md). Exact-head hosted execution, the separate closed Questions disclosure and every unchecked criterion remain required.
+
+Questions disclosure root cause reproduced: identical fragment-URL navigation retains the same Document and open native sections. Consecutive ordinary/pattern notice learning then closes the root with an unconditional “open” click. Both actual-parent learning/preview probes fail; conditional native opening passes both learning modes, three draft-preserving disclosure states and independent MCP desktop/phone checks. Refresh the stale tracked UI bundle, retain hosted/local before screenshots and final phase traces, and require exact new-head CI. See ci-question-disclosure.md. All unchecked issue criteria remain active; PR57 stays draft and unmerged.
+
+Active reviewed-text integration: first expose explicit confirmed frozen-turn replies through the persistent question service, CLI and default text/binary Lino, then add shared localized Questions/Chat/Operator controls. Reserve the same question as native selections before dispatch and flush it; retain the full bounded submitted text and positive receipt, block uncertain/repeated attempts across reviews and store reopen, and keep status recovery read-only. Capability checks must not open browsers. Refuse unsupported sources, outgoing/strict/incomplete turns, owner drafts, expired reviews and missing explicit confirmation. Verify actual-parent admission, focused service/CLI/transport/client checks and shutdown draining; follow with real browser/MCP lost-response, reload, owner-draft and desktop/phone evidence for the common controls. Background acknowledgement/rejection delivery, unread orchestration and all unchecked issue criteria remain required.
+
+Reviewed-text backend locally verified: actual parent fails capability admission; thirteen focused service/CLI/Lino/client checks and forty-five existing choice/watch/native-text/outbox/notice checks pass. Five production Chromium cases verify positive text/binary receipts, uncertain holds, owner drafts and changed earlier messages with no ordinary sends. See [persistent reviewed text](question-text.md). Shared visible controls and their independent visual/MCP evidence are next; background text decisions, unread orchestration, live-provider checks and all unchecked issue criteria remain active.
+
+Active shared text controls: reuse the common Questions/Chat/Operator review and pending-turn evidence with a bounded editable reply, explicit send, truthful text receipt/status wording and read-only recovery. Retain an unsent draft for the exact review across reloads; never apply it to a new question. Capability, strict prompts, owner drafts, prefilled provider input and uncertain attempts disable unavailable actions. Preserve existing native-choice wording/behavior and watcher limits. Verify actual-parent absence, focused draft-state contracts, finite production browser and independent MCP desktop/phone evidence including all three surfaces, lost responses, reloads and owner drafts; register the new browser scenario in both hosted engines without raising deadlines. Background text automation and all unchecked issue requirements remain required.
+
+Shared text controls locally verified: actual parent lacks the editable reply; twenty-two focused Node checks, forty-nine compatibility checks, thirteen production Chromium text UI cases, sixteen existing native-choice UI cases and seven independent MCP checks pass. Questions, Chat and phone-sized Operator preserve drafts and uncertain attempts with no recovery replay. See [visible text controls](question-text-ui.md) for source/log archives and before/after evidence. Backend c446791d passes runtime/static jobs and Chromium; actual Checks run 43078283106 still has WebKit running. Desktop run 43078283080 passes but does not verify browser regressions. Exact UI-head CI, background text decisions, inactive-owner restoration, unread orchestration, live-provider verification and every unchecked issue criterion remain active; PR57 stays draft and unmerged.
+
+Native focus CI correction verified locally: actual parent bundled headless shell reports both tabs focused and refuses initial background admission. Full Chrome yields real foreground/background transitions and passes all eight unchanged native-history cases. Twenty-two Node checks, one Deno launch contract and actual-parent regressions cover full Chromium selection, other groups, WebKit, overrides and failure cleanup; see [native focus CI evidence](ci-native-focus.md). Exact-head hosted verification, the recurring Windows Deno snapshot preparation deadline, original intermittent macOS clink assertion and every unchecked acceptance criterion remain active. PR57 stays draft and unmerged.
+
+Windows Deno b73 startup remains a concrete failure: ten-second readiness expires after 2,062 ms command imports and 6,467 ms release preparation, including about 5,502 ms copying. Add a finite hosted copyFile/buffered comparison after real tests, retaining four-operation concurrency, complete digests and private cleanup; leave production strategy and all deadlines unchanged until platform evidence is available. One Linux actual-package probe completes both methods with identical content; see [copy method investigation](ci-release-copy-methods.md). Continue the required startup correction and every unchecked product criterion.
+
+Active inactive-text prerequisite: real full-Chrome experiments show pointer activation focuses the provider, while browser-commander DOM activation keeps it inactive and yields an actual outgoing receipt. Add an internal owned-watch operation that checks outer/child focus and current frozen knowledge before issue, exempts only its exact generated composer-input event, keeps all other activity latched, uses the actual guarded send control without scrolling, retains confirmed delivery after later activity, and drains Stop/close. Draft the complete boundary and browser regressions before verification. Ordinary explicit replies retain pointer activation. Persistent acknowledgement/rejection decisions, cross-chat/filter restoration, unread/public orchestration, live provider verification and all unchecked criteria remain unfinished.
+
+Inactive-text prerequisite locally verified: the actual parent lacks admission, and the retained first-draft interleaving demonstrates an embedded send after outer focus returns. Actual-button DOM activation, an acknowledged outer activity relay, exact owned-input exemption and final frozen-turn guards now pass nine production Chromium cases, thirty-nine focused Node checks, eighteen Deno checks and three independent MCP checks. Confirmed receipts survive later activity; uncertain sends drain and never auto-retry. See [inactive text evidence](inactive-text.md). Continue automatic acknowledgement/rejection decisions and durable reservations, cross-chat/filter restoration, unread orchestration, common controls, live verification and all unchecked criteria. Published 2b571a75 CI is queued; parent WebKit browser checks pass but diagnostic upload fails and GitHub log retrieval returns HTTP 502. Exact new-head CI and the Windows startup correction remain required; PR57 stays draft and unmerged.
+
+New CodeQL fixture feedback: replace the fixed local script extraction regex with explicit delimiter positions, preserving compilation assertions. Two Node tests and scoped strict lint pass; no production sanitizer changes. See [fixture extraction evidence](ci-fixture-script.md). Exact-head hosted CodeQL and all unchecked requirements remain required.
+
+Active shared unread review unit: expose the finite existing inactive-view pass through CLI, default text/binary Lino and the shared Questions/Chat/Operator controls. Advertise only declared navigation capabilities; require explicit mark-read confirmation and bounded settings before browser admission. Persist a caller-owned pass ID before traversal, retain frozen per-chat reviews, support read-only recovery and abort/drain Stop, and never resume after restart or automatically send. Keep rendered-list/history coverage partial and restoration failures visible. Draft all service, transport and four-language controls before focused regressions, native browser/MCP evidence and static checks. Persistent polling/policy delivery, authenticated provider verification and every unchecked issue-wide requirement remain unfinished.
+
+Shared finite unread review now passes 43 focused Node and 43 Deno checks, three locale/mandatory-registration checks per runtime, five native production Chromium cases and six independent MCP cases. Two actual-parent regressions fail before correction; native review now freezes the newest question before restoring the history anchor. Durable caller IDs, read-only cross-surface recovery, bounded mark-read consent, Stop/shutdown draining and explicit coverage/restoration/history receipts are shared through CLI/Lino/Questions/Chat/Operator. See [unread review evidence](question-unread-review.md). Persistent polling, cross-chat policy delivery, authenticated provider verification and every unchecked requirement remain active. PR57 stays draft and unmerged; publish this atomic unit and require its exact-head hosted workflows before claiming CI verification.
+
+Next unread orchestration unit: use the native inactive ownership lease across each sequential visit to run explicit persisted acknowledgement/rejection policies with full observed history, durable question reservations and positive outgoing receipts. Preserve original owner draft/view and reveal only a confirmed sent reply when the original composer was empty; returning owner activity wins. Add bounded polling and paused-chat/backoff settings, explicit lifetime/Stop/shutdown ownership and non-replaying restart recovery through the same CLI/Lino/shared controls. First inspect the pinned HH reference and existing current-chat notice delivery to reuse policy and reservation guards without a nested browser-pool queue. Verify small failing-before regressions, focused runtimes and native/MCP evidence. Full reference/provider parity and every other unchecked issue criterion remain required.
+
+Current unread-delivery prerequisite: add a private sequential in-visit callback that borrows the existing native navigation lease instead of recursively entering the provider queue. Reuse the completed history receipt, obtain a stable latest question, allow only the native reply primitive’s witnessed input, drain callback work before restoration and revoke the borrowed handle on return. Keep the existing public finite review read-only. Verify callback ordering, expired-handle refusal, cancellation/owner interference, positive delivery receipts and exact draft/view preservation with bounded Node/Deno and native browser cases before exposing policy delivery in the next step. Persistent polling, reveal-after-send behavior and all unchecked issue criteria remain required.
+
+Borrowed native visits now pass 17 focused Node checks, the same 17 in Deno, one mandatory-registry check per runtime and three production Chromium cases. Actual-parent admission fails and its native scan ignores the callback. Two actual outgoing receipts retain exact owner view/draft restoration; cancellation and owner input refuse sends. Native experiments additionally found the missing adapter dispatch and deferred virtual-scroll remount, both corrected with actual receipt/restoration checks and default-off tracing. See [borrowed-visit evidence](unread-delivery-visit.md). All five hosted workflows for parent 3d72c6df pass. The private callback is a prerequisite only: continue public persisted cross-chat notice policies, polling/backoff/lifetime controls and reveal-after-send behavior before considering QA17/HH09/HH10 or any unchecked criterion complete. PR57 stays draft and unmerged.
+
+Active finite cross-chat notice unit: add explicit notice-reply admission to the existing caller-owned unread pass, advertise it separately from read-only traversal, and reuse the saved notice planner plus both durable outbox reservations through borrowed native handles. Persist each chat decision and planned selection before issue, preserve positive and uncertain receipts even if later owner activity prevents restoration, reconcile status read-only and pause on uncertain/refused delivery without retry. Keep default unread review read-only, models disabled, complete observed history mandatory and owner drafts protected. Carry explicit admission and truthful per-chat outcomes through CLI, both Lino transports and all shared localized controls. Draft the complete change before focused failing-before/after, compatibility and native/browser/MCP verification. Polling/backoff/lifetime, revealed original-chat replies, authenticated provider parity and all unchecked criteria remain required.
+
+Finite cross-chat notices now pass 42 focused checks per Node/Deno runtime, one mandatory browser registry check per runtime, four production native Chromium scenarios, five existing read-only native compatibility cases and six independent MCP cases. The actual ebd6f80d service refuses the new admission and its native UI lacks the checkbox. Explicit saved policies, durable decisions and reservations, full receipts, unknown holds, Stop draining and read-only cross-surface recovery are shared across CLI, both Lino formats and four-language controls. Parent ebd6f80d passes all five hosted workflows. See [finite notice evidence](unread-notices.md); require this unit's own exact-head checks after publishing. QA17/HH09/HH10, polling/backoff/lifetime, original-empty-chat reveal and every unchecked issue-wide requirement remain active. Continue those behaviors before marking PR57 ready; keep it draft and unmerged.
+
+Current exact-head CI correction: security run 43138399638 for 1447f467 finds a real identity replacement in native fixture message serialization. Preserve the workflow/SARIF and failing-before closing-script regression, emit a literal Unicode escape through a shared serialization helper, verify focused Node/Deno and unchanged gates, then publish and inspect exact-head hosted checks. See [fixture escaping evidence](ci-unread-fixture-escaping.md). Original-empty-chat reveal, polling/backoff/lifetime and every unchecked criterion remain active; PR57 stays draft/unmerged.
+
+Active original-chat reply visibility unit: retain only actual positive in-visit receipts for the original chat, restore its native route/filter/list/composer first, and reveal the exact outgoing bubble only when the original and current composer are empty and inactive ownership remains valid. Reuse the bounded virtual-history tail and existing reply reveal; verify ordinary/reversed panes and unavailable/remounted replies. Keep positive delivery independent from view success, preserve returning-owner input and use truthful localized shared results through CLI/Lino/Questions/Chat/Operator recovery. Draft the complete change, add actual-parent failing-before and native before/after evidence, then focused Node/Deno, mandatory CI registration and independent MCP verification. Polling/backoff/lifetime and all unchecked issue scope remain active.
+
+Original-empty-chat reveal is locally verified with actual-parent failing-before receipts/screenshots, 30 focused checks per Node/Deno runtime, four production native cases, four production UI cases and five independent MCP cases. Matching uses the actual unique outgoing ID/full text and geometry; unavailable views retain delivery and returning-owner drafts take priority. Cross-surface probing also corrected provider-wide pass recovery with legacy-ID migration. Keep actual runtime/static rerun results and source/log hashes in [reveal evidence](unread-reply-view.md); require exact new-head hosted verification after publishing. Parent 12394745 passes four workflows but main Checks fails WebKit Lino sync at job log line 1743 (undefined __msApi.get) and Windows Deno exceeds its ten-minute job deadline despite 4,897 passing tests. Preserve the complete 126,688-line main log, individual job logs and GitHub deadline annotation; investigate both without raising deadlines. Polling/backoff/lifetime, QA17/HH09/HH10 as a whole and every unchecked issue criterion remain active; PR57 stays draft and unmerged.
+
+Windows Deno hosted deadline follow-up: exact `12394745` job 130925135004 passes all 4,897 tests, then the finite copy comparison consumes about 32 seconds and exhausts the unchanged ten-minute job deadline (explicit GitHub annotation). The completed experiment is removed from the required test path; its bounded reusable script and hosted observations remain. Production copying and all runtime/OS targets are unchanged. A new focused contract fails on actual parent `fa5374e4` and passes on the correction; workflow policy passes. Hosted completion remains to verify, as do the separate WebKit Lino-sync failure and every unchecked product criterion. See [copy observations](ci-release-copy-methods.md).
+
+WebKit Lino-sync investigation: exact `12394745` job 130925134777 loses __msApi during convergence after prior readiness. The available failure screenshot captures only peer zero because peer one closes before outer diagnostics. Two isolated WebKit checks pass; stable ETags and document origins do not reproduce the loss. Bounded opt-in per-peer document/boot tracing and an inner failure screenshot are added; CI enables only this synthetic-fixture trace. No production behavior, assertions or deadlines change. Root cause and hosted completion remain unfinished; see [navigation investigation](ci-lino-sync-navigation.md). Continue persistent unread polling and every unchecked issue requirement while hosted diagnostics run.
+
+Active unread polling unit: add explicit optional polling to the existing confirmed unread start/status/Stop contract. A provider-owned parent journals each fresh finite child ID before issue; latest child receipts remain independently recoverable, counters/next wake/expiry disclose repetition, and recovery after process loss never resumes. Default interval 10 seconds, default lifetime two hours, bounded configurable retry cap/failure limit; uncertain delivery or unverified restoration pauses, while safe pre-admission busy/owner-active states wait. Stop, expiry and shutdown abort waits and drain the issued finite child before releasing ownership. Keep finite behavior unchanged when polling is omitted. Draft core, typed receipt validation, CLI flags, both Lino clients and shared four-language Questions/Chat/Operator controls before focused tests. Verify actual-parent failure, deterministic scheduling/backoff/lifetime/Stop/restart/duplicates, policy/outbox guards, real native repeated scans, cross-surface UI and independent MCP; use hosted matrices for full runtime coverage. All unchecked issue-wide criteria remain required.
+
+Repeated unread polling implementation and focused verification are complete for this unit: durable parent/child ownership, typed configurable interval/lifetime/backoff, cancellation drainage, default-off shared controls and four locales; 39 Node + 39 Deno focused cases, one browser-registry case per runtime, five native Chrome/production UI scenarios and five independent MCP cases pass. Evidence and the initial reply-visibility compatibility failure plus successful fresh-session rerun are preserved in `data/unread-polling.tar.gz`. QA17/HH09/HH10 and all other unchecked criteria remain open. Current published-parent Checks run 43146149020 fails only Chromium unread-control/notice fixtures attempting to edit disabled controls before recovering the newly shared provider-wide pass; fix those fixtures next without removing the recovery guard. All hosted runtime test jobs, WebKit lanes and other workflows at ec871d26 passed. PR 57 stays draft.
+
+CI shared unread-recovery unit: preserve the complete ec871d26 Checks log with timestamp/SHA and numbered Chromium error excerpts; actual 6816d158 fixtures reproduce the disabled-limit timeout after three successful finite cases. Require recovery on both Chat and Operator, assert the existing new-pass lock, and prove that recovery adds no visits or sends. Validate both native groups sequentially, then scoped gates, archive evidence and publish an atomic fixture-only correction. Current-head hosted CI and every unchecked issue criterion remain required.
+
+Active editable-tab convergence unit: retain atomic root revision checks and enable per-record causal merging only after schema migration in production browser boot. Merge public clocks/deletions, compare private changes against their baseline, refuse incompatible schemas and noncausal removals, and retain unsaved owner memory on failures. Publish payload-free root invalidations, refresh returned/suspended pages, bound coordination retries, and detach/drain lifecycle work. Verify an actual-parent failing two-tab case, focused regressions and compatibility, one local native-browser check and independent Playwright MCP; leave full runtime/browser matrices to hosted CI. Exact-head native session checks and every other unchecked original criterion remain required.
+
+Native session hosted verification: exact `1e902295` strict Rust and API documentation jobs pass. The actual parent fails the missing reconciliation handshake; corrected official-codec CLI tests pass text/binary two-peer live changes, durable restart, schema/private refusal and failed-checkpoint/no-ACK behavior. See native-sync-session.md and its separate full hosted-log archive. Other jobs and original unchecked criteria remain required.
+
+Editable-tab unit locally verified: twelve merge/lifecycle regressions, 23 compatibility and four browser registry checks pass. Actual-parent WebKit reproduces stale-tab refusal; production coordinated openings pass IndexedDB/localStorage two-tab edits, deletion and reload. Independent MCP verifies both roots, live changes and account isolation. A failing draft drain test is retained and fixed without increasing deadlines. Preserve scoped validation and unchanged duplication gate, publish this atomic unit, and require exact-head hosted matrices. All other unchecked original criteria remain active.
+
+Active reply-cache ownership unit: reproduce silent/overlapping whole-model saves and stale tabs on exact parent 80e93aa5. Keep derived counts as complete versioned models; serialize admission/saves, order offsets only within one opaque build, require a fresh authoritative fetch for conflicting builds, retain unsaved memory on refusal and expose content-free error codes. Refresh same-account roots without payload broadcasts or polling, preserve offline reload/account isolation, cancel idle/network work and drain issued saves on close. Draft focused races and a mandatory two-tab browser case before local verification; run one browser locally and independent MCP, leaving full runtime/engine matrices to hosted CI. All other unchecked issue requirements remain active.
+
+Reply-cache ownership is locally verified: thirteen ownership/lifecycle and 23 compatibility checks, four real registry checks, the finite held-save probe, both drivers in native WebKit and independent two-tab MCP all pass. Exact-parent overlap and stale-tab failures remain preserved. Scoped gates pass, including the unchanged duplication threshold at 6.48%; publish this atomic unit and require its exact-head matrices. Parent 80e93aa5 hosted failures are separately retained: résumé validation now waits for its rendered predicate, Windows Node's minimal IDB shim can complete before its nested request, and Windows Deno initial immutable-release preparation exceeds readiness. Continue both Windows investigations without increasing deadlines, alongside every unchecked original feature criterion. PR57 remains draft and unmerged.
+
+Windows Node fixture timing now has a deterministic exact-parent failure: ten-ms request callbacks outlive the old unrelated four-ms completion timer, and immediate acknowledged readback is absent. Request-tree completion fixes the finite shim, retains native production atomic ownership and passes six focused cases plus scoped gates. Preserve the hosted log and replay in ci-idb-completion.md; require new-head Windows CI. Windows Deno initial release copying remains an active separate investigation; continue it and every unchecked original feature criterion without raising deadlines.
+
+Windows initial CLI startup remains active: `80e93aa5` Deno job `132170643919` stalls in copying before its ten-second readiness budget, while the later same-package tamper fixture copies in 4.5 seconds. [At most eight opt-in copy checkpoints](ci-release-progress.md) pass five finite regressions and will distinguish backlog from an outstanding operation in hosted startup. This is diagnostic work, not a verified startup correction; no readiness or job deadline changes.
+
+Active HH05 owner choices: draft a private, browser-slot-bound exclusion/deferred-review registry with strict observed revisions, durable acknowledgements, CLI and text/binary Lino routes, and four-language shared CV controls. Verify stale-write refusal, failed-save preservation, restart/slot isolation, native browser screenshots and independent MCP. This does not complete provider application execution, session-only no-questionnaire queues or the full HH05/HH08 requirements.
+
+HH05 owner-choice foundation verified: 32 focused checks, three native WebKit scenarios, actual-parent backend/UI failures and independent MCP lost-reply/desktop/phone recovery. Private slot choices and explicit restore work through CLI, both Lino formats and four locales. Full HH05/HH06/HH07/HH08 and every unchecked inventory criterion remain active; see vacancy-choices.md.
+
+Active reply idle fixture: six published 64a9b6e2 Bun/Deno jobs fail after 100 immediate turns, before a zero-delay persistence timer registers idle work. The unchanged local 13-case Bun file reproduces 12 passes/one failure; isolated passes alone miss the race. Replace only this fixture's polling with its actual registration signal, retain the existing three-second deadline and cancellation/held-save assertions, and preserve complete hosted logs. All 13 Bun cases and the selected Node case pass; scoped gates pass. Publish checksummed ci-reply-idle.md evidence and require corrected-head hosted runtime checks. Prior Windows Node and résumé fixture corrections have exact hosted confirmation; the earlier Windows cold-copy slowdown remains unexplained despite a passing traced startup. Every unchecked original criterion stays active.
+
+Rejected job-write unit: actual production snapshot puts mutate memory before persistence rejects, bypassing rollback that covered only flush. Four actual-parent cases expose absent/acknowledged vacancy and catalog writes, and native WebKit reload displays the rejected exclusion/note as saved. Move put into the shared rollback block and reuse it for the catalog. All 29 focused cases, four registry checks, native reload and independent desktop/phone MCP pass; reads and Stop drain restoration and the durable snapshot retains the prior payload. Preserve before/after screenshots and checksummed choice-put-rollback.md evidence, publish this atomic correction and require its hosted matrices. Persistent rollback failure still rejects. Every unchecked original criterion remains active; private choices do not complete automatic application or questionnaire workflows.
+
+Active HH05 selection unit: evaluate every returned search card against the latest private slot choices, native responded marker and explicitly configured literal text exclusions. Keep all cards visible with individual excluded/deferred/review or needs-description reasons, preserve counts and pagination, and require a new search after owner revisions change. Do not infer provider viewed state or successful application. Empty optional filters keep existing read behavior; settings persist through the existing search preferences and share CLI, typed Lino and four-language controls. Verify canonical URL/revision binding, Unicode literal matching, cached-description provenance, stale/failed reads, actual-parent absence, one native browser and independent MCP. Automatic retry reasons, native viewed state, questionnaire run policy and the application executor remain active subsequent requirements.
+
+HH05 selection unit locally verified: 37 focused checks, four registry checks, actual-parent backend/UI failures and two rejected-cache regressions pass. All cards retain explicit choice/responded/literal/missing-description/manual-review reasons with slot revisions, saved prose timestamps and reversible settings through CLI, both Lino encodings and four locales. A rejected description write now restores acknowledged cache state before later filtering. Native WebKit and final independent desktop/phone MCP pass with zero provider clicks/errors; retain the unexplained first WebKit timeout and new default-off failure diagnostics. Scoped gates and unchanged duplication threshold pass at 6.48%. See vacancy-selection.md for checksummed sources, logs and screenshots. Native viewed state, retry reasons, questionnaire run policy, application execution and every unchecked original requirement remain active. Publish this atomic unit and require exact-head hosted matrices; PR57 stays draft and unmerged.
+
+Active durable application CV history: acknowledge observed manual/context/native résumé identities in the private application journal; recover history across worker restart without issuing browser effects or granting send permission. Preserve later verified native choices, reject corrupt identities and isolate vacancy/request/browser-slot history. Carry saved-history wording through CLI, both Lino formats and four locales; reserve schema 16 with legacy compatibility. Verify actual-parent absence, focused restart/failed-save/migration tests, one native browser case and independent desktop/phone MCP, then publish checksummed evidence and inspect exact-head CI. Automatic language selection, durable override enforcement against automation, standard-letter behavior and every unchecked original criterion remain unfinished.
+
+Durable CV-history unit locally verified: exact-parent service/native failures, 50 focused Node and 18 Deno cases, one extended native Chromium scenario and independent desktop/phone MCP pass. Acknowledged manual/context/native history survives restart, later owner changes and four-language recovery without replay; failed saves, isolation, legacy compatibility and schema 16 collisions are covered. Native Rust compilation remains hosted. Initial draft, validation overlap and malformed MCP-control invocation are retained alongside isolated final results; see application-preference.md. Publish this atomic unit and require exact-head CI. Automatic language selection, durable override enforcement, standard-letter language and all 81 original unchecked criteria remain unfinished; PR57 remains draft and unmerged.
+
+Active default application language policy and reviewed standard letters (HH06 remains incomplete):
+
+- [x] Open the native full form before a potentially immediate entry; select using actual checked exports and employer context, and preserve explicit/native owner choices across restart. Keep status/recovery and previews read only, legacy intent unchanged and settings frozen.
+- [x] Use both owner-provided standard letter variants in the verified selected CV language. Replace only acknowledged, unchanged system-written standard text after renewed confirmation; preserve custom letters and every answer. Carry CLI opt-out, both Lino routes and four-language UI through additive schema 17.
+- [ ] Reproduce the exact parent and verify focused tests, one native Chromium and independent MCP case with before/after evidence. Preserve logs, publish and inspect exact-head hosted CI. Keep every original unchecked criterion active and PR57 draft/unmerged.
+
+Language-policy unit: default verified selection before entry, durable owner overrides and paired standard-letter correction now pass focused service, CLI/Lino, migration and four-language native/MCP checks. Failed-save authority, custom letters, answers and legacy signatures remain protected. Initial fixture/default failures are retained; corrected session/language files pass. Parent hosted macOS Node fails fetching GitHub before tests, so exact corrected-head CI remains required. Preserve checksummed application-language.md evidence, publish this atomic unit and continue all 81 original unchecked criteria, including authenticated parity and paced application workflows. PR57 stays draft.
+
+Active durable HH application-limit pause (HH06/HH08 remain incomplete):
+
+- [x] Preserve a two-hour deadline from visible, bound native refusal across restart. Share admission across every HH application slot in this workspace, explicitly disclosing that conservative scope because native account identity is not verified. Repeated observations and banner dismissal must not extend or bypass it.
+- [x] Keep current forms open, status/queue recovery read only, and every provider mutation gated, including late guards. Retain a RAM refusal if persistence fails and disclose saved versus unsaved state. Expose deadline/scope through CLI, both Lino formats and four-language UI.
+- [ ] Reproduce the published parent, verify focused persistence/admission/compatibility tests, one native browser and independent MCP case; preserve before/after evidence, publish and inspect exact-head CI. Full daily-limit draft backup/expiry refresh, independently authenticated account binding, batch pacing and every original criterion remain active subsequent work, not completed by this admission unit.
+
+Active daily-limit answer preservation (HH06/HH08 remain incomplete):
+
+- [x] Reuse complete actual native draft/Q&A preservation while the current or shared workspace limit is held. Keep the form open, preserve delivery reservations and refresh the backup when owner values change. Respect preview, pause, unsafe inspection and failed acknowledgements.
+- [ ] Carry actual saved values through existing CLI, both Lino formats and localized draft review. Verify focused regression/compatibility checks and native/MCP behavior, preserve exact-parent and before/after evidence, publish and inspect exact-head CI.
+- [ ] Continue expiry refresh/restoration, CAPTCHA priority/dismissal, authenticated account identity, paced batches and every original unchecked criterion. This preservation unit is not a completion claim for the broader daily-limit workflow.
+
+Daily-pause draft preservation now passes 74 focused Node checks, 41 Deno checks, actual-parent service/native failures and independent native/MCP recovery with actual answers and letter, four locales, phone width and zero sends. Shared preservation guards and fixture helpers reduce repetition; the five-scenario registration failure is corrected by a separate mandatory limits group without changing engine coverage or deadlines. Keep checksummed application-limit-drafts.md evidence and require the new head's hosted matrices. Automatic expiry refresh/restoration, CAPTCHA handling and all 81 original inventory criteria remain active; PR57 stays draft and unmerged.
+
+Active confirmed daily-limit waiting and expiry review (HH06/HH08 remain incomplete):
+
+- [x] Add an explicitly confirmed, finite worker-owned wait for the original daily deadline. Preserve later native edits with existing acknowledged backups, release the workspace writer between polls, expose truthful progress and drain Stop/close/shutdown. Lost responses and status recovery must never repeat navigation.
+- [x] At expiry, refresh only the same still-failed bound document through a synchronous native guard after a complete current backup. Preserve owner navigation, dismissed errors, CAPTCHA, unsafe inspections, persistence failures, paused policy and all delivery reservations. Restoration and sending retain separate confirmations.
+- [ ] Expose CLI, both Lino formats and four-language browser controls; reproduce the actual parent, verify focused tests and one native/MCP flow with before/after evidence, preserve checksummed data, publish and inspect exact-head hosted CI. Continue authenticated account scope, CAPTCHA priority, paced batches and all other original unfinished criteria.
+
+Signaling assertion correction: parent c976dc98 Ubuntu Deno fails the expected offer after a fixed 30 ms sleep. A finite native-message delay reproduces the published parent's assertion with an added cleanup harness; waiting for the same offer passes the delayed probe and all nine Node/nine Deno integration checks. No production transport change or weakened payload assertion. Preserve ci-signaling-delivery.md evidence, publish with the independently verified deadline-expiry correction and require exact-head hosted matrices. WebKit Follow disclosure failure and macOS deadline cancellation remain separate investigations; all 81 original inventory rows stay unchecked and PR57 remains draft/unmerged.
+
+Active saved-template workflow audit (QA03): verify ordered bounded ellipses, word suffixes, case and ё folding through saved CLI/offline/text-binary Lino rules, scoped shared provider delivery and a native production-browser UI receipt. Add mandatory hosted browser coverage with existing deadlines. Keep authenticated provider parity and every other unchecked criterion active; inspect exact-head CI before marking this criterion verified.
+
+Saved templates are locally verified with five Node/five Deno cases, 13 compatibility checks, one mandatory CI contract, two native Chromium UI cases and independent MCP receipt/reload recovery. No production behavior changed. Preserve finite draft/signal failures and final closure evidence in question-templates.md, publish this atomic coverage unit and require its own hosted matrix before checking QA03. Preceding 74576648 CI additionally fails an immediate native-export consent assertion at helper line 53; investigate its render timing next. All 81 original unchecked rows remain active and PR57 stays draft/unmerged.
+
+Native-export consent CI correction: exact hosted 74576648 and b3d4cf77 Chromium jobs fail the immediate checkbox sample at helper line 53. The source picker schedules state and the panel clears consent in a subsequent effect; the fixture now waits for the rendered unchecked control while retaining publication/source/recovery assertions and existing deadlines. Both original and corrected groups pass locally, so no local reproduction is claimed. Preserve complete failing browser jobs, the unavailable cancelled-job log diagnostic and focused verification in ci-cv-publication-consent.md; publish an atomic fixture correction and inspect its own exact-head CI. All 81 unchecked original criteria remain active; PR57 stays draft/unmerged.
+
+Active VK01 greeting audit:
+
+- [x] Preserve the pinned VK greeting trigger and reproduce imported outgoing/group replies and missing CLI/UI phrase controls on the actual parent.
+- [x] Share personal VK destination checks between planning, preview and sending; retain normalized outgoing direction and expose per-language response catalogs through CLI and the shared four-language UI, using existing durable selection/Lino/offline paths.
+- [x] Verify focused recognition, destination, durable catalog, actual VK adapter receipt, Lino and offline regressions; run one native UI scenario and independent MCP with before/after phone evidence. Register hosted browser coverage without widening local validation.
+- [ ] Preserve checksummed evidence, update the draft PR and inspect exact-head CI before checking VK01. Continue every other unchecked original requirement.
+
+Active refreshed-destination CI correction: exact published parent `0a628365` fails Chromium shard 2/4 at complete job log lines 1575–1587 because one broad strict text locator matches both pending-turn and latest-question review targets. The unchanged helper reproduces locally; scope its exact visible-target assertion to the pending turn, retaining all guards and deadlines. Four corrected native cases pass with one fresh receipt, zero stale sends/errors and closed resources. Preserve checked evidence, publish separately and inspect exact-head CI. VK01 hosted verification and all 79 unchecked original criteria remain active; PR57 stays draft/unmerged.
+
+Active VK02 gratitude responses:
+
+- [x] Preserve pinned gratitude trigger, tests and sticker catalog; independently recognize complete contextual phrases and all 38 incoming sticker identifiers with finite input bounds.
+- [x] Reuse configurable automations, formal/informal templates, safe drafts and guarded paced delivery. Show the actual chosen sticker, preserve explicit text edits, refuse unsupported sticker delivery and revalidate the latest incoming personal VK message before dispatch.
+- [x] Verify actual-parent absence, focused recognition/durable/CLI/offline/text-binary Lino and adapter regressions, one native UI case and independent MCP. Preserve before/after evidence and require exact-head hosted checks before checking VK02. Continue all other unchecked original criteria.
+
+- [ ] Publish the locally verified gratitude unit with its checked archive and permanent images; inspect its own exact-head hosted matrix before checking VK02. Thirteen Node/thirteen Deno, 63 compatibility checks, one native gratitude case, the existing greeting case and four independent MCP locales pass locally. Keep all 79 original unchecked criteria active until their exact acceptance evidence passes.
+
+Hosted verification `727e361a` completed at 2026-11-15 02:37:33 UTC: all five workflows and 66 jobs pass or intentionally skip, including every Chromium/WebKit shard. [Checked evidence](hosted-verification-727.md) completes VK01 and verifies the refreshed-question locator correction. Gratitude implementation `5b946d43` is committed and requires its own exact-head CI; 78 inventory rows remain unchecked. Continue every original unmet criterion and keep PR57 draft/unmerged.
+
+Active VK03 identity questions and address preference:
+
+- [x] Read both complete pinned triggers and their six tests. The reference answers complete personal incoming “кто ты/вы?” questions and remembers the latest chosen distance. Current presets have no identity action; majority address scoring alone does not preserve this contextual preference.
+- [x] Reuse private-message/latest-input/policy checks and the existing formal/informal editor; derive address preference from durable incoming history with evidence and respect later explicit agreements. Cover CLI, both Lino encodings, offline plans, recovery and actual mocked VK receipts.
+- [ ] Add actual-parent failing regressions, focused local checks and one native/MCP before/after review; preserve checked sources/logs/screenshots, publish and inspect exact-head CI. All 78 unchecked criteria remain required; PR57 stays draft/unmerged.
+
+VK03 local verification: two actual-parent regressions fail; nine focused Node/nine Deno and 63 compatibility checks pass, with 56 combined Node cases for identity/gratitude/address learning/reengagement. Native parent/current UI and independent four-language MCP verify edited variants, private previews and phone layouts with zero page exceptions/sends and closed owned resources. Timestamp ordering now handles actual VK Unix seconds and ISO receipts. Preserve checked evidence, publish and require exact-head CI; every unchecked inventory criterion remains active.
+
+Active VK04 acquaintance replies:
+
+- [x] Read the complete pinned acquaintance trigger and its two tests. It recognizes complete personal incoming “мы знакомы (с тобой/вами)?” questions and uses a per-peer one-day cooldown; its reply introductions are configurable examples.
+- [x] Reuse guarded private replies and the existing formal/informal settings through CLI, offline planning, durable Lino and the shared four-language editor. Retain the one-day default and acknowledged per-peer cooldown across restart.
+- [ ] Reproduce actual-parent absence; verify bounded recognition, cooldown/recovery, current-input/policy refusal and confirmed actual mocked VK receipts. Capture native/MCP before/after evidence, preserve checked sources and inspect exact-head hosted CI. Every unchecked original criterion stays required.
+
+VK04 local verification: the actual parent lacks the preset; five focused Node/five Deno and 28 existing identity/gratitude/API compatibility checks pass. Acknowledged daily cooldown survives durable reopen and stays per chat; input, owner reply, saved action and post-admission changes refuse. Native WebKit before/after and independent four-language MCP verify saved variants, daily control, private previews and phone fit with zero sends/page exceptions and closed resources. Preserve the known MCP cache-write console diagnostics without a clean-console claim. Archive/publish and exact-head hosted checks remain required; all 78 unchecked criteria stay active.
+
+Active stored-draft confirmation correction before ordered VK06 delivery:
+
+- [x] Reproduce the request-body-only confirmation gap on actual parent `3cd0d746`: eight changed text/sticker/incoming-proof cases through both Lino encodings each deliver one mocked VK message. Keep exact parent bytes and restore sources before verification.
+- [x] Freeze an independent rendered preview, including overrides and complete evidence; compare again inside the runner before delivery. Reuse the comparison for automatic runs. Refuse changes with retained drafts, no outbox entries and no provider calls; unchanged edited content still sends once. Ten Node/ten Deno checks pass.
+- [ ] Preserve checked evidence, publish this atomic correction and inspect exact-head hosted workflows. Continue ordered VK06 delivery and every other unchecked inventory criterion; PR57 remains draft/unmerged.
+      Active prioritized VK friend requests (VK11):
+
+- [x] Read the complete pinned acceptance trigger, caller, priority configuration and cache helpers. Check official current method/receipt schemas; preserve priority-first ordering and mutual-ranked incoming batches without copying personal IDs or long cache sleeps.
+- [x] Draft disabled persisted scheduling, configurable capacity/batch/priority IDs, fresh account/request checks, durable per-target receipts and uncertainty refusal. Expose reviewed manual plans, owned scheduler, CLI/default Lino and shared translated/offline controls.
+- [x] Reproduce absent behavior on the actual published parent; 36 focused Node / 31 Deno and two registry checks pass, with native WebKit and independent four-language MCP before/after evidence. Online-job compatibility passes; full matrices remain in CI.
+- [ ] Preserve checked evidence, publish atomically and inspect exact-head hosted workflows. All original incomplete criteria remain required; PR57 stays draft/unmerged.
+
+Active VK friend maintenance (VK12/VK13):
+
+- [x] Read the complete pinned banned/deleted cleanup, outgoing cancellation and caller. Inspect official method/receipt schemas. Preserve priority exclusions, 30/8-minute examples, 5/3-second pacing and explicit outgoing scan limits without copying personal IDs.
+- [x] Draft independent disabled acknowledged policies, fresh identity/relation/deactivation guards, shared per-target uncertainty protection, owned scheduling and reviewed CLI/default Lino/four-language/offline controls.
+- [x] Reproduce actual-parent absence and verify finite provider receipt, changed-input, durable restart, shutdown and interface cases with 50 Node/48 Deno checks, two registry checks and before/after native/MCP evidence. Existing acceptance and online browser flows pass. Full matrices remain in hosted CI.
+- [ ] Archive checked evidence, publish atomically and inspect every exact-head workflow. Every other original incomplete requirement remains required; PR57 stays draft/unmerged.
+
+Ubuntu Deno CI investigation: exact published `4dca9462` job `132737990438`
+exceeded the unchanged ten-minute deadline after 760 progressing test modules.
+Preserve its complete log and explicit deadline annotation. The expanded
+partition contract fails on that parent's empty Ubuntu shard list; three native
+partitions pass 23 focused Node checks (one Deno-only skip) and two Deno checks.
+Publish the separate correction, retain every runtime target and require the
+new exact-head matrix. All 69 original unchecked rows remain active.
+
+macOS Node CI investigation: the same published head exceeded its ten-minute
+job deadline immediately after 2,025 passing assertions and one skipped check.
+Cold runner setup consumed over five minutes before the native test partition.
+Four native macOS partitions retain every test, the existing two-worker limit
+and the unchanged deadline. Preserve full logs and exact annotations in
+ci-macos-node-four.md; require the new head’s hosted matrix before acceptance.
+
+The shared maintenance fixture initially passed its captured clock to the separate
+friend-request service, adding a third captured timer. The focused ownership
+assertion caught this refactor error; each service now owns its distinct clock.
+The retained failing draft and corrected focused check document the correction.
+
+Active desktop friend acceptance policy (VD04):
+
+- [x] Preserve the complete pinned acceptance selector/trigger/tests and inspect current official mutual-count responses. Keep the existing fixed-batch policy independently selectable.
+- [x] Add an acknowledged desktop policy: ranked ten-percent lifetime quota below its configured threshold, mutual-only incoming requests above it, provider hard capacity, priority-first requests and priority deletion protection. Refuse incomplete evidence, reserve uncertain quota and keep fresh action guards.
+- [x] Expose saved choice and quota evidence through CLI, default Lino and shared four-language/offline controls. Reproduce the parent, run focused durable/provider/policy tests and one native/MCP review with permanent before/after evidence.
+- [ ] Archive, publish and require exact-head hosted verification. Resolve the pinned selector's unreachable above-cap branch explicitly: the requested mutual-only policy uses a configured soft threshold while VK's absolute 10,000-friend capacity remains a hard refusal. Every other unchecked requirement remains active.
+
+Desktop local verification: actual parent drops the saved mode and lacks its UI control. Forty-three Node/43 Deno focused checks pass, including late quota-acknowledgement guards and distinct durable observations. One native WebKit case records five synthetic friend actions; independent four-language MCP records eight, no messages/page exceptions and closed owned resources. Existing ranked acceptance, maintenance and online browser compatibility pass. The duplication gate caught a small increase; share the repeated owned desktop test fixture without changing the threshold or exclusions, then require the final gate and exact-head hosted workflows. All 69 unchecked inventory rows remain active.
+
+Hosted verification `f2cf0d6e` completed at 2026-11-15 08:39:04 UTC: all five workflows and 69 jobs pass or intentionally skip, including all Ubuntu Deno/macOS Node partitions and both browser matrices. The checked hosted archive completes VK11–VK13 and verifies both deadline corrections. The separately committed desktop acceptance policy requires its own exact-head hosted verification. Sixty-six inventory rows remain unchecked; every original unmet requirement stays active and PR57 stays draft/unmerged.
+
+Active cancelled-friendship reactions (VK14):
+
+- [x] Preserve the complete pinned trigger and caller. Outgoing requests alone do not prove a former friendship; expose that evidence limit explicitly in review and never label it confirmed cancellation.
+- [x] Add an independent disabled policy with a configurable greeting/question, durable per-peer suppression and separately disabled unanswered/unwritable blocking choices. Require current personal relationship, account, complete bounded history, permission and priority evidence; retain unknown outcomes without replay.
+- [x] Reuse owned friend-job scheduling, reviewed plans, acknowledgement and pacing. Expose CLI, both default Lino encodings, offline and four-language controls; keep every side effect behind the reviewed or explicitly enabled saved policy.
+- [ ] Reproduce actual-parent absence; verify finite provider/durable/changed-input and ownership cases, native/MCP before/after evidence, archive and exact-head hosted checks. Every other incomplete inventory row remains required; PR57 stays draft/unmerged.
+
+Follow-up local verification: actual parent lacks the adapter capability and browser controls. Fourteen Node/fourteen Deno focused tests and five browser partition contracts pass. Forty-three existing friend/desktop/maintenance checks pass. Native WebKit verifies two synthetic prompt calls and one explicitly enabled block; independent four-language MCP verifies one prompt and no repeats/blocks. No authenticated provider session or live effect is claimed. The shutdown test now invokes the actual owned scheduler callback rather than asserting a runtime-specific HTTP socket error during server close; both failing drafts are retained. See [follow-up evidence](vk-cancelled.md); exact-head hosted verification remains required.
+
+Published desktop-policy head `b0bb53ae` failed WebKit shard 2 in legacy-profile disclosure. Preserve the full 1,909-line log and PNG. The exact legacy helper closes an already-open root on a retained document and times out on its hidden nested summary. Reuse the existing idempotent opener; the finite actual-parent reproduction and complete corrected import/recovery both pass. [Evidence](ci-legacy-disclosure.md). Do not accept VD04 or VK14 until their complete replacement hosted matrix passes.
+
+The same exact head's macOS Deno job exceeded its unchanged ten-minute deadline while 758 modules continued progressing. Preserve its complete 11,721-line log and explicit annotation in [macOS Deno evidence](ci-macos-deno-shards.md). Three native partitions retain all tests and runtime/OS targets; the actual-parent contract fails, then 23 focused Node checks and both Deno checks pass (one Deno-only Node skip). Require the new head's complete hosted matrix before acceptance.
+
+Active proactive VK friend greetings (VK15):
+
+- [x] Preserve the pinned complete batch trigger and foreground caller; read related topic/help/music triggers to distinguish their online/history windows. Existing stored-chat Greetings cannot verify current friendship or provider permission.
+- [x] Add independent disabled provider-backed review, online/history/unread/write/cooldown/limit filters, optional friend-count ordering and configurable text/sticker, with fresh acknowledged per-person delivery and owned scheduling. Reuse shared personal delivery and existing controls across CLI, both Lino encodings, offline and four languages.
+- [ ] Reproduce the actual parent; run focused adapter/ordering/durable/guard/lifecycle checks and native/MCP before/after review. Preserve checked evidence, publish and require exact-head hosted CI before accepting VK15. Every other incomplete original requirement remains active.
+
+Published `07d3159e` has an actual CodeQL modulo-bias finding, independently repeated by the security workflow. Three deterministic Node/Deno checks and the actual-parent upper-bound regression verify the replacement; [evidence](ci-vk-message-random.md) preserves both full logs. Its macOS Node assertions pass but the cold setup plus four-partition job still reaches ten minutes; [evidence](ci-macos-node-eight.md) preserves the explicit deadline annotation and eight-partition exact-once/failure propagation contract. Both corrections retain mandatory gates. Every unchecked product criterion still needs exact-head hosted acceptance.
+
+VK15 local evidence now includes the actual-parent missing capability and controls,
+15 new feature checks and 13 existing VK14 checks on Node and Deno, plus the
+separate capability/random-identity/browser-partition contracts. One owned native
+WebKit scenario and independent four-language MCP review verify saved filters,
+exact review, per-person cooldown, retained uncertainty and save rollback. The
+shared personal configuration and browser readiness helper remove duplication
+without changing the 6.5% gate. Preserve the MCP draft's mistaken repeated
+confirmation and its corrected one-send review; all fixture resources close.
+Acceptance still requires the complete new head's hosted workflows. The remaining
+66 unchecked inventory rows retain their full original scope.
+
+VK15 contribution review adds a durable regression for VK14's unchanged receipt
+step, extracting complex admission/provider/outcome helpers without changing
+filter precedence or delivery guards. The actual published parent fails the
+receipt-label assertion. The new guide now has all four required languages.
+Strict zero-warning lint and focused compatibility checks apply before another
+push; no product criterion is accepted until exact-head hosted verification.
+
+Compatibility review verification passes 70 focused Node checks, 28 Deno checks,
+strict zero-warning lint and the unchanged duplication gate. The existing durable
+receipt label is retained; every new greeting guide has four language versions.
+The actual parent fails the new label regression. Replacement hosted acceptance
+remains pending and the remaining 66 criteria stay active.
+
+Active dormant VK conversations (VK16–VK18):
+
+- [x] Read the complete pinned topic, help and music triggers. Preserve nonempty dormant personal history, online/write filters, greeting-before-question order and the separate music attachment step; use owner configuration rather than reference personal audio IDs.
+- [x] Draft three independent disabled policies, frozen ordered review and durable per-step provider receipts. Recheck current consent, account, relationship and complete history after the actual rate wait; allow only explicit reviewed continuation of definite partial delivery and never replay acknowledged or uncertain steps.
+- [x] Expose foreground CLI, both Lino encodings, offline configuration and four-language shared controls. Reproduce actual-parent absence, run focused guard/restart/ordering/interface checks and one owned native scenario plus independent MCP evidence.
+- [ ] Preserve checked source/log/screenshot evidence, publish atomically and inspect all exact-head workflows. Every original unmet criterion stays active; PR57 remains draft and unmerged.
+
+VK16–VK18 draft verification retains the initial causal admission, manual-preview queue and test-fixture failures. The corrected causal durable reopen resumes only the original remaining steps; explicit review renews expiry while scheduled continuation stays held. Native WebKit and independent four-language MCP pass with no page exceptions and drained fixtures. Shared consent admission and hostile-input fixtures retain the 6.5% duplication gate. Exact-head acceptance and every original unchecked criterion remain required.
+
+Active VK community invitations (VK19; shared desktop invitation behavior):
+
+- [x] Read both complete pinned wall invitation triggers, their foreground callers, and the desktop trigger, catalog and tests. Preserve native attachments, top-ten deduplication, owned-post replacement and configurable/restricted community content; no reference personal destinations become defaults.
+- [x] Implement an independent disabled reviewed wall policy with positive post/delete receipts, post-before-delete replacement, fresh ownership/content checks, durable partial recovery and no replay of uncertainty. Reuse owned scheduling and expose CLI, both Lino encodings, offline and four-language controls.
+- [ ] Reproduce the actual parent, verify finite ordering/permission/changed-input/failure/restart cases and native/MCP before/after evidence. Preserve checked artifacts, publish and require all exact-head hosted workflows before accepting the criterion. Every other original requirement remains required.
+
+Source clarification: both upstream invitation-post triggers publish to community walls; the name “for friends” describes the invitation content, not direct messages to current friends. VK20's broader inventory wording still remains required and is not silently treated as verified by wall posting.
+
+VK19 local verification: eighteen new wall tests and ten existing interface checks pass on Node and Deno. Nine final shared lifecycle checks pass on each runtime; seven workflow contracts pass. Native WebKit and independent four-language MCP retain twelve before/after PNGs, exact native payloads, partial deletion-only recovery, visible deduplication, unknown-write refusal, zero live effects and closed owned fixtures. Strict lint/format/secrets and the unchanged duplication gate pass. Preserve the checked archive and require new exact-head CI before accepting VK19; every unchecked original criterion remains active.
+
+Published `05bcbddd` Checks `43705703714` failed one contextual assertion at full log lines 1696–1719. A finite three-second fixture-clock advance reproduces it; capture one logical fixture origin without changing production adjacency checks. Twenty-four Node/24 Deno focused checks pass and correction `196eb40a` preserves the full failing log. A distinct macOS shard never completed setup and has no test steps/log blob; retain exact timeout metadata. All browser shards passed, but the aggregate is failed and cannot establish acceptance.
+
+### Current VK birthday work (VK21 / VD05 catalog)
+
+- [x] Read pinned bot/desktop birthday entry points, triggers, catalogs and tests.
+- [x] Draft disabled independent job and shared ordered executor policy hooks.
+- [x] Draft original ten-message catalog, sticker/media configuration, explicit IANA date, permission/consent/recent-history filters and durable per-date receipts.
+- [x] Draft CLI, both default Lino transports, offline-capable four-language controls and hosted browser scenario.
+- [x] Reproduce missing capability and controls on actual published parent `3badd29a`, preserving failure and native before screenshots.
+- [x] Focused Node 34/Deno 34 and final native/MCP checks pass; preserve partial receipt recovery, midnight guard and twelve PNGs. Shared fixtures retain assertions and the unchanged duplication limit. Complete final scoped static checks and production review.
+- [ ] Preserve complete hashed case evidence, commit/push atomic work and verify exact-head hosted workflows.
+
+VK20's broader friend invitation requirement remains required and open. Birthday work does not accept unrelated scope. All issue-wide unchecked criteria remain active.
+
+Birthday final local verification: eighteen new cases and sixteen existing ordered/interface checks pass in both Node and Deno. Fourteen separate wall lifecycle, CLI admission and browser partition checks pass. Native WebKit and four-language mandatory MCP retain the same-date positive receipts, partial remaining-only recovery, no page exceptions, twelve PNGs and closed owned fixtures. Strict scoped lint/format/secrets and the unchanged duplication gate pass. Preserve the checked archive, publish atomically and inspect exact-head hosted workflows; all unchecked original criteria remain active.
+
+### Active VK history retention (VK22)
+
+- [x] Read the complete pinned retention trigger and message cache; inspect current official conversation and per-message deletion schemas. The reference clears cache after partial errors; preserve confirmed outcomes instead.
+- [x] Draft an independent disabled policy with configured peer IDs, strict threshold, bounded complete review, current account/credential/consent guards and explicit review. Use the current conversation method; permit bounded per-message fallback only after a definitive unsupported-method response, never ambiguous delivery.
+- [x] Preserve durable per-batch receipts and remaining-only manual recovery; clear only reviewed local canonical messages through recoverable acknowledged tombstones, without physical purge or false success.
+- [x] Expose foreground CLI, default text/binary Lino, offline settings and shared four-language controls. Add minimal actual-parent regressions, focused provider/durable/changed-input/lifecycle checks and native/MCP before/after evidence.
+- [ ] Archive checked evidence, commit/push atomically, inspect exact-head hosted workflows and complete all other original unchecked requirements. PR57 remains draft and unmerged.
+
+Birthday commit `3ea98ecc` is published with its checked archive. Its exact-head
+hosted matrix remains pending; no product inventory row is accepted from local
+verification alone. All 66 unchecked inventory rows retain their full scope.
+
+VK22 final local review binds prior receipt and eligibility to prevent edited reviews from replacing uncertainty or bypassing a zero limit. Eighteen new feature checks and fourteen compatibility checks pass on Node; Deno passes 31 with one existing runtime-specific skip. Native WebKit exercises 103-message partial recovery; independent four-language MCP confirms account-only deletion and recoverable local records. Exact-head hosted acceptance and every other unchecked original criterion remain required.
+
+Hosted acceptance on published `3ea98ecc`: all five workflows and 75 jobs finish successfully or intentionally skip. The [criterion audit and checked metadata](hosted-verification-3ea.md) complete VK14–VK19, VK21, VD04 and VD05 after their preserved reference/local/native/MCP evidence. Fifty-seven original inventory rows remain unchecked. Retention `07de3ef6` still requires its own hosted matrix; VK20 and every other unmet criterion remain required, and PR57 stays draft/unmerged.
+
+## VK23 discovery draft and verification
+
+[The active discovery checklist](vk-discovery-plan.md) tracks the complete pinned
+standalone-script scope, implementation and focused evidence. Three independent
+reviewed friendship policies are drafted; the paced outgoing-message queue stays
+required under VK26. VK23 and every other unmet criterion remain unchecked.
+
+## Hosted vacancy discovery investigation
+
+[The active CI checklist](ci-vacancy-discovery-progress-plan.md) and [root-cause evidence](ci-vacancy-discovery-progress.md) preserve the exact failed published run and a finite native WebKit reproduction. Acknowledged per-card progress retains the original completion and no-replay assertions; no production deadline changes. Every unchecked inventory row remains required.
+
+## VK20 complete source audit
+
+[The friend-invitation checklist](vk-friend-invitations-plan.md) maps the pinned trigger to community walls and preserves its missing optional random single-media choice through the existing reviewed wall job. Correct the earlier filename-based inventory interpretation with explicit source evidence. Do not accept VK20 before focused and exact-head hosted verification; all other original unchecked requirements remain active.
+
+[The wall parity checklist](vk-wall-parity-plan.md) and [evidence](vk-wall-parity.md) cover any-author visible holds and positively confirmed absence, distinct from delete receipts. [Hosted acceptance on 35764037](hosted-verification-357.md) completes VK20 and VK22 with all five workflows and 75 jobs passed. Fifty-five original rows remain unchecked; the [VK25 checklist](vk-stickers-plan.md) tracks the next audit.
+
+## Active VK24 caches and VK25 sticker catalog
+
+The [browser history checklist](browser-history-archive-plan.md) tracks acknowledged unread windows, hidden-link learning privacy and exact-parent/native/MCP evidence; HH11 and all unchecked criteria retain their full scope. Active HH browser delivery safety (HH11): see [the delivery plan](hh-browser-delivery-plan.md). Native positive status is required; [confirmed live capture](hh-live-capture-plan.md) tracks bounded snapshots, pane ownership and Stop draining. [Borrowed unread capture](unread-live-capture-plan.md) now tracks the actual-parent transient-message loss, reuse of bounded capture during explicit reply visits, 30 Node/30 Deno passing checks, native view restoration and the unchanged duplication gate; hosted acceptance remains pending. [Watched dispatch ownership](browser-watch-dispatch-plan.md) now tracks host cancellation during native arming and forwarding the common final verifier; focused adapter and lifecycle checks pass, with hosted acceptance pending. [The hosted employer-change correction](ci-notice-pane-plan.md) now retains the exact Chromium mismatch and finite native reproduction of the earlier pane-identity refusal, preserving zero effects and failed-outbox checks. All-unread orchestration, authenticated parity and all unchecked original criteria remain required.
+
+[Native vacancy metadata](vacancy-metadata-plan.md) now has exact-parent failure, focused/native/MCP evidence and success-only cache preservation; HH03 remains open. [The cache checklist](vk-cache-plan.md), [catalog checklist](vk-stickers-plan.md) and [runner checklist](vk-runner-plan.md) track pinned parity and local evidence. VK24 requires the [CodeQL assertion correction](vk-cache-security-follow-up.md); VK25 has [focused/native/MCP evidence](vk-stickers.md). [Durable trigger admission](vk-trigger-state.md) reproduces duplicate drafts and premature shutdown flush. Exact-head hosted verification and every unchecked issue requirement remain active. [The native timestamp and shutdown correction](ci-trigger-compatibility.md) preserves seven actual current-head CI failures, a finite parent regression and eight focused passing cases. [Shared outgoing queue evidence](vk-message-queue.md) covers 48 Node/Deno checks, native WebKit and four-language MCP; [First-live peer history](vk-live-history.md) now passes 79 focused Node/Deno checks with historical-trigger suppression, durable acknowledgement, credential and cursor ownership. [Foreground queue lifecycle](ci-vk-queue-lifecycle.md) preserves four actual queue-commit CLI regressions and 31 passing focused checks in each runtime. [Live diagnostics](live-diagnostics.md) adds bounded shared CLI/Lino/UI inspection with parent redaction regression and native/MCP evidence; [desktop execution](vk-desktop-execution-plan.md) remains the active wider audit. New exact-head hosted acceptance remains required; the complete desktop prose audit now maps 118 inventory rows with 60 unchecked. [Desktop shutdown](desktop-lifecycle.md) has finite parent/current evidence; every unmet requirement retains its scope. [Outgoing priority controls](vk-friend-priority.md) now have finite parent/current, focused Node/Deno and native/MCP evidence; hosted acceptance remains pending. [Ten message defaults and draft reset](vk-message-defaults.md) retain focused/native/MCP evidence and still require exact-head acceptance. [Getter-safe diagnostics](ci-log-getter.md) preserve the actual Windows/Bun failure, two finite parent regressions and 18 focused passing cases per runtime; cancelled browser jobs remain incomplete verification. [Accepted-friend statistics](vk-friend-stats.md) preserve durable account receipts, UTC periods and scoped Lino files, with shared translated summaries and finite failure/restart/browser evidence; VD11 remains unchecked pending exact-head hosted verification. [The reviewed-invitation CI correction](wall-variant-ci.md) preserves eight actual failure logs and the corrected seven-case focused checks in each runtime. [Runner session logs](runner-log.md) now retain private startup/failure evidence and shared configurable trigger timing, with focused Node/Bun/Deno, rolling-worker and native/MCP proof; VD14 and all unmet criteria remain active pending exact-head hosted acceptance. [Hosted diagnostic/checkout corrections](runner-log-ci.md) retain exact-parent failure logs, a custom-sink privacy regression, explicit cross-platform CRLF checkout and six focused Node/two Bun/two Deno passing checks; exact-head hosted acceptance remains pending.
+
+VD13 now has strict owned token acquisition, protected acknowledged saving, shared CLI/Lino/four-language controls and focused/native/MCP evidence in [the token case study](vk-token.md). The real-Electron CI case and all exact-head checks remain required before acceptance; all other unchecked rows stay active. The isolated checkout-dependent cache audit correction is documented in [the CI follow-up](cache-action-audit.md). [Desktop clipboard evidence](desktop-clipboard.md) adds owned main-frame/origin checks, strict native receipts, 14 focused checks and native/MCP before/after views; the awaited clipboard correction now passes actual Electron 45.3.2 readback and foreign-origin refusal on `36ee8ba8`; full acceptance remains open. The actual desktop authorization fixture now passes at `6af537ec`; full issue acceptance remains open. [Layered server startup configuration](startup-configuration.md) has an exact-parent dispatch failure and bounded global/local/CLI loading with focused checks; desktop consumption and shared editing remain active. [Persisted legacy priorities](legacy-priorities.md) now pass exact-parent failure reproduction and 29 focused checks, preserving strict writes and protected users across text/binary reopen; VD12 hosted acceptance and wider configuration remain active. [Shared desktop configuration](desktop-configuration.md) now has exact-parent dispatch and packaging failures, a bounded FIFO regression and 50 focused checks; actual hosted TLS/staging gates, shared editing and local/SSH execution remain active. [Persisted catalog compatibility](legacy-catalogs.md) now retains exact-parent read and actual-delivery failures, 15 focused passing checks and native/MCP before/after views; hosted acceptance, shared editing and all remaining desktop execution requirements stay active. [Release hashing](rolling-digest.md) addresses a measured serial-I/O bottleneck from the actual macOS startup failure with unchanged deadlines and twelve focused passing checks; exact-head hosted resolution remains required. [Connected VK read failures](vk-read-failure.md) now retain exact-parent fallback reproduction, seven focused checks and native/MCP refusal/recovery proof, preserving offline editing and acknowledged settings. Exact-head hosted acceptance and every unchecked criterion remain required. [Deno descriptor instrumentation](ci-digest-deno.md) now preserves the actual hosted hash-test failures and two focused passes per runtime without changing production limits; [hosted desktop evidence](desktop-configuration-hosted.md) retains actual TLS and staging checks. [Explicit runner sessions](runner-session-control.md) add bounded local/SSH observations, durable target binding, exclusive ownership and stopped defaults through the real CLI; automatic preparation, actual backend readiness, independent desktop execution and Lino/UI integration remain unfinished. All 60 unchecked criteria remain active. [Shared runner Lino/API evidence](runner-session-api.md) now retains exact-parent HTTP 404 admission, 17 focused Node and 17 Deno cases, connected CLI projection and shutdown lease draining. Preparation, actual readiness, independent desktop ownership, UI/configuration and all 60 unchecked criteria remain required. [Observed runner settings](runner-session-controls.md) now preserve an exact-parent browser failure, 30 focused Node cases, five Deno cases, native WebKit and four-language independent MCP evidence. All 60 unchecked criteria, shared profile editing, automatic preparation, actual application readiness and independent desktop job ownership remain active. The [negative vacancy-input probe](vacancy-input-order.md) did not reproduce the suspected event-order race. The [cache reload investigation](ci-vk-cache-reload.md) preserves the actual hosted refusal symptom, a passing finite local case and stronger bounded refusal diagnostics; its cause and VK24 acceptance remain open. [Shared runner profile editing](runner-profile-editing.md) now has focused revision-conflict, retained-target and draft-preservation checks plus native/MCP before/after evidence; automatic preparation, independent desktop ownership and all 60 unchecked criteria remain active. [Bounded startup coordination](browser-boot-queue.md) addresses the actual hosted Chromium refusal with an exact-parent lock-contention regression and awaited browser-state checks; exact-head hosted verification and all 60 unchecked reference rows remain required. [Desktop provider packaging](desktop-provider-packaging-plan.md) tracks the clean-installer omission of Browser Commander, Playwright and Telegram, retained root overrides, mandatory staged adapter imports and focused parent/after regressions; hosted installation and all 60 unchecked criteria remain required. Sequential unread answers now have an explicit implementation and focused verification plan in [unread-answers-plan.md](unread-answers-plan.md), with evidence in [unread-answers.md](unread-answers.md). The first ordinary/unresolved chat is held for review and later polling visits only that chat; exact offered bot choices use the shared guarded outbox. Model automation, independent application/chat slots and every remaining inventory criterion stay required. [Desktop native prebuild filtering](desktop-native-prebuilds.md) and its [plan](desktop-native-prebuilds-plan.md) preserve run 43811953283 and its target-specific correction; exact-head hosted desktop validation remains required. [Configured unread model drafts](unread-model.md) now preserve explicit CLI/Lino/UI intent, acknowledged history, context revalidation, Stop draining and review-only recovery, with 21 Node/21 Deno checks and native/MCP before/after evidence; independent application/chat slots and all 60 unchecked criteria remain required. Application-owned chat C14: [plan](application-chats-plan.md) and [evidence](application-chats.md) retain 12 focused checks per runtime, actual child/separate native browsers, independent MCP and lifecycle draining; published CI remains required and all 60 unchecked rows remain unfinished. [Saved unread CLI model intent](unread-cli-model.md) now has two exact-parent failures, five passing checks per runtime and the existing CLI/Lino transport check; opt-out and inspection make no model calls and all 60 unchecked criteria remain required. [Application chat MCP escaping](application-chats-codeql.md) preserves the actual security finding, an exact-parent failure and three passing bounded checks; hosted CodeQL acceptance remains required. [HH/LinkedIn experience comparison](experience-comparison.md) and its [workflow plan](experience-sync-plan.md) retain an exact-parent regression, nine focused checks, 53 existing CV checks, four locale checks and independent real-browser/MCP before/after evidence. Export/import, translation planning, per-change reviewed native writes and all 60 unchecked rows remain required. Private structured experience documents are drafted with lossless native metadata, verified HH receipt reuse, immutable private storage and revision comparison through CLI, both Lino encodings and four localized browser controls. Parent 3d0ded3d fails the new interchange regression; focused core/API/browser-state and native MCP checks pass, including refused import retention and phone layout. HH21 and all 60 unchecked rows remain unfinished; live LinkedIn acquisition, translation plans and reviewed provider editing remain next. See experience-documents.md. The [native LinkedIn experience reader](linkedin-experience.md) adds one-load bounded acquisition, private evidence and shared controls with synthetic regression/browser verification; authenticated provider acceptance and all 60 unchecked rows, including HH21, remain unfinished. [Directed planning](experience-planning-plan.md) now tracks exact-revision plans in both directions, private three-provider translations, preserved records, durable shared recovery and focused/native/MCP evidence. Native editors, separate Save, complete acquisition and all unchecked inventory rows remain active. Saved HH area metadata now reuses complete localized dictionaries in downloaded and independently saved exports, retains area IDs through sanitized/Lino snapshots, and verifies translated city labels by stable ID; see [resume-area-metadata.md](resume-area-metadata.md). Authenticated and full native synchronization criteria remain unfinished. Continued HH21 with bounded observed-card text fallback and a separately owned profile About tab, private source evidence, identity/absence validation and drained owner protection. Ten new regressions and 27 focused compatibility checks pass; native Chromium verifies entity/fallback layouts and About guards. All 60 incomplete rows remain required. Fixed CV initial loading with a held-request browser regression and before/after captures. The Windows/Bun polling failure is preserved and corrected inside the existing test deadline; exact-head hosted acceptance remains required. Formal AI reporting unit: implement exact acknowledged workplace evidence, genuine-output exclusions, marker-first paginated issue/comment search, preserved legacy/version comments, closed regression lineage, fresh-comment checks and private durable publication intents; share default-dry-run consented CLI/Lino/four-language controls and drained Stop. Verification requires parent failures, 18 focused checks, native Chromium, independent MCP screenshots, strict static gates and exact-head hosted CI. All 60 unchecked criteria, native provider edits and authenticated live acceptance remain required; PR stays draft and unmerged.
+
+### Active QA11 exact-question observation scope
+
+- [x] Re-read the pinned preference and variant tests and their implementation; identify rule-ID grouping and overlapping evidence as concrete gaps.
+- [x] Reproduce four failures against two exact published parent modules; preserve native parent failure and independent MCP before capture.
+- [x] Share eligible exact-question boundaries and safe observation aggregation; keep approval/canonical and provider/chat guards, approximate/template boundaries and raw observations.
+- [x] Verify 24 focused checks, 11 wording/correction compatibility checks, the mandatory three-scenario native sequence and independent MCP saved preference/reload/compact behavior.
+- [ ] Finish static checks, archive source-bound evidence, commit/push and inspect every exact-source hosted workflow. Complete the rest of QA11 and all other 41 unchecked criteria before readiness.
+
+Worker-setting commit `027ae3c1` and shared wording-fixture correction `0e676ed0` are published. The latter's four companion hosted workflows have passed; main has a Deno watcher assertion failure (job 133681243959, lines 4737–4742) and other jobs remain pending. Preserve and reproduce the transient-phase polling failure separately. No new acceptance is inferred from partial hosted status. PR57 remains draft and unmerged.
+
+### Current hosted watcher assertion
+
+- [x] Preserve exact `0e676ed0` failed job 133681243959 and identify lines 4737–4742.
+- [x] Reproduce the missed transient phase deterministically; verify ten focused Node checks, the failing Deno case and content-free state tracing.
+- [x] Archive the failed hosted assertion, deterministic reproduction, focused checks and exact changed sources.
+- [ ] Publish the correction and inspect all five exact-source workflows. Every one of the 41 unchecked original criteria remains required.
+
+## Salary option contract follow-up (QA12 / QA13 / QA15)
+
+- [x] Read the pinned salary option tests and complete README range/follow-up contract; trace the actual dual-basis scalar mismatch and missing form nearest-band behavior.
+- [x] Draft shared all-amount containment and field-only unique nearest proposals, preserving ambiguity, currency, period, approval and rejected-answer guards.
+- [x] Reproduce all four new checks and the native form failure on exact parent `640de38b`; verify 29 focused checks, actual native select/radio readback, retry receipts, preserved owner text, no submission and independent Playwright MCP with drained fixtures.
+- [ ] Complete scoped static checks, preserve a checked evidence archive, commit/push and inspect exact-source hosted workflows. Full QA12/QA13/QA15 and every other unchecked original requirement remain active. PR57 stays draft and unmerged.
+
+Salary option final local gates pass: 29 focused checks, native select/radio readback with zero retry events, independent MCP, scoped lint/format/secrets and the unchanged 6.5% duplication limit. The checked archive retains both exact parent modules, four failures, pinned reference blobs and three screenshots. Publishing and exact-source hosted acceptance remain required; all 41 original unchecked rows stay open.
+
+## Salary clarification context follow-up (QA12)
+
+- [x] Read all pinned clarification, expected-pay, hourly and current-target contracts. Preserve four exact-parent regressions for polite requests, consecutive basis inheritance, unrelated-topic currency and ordinary field labels.
+- [x] Draft shared bounded clarification parsing and context selection, with salary-specific notice handling and preserved unrelated-topic/period/approval guards.
+- [x] Verify focused portable CLI/offline/both-Lino behavior and actual browser draft readback; preserve before/after screenshots and drain isolated fixtures.
+- [ ] Pass scoped static gates, archive source-bound evidence, commit/push and inspect exact-head hosted workflows. All original unchecked criteria remain required; PR57 stays draft and unmerged.
+
+Salary clarification local verification passes: five exact-parent failures, 26 focused checks, native zero-send draft readback, owner-draft refusal and independent MCP with drained resources. Strict scoped lint, format, secrets, the generated web bundle and unchanged duplication gate pass. The checked archive retains all three exact parent modules, three pinned reference blobs and both screenshots. Publishing and exact-source hosted acceptance remain required; no original inventory criterion is accepted from this unit alone.
+Active repeated-answer and current CI verification:
+
+- [x] Replay the pinned repeated-question requirement against actual parent `9636107f`; five of six focused checks fail. Add a shared review hold, consistent archived owner identity and fresh dispatch refusal without changing knowledge counts.
+- [x] Verify six focused Node/Deno checks, 26 Node compatibility checks, native before/after screenshots and independent MCP review with zero choices/sends and drained resources. Preserve existing diagnostic warnings accurately.
+- [x] Preserve the macOS Deno deadline cancellation and verify six finite native partitions through the existing configuration and failure-propagation tests; keep the ten-minute deadline and every test/runtime/OS.
+- [ ] Resolve the actual `8c2260b6` WebKit question-disclosure failure, publish atomic corrections and verify every current-head hosted workflow. Continue all forty unchecked original requirements; PR57 remains draft and unmerged.
+
+The [native watcher disclosure investigation](ci-question-watch-disclosure.md) preserves the actual WebKit trace, a finite actual-parent pointer miss and the successful native keyboard opener. Scoped checks and the unchanged duplication gate pass; published hosted verification and all forty unchecked criteria remain required.
+
+### Active HH01 shared job account profile
+
+- [x] Reproduce five actual-parent (`5512acf2`) service failures: four readers omit the workspace profile and application review uses a different path for the same named slot.
+- [x] Share the workspace profile resolver across job readers, applications and connect-only CV work. Preserve existing profiles in place, refuse distinct-account conflicts, retain headed/headless policy precedence and add default-off content-free selection tracing.
+- [ ] Finish focused profile/legacy/ownership/CLI/Lino checks, strict static gates, source-bound archive, atomic commit/push and hosted verification. Full persistent manual login/challenge control and all forty unchecked original criteria remain unfinished; PR57 stays draft.
+
+Shared-profile local verification is complete: five actual-parent failures, 14 focused checks, 28 existing service/CLI/Lino checks and strict static gates pass. Existing legacy profiles and locks remain in place; distinct accounts are refused before launch. The source-bound archive retains actual parent modules and complete local logs. Publication and hosted verification remain required; HH01 and all forty unchecked original rows remain unfinished.
+
+Native profile persistence follow-up:
+
+- [x] Verify one synthetic HTTP-only session cookie across a clean Chromium restart through the actual shared factory; verify another slot and workspace start without it. Four sequential launches use owned temporary profiles and loopback traffic only.
+- [x] Register a mandatory bounded native group, with explicit WebKit capability refusal, and retain the successful focused Chromium receipt.
+- [ ] Finish scoped static checks, preserve checked evidence, publish and inspect all hosted workflows. Interactive headed login/challenge handling and all forty original unchecked criteria remain required; PR57 stays draft/unmerged.
+
+2026-11-17 controlled HH manual login (HH01):
+
+- [x] Re-read the persistent headed-login/CAPTCHA contract and existing workspace ownership, profile, visibility and foreground-command mechanisms.
+- [x] Draft a finite manually operated HH login browser with shared profiles, durable non-replaying IDs, explicit unverified authentication, failed-close ownership and shared CLI/Lino/four-language controls.
+- [x] Verify 37 focused lifecycle/policy/storage/CLI/Lino/UI checks, draft failures and corrected native recovery; inspect before/after screenshots and independent MCP with drained fixtures. Two actual headed launches retain a synthetic session cookie; four existing cookie/isolation launches also pass.
+- [x] Pass scoped lint, formatting, secrets, source limits and the unchanged duplication gate (6.49%); preserve 110 source-bound evidence entries.
+- [ ] Publish atomic changes and verify exact-source CI.
+- [ ] Inspect all exact-head workflows and finish the complete HH01 contract. All 36 original unchecked criteria remain unfinished; PR57 stays draft and unmerged.
+
+2026-11-17 acknowledged automation safeguards (QA19/QA20):
+
+- [x] Reproduce four storage/guard failures and five web failures at exact parent 62e7c474, including a false Saved message after a real HTTP refusal.
+- [x] Queue reads behind acknowledged persistence/rollback; require matching connected receipts and retain pending controls, owner drafts and truthful translated errors without automatic write replay.
+- [x] Pass 46 focused checks and actual native/MCP before/after verification with three deliberate PUTs, no page exceptions, no provider sends and drained fixtures. Inspect desktop and phone screenshots.
+- [x] Pass scoped lint, formatting, secrets and source limits; retain the unchanged 6.49% duplication result and 81 source-bound archive entries.
+- [ ] Commit the atomic correction and publish only to the prepared branch.
+- [ ] Verify all exact-head hosted checks and complete full QA19/QA20 mapping. The 36 unchecked original criteria remain unfinished; PR57 stays draft and unmerged.
+
+2026-11-17 shared safeguard CLI (QA19):
+
+- [x] Trace global quiet hours, cooldown and opt-outs through the shared record; identify missing CLI access and preserve the independent acknowledged-save commit 757e241e.
+- [x] Draft read-only Lino show, validated partial configuration and exact provider/chat or contact opt-out changes. Reuse acknowledged persistence and keep safety commands independent of browser/model/provider owners.
+- [x] Verify seven exact-parent failures and 28 focused compatibility checks, disk reopen, ordinary command routing and refused-write send protection. Scoped lint/format/secrets and source limits pass; duplication remains below the unchanged threshold.
+- [ ] Commit/publish this atomic feature, verify every exact-head hosted workflow and complete the full QA19 criterion. All 36 unfinished criteria remain required.
+
+2026-11-17 shared cooldown UI (QA19):
+
+- [x] Trace the existing global cooldown through the shared CLI/API record and reproduce its missing UI control with a bounded native regression and independent MCP screenshot.
+- [x] Expose optional fractional days in all four UI languages; reject invalid input locally and retain acknowledged-save, per-automation precedence and silence conditions.
+- [x] Verify focused portable checks, actual native save/reload/reset, independent MCP and inspected desktop/phone screenshots with no provider effects and drained fixtures.
+- [ ] Pass scoped static checks, preserve source-bound evidence, commit and publish only to the prepared branch. Verify all exact-head hosted workflows; the 36 full-scope criteria remain unfinished.
+
+2026-11-18 durable question deferrals (HH05): the [unit plan](deferred-questions-plan.md) and [case study](deferred-questions.md) preserve two exact-parent failures, 110 focused checks, actual native form preservation and independent four-language MCP evidence. Private revisioned policy, waiting-form observation and answer-aware search/discovery/batch exclusions share CLI, both Lino encodings and UI. The separate worker queue remains unchanged. Publish this atomic unit and require exact-source hosted checks; complete HH05 parity and all 30 unchecked original criteria remain unfinished. PR57 stays draft and unmerged.
+
+### HeadHunter imported conversation receipts (HH09)
+
+- [x] Reproduce HTTP 502 when Operator acknowledges a chat captured in the still-open import browser. Trace the separate browser pool and the missing archive prefix on the receipt.
+- [x] Guard the current import browser by workspace slot and unique provider pane. Require the saved message boundary and provider confirmation. Drain admitted reads before Finish.
+- [x] Verify the exact-parent failure, 60 focused checks in each runtime, and registered Chromium and independent MCP against the isolated provider. Preserve before/after evidence and attach it to PR #57. [Read receipt evidence](hh-common-history.md#confirming-read-receipts-in-the-import-browser)
+- [x] Reproduce a plain send failing in the newly imported conversation. Confirm the receipt through the open provider browser, keep the same archive identity, and verify owner draft protection and uncertain delivery against a one-click native fixture. [Send receipt evidence](hh-common-history.md#sending-in-the-open-import-browser)
+- [ ] Verify exact-source hosted checks and complete the remaining native messaging contract.
+
+### Desktop alert delivery recovery (QA24 and HH01)
+
+- [x] Reproduce a rejected system notification that leaves the active sign-in wait without a desktop prompt on the published parent.
+- [x] Preserve the exact owner, private text, actions and reminder schedule when replacing a failed or unavailable notification.
+- [x] Verify normal and failed OS delivery, replacement and expiry paths, and keyboard actions. Preserve before and after screenshots and the source-bound evidence. [Desktop alert delivery recovery](desktop-owner-attention.md#when-the-system-cannot-display-the-alert).
+- [ ] Verify exact-head hosted checks, signed OS delivery, Focus behavior and authenticated provider acceptance. QA24 and HH01 remain unfinished.
+
+### Focused browser reminders (QA24 and HH01)
+
+- [x] Reproduce Chromium focus emulation and the redundant chime and notification on the published desktop controller.
+- [x] Bind each private browser page to its read-only receipt and revalidate the exact live wait after a bounded focus probe.
+- [x] Verify the two-tab and separate-window controls, an incorrect page-reported focus value, deadline and stale ownership recovery. Preserve exact parent and current receipts. [Focused browser reminders](desktop-owner-attention.md#while-the-owner-is-at-the-waiting-browser).
+- [ ] Verify exact-head hosted checks, remaining desktop system behaviors and authenticated workflows.
+
+### Test assignment sections (QA24)
+
+- [x] Reproduce two proposals and an absent hold on published `72d5a02c` when the required task comes after the first control.
+- [x] Capture the complete visible section with bounded reads and preserve the whole-form hold, task revision and manual verification boundary.
+- [x] Verify 48 focused tests in each runtime and the browser and Playwright MCP receipts. Preserve the before and after screenshots. [Reproduction and sources](assignment-sections.md).
+- [ ] Verify the hosted Forms group and the remaining QA24 instruction and desktop notification behavior.
+
+### Linked Markdown instructions (QA24)
+
+- [x] Reproduce `assignment-source-unreadable` for a selected Markdown link whose redirect correctly loads the document.
+- [x] Keep exact literal text and the redirected source receipt. Verify one owned read in Chromium, WebKit and phone-width Playwright MCP, with no embedded requests, employer submits or GitHub writes. [Reproduction and screenshots](assignment-source.md#linked-markdown-instructions).
+- [ ] Verify the hosted assignment group and the remaining document, notification and provider workflows.
+
+### Desktop notification packaging
+
+- [x] Preserve the failed Windows x64 and arm64 logs at exact head `72d5a02c`. Both reach the Node debugger before the installed application times out.
+- [x] Reproduce the missing React import without the checkout and verify independent translation, locale behavior and the production bundle. Node and Deno pass 44 focused checks. [Reproduction and sources](desktop-attention-packaging.md).
+- [x] Verify clean installed startup, one visible window, runtime drain and screenshot in both hosted Windows architecture jobs on `05366339`. [Native results](desktop-attention-packaging.md).
+
+### Edited answers in the shared archive (QA02 and QA06)
+
+- [x] Compare the pinned sent-answer frequency and correction rules. Reproduce missing earlier answers at `05366339` through the production Questions view and shared CLI path.
+- [x] Reuse immutable edit chains and the common turn reader. Count each wording once per source turn, preserve private-link/delivery barriers, and record incomplete coverage.
+- [x] Verify 66 checks in each focused runtime and the actual parent and corrected browser behavior. Confirm CLI, both Lino formats and independent mobile Playwright MCP.
+- [ ] Verify exact-head hosted checks and authenticated provider history. [Reproduction and sources](question-archive-revisions.md).
+
+### Clean runner dependencies (VD01)
+
+- [x] Verify private runtime preparation from a restricted PATH over local Screen and the normal SSH transport. Confirm corrupt archives refuse before peer Stop, and both cold and warm application readiness reads succeed.
+- [x] Reproduce generic refusal copy with the published bundle and verify both precise Settings messages, four languages and desktop and phone layouts. [Reproduction and screenshots](runner-launcher-preparation.md#dependency-refusals-in-settings).
+- [x] Reproduce the existing-Node and missing-npm startup failure against the published source. Verify private npm preparation on cold startup and warm reuse with npm and the private Node folder absent. [Reproduction](runner-launcher-preparation.md#nodejs-is-installed-and-npm-is-missing).
+- [ ] Verify the hosted SSH, native desktop and application dependency cases on the current source. Complete the supported OS backend and application preparation workflow.
+
+### 2026-11-24 Reuse the active application sign-in in the owned chat slot (HH01, HH10)
+
+- [x] Trace the pinned C2 behavior and reproduce the signed-out preparation and global profile fallback on the published parent.
+- [x] Resolve the chat profile in its workspace. Reuse secure HeadHunter cookies only from the active batch's verified signed-in page, into its separate signed-out chat context.
+- [x] Verify native signed-in readback, protected destinations, cancellation, workspace isolation and the absence of message sends. [Screenshots and evidence](application-chat-session.md).
+- [ ] Review exact hosted checks and complete authenticated provider acceptance.
+
+### 2026-11-24 Exact replies in the owned recruiter panel (HH08, HH10)
+
+- [x] Reproduce the prepared but unsent exact reply on published `9f011361`.
+- [x] Share the opt-in across CLI, Lino and CV Sync. Freeze the full question and applicable native control, preserve owner text, and reserve the question through the Questions outbox.
+- [x] Verify distinct text and native choice receipts, refusal for a near-match button and a saved chat opt-out, and separate recovered application and reply states. [Reproduction and evidence](application-recruiter-panel-exact.md).
+- [x] Verify the owned native close after a terminal handover, preserving a draft and refusing ambiguous controls or a live instruction. [Reproduction and evidence](application-recruiter-panel-terminal.md).
+- [x] Verify prior-answer reuse for both the inline panel and unread review, holding unknown matches and protecting pending owner work. [Reproduction and evidence](application-recruiter-panel-reuse.md).
+- [x] Verify explicit Skip against the currently displayed recruiter question, including native close ambiguity, concurrent Stop and failed receipt recovery. [Reproduction and evidence](application-recruiter-panel-skip.md).
+- [x] Verify bounded first and next message waits, blocked closure during loading, unanswered questions, pending sends and owner drafts, and recovery of the confirmed native closure. [Reproduction and evidence](application-recruiter-panel-quiet.md).
+- [ ] Check exact-head hosted runs and complete authenticated provider acceptance and the remaining HH08 and HH10 work.
+
+### HeadHunter rejection-first application chat passes (HH10 / B33)
+
+- [x] Reproduce a held first question leaving a later unread rejection in the provider inbox on the published parent.
+- [x] Prioritize clearly passive unread HeadHunter rejections in the application worker. Recheck the native row before opening and the current conversation history before advancing. Hold drafts, new requests, ambiguous notices, links and native choices for review.
+- [x] Verify selection order, read state, retained review, draft preservation and zero sends in the routed browser. Cover stale preview and mixed pending turns in focused checks. [Reproduction and evidence](application-chat-rejections.md).
+- [ ] Verify the current hosted checks and retain the authenticated HeadHunter and standalone rejection-handling acceptance criteria until they are demonstrated.

@@ -1,0 +1,20 @@
+{
+  "archive": "unread-cli-model.tar.gz",
+  "files": {
+    "ci-logs/unread-cli-model-before.log": "112c26a4f90883885d60ec3fe524fdb9ecb8ec73adabaa3043608a45114e9526",
+    "ci-logs/unread-cli-model-bun.log": "5fda3a2fa6c69683e42d7e21b418af852820989b0a1f4bc965bb1fb57af73ccf",
+    "ci-logs/unread-cli-model-deno.log": "02d2b68438847640c43c515f69bf3e5774aec926ab31a9f5fbeb7ae4a0fb523b",
+    "ci-logs/unread-cli-model-existing.log": "54cad4c6487358ce9d5f2f56291a9ca41bee83e48b7a9e0b5c8ffa15a751b7c9",
+    "ci-logs/unread-cli-model-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/unread-cli-model-node.log": "54fdcbaf384ef1245b4e30900da823df018310155e8b1b23ca9f19e887ea0072",
+    "docs/case-studies/issue-56/unread-cli-model.md": "ffb0ad446b573e020adb77cf5b5002360d2b83dc6494ab878901e7b38a2f8812",
+    "experiments/issue-56/collect-unread-cli-model.py": "2934eac1762d0a7b8314b717c9b57f15cb73cb71271e6bc06394799e711d0817",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "experiments/issue-56/unread-cli-model-before.py": "af270887cb6809201feaffaa70ee12079ea4a92544e8fefd98c2fa6d5bca6dc7",
+    "experiments/issue-56/unread-model-fixture.mjs": "2542c55db81408321d15ebfcf237ac37a4de2367af15887fa366dbf41832fe1b",
+    "js/src/cli/answer-model-commands.js": "7b5c30a0552181b6888353f56acfdb654a1ce9f19200f8a1d0cdf438576211f4",
+    "js/src/cli/automation-commands.js": "e086e5d4927b5ab2f210b577475001e34d317cb0a0abf747eeacc816063b7075",
+    "js/tests/question-unread-cli-model.test.js": "862293dff6dab24af0452f0335d8e52b3dc48164ba830e190f66e62968ba13da",
+    "metadata.json": "efaf102c99ea694053a2b06a8e2727c6a13a16e723ce8cb2a67236baa51f8636"
+  }
+}

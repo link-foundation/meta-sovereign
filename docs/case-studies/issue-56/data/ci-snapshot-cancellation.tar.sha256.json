@@ -1,0 +1,22 @@
+{
+  "archive": "ci-snapshot-cancellation.tar.gz",
+  "files": {
+    "ci-logs/ci-handoff-cancellation-before.log": "942a70fa31d255e685d043a13e2dec2325173f8624e025e52bac9ba9dc689728",
+    "ci-logs/ci-handoff-current-runs.json": "7dd761225b9e5f80b75709b70136b7a5904f41643e6f9b754d76bf554cf39355",
+    "ci-logs/ci-handoff-deno-after.log": "f8e817184eb1269eb7ae999195fbb5756537908cdb5f0fb283037407a9ed2e28",
+    "ci-logs/ci-handoff-deno-before.log": "eecc6aa7fb7cafaf5f1bbefba0513146ca5d35b6364044f35d5b3629cc0c57a8",
+    "ci-logs/ci-handoff-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/ci-handoff-format.log": "3d4593fe0502e471c9a4f9bb857e42b001b951e53938b513b53b558d50047df0",
+    "ci-logs/ci-handoff-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-handoff-node-after.log": "c2defbf5a8052f4a912597eacfeffbc032580c268329bbbfd4256a69c934856b",
+    "ci-logs/ci-handoff-node-before.log": "73d2870e379ab8d9a5418b640d8cf3cfa32bccf7beda831e129a56300b7a8e68",
+    "ci-logs/ci-handoff-original-failure-excerpt.log": "e7d05d7d6836b5b1541c7de72edab9837677634e31cf35eddf118bf226a544d2",
+    "ci-logs/ci-handoff-previous-run.json": "b3c31bbf88930bba1de3fd901e7d61385ab78f4ebc2ef371e56313e673ff2e36",
+    "ci-logs/ci-handoff-runtime-excerpts.log": "943642a5acde384d4397cb8652d46d4cf7cde5cd0164ce314089b10f04124c09",
+    "ci-logs/ci-handoff-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-handoff-worker-deno-probe.log": "444f11e5ad7d4a0dac8220211fecba63a2eca441306b2d61eeadcf97a41da12b",
+    "ci-logs/ci-handoff-worker-node-probe.log": "51ab2b42dd8fc2cd660b0563416c4332f0916a38df2e45831951ced6bcf20610",
+    "experiments/issue-56/collect-ci-snapshot-cancellation.py": "778473d6476a144c67ef04302222bb8eb145e373deac35bf7059099d7a9588f8",
+    "metadata.json": "35f9657653da1012fe5060490354bc5c89362d0d44b168b015d258d7b043d380"
+  }
+}

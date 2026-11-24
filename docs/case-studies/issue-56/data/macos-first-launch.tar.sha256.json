@@ -1,0 +1,30 @@
+{
+  "archive": "macos-first-launch.tar.gz",
+  "files": {
+    "README.md": "e7c3dbe0ccffdd6575ff9f40a74d038cf239a48c513c97e5d628d5538c301904",
+    "README.ru.md": "979fc47d4cdf0e7355108fcc50e1f9987cd1a441a5d904e77430590015def0c1",
+    "README.hi.md": "cdb6bac738c2a1528553bf281b6cc278e1461527bcb14637bc3dd54630eabb08",
+    "README.zh.md": "31135fe937205a98f5d47ac5aa40efcaff359d6bc677da44c9dc0fdcd0c20478",
+    "docs/USER-GUIDE.md": "5c1f5942bf9222b42db80864ca666b8c50438eb2db8607f71b2bc049e3dc0081",
+    "docs/USER-GUIDE.ru.md": "589ad918d14d9200f5a265b19ec36d06194c167252b6bf08b61cc916d4080358",
+    "docs/USER-GUIDE.hi.md": "99032b5b0255d2d8c4109534e94e28a73db01c627ba676b21895f90c8c9e0be7",
+    "docs/USER-GUIDE.zh.md": "f4feb1d8d42f31775cf71261a231c214a67b5173ec38242438219f2881aed58e",
+    "before/README.md": "05640e20e08d9c88b9be7e0e0f8596b844d219aad346e859d1d6b91f85a2bef3",
+    "before/README.ru.md": "8cbca76c7e029ae8813e35a0377e9d11e2ceddc3193b82739cfcf44dece6de4d",
+    "before/README.hi.md": "24dedad95a918b0133c9e0d8b9a951c77fdbcc5f02292369649a3bc7974581f7",
+    "before/README.zh.md": "627ed73f52ca0789e439e3c19c187b01045994760c784dc4aeab1c0177864619",
+    "before/docs/USER-GUIDE.md": "ad76954290d43cc44d1ef2ed44978cf370629b310fb4a7b100e0c14c7a7e6a69",
+    "before/docs/USER-GUIDE.ru.md": "038e3b8462f560cafce59fe858456bc34d298ddcbf3f90235581ef49410c15ec",
+    "before/docs/USER-GUIDE.hi.md": "d94c86c693d1057507d062557d823f5a861bc57a2e5b4201b18f1928fb29be07",
+    "before/docs/USER-GUIDE.zh.md": "fbd4c75493a851aa67ec5de198af347f0687cd2ff6f072a8f5e558cf9a3dba7f",
+    "js/src/web/download/model.js": "cbcd2798e4c2a63de225cac938e63840b5d6f8361ad02f896b39d67fb31fd145",
+    "js/src/web/download/copy.js": "8b3a9f7b3a549fd50df71a983e91fa8e0b5901739a4ceb3d1833a30a614d3a1f",
+    "docs/case-studies/issue-56/macos-first-launch.md": "25694ecd522150ffa0d1322828ce46996d8ff57c0c8275b0b5bf1d522652988d",
+    "docs/case-studies/issue-56/macos-first-launch-plan.md": "7ab1dec65437eaef037d5bd7367051d970b62180e79847a9d3b7c3bd06e83db0",
+    "experiments/issue-56/collect-macos-first-launch.py": "92703b79213c58b42eaa36c610662f782c992a4c4ab672b9650b33588439937b",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "ci-logs/macos-first-launch-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/macos-first-launch-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "metadata.json": "3e36009facdfe17a31b82cf61987c652ba2f4e360b9c4876b6663a1579ea7378"
+  }
+}

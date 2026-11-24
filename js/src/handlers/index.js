@@ -27,6 +27,8 @@
  * `handledBy` stamp prevents duplicate work after the next sync.
  */
 
+import { broadcastOutcome } from '../broadcast/outcomes.js';
+
 const stamp = (link, handlerId) => ({
   ...link,
   handledBy: { ...(link.handledBy ?? {}), [handlerId]: Date.now() },
@@ -153,7 +155,12 @@ export const broadcastHandler = ({ broadcast }) => ({
     const results = await broadcast(link.networks ?? [], link.body ?? '', {
       store,
     });
-    await store.put({ ...link, dispatched: true, results });
+    await store.put({
+      ...link,
+      ...broadcastOutcome(results),
+      dispatched: true,
+      results,
+    });
   },
 });
 

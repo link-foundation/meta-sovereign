@@ -1,0 +1,18 @@
+{
+  "archive": "experience-review-acquisition.tar.gz",
+  "files": {
+    "ci-logs/experience-review-acquisition-build.log": "b0a17512d7f2da8609b2f8bdfe9311a08fd50629d208692adc01e122a9a03185",
+    "ci-logs/experience-review-acquisition-chromium-parent.log": "5d5a0f79f42f1a2fa860b81f86d3278136ee2d7440a858801d6aff06dd62c856",
+    "ci-logs/experience-review-acquisition-chromium.log": "1b46d0d834eb0ce5add8beec731b2d476c07bba736c89f2140a77e60716d6fb1",
+    "ci-logs/experience-review-acquisition-deno.log": "b6d5bdd28d8f358fb6d083aa12bd50b2c31da918586f5e57614a55b0494d6caf",
+    "ci-logs/experience-review-acquisition-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/experience-review-acquisition-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/experience-review-acquisition-lint.log": "a2bb2822192b975e428a7951adc090b3a3f420f3fecaf6082a7e45fc1ec4c867",
+    "ci-logs/experience-review-acquisition-mcp-server.log": "7338f7fdc823330745f00e4f5f40fb8e17b9ee028e8a69c5cb6f95cda4c35d37",
+    "ci-logs/experience-review-acquisition-mcp.json": "1284ac08f4d6dfa0c4b9d9ac2e7620948eb2c8f54710f91c41cd52881edeae7b",
+    "ci-logs/experience-review-acquisition-node.log": "7a90152c1879496d90d451d351aa307f5d06b0b2979e4ddfd177b0f3d292e86b",
+    "ci-logs/experience-review-acquisition-parent.log": "dd66210479a50b8657acfcbc8d7dc966fcb8cc1c09fff2c900f21af71dd9310a",
+    "ci-logs/experience-review-acquisition-secretlint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "metadata.json": "ded821c43669e5f9e421140516312dfe7e70c29a5c6052f72eaa84b10959f6ee"
+  }
+}

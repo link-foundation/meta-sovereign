@@ -1,0 +1,16 @@
+{
+  "archive": "hosted-verification-d34.tar.gz",
+  "files": {
+    "ci-logs/hosted-verification-d34-format.log": "213f709edc739e0169e76381867688733acc533a448c818ac59f8c2ddfa589ea",
+    "ci-logs/question-api-links-runs-after-push.json": "8cd7af016b87cb535f71e58cf4262c9eb596f83d2b462f53cac5b0d274f4ac76",
+    "ci-logs/selection-clock-d34-all-workflows.json": "d7e18199f2f30b386bb089ed77cbeffd0e3ab9d5736d2860c04cffb37b61f54f",
+    "docs/case-studies/issue-56/PLAN.md": "240498fd099577fbc2a51a7f30c6fc765ee7fc7edef9de0fb30a60dcc388aa08",
+    "docs/case-studies/issue-56/README.md": "1f867a3e3a88a4fa54b699aabfeba9902d7a630ec5bc3b7300d6e291c7daa97b",
+    "docs/case-studies/issue-56/ci-selection-clock.md": "77468f5f262db2f84a530fbbf594cc3172849f7d3937757a12ff0f58804fef87",
+    "docs/case-studies/issue-56/desktop-landing-availability.md": "feceb658dc62cf15d80eb492ef2d620cb642855055bc11df5000811703d62bd3",
+    "docs/case-studies/issue-56/hosted-verification-d34.md": "3f0d5d900a07805c7bb5ef89027886ea0ad6856e17d6aecb4abf10ecd27222dd",
+    "docs/case-studies/issue-56/question-templates.md": "77638cebb066a14f5dea3fd29463e30be3aba6a849caf0c5d0fa6927cc28a9f0",
+    "docs/case-studies/issue-56/reference-feature-inventory.md": "93ab3aeb2987e321742ef26831d1bafb08d87d4088f30af7c710ddc94fd41362",
+    "metadata.json": "73f16beff8daaafea51d51cc2e7520d9f979f3722128c9576cb0cd4cbad00215"
+  }
+}

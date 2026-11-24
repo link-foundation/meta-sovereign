@@ -1,0 +1,1361 @@
+---
+'meta-sovereign': minor
+---
+
+Prepare and separately confirm a cover letter when a delivered HeadHunter
+vacancy offers an attachment. Keep the application delivery and the
+letter's acknowledged outcome separate across CLI, Lino and CV Sync.
+Paced batches keep the offer open at the delivery cap, observe the saved
+confirmation choices, and report letters that still need owner review
+(issue #56, HH06 and HH08).
+
+Look for a separate letter on the exact card when a HeadHunter application
+review uses its original search. Fall back to the matching vacancy when the
+owned search can be left safely (issue #56, HH06 and HH08).
+
+Return the owned HeadHunter browser to its original search after a confirmed
+application or separate letter when the search route is configured. Keep the
+delivery receipt when the search filters hide the vacancy (issue #56, HH06).
+
+Keep a visible native HeadHunter recruiter panel open for owner review after
+confirmed delivery. Paced batches observe the original search for late panels
+after a confirmed send from CV Sync or HeadHunter. The followed vacancy updates
+automatically. Batches wait for dismissal before continuing or starting a
+separate cover letter, including at the delivery cap (issue #56, HH08 and HH10).
+Match the chat's visible vacancy link before reporting verified recruiter
+review. Keep unmatched or ambiguous panels open for the owner.
+
+Reuse same-language approved thanks for recognized HeadHunter application
+updates in the explicitly selected inactive notice policy. Verify full chat
+history and keep actionable messages in review (issue #56, QA17).
+
+Check the selected HeadHunter chat for eligible acknowledgements before
+opening unread chats, including when its unread badge has cleared. Count
+the selected chat against the pass limit (issue #56, QA17).
+
+Prefill supported questionnaires linked in unread HeadHunter chats in an owned
+Forms slot when explicitly enabled. Retain the form for review and continue to
+the first chat that needs a reply after a confirmed questionnaire-only handoff
+(issue #56, HH10 and QA24).
+
+Retain source-linked recruiter summary facts when an approved no-reply notice
+precedes a questionnaire. Recheck the chat and approval after Forms prefill
+before advancing the unread review (issue #56, HH10 and QA24).
+
+Resume a reviewed CV queue after an acknowledged decision and before opening
+the next editor. Keep the saved comparison and receipt across CLI, Lino and the
+shared CV view (issue #56, HH17).
+
+Use the acknowledged post-Save comparison request to recover a completed CV
+comparison and keep its original result (issue #56, HH17).
+
+Recover the acknowledged HeadHunter or LinkedIn export after a verified CV Save.
+Keep the original revision when recovery can verify that export (issue #56, HH17).
+
+Recover the review after both profile acquisitions and their comparison have
+completed. Open the first native editor from the verified result (issue #56, HH17).
+
+Recover a recorded CV editor request that had yet to reach the native job.
+Preserve any admission receipt or recorded owner decision (issue #56, HH17).
+
+Recover verified automatic CV preparation when the comparison finished before
+the acquisition recorded its final receipt (issue #56, HH17).
+
+Watch HeadHunter chats awaiting a reply from shared automation controls, the
+foreground CLI or both Lino encodings. Include already-read chats in this mode,
+keep the current draft open, and advance after an observed owner reply or a
+confirmed Skip for the exact incoming message (issue #56, HH10).
+
+Wake the separate HeadHunter chat watch after a confirmed application when
+waiting-chat review is enabled. Hold the first new incoming question for an
+owner reply or an exact Skip, including after the vacancy list is exhausted
+(issue #56, HH10).
+
+Leave HeadHunter acknowledgements, rejections and completed handovers with
+links in owner review. Review uses both the visible text and native destinations
+before any automatic notice reply (issue #56, QA04 and QA17).
+
+Leave HeadHunter bot choices open for manual selection during application-owned
+chat review. Standalone unread review offers the same policy through the shared
+controls, CLI and Lino. Ordinary drafts and held-chat polling stay available
+(issue #56, HH10).
+
+Check whether GNU Screen or Docker is available on an unconfirmed runner target
+through Settings, the CLI and Lino. Keep the active peer running while checking
+an absent checkout (issue #56, VD01).
+
+Review a pinned release archive and dependency lock in Runner Settings, through
+the CLI or in either Lino encoding. Prepare a fresh local or SSH checkout after
+explicit approval while retaining existing owner files and active sessions
+(issue #56, VD01).
+
+Keep Forms and HeadHunter application verification visible across views, focus the exact active browser and defer reminders after confirmed focus. Foreground Forms and HeadHunter application commands expose the active waits and support guarded focus (issue #56, QA24 and HH01).
+
+Play the default notification chime from an audio asset bundled with the local server, Pages, desktop and mobile. The existing media policy permits the same-origin file, and the sound preference works independently of system notifications (issue #56, QA24 and HH01).
+
+Return to the exact active HeadHunter sign-in window from any app view or from the owning terminal. The attention notice ends when the window closes or expires, and authentication remains unverified (issue #56, HH01).
+
+Choose a supported assignment template language in Forms, CLI or either Lino encoding. Preserve the reviewed choice through restoration and issued publication recovery (issue #56, QA24).
+
+Draft standalone assignments from pasted instructions or a readable document in Forms, from a text file or stdin in the CLI, or through either Lino encoding. Restore the private review and recover the same repository and issue publication without creating a form association (issue #56, QA24).
+
+Accept an HH vacancy URL or numeric ID when drafting an assignment. Restore the reviewed canonical vacancy and check publication for copied vacancy descriptions (issue #56, QA24).
+
+Draft from an active Forms slot through either Lino encoding or the CLI. Recheck the current instructions before using a Forms preview and preserve the reviewed fill plan (issue #56, QA24).
+
+Recognize required test assignment sections throughout the owned form. Preserve complete visible instructions for private review and hold regular answers and attachments until the repository is confirmed (issue #56, QA24).
+
+Load localized desktop notifications in a clean installation using the same translation catalog as the web client (issue #56, QA24 and HH01).
+
+Learn distinct earlier versions of confirmed outgoing answers through CLI, Lino and Questions. Count each wording once per real reply turn, keep the transcript and explicit corrections, and show when saved edit history is incomplete (issue #56, QA02 and QA06).
+
+Import HeadHunter recorder archives through CLI, Lino and Connections. Chat keeps the recorded revisions and marks unknown timing and delivery. Questions reports why an undated conversation is excluded from learning (issue #56, QA02 and QA06).
+
+Restore manual Messenger and Telegram archive import in Connections under the existing browser content security policy. Imported conversations remain accessible from browser storage when the server API is unavailable (issue #56, QA02 and QA06).
+
+Keep added questions, bookings and other requests in review when an approved question template contains wildcards. The shared matcher inspects the original clause punctuation and preserves ordinary variations (issue #56, QA04).
+
+Bind saved question marks and sentence breaks to their clauses. An added question that reuses the original punctuation count now requires review, while ordinary approved wording still matches (issue #56, QA04).
+
+Restore the verified GitHub repository and issue together when reopening the same Forms assignment. Both Lino formats and CLI plans expose the same receipt, and the assignment still requires owner review before submission (issue #56, QA24).
+
+Open saved HeadHunter web conversations in Chat with a receipt-checked native send. Retain pending messages when delivery is uncertain, and use provider unread counts and filters in Chat and Operator (issue #56, HH09).
+
+Read saved conversations and send explicitly confirmed drafts from the CLI through text or binary Lino. Reject changed drafts that reuse an existing send ID (issue #56, HH09/QA20).
+
+Keep verified HeadHunter common-chat replies and original message IDs in Chat, and retain reply references when refreshing history (issue #56, HH09).
+
+Edit and delete individually selected HeadHunter common-chat messages with confirmed provider receipts and preserve saved messages when the provider cannot confirm a change (issue #56, HH09).
+
+Capture older messages from an open HeadHunter conversation through Connections or the CLI. Save each verified window, report partial coverage and restore the original scroll position when it remains under browser import's control (issue #56, HH09/HH10/HH11).
+
+Show the reviewed full HH vacancy description for a separately configurable three-second preview before entry or full-form navigation. Preserve Stop, native-change guards, preview mode, frozen batch timing and legacy signatures across CLI, Lino and four-language controls; reserve schema 25 without replaying work (issue #56, HH03, R-Z17).
+
+Wait for the Windows uninstaller to remove its complete installation tree before
+cleaning the owned parent directory, preserving the existing finite cleanup
+bound and native launch assertions (issue #56).
+
+Use the configured currency vocabulary for saved salary bands. Match complete
+aliases before shorter words and keep genuinely foreign currency choices under
+review, including when a configured alias contains another currency's common
+name (issue #56).
+
+Verify actual Linux packaged startup and Windows silent installation, explicit
+packaged startup and owned uninstall on both hosted architectures. Document
+native checksum tools, provenance, architecture selection and the committed
+desktop build dependencies in every user-guide locale (issue #56).
+
+Use current numeric salary targets when a saved offered band contains English or
+Russian boundaries or scaled amounts. Keep authored explanations under review
+and refuse saved multi-basis answers when any amount conflicts with the current
+targets. Preserve native selection receipts and stored rules (issue #56).
+
+Keep owned VK scheduler intervals referenced until explicit stop, preventing a
+standalone automation process from exiting before its next trigger (issue #56).
+
+Correct local/SSH runner launches to use start's supported `--session` selector,
+with a finite refusal regression for both modes (issue #56, VD01/VD02).
+
+Add a shared owned VK outgoing FIFO for reviewed automation and personal-policy messages, with optional read acknowledgements, repeated typing and configurable text/sticker pacing. Preserve per-request completion, fresh consent, durable delivery truth and shutdown draining. Expose saved settings and bounded queue/peer inspection through foreground CLI, default text/binary Lino and four-language Connections controls without replay on restart.
+
+Persist acknowledged per-peer incoming trigger state, serialize duplicate admission, retain due schedules after failed drafting and drain admitted scheduler work before server shutdown flush. Record processed draft counts without claiming delivery.
+
+Add three independent disabled VK dormant-conversation policies for topic questions, offers of help and music questions. Review the exact ordered greeting, optional native audio attachment and selected question; retain positive per-step receipts, canonical Chat delivery and durable uncertainty. Resume definite partial delivery only after a fresh explicit review, preserve acknowledged steps across restart, and expose all settings through CLI, both Lino formats and four-language online/offline controls.
+
+Add independent disabled VK friend greetings (issue #56, VK15) with fresh friendship, online, unread, history and write-permission evidence, configurable silence/cooldown/limits and text or native sticker review. Share acknowledged per-person delivery, durable uncertainty, owned scheduling and optional friend-count ordering through CLI, default Lino and four-language/offline controls.
+
+Add an independent disabled VK friendship follow-up with an exact reviewed greeting/question, durable repeat suppression and separate unanswered/unwritable blocking choices. Preserve outgoing-only evidence, fresh personal history/permission checks, unknown outcomes, owned pacing and scheduling through CLI, default Lino and shared four-language/offline controls.
+
+Add separately enabled reviewed VK banned/deleted friend cleanup and limited outgoing cancellation, protecting saved priority accounts and requiring current provider state plus specific deletion receipts. Share durable uncertainty protection, paced owned scheduling, CLI/default Lino and four-language/offline controls.
+
+Add reviewed priority VK friend requests and mutual-ranked incoming acceptance with saved capacity, batch size, opt-in pacing and scheduling. Require fresh account/policy checks and durable per-target acknowledgements; retain uncertain outcomes without replay across CLI, default Lino API and four-language online/offline controls.
+
+Add explicitly enabled incoming VK attachment metadata collection with first-observation deduplication, durable pause/resume, cursor-safe read recovery and CLI, default Lino API and four-language connection controls. Preserve existing message counts and media rendering.
+
+Retain structured Telegram Bot API, caption, MTProto and Desktop-export destinations in shared question planning and frozen history checks. Require fresh review for hidden targets, refuse ambiguous metadata and expose literal destinations in CLI and shared answer evidence.
+
+Preserve bounded native message link destinations through pending-turn review, archived planning and frozen native replies. Display destinations as literal text, require fresh review for hidden targets and refuse choice/text/prefill actions after destination-only changes.
+
+Require fresh review when a question changes or adds link targets, including bare domains and action links, even if an approved template already contains a URL. Preserve full URL path case and punctuation before normalized matching. Share text-only link recognition with HTTP chat previews.
+
+Add opt-in publication of reviewed sanitized saved CV snapshots through foreground CLI, text/binary Lino and four-language controls. Commit only generated snapshot paths with an isolated Git index, preserve private/staged content and require exact remote confirmation without recovery retries.
+
+Resolve the native viewed-vacancy survey setting from explicit CLI flags, environment and selected/default Lino environment files at single/batch review start. Preserve isolated configuration, frozen receipts, read-only status and lightweight help, and include the configuration library in production dependencies.
+
+Add explicitly confirmed employer-context résumé choice through CLI, both Lino encodings and four-language application controls. Derive language only from employer questions and the frozen vacancy, verify actual native options against checked same-slot exports, skip already matching menus and preserve owner answers, letters, preview and read-only recovery. Automatic selection before entry and full HH language policy remain unfinished.
+
+Preserve actual native HH application answers and failed-send evidence before queuing generic errors for a worker-only five-hour retry wait. Retain live forms after failed acknowledgements, isolate search exclusions by slot, and require fresh review plus separate restoration and send confirmations through CLI, both Lino encodings and four-language controls.
+
+Preserve later observed browser-tab child replacements by comparing unchanged openings with their saved baseline before joining concurrent records. Keep bounded stale-root retries, private refusal and causal deletion behavior.
+
+Add an owned native HH application executor with explicit CLI and Lino controls, exact answer review, verified cover letters, durable no-replay intent and drained cancellation. Keep the UI application capability unavailable until its controls and remaining policies are verified.
+
+Mount virtual chat-directory keyboard targets immediately after revealing their viewport. Preserve frame-coalesced passive scrolling, bounded rows and chat selection, with finite held-frame regression coverage and default-off focus diagnostics.
+
+Explain every native vacancy search card using private slot choices, native responded markers, reversible literal exclusions and saved-description provenance through CLI, both Lino encodings and four-language CV controls. Retain all cards and failed-search evidence, refuse stale selection reports, and restore acknowledged vacancy caches after rejected writes before later filtering.
+
+Coordinate account-scoped browser reply models with serial saves, atomic root ownership, payload-free refresh and drained cancellation. Preserve unsaved models on refusals, compare only same-build offsets, reject invalid deltas and keep learned counts as complete snapshots.
+
+Extend existing default-off native disclosure diagnostics to Telegram Backlinks, preserving its original click and deadlines while retaining the unresolved hosted failure evidence.
+
+Read the installed desktop builder version directly for provenance, avoiding an unnecessary npm CLI launch after successful Windows ARM64 packaging. Preserve checksum and installer smoke checks and add a finite shell regression.
+
+Persist native CLI writes before acknowledging them using recoverable text/binary Links Notation checkpoints and exclusive directory ownership. Retain rich causal/deletion metadata across restarts, refuse failed batches and ambiguous recovery, and keep explicit memory fixtures isolated.
+
+Assign ordinary JavaScript production writes causal clocks at atomic storage admission, including offline edits and bulk writes. Preserve received clocks, return admitted records, use a fresh actor per writable opening and require schema-12 peers without inventing historical clocks.
+
+Make JavaScript synchronization merges independent of delivery grouping and equal-clock ties. Retain original winning-write clocks separately from observed vector joins, compare decimal ticks numerically, canonicalize child unions and validate safe counters. Reserve synchronization stamps through schema 11 with owner-field collision refusal.
+
+Remove disconnected ordinary WebSocket sockets on TCP end and verify replacement connections while preserving the addressed multi-peer WebRTC lifecycle.
+
+Use the installed dependency graph for Deno workers and rolling CLI children, avoiding fresh range resolution and package installation during startup.
+
+Pass reconnect fixture preloads as file URLs, select version aliases before loading provider commands, and retain CLI output/exit behavior with default-off admission timings and owned test-child cleanup. Restore mandatory notice browser commands, validate every registered browser entry and escape generated MCP fixture data.
+
+Add separate default-review notice policies and an explicit inactive current-chat HH watch with complete-history/open-employer guards, exact approved acknowledgement replies, once-per-chat configured rejection replies, durable shared reservations and full provider receipts. Share CLI/Lino/offline/four-language controls, retain unknown holds and restart refusal, and preserve native checkbox layout.
+
+Run native inactive-history focus fixtures in full Chromium, keeping the headless shell for other groups and preserving production ownership guards, executable overrides and existing deadlines.
+
+Dispose failed clink startup children and drain queued queries on close without reopening connections. Preserve original reconnect-test failures through unconditional fixture cleanup and opt-in content-free CI phase diagnostics.
+
+Add explicit frozen-turn HH text replies with shared native-choice reservations, owner draft and closed-chat guards, verified outgoing receipts and drained shutdown. Keep uncertain sends reserved and ordinary HH text sends unavailable. Cross-chat background acknowledgement/rejection orchestration remains unfinished.
+
+Retain the hosted browser runner's Azure archive fallback while preferring the primary Ubuntu mirror, preserving signed sources, security entries and mirror metadata.
+
+Add bounded HH conversation history traversal with overlap-based chronology, explicit application-start completeness, owner draft/reading-anchor preservation and drained cancellation. Keep incomplete histories and guarded background text delivery separate.
+
+Reveal confirmed native-choice replies once in ordinary and reversed panes while preserving owner activity, drafts and conversation selection. Keep viewport visibility separate from delivery receipts and retain confirmed outcomes if revealing fails.
+
+Reduce immutable server preparation filesystem work by creating each destination directory once and copying at most four files concurrently. Drain issued writes before failed-preparation cleanup, retain complete digest verification and keep existing startup deadlines.
+
+Plan every bounded pending message through shared archived/browser answer controls, independently of model opt-in. Preserve unresolved earlier requests through completed summaries, guard strict native choices, prefill complete approved turns without sending, refuse oversized model batches and recheck queued current knowledge.
+
+Retain complete bounded rendered pending incoming turns and actual owner/service boundaries in browser reviews, CLI/Lino and shared Questions/Chat/Operator/watch controls. Refuse held prefills and native selections after earlier edits or manual replies, including late pointer dispatch, and keep multi-message automatic watches for manual review. Preserve explicit unknown earlier-history coverage and latest-question durable reservations.
+
+Regenerate bounded review-only notice patterns from related actual delivered-reply observations. Preserve original counts, approval decisions and owner aliases; generated patterns cannot authorize no-reply or expand canonical corrections without explicit adoption. Share pattern review through CLI, offline storage, text/binary Lino and four-language controls (R-AA1).
+
+Keep native HH application letters, including empty bubbles, as service barriers in browser history. Separate history reads from owned-draft reconciliation, exclude applications from learned answers and native delivery receipts, and refuse stale application answer plans. Add opt-in count-only history diagnostics.
+
+Add bounded HH virtual chat-list scans with trusted document/frame ownership, unique observed identities, explicit incomplete provider coverage and guarded scroll restoration. Cancel queued scans before browser acquisition, drain active scans on shutdown, exclude unrelated container rows and preserve actual zero unread counts.
+
+Read native HH virtual chat cells with bounded numeric web IDs, titles, previews and unread badges. Reject conflicting identities and duplicate nested anchors before applying list limits, while preserving other providers' existing identity rules.
+
+Keep rolling CLI startup probes pending after temporary control status timeouts within a fixed total budget. Retain definite refusal errors and add opt-in metadata/readiness phase timings for Windows/macOS Bun CI.
+
+Retain reviewed rule filters, detached local profiles, named-profile references and bounded planning context in finite current-chat watches. Recheck current named-profile values before queued provider actions and require a fresh inspection for older reviews without saved planning settings.
+
+Route form link requests to the requested résumé, GitHub or LinkedIn contacts, retain missing contacts for review and offer all available links for combined requests. Reject saved/model boolean wording and links for another provider while preserving owner input and ordinary boolean questions.
+
+Own Telegram phone/QR authorization clients through success, error, cancellation, timeout and server shutdown. Destroy temporary clients, prevent late cancelled results from saving credentials, bound pending sign-ins and accept fresh code/2FA retries. Keep lifecycle diagnostics disabled by default.
+
+Add masked terminal phone/2FA sign-in and explicit read-only legacy string-session import. Verify imported account identity before replacing credentials, preserve source files, bound input and deadlines, and release clients before closing the store on success, Ctrl+C, EOF or failure.
+
+Cancel abandoned browser sign-ins on mode changes, finder rescans and navigation, including controllers returned by late start responses. Preserve the chosen flow through delayed replies, retain cancellation ownership through 2FA and clear accepted private input.
+
+Add provenance-aware Telegram user scans and reviewed contact import through CLI, default Lino API and shared Chat/Operator controls. Keep incomplete coverage visible, phone sharing off, selections immutable and one-use, and uncertain writes protected across fresh plans and restarts. Require actual receipts for individual contact changes as well.
+
+Start shared browser sessions, CV reads/syncs and browser-based messaging with visible windows by default (R-AA2). Keep explicit `--headless` and API/library headless overrides for unattended operation.
+
+Add persistent visible/headless browser preferences per workflow and provider slot, with CLI, API and Settings controls. Isolate named profiles and apply the shared policy to CV, browser messaging, marketplace and import sessions; migrate existing stores to schema 7 (R-Z17).
+
+Refresh direct dependencies, the resolved dependency graph, CI tools and the pinned Node container. Share the current Links Notation parser and object codec across dependencies and prepare the Lino REST transport integration (R-AA8–R-AA11).
+
+Retain lazy Telegram session loading with the updated generated namespace, keep pre-tombstone backup fixtures pinned to schema 5, and remove redundant contact-slug regex quantifiers flagged by CodeQL.
+
+Use Lino REST for structured JavaScript HTTP requests and replies, negotiate readable or binary Links Notation, and require explicit opt-in for legacy JSON. Migrate browser fetch, upload progress, recovery and browser fixtures together; preserve provider protocols and raw file transfers (R-AA16).
+
+Keep electron-builder 27's update feeds compatible with stable electron-updater 6 and existing installations, with a regression using the builder's actual metadata validation (R-AA14, R-AA19).
+
+Send live chat and multi-account notification events as single-line Lino records, require explicit JSON event compatibility, and keep reconnect, origin, filtering and backpressure behavior (R-AA16).
+
+Use negotiated text/binary Links Notation for JavaScript WebSocket sync, WebRTC signaling and data channels. Require explicit JSON compatibility, reject mismatched frames, and bound frames and pending queues (R-AA16).
+
+Wait for rolling workers and their stdio to close before releasing shutdown ownership, including failed warm readers, so store cleanup cannot race worker disposal.
+
+Keep Chat and Operator readers in place when a viewport resize and an upward scroll precede composer expansion; retain geometry diagnostics behind the existing browser debug opt-in.
+
+Require a positive Telegram message receipt before reporting sticker or GIF delivery. Retain confirmed message IDs, mark missing receipts uncertain and preserve acknowledged sends when local projection needs recovery.
+
+Add explicit account-scoped Telegram greeting sticker discovery through CLI and default text/binary Lino APIs. Resolve mask and featured sets, cache usable documents, report incomplete coverage, preserve the cache after failed/cancelled refreshes and refresh expired references from their origin.
+
+Expose shared greeting catalog controls for bounded refresh, cancellation, cache age, source coverage, greeting filters and pages. Preserve cached results through failed reads, isolate account changes and hide unsupported actions with recovery controls.
+
+Preserve the Chat/Operator live tail across coalesced WebKit layout and caret scrolls, while explicit reader gestures cancel pending composer corrections.
+
+Use versioned, bounded text/binary Lino records for TCP sync with explicit legacy JSON mode. Keep sync CLI commands alive for replication and close connections and stores on shutdown (R-AA16).
+
+Release owned stores and await service cleanup after listener failure and shutdown. Close snapshot SQLite handles before reporting completion, preserving caller ownership of injected stores.
+
+Preserve existing large Number values across readable Lino HTTP/sync, text stores and recovery archives, while retaining numeric-looking string keys and values. Report the upstream object-codec defect with a finite reproduction.
+
+Negotiate readable/binary Links Notation on existing native Rust HTTP, WebSocket sync and signaling endpoints, with explicit legacy JSON opt-in, bounded typed codecs/queues, strict fragmented frames and per-recipient reencoding. Verify real production JavaScript/native interoperability in CI (R-AA16).
+
+Add independent streamed text and binary Lino recovery dump primitives with checked-before-write restore, secret exclusion, private durable writes, bounded packets and verified retention (R-AA17).
+
+Create both recovery dumps on the default server schedule, persist interval/retention/format choices across CLI, Lino API and Backup UI, and confirm restore results. Preserve stored nonfinite/undefined values independently of network normalization and release CLI restore writers before returning.
+
+Add shared scoped question-answer rules, bounded pattern matching, profile fields, provenance-based learning and reviewed/automatic answer planning through CLI, text/binary Lino API and the common UI. Recheck the actual question and current approval after typing, preserve unsaved edits on failure, and show review/provenance in Chat and Operator (R-AA1).
+
+Add explicit canonical answer corrections and equivalent questions, a persisted rejected-phrase policy and optional punctuation equivalence through CLI, default Lino API and UI. Learn unapproved facts from completed questionnaire summaries with zero observed sends; preserve new questions and recheck policy before automatic delivery.
+
+Retry transient GitHub dependency-comparison failures with a bounded three-attempt preflight while preserving failed unknown results and explicit main release setup errors.
+
+Add configured answer context groups with question/conversation/vacancy precedence, disjoint profile values, ambiguity review and evidence through CLI, default text/binary Lino API and shared UI. Rebuild actual same-chat context and reread saved actions after typing; changed, disabled or deleted saved automations stop automatic delivery.
+
+Add independent configured salary targets, monthly/hourly conversion with upward rounding, related currency/tax-basis follow-ups and unique containing salary bands through CLI, default Lino API and shared editors. Missing or unapproved amounts require review; target, hours and approval changes are rechecked before queuing.
+
+Preserve native HTTP rejection responses when request data is unread by staging TCP closure with bounded draining; retain immediate validation and unchanged storage on rejected requests.
+
+Advertise actual Telegram notification/account-event capabilities and check them before background requests. Suppress unsupported operations, recover capability changes and retain existing streams during transient status failures without tying extra accounts to primary sign-in.
+
+Add explicitly selected progressive personal and company/payout salary calculations with owner-supplied annual bands, dated exchange snapshots, upward rounding and shared CLI/Lino API/UI controls. Keep missing or stale inputs reviewable, expose calculation evidence and stop delivery after tax/rate/method edits.
+
+Split cold macOS Node CI across two complete native shards without increasing deadlines or bypassing failures. Preserve startup assertion details before suite cancellation and add opt-in release preparation timings.
+
+Fetch bounded, dated Bank of Russia exchange rates on explicit request, normalize nominal lots and preserve a valid cache on refresh failure. Share CLI/Lino API/offline UI controls, keep edits during pending refreshes, expose stale/unavailable states and recheck rate expiry with the runner clock before sending. Introduce the empty cache through schema migration 0008 (R-AA1, R-Z17).
+
+Add an explicit automatic CBR exchange policy to saved salary settings, reuse fresh shared rates, coalesce automatic refreshes and back off failed attempts. Preserve manual snapshot defaults through migration 0009, expose actual cache states in previews/Chat/Operator, and recheck current rates and the planning clock before delivery (R-AA1, R-Z17).
+
+Answer salary questions requesting both net and gross with independently resolved, labeled amounts and preserved calculation evidence. Missing/stale values and changes to either amount still stop automatic delivery.
+
+Add opt-in configured contact and salary placeholder contraction when saving or learning answers through CLI, both Lino APIs and UI. Expand current dated salary calculations with approval/context evidence; preserve ambiguous literals, canonical rejection checks and unchanged templates.
+
+Preserve newer eligible Operator Back/Forward destinations when a previous card effect finishes late, with deterministic route regression and opt-in browser history diagnostics.
+
+Await owned Lino input closure after both early-return and full-stream reads, preserving read errors and preventing completed reads from retaining descriptors. Add opt-in storage lifetime diagnostics.
+
+Learn reviewed answer proposals across the full stored message archive using bounded metadata and streamed turns. Preserve observed counts beyond the evidence display cap, refuse changed histories or capacity overflow before applying, and show archive coverage and proposal frequencies through shared CLI/Lino API/UI controls.
+
+Advertise actual WebSocket/RTC listener availability during discovery, skip explicitly unavailable signaling in browser startup and close RTC when resetting a server binding. Preserve older-server compatibility.
+
+Check actual Telegram user-operation capabilities before background quick-reaction/login-domain reads and quick-reaction changes. Share descriptor-based notification preflight, distinguish unavailable from unreachable, and preserve older-server behavior.
+
+Share bounded English/Russian/Hindi/Chinese question and factual-request recognition between CRM and automation. Preserve Unicode combining marks and internal joiners in matching, prevent Hindi vowel-sign collisions from authorizing exact reuse, and keep additional questions out of template gaps.
+
+Preserve question identity across recognized acknowledgments and immediate continuation reminders. Exclude standalone greetings from learned answers, honor explicit reply IDs and original turn expiry, and require substantive answers to requests for details. Share bounded planning/learning behavior across CLI, both Lino APIs and the common UI, with optional identifier-only diagnostics.
+
+Persist actual aggregate and per-provider broadcast outcomes, use the real confirmed publishing API from the shared screen, preserve pending draft edits and avoid duplicate clicks. Report interrupted writes as uncertain without retrying, avoid fake offline queues and keep valid initial confirmation challenges out of application failure warnings.
+
+Support explicit X OAuth 1.0a, OAuth 2.0 user and read-only application credentials in the universal adapter. Sign final queries with Web Crypto, expose redacted configuration/identity checks, retain public-post IDs, require positive deletion receipts and report missing write receipts as uncertain. Keep optional request diagnostics free of credentials, destination IDs and draft text.
+
+Add distinct VK wall and Telegram publication/deletion adapters with explicit destinations and checked provider receipts. Keep actual credential permission errors, expose read-only identity probes and retain uncertain Bot API write outcomes. Share explicit Telegram HTML/plain formatting through bot and connected-user sends while preserving the composer's default markdown behavior.
+
+Save selected/all Telegram, VK and X publication destinations, separate credential modes and masked setup through CLI, default Lino API and Broadcast UI. Confirm exact plans, retain per-destination receipts and deletion history, stop uncertain/rate-limited batches and preserve pending requests across reload without automatic replay. Add default-off bounded metadata diagnostics.
+
+Remeasure tutorial cards before paint when their bodies collapse, preserving target clearance even when ResizeObserver delivery is delayed. Retain geometry diagnostics and failure screenshots with a deterministic short-viewport regression.
+
+Add shared active-conversation and migrated-group history exports, bounded linked Markdown/JSON parts, exact Telegram targets and a CLI that waits for output completion. Preserve HTML/JSON controls, distinguish overlapping peer IDs, display media failures and keep export media controls separated on mobile.
+
+Add reviewed bot startup and chosen-target cached greeting sends through shared CLI, Lino API and React controls. Confirm exact account, typed destination and immutable one-use plans, require Telegram message receipts, preserve uncertain outcomes across restarts and enforce rolling 24-hour greeting deduplication. Recheck active clients and refreshed peers before writing, retain drafts on recovery and await owned cancellation/shutdown work.
+
+Add participant-only private group greetings through CLI, Lino API and shared React controls. Exclude requested account types and visible business profiles, freeze each recipient and sticker for review, enforce limits and 30-second default pacing, share durable 24-hour/uncertain-write protection and stop on the first failed or uncertain send. Save progress after matching acknowledgements and own pending scan connections through cancellation and shutdown.
+
+Require positive Telegram text receipts before reporting success. Preserve missing, duplicate and partial outcomes as uncertain, stop remaining message parts and avoid browser fallback or automatic replay. Show localized failure guidance and accurate accessibility labels in shared Chat and Operator bubbles and the conversation directory.
+
+Add incoming Telegram-link discovery with typed candidates, source-message provenance and a filtered clearable Lino cache through CLI, default Lino API and shared React controls. Exclude outgoing messages, expose scan limits, preserve cache location through server failures and retain source messages during clearing.
+
+Add bounded live VK group discovery, title/latest-message Telegram filters, paged member details and recent-message previews through CLI, default text/binary Lino API and shared React controls. Preserve raw provider pagination and partial coverage, keep credentials on the server and retain loaded results after failed reads.
+
+Distinguish Telegram invite preview access from membership, require exact join receipts and mute/archive acknowledgements, preserve uncertain and bot web-view outcomes, and keep localized shared dialogs from repeating unconfirmed joins. Omit unavailable member counts and add default-off receipt diagnostics.
+
+Add bounded Telegram group/channel listing and reviewed one-use Follow join/leave plans with independent mute/archive controls through CLI, text/binary Lino API and shared React UI. Flush durable intents before writes, block uncertain replay after restart, disable SDK write retries, preserve partial acknowledgements and history, scope preview dismissal and own cancellation/shutdown results.
+
+Require exact Telegram leave/destroy acknowledgements before local removal or history cleanup. Preserve partial batch receipts and confirmed membership through uncertain cleanup, retain unconfirmed selections/history in shared dialogs, block synchronous duplicate or uncertain repeats, and disable SDK retries for shared membership/preference writes.
+
+Migrate literal legacy Follow Telegram configuration through CLI and the shared finder. Verify the user again before replacing credentials, mask public phone values, preserve prior sessions on failure, guard duplicate or unconfirmed connections and own verification plus phone factories during shutdown. Default login command output to Lino with explicit JSON compatibility.
+
+Add reviewed VK-source Telegram/VK backlinks through CLI, default text/binary Lino API and shared React controls. Monitor exact positive message receipts for the full configured window, preserve jobs across restart and only delete incoming history after repeated survival checks and individual acknowledgements. Bound timeout-only read retries, retain ambiguous writes without replay, return queued recovery snapshots and own pending startup, cancellation and shutdown work.
+
+Extend reviewed backlinks to Telegram-source basic groups, channels and supergroups with either Telegram or VK target links through CLI, Lino API and shared localized controls. Keep signed IDs exact, disable SDK retries, bind real user identity, own queued RPCs through shutdown and confirm basic-group local-only cleanup by individual absence readback. Refuse unavailable channel cleanup before posting and preserve bounded flood/permission errors and uncertain receipts.
+
+Add optional reviewed automatic Follow rounds for all Telegram/VK provider pairs through CLI, text/binary Lino API and shared localized controls. Follow bounded incoming links before posting, confirm membership and independent Telegram preferences, retry only positively removed chats with fresh scans and distinct keys, preserve prior receipts and durable uncertainty, and drain cancellation through final provider request boundaries.
+
+Preserve sanitized Telegram timeout and flood-wait details through automatic Follow. Apply its finite read backoff to final prewrite checks, disable hidden SDK read retries and use fresh typed identity/entity requests while keeping issued membership and preference writes single-call.
+
+Expose validated finite timeout-only Follow read retries through CLI, text/binary Lino API and shared React controls. Freeze policies into Telegram reviews, scope cancellation to owned operations, wake cancelled backoffs, drain discovery during shutdown and prevent HTTP recovery from repeating an exhausted provider budget.
+
+Recheck exact incoming VK messages and bound account before optional Follow cleanup. Apply configured finite read retries and cancellation after the provider limiter while preserving single-call deletion receipts, durable uncertainty and shutdown ownership.
+
+Allow pending Follow backlink reviews to be stopped by request ID through CLI, text/binary Lino API and shared localized React controls. Wake cancelled retry delays, retain ownership of issued reads through shutdown, prevent late plans and recover clearly from unconfirmed stop requests.
+
+Learn aligned multiline questionnaire answers while retaining complete pairs, conditional subquestions, instructions and fenced code. Preserve original source counts and transcripts, require review for assembled answers, and exclude private access links in incoming questions from reusable knowledge.
+
+Learn bounded recruiter handover layouts with four-language labels and zero-count unapproved provenance. Keep new tasks, incomplete code and ambiguous summaries open for review (R-AA1).
+
+Apply explicit owner answer corrections across saved and learned rule IDs, preserve observed counts and message versions, and exclude decoded private access paths from reusable knowledge (R-AA1).
+
+Wait for snapshot cancellation cleanup acknowledgement before releasing handoff ownership or removing encoder workspaces; retain cleanup failures and optional lifecycle diagnostics.
+
+Wait for initial export defaults before editing the destination, preventing late responses from inserting the default path into a requested folder.
+
+Invalidate stale learned answers when rules or reuse policy change, preserve concurrent owner edits with a shared writer queue, and retain simultaneous CLI rejection additions with bounded knowledge snapshots.
+
+Extract reviewable profile fields from explicit contact text and selected saved CVs through CLI, text/binary Lino and offline/shared UI. Preserve conflicts, field evidence and newer edits, and apply only explicitly selected draft values (R-AA1).
+
+Add named reusable answer profiles with revision-checked CLI/Lino/offline/UI controls, live resolution across linked automations, explicit local overrides, source evidence and profile-change guards during learning and final delivery.
+
+Import legacy contacts.lino as read-only reviewed profile drafts through CLI, text/binary Lino and the shared local/central profile editors. Preserve lists, duplicate alternatives, source locations, current values and failed/newer edits; require explicit selection and a separate save, and explain unsupported or private fields without echoing rejected values.
+
+Preserve actual HH nested history, documented applicant direction, application barriers, reply ownership and edit evidence through shared live/archive normalization. Keep repeated-import counts stable and recover missing saved metadata offline with schema migration 0010 (R-AA1, R-Z17).
+
+Read current HH common-chat history with bounded account-bound continuation, accurate available-window coverage and shared CLI/Lino/manual UI controls. Preserve actual participant direction in Chat/Operator and require matching write permission and positive receipts for modern text replies; retain explicit legacy negotiation compatibility.
+
+Capture currently loaded HeadHunter messages from a verified native conversation through Connections or the running server’s `auto-import` CLI. Preserve native chat and message IDs, deduplicate repeated captures, and show provider unread counts in Chat and Operator when the same visible boundary confirms them.
+
+Add bounded read-only form inspection through CLI, text/binary Lino API and shared four-language UI. Preserve accessible label/group/option evidence, current values, partial coverage and report export; refuse navigation changes, protect sensitive getters and own transient browsers through failure and shutdown.
+
+Plan form answers through CLI, text/binary Lino and the shared four-language UI using the current named profile, scoped approved answers and salary rules. Show actual provenance, similarity, unresolved reasons and current values, export reviewable proposals, bound matching work and retain issued planning tasks through shutdown.
+
+Keep isolated form review browsers open across owner edits and manually opened next pages. Share CLI, text/binary Lino and localized controls for open/read/focus/close, enforce finite ownership and 24-hour activity expiry, and retain failed cleanup for explicit retry.
+
+Apply explicitly selected reviewed native text, single-select and checkbox form proposals through the same CLI/Lino/shared UI service. Bind document/control identities, recheck owner edits and current knowledge, require explicit existing-answer replacement, retain actual per-field readback receipts and recover lost replies without replay. Keep Submit/Next under owner control and correct boolean contact-label matching and checkbox layout.
+
+Extend selected native form review to complete radio groups, disclosing implicit clearing and requiring replacement permission for affected existing answers. Bind all peers, verify their resulting checked states, preserve unrelated form/frame groups and retain explicit applied or uncertain peer receipts across CLI, Lino and all four UI languages.
+
+Extend selected-only form review to exposed ARIA textboxes, checkboxes, complete radio groups and single-choice listboxes/comboboxes with bound option targets and verified readback.
+
+Add explicit, single-click inspection for supported closed and lazy form comboboxes through CLI, Lino and localized review controls. Consume held plans, preserve uncertain/refused states and cached response recovery without repeating clicks, and require fresh review before applying exposed choices.
+
+Attach an explicitly chosen PDF résumé to a reviewed native field through CLI, text/binary Lino and localized Forms controls. Require separate permission to replace existing files, consume plans before issue, verify actual SHA-256 bytes and preserve uncertain outcomes without automatic retries. Keep document/control guards and optional diagnostic tracing.
+
+Retain bounded captured form checkpoints across explicit reads, plans and verified actions. Add CLI/Lino/localized read-only history, Markdown downloads and private unique saved provenance reports; show retention omissions and disk failures separately from actual browser outcomes, and await pending writes during shutdown.
+
+Capture visible form documents automatically during owned reviews, including owner edits immediately before Next. Add CLI/API/localized opt-out and capture status, bound callbacks and frames, exclude hidden/sensitive values and await accepted writes on close. Preserve the existing answer-plan download filename.
+
+Learn unapproved actual answers from explicitly planned pages in owned form reviews after observed submission completion or a stable one-minute owner edit. Share CLI/API/localized opt-out, current knowledge and contact guards, bounded lifecycle, actual-answer journal evidence and honest partial-write/report failure states.
+
+Coordinate observed form-answer proposals through the active store writer, with bounded private Lino messages, current policy checks and live-answer guards before each write.
+
+Keep default-on per-slot form-answer watchers alive after CLI quit/EOF, reconnect without navigating over owner edits, preserve bounded private action/learning history and expose status/history/Stop with explicit cleanup and the existing unapproved-proposal policy.
+
+Save one configured PDF résumé for reviewed reuse through CLI, Lino, offline storage and shared localized Forms controls. Bind the reviewed revision, verify actual attachment bytes, serialize replacement and retain cached recovery without replay. Preserve refused status reads as unavailable with explicit Reload.
+
+Keep the tutorial's required service button visible above browser chrome and clear of its card. Coordinate reveal retries with the actual control so a later section scroll cannot hide it again.
+
+Accept positional or Lino form URL batches without the four-form ceiling. Save owner-selected review capacity through CLI, trusted Lino and localized Forms controls; serialize reservations and optimistic settings, retain stale drafts and active owners, and start batch browsers sequentially with explicit per-slot failures.
+
+Add optional revisioned Claude Code draft configuration and per-plan opt-in across CLI, trusted Lino and shared localized Questions/Forms controls. Use selected stored CV and bounded approved context, visible missing-fact clarification, frozen-context reviewed application and owned process cancellation without replaying model requests.
+
+Convert bounded model drafts to plain text before question/form proposals and writes. Preserve literal code, URLs, exact offered choices and owner content, and recheck rejection policy after conversion.
+
+Bind reviewed form snapshots, automatic capture and learning to stable document tokens instead of drifting browser clocks; retain real navigation and control-replacement refusals.
+
+Import reviewed contact headers from exported résumé Markdown and retain canonical CV birth dates, public résumé URLs and GitHub lists. Share source evidence, current-value conflicts, explicit field selection and separate saving across CLI, text/binary Lino, offline and localized profile editors.
+
+Preserve question edits after malformed or mismatched answer receipts. Validate save values, list entries and deletion identity before updating the editor; retain explicit contraction and offline editing. Add opt-in bounded input/state diagnostics for hosted browser investigation.
+
+Include configured time zones in reviewed city/МСК/UTC/GMT form answers. Preserve separate city/zone fields, missing-value review and existing owner input; allow explicit source-backed zone extraction in all four UI languages.
+
+Preserve identified technology, currency and employment subjects across shared chat/form approximate matching and template gaps. Retain exact owner answers, explicit alternatives, known aliases and reviewable proposals.
+
+Draft unresolved parts of consecutive unanswered employer messages with the configured optional model. Preserve saved answers and owner edits, bind model output to current conversation and knowledge, and require review before delivery across CLI, Lino and shared Chat/Operator controls.
+
+Hold every answer and PDF attachment when a form requires a test-assignment repository. Keep a private assignment revision across pages, verify existing GitHub repository identity before saving its link, and share guarded CLI, Lino and four-language controls (R-AA1).
+
+Add reviewed test-assignment repository and English issue publication through CLI, text/binary Lino and shared four-language Forms controls. Read current CI templates, retain template history and owner files, associate actual HH vacancy evidence, and recover durable uncertain writes without duplicate creation or premature form release.
+
+Read explicitly selected assignment HTML/plain-text instructions through an owned browser and preserve private frozen text, source evidence and restore controls across CLI, text/binary Lino and four-language Forms. Validate both sources before preview/publication and retain both written-deliverable headings (R-AA1, R-AA6).
+
+Let CLI commands drain queued output before exiting with their returned status, preserving final success and refusal messages (R-Z1).
+
+Keep unavailable strict bot options pending without model/free-text fallback. Bind exact selected labels and strict state to reviewed delivery, preserve generic suggestions as separate context, and refuse ordinary text sends that require an actual option click (R-AA1).
+
+Add shared provider choice inspection, guarded native option clicks with positive message receipts, strict direct-send routing and private automatic-draft ownership; refuse unsupported or uncertain choices without text fallback (R-AA1).
+
+Confirm suspected chat layout overlaps after ResizeObserver tail correction, retaining persistent warnings and current reading state across Chat and Operator.
+
+Add the built-in explicit HH web-chat choice adapter with trusted visible main/application-frame selection, document revalidation, native receipts and cleanup that retains uncertain reservations. Refuse guessed API/web identity mappings and protect owner drafts; shared execution controls and full provider parity remain required.
+
+Share reviewed browser question inspection, owned prefill, exact native selection and read-only recovery across CLI, text/binary Lino and localized Chat/Operator/Questions controls. Persist positive receipts and one durable question reservation across manual and automated answers, preserving unknown outcomes through reload and restart.
+
+Recover a unique native answer option from a completed incoming bot summary for the same question across stored chats. Preserve approved exact choices, corrections, rejection policy, zero-count unapproved learning and review on conflicts or bounded scans; revalidate evidence before delivery and expose the source through CLI, Lino and shared browser controls.
+
+Avoid unused stdin pipes for assignment commands without payloads so an early child exit cannot falsely refuse successful Git operations. Preserve exact payload writes, real input failures and default-off private diagnostics.
+
+Flush durable outgoing reservations before provider dispatch so grouped text-store writes cannot leave a duplicate window after a process interruption. Refuse dispatch when that flush fails.
+
+Add explicitly started finite HH current-chat answer watches through foreground CLI, text/binary Lino and shared localized Chat, Operator and Questions controls. Wait for native options, preserve owner drafts, never automatically send free text, and drain Stop/shutdown while retaining uncertain reservations and recovering saved status without resuming automation.
+
+Add explicit passive-notice rules through CLI, Lino, offline storage and localized review controls. Keep text replies under review and approved no-reply markers out of outbound messages.
+
+Learn unapproved passive-notice replies from actual delivered owner turns, preserving scoped corrections, privacy, replay-safe counts and separate question/form labels. Expose notice proposals in the shared four-language learning controls; never infer no-reply from silence.
+
+Retain default-off root disclosure diagnostics for unresolved hosted Questions opening failures; keep complete pending-turn context and finite-watch regression checks aligned with actual guarded behavior (R-Z32, R-AA1).
+
+Load the selected serve command before unrelated provider/command modules, keeping the rolling host independent of the worker's full server graph. Preserve shared argument/store/error behavior, TLS, logs, upgrades and readiness deadlines, with default-off import phase diagnostics.
+
+Give the unchanged HH history browser scenario its own mandatory Chromium/WebKit group, retaining every list/scan case and the existing subprocess/job deadlines. Reject omitted and duplicate scenario registrations.
+
+Keep native Questions disclosures open when browser fixtures revisit an identical fragment URL, preserving drafts and mandatory consecutive notice-learning coverage. Refresh the production UI bundle from the current localized source; retain actual-parent failures, bounded final-phase diagnostics and desktop/phone visual evidence (R-Z32, R-AA1).
+
+Add explicitly confirmed frozen-turn text replies to the shared persistent question service, CLI, text/binary Lino and checked browser client. Reserve the same question as native choices, flush before dispatch, retain complete bounded text receipts and block uncertain or repeated sends across reviews and store reopen. Automatic background text workflows remain separate required work.
+
+Expose reviewed text replies in the shared localized Questions, Chat and Operator controls. Preserve exact-review drafts across reload, lock uncertain/submitted replies, recover status without replay and show text delivery receipts accurately. Keep native choices, owner drafts, prefill and unsupported capabilities protected; add a separate mandatory Chromium/WebKit UI scenario with before/after and independent MCP evidence.
+
+Read bounded history through an already owned inactive HH watch without launching or navigating. Use real Chromium focus and outer/child ownership, settle delayed scroll events, restore the original inactive view on cancellation/Stop and yield to returning owners. Refuse unavailable native focus explicitly; background reply and unread orchestration remain unfinished.
+
+Preserve unsaved disclosure checks through native fragment navigation in WebKit. Partition all mandatory browser checks across four disjoint CI shards per engine with unchanged deadlines and separate inactive-history coverage; retain failure propagation and per-shard diagnostics.
+
+Add owned inactive frozen-turn text delivery through actual provider controls without pointer focus. Relay returning outer activity into embedded final guards, preserve foreground drafts and positive receipts, and drain uncertain sends on Stop. Keep automatic policy and unread orchestration explicitly unfinished.
+
+Add explicit all/unread filtering to bounded HH browser chat scans. Verify native outer checkbox state, reject unfiltered read rows, preserve owner interruptions and restore the original filter/list position only while owned. Keep partial coverage accurate and retain mandatory browser evidence; full unread orchestration and shared workflow controls remain required.
+
+Add a bounded existing-view HH unread read pass with native SPA navigation, owned view/draft restoration, forward-history refusal and explicit history-growth receipts. Persistent orchestration and shared controls remain in progress.
+
+Repeated existing-view unread passes may reuse only their precisely witnessed automation-created forward history; owner activity or navigation revokes reuse, and original history lengths remain disclosed.
+
+Expose bounded existing-view HH unread reviews through foreground CLI, text/binary Lino and shared localized Questions, Chat and Operator controls. Require mark-read consent, flush caller-owned pass IDs before traversal, recover without replay, drain Stop/shutdown and freeze per-chat reviews without sending or model calls. Capture the newest rendered question before restoring older history, clear old completion when starting a new pass and retain incomplete coverage and owner-restoration warnings. Persistent polling, policy delivery and authenticated provider parity remain unfinished.
+
+Add private borrowed unread-conversation handles that reuse native ownership and the existing provider queue. Serialize and drain direct reply work, expire handles on return, preserve actual send receipts and yield to owner input. Distinguish pending virtual-scroll events from provider loading during bounded restoration. Public automatic delivery and polling remain unfinished.
+
+Expose explicitly admitted finite unread acknowledgement/rejection replies through CLI, both Lino transports and shared four-language Questions, Chat and Operator controls. Reuse saved policies, complete observed history and durable question/per-chat reservations; preserve unknown holds, positive receipts and independent restoration results through read-only recovery and Stop. Default unread passes stay review-only. Polling, backoff, lifetime and original-empty-chat reveal remain unfinished.
+
+Escape native unread fixture message data before embedding it in script elements, preserving exact decoded text and retaining a closing-script regression.
+
+Reveal a confirmed original-chat unread reply only when its saved and current composer are empty and inactive ownership remains valid. Verify the exact outgoing bubble through bounded virtual-history settling, preserve actual delivery independently from view success and retain truthful localized recovery results. Share provider-wide unread pass IDs across Questions, Chat and Operator, preserving legacy recovery.
+
+Add finite HH vacancy search/collection with typed resume-bound filters, exact native pagination, full visible employer context, a shared success-only cache, Stop and cached recovery across CLI, Lino and localized CV controls.
+
+Make the CAPTCHA pause/resume fixture independent of host scheduling while retaining every deadline; directly verify unspent ordinary time, manual expiry and Stop, with silent optional lifetime diagnostics.
+
+Expose native HH résumé inventory and explicit search selection through CLI, text/binary Lino and localized CV controls. Explain title/date recommendations, preserve successful slot snapshots on failed refresh and recover cached choices without reopening the provider.
+
+Keep automatic prefill status pending until browser-handle cleanup completes, so the UI can receive the final receipt without replaying writes. Hide CAPTCHA instructions after verification and retain silent content-free status diagnostics.
+
+Add owned native HH résumé exports (latest, specified or all), private verified downloads and sanitized bilingual Markdown/text/structured/Lino with stable industry IDs. Share durable request recovery, ID-specific cancellation, CLI and four-language CV controls; preserve verified files after failed or stopped refreshes.
+
+Compare cached HH vacancies with an explicitly selected verified résumé export using editable local aliases, required/preferred mentions, per-field evidence and distinct-vacancy statistics. Share durable catalog/report controls through CLI, Lino and localized CV UI, retaining ambiguity and read-only recovery. Give vacancy, résumé, export and analysis browser groups separate mandatory CI budgets without raising deadlines.
+
+Add bilingual CV technology proposals from two explicitly selected verified exports, retaining raw duplicate evidence, prose, distinct products and company/date blockers. Share selected durable local review plans through CLI, both Lino formats and four-language CV controls, with exact source/catalog checks and read-only lost-reply recovery. Provider editing and save/readback remain unfinished.
+
+Observe final owner CV Save/Cancel in an exact existing HH tab through CLI, Lino and localized controls. Publish sanitized snapshots only after fresh native readback, preserve prior data on failure, recover interrupted requests without replay and drain finite watches before disconnecting.
+
+Prepare a selected reviewed About change in the exact existing HH tab after native hydration and baseline checks. Preserve open owner drafts, leave Save/Cancel to the owner, and recover durable preparation receipts through CLI, Lino API and four-language CV controls without replay.
+
+Partition Windows Deno validation across three native shards while retaining every test, runtime/OS target and the existing ten-minute deadline. Verify actual partition coverage and failure propagation with tiny isolated fixtures.
+
+Cancel an unreceived native About preparation by its durable request ID through CLI, Lino and four-language CV controls. Block late preparation copies, preserve pending intent after failed or lost acknowledgements, and report already issued drafts without undoing them.
+
+Verify existing shared HH workplaces against their exact fresh native record and complete CV membership before publishing owner Save snapshots. Preserve unrelated jobs in excluded CVs and expose persisted identity/digest evidence through CLI, both Lino formats and four-language controls.
+
+Prepare a selected reviewed workplace description only in an exact owner-opened unchanged record belonging to one CV. Bind fresh native fields, membership and verified source evidence before keyboard insertion; preserve other fields, owner Save/Cancel and durable non-replaying CLI/Lino/four-language receipts. Refuse shared records until their separate copy workflow is available.
+
+Reject ambiguous native CV identities, extra readback exports and unobserved workplace metadata even when all CVs are excluded. Cancel rejected HTTP response bodies before returning readback failures.
+
+Add explicit review and native draft preparation of all nine existing workplace fields, localized area/industry identities and immutable export/job/record binding. Share CLI, both Lino encodings and four-language controls; preserve owner edits, memberships, Save/Cancel and durable recovery. Render unreceived cancellation receipts without requiring a CV identity.
+
+Compare explicit RU/EN workplace translations through configurable Haiku, Luna and Formal AI commands. Retain per-model private cache and all valid or rejected variants, durable caller-owned request recovery, cancellation and drained Stop through CLI, both Lino formats and four localized CV controls. Provider edits and saves remain separate.
+
+Keep a separate addressed WebRTC data connection for each remote browser. Rejoin with fresh peer identities, dispose only departing connections, and retain bounded early ICE until remote descriptions are ready. Share signaling membership across Node and Bun.
+
+Add separately reviewed target-CV deselection for existing shared workplaces. Bind the complete saved native selection and original export, preserve every workplace field and other CV, refuse orphaning and owner conflicts, and recover durable draft-only receipts through CLI, both Lino encodings and four localized CV controls. Native Save/Cancel remain with the owner.
+
+Keep owner edits observable during live peer receives, serialize remote merges and expose atomic updates through built-in storage wrappers. Preserve transient provenance, immutable message history and secret isolation; report failed peer sends without interrupting persistence or healthy peers. Prepare SPA sync fixtures in a fresh document so fragment navigation cannot skip socket instrumentation.
+
+Reserve text-log append order before subscription handlers can write again. Capture encoded records before mutable inputs change, include already called writes in flush/compaction barriers and preserve immediate memory writes, disk batching and failure recovery.
+
+Forward live accepted operations through sync hubs across text/binary transports, with opaque bounded replay/route protection and an admission-ordered outbox. Preserve schema/private-record guards, local-only subscription semantics and explicit failed-delivery reporting. Offline reconciliation remains unfinished.
+
+Refill four immutable snapshot copy slots independently during server release preparation. Drain issued writes before failed-copy cleanup, retain complete verification and add a silent-by-default directory phase diagnostic without raising startup deadlines.
+
+Order and coalesce browser snapshot saves, acknowledge driver completion and expose persistence failures while keeping memory and subscription updates immediate. Admit complete bulks before subscribers can edit, isolate driver snapshots and observe IndexedDB request/transaction failures together; explicit flush can recover unsaved memory.
+
+Retain payload-free causal deletion metadata in production stores, reject delayed resurrection and stale deletes, preserve recreated message history and update chat/feedback indexes without erased payload fields. Reserve schema 13, stamp empty durable roots before new-format writes and preserve older read-only owner data.
+
+Dispose failed WebRTC connections when queued native sends throw during channel open. Report the original delivery error, reject late channels and retain optional bounded page-error diagnostics for sync fixtures.
+
+Require actual peer departure disposal before remaining-pair sync fixture writes. Preserve native WebKit send diagnostics, page-error assertions and unchanged readiness deadlines, with an app-free upstream reproducer.
+
+Reconcile preconnection and offline JavaScript records/deletion clocks through addressed, bounded sessions on schema-matched causal stores. Keep one record awaiting durable acknowledgement per remote, discover later shared-hub clients, preserve encrypted store barriers, cancel stale sessions and report incomplete exchange explicitly.
+
+Validate stored publication destinations without exposing causal metadata to owner editing. Preserve strict input fields, version-bound confirmation, credential isolation and causal deletion/schema assertions in existing workflow fixtures.
+
+Reject stale browser snapshot replacement atomically through IndexedDB transactions and localStorage Web Locks. Bind comparison versions to each open store, retain unsaved owner memory and legacy roots, refuse unavailable or busy coordination explicitly, and verify real concurrent tabs without changing replicated Link records.
+
+Make the typed Rust core's merge independent of equal-clock argument order and delivery grouping. Retain original assignment clocks, normalize safe counters and canonical children, and compare typed ranks against production JavaScript fixtures. Preserve trusted entry points and expose fallible clock/merge helpers; native rich-record replication and durable causal persistence remain unfinished.
+
+Add checked native rich-record merge and atomic in-memory remote admission, retain valid causal metadata in the typed mirror, hide deletion records from public reads and exclude private records from replication. Verify finite JavaScript reference fixtures and preserve deterministic evidence archive output while consolidating repeated writers. Native durable transport application remains unfinished.
+
+Stamp native owner edits and payload-free deletions at atomic admission across every mutating HTTP route. Return admitted clocks, refuse malformed or exhausted batches without partial imports, preserve independent opening identities and verify twelve production JavaScript owner references. Native durable persistence and transport reconciliation remain unfinished.
+
+Preserve the current native CLI across exact-parent Cargo regression builds and isolate the reference executable. Quote CLI usage documentation for warnings-denied rustdoc; verify actual small Cargo artifact identities, failed-build cleanup and before/after documentation without weakening CI gates.
+
+Apply native CLI schema-13 WebSocket records through durable checked admission, directed initial/reconnect scans and bounded live fan-out. Preserve private/deletion guards, acknowledge reconciliation only after checkpoints, isolate sessions and stop buffered admission on refusal. Keep opening records stable during concurrent inserts and verify real JavaScript text/binary peers, failed storage and process restart in hosted CI.
+
+Merge concurrent editable browser tabs after migration while retaining atomic root revision checks, causal deletions and independent writer clocks. Refresh local roots through payload-free invalidations, refuse conflicting private/schema changes, preserve unsaved drafts and drain subscribed writes on close.
+
+Add private browser-slot vacancy exclusions and deferred-review notes through CLI, both Lino encodings and four-language CV controls. Require observed revisions and durable receipts, retain notes after stale or unreceived replies, and recover through explicit reload without replay. Automatic application and questionnaire policies remain unfinished.
+
+Restore acknowledged job records after rejected puts as well as failed flushes. Share catalog rollback with vacancy and résumé persistence, keep reads and Stop behind restoration, and verify actual snapshot failures and browser reload without exposing uncommitted notes as saved.
+
+Add four-language native HH application review controls with complete vacancy context, exact answer and letter evidence, explicit action confirmations and identity-only reload recovery. Preserve unknown outcomes without replay, drain Stop, expose verified live-browser state and allow fresh settings only after a confirmed unissued preview. Deferred queues and complete session policies remain unfinished.
+
+Add private acknowledged backups of actual native questionnaire answers and edited letters, with separately confirmed restoration into matching empty controls. Preserve owner edits, unsupported capture refusals, complete native choice identity and uncertain write receipts across CLI, both Lino encodings and four-language controls; restoration neither learns nor submits. Automatic deferral backups and full session policies remain unfinished.
+
+Reopen an acknowledged native HH questionnaire at its validated saved form URL. Preserve original settings, durable entry/submission reservations and fresh confirmation, refuse foreign or mismatched locations before browser launch, and retain acknowledged checkpoints after failed storage.
+
+Verify binary snapshot minimum/adaptive intervals and immediate flush with finite scheduling clocks and real file writes. Share the default clock and add optional timing-only diagnostics without changing production pacing or persistence policy.
+
+Retain application pause and questionnaire choices across reviews in the same worker and browser slot, without durable skip state. Add foreground POSIX mode signals that interrupt exact-answer delays and native guards, preserve later signals during acknowledged mode changes, and disclose scope and remaining retry limitations in all four languages.
+
+Preserve actual native questionnaire answers, private Q&A and eligible unapproved knowledge before explicitly deferring. Keep forms open after failed or stale saves, expose a bounded worker-only queue through CLI/Lino/four-language controls, and reopen only for fresh review with separate restoration and submission confirmation.
+
+Automatically preserve and close supported questionnaires under the worker's no-questionnaire policy, including idle foreground signals. Keep failed saves, pauses and preview open, cancel closure when a later mode change interrupts preservation, and allow freshly acknowledged mode changes after closure through CLI/Lino/four-language controls. Reopening still requires questionnaires enabled and separate confirmation.
+
+Retain native application error, verification and limit holds after banner dismissal and browser reopening in the same worker. Prevent automatic sending and automatic questionnaire closure, retain uncertain dispatch reservations and require separate manual confirmation; fresh native delivery clears the hold. Expose the reason through CLI, both Lino formats and four-language browser controls.
+
+Preserve actual native answers and acknowledged private rejection history before closing a generic-error form, then exclude its vacancy for five hours in worker memory. A due, explicitly confirmed retry opens fresh review while restoration and sending remain separate; uncertain transport outcomes remain reserved.
+
+Add an opt-in supervised native application preset with separately confirmed answer and letter fills, automatic sending disabled and one confirmed delivery per foreground command. Preserve zero-effect preview, legacy journals, original frozen choices, owner values and renewed confirmations across CLI, both Lino encodings and four-language browser controls. Reserve schema 14 without rewriting acknowledged legacy intent; paced batches and recruiter-panel behavior remain unfinished.
+
+Native popup recovery retains acknowledged unsent review checkpoints and requires a new explicit entry confirmation after reopening. Unknown sends remain reserved; draft restoration and sending stay separate. Additive data schema 15 keeps old journals intact.
+
+Recheck native unread chat targets after a virtual list render settles at its end. Preserve existing ownership, activation, restoration and deadlines, with finite render-order and unavailable-target regressions.
+
+Split the growing native application browser checks into three registered groups. Retain all eleven scenarios and existing engine, shard and timeout coverage; add a focused registration regression.
+
+Prefer checked same-slot résumé export language when suggesting a search résumé, with visible capture evidence and explicit owner choice. Recheck file integrity and native identity, preserve title fallback and existing durable list formats, and share the result across CLI, both Lino encodings and four-language browser controls.
+
+Add separately confirmed native application résumé choice backed by checked same-slot export evidence. Verify the native selection, preserve actual owner answers and letters, and refuse stale, unsafe or interrupted operations across CLI, both Lino encodings and four-language controls. Read-only recovery never repeats the choice.
+
+Drain accepted worker initialization and operations after host input or output closes, then release owned stores and listeners. Add opt-in worker initialization phase timings without changing readiness deadlines.
+
+Add separately confirmed native full-form navigation before a potentially immediate HH entry click. Preserve document guards, owner forms, pauses, preview, frozen context and read-only recovery through CLI, both Lino formats and four-language controls. Automatic résumé and standard-letter policy remain unfinished.
+
+Retain acknowledged manual, contextual and later native application CV observations as private saved history across worker restart. Share truthful history through CLI, both Lino encodings and four-language controls; reserve additive schema 16 without changing legacy intent. Recovery grants no selection or sending permission; automatic language policy and durable override enforcement remain unfinished.
+
+New application reviews verify CV language in the full form before entry, preserve durable owner overrides and support paired reviewed standard letters with guarded correction of unchanged system-written text. CLI, both Lino formats and four-language controls share an explicit opt-out; schema 17 keeps legacy reviews and dispatch reservations intact.
+
+Persist a two-hour HH application pause from visible native daily refusals across restart. Disclose conservative workspace scope, block native writes and queued reservation release, keep failed forms open and distinguish unsaved RAM pauses through CLI, both Lino formats and four-language controls. Additive schema 18 preserves prior intent; daily-limit backup/expiry refresh and authenticated account binding remain unfinished.
+
+Automatically preserve complete actual native answers and letter text during HH daily-limit pauses without closing the form or releasing dispatch reservations. Retain acknowledged draft provenance across restart so a newly opened empty document cannot overwrite the prior answers; keep restoration separately confirmed.
+
+Add explicitly confirmed daily-limit waiting with acknowledged ongoing answer preservation, one guarded expiry refresh and separately confirmed restoration. Keep workspace writers free between finite checks, retain all uncertain delivery reservations, expose CLI/Lino/localized controls and drain Stop/shutdown.
+
+Offer separately confirmed restoration after the guarded daily-limit refresh through CLI, both Lino encodings and four-language controls. Preserve ordinary waiting, empty-control ownership, failed acknowledgements, Stop and unknown delivery reservations without sending.
+
+Recognize native HH text CAPTCHA fields before generic or application form payload reads. Retain daily-limit priority and manual owner completion, refuse native actions and ignore unrelated completed widget tokens when the HH challenge remains visible.
+
+Stop HH résumé-list, vacancy-search and vacancy-detail discovery before reading page payloads when native text CAPTCHA or existing verification boundaries are visible. Keep hidden markers non-blocking and refuse to turn held discovery into empty or successful results.
+
+Recheck the saved shared HH pause when an acknowledged answer backup crosses the original wait deadline. Preserve later pauses from other browser slots, guarded refreshes, separate restoration consent and zero automatic sending.
+
+Stop HH CV and assignment content reads at native verification gates, reuse guarded workplace control inspection and preserve hidden-marker/ordinary reads and manual owner completion.
+
+During an acknowledged HH daily pause, preserve the complete separate native
+application form and actual Q&A before closing a uniquely identified native
+CAPTCHA dialog. Refuse challenge content, unsafe or changed captures, failed
+persistence and expired pauses; retain the original workspace deadline and
+separate restoration/submission confirmation.
+
+Load CLI help and unknown-command explanations without importing providers or
+ordinary execution modules. Preserve all registered commands, existing help
+exports and exact usage output, exit statuses and pending output drainage.
+
+Keep CV Save recovery verification tests independent of host scheduling with an injected fixture clock; retain production polling, deadlines and bounded read attempts.
+
+Add optional saved adaptive/fixed pacing for explicit HH application review admission, with native feedback, workspace queue status and four-language controls.
+
+Retain pacing feedback from a fresh native outcome at a refused action guard, preserving daily-limit priority, challenge privacy and zero dispatch after page changes.
+
+Preserve acknowledged native daily-refusal evidence after an issued application
+action. Explicit fresh-form recovery may release only that rejected reservation
+after the shared pause, restore later saved owner values and require a separate
+Send confirmation through CLI, both Lino encodings and four-language controls.
+
+Add independent HH answer, letter, questionnaire Send and short-popup confirmation choices, with an explicitly invoked guarded continuation through CLI, Lino APIs and four-language UI. Preserve missing-answer waits, current-step consent, supervised review and read-only recovery.
+
+Add explicit finite paced HH application batches through foreground CLI, both Lino encodings and four-language controls. Freeze settings and native delivery limits, revisit backed RAM deferrals through existing guards, own stoppable daily-limit waits, and keep durable recovery free of worker replay.
+
+Preserve the last acknowledged native résumé list after snapshot write failures, including concurrent cached readers, store restart and desktop/phone reload. Reuse shared record rollback and service reader boundaries without replaying provider discovery.
+
+Add bounded automatic HH vacancy discovery with frozen native pagination, distinct-card and time limits, successful full-description cache reuse and acknowledged progress through foreground CLI, both Lino encodings and four-language controls. Preserve private selections and native responded state. A separate, confirmed application batch can consume the exact completed discovery's eligible vacancies and retain source provenance in its receipt.
+
+Add a frozen default/opt-out for the dedicated HH viewed-vacancy survey in owned application reviews through CLI, both Lino encodings and four-language controls. Preserve owner reasons, preview, verification boundaries, legacy signatures and read-only recovery.
+
+Keep an active batch's matching review controls available while preserving competing workspace exclusion, stale-action guards and inactive identity recovery. Derive batch receipt expiry from one captured start time so clock ticks cannot reject the default 24-hour lifetime.
+
+Allow an explicitly selected, integrity-checked native résumé export as a sanitized CV publication source, with shared source selection and fresh consent.
+
+Offer desktop installers only from uploaded, nonempty GitHub release assets. Retain upload state in the session cache, refresh legacy metadata and label missing-platform fallback links accurately. Preserve completed platforms and API-error recovery.
+
+Retain complete email alternative destinations through MIME, Gmail, JMAP and Graph imports, shared question review and frozen history checks. Refuse malformed or bounded-out safe-tree metadata, preserve ordinary automatic and confirmed linked delivery, and display full literal destinations through CLI, Lino and native previews.
+
+Edit greeting response catalogs per language through CLI and the shared localized UI. Keep normalized outgoing VK messages and non-personal destinations out of greeting delivery while retaining preview, confirmation, daily limits and actual adapter receipts.
+
+Add configurable private VK gratitude replies with contextual phrase and sticker recognition, exact sticker previews, explicit text variants and fresh-message delivery guards through the shared automation UI, CLI and Lino APIs.
+
+Add configurable personal VK identity replies and evidenced address preference from the latest qualifying question. Respect later explicit address agreements, retain guarded exact-preview delivery and order mixed VK seconds/local ISO receipts consistently through CLI, Lino and the shared localized UI.
+
+Add a disabled personal VK acquaintance reply preset with configurable formal/informal introductions, a durable per-chat daily cooldown, latest-message guards and shared CLI/Lino/UI controls.
+
+Add disabled personal VK presets for the first greeting exchange, well-being, purpose and adjacent-turn clarification, with configurable reply catalogs, durable cooldown and exact context checks before sending.
+
+Bind draft-send confirmation to an independent rendered snapshot of the destination, identity, form, text/sticker and complete question/personal-reply evidence. Refuse changed drafts before typing/outbox/provider effects, retain them for review, and preserve explicit owner edits and form overrides through both default Lino encodings.
+
+Add a disabled personal VK acquaintance follow-up with configurable sticker and introduction catalogs. Review both ordered steps together, retain separate positive API receipts, resume a definite partial failure after review and refuse uncertain or acknowledged-step replay through durable recovery. Share progress across CLI, both Lino encodings, Chat and Operator.
+
+Add separately enabled first-observed incoming VK attachment metadata collection, preserving native identities, acknowledged cursors and saved records through pause and restart. Share bounded literal metadata and saved settings through CLI, both Lino encodings and localized connection controls.
+
+Add an opt-in VK user online-status schedule with a configurable interval, explicit foreground refresh, durable attempt and outcome records, owned shutdown and truthful offline capability through the CLI, both Lino encodings and localized connection controls.
+
+Add separate disabled VK friend acceptance and maintenance policies with reviewed plans, priority protection, fresh provider guards, durable uncertainty and owned schedules. Preserve ranked-batch acceptance while offering a distinct desktop lifetime ten-percent allowance and mutual-only threshold through CLI, default Lino and shared four-language/offline controls.
+
+Add disabled reviewed VK community invitations (issue #56, VK19) with configurable destinations, message variants, restricted-community content, native attachments and optional current-avatar reuse. Retain a positive new-post receipt before deleting only reviewed unchanged owned posts; preserve partial replacement across durable restart, require manual continuation, never replay unknown delivery, and retain provider refusal pauses. Share owned scheduling, CLI, both Lino formats and four-language online/offline controls.
+
+Add independent disabled VK birthday greetings (issue #56, VK21) with explicit time-zone dates, editable short-message and sticker catalogs, native media and complete current-friend/history/permission filters. Retain positive per-step receipts and per-date deduplication through causal restart, resume definite partial delivery only after manual review, and preserve unknown outcomes. Share owned scheduling, CLI, both Lino encodings and four-language online/offline controls.
+
+Add disabled reviewed VK history retention with bounded provider deletion, explicit unsupported-method fallback, durable per-batch recovery and recoverable local tombstones across CLI, Lino and four-language Connections controls.
+
+Add independent disabled VK suggestion ranking, configurable community friend discovery and deactivated incoming-request rejection. Preserve bounded current-profile reads, protected accounts, strict relationship receipts, shared daily request reservations, durable provider pauses, no unknown replay, owned scheduling and the same reviewed CLI, Lino and four-language offline controls.
+
+Observe acknowledged vacancy discovery progress before terminal completion in the native browser check. Preserve unchanged locator deadlines, exact result counts, read-only reload and four-language coverage; retain bounded per-read failure diagnostics.
+
+Add optional single-media selection for reviewed VK friend invitation posts on configured community walls. Keep fixed attachments as the default, upgrade legacy policies, freeze selected media across partial recovery and share CLI, Lino, offline and four-language controls.
+
+Community wall replacement now optionally holds matching invitations from any author and continues after a current read confirms an old post absent. Absence and acknowledged deletion have separate durable results and translated review evidence; unknown writes remain unreplayed.
+
+Add account-scoped VK history, conversation, friend, profile and friend-count caches with bounded acknowledged resume, truthful expiry and provider-free inspection. Export oldest-first linked Markdown/native JSON with exact partial coverage to new directories, shared through CLI, both Lino formats and four-language Connections controls.
+
+Add account-scoped acknowledged VK sticker catalogs, native pack/keyword and usable greeting-ID selection, received attachment filtering and bounded metadata JSON export. Share CLI, both Lino forms, offline inspection and four-language Connections/collection controls; retain prior snapshots on incomplete reads and drain owned catalog work at shutdown.
+
+Allow later foreground commands to acquire a fresh shared VK queue after the previous owner fully drains. Preserve stopped admission during close, FIFO ordering and explicit reviewed sends without replaying persisted work.
+
+Load each live VK peer's native 100-message context before its first incoming automation event. Keep historical messages from triggering replies, retain existing edits and exact partial coverage, reject incomplete or unacknowledged windows, and preserve credential, cursor and shutdown ownership.
+
+Add a bounded redacted live server log through CLI, both default Lino transports and four-language Settings controls. Retain entries through failed reads, back off retries, acknowledge clipboard outcomes and drain owned polling on close. Strengthen structured file/stdout redaction without invoking getters or toJSON.
+
+Desktop Quit and startup failure now drain their owned server, and overlapping activation shares one window.
+
+Seed friend priorities from a complete, account-checked outgoing request list, preserving owner IDs. Add explicit acknowledged clearing and normalize legacy saved empty/singleton lists through the shared CLI, Lino API and translated UI.
+
+Provide ten original invitation defaults alongside the ten birthday defaults, preserving saved owner text. Expose the catalogs through shared CLI/API/offline status and add translated draft reset with undo before explicit Save.
+
+Inspect error fields before materializing native stacks so diagnostic formatting never invokes name/message accessors or custom stack formatters. Preserve useful ordinary errors and redact short credential fields at the start of shared messages.
+
+Retain acknowledged accepted-friend history across later relationship changes, with initial and UTC period counts, private scoped Lino statistics files and a translated shared summary that preserves counts through failed reads.
+
+Retain a private redacted file for each owned server session, including startup and shutdown failures. Share default-on verbose trigger timing and acknowledged preferences through CLI, both Lino encodings and translated Settings, with a finite full-session download.
+
+Add owned VK user-token acquisition with exact standalone redirects, an isolated desktop window, read-only validation and acknowledged protected saving. Share cancellable CLI, both Lino encodings and four-language Connections controls without credential echoes or mutation replay.
+
+Use the actual lino-arguments parser across CLI consumers, preserving existing option value conventions while honoring the end-of-options marker and refusing reserved option keys without credential echoes.
+
+Copy visible redacted logs through an owned write-only desktop clipboard bridge, require native acknowledgement and preserve translated refusal recovery and browser copying outside the desktop bridge.
+
+Load bounded readable global/local server startup configuration before explicit CLI overrides, with documented nonsecret fields and generic validation failures.
+
+Normalize legacy saved empty and numeric singleton VK priority lists across policy readers, preserving protected users and strict validation of new settings.
+
+Apply readable global/local configuration and explicit launch options to the desktop runtime through the shared server adapter. Load the owned TLS origin with a window/origin/certificate-scoped exception, include production runtime dependencies in desktop staging and refuse nonregular configuration files without blocking.
+
+Normalize declared legacy saved VK message, question, attachment and destination lists before strict read validation. Preserve owner records and new-write guards, and display saved catalogs in connected/offline editors.
+
+Bound immutable server-release hashing to four concurrent file reads, preserve existing ordered content identities and drain reads before failed staging cleanup.
+
+Report connected VK read failures without substituting local defaults. Preserve acknowledged settings on failed refresh and retain offline editing for absent or unsupported routes.
+
+Add explicit CLI observation and control of configured local/SSH screen sessions through link-foundation/start. Require positive backend state, stop the other mode before starting, retain private target bindings across profile edits and uncertain launches, and drain cancelled transport children before releasing ownership. Keep unconfigured defaults and distinguish session state from application readiness and provider delivery. Automatic dependency preparation and full independent desktop workflow integration remain under development.
+
+Fix simultaneous exclusive requests in one process so a second request cannot remove the first request's live lock while its handle is being published.
+
+Expose configured local and SSH session control through the Lino API and the
+CLI's `runner --url` option, retaining observed states and draining ownership.
+
+Add translated Settings controls for configured local and SSH runner sessions,
+with observed switching, stale-state recovery and no automatic mutation replay.
+
+Add shared runner profile reads and revision-checked durable edits through CLI,
+protected API and the Settings editor. Refused or uncertain writes retain the
+owner's draft, explicit reload replaces it, and target edits preserve retained
+session addresses without starting or stopping a process.
+
+Queue competing browser snapshot saves behind bounded Web Locks while retaining
+atomic revision comparisons, explicit cancellation and unsaved owner data.
+
+Add explicit application health inspection for configured local/SSH runner
+targets (issue #56, VD01/VD02). Query the private host and its owned worker,
+distinguish ready, locked, storage-degraded and unconfirmed responses, and share
+CLI, default Lino and four-language controls without installing or starting a
+session. Preserve retained target identity, cancellation and session-state gates.
+
+Save each verified unread browser history window before scrolling away, preserve
+observed edit versions and stop on refused storage. Keep status recovery free of
+replay and exclude hidden private link destinations from reusable answer learning.
+
+Preserve HH browser delivery observations through the canonical archive and learning path (issue #56, HH11). Require a positive native status before confirming a send, keep uncertain replies out of learned answers, and migrate legacy unproven browser delivery to unknown without changing saved owner answers.
+
+Capture mounted message mutations during confirmed current-chat watches before
+the next poll. Acknowledge bounded canonical writes in order, preserve observed
+edits and delivery changes, and drain them on Stop. Refuse reused native HH pane
+ownership, archive failures and capture gaps without replaying provider actions.
+
+Retain native net/gross vacancy compensation, alternate skill tags, publication
+and multiple visible work-format rows. Refuse conflicting salary aliases while
+preserving the acknowledged cached description and metadata.
+
+Capture observed message edits and delivery changes during borrowed unread-chat
+reply visits. Drain canonical writes before restoring the owner view, refuse
+later effects after archive failure and retain already witnessed reply receipts.
+
+Include browser automation and Telegram runtimes in desktop installers, preserve
+shared dependency overrides and validate the staged provider imports before
+packaging instead of accepting omitted optional runtime packages.
+
+Recheck watched browser reply ownership after arming and before native dispatch for strict choices and explicitly authorized text replies. Refuse Stop, navigation and changed-policy races while draining already-issued positive receipts (issue #56, QA14/QA20/HH11).
+
+Add explicitly enabled sequential unread answers with guarded exact bot-option selection and draft-only ordinary replies. Hold the first unresolved chat open, constrain later polling to that chat until owner reply or no-reply, preserve actual receipts and Stop draining, and share CLI, text/binary Lino and localized Questions/Chat/Operator controls. Migrate legacy passes to review-only intent and keep the native synchronization schema aligned with the migration registry.
+
+Filter bundled SQLite native prebuilds by each desktop installer's target platform and architecture, while retaining provider runtimes, portable fallbacks and the builder's native-binary verification.
+
+Allow explicitly enabled configured-model drafts in sequential unread review using the selected CV, profile, approved answers and acknowledged history. Revalidate model context before prefilling, hold the first review, drain cancellation, and share default-off controls across CLI, text/binary Lino and all four localized Questions/Chat/Operator surfaces.
+
+Add an explicitly enabled application-owned chat child with a separate persistent browser slot and a 120 minute default check interval. Keep held chat review independent of application progress, preserve model opt-in and truthful status, and drain the child and its browser on Stop, completion, expiry and shutdown. Share CLI, both Lino encodings and four-language application controls.
+
+Honor unread model draft intent loaded from a CLI configuration file or saved automation, with lazy process creation, explicit opt-out and drained model ownership.
+
+Compare HH and LinkedIn experience by normalized employer and overlapping dates, preserving original fields and uncertain matches for review. Expose the read-only comparison in CLI reports, both Lino encodings and all four CV interface languages.
+
+Add private structured experience snapshots with original native workplace metadata, verified HH export reuse, bounded JSON/text and binary Lino imports and downloads, and exact revision comparison through CLI, local API and all four interface languages. Retain owner input and acknowledged snapshots on refusal.
+
+Read native LinkedIn experience in a separate persistent browser slot with shared visibility settings, bounded manual sign-in and expansion, private hashed evidence and immutable snapshots. Share durable request recovery, drained Stop, CLI, both Lino API encodings and four-language CV controls without replacing active comparisons.
+
+Build private directed HH/LinkedIn experience plans from exact snapshot revisions, preserving target-only records and missing metadata. Reuse bounded three-provider translation with private model-version caches and share durable Start/status/Stop, original-field review, all variants and text/binary downloads through CLI, Lino and four-language CV controls.
+
+Preserve official HH area identities through native resume exports, Links Notation and owner-Save readback, verify translated city labels by their stable ID, and refuse conflicting imported metadata while retaining legacy document compatibility.
+
+Keep CV actions disabled while initial snapshots and platform metadata load, show the shared loading state, and wait for the responsive shell before experience browser layout assertions.
+
+Read bounded LinkedIn experience card text and the selected profile About in one separately owned tab, retain original private evidence and unobserved absence, and drain cancellation without closing an owner draft.
+
+Preview exact Formal AI workplace translation failures, search existing reports before publication, preserve same-version comments and require explicit consent. Share durable non-replaying reporting, actual acknowledgement URLs and drained Stop through CLI, both Lino encodings and all four CV interface languages. Resolve the existing localized Role label in experience plans.
+
+Show a translated floating confirmation after an explicitly acknowledged local or SSH session Start/Stop. Preserve session-only scope, read-only recovery, dismissal, expiry and focus without announcing success for pending, refused or ambiguous actions.
+
+Bound local and SSH runner commands and escalate cancellation for children that
+ignore termination. Retain controller ownership until the child actually closes,
+refuse late success after cancellation or expiry and never retry ambiguous effects
+(issue #56, VD01/VD02).
+
+Retain every salary and contact component in form questionnaire proposals.
+Preserve inspected label line breaks and keep whole-field contact inference
+from replacing an assembled questionnaire or an owner's saved complete answer
+(issue #56, QA10).
+
+Route the repeatedly unallocated macOS Deno test partition to the native Intel
+runner pool while retaining every runtime/OS partition, ARM Deno coverage on
+the other partitions, and the existing deadlines and failure gate.
+
+Reuse aligned individual answers from existing saved whole questionnaires in
+shared chat, application and form plans. Extend explicit offline learning and
+backfill through CLI, both Lino encodings and four-language review controls,
+retaining scopes, corrections, zero-use saved wording and idempotent counts.
+Derived answers remain unapproved and the owner's whole replies stay intact.
+
+Preserve saved-answer approval admission through form planning and native
+application prefill, automatic submission and continuation. Require owner review
+for extracted questionnaire components, unapproved answers, conflicting matches
+or missing admission evidence while retaining approved exact reuse and explicit
+native form review.
+
+Share explicit named answer profiles and validated salary targets with native
+single and batch applications through CLI, both Lino encodings and the shared
+four-language controls. Freeze acknowledged targets, re-read current contacts,
+retain legacy journal signatures and keep assembled answers for owner review.
+
+Learn aligned individual answers together with confirmed whole form replies.
+Preserve unapproved observations, evidence and idempotent counts; report skipped
+input pairs separately from derived proposals in the learning journal (QA09).
+
+Open an explicitly reviewed existing HH workplace through its unique hydrated native Edit control in the complete workplace list, including older jobs. Preserve every open draft, verify the exact record and selected resume context before existing baseline checks, and retain owner Save/Cancel, durable recovery and four-language guidance.
+
+Distinguish cold worker module loading from process startup in the existing opt-in lifecycle trace. Establish IPC before application imports while retaining serialized initialization, EOF draining, readiness deadlines and private diagnostic boundaries.
+
+Defer unused CV, vacancy and Telegram route modules until a guarded matching request. Retain existing first-use behavior, account scope, mutation admission, provider capability states and shutdown ownership while reducing the worker's static local import graph.
+
+Publish a reviewed public CV projection from an explicitly selected immutable HH or LinkedIn experience document through CLI, both Lino encodings and the shared localized CV screen. Preserve private originals, source-bound consent and non-replaying Git recovery.
+
+Allow full revision snapshot paths in publication-owned Git commands on Windows
+without changing repository configuration. Retain opt-in content-free refusal
+diagnostics and bounded native long-path regressions.
+
+Combine actual observations of existing final-period spelling pairs, defaulting
+to the spelling with a period. Share a saved with/without preference through
+acknowledged four-language controls, CLI and both Lino encodings; support isolated
+CLI planning configuration. Preserve raw observations, approval/correction scope,
+other punctuation and existing broad equivalence. Migrate policy without
+rewriting answers or replaying learning.
+
+Reuse explicit question-scoped preferred answer wording with actual observation
+counts and bounded evidence. Preserve raw history, rejected phrases, independent
+approval and literal choices; require review for ambiguous preferences or
+overlapping observations. Share acknowledged CLI, text/binary Lino and four-language
+online/offline editing, and migrate the schema without rewriting old answers.
+
+Exclude unrelated replies from explicit work-start timing questions in shared
+planning and archived learning. Preserve literal transcripts, counts, distinct
+commitments and closed yes/no consent through CLI, offline and both Lino formats.
+
+Retain final-period configuration through watched/unread browser work and confirmed
+automation delivery. Preserve saved action preferences when no command override is
+present; keep process settings and shared policy unchanged.
+
+Combine final-period observations across eligible exact-question rules, preserving approval and provider/chat boundaries. Require review for overlapping evidence under either punctuation policy.
+
+Carry final-period settings through form CLI plans and owned Lino review/prefill
+requests, retaining them during final checks. Refuse request recovery with changed
+spelling settings before repeating any write; preserve owner edits and submission.
+
+Preserve approved salary-only wording when answering another salary question,
+using current configured amounts and the requested currency (issue #56 QA12).
+Exact approved wording, declared equivalents and final-period preferences remain
+in force; saved observations and counts are unchanged.
+
+Recognize owner-learned salary vocabulary from distinct eligible approved monthly
+answers, including inherited gross clarifications (issue #56 QA12). Require the
+reference's minimum examples and topic purity, preserve explicit basis and scope,
+and keep past/current pay, offer acceptance and payroll topics outside inference.
+
+Recognize ordinary expected-income and salary-range requests, gross/net aliases
+and explicit hourly abbreviations across shared salary planning (issue #56
+QA12/QA13). Preserve unsupported periods, current-pay/offer exclusions and bounded
+related-topic clarification; retain owner drafts and unchanged saved observations.
+
+Resolve currency-specific placeholders in approved personal salary answers against
+the requested current currency while retaining owner wording and explicit tax
+labels. Preserve independent amounts and review guards for missing values, stale
+numbers, incompatible basis, periods and unapproved configuration (issue #56 QA12).
+
+Allow explicit salary context priorities while preserving question precedence and tied-priority review. Match configured word stems and currency symbols adjacent to amounts; retain independent targets and existing source order (issue #56 QA12).
+
+Add bounded resume-matching salary tiers with exact owner targets, observed page exhaustion, deferred minimum-only offers, advertised hard-cap exclusions, shared CLI/Lino/UI settings and non-replaying receipts (issue #56, partial HH02/HH05).
+
+Check full-vacancy salary targets before application entry, full-form navigation and send. Preserve actual direct-form answers before recovering missing vacancy context, restore empty native controls, and carry discovery salary tiers into unarmed application drafts.
+
+Reject an occupied initial server port before staging the immutable runtime snapshot, and clean up the listener when package preparation fails.
+
+Revisit salary-held URLs after each exhausted finite application pass, reducing
+the current floor by ₽50,000 while retaining frozen targets, actual drafts,
+fresh permanent choices, separate confirmations and delivery caps. Expose tier
+progress through CLI, both Lino transports and four translated UI locales.
+
+Keep application test previews free of public vacancy cache writes, and read
+vacancy context behind native application popups without navigating over owner
+answers. Preserve canonical vacancy caching for ordinary application review.
+Retain unadvertised salary context for résumé language selection while keeping
+unreadable native content under review and out of the public cache.
+
+Require review for salary bands that conflict with a specific saved amount or
+contain mixed currencies. Allow approved unique containing native options during
+confirmed browser watches and sequential unread answers while preserving owner
+drafts, current-knowledge checks, reservations and uncertain-receipt holds.
+
+Hold a dual-basis salary choice when either target fits overlapping bands,
+before requiring both targets to share one unique containing choice.
+
+Use a unique configured currency in numeric salary choices when the question
+omits currency, retaining explicit question precedence and ambiguous-choice review.
+
+Reuse a compatible exact approved saved salary amount as a missing numeric
+choice baseline. Preserve configured target precedence, failed tax calculations,
+explicit form review, unchanged knowledge records and zero submissions.
+
+Propose a reviewed nearest salary band when each net/gross target independently
+chooses the same unique option. Preserve ties, overlap and unit guards, explicit
+native review, automatic chat containment and idempotent receipt recovery.
+
+Recognize bounded polite English and Russian salary clarifications and retain
+the current question's language independently of currency and tax basis. Keep
+bare-code language inheritance, unrelated-topic barriers and owner drafts.
+
+Retain figure/number nouns and name-prefixed known request verbs in bounded
+salary clarifications, including Russian amount wording and topic guards.
+
+Use verified captured browser history for salary clarification review, watches
+and unread answering without model opt-in. Retain dated chronology barriers,
+owner drafts and context revalidation before native actions (issue #56 QA12).
+
+Read and cache a verified linked HH vacancy only when its currency can change a
+salary reply in browser review, watches or unread answering. Preserve source
+priority, owner drafts, page refusal and owned cancellation (issue #56 QA12).
+
+Use currency from the observed HH chat vacancy card before opening its linked
+page, including watches and unread answering. Preserve explicit context,
+ambiguous-currency review and owner text without extra page reads (issue #56 QA12).
+
+Retain outgoing identity in bounded answer context and use incoming employer
+turns for salary currency, basis and clarification anchors. Keep delivery barriers
+and owner-defined generic context behavior across browser and archive planning.
+This preserves issue #56 QA12 context priority.
+
+Open a bounded visible HH sign-in window in the selected private workspace
+profile through CLI, protected Lino routes and four-language controls. Leave
+login and CAPTCHA input to the owner, retain unverified authentication and
+recover status without reopening or replaying a request. Drain owned browsers
+before acknowledging Close, Stop or shutdown (issue #56 HH01).
+
+Await acknowledged automation safeguard persistence before send guards read it.
+Keep connected save refusals and lost responses visible, retain owner drafts and
+opt-outs, and recover through reads without repeating uncertain writes (issue #56
+QA19/QA20).
+
+Expose global automated-send safeguards through read-only Lino CLI display,
+validated quiet-hour/cooldown configuration and precise provider/chat or person
+opt-out changes, sharing acknowledged persistence with the API and UI.
+
+Expose the shared automated-message cooldown in all four UI languages, with
+fractional days, default reset, invalid-input refusal and acknowledged save/reload
+behavior matching the CLI and Lino API.
+
+Expose distinct chat and person opt-outs in all four UI languages, retain refused
+owner drafts and preserve same-ID entries through acknowledged reload and precise
+removal, sharing the existing CLI/Lino settings and send guards (issue #56 QA19).
+
+Patch repeated wildcard extglobs in an auditable private picomatch fork while
+retaining strict registry audits and matching regressions. Use the shared locked
+installation for Deno so local security overrides and native dependencies remain
+consistent across supported runtimes.
+
+Preserve pending owner drafts for every automation action when delayed planning
+or overlapping queues finish. Share serialized, recoverable queue writes across
+server and offline automation without changing model validation or send consent.
+
+Restore public CLI admission for all three controlled HH manual sign-in commands.
+
+Respect explicit person opt-outs across independent VK personal, friendship,
+maintenance, discovery and retention policies. Carry verified private-user
+identity into queued message receipts and recheck consent after provider waits,
+preserving distinct community and group targets (issue #56 QA19/QA20).
+
+Reserve automatic daily capacity atomically in the durable outbox across batch
+and single-step delivery. Preserve uncertainty reservations and explicit owner
+review; return cap races to normal pacing without recording failed sends
+(issue #56 QA20).
+
+Reread saved automatic pacing at each autopilot step and retain a finite wait
+for an empty zero-cap ledger, preventing invalid wake dates and repeated planning
+after a lowered daily limit (issue #56 QA20).
+
+Space and serialize GitHub source-link requests while retaining strict HTTP
+failure handling. Verify real checker pacing with a finite isolated host and
+permanent missing-page/server-error controls.
+
+Make autopilot Stop drain its owned planning and delivery work, cancel unissued
+messages through typing, VK pacing and durable admission, and retain actual
+confirmed or uncertain receipts. Serialize controls for each automation and
+await all autopilot owners during server shutdown (issue #56 QA20).
+
+Use the official corrected lychee nightly for transient HTTP retry handling and
+verify actual recovery, finite exhaustion, zero retries and permanent failures
+with mandatory native checks; preserve strict link validation and host pacing.
+
+Retain VK link, file and wall destinations through shared question review, frozen
+history and final admission. Compare native Unix timestamps with ISO history
+consistently and preserve private destination exclusions during answer learning
+(issue #56 QA04).
+
+Retain Messenger shares and action destinations, as well as Facebook and
+Instagram archive links, in saved-answer review and dispatch checks. Preserve
+the exact target in CLI, Lino and shared previews and hold unverified metadata
+for review (issue #56 QA04).
+
+Merge app-folder runner profiles over global settings and accept ephemeral local
+CLI field overrides. Share effective revision-checked editing across CLI, Lino and
+Settings, preserve global files and retain running targets through configuration
+changes (issue #56 VD07).
+
+Run a local session from the installed desktop app's bundled runtime with a
+separate loopback port and store. Start, inspect and stop it from Settings,
+connected CLI or either Lino transport (issue #56 VD01).
+
+Add owner-selectable weighted character/keyword question rewording across saved actions, CLI, both Lino transports and translated answer/Forms controls. Retain ordered matching defaults, subject protection, finite work and mandatory review for approximate suggestions (issue #56, QA02).
+
+Bound standalone weighted question matching before tokenization, preserving the
+6,000-character boundary, legacy ordered matching and finite work budgets.
+
+Recognize hosted regional EC2 Ubuntu archives when preparing browser dependencies, preserving fallback mirrors, metadata and existing CI deadlines (issue #56).
+
+Observe exact runner shutdown after graceful Stop before acknowledging success or switching modes; retain bounded waiting, cancellation, exclusive ownership and truthful unknown/stuck refusals (issue #56 VD02). Address Screen Stop by its freshly observed native ID, refusing duplicate names and avoiding stale start-command backend history.
+
+Load bounded private resume, contacts and profile overrides automatically beside
+the selected Forms store. Preserve explicit profiles and owner text, reject stale
+source bytes before filling or learning, and contract learned contacts without
+approving answers or submitting forms (issue #56 QA22).
+
+Discover the conventional private Forms PDF as a bounded read-only fallback.
+Preserve explicit selections and owner attachments, refuse stale source bytes,
+and verify actual upload receipts without submitting forms (issue #56 QA22).
+
+Optional Forms model drafts now use the selected store's conventional private
+Markdown résumé when no stored CV is selected. Explicit CVs retain precedence;
+existing opt-in, knowledge limits, unknown-fact review and source-change guards
+apply through CLI, Lino and the shared Forms controls.
+
+Add an explicit remote Docker runner option with a prepared image and persistent
+application/store mounts. Retain exited containers for the controller's next
+verified Start cleanup instead of start-command's automatic completion cleanup.
+Preserve Dockerless local Screen execution, owned
+container identity, acknowledged state and mutual exclusion. Share configuration
+through CLI, both Lino formats and the saved-profile editor (issue #56 VD02).
+
+Recheck the other runner before accepting an already-running destination and
+after launch. Refuse stale mutual-exclusion success when a peer becomes running
+or unknown, retaining current observations without repeating a mutation.
+
+Recognize a rendered HH account-specific vacancy refusal, preserve owner answers
+and uncertain delivery, and block unsafe actions. Retain its distinct private
+refusal reason until explicitly cleared through CLI, both Lino formats or the
+four-language review controls (issue #56 HH05).
+
+Share validated theme, skin and language defaults across global/local Lino
+startup files, explicit CLI options and a read-only Lino endpoint. Retain browser
+choices, apply fresh connection defaults and expose an explicit appearance reset
+in all four languages (issue #56 VD06/VD07).
+
+Wait for delayed native vacancy titles and descriptions before collection or
+application review, with finite cancellation and unchanged cache protection.
+Keep delayed-loading coverage in an independently registered browser group.
+
+Persist private HH question deferrals by browser slot with revisioned CLI, Lino
+and four-language controls. Preserve actual answers before closing matching
+forms, watch waiting forms, and share answer-aware exclusions across discovery,
+search and batches while retaining the independent worker questionnaire queue.
+
+Verify batch continuation completion against an accepted idle receipt after
+native browser ownership moves to the next vacancy, and preserve bounded
+failure-only response diagnostics without changing delivery guards or deadlines.
+
+Retain provider-confirmed application status in shared private vacancy snapshots,
+including acknowledged recovery, legacy migration and refreshes, and display the
+saved confirmation in all four languages without replaying delivery.
+
+Return the complete saved vacancy corpus through shared cache controls and technology analysis, preserving explicit byte/mention budgets and older exclusion context.
+
+Retain current HH employment and semantic publication metadata, with conflicting-refresh preservation and bounded native regressions. Correct translated cache and analysis wording to describe the complete saved corpus (issue #56 HH03).
+
+Allow vacancy collection to be disabled per application run through CLI, both
+Lino formats and four-language controls. Keep complete vacancy context in bounded
+RAM for forms, chats and assignments, omit it from durable application journals
+and preserve existing saved descriptions and their delivery metadata. Frozen
+batches retain the setting; restart reports the unavailable temporary context.
+
+Collect complete selected vacancy descriptions before local text and salary
+exclusions during discovery. Preserve responded/owner/retry holds, acknowledged
+cache reuse and existing application eligibility.
+
+Honor disabled persistent collection during discovery while retaining complete
+descriptions in bounded worker memory. Preserve existing saved descriptions,
+legacy receipt signatures and the frozen setting when copying into a batch draft.
+
+Reduce complete-corpus binary encoding cost with the published external-reference
+and variable-arity layout, preserving typed values, older packets and finite
+decoder limits across transport, synchronization and recovery dumps.
+
+Prepare a missing managed Chromium executable on explicit first use through the
+installed Playwright CLI, with shared cancellable ownership and confirmed file
+readback. Preserve chosen browser connections and await startup cancellation in
+assignments, form review, manual login and auto-import shutdown.
+
+Read global/local readable Lino defaults for the six desktop VK automations in
+the CLI, server and desktop. Reuse native validation and legacy list handling,
+preserve protected credentials and saved owner choices, and apply changed or
+removed file defaults through the rolling server without replacing an unchanged
+worker or writing default settings into the owner's store.
+
+Bind snapshot cancellation checks to their actual worker while preserving
+unrelated diagnostic owners. Retain cleanup acknowledgement and workspace
+verification, and add default-off worker tracking/release diagnostics for
+shared-process investigations (issue #56).
+
+Wait for the SDK-validated persistent browser process to exit before confirming
+Close. Preserve detached sessions, refuse unconfirmed cleanup without signalling
+saved PIDs, and observe native deferred-question activation/closure together so
+failures retain owned cleanup and targeted diagnostics.
+
+Expose the desktop friend percentage through shared file defaults, CLI, both
+Lino formats, offline settings and four-language controls. Add a separate policy
+that enforces the configured friend capacity and lifetime percentage together;
+preserve ranked batches, the existing mutual-threshold policy, durable unknown
+reservations and ten-percent defaults for existing records (issue #56).
+
+Recheck acknowledged chat and person consent after durable send admission so
+opt-outs saved during that wait block the shared sender. Preserve owner drafts,
+definite refusals and existing uncertain-delivery reservations (issue #56).
+
+Recheck the same acknowledged consent after saved connection loading and before
+browser fallback. Preserve definite refusal codes, eligible explicit recovery,
+resolved adapter options and already positive delivery receipts (issue #56).
+Recheck acknowledged chat and person consent after browser session, composer,
+typing and native send-button waits. Refuse before dispatch while preserving
+already-issued positive receipts and uncertain outcomes (issue #56).
+
+Bind browser consent to the original recipient and recheck it around native answer
+arming for choices, text and inactive watched replies. Preserve Stop during
+settings reads, read-only inspection and already-issued receipts (QA19, QA20).
+
+Recheck acknowledged consent after provider SDK preparation: VK limiter/retry,
+Telegram connection/peer resolution and every text part, mail thread/JMAP discovery
+and SMTP recipient/DATA readiness. Keep the original API recipient, composed
+dispatch hooks, positive receipts and partial-send uncertainty (QA19, QA20).
+
+Preserve automatic Stop ownership through connection loading, provider SDK
+preparation and native browser dispatch (QA19, QA20; R-Z3, R-Z4). Carry cancellation
+separately from durable drafts, refuse stopped work before the provider effect,
+and retain already issued positive, partial and uncertain receipts.
+
+Add the configurable HH application route through the original search before opening the full form, with document, draft and Stop checks and frozen review/batch receipts.
+
+Keep acknowledged application controls enabled during automatic status reads so a poll cannot cancel a native pointer click. Preserve blocking manual recovery, stale-response exclusion and server action guards.
+
+Wait for existing birthday greetings before inserting reminders, so already-greeted contacts cannot shift a pressed chat row during reload.
+
+Keep synthetic MCP fixture data separate from trusted inspection callbacks, escaping script delimiters and preserving JSON property semantics in generated verification code (R-Z3, R-Z4).
+
+Add bounded opt-in worker import resource measurements, with final CPU/memory/loop observations and preserved EOF ownership. Retain startup deadlines while investigating intermittent Windows/Deno readiness failures.
+
+Verify owner-created workplace Saves from a pre-Save inert list baseline and one additional numeric ID, retaining full-field, membership and export proof, prior snapshots and drained Stop. Refuse incomplete or ambiguous identity readback; shared copy/save/detach remains unfinished (HH18).
+
+Reject CV Save readback that finishes at or after its original monotonic verification deadline. Preserve cancellation, drained reads and acknowledged snapshots; a fresh owner Save starts a separate verification cycle (HH18).
+
+Preserve existing and changed owner drafts before plain browser input and Send,
+avoid WhatsApp URL prefill, and keep multiline fill from issuing Enter mid-message.
+Use native rich-composer typing when textarea-only fill cannot verify emptiness (QA20).
+
+Keep stable rolling-host startup independent of recovery streams, browser
+discovery, route error codecs and worker health probes until those consumers are
+used. Preserve public exports, synchronous route CORS, native proxy bytes,
+authenticated health and complete immutable release verification.
+
+Record disabled native Apply/Send controls and clicks explicitly refused before dispatch. Permit one later-run retry, share admission across search, discovery and batches, and explain recovery in four languages. Preserve uncertain-write reservations and owner answers (partial HH05).
+
+Give native application salary checks a separate mandatory browser budget while
+retaining every answer, language and refusal scenario, both engines, existing
+entry deadlines and shard limits.
+
+Confirm HeadHunter read receipts in the open import browser for matching
+archived conversations in Chat and Operator. Keep drafts and selections,
+refuse ambiguous panes, and drain admitted receipts before closing.
+
+Send plain messages from captured HeadHunter web conversations through the
+open import browser. Keep the provider-confirmed message in its original
+Chat history and hold uncertain sends for review.
+
+Give local desktop Forms verification and HeadHunter verification and sign-in
+alerts Show browser and Later actions. Reminders and optional sound stay tied to
+the exact waiting browser while the desktop runtime is active.
+
+Show the same owner actions in a local desktop prompt when the system alert
+cannot be displayed. Keep the reminder and chime tied to the current wait.
+
+Defer the desktop alert and chime while the exact waiting browser page has
+focus, then check again at the normal reminder interval.
+
+Preserve visible instruction URLs in Forms assignments and require a readable
+source before drafting a linked task through Forms, CLI or Lino (issue #56).
+
+Keep confirmed HeadHunter chat send receipts and uncertain reservations across
+server restarts. Exact retries through Chat, CLI and either Lino encoding reuse
+the saved outcome without issuing a second provider send (issue #56).
+
+Review and prepare a target-only HeadHunter workplace copy from a shared record.
+Keep the original memberships intact and leave native Save under the owner's
+control (issue #56).
+
+Verify owner-created HeadHunter workplace records using the new native ID and
+the change in saved CV exports. Confirm identical copies and retain the previous
+snapshot while a provider export still shows only the original (issue #56).
+
+Verify a separately reviewed HeadHunter workplace detach against the exact
+saved membership and the prior CV exports. Preserve the target-only copy,
+unrelated jobs and the prior snapshot while the detach export is stale (issue #56).
+
+Review and prepare a new HeadHunter workplace from a saved CV export, including
+CVs with no existing workplaces. Keep the draft assigned only to the chosen CV
+and verify its new record ID after the owner saves it (issue #56).
+
+Capture pre-Save evidence when the owner opens a HeadHunter workplace form in
+the observed tab. Verify edits and same-URL Add using the form's own evidence.
+Retain previous snapshots while a CV export is stale (issue #56).
+
+Review approved HeadHunter experience changes in a separate browser profile.
+Save or discard the exact draft, leave it open, or recover an existing review
+after reconnecting without replaying a provider action (issue #56).
+
+Find the exact saved HeadHunter workplace from an approved baseline when the
+experience review omits a native record ID. Refuse ambiguous matches before
+opening the editor (issue #56).
+
+Acquire both HeadHunter and LinkedIn experience snapshots and build their
+translated comparison in one recoverable request (issue #56).
+
+Review a proposed HeadHunter About change in the Experience browser and confirm
+an explicit Save against a fresh export of the selected résumé (issue #56).
+
+Review directed experience changes one at a time from the automatic comparison.
+Choose Save, Skip or Leave for the current native draft, and advance after a
+fresh export confirms the target changes (issue #56).
+
+Review a LinkedIn About update or addition from a directed comparison. Require
+the owner’s Add About menu and a blank editor for additions. Prepare one draft,
+choose Save, Skip or Leave, and check the saved profile (issue #56).
+
+Prepare the default isolated runner launcher privately on the selected host
+when it is missing. Reuse the verified installation and keep the active
+session running if the destination launcher cannot be prepared (issue #56).
+
+Prepare a checksum-verified private Node runtime with bundled npm on a supported
+host when the default runner runtime is missing. Reuse it for later starts and
+read-only application health, keeping preparation before a peer Stop (issue #56).
+
+Show whether the selected runner host could prepare Node.js or the isolated
+session launcher. Keep both observed session states visible in Settings (issue #56).
+
+Prepare private npm for a cold isolated launcher when the host has Node.js
+and npm is missing. Preserve the application's Node command and allow warm
+launcher reuse without npm or network downloads (issue #56).
+
+Read inline Markdown assignment links as literal text, preserving the reviewed
+redirect evidence without loading the Markdown's links or images. Report
+specific Forms document refusals and keep the entered URL (issue #56).
+
+Read selectable text from linked assignment PDFs through the owned browser
+profile. Preserve the resolved link and private source receipt in CLI, Lino
+and Forms. Refuse unreadable or oversized documents before drafting (issue #56).
+
+Keep an active Screen runner running when the selected Docker host refuses to
+release its previously exited, owned container (issue #56).
+
+Prepare the configured Docker image on explicit Start before stopping the
+active peer. Reuse the verified image ID and keep the current runner active
+when the destination cannot prepare its image (issue #56).
+
+Check the configured runner application file before switching sessions. Keep
+the active session running and show which application check failed (issue #56).
+
+Check that the configured Meta Sovereign CLI and server modules load before
+switching a detached runner. Preserve the active session when the destination
+application is incomplete and show the corresponding Settings message (issue #56).
+
+Prepare production dependencies when an explicitly started runner selects a
+reviewed lockfile. Verify the installed modules before switching sessions and
+reuse the prepared tree on later starts (issue #56).
+
+Read saved runner targets in Settings while a session command is active.
+Saving still requires the runner control lock and current profile revision
+(issue #56).
+
+Reuse the current HeadHunter application sign-in in an untouched signed-out
+chat slot. Keep the two browser profiles scoped to the workspace, and confirm
+the chat list before reporting session reuse (issue #56).
+
+Reveal the confirmed HeadHunter reply in an inactive conversation after the
+provider clears the sent text. Keep the owner’s view and draft if they return
+while delivery is pending (issue #56).
+
+Capture messages from the vacancy-bound recruiter panel in Chat. After
+HeadHunter confirms the owner’s dated reply, save an unapproved answer proposal
+with a link to that reply (issue #56).
+
+Prepare a saved answer as a draft in the vacancy-bound recruiter panel. Reveal
+the incoming question, preserve existing text, and leave submission to the
+owner (issue #56).

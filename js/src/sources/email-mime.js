@@ -537,6 +537,7 @@ export const finishBody = (found) => {
   return {
     text: found.text || safe?.text || '',
     tree: safe?.tree ?? null,
+    links: safe?.links,
     files: found.files,
   };
 };

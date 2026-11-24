@@ -26,7 +26,29 @@ meta-sovereign представляет **человека или организ
 
 ## Desktop app
 
-Скачайте installer для своей системы на <https://link-foundation.github.io/meta-sovereign/download/> или в [GitHub releases](https://github.com/link-foundation/meta-sovereign/releases): Linux (AppImage, deb, tar.gz), macOS (dmg, zip) и Windows (installer, portable), каждый для x64 и arm64. Desktop app включает сервер, поэтому все функции работают без отдельного запуска сервера. Первый запуск неподписанных сборок, контрольные суммы и обновления описаны в [`docs/USER-GUIDE.ru.md` §4](docs/USER-GUIDE.ru.md#4-установить-desktop-или-mobile-app).
+Скачайте installer для своей системы на <https://link-foundation.github.io/meta-sovereign/download/> или в [GitHub releases](https://github.com/link-foundation/meta-sovereign/releases): Linux (AppImage, deb, tar.gz), macOS (dmg, zip) и Windows (installer, portable), каждый для x64 и arm64. Desktop app включает сервер, поэтому все функции работают без отдельного запуска сервера. Первый запуск сборок без Apple Developer ID, контрольные суммы и обновления описаны в [`docs/USER-GUIDE.ru.md` §4](docs/USER-GUIDE.ru.md#4-установить-desktop-или-mobile-app).
+
+### Первый запуск в macOS
+
+Перед открытием сборки с ad-hoc подписью сверьте скачанный `.dmg` или `.zip`
+с `SHA256SUMS.txt` из того же релиза в разделе **Verify your download**
+на [странице загрузки](https://link-foundation.github.io/meta-sovereign/download/).
+Продолжайте только при совпадении контрольной суммы. Скопируйте
+`Meta Sovereign.app` в `/Applications` (сначала распакуйте `.zip`).
+
+В macOS 15 Sequoia и новее попробуйте открыть приложение и закройте предупреждение
+о непроверенном разработчике кнопкой **Done**. Откройте **System Settings →
+Privacy & Security**, прокрутите до **Security**, нажмите **Open Anyway** для
+Meta Sovereign, при необходимости подтвердите личность, затем нажмите **Open**.
+[Инструкция Apple](https://support.apple.com/en-us/102445) описывает это
+исключение для одного приложения. Ad-hoc подпись не означает нотарификацию Apple.
+
+Другой способ после проверки того же файла — снять карантин только с
+установленного приложения, затем открыть его:
+
+```sh
+xattr -dr com.apple.quarantine "/Applications/Meta Sovereign.app"
+```
 
 ## Размещение рабочего пространства
 
@@ -44,7 +66,7 @@ cd meta-sovereign
 cargo run --manifest-path rust/Cargo.toml -p meta-sovereign-server -- serve
 ```
 
-> **Ограничения Rust server.** Он хранит links **только в памяти**: на диск ничего не пишется, поэтому после остановки server все данные пропадают. У него **нет source adapters**: нет live-загрузки из Telegram, VK, GitHub, Upwork и т. п., нет исходящего HTTP/TLS client (email только принимает архивы), нет automations, CV sync, browser auto-import, backups и `/api/export-encrypted`. Для реальной работы выбирайте JS server или desktop app. Список routes по одному — в [`docs/SERVER-PARITY.ru.md`](docs/SERVER-PARITY.ru.md).
+> **Ограничения Rust server.** CLI по умолчанию сохраняет links в нативных текстовых/бинарных контрольных копиях; `--data` задаёт каталог, `--memory` явно включает хранение только в памяти. Формат и восстановление описаны в [native storage](docs/NATIVE-STORAGE.md). У него **нет source adapters**: нет live-загрузки из Telegram, VK, GitHub, Upwork и т. п., нет исходящего HTTP/TLS client (email только принимает архивы), нет automations, CV sync, browser auto-import, backups и `/api/export-encrypted`. Для реальной работы выбирайте JS server или desktop app. Список routes по одному — в [`docs/SERVER-PARITY.ru.md`](docs/SERVER-PARITY.ru.md).
 
 ### JavaScript server — полный набор функций (Node/Bun/Deno), из исходников
 
@@ -98,7 +120,7 @@ SPA выбирает сервер в таком порядке ([`js/src/web/dis
 - **Приветствия**: начинать диалоги в VK, Telegram, WhatsApp, Messenger, X и почте с «привет» или стикера, как [konard/vk-bot](https://github.com/konard/vk-bot) ([`docs/GREETINGS.ru.md`](docs/GREETINGS.ru.md)).
 - **Синхронизация резюме** между LinkedIn, hh.ru, Habr Career, Naukri, VietnamWorks, TopCV и SuperJob через ваш собственный браузер, поле за полем ([`docs/CV-SYNC.ru.md`](docs/CV-SYNC.ru.md)).
 - **Ваши данные в безопасности**: локальное хранилище, переживающее сбои ([Doublets](https://github.com/linksplatform/doublets-rs) + [Links Notation](https://github.com/link-foundation/links-notation)), автоматические миграции схемы ([`docs/DATA-MIGRATIONS.ru.md`](docs/DATA-MIGRATIONS.ru.md)), потоковые зашифрованные резервные копии, работа при полном диске, зашифрованные секреты, локальный сервер, который не пускает чужие сайты.
-- **Везде, где вы**: веб-приложение, настольное приложение со встроенным сервером, мобильные оболочки, WebRTC-синхронизация между вашими устройствами, офлайн-записи, которые доотправляются позже; вариант сервера на чистом Rust использует тот же формат на диске.
+- **Везде, где вы**: веб-приложение, настольное приложение со встроенным сервером, мобильные оболочки, WebRTC-синхронизация между вашими устройствами, офлайн-записи, которые доотправляются позже; вариант сервера на чистом Rust использует текстовые/бинарные контрольные копии с отдельной структурой базы.
 - **Четыре языка**: приложение и все документы — на английском, русском, хинди и китайском.
 
 Каждая функция по каждой сети — поддерживается, частично или нет, и доступна ли через API или веб-приложение: [`docs/FEATURES.ru.md`](docs/FEATURES.ru.md). Каждое требование с подтверждением: [`docs/REQUIREMENTS.ru.md`](docs/REQUIREMENTS.ru.md).

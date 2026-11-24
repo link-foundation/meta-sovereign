@@ -12,6 +12,8 @@ import { alreadyImported, LEGACY } from '../archive/legacy.js';
 import { mediaSaver } from '../archive/media-store.js';
 import { isZipFile, openZipFile } from '../archive/zip-file.js';
 import { autoImportRecipes } from './recipes.js';
+import { collectVkAttachments } from '../vk-attachment-metadata.js';
+import { putSourceMessageBatch } from '../store-messages.js';
 
 const toArchive = (recipe, name, text, ctx) => {
   if (recipe.toArchive) {
@@ -69,14 +71,11 @@ const putLinks = async (store, rows, provider, onChunk, claimed) => {
     const batch = links
       .slice(at, at + CHUNK)
       .map((link) => stampSourceLink(link, provider));
-    if (typeof store.putMany === 'function') {
-      await store.putMany(batch);
-    } else {
-      for (const link of batch) {
-        await store.put(link);
-      }
-    }
-    onChunk?.(batch.length);
+    const imported = await putSourceMessageBatch(store, batch);
+    onChunk?.(imported);
+  }
+  if (provider === 'vk') {
+    await collectVkAttachments(store, rows);
   }
 };
 

@@ -1,3 +1,4 @@
+import { fulfilWire, requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for voice messages (R-Y108): with nothing typed, a
 // microphone takes the Send button's place (typed text brings Send
 // back); held, the message box gives way to the red dot, the time and
@@ -216,7 +217,7 @@ const errors = [];
 page.on('pageerror', (e) => errors.push(String(e)));
 
 const fulfil = (route, body) =>
-  route.fulfill({
+  fulfilWire(route, {
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify(body),
@@ -235,7 +236,7 @@ await page.route('**/api/telegram/history', (route) =>
 );
 const voices = [];
 await page.route('**/api/telegram/send-voice', (route) => {
-  voices.push(route.request().postDataJSON());
+  voices.push(requestBody(route.request()));
   fulfil(route, { ok: true, chat: CHAT, ids: [10 + voices.length] });
 });
 

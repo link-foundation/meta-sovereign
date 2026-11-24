@@ -8,22 +8,28 @@ import { getLocalStorage } from '../storage/local-storage.js';
 //
 // Detection precedence (highest first):
 //   1. `localStorage.metaSovereignLocale` — explicit user choice.
-//   2. `navigator.languages` walked in order, RFC 4647 §3.4 prefix
+//   2. The connected app's configured language default, when explicit.
+//   3. `navigator.languages` walked in order, RFC 4647 §3.4 prefix
 //      matching against `availableLocales`.
-//   3. `navigator.language` (single tag) for old browsers.
-//   4. `'en'` fallback so the SPA always renders.
+//   4. `navigator.language` (single tag) for old browsers.
+//   5. `'en'` fallback so the SPA always renders.
 //
 // applyLocale() mirrors useTheme()'s contract: side effects on
 // `document.documentElement` (sets `lang` and `dir`) are idempotent
 // and run from the React `useEffect`, never from module init, so the
 // module is safe to import in test environments without a DOM.
 
-import React, { useEffect, useMemo, useState } from 'react';
-import {
-  dictionaries,
-  availableLocales,
-  DEFAULT_LOCALE,
-} from './locales/index.js';
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+} from 'react';
+import { currentUiDefaults, subscribeUiDefaults } from './ui-defaults.js';
+import { translate } from './translate.js';
+import { availableLocales, DEFAULT_LOCALE } from './locales/index.js';
+
+export { translate } from './translate.js';
 
 export const LOCALE_STORAGE_KEY = 'metaSovereignLocale';
 
@@ -82,6 +88,10 @@ export const detectInitialLocale = (env = {}) => {
   } catch {
     // Storage can be disabled in restricted browser contexts.
   }
+  const defaults = env.defaults ?? currentUiDefaults();
+  if (localeIds.includes(defaults.language)) {
+    return defaults.language;
+  }
   for (const tag of browserPreferences(navigator)) {
     const matched = matchTag(tag);
     if (matched) {
@@ -89,65 +99,6 @@ export const detectInitialLocale = (env = {}) => {
     }
   }
   return DEFAULT_LOCALE;
-};
-
-const lookup = (locale, key) => {
-  const dict = dictionaries[locale];
-  if (dict && Object.prototype.hasOwnProperty.call(dict, key)) {
-    return dict[key];
-  }
-  return undefined;
-};
-
-// ICU MessageFormat's plural subset, so English can say "1 draft" and
-// "2 drafts" in one string: {count, plural, one {# draft} other {# drafts}}.
-// `#` is the number as the language writes it (1,364 · 1 364), as ICU
-// writes it; the category comes from Intl.PluralRules.
-const PLURAL = /\{(\w+), plural,((?:\s*(?:=\d+|\w+) \{[^{}]*\})+)\s*\}/g;
-const PLURAL_CASE = /(=\d+|\w+) \{([^{}]*)\}/g;
-
-const pluralize = (template, vars, locale) =>
-  template.replace(PLURAL, (match, name, body) => {
-    const n = Number(vars[name]);
-    if (!Object.prototype.hasOwnProperty.call(vars, name) || Number.isNaN(n)) {
-      return match;
-    }
-    const cases = Object.fromEntries(
-      [...body.matchAll(PLURAL_CASE)].map(([, k, v]) => [k, v])
-    );
-    const text =
-      cases[`=${n}`] ??
-      cases[new Intl.PluralRules(locale).select(n)] ??
-      cases.other ??
-      match;
-    return text.replace(/#/g, new Intl.NumberFormat(locale).format(n));
-  });
-
-const interpolate = (template, vars, locale) => {
-  if (!vars) {
-    return template;
-  }
-  return pluralize(template, vars, locale).replace(
-    /\{(\w+)\}/g,
-    (match, name) => {
-      if (Object.prototype.hasOwnProperty.call(vars, name)) {
-        return String(vars[name]);
-      }
-      return match;
-    }
-  );
-};
-
-export const translate = (locale, key, vars) => {
-  const direct = lookup(locale, key);
-  if (typeof direct === 'string') {
-    return interpolate(direct, vars, locale);
-  }
-  const fallback = lookup(DEFAULT_LOCALE, key);
-  if (typeof fallback === 'string') {
-    return interpolate(fallback, vars, DEFAULT_LOCALE);
-  }
-  return key;
 };
 
 export const applyLocale = (locale, env = {}) => {
@@ -162,7 +113,19 @@ export const applyLocale = (locale, env = {}) => {
 };
 
 export const useLocale = () => {
-  const [locale, setLocaleState] = useState(detectInitialLocale);
+  const defaults = useSyncExternalStore(
+    subscribeUiDefaults,
+    currentUiDefaults,
+    currentUiDefaults
+  );
+  const [choice, setLocaleState] = useState(() => {
+    try {
+      return matchTag(getLocalStorage()?.getItem(LOCALE_STORAGE_KEY));
+    } catch {
+      return '';
+    }
+  });
+  const locale = choice || detectInitialLocale({ storage: null, defaults });
 
   useEffect(() => {
     applyLocale(locale);
@@ -184,7 +147,7 @@ export const useLocale = () => {
     } catch {
       // See detectInitialLocale().
     }
-    setLocaleState(detectInitialLocale());
+    setLocaleState('');
   };
 
   const t = useMemo(

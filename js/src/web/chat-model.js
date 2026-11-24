@@ -34,7 +34,10 @@ const isShownMessage = (link) =>
   link.chat !== undefined &&
   !link.deleted;
 
-const isMine = (message, self) => self.includes(String(message.sender));
+const isMine = (message, self) =>
+  message.source === 'hh' && typeof message.outgoing === 'boolean'
+    ? message.outgoing
+    : self.includes(String(message.sender));
 
 const chatTitle = (messages, self) => {
   const named = messages.find((m) => m.chatName)?.chatName;
@@ -85,6 +88,10 @@ const unreadSnapshot = (read) => {
 export const unreadCount = (messages, read, self = ['me']) => {
   if (!read) {
     return 0;
+  }
+  // HH's identifiers are opaque. Its own count is the unread snapshot.
+  if (read.source === 'hh') {
+    return Number(read.unreadCount ?? 0);
   }
   const snapshot = unreadSnapshot(read);
   const after = Math.max(snapshot.top, Number(read.inboxMaxId ?? 0));
@@ -239,6 +246,28 @@ const lastPreview = (message, self) => ({
   message,
 });
 
+const headHunterWebMessage = (messages, last) => {
+  const fromWeb = (message) => message.via === 'browser';
+  const fromRecording = (message) =>
+    message.via === 'archive' && Boolean(message.raw?.hhRecording);
+  if (last.source !== 'hh') {
+    return {};
+  }
+  if (messages.every(fromRecording)) {
+    return { hhRecordingOnly: true };
+  }
+  if (!messages.some(fromWeb)) {
+    return {};
+  }
+  return {
+    hhBrowserMessage:
+      fromWeb(last) &&
+      messages.every((row) => fromWeb(row) || fromRecording(row))
+        ? last.id
+        : null,
+  };
+};
+
 const summarize = (key, messages, self, read, now, visibility) => {
   const sorted = [...messages].sort(byTime);
   const last = sorted.at(-1);
@@ -261,10 +290,14 @@ const summarize = (key, messages, self, read, now, visibility) => {
     kind: chatKind(last.chatType, people.size),
     ...botIdentity(last, read),
     ...deletedIdentity(last, read),
+    ...headHunterWebMessage(sorted, last),
     people: [...people],
     count: sorted.length,
     unread:
       unreadCount(shown, read, self) - hiddenUnread(sorted, shown, read, self),
+    ...(read?.source === 'hh'
+      ? { hhLatestMessageId: read.hhLatestMessageId }
+      : {}),
     ...unreadMarks(shown, read, self),
     // How Telegram lists it (R-Y68).
     muted: mutedNow(read, now),
@@ -469,7 +502,14 @@ export const cloudDraft = (links = [], key) => {
 // message, or waiting to be tried again) and the ones shown as they are.
 const ON_THE_WAY = new Set(['queued', 'sending', 'waiting']);
 const AS_IS = new Set(['failed', 'stored']);
-const NETWORK_DELIVERY = new Set(['sent', 'delivered', 'read', 'failed']);
+const NETWORK_DELIVERY = new Map([
+  ['sent', 'sent'],
+  ['delivered', 'sent'],
+  ['read', 'read'],
+  ['failed', 'failed'],
+  ['pending', 'sending'],
+  ['unknown', 'unknown'],
+]);
 
 /**
  * Where one of our messages is, as Telegram shows it:
@@ -482,8 +522,9 @@ export const deliveryStatus = (message, readMax = 0) => {
     return null;
   }
   // A network that reports it (WhatsApp, Messenger) says it outright.
-  if (NETWORK_DELIVERY.has(message.delivery) && !message.status) {
-    return message.delivery === 'delivered' ? 'sent' : message.delivery;
+  const reported = NETWORK_DELIVERY.get(message.delivery);
+  if (reported && !message.status) {
+    return reported;
   }
   if (message.status === 'waiting') {
     return 'waiting';

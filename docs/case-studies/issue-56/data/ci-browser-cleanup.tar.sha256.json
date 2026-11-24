@@ -1,0 +1,10 @@
+{
+  "archive": "ci-browser-cleanup.tar.gz",
+  "files": {
+    "2dab-current-status.json": "5abf9e4ce62b2cf6aa5311e55e9b2936a9d2f59baeab2786ddd283772943c0ef",
+    "2dab-failure.log": "6f158aeccbc1f95bedf8d87b3af72d041cbf2aa695306d9a48387ab61f41ad3e",
+    "2dab-webkit.log": "692622f64c92db09604e3b45d2f77f49656bd0138fcefdb7cfef394f8d37724d",
+    "7955-failure-status.json": "b5027d939eb3fd922397d9b0d728085de9745f7e17d9a5ea3222ff004ab78290",
+    "7955-failure.log": "ee237110bec273e61149920ab57ab2ca3f769ae282e16722b8788cb3bef1f94a"
+  }
+}

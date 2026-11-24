@@ -19,8 +19,7 @@ import path from 'node:path';
 import { canShareTlsPort, loadLocalTls } from '../server/local-tls.js';
 import { createDeviceKeyProtector } from '../server/local-key.js';
 
-export const TRUST_HELP = `  trust         [--store=<dir>] [--remove=true]
-                lets Safari use the server from the hosted app: trusts the server's own certificate (localhost and 127.0.0.1 only) once`;
+export { TRUST_HELP } from './help.js';
 
 const enabled = (value, fallback = true) =>
   value === undefined ? fallback : String(value) !== 'false';

@@ -9,7 +9,7 @@ import { describe, it, expect } from 'test-anywhere';
 
 import { createFakeCommander } from './helpers/fake-commander.js';
 import { createMemoryStore } from '../src/storage/index.js';
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 
 const stateJson = readFileSync(
   fileURLToPath(

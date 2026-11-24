@@ -1,7 +1,12 @@
+import { hiChatInvite } from './hi-chat-invite.js';
+
 // The chat screen's words in Hindi, split from ./hi.js to keep
 // each file small; its keys are part of the hi dictionary.
 
 export const hiChat = {
+  ...hiChatInvite,
+  'chat.provider.label': 'चैट सेवा',
+  'chat.provider.all': 'सभी सेवाएँ',
   'chat.history.complete': 'सभी उपलब्ध संदेश लोड हो गए',
   'chat.history.loading': 'संदेश लोड हो रहे हैं…',
   'chat.history.wait':
@@ -176,6 +181,9 @@ export const hiChat = {
   'chat.delivery.sent': 'भेजा गया',
   'chat.delivery.read': 'पढ़ा गया',
   'chat.delivery.failed': 'नहीं भेजा गया',
+  'chat.delivery.unknown': 'डिलीवरी की पुष्टि नहीं हुई',
+  'chat.hh.recordingOnly':
+    'HeadHunter का संग्रह। संदेश भेजने के लिए इस बातचीत को HeadHunter में खोलें और रिकॉर्ड करें।',
   'chat.failure.floodWait':
     'Telegram और भेजने से पहले {seconds} सेकंड रुकने को कहता है।',
   'chat.failure.forbidden': 'आप इस चैट में नहीं लिख सकते।',
@@ -307,19 +315,6 @@ export const hiChat = {
   'chat.topics.forum': 'विषय',
   'chat.topics.forumHint': 'समूह को विषयों की सूची के रूप में दिखाएँ।',
   'chat.pollNew.title': 'नया पोल',
-  'chat.invite.channel': 'चैनल',
-  'chat.invite.group': 'समूह',
-  'chat.invite.join': 'जुड़ें',
-  'chat.invite.request': 'जुड़ने का अनुरोध करें',
-  'chat.invite.cancel': 'रद्द करें',
-  'chat.invite.loading': 'आमंत्रण लिंक जाँचा जा रहा है…',
-  'chat.invite.requestSent': 'जुड़ने का आपका अनुरोध भेज दिया गया।',
-  'chat.invite.err.invite-expired': 'यह आमंत्रण लिंक समाप्त हो चुका है।',
-  'chat.invite.err.invite-invalid': 'यह आमंत्रण लिंक मान्य नहीं है।',
-  'chat.invite.err.chat-full': 'यह समूह भर चुका है।',
-  'chat.invite.err.too-many-chats':
-    'आप बहुत अधिक समूहों और चैनलों में जुड़ चुके हैं।',
-  'chat.invite.err.failed': 'कुछ गड़बड़ हो गई। फिर कोशिश करें।',
   'chat.members.title': 'सदस्य',
   'chat.members.owner': 'मालिक',
   'chat.members.admin': 'एडमिन',
@@ -567,6 +562,7 @@ export const hiChat = {
   'chat.forwardBar.you': 'आप',
   'chat.delete': 'हटाएँ',
   'chat.deleteForMe': 'केवल मेरे लिए हटाएँ',
+  'chat.deleteInHeadHunter': 'HeadHunter में हटाएँ',
   'chat.deleteForEveryone': 'सबके लिए हटाएँ',
   'chat.deleteConfirm': 'यह संदेश हटाएँ?',
   'chat.copy': 'टेक्स्ट कॉपी करें',

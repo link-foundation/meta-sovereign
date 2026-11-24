@@ -1,0 +1,93 @@
+import { vkReengageLocale } from './vk-reengage.js';
+const keys = [
+  'title',
+  'hint',
+  'timeZone',
+  'messages',
+  'stickers',
+  'attachments',
+  'selectedDate',
+  'dateChanged',
+  'birthdayPrivate',
+  'birthdayInvalid',
+  'notBirthday',
+  'idle',
+  'limit',
+  'prompt',
+];
+const words = {
+  en: [
+    'VK birthday greetings',
+    'Scheduling starts off. Choose an explicit IANA time zone and review today’s current friends. Skip private birthdays, unread chats and conversations active in the last 24 hours. Select a sticker, then text with optional native media, 15 seconds apart. The reviewed date and acknowledged steps are retained; unknown delivery is never replayed.',
+    'Birthday time zone (IANA, for example UTC or Europe/Moscow)',
+    'Birthday text variants (one per line, up to 20)',
+    'VK sticker variants (comma-separated IDs, up to 20; optional)',
+    'Native photo/audio/video/doc IDs (comma-separated, up to 10; optional)',
+    'Reviewed birthday date: {date}',
+    'Birthday date changed; review again',
+    'Birthday is private or unavailable',
+    'Birthday is invalid',
+    'Birthday falls on another date',
+    'No birthday greeting attempted.',
+    'Maximum birthday recipients (0–100)',
+    'Send reviewed birthday greeting',
+  ],
+  ru: [
+    'Поздравления с днём рождения ВКонтакте',
+    'Расписание выключено. Выберите часовой пояс IANA и проверьте текущих друзей с днём рождения сегодня. Скрытые даты, непрочитанные беседы и общение за последние 24 часа исключены. Сначала стикер, затем текст с необязательными медиа, с паузой 15 секунд. Дата и подтверждённые шаги сохраняются; неизвестная отправка не повторяется.',
+    'Часовой пояс дня рождения (IANA, например UTC или Europe/Moscow)',
+    'Варианты поздравления (по строке, до 20)',
+    'Варианты стикеров ВКонтакте (ID через запятую, до 20; необязательно)',
+    'ID фото/аудио/видео/документов (через запятую, до 10; необязательно)',
+    'Проверенная дата дня рождения: {date}',
+    'Дата изменилась; проверьте заново',
+    'Дата рождения скрыта или недоступна',
+    'Некорректная дата рождения',
+    'День рождения в другую дату',
+    'Поздравления ещё не отправлялись.',
+    'Максимум получателей поздравлений (0–100)',
+    'Отправить просмотренное поздравление',
+  ],
+  hi: [
+    'VK जन्मदिन अभिवादन',
+    'शेड्यूल बंद है। IANA समय क्षेत्र चुनें और आज जन्मदिन वाले वर्तमान मित्रों की समीक्षा करें। निजी तिथि, अपठित चैट और पिछले 24 घंटे की बातचीत छोड़ी जाती है। पहले स्टीकर, फिर वैकल्पिक मूल मीडिया वाला टेक्स्ट, 15 सेकंड के अंतर पर जाता है। तिथि और पुष्ट चरण सहेजे जाते हैं; अज्ञात भेजना दोहराया नहीं जाता।',
+    'जन्मदिन समय क्षेत्र (IANA, जैसे UTC या Asia/Kolkata)',
+    'जन्मदिन टेक्स्ट विकल्प (हर पंक्ति पर एक, अधिकतम 20)',
+    'VK स्टीकर विकल्प (अल्पविराम से अलग ID, अधिकतम 20; वैकल्पिक)',
+    'मूल फ़ोटो/ऑडियो/वीडियो/दस्तावेज़ ID (अल्पविराम से अलग, अधिकतम 10; वैकल्पिक)',
+    'समीक्षित जन्मदिन तिथि: {date}',
+    'जन्मदिन तिथि बदल गई; फिर समीक्षा करें',
+    'जन्मदिन निजी या अनुपलब्ध है',
+    'जन्मदिन तिथि अमान्य है',
+    'जन्मदिन दूसरी तिथि पर है',
+    'जन्मदिन अभिवादन अभी नहीं भेजा गया।',
+    'अधिकतम जन्मदिन प्राप्तकर्ता (0–100)',
+    'समीक्षित जन्मदिन अभिवादन भेजें',
+  ],
+  zh: [
+    'VK 生日问候',
+    '自动计划默认关闭。选择明确的 IANA 时区并审核今天过生日的当前好友。跳过隐藏生日、未读对话以及过去 24 小时内活跃的对话。先发贴纸，再发带可选原生媒体的文字，间隔 15 秒。保留审核日期和已确认步骤；结果未知时绝不重发。',
+    '生日時区（IANA，例如 UTC 或 Asia/Shanghai）',
+    '生日文字选项（每行一个，最多 20 个）',
+    'VK 贴纸选项（逗号分隔 ID，最多 20 个；可选）',
+    '原生照片/音频/视频/文档 ID（逗号分隔，最多 10 个；可选）',
+    '已审核生日期：{date}',
+    '生日期已改变；请重新审核',
+    '生日已隐藏或不可用',
+    '生日期无效',
+    '生日在其他日期',
+    '尚未尝试生日问候。',
+    '最多生日收件人数（0–100）',
+    '发送已审核生日问候',
+  ],
+};
+export const vkBirthdayLocale = (language) => ({
+  ...Object.fromEntries(
+    Object.entries(vkReengageLocale(language))
+      .filter(([key]) => key.startsWith('vkReengage.'))
+      .map(([key, value]) => [key.replace('vkReengage.', 'vkBirthday.'), value])
+  ),
+  ...Object.fromEntries(
+    keys.map((key, index) => [`vkBirthday.${key}`, words[language][index]])
+  ),
+});
