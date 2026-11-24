@@ -34,6 +34,8 @@ import {
 } from './question-profiles.js';
 import { debugQuestionTurn } from './question-turns.js';
 import { mergeObservedAnswers } from './question-merge.js';
+import { createAnswerLearner } from './question-learning.js';
+import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
 import { savedQuestionnaireProposals } from './questionnaire-backfill.js';
 import { sourceMessageLinkProperties } from '../sources/message-text-links.js';
 import {
@@ -449,6 +451,43 @@ const readAnswerKnowledge = async (store, profileId) => ({
   rules: await readAnswerRules(store, 8 * 1024 ** 2),
   ...(profileId ? { profile: await readAnswerProfile(store, profileId) } : {}),
 });
+
+/** Save one live, acknowledged handover through the same history learner. */
+export const learnObservedSummary = (store, input, { readCurrent, signal }) =>
+  writeAnswerKnowledge(store, async () => {
+    signal.throwIfAborted();
+    const knowledge = await readAnswerKnowledge(store, input.profileId);
+    const options = await contractionInput(
+      store,
+      resolveAnswerProfile({ ...input, contract: true }, knowledge.profile),
+      true
+    );
+    const message = await readCurrent();
+    signal.throwIfAborted();
+    if (!message) {
+      return null;
+    }
+    const learner = createAnswerLearner({
+      ...knowledge,
+      profile: options.profile,
+      contract: createAnswerContractor(options),
+    });
+    learner.accept(message);
+    learner.finishChat();
+    const saved = new Map(knowledge.rules.map((rule) => [rule.id, rule]));
+    let answers = 0;
+    for (const rule of mergeObservedAnswers(saved, learner.rules())) {
+      signal.throwIfAborted();
+      if (JSON.stringify(rule) !== JSON.stringify(saved.get(rule.id))) {
+        await saveAcknowledgedRecord(store, rule);
+      }
+      answers += rule.answers.filter((answer) =>
+        answer.evidence.includes(message.id)
+      ).length;
+    }
+    signal.throwIfAborted();
+    return answers;
+  });
 
 const unchangedKnowledge = async (store, snapshot, checkArchive, profileId) => {
   checkArchive();

@@ -19,7 +19,12 @@ export const validUnreadAnswer = (value, source, chat) => {
   if (
     !boundedBrowserText(value?.questionId, 480) ||
     ![...reviewPhases, ...effectPhases].includes(value.phase) ||
-    (value.reason !== undefined && !boundedBrowserText(value.reason, 120))
+    (value.reason !== undefined && !boundedBrowserText(value.reason, 120)) ||
+    (value.summaryAnswers !== undefined &&
+      (value.phase !== 'no-reply' ||
+        !Number.isSafeInteger(value.summaryAnswers) ||
+        value.summaryAnswers < 1 ||
+        value.summaryAnswers > 20))
   ) {
     return false;
   }

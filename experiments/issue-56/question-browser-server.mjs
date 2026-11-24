@@ -9,6 +9,7 @@ import {
   seedQuestionBrowserRead,
 } from './question-browser-fixture.mjs';
 import { summaryChoiceMessage } from './summary-choice-fixture.mjs';
+import { summary } from './question-summary-fixture.mjs';
 import { hhChoiceHtml } from './hh-choice-fixture.mjs';
 import { textReplyHtml } from './text-reply-fixture.mjs';
 import { noticePolicyHtml } from './notice-policy-browser-fixture.mjs';
@@ -324,11 +325,13 @@ if (
     process.env.QUESTION_BROWSER_EMPLOYER_RATING === '1'
       ? ratingReviewBrowser(browser)
       : null;
+  const unreadSummary = process.env.QUESTION_BROWSER_UNREAD_SUMMARY === '1';
   const fixture = await questionBrowserServer(browser, {
     summaryChoices: process.env.QUESTION_BROWSER_SUMMARY === '1',
     noticePolicies: process.env.QUESTION_BROWSER_NOTICES === '1',
     unreadReview:
-      Boolean(linked || rating) || process.env.QUESTION_BROWSER_UNREAD === '1',
+      Boolean(linked || rating || unreadSummary) ||
+      process.env.QUESTION_BROWSER_UNREAD === '1',
     ...(linked && {
       unreadAnswers: true,
       unreadMessages: { 8: employerQuestionnaire },
@@ -339,6 +342,10 @@ if (
       unreadMessages: { 8: employerRatingInvite },
       unreadRatingAuth: true,
       forms: rating.forms,
+    }),
+    ...(unreadSummary && {
+      unreadAnswers: true,
+      unreadMessages: { 8: summary.replaceAll('\n', '<br>') },
     }),
   });
   const controls = questionBrowserControlServer(fixture);

@@ -1,0 +1,27 @@
+{
+  "archive": "unread-summary-learning.tar.gz",
+  "files": {
+    "ci-logs/unread-summary-browser-final.log": "e03bb810cf20fa1d5913bd5cce345a19280ea98f8fffe615d349347b0e3963da",
+    "ci-logs/unread-summary-browser-parent.log": "e30516bd23bfa4b6394832246729c8cdccc81fd01d94e300eec30a3364c4dd10",
+    "ci-logs/unread-summary-build-web.log": "8c4030895c9e91d13b70490d219b37929ac1184fc9f2f428e875ca463ccd6056",
+    "ci-logs/unread-summary-focused-deno-final.log": "49df00dba0b49c1cfc9911a86bd8ddec94534a8c91305ca08962ad66c588ad27",
+    "ci-logs/unread-summary-focused-node-final.log": "c7624bc13f06851ef6d1b6fecf64df8243cf8df1fcd408b86291d1ea2e7e854b",
+    "ci-logs/unread-summary-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/unread-summary-lint.log": "cd4232bc58e704d1233fe2a91cb9d1cf88ad7bfe9b82381cef8aea11f42a2e98",
+    "ci-logs/unread-summary-mcp-stats.json": "3829e690e59e9ff2f34a6882f746b2a5034479ced6635a5f6c64bcf76fdef5ef",
+    "ci-logs/unread-summary-parent-node.log": "ce7f3b48cc4c6928fe3959257906eb44cd35bb91adf175dc83226c2301ab437c"
+  },
+  "parent": "3c8cb570faf50c7600e5e42bdb5a4fab8a8b4f04",
+  "sha256": "392e1d50922fe7d40dcb2c1316afe12931dd782df0dbe8ec9b3c57b3bd7bc131",
+  "sourceAndScreenshots": {
+    "docs/screenshots/issue-56-unread-summary-after.png": "67ed11c091499d5270197af7bb17fa8e49d631719d05db87774707c0175d822a",
+    "docs/screenshots/issue-56-unread-summary-before.png": "5350466d89f908836f7b8cb2717f9b34f70a783059d40134e743412828d3d40d",
+    "docs/screenshots/issue-56-unread-summary-mobile.png": "f3f453372957702c033dd7a77bb0a21863fdf13549172c2da7832ca79392c8ea",
+    "js/src/automation/question-store.js": "f89b008a4b1aba963dc6778bbb7ee37fbeeca8d253af819675592b85b3d052fc",
+    "js/src/automation/question-unread-answers.js": "c57970315959fb0745b2b9c3ec4f8ed1d6a70f30ab5ec3146b09067d8ffb055d",
+    "js/src/automation/question-unread-summary.js": "2eae480d7529f097c680853654d1148d3636e918a14655dd231087e45bf5b460",
+    "js/src/web/question-unread-controls.js": "308eb6b12215531fd8504d5168a2f7aba0c122421ce7eba580f47380fa9cbadb",
+    "js/tests/helpers/e2e-unread-summary.mjs": "0775d6c4bb771d8276edf1b63dbeb1a374c1066fec480a68dd36152fd9def7d5",
+    "js/tests/question-unread-summary.test.js": "00889c200c10a5264728f557046681b01e5da7f776dde39a7f895b31c1ad98d1"
+  }
+}

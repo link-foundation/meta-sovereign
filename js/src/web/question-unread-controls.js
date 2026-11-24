@@ -256,7 +256,21 @@ const UnreadResult = ({ result, blocked, select }) => {
                   role: 'status',
                   'data-browser-unread-answer': entry.answer.phase,
                 },
-                t(`browserUnread.answer.${entry.answer.phase}`)
+                entry.answer.summaryAnswers
+                  ? t('browserUnread.summary.saved', {
+                      count: entry.answer.summaryAnswers,
+                    })
+                  : t(`browserUnread.answer.${entry.answer.phase}`)
+              )
+            : null,
+          [
+            'question-unread-summary-unverified',
+            'question-unread-summary-save-failed',
+          ].includes(entry.answer?.reason)
+            ? el(
+                'p',
+                { key: 'summary-hold', className: 'meta' },
+                t('browserUnread.summary.hold')
               )
             : null,
           entry.answer?.selection

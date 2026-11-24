@@ -6,6 +6,7 @@ import {
   checkBrowserQuestion,
 } from './question-browser-state.js';
 import { unreadFailure } from './question-unread-identity.js';
+import { completedAnswerSummary } from './question-summary.js';
 
 const cleanTextUrl = (value) => value.replace(/[.,;:!?)\]}»”’]+$/u, '');
 const activeTransfer = (state) =>
@@ -32,6 +33,9 @@ export const unreadFormLink = (enabled, snapshot, source) => {
     return null;
   }
   const forms = messages.flatMap((message) => {
+    if (completedAnswerSummary(message.body)) {
+      return [];
+    }
     const targets = message.links ?? textLinks(message.body).map(cleanTextUrl);
     const urls = new Set(
       targets

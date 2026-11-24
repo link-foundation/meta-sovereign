@@ -410,7 +410,11 @@ const questionBrowserGroups = {
     'verifyUnreadModel',
     'verifyUnreadModelControls',
   ],
-  'question-unread-forms': ['verifyUnreadLinkedForms'],
+  'question-unread-forms': [
+    'verifyUnreadLinkedForms',
+    'verifyUnreadEmployerRating',
+    'verifyUnreadSummary',
+  ],
   'question-unread-choices': ['verifyUnreadBotChoices'],
   'question-unread-reply-view': [
     'verifyUnreadReplyView',

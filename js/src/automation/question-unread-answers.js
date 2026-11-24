@@ -9,6 +9,8 @@ import {
 } from './question-browser-state.js';
 import { unreadFailure } from './question-unread-identity.js';
 import { unreadFormLink, visitUnreadForm } from './question-unread-form.js';
+import { completedAnswerSummary } from './question-summary.js';
+import { learnUnreadSummary } from './question-unread-summary.js';
 import {
   unreadAnswerInput,
   mayDraftUnreadAnswer,
@@ -83,6 +85,52 @@ const maySelect = (snapshot, plan) =>
   approvedBrowserPlan(plan) &&
   Boolean(plan.option);
 
+const alreadyHandled = (snapshot, plan, entry) =>
+  snapshot.question.outgoing ||
+  snapshot.noticeContext?.canReply === false ||
+  (!snapshot.hasDraft &&
+    plan?.noReply &&
+    !entry.form &&
+    !plan.linkReview &&
+    !plan.pending?.blocked);
+
+const finishSummary = async ({
+  context,
+  record,
+  snapshot,
+  handle,
+  input,
+  signal,
+  entry,
+}) => {
+  let count = null;
+  let reason = 'question-unread-summary-unverified';
+  try {
+    count = await learnUnreadSummary({
+      store: context.store,
+      source: record.source,
+      snapshot,
+      handle,
+      input,
+      signal,
+    });
+  } catch (error) {
+    if (signal.aborted) {
+      throw error;
+    }
+    reason = 'question-unread-summary-save-failed';
+  }
+  if (count === null) {
+    await handle.holdReviewInactive();
+    entry.answer.reason = reason;
+    return false;
+  }
+  if (count > 0) {
+    entry.answer.summaryAnswers = count;
+  }
+  return true;
+};
+
 /** Ordinary text is held for owner review; only approved native options dispatch. */
 export const visitUnreadAnswer = async ({
   context,
@@ -107,6 +155,9 @@ export const visitUnreadAnswer = async ({
   const baseline = snapshot.question.outgoing
     ? null
     : await previewAnswer(context.store, input);
+  const summary =
+    !snapshot.question.outgoing &&
+    completedAnswerSummary(snapshot.question.body);
   const link = unreadFormLink(record.prefillForms, snapshot, record.source);
   const reviewed = await review(
     { source: record.source, chat: snapshot.chat },
@@ -140,14 +191,24 @@ export const visitUnreadAnswer = async ({
   ) {
     return { holdReview: false };
   }
-  if (
-    snapshot.question.outgoing ||
-    snapshot.noticeContext?.canReply === false ||
-    (plan?.noReply && !entry.form && !plan.linkReview && !plan.pending?.blocked)
-  ) {
-    entry.answer.phase = 'no-reply';
+  if (alreadyHandled(snapshot, plan, entry)) {
+    const finished =
+      !summary ||
+      snapshot.hasDraft ||
+      (await finishSummary({
+        context,
+        record,
+        snapshot,
+        handle,
+        input,
+        signal: controller.signal,
+        entry,
+      }));
+    if (finished) {
+      entry.answer.phase = 'no-reply';
+    }
     await save(record);
-    return { holdReview: false };
+    return { holdReview: !finished };
   }
   const verify = async () => {
     if (

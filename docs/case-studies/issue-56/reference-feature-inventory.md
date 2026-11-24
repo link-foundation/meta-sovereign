@@ -2,6 +2,8 @@
 
 Current acceptance: **88 of 118 criteria verified; 30 remain unchecked**.
 
+[Completed unread recruiter summaries](unread-summary-learning.md) now save private, unapproved answer proposals before sequential review continues. Native fixture, CLI and both Lino encodings verify the receipt. Learning ordinary historical replies during sequential review and authenticated verification remain required for HH10.
+
 [Employer rating polls linked in HeadHunter chats](employer-rating-poll.md) use a separate Forms slot to enter a verified employer name and leave scoring and submission to the owner. The fixture checks a signed-in search, held chat progression and closed-season behavior. Live active-voting and authenticated checks remain required for HH10.
 
 [Questionnaires linked in unread HeadHunter chats](unread-linked-forms.md) reach an owned Forms slot under explicit opt-in, recover their receipts and let the native queue continue after a confirmed questionnaire-only handoff. Focused CLI and both Lino encodings, Chromium and a phone Playwright handoff verify the fixture behavior. Authenticated and complete provider coverage remain required for HH10 and QA24.

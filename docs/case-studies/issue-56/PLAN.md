@@ -1,3 +1,10 @@
+### 2026-11-24 Learn from completed unread recruiter summaries (HH10)
+
+- [x] Reproduce advancement with zero saved facts and advancement after a stale summary on the published parent.
+- [x] Save unapproved proposals from the freshly verified, acknowledged native bubble before advancing. Hold when evidence or storage acknowledgment fails.
+- [x] Verify 91 checks per runtime, CLI and both Lino encodings, production Chromium and independent phone playback. [Before and after evidence](unread-summary-learning.md).
+- [ ] Verify the exact published head in GitHub Actions. Learning from ordinary earlier candidate replies and authenticated HeadHunter acceptance remain open.
+
 ### 2026-11-23 Added requests inside a word-prefix wildcard (QA04)
 
 - [x] Reproduce inherited approval on the published matcher and browser, and record the four failing direct, shared-provider and control regressions.

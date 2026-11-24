@@ -1,4 +1,6 @@
 export const zhUnreadReview = {
+  'browserUnread.summary.saved': '已保存摘要中的答案（{count}）。无需回复。',
+  'browserUnread.summary.hold': '请在此聊天中核对摘要。下一个聊天将继续等待。',
   'browserUnread.form.enable':
     '准备链接中的问卷和 HeadHunter 评分投票，供我审核',
   'browserUnread.answer.form-review': '已在表单页面打开，可进行审核。',
@@ -21,7 +23,7 @@ export const zhUnreadReview = {
   'browserUnread.form.open': '在表单中检查 {slot}',
   'browserUnread.answers': '处理机器人选项，普通回复留待审核',
   'browserUnread.answersHint':
-    '在未激活的服务窗口中逐一检查未读聊天。完整且精确匹配的已保存答案、完整摘要中的唯一匹配，以及获准薪资目标对应的唯一包含区间可选择机器人提供的选项。普通文字只填入草稿：第一个需要审核的聊天会保持打开。后续检查只查看该聊天，直到你回复或无需回复。可单独启用已配置模型，为未解决的文字生成草稿。每份生成的草稿仍需你审核。',
+    '在未激活的服务窗口中逐一检查未读聊天。完整摘要中的答案会保存以供审核。精确匹配的已保存答案、完整摘要中的唯一匹配，以及获准薪资目标对应的唯一区间可选择机器人选项。普通回复会保留为草稿。后续检查会等待你审核第一个待处理聊天。可以单独启用模型草稿。',
   'browserUnread.startAnswers': '逐一处理未读答案',
   'browserUnread.activeAnswers':
     '正在检查未读问题。可选择已批准的机器人选项；普通回复保留为草稿供你审核。',

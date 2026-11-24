@@ -1,4 +1,8 @@
 export const enUnreadReview = {
+  'browserUnread.summary.saved':
+    'Answers saved from summary ({count}). No reply is needed.',
+  'browserUnread.summary.hold':
+    'Check this chat to confirm its summary. The next chat is waiting.',
   'browserUnread.form.enable':
     'Prepare linked questionnaires and HeadHunter rating polls for review',
   'browserUnread.answer.form-review': 'Opened for review in Forms.',
@@ -27,7 +31,7 @@ export const enUnreadReview = {
   'browserUnread.answers':
     'Handle bot options and hold ordinary replies for review',
   'browserUnread.answersHint':
-    'Visit unread chats one at a time in the inactive provider window. Complete exact saved answers, unique completed summaries and approved salary targets with one containing band may select an offered bot option. Ordinary text is only drafted: the first reply needing review stays open and later checks inspect only that chat until you reply or no reply is needed. Optionally enable configured model drafts for unresolved text. Every generated draft still needs your review.',
+    'Visit unread chats one at a time in the inactive provider window. Answers from completed summaries are saved for review. Exact saved answers, unique completed summaries and approved salary targets with one containing band may select an offered bot option. Ordinary replies stay as drafts. Later checks wait on the first chat needing your review. You can enable model drafts separately.',
   'browserUnread.startAnswers': 'Handle unread answers sequentially',
   'browserUnread.activeAnswers':
     'Checking unread questions. Approved bot options may be selected; ordinary replies remain drafts for your review.',
