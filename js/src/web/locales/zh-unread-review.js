@@ -14,6 +14,7 @@ export const zhUnreadReview = {
     '已打开 {observed} 个可见聊天中的 {visited} 个。完整列表可能还有其他聊天。',
   'browserUnread.answer.skipped': '已跳过问题。',
   'browserUnread.reviewChoices': '手动选择机器人选项',
+  'browserUnread.reviewOtherChoices': '手动选择机器人的其他选项',
   'browserUnread.activeReviewChoices':
     '正在检查未读问题。机器人选项和草稿将保留供您检查。',
   'browserUnread.answer.choice-review': '请在服务商聊天窗口中选择一个选项。',

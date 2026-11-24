@@ -38,6 +38,7 @@ export const validUnreadAnswer = (value, source, chat) => {
   }
   if (
     !effectPhases.includes(phase) ||
+    (selection.kind !== undefined && selection.kind !== 'answer-reuse') ||
     selection.chat !== chat ||
     !boundedBrowserText(selection.option, 6000) ||
     !boundedBrowserText(selection.key, 2000)

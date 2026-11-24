@@ -43,6 +43,7 @@ export const questionUnreadCommand = async (
     ['notice-replies', 'noticeReplies'],
     ['answer-chats', 'answerChats'],
     ['review-choices', 'reviewChoices'],
+    ['auto-reuse-answers', 'autoReuseAnswers'],
     ['watch-waiting', 'watchWaiting'],
     ['prefill-forms', 'prefillForms'],
   ]) {

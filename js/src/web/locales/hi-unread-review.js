@@ -15,6 +15,7 @@ export const hiUnreadReview = {
     'दिखाई देने वाली {observed} चैट में से {visited} खोली गईं। पूरी सूची में और चैट हो सकती हैं।',
   'browserUnread.answer.skipped': 'सवाल छोड़ दिया गया।',
   'browserUnread.reviewChoices': 'बॉट के विकल्प खुद चुनें',
+  'browserUnread.reviewOtherChoices': 'बॉट के बाकी विकल्प खुद चुनें',
   'browserUnread.activeReviewChoices':
     'अपठित सवालों की जाँच हो रही है। बॉट के विकल्प और ड्राफ़्ट आपकी समीक्षा के लिए खुले रहेंगे।',
   'browserUnread.answer.choice-review': 'प्रदाता की चैट में कोई विकल्प चुनें।',

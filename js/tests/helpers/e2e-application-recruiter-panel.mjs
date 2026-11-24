@@ -11,6 +11,8 @@ import {
   recruiterPanelQuestion,
   recruiterPanelReply,
   recruiterPanelSavedDraft,
+  recruiterReuseOptions,
+  recruiterReuseQuestion,
 } from '../../../experiments/issue-56/application-recruiter-panel-fixture.mjs';
 import { outboxId } from '../../src/automation/outbox.js';
 import { questionChoiceKey } from '../../src/automation/question-choice-key.js';
@@ -169,6 +171,96 @@ const verifyExactRecruiterReplies = async ({
       node.closest('label').hidden = false;
       node.value = text;
     }, recruiterPanelDraft);
+};
+
+const verifyRecruiterReuse = async ({
+  frame,
+  nativePanel,
+  panel,
+  fixture,
+  shot,
+}) => {
+  await nativePanel.locator('iframe').evaluate((node) => {
+    node.style.height = '320px';
+  });
+  const body = frame.locator('body');
+  const composer = frame.locator('textarea[data-qa="text-input"]');
+  const sends = () => body.evaluate(() => globalThis.fixtureRecruiterSends);
+  const offer = (id, summary) =>
+    body.evaluate((_node, args) => globalThis.fixtureRecruiterReuse(args), {
+      id,
+      summary: `Похоже, вы отвечали на часть вопросов:\n${summary}`,
+    });
+  const outbox = (id) =>
+    fixture.runtimeStore.get(
+      outboxId(
+        questionChoiceKey({
+          source: 'hh',
+          chat: '456',
+          answer: { message: `msg:hh:456:${id}`, strictOptions: true },
+        })
+      )
+    );
+  const confirm = (id, option) =>
+    waitForCapture(async () => {
+      const row = await outbox(id);
+      return (
+        row?.status === 'sent' &&
+        row.receipt?.messageId === String(id + 1) &&
+        row.receipt.option === option
+      );
+    }, `HeadHunter reuse offer ${id} needs a native choice receipt`);
+
+  await offer(3, `${recruiterReuseQuestion}: Yes!`);
+  await frame
+    .getByRole('button', { name: recruiterReuseOptions[0], exact: true })
+    .waitFor();
+  await setTimeout(1300);
+  assert.equal(
+    await composer.evaluate((node) => node.value),
+    recruiterPanelDraft
+  );
+  assert.equal(await sends(), 0);
+  await composer.evaluate((node) => {
+    node.value = '';
+  });
+  try {
+    await confirm(3, recruiterReuseOptions[0]);
+  } catch (error) {
+    await shot('reuse-before', nativePanel);
+    throw error;
+  }
+  await shot('reuse-positive', nativePanel);
+
+  await offer(6, 'Насколько хорошо вы знаете Rust?: Хорошо.');
+  await setTimeout(1300);
+  assert.equal(await sends(), 1);
+  assert.equal(await outbox(6), null);
+  await frame
+    .getByRole('button', { name: recruiterReuseOptions[1], exact: true })
+    .evaluate((node) => node.scrollIntoView({ block: 'end' }));
+  await shot('reuse-owner-choice', nativePanel);
+  await offer(
+    6,
+    `${recruiterReuseQuestion}: Нет.\nНасколько хорошо вы знаете Rust?: Хорошо.`
+  );
+  await confirm(6, recruiterReuseOptions[1]);
+  assert.equal(await sends(), 2);
+  await frame
+    .getByText('Delivered', { exact: true })
+    .last()
+    .evaluate((node) => node.scrollIntoView({ block: 'end' }));
+  await shot('reuse-negative', nativePanel);
+  await shot(
+    'reuse-receipt',
+    panel
+      .locator('[data-application-recruiter-reply="provider-confirmed"]')
+      .locator('..')
+  );
+  await composer.evaluate((node, draft) => {
+    node.closest('label').hidden = false;
+    node.value = draft;
+  }, recruiterPanelDraft);
 };
 
 const verifyRecruiterReplyLearning = async ({
@@ -423,6 +515,7 @@ export const verifyNativeApplicationRecruiterPanel = async (
     ownerReply = false,
     prepareReply = false,
     exactReply = false,
+    reuseReply = false,
     terminal = false,
     verifyPending = true,
   } = {}
@@ -432,6 +525,7 @@ export const verifyNativeApplicationRecruiterPanel = async (
     ownerReply,
     prepareReply,
     exactReply,
+    reuseReply,
   });
   const controls = applicationPanelBrowser(fixture);
   const { page, panel } = controls;
@@ -462,6 +556,14 @@ export const verifyNativeApplicationRecruiterPanel = async (
     if (exactReply && (await automaticReply.count())) {
       assert.equal(await automaticReply.isChecked(), false);
       await automaticReply.check();
+    }
+    const automaticReuse = panel.locator(
+      '[data-application-option="autoReuseAnswers"]'
+    );
+    if (reuseReply && (await automaticReuse.count())) {
+      assert.equal(await automaticReuse.isChecked(), false);
+      assert.equal(await automaticReply.isChecked(), false);
+      await automaticReuse.check();
     }
     await field('urls').fill(vacancy);
     await field('maxApplications').fill('1');
@@ -558,6 +660,9 @@ export const verifyNativeApplicationRecruiterPanel = async (
         shot,
       });
     }
+    if (reuseReply) {
+      await verifyRecruiterReuse({ frame, nativePanel, panel, fixture, shot });
+    }
     await verifyRecruiterPanelRecovery({
       controls,
       page,
@@ -619,6 +724,13 @@ export const verifyNativeApplicationRecruiterExact = (browser) =>
   verifyNativeApplicationRecruiterPanel(browser, {
     exactReply: true,
     terminal: true,
+    panelDelayMs: 0,
+    verifyBinding: false,
+  });
+
+export const verifyNativeApplicationRecruiterReuse = (browser) =>
+  verifyNativeApplicationRecruiterPanel(browser, {
+    reuseReply: true,
     panelDelayMs: 0,
     verifyBinding: false,
   });

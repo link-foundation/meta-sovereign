@@ -109,6 +109,10 @@ const validUnreadIdentity = (value, id) =>
   (value.reviewChoices === undefined ||
     typeof value.reviewChoices === 'boolean') &&
   (!value.reviewChoices || value.answerChats === true) &&
+  (value.autoReuseAnswers === undefined ||
+    (value.autoReuseAnswers === true &&
+      value.source === 'hh' &&
+      value.answerChats === true)) &&
   (value.watchWaiting === undefined ||
     typeof value.watchWaiting === 'boolean') &&
   (!value.watchWaiting ||
@@ -131,7 +135,11 @@ const invalidUnreadEntries = (value) =>
     value.entries.some((entry) => entry.answer !== undefined)) ||
   value.entries.some(
     (entry) =>
-      (value.reviewChoices && entry?.answer?.selection) ||
+      (entry?.answer?.selection?.kind === 'answer-reuse' &&
+        !value.autoReuseAnswers) ||
+      (value.reviewChoices &&
+        entry?.answer?.selection &&
+        entry.answer.selection.kind !== 'answer-reuse') ||
       (!value.reviewChoices && entry?.answer?.phase === 'choice-review') ||
       (!value.watchWaiting && entry?.answer?.phase === 'skipped')
   ) ||

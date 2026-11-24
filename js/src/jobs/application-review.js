@@ -83,6 +83,7 @@ const recruiterDraftReview = (service, record, signal) => {
     attempted: (record.recruiterDraftAttempts ??= new Set()),
     owner: `application-recruiter:${record.requestId}`,
     autoSendExactAnswers: record.options.autoSendExactAnswers === true,
+    autoReuseAnswers: record.options.autoReuseAnswers === true,
     input: {
       profileId,
       salary,

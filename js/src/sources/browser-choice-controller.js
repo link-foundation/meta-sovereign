@@ -9,6 +9,7 @@ import { armBrowserReply } from './browser-reply-guard.js';
 import { browserAnswerRecent } from './browser-answer-context.js';
 import { browserFrameVisible } from './browser-choice-document.js';
 import { browserVacancyHeader } from './browser-notice-context.js';
+import { textReplyOpen } from './browser-text-controller.js';
 
 /** Page-local ownership and one-use event guards. Never returns composer text. */
 export const createChoiceContext = (input, read) => {
@@ -69,6 +70,10 @@ export const createChoiceContext = (input, read) => {
     (input.manual ? sameManual(value) : sameQuestion(value));
   const valueOf = (node) =>
     node ? String('value' in node ? node.value : (node.textContent ?? '')) : '';
+  const hasDraft = () => {
+    const composers = document.querySelectorAll(spec.composer);
+    return composers.length > 100 || [...composers].some(valueOf);
+  };
   const writable = (node) =>
     Boolean(node) &&
     !node.matches(
@@ -146,6 +151,7 @@ export const createChoiceContext = (input, read) => {
     ownershipIdentity,
     same,
     valueOf,
+    hasDraft,
     writable,
     own,
     write,
@@ -201,7 +207,7 @@ export const readBrowserPanelBoundary = (
 };
 
 export const readChoicePublic = (input, context) => {
-  const { snapshot, clearOwned, valueOf } = context;
+  const { snapshot, clearOwned, valueOf, hasDraft } = context;
   const current = snapshot();
   if (current.code) {
     return current;
@@ -210,7 +216,10 @@ export const readChoicePublic = (input, context) => {
     clearOwned(current);
   }
   const { controls: _controls, composer, ...result } = current;
-  return { ...result, hasDraft: Boolean(valueOf(composer)) };
+  return {
+    ...result,
+    hasDraft: input.preserveDraft ? hasDraft() : Boolean(valueOf(composer)),
+  };
 };
 
 export const prefillChoiceDraft = (input, context) => {
@@ -240,16 +249,22 @@ export const prefillChoiceDraft = (input, context) => {
 
 export const armChoiceClick = (input, context) => {
   const { option } = input;
-  const { snapshot, same, clearOwned, valueOf } = context;
+  const { snapshot, same, clearOwned, valueOf, hasDraft } = context;
   const current = snapshot();
+  const open = () => !input.spec.textReply || textReplyOpen(input.spec);
   const candidates =
     current.controls?.filter(
       (node) => String(node.textContent).replace(/\s+/gu, ' ').trim() === option
     ) ?? [];
-  if (!same(current) || !current.strictOptions || candidates.length !== 1) {
+  if (
+    !same(current) ||
+    !current.strictOptions ||
+    candidates.length !== 1 ||
+    (input.requireEmpty && !open())
+  ) {
     return { code: 'answer-choice-changed' };
   }
-  if (input.requireEmpty ? valueOf(current.composer) : !clearOwned(current)) {
+  if (input.requireEmpty ? hasDraft() : !clearOwned(current)) {
     return { code: 'answer-draft-preserved' };
   }
   return armBrowserReply(
@@ -260,7 +275,7 @@ export const armChoiceClick = (input, context) => {
     (fresh, attempt) =>
       same(fresh) &&
       fresh.controls.includes(attempt.node) &&
-      !valueOf(fresh.composer)
+      (input.requireEmpty ? !hasDraft() && open() : !valueOf(fresh.composer))
   );
 };
 

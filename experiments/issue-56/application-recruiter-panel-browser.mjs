@@ -8,6 +8,7 @@ const learningParent = process.env.E2E_RECRUITER_PANEL_LEARNING_PARENT === '1';
 const prepareReply = process.env.E2E_RECRUITER_PANEL_PREPARE_REPLY === '1';
 const exactReply = process.env.E2E_RECRUITER_PANEL_EXACT_REPLY === '1';
 const terminal = process.env.E2E_RECRUITER_PANEL_TERMINAL === '1';
+const reuseReply = process.env.E2E_RECRUITER_PANEL_REUSE === '1';
 if (parent) {
   const jobs = new URL('../../js/src/jobs/', import.meta.url).href;
   const files = new Set([
@@ -20,10 +21,10 @@ if (parent) {
     'application-search-route.js',
     'application-service.js',
   ]);
-  if (learningParent || prepareReply || exactReply) {
+  if (learningParent || prepareReply || exactReply || reuseReply) {
     files.add('application-recruiter-panel.js');
   }
-  if (exactReply) {
+  if (exactReply || reuseReply) {
     files.add('application-recruiter-draft.js');
   }
   registerHooks({
@@ -55,6 +56,7 @@ await runBrowserScenarios('job-application-recruiter-panel', [
         !learningParent &&
         !prepareReply &&
         !exactReply &&
+        !reuseReply &&
         process.env.E2E_RECRUITER_PANEL_BINDING_PARENT !== '1',
       screenshots: process.env.E2E_ARTIFACT_DIR,
       webBundle: process.env.APPLICATION_RECRUITER_PANEL_PARENT_WEB,
@@ -65,6 +67,7 @@ await runBrowserScenarios('job-application-recruiter-panel', [
       prepareReply,
       exactReply,
       terminal,
+      reuseReply,
       verifyPending: !learningParent,
       ...(process.env.E2E_RECRUITER_PANEL_IMMEDIATE === '1'
         ? { panelDelayMs: 0 }

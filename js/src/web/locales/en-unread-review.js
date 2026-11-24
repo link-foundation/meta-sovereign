@@ -15,6 +15,8 @@ export const enUnreadReview = {
     'Visited {visited} of {observed} visible chats. The full list may contain more conversations.',
   'browserUnread.answer.skipped': 'Question skipped.',
   'browserUnread.reviewChoices': 'Leave bot choices for manual selection',
+  'browserUnread.reviewOtherChoices':
+    'Leave other bot choices for manual selection',
   'browserUnread.activeReviewChoices':
     'Checking unread questions. Bot choices and drafts stay open for your review.',
   'browserUnread.answer.choice-review':

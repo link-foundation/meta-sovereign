@@ -214,6 +214,8 @@ export const hiApplication = {
   'application.coverLetter': 'समीक्षित परिचय पत्र (24,000 अक्षर तक)',
   'application.autoSendExactAnswers':
     'भर्ती करने वाले के हूबहू मिलते सवालों के स्वीकृत जवाब अपने आप भेजें',
+  'application.autoReuseAnswers':
+    'भर्ती करने वाले को दिए पुराने जवाब दोबारा इस्तेमाल करने का फ़ैसला अपने आप करें',
   'application.autoExact':
     'भरने के बाद तभी स्वतः भेजें जब सभी उत्तर सटीक और सत्यापित हों',
   'application.delay': 'स्वतः भेजने से पहले समीक्षा विराम (0–30,000 मिलीसेकंड)',

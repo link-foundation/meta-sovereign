@@ -66,7 +66,11 @@ const parseSummary = (text) => {
   ) {
     return { pairs: [], complete: false };
   }
-  return { pairs: state.pairs, complete: state.complete && state.count > 0 };
+  return {
+    pairs: state.pairs,
+    complete: state.complete && state.count > 0,
+    count: state.count,
+  };
 };
 
 export const summaryAnswerPairs = (text) => parseSummary(text).pairs;
@@ -76,4 +80,11 @@ export const completedAnswerSummary = (text) => parseSummary(text).complete;
 export const completedSummaryPairs = (text) => {
   const result = parseSummary(text);
   return result.complete ? result.pairs : [];
+};
+
+export const strictSummaryPairs = (text) => {
+  const result = parseSummary(text);
+  return result.complete && result.pairs.length === result.count
+    ? result.pairs
+    : [];
 };

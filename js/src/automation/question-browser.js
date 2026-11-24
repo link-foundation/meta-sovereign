@@ -243,6 +243,7 @@ export const createQuestionBrowser = ({
   watchIntervalMs = 1500,
   readVacancy,
   prefillLinkedForm,
+  allowAutomaticReuse,
 }) => {
   const controller = new AbortController();
   const answerPlanning = createBrowserAnswerPlanning({
@@ -273,6 +274,7 @@ export const createQuestionBrowser = ({
     log,
     answerPlanning,
     prefillLinkedForm,
+    allowAutomaticReuse,
   });
   const unread = withQuestionUnreadPolling({
     finite: finiteUnread,

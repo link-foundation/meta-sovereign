@@ -47,7 +47,7 @@ export class ApplicationChats {
   status() {
     return globalThis.structuredClone(this.view);
   }
-  async start(record, { applicationPage } = {}) {
+  async start(record, { applicationPage, allowAutomaticReuse } = {}) {
     this.controller = new AbortController();
     this.view = {
       phase: 'starting',
@@ -60,6 +60,7 @@ export class ApplicationChats {
     };
     this.record = record;
     this.applicationPage = applicationPage;
+    this.allowAutomaticReuse = allowAutomaticReuse;
     const token = randomBytes(32).toString('hex');
     try {
       this.control = await createWatcherControl({
@@ -219,6 +220,7 @@ export class ApplicationChats {
       send: Object.assign(this.send.send.bind(this.send), this.send),
       runner: this.runner ?? this.model?.draft,
       prefillLinkedForm: this.prefillLinkedForm,
+      allowAutomaticReuse: this.allowAutomaticReuse,
       log: this.log,
     });
     await this.browser.unreadStart({
@@ -227,10 +229,11 @@ export class ApplicationChats {
       confirm: true,
       answerChats: true,
       reviewChoices: true,
+      ...(options.review.autoReuseAnswers ? { autoReuseAnswers: true } : {}),
       ...(options.chatWatchWaiting ? { watchWaiting: true } : {}),
-      ...(options.chatPrefillForms
+      ...(options.chatPrefillForms ? { prefillForms: true } : {}),
+      ...(options.chatPrefillForms || options.review.autoReuseAnswers
         ? {
-            prefillForms: true,
             profileId: options.review.profileId,
             salary: options.review.salary,
             ...(options.review.answerFinalPeriod === undefined

@@ -12,6 +12,12 @@ export const recruiterPanelSavedDraft = 'I am available next Wednesday.';
 export const recruiterPanelChoiceQuestion =
   'Would you prefer a video interview?';
 export const recruiterPanelChoices = ['Yes, video', 'No, in person'];
+export const recruiterReuseQuestion = 'Можно ли работать удалённо?';
+export const recruiterReuseAnswer = 'Да.';
+export const recruiterReuseOptions = [
+  'Да. Используем те же ответы',
+  'Нет. Отвечу заново',
+];
 const panel = `<aside data-qa="chatik-root" aria-label="Recruiter chat" style="position:fixed;inset:20px 20px auto auto;width:360px;border:1px solid #aaa;padding:12px;background:#fff">
   <button type="button" data-qa="chatik-close" onclick="console.info('fixture recruiter panel dismissed'); this.closest('aside').hidden = true">Close recruiter panel</button>
   <iframe title="Recruiter chat" src="${recruiterPanelChatUrl}" style="display:block;width:100%;height:200px;border:0"></iframe>
@@ -24,6 +30,7 @@ export const applicationRecruiterPanelFixture = async (
     ownerReply = false,
     prepareReply = false,
     exactReply = false,
+    reuseReply = false,
   } = {}
 ) => {
   const searchVisits = [];
@@ -61,7 +68,7 @@ export const applicationRecruiterPanelFixture = async (
           <article data-qa="chatik-chat-message-1" data-time="2026-11-24T09:00:00Z"><p data-qa="chat-bubble-text">${recruiterPanelQuestion}</p></article>${prepareReply ? '</div>' : ''}
           <label>Your reply <textarea data-qa="text-input">${recruiterPanelDraft}</textarea></label>
           ${
-            ownerReply || prepareReply || exactReply
+            ownerReply || prepareReply || exactReply || reuseReply
               ? `<button type="button" data-qa="send-message">Send reply</button>
           <script>
             globalThis.fixtureRecruiterSends=0;
@@ -71,8 +78,9 @@ export const applicationRecruiterPanelFixture = async (
             });
             const input=document.querySelector('[data-qa="text-input"]');
             const send=document.querySelector('[data-qa="send-message"]');
-            function acknowledge(text) {
-              const id=2+2*globalThis.fixtureRecruiterSends++;
+            function acknowledge(text, explicitId) {
+              const id=explicitId ?? 2+2*globalThis.fixtureRecruiterSends;
+              globalThis.fixtureRecruiterSends++;
               const row=document.createElement('article');
               row.dataset.qa='chatik-chat-message-'+id;
               row.dataset.time='2026-11-24T09:01:00Z';
@@ -80,8 +88,8 @@ export const applicationRecruiterPanelFixture = async (
               body.dataset.qa='chat-bubble-text';
               body.textContent=text;
               const delivery=document.createElement('span');
-              delivery.dataset.qa=${JSON.stringify(exactReply ? 'status-icon-delivered' : 'status-icon-pending')};
-              delivery.textContent=${JSON.stringify(exactReply ? 'Delivered' : 'Sending')};
+              delivery.dataset.qa=${JSON.stringify(exactReply || reuseReply ? 'status-icon-delivered' : 'status-icon-pending')};
+              delivery.textContent=${JSON.stringify(exactReply || reuseReply ? 'Delivered' : 'Sending')};
               row.append(body,delivery);
               input.closest('label').before(row);
               input.value='';
@@ -108,6 +116,35 @@ export const applicationRecruiterPanelFixture = async (
                 };
                 row.querySelector('[data-qa="answer-options"]').append(choice);
               }
+            };
+            globalThis.fixtureRecruiterReuse=({id, summary})=>{
+              const label=input.closest('label');
+              const rowFor=(number, text)=>{
+                const node=document.querySelector('[data-qa="chatik-chat-message-'+number+'"]') ?? document.createElement('article');
+                node.dataset.qa='chatik-chat-message-'+number;
+                node.dataset.time='2026-11-24T09:02:00Z';
+                node.innerHTML='<p data-qa="chat-bubble-text"></p>';
+                node.firstElementChild.style.whiteSpace='pre-line';
+                node.firstElementChild.textContent=text;
+                label.before(node);
+                return node;
+              };
+              rowFor(id-1,summary);
+              const row=rowFor(id,'Используем эти ответы?');
+              const options=document.createElement('div');
+              options.dataset.qa='answer-options';
+              label.hidden=true;
+              send.hidden=true;
+              for (const text of ${JSON.stringify(recruiterReuseOptions)}) {
+                const choice=document.createElement('button');
+                choice.textContent=text;
+                choice.onclick=()=>{
+                  options.remove();
+                  acknowledge(choice.textContent,id+1);
+                };
+                options.append(choice);
+              }
+              row.append(options);
             };
           </script>`
               : ''
@@ -137,6 +174,16 @@ export const applicationRecruiterPanelFixture = async (
         answers: [{ text: answer, approved: true }],
       });
     }
+  }
+  if (reuseReply) {
+    await saveSettings(fixture.runtimeStore, {
+      quietHours: { enabled: false },
+    });
+    await saveAnswerRule(fixture.runtimeStore, {
+      id: 'qa-rule:recruiter-panel-reuse',
+      question: recruiterReuseQuestion,
+      answers: [{ text: recruiterReuseAnswer, approved: true }],
+    });
   }
   return { ...fixture, searchVisits, effects };
 };

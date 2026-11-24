@@ -3,6 +3,11 @@ import { guardedSend } from './outbox.js';
 import { questionChoiceKey } from './question-choice-key.js';
 import { approvedBrowserPlan } from './question-browser-plan.js';
 import {
+  automaticBrowserReplyAllowed,
+  isBrowserReuseOffer,
+  planBrowserReuse,
+} from './question-browser-reuse.js';
+import {
   browserChoiceDraft,
   checkedBrowserChoiceReceipt,
   checkBrowserQuestion,
@@ -32,6 +37,7 @@ const select = async ({
   entry,
   save,
   recent,
+  checkReuse,
 }) => {
   const draft = browserChoiceDraft(
     {
@@ -44,7 +50,12 @@ const select = async ({
   entry.answer = {
     ...entry.answer,
     phase: 'selecting',
-    selection: { chat: draft.chat, option: draft.text, key },
+    selection: {
+      chat: draft.chat,
+      option: draft.text,
+      key,
+      ...(checkReuse ? { kind: 'answer-reuse' } : {}),
+    },
   };
   await save(record);
   const outcome = await guardedSend({
@@ -58,7 +69,18 @@ const select = async ({
     send: async (selected) => {
       await verify();
       return checkedBrowserChoiceReceipt(
-        await handle.selectInactive(selected, verify, recent),
+        await handle.selectInactive(
+          selected,
+          verify,
+          recent,
+          checkReuse
+            ? {
+                requireEmpty: true,
+                noticeContext: snapshot.noticeContext,
+                beforeClick: checkReuse,
+              }
+            : undefined
+        ),
         selected
       );
     },
@@ -171,6 +193,77 @@ const finishSummary = async ({
   return true;
 };
 
+const visitReuseOffer = async ({
+  context,
+  record,
+  snapshot,
+  observed,
+  handle,
+  controller,
+  entry,
+  input,
+  save,
+}) => {
+  const allowed = async () =>
+    context.allowAutomaticReuse?.() !== false &&
+    (await automaticBrowserReplyAllowed(
+      context.store,
+      record.source,
+      snapshot.chat,
+      context.clock().getTime()
+    ));
+  const plan =
+    record.autoReuseAnswers && (await allowed())
+      ? await planBrowserReuse(context.store, input, snapshot)
+      : null;
+  if (plan) {
+    const checkReuse = () => {
+      controller.signal.throwIfAborted();
+      if (context.allowAutomaticReuse?.() === false) {
+        throw unreadFailure(
+          'question-watch-plan-changed',
+          'Automatic reuse has been paused.'
+        );
+      }
+    };
+    const verify = async () => {
+      checkReuse();
+      const current = await unreadAnswerInput(context, record, observed, {
+        signal: controller.signal,
+      });
+      const next = await planBrowserReuse(context.store, current, snapshot);
+      if (JSON.stringify(next) !== JSON.stringify(plan) || !(await allowed())) {
+        throw unreadFailure(
+          'question-watch-plan-changed',
+          'The saved answer or policy changed.'
+        );
+      }
+      checkReuse();
+    };
+    if (
+      await select({
+        context,
+        record,
+        snapshot,
+        handle,
+        plan,
+        verify,
+        entry,
+        save,
+        recent: observed.messages ? input.recent : undefined,
+        checkReuse,
+      })
+    ) {
+      return { holdReview: false };
+    }
+  } else if (record.reviewChoices && snapshot.strictOptions) {
+    entry.answer.phase = 'choice-review';
+  }
+  await handle.holdReviewInactive();
+  await save(record);
+  return { holdReview: true };
+};
+
 /** Ordinary text stays in review. Review-only passes also hold native choices. */
 export const visitUnreadAnswer = async ({
   context,
@@ -212,9 +305,11 @@ export const visitUnreadAnswer = async ({
     input,
     signal: controller.signal,
   });
-  const baseline = snapshot.question.outgoing
-    ? null
-    : await previewAnswer(context.store, input);
+  const reuse = isBrowserReuseOffer(record.source, snapshot);
+  const baseline =
+    snapshot.question.outgoing || reuse
+      ? null
+      : await previewAnswer(context.store, input);
   const link = unreadFormLink(record.prefillForms, snapshot, record.source);
   const reviewed = await review(
     { source: record.source, chat: snapshot.chat },
@@ -222,6 +317,7 @@ export const visitUnreadAnswer = async ({
     {
       ...input,
       modelDraft:
+        !reuse &&
         !historyReceipt.reason &&
         !link &&
         mayDraftUnreadAnswer(record, snapshot, baseline),
@@ -244,6 +340,19 @@ export const visitUnreadAnswer = async ({
   if (historyReceipt.reason) {
     await handle.holdReviewInactive();
     return { holdReview: true };
+  }
+  if (reuse) {
+    return visitReuseOffer({
+      context,
+      record,
+      snapshot,
+      observed,
+      handle,
+      controller,
+      entry,
+      input,
+      save,
+    });
   }
   const handoff = unreadFormHandoff(snapshot, link, baseline);
   const handled = !link && alreadyHandled(snapshot, plan);

@@ -197,6 +197,7 @@ const settingsView = (options) => ({
   ...(options.review.autoSendExactAnswers
     ? { autoSendExactAnswers: true }
     : {}),
+  ...(options.review.autoReuseAnswers ? { autoReuseAnswers: true } : {}),
   reviewDelayMs: options.review.reviewDelayMs,
   ...applicationAnswerContext(options.review),
 });
@@ -300,12 +301,13 @@ const matchesPublicIdentity = (row, input) =>
   (input?.browserSlot === undefined || input.browserSlot === row.browserSlot) &&
   (input?.discoveryRequestId === undefined ||
     input.discoveryRequestId === row.discoveryRequestId) &&
-  (input?.autoSendExactAnswers === undefined ||
-    (typeof input.autoSendExactAnswers === 'boolean' &&
-      Boolean(row.settings?.autoSendExactAnswers) ===
-        (input.autoSendExactAnswers &&
-          !row.settings?.supervised &&
-          !row.settings?.testMode))) &&
+  ['autoSendExactAnswers', 'autoReuseAnswers'].every(
+    (key) =>
+      input?.[key] === undefined ||
+      (typeof input[key] === 'boolean' &&
+        Boolean(row.settings?.[key]) ===
+          (input[key] && !row.settings?.supervised && !row.settings?.testMode))
+  ) &&
   ['vacancyPreviewSeconds', 'chatWatchWaiting', 'collectVacancies'].every(
     (name) =>
       input?.[name] === undefined || input[name] === row.settings?.[name]

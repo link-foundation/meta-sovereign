@@ -16,6 +16,8 @@ export const ruUnreadReview = {
     'Открыто {visited} из {observed} видимых чатов. В полном списке могут быть другие чаты.',
   'browserUnread.answer.skipped': 'Вопрос пропущен.',
   'browserUnread.reviewChoices': 'Выбирать варианты бота вручную',
+  'browserUnread.reviewOtherChoices':
+    'Выбирать остальные варианты бота вручную',
   'browserUnread.activeReviewChoices':
     'Проверяем непрочитанные вопросы. Варианты бота и черновики остаются открытыми для проверки.',
   'browserUnread.answer.choice-review':

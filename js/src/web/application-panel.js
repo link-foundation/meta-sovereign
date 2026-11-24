@@ -130,6 +130,7 @@ const Settings = ({ application, disabled, t }) => {
           supervised: value,
           autoExact: value ? false : options.autoExact,
           autoSendExactAnswers: value ? false : options.autoSendExactAnswers,
+          autoReuseAnswers: value ? false : options.autoReuseAnswers,
         })
     ),
     check(
@@ -144,6 +145,13 @@ const Settings = ({ application, disabled, t }) => {
       t('application.autoSendExactAnswers'),
       options.autoSendExactAnswers && !options.testMode,
       (value) => update('autoSendExactAnswers', value),
+      options.supervised || options.testMode
+    ),
+    check(
+      'autoReuseAnswers',
+      t('application.autoReuseAnswers'),
+      options.autoReuseAnswers && !options.testMode,
+      (value) => update('autoReuseAnswers', value),
       options.supervised || options.testMode
     ),
     el('label', { key: 'delay', className: 'col' }, [

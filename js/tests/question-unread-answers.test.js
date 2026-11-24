@@ -9,6 +9,7 @@ import {
 import { checkUnreadReview } from '../src/automation/question-unread-state.js';
 import { listOutbox } from '../src/automation/outbox.js';
 import { saveAnswerRule } from '../src/automation/question-store.js';
+import { saveSettings } from '../src/automation/safety.js';
 import { createQuestionBrowser } from '../src/automation/question-browser.js';
 import { pollingCycleFixture } from '../../experiments/issue-56/unread-polling-fixture.mjs';
 import { unreadAnswerClientReceipt } from '../../experiments/issue-56/question-browser-clients.mjs';
@@ -36,6 +37,8 @@ test('sequential answer admission requires explicit supported boolean intent', (
     for (const modes of [
       { reviewChoices: 'true' },
       { answerChats: false, reviewChoices: true },
+      { autoReuseAnswers: 'true' },
+      { answerChats: false, autoReuseAnswers: true },
     ]) {
       await assert.rejects(
         env.browser.unreadStart({ ...env.input, ...modes }),
@@ -108,6 +111,150 @@ test('review-only choices hold an approved bot answer without reserving or sendi
     assert.deepEqual(await listOutbox(env.store), []);
     checkUnreadReview(result, env.input.id);
   }));
+
+const reuseQuestion = 'Can you work remotely?';
+const reuseLabels = ['Да. Используем те же ответы', 'Нет. Отвечу заново'];
+const reuseAnswer = {
+  id: 'reuse-remote',
+  question: reuseQuestion,
+  answers: [{ text: 'Yes.', approved: true }],
+};
+const reuseSnapshot = (answers, extra = {}) => {
+  const question = {
+    id: '106',
+    body: 'Используем эти ответы?',
+    outgoing: false,
+  };
+  return {
+    question,
+    noticeContext: { canReply: false },
+    answerOptions: reuseLabels,
+    pendingTurn: {
+      boundary: { kind: 'rendered-start' },
+      messages: [
+        { id: '103', body: 'Похоже, вы отвечали на часть вопросов:' },
+        { id: '104', body: answers },
+        question,
+      ],
+    },
+    ...extra,
+  };
+};
+
+test('confirmed reuse is the only automatic choice permitted alongside manual choices', async () => {
+  for (const [answers, label] of [
+    [`${reuseQuestion}: Да!`, reuseLabels[0]],
+    [
+      `${reuseQuestion}: No.\nWhat is your start date?: Monday.`,
+      reuseLabels[1],
+    ],
+  ]) {
+    await check({ rows: [reuseSnapshot(answers), {}] }, async (env) => {
+      await saveAnswerRule(env.store, reuseAnswer);
+      await saveSettings(env.store, { quietHours: { enabled: false } });
+      const result = await env.complete({
+        ...env.input,
+        reviewChoices: true,
+        autoReuseAnswers: true,
+      });
+      checkUnreadReview(result, env.input.id);
+      assert.equal(result.entries[0].answer.phase, 'sent');
+      assert.equal(result.entries[0].answer.selection.kind, 'answer-reuse');
+      assert.equal(result.entries[0].answer.outbox.receipt.option, label);
+      assert.equal(result.entries[1].answer.phase, 'choice-review');
+      assert.equal(result.restoration.heldReview.chat, '9');
+      assert.deepEqual(
+        env.state.sends.map(({ text }) => text),
+        [label]
+      );
+      assert.deepEqual(env.state.prefills, []);
+      const withoutConsent = { ...result, autoReuseAnswers: undefined };
+      assert.throws(() => checkUnreadReview(withoutConsent, env.input.id));
+    });
+  }
+});
+
+test('quiet hours, opt-outs, changed evidence and incomplete reuse offers keep the owner in control', async () => {
+  const exact = `${reuseQuestion}: Yes.`;
+  for (const [row, enabled, blocked, queued] of [
+    [reuseSnapshot(exact), false],
+    [reuseSnapshot('What is your start date?: Monday.'), true],
+    [reuseSnapshot('Could you work remotely?: Yes.'), true],
+    [reuseSnapshot(`${exact}\nPlease also finish another task.`), true],
+    [reuseSnapshot(`${exact}\nWhat is your name?: What do you mean?`), true],
+    [reuseSnapshot(exact, { hasDraft: true }), true],
+    [
+      reuseSnapshot(exact, {
+        answerOptions: [reuseLabels[0], 'Да', reuseLabels[1]],
+      }),
+      true,
+    ],
+    [reuseSnapshot(exact), true, { optOut: [{ source: 'hh', chat: 'web:8' }] }],
+    [
+      reuseSnapshot(exact),
+      true,
+      {
+        quietHours: { enabled: true, from: '09:00', to: '11:00' },
+        timezone: 'UTC',
+      },
+    ],
+    [
+      reuseSnapshot(exact),
+      true,
+      {},
+      async (env) => {
+        await saveAnswerRule(env.store, {
+          ...reuseAnswer,
+          answers: [{ text: 'No', approved: true }],
+        });
+      },
+    ],
+  ]) {
+    await check({ rows: [row], queued }, async (env) => {
+      await saveAnswerRule(env.store, reuseAnswer);
+      await saveSettings(env.store, {
+        quietHours: { enabled: false },
+        ...blocked,
+      });
+      const result = await env.complete({
+        ...env.input,
+        reviewChoices: true,
+        autoReuseAnswers: enabled,
+      });
+      checkUnreadReview(result, env.input.id);
+      assert.equal(result.restoration?.heldReview.chat, '8');
+      assert.equal(
+        result.entries[0].answer.phase,
+        queued ? 'failed' : 'choice-review'
+      );
+      assert.deepEqual(env.state.sends, []);
+      assert.deepEqual(env.state.prefills, []);
+    });
+  }
+});
+
+test('the unread CLI and both wire formats preserve explicit consent to reuse', async () => {
+  for (const media of [null, LINO_TEXT, LINO_BINARY]) {
+    await check(
+      { rows: [reuseSnapshot(`${reuseQuestion}: Yes.`)] },
+      async (env) => {
+        await saveAnswerRule(env.store, reuseAnswer);
+        await saveSettings(env.store, { quietHours: { enabled: false } });
+        env.input.reviewChoices = true;
+        env.input.autoReuseAnswers = true;
+        const result = await unreadAnswerClientReceipt(env, media, {
+          'review-choices': true,
+          'auto-reuse-answers': true,
+        });
+        assert.equal(result.autoReuseAnswers, true);
+        assert.equal(
+          result.entries[0].answer.outbox.receipt.option,
+          reuseLabels[0]
+        );
+      }
+    );
+  }
+});
 
 test('the CLI and both wire formats retain the explicit choice review scope', async () => {
   for (const media of [null, LINO_TEXT, LINO_BINARY]) {

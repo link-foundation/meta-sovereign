@@ -150,6 +150,7 @@ class UnreadPolling {
       ...(input.noticeReplies ? { noticeReplies: true } : {}),
       ...(input.answerChats ? { answerChats: true } : {}),
       ...(input.reviewChoices ? { reviewChoices: true } : {}),
+      ...(input.autoReuseAnswers ? { autoReuseAnswers: true } : {}),
       ...(input.prefillForms ? { prefillForms: true } : {}),
     };
     const runtime = {
@@ -167,6 +168,7 @@ class UnreadPolling {
         ...(input.noticeReplies ? { noticeReplies: true } : {}),
         ...(input.answerChats ? { answerChats: true } : {}),
         ...(input.reviewChoices ? { reviewChoices: true } : {}),
+        ...(input.autoReuseAnswers ? { autoReuseAnswers: true } : {}),
         ...(settings.watchWaiting ? { watchWaiting: true } : {}),
         ...(input.prefillForms ? { prefillForms: true } : {}),
         entries: [],

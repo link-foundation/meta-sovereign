@@ -335,3 +335,21 @@ test('the CLI opts into recruiter replies separately and suppresses them in prot
   assert.equal(receipt.autoSendExactAnswers, true);
   assert.equal(receipt.autoExact, false);
 });
+
+test('the application CLI opts into prior-answer reuse independently and leaves it off in protected modes', async (t) => {
+  for (const args of [
+    {},
+    { 'auto-reuse-answers': 'false' },
+    { 'auto-reuse-answers': 'true', supervised: 'true' },
+    { 'auto-reuse-answers': 'true', 'test-mode': 'true' },
+  ]) {
+    const result = await closedApplicationFixtureCommand(t, args);
+    assert.equal(result.autoReuseAnswers, undefined);
+  }
+  const result = await closedApplicationFixtureCommand(t, {
+    'auto-reuse-answers': 'true',
+  });
+  assert.equal(result.autoReuseAnswers, true);
+  assert.equal(result.autoSendExactAnswers, undefined);
+  assert.equal(result.autoExact, false);
+});

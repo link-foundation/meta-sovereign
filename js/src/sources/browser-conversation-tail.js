@@ -147,9 +147,10 @@ export const withBrowserConversationTail = async (
             },
           })
         ),
-      selectInactive: (draft, verifyCurrent, recent) =>
+      selectInactive: (draft, verifyCurrent, recent, options) =>
         run(() =>
           selectBrowserAnswer(document, ui, draft, chat, {
+            ...options,
             receiptMs: settings.receiptMs,
             pollMs: settings.pollMs,
             inactiveToken: token,

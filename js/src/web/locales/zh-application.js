@@ -180,6 +180,7 @@ export const zhApplication = {
   'application.settings': '申请设置',
   'application.coverLetter': '已审核的求职信（最多 24,000 字符）',
   'application.autoSendExactAnswers': '问题逐字匹配时自动发送已批准的招聘回复',
+  'application.autoReuseAnswers': '自动决定是否复用之前的招聘回复',
   'application.autoExact': '填写后，仅在所有答案均精确且已验证时自动发送',
   'application.delay': '自动发送前的审核延时（0–30,000 毫秒）',
   'application.testMode': '仅预览：不执行答案填写或申请操作',

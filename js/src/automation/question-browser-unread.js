@@ -288,6 +288,10 @@ export const normalizeUnreadReviewSettings = (input, capabilities) => {
     (input.reviewChoices !== undefined &&
       typeof input.reviewChoices !== 'boolean') ||
     (input.reviewChoices && !input.answerChats) ||
+    (input.autoReuseAnswers !== undefined &&
+      typeof input.autoReuseAnswers !== 'boolean') ||
+    (input.autoReuseAnswers &&
+      (input.source !== 'hh' || input.answerChats !== true)) ||
     (input.heldChat && !input.answerChats)
   ) {
     throw failure(
@@ -350,11 +354,19 @@ export const createQuestionUnreadReviews = ({
   log = () => {},
   answerPlanning,
   prefillLinkedForm,
+  allowAutomaticReuse,
 }) => {
   const runtimes = new Map();
   let admitting = Promise.resolve();
   let closed = false;
-  const context = { store, clock, log, answerPlanning, prefillLinkedForm };
+  const context = {
+    store,
+    clock,
+    log,
+    answerPlanning,
+    prefillLinkedForm,
+    allowAutomaticReuse,
+  };
   const save = async (record) => {
     record.updatedAt = clock().toISOString();
     await store.put(record);
@@ -444,6 +456,7 @@ export const createQuestionUnreadReviews = ({
       ...(input.noticeReplies ? { noticeReplies: true } : {}),
       ...(input.answerChats ? { answerChats: true } : {}),
       ...(input.reviewChoices ? { reviewChoices: true } : {}),
+      ...(input.autoReuseAnswers ? { autoReuseAnswers: true } : {}),
       ...(settings.watchWaiting ? { watchWaiting: true } : {}),
       ...(input.prefillForms ? { prefillForms: true } : {}),
       ...(input.heldChat ? { heldChat: input.heldChat } : {}),

@@ -291,6 +291,17 @@ export class ApplicationBatch {
         runtime.chats = this.service.createChats();
         await runtime.chats.start(runtime.record, {
           applicationPage: () => this.chatApplicationPage(runtime),
+          allowAutomaticReuse: () => {
+            const mode = this.service.modes.read(
+              runtime.record.options.browserSlot
+            );
+            return (
+              runtime.record.active &&
+              !runtime.controller.signal.aborted &&
+              !mode.paused &&
+              !mode.noQuestionnaires
+            );
+          },
         });
       }
       while (!applicationBatchTerminal(runtime.record.phase)) {

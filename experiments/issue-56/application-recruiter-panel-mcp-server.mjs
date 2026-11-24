@@ -1,8 +1,10 @@
 import { listAnswerRules } from '../../js/src/automation/question-store.js';
+import { listOutbox } from '../../js/src/automation/outbox.js';
 import {
   applicationRecruiterPanelFixture,
   recruiterPanelQuestion,
   recruiterPanelReply,
+  recruiterReuseQuestion,
 } from './application-recruiter-panel-fixture.mjs';
 import { serveNativeMcpFixture } from './application-native-mcp-server.mjs';
 import { originalApplicationSearch } from './application-search-route-fixture.mjs';
@@ -12,6 +14,7 @@ let fixture;
 const ownerReply = process.env.E2E_RECRUITER_PANEL_LEARN_REPLY === '1';
 const prepareReply = process.env.E2E_RECRUITER_PANEL_PREPARE_REPLY === '1';
 const exactReply = process.env.E2E_RECRUITER_PANEL_EXACT_REPLY === '1';
+const reuseReply = process.env.E2E_RECRUITER_PANEL_REUSE === '1';
 const replyControl = async (frame, path) => {
   if (path === '/reply/start') {
     await frame
@@ -48,10 +51,11 @@ await serveNativeMcpFixture(
   async (browser) => {
     current = browser;
     fixture = await applicationRecruiterPanelFixture(browser, {
-      panelDelayMs: prepareReply || exactReply ? 0 : 4000,
+      panelDelayMs: prepareReply || exactReply || reuseReply ? 0 : 4000,
       ownerReply,
       prepareReply,
       exactReply,
+      reuseReply,
     });
     return fixture;
   },
@@ -72,9 +76,8 @@ await serveNativeMcpFixture(
       : undefined;
     let draft;
     if (panelOpen) {
-      draft = await frame
-        .getByRole('textbox', { name: 'Your reply' })
-        .inputValue({ timeout: 5000 });
+      const composer = frame.locator('textarea[data-qa="text-input"]');
+      draft = await composer.inputValue({ timeout: 5000 });
       if (request.method === 'POST') {
         const vacancy = /^\/vacancy\/(123|789)$/u.exec(request.url)?.[1];
         if (vacancy) {
@@ -94,6 +97,14 @@ await serveNativeMcpFixture(
           request.url === '/draft/clear'
         ) {
           await frame.getByRole('textbox', { name: 'Your reply' }).fill('');
+        } else if (reuseReply && request.url === '/reuse/offer') {
+          await frame.locator('body').evaluate((_, summary) => {
+            globalThis.fixtureRecruiterReuse({ id: 3, summary });
+          }, `Похоже, вы отвечали на часть вопросов:\n${recruiterReuseQuestion}: Да.`);
+        } else if (reuseReply && request.url === '/draft/clear') {
+          await composer.evaluate((node) => {
+            node.value = '';
+          });
         } else if (ownerReply) {
           await replyControl(frame, request.url);
         }
@@ -114,6 +125,17 @@ await serveNativeMcpFixture(
         })))),
       ...(ownerReply || exactReply
         ? await observeLearning(fixture.runtimeStore, frame, panelOpen)
+        : {}),
+      ...(reuseReply
+        ? {
+            ...(await observeLearning(fixture.runtimeStore, frame, panelOpen)),
+            reuseReceipts: (await listOutbox(fixture.runtimeStore))
+              .filter((entry) => entry.kind === 'question-choice')
+              .map((entry) => ({
+                status: entry.status,
+                receipt: entry.receipt,
+              })),
+          }
         : {}),
     };
   }

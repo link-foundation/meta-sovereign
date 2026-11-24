@@ -434,10 +434,12 @@ const UnreadControls = ({
   const [noticeReplies, setNoticeReplies] = React.useState(false);
   const [answerChats, setAnswerChats] = React.useState(false);
   const [reviewChoices, setReviewChoices] = React.useState(false);
+  const [autoReuseAnswers, setAutoReuseAnswers] = React.useState(false);
   const [modelDraft, setModelDraft] = React.useState(false);
   const [prefillForms, setPrefillForms] = React.useState(false);
   const [watchWaiting, setWatchWaiting] = React.useState(false);
   const canPrefillForms = answerChats && answersAvailable && formsAvailable;
+  const canReuseAnswers = source === 'hh' && answerChats && answersAvailable;
   const polling = useUnreadPolling();
   const canWatchWaiting =
     source === 'hh' &&
@@ -509,7 +511,24 @@ const UnreadControls = ({
               'data-browser-unread-review-choices': true,
               onChange: (event) => setReviewChoices(event.target.checked),
             }),
-            t('browserUnread.reviewChoices'),
+            t(
+              canReuseAnswers && autoReuseAnswers
+                ? 'browserUnread.reviewOtherChoices'
+                : 'browserUnread.reviewChoices'
+            ),
+          ])
+        : null,
+      canReuseAnswers
+        ? el('label', { key: 'auto-reuse', className: 'check' }, [
+            el('input', {
+              key: 'input',
+              type: 'checkbox',
+              checked: autoReuseAnswers,
+              disabled: locked,
+              'data-browser-unread-auto-reuse': true,
+              onChange: (event) => setAutoReuseAnswers(event.target.checked),
+            }),
+            t('application.autoReuseAnswers'),
           ])
         : null,
       answerChats && answersAvailable
@@ -591,6 +610,9 @@ const UnreadControls = ({
               ...(answerChats && answersAvailable ? { answerChats: true } : {}),
               ...(answerChats && answersAvailable && reviewChoices
                 ? { reviewChoices: true }
+                : {}),
+              ...(canReuseAnswers && autoReuseAnswers
+                ? { autoReuseAnswers: true }
                 : {}),
               ...(canPrefillForms && prefillForms
                 ? { prefillForms: true }

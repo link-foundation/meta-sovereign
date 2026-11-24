@@ -49,6 +49,7 @@ const validateApplicationFlags = (input) => {
     [
       'autoExact',
       'autoSendExactAnswers',
+      'autoReuseAnswers',
       'testMode',
       'recover',
       'supervised',
@@ -115,6 +116,11 @@ export const applicationSettings = (input, { legacy = false } = {}) => {
     input.supervised !== true &&
     input.testMode !== true
       ? { autoSendExactAnswers: true }
+      : {}),
+    ...(input.autoReuseAnswers === true &&
+    input.supervised !== true &&
+    input.testMode !== true
+      ? { autoReuseAnswers: true }
       : {}),
     testMode: input.testMode === true,
     reviewDelayMs: input.reviewDelayMs ?? 3000,
@@ -235,6 +241,7 @@ export const applicationView = (record) => {
     ...(record.options.autoSendExactAnswers
       ? { autoSendExactAnswers: true }
       : {}),
+    ...(record.options.autoReuseAnswers ? { autoReuseAnswers: true } : {}),
     supervised: record.options.supervised === true,
     confirmations: applicationConfirmationPolicy(record.options),
     continuation: continuationView(record),

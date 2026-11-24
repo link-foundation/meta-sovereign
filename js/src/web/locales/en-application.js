@@ -213,6 +213,8 @@ export const enApplication = {
   'application.coverLetter': 'Reviewed cover letter (up to 24,000 characters)',
   'application.autoSendExactAnswers':
     'Send approved word-for-word recruiter answers automatically',
+  'application.autoReuseAnswers':
+    'Automatically decide whether to reuse earlier recruiter answers',
   'application.autoExact':
     'After filling, send automatically only when every answer is exact and verified',
   'application.delay': 'Review delay before automatic sending (0–30,000 ms)',

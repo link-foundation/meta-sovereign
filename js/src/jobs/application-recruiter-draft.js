@@ -2,6 +2,12 @@ import { assignmentVacancyUrl } from '../assignments/validation.js';
 import { guardedSend } from '../automation/outbox.js';
 import { browserAnswerPlanning } from '../automation/question-browser-context.js';
 import {
+  approvedSavedReply,
+  automaticBrowserReplyAllowed,
+  isBrowserReuseOffer,
+  planBrowserReuse,
+} from '../automation/question-browser-reuse.js';
+import {
   browserAnswerReceipt,
   browserChoiceDraft,
   checkBrowserQuestion,
@@ -10,11 +16,6 @@ import { browserTextDraft } from '../automation/question-browser-text.js';
 import { browserQuestionInput } from '../automation/question-browser-vacancy.js';
 import { questionChoiceKey } from '../automation/question-choice-key.js';
 import { previewAnswer } from '../automation/question-store.js';
-import {
-  loadSettings,
-  optOutEntry,
-  quietMsLeft,
-} from '../automation/safety.js';
 import {
   prefillBrowserAnswer,
   readBrowserAnswerChoices,
@@ -30,36 +31,15 @@ const hasReviewableText = (plan) =>
   !plan.pending?.blocked &&
   Boolean(plan.text?.trim());
 
-const approvedExactReply = (plan, snapshot) => {
-  const candidate = plan.matchResults?.items[0];
-  return (
-    hasReviewableText(plan) &&
-    !plan.requiresReview &&
-    !plan.pending?.limited &&
-    plan.match === 'exact' &&
-    plan.matchResults?.complete === true &&
-    candidate?.selected === true &&
-    candidate.approved === true &&
-    candidate.question === snapshot.question.body &&
-    candidate.text === plan.text &&
-    snapshot.pendingTurn?.messages.length === 1 &&
-    (!snapshot.strictOptions ||
-      (plan.option === plan.text &&
-        snapshot.answerOptions.filter((option) => option === plan.text)
-          .length === 1))
-  );
-};
+const approvedExactReply = (plan, snapshot) =>
+  approvedSavedReply(plan, snapshot.question.body) &&
+  snapshot.pendingTurn?.messages.length === 1 &&
+  (!snapshot.strictOptions ||
+    (plan.option === plan.text &&
+      snapshot.answerOptions.filter((option) => option === plan.text).length ===
+        1));
 
-const automaticReplyAllowed = async (store, chat) => {
-  const settings = await loadSettings(store);
-  return (
-    !optOutEntry(settings, { source: 'hh', chat }) &&
-    !optOutEntry(settings, { source: 'hh', chat: `web:${chat}` }) &&
-    !quietMsLeft(Date.now(), settings)
-  );
-};
-
-const sendExactReply = async (
+const sendRecruiterReply = async (
   document,
   ui,
   snapshot,
@@ -81,7 +61,9 @@ const sendExactReply = async (
       const options = {
         verifyCurrent: async () => {
           await verifyCurrent();
-          if (!(await automaticReplyAllowed(store, snapshot.chat))) {
+          if (
+            !(await automaticBrowserReplyAllowed(store, 'hh', snapshot.chat))
+          ) {
             throw Object.assign(
               new Error(
                 'Workspace settings paused the automatic recruiter reply.'
@@ -164,33 +146,48 @@ export const reviewRecruiterAnswer = async (
       ? { matchPage: { offset: 0, limit: 1 } }
       : {}),
   });
-  const plan = await previewAnswer(store, input);
-  const verifyCurrent = async () => {
-    review.check();
-    if (
-      JSON.stringify(await previewAnswer(store, input)) !== JSON.stringify(plan)
-    ) {
-      throw new Error('The recruiter answer plan changed.');
-    }
-  };
   const expected = {
     ...snapshot,
     ...(observed.messages ? { recent: planning.recent } : {}),
   };
+  const reuse = isBrowserReuseOffer('hh', snapshot);
+  if (reuse && !review.autoReuseAnswers) {
+    return null;
+  }
+  const readPlan = () =>
+    reuse
+      ? planBrowserReuse(store, input, snapshot)
+      : previewAnswer(store, input);
+  const plan = await readPlan();
+  if (!plan) {
+    return null;
+  }
+  const verifyCurrent = async () => {
+    review.check();
+    if (JSON.stringify(await readPlan()) !== JSON.stringify(plan)) {
+      throw new Error('The recruiter answer plan changed.');
+    }
+  };
   if (
-    review.autoSendExactAnswers &&
-    approvedExactReply(plan, snapshot) &&
-    (await automaticReplyAllowed(store, snapshot.chat))
+    (reuse ||
+      (review.autoSendExactAnswers && approvedExactReply(plan, snapshot))) &&
+    (await automaticBrowserReplyAllowed(store, 'hh', snapshot.chat))
   ) {
     review.check();
     review.attempted.add(key);
-    return sendExactReply(document, ui, expected, plan.text, {
-      store,
-      review,
-      verifyCurrent,
-    });
+    return sendRecruiterReply(
+      document,
+      ui,
+      expected,
+      reuse ? plan.option : plan.text,
+      {
+        store,
+        review,
+        verifyCurrent,
+      }
+    );
   }
-  if (snapshot.strictOptions || !hasReviewableText(plan)) {
+  if (reuse || snapshot.strictOptions || !hasReviewableText(plan)) {
     return null;
   }
   await prefillBrowserAnswer(document, ui, expected, plan.text, {
