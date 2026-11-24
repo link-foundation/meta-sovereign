@@ -10,6 +10,14 @@ const running = [
   'replanning',
 ];
 export const experienceReviewRunning = (row) => running.includes(row?.phase);
+const resumable = [
+  'selecting',
+  'opening',
+  'prepared',
+  'refreshing',
+  'replanning',
+];
+export const experienceReviewCanResume = (phase) => resumable.includes(phase);
 const phases = [...running, 'completed', 'left', 'unconfirmed', 'failed'];
 const digest = /^[a-f0-9]{64}$/u;
 const itemKey = /^(?:about|position-(?:0|[1-9][0-9]{0,2}))$/u;
@@ -66,6 +74,9 @@ const validComparison = (value) =>
   ['hh', 'linkedin'].includes(value.to);
 const validCurrent = (row) => {
   const item = row.current;
+  if (row.phase === 'selecting') {
+    return item === null;
+  }
   if (!item) {
     return !['opening', 'prepared', 'refreshing', 'replanning'].includes(
       row.phase

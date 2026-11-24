@@ -6,7 +6,13 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { foregroundExperienceReview } from '../src/cli/cv-experience-review-command.js';
 import { LINO_BINARY, LINO_TEXT } from '../src/transport/lino.js';
 import { createExperienceReviewService } from '../src/cv/experience-review-service.js';
+import {
+  newExperienceReview,
+  experienceReviewKey,
+  reviewChildId,
+} from '../src/cv/experience-review-record.js';
 import { createExperienceAutoService } from '../src/cv/experience-auto-service.js';
+import { experienceAutoOptions } from '../src/cv/experience-auto-record.js';
 import { createHhExperienceAcquisition } from '../src/cv/experience-hh-acquisition.js';
 import { createExperiencePlanningService } from '../src/cv/experience-plan-service.js';
 import { createLinkedinExperienceService } from '../src/cv/linkedin-experience-service.js';
@@ -18,6 +24,10 @@ import {
   cvFixtureRequest,
   startCvFixtureServer,
 } from '../../experiments/issue-56/cv-fixture-server.mjs';
+import {
+  completeWorkplaceExperience,
+  seedWorkplaceExperience,
+} from '../../experiments/issue-56/cv-workplace-experience-fixture.mjs';
 
 const until = async (read, check) => {
   let row;
@@ -172,6 +182,18 @@ test(
           assert.deepEqual(calls, ['open', 'save', 'open', 'skip']);
           assert.equal(reads, 2);
         }
+        const saved = await fixture.store.get(
+          experienceReviewKey(request.requestId)
+        );
+        const beforeRecovery = { calls: [...calls], reads };
+        await fixture.store.put({ ...saved, phase: 'selecting' });
+        assert.equal((await status()).lastPhase, 'selecting');
+        assert.equal(
+          (await send('review-resume', type, request)).response.status,
+          200
+        );
+        assert.deepEqual(await until(status, phaseIs('completed')), finished);
+        assert.deepEqual({ calls, reads }, beforeRecovery);
         assert.equal(
           (await send('review-decide', type, requestFor(first, 'save')))
             .response.status,
@@ -180,6 +202,133 @@ test(
       }
     } finally {
       await server.close();
+      await fixture.close();
+    }
+  }
+);
+
+test(
+  'a restarted review selects the next editor from the verified checkpoint without replaying Save',
+  { timeout: 10000 },
+  async () => {
+    const fixture = await experienceReviewFixture();
+    const requestId = 'selecting-after-save';
+    const auto = experienceAutoOptions({ ...fixture.input, requestId });
+    const row = newExperienceReview(requestId, auto, 'a'.repeat(32));
+    const calls = [];
+    const service = createExperienceReviewService({
+      store: fixture.store,
+      wait,
+      native: {
+        prepare: async (plan, key, id) => {
+          calls.push(['prepare', key, id, plan.options.hh]);
+          return {
+            kind: 'hh-workplace',
+            input: { requestId: id, fingerprint: plan.fingerprint },
+          };
+        },
+        reviewer: () => {
+          let phase = 'prepared';
+          const status = () => ({ phase, providerSaved: false });
+          return {
+            start: async () => {
+              calls.push(['open']);
+              return status();
+            },
+            status: async () => status(),
+            decide: async (decision) => {
+              calls.push([decision]);
+              phase = 'skipped';
+              return status();
+            },
+            stop: async () => {
+              phase = 'stopped';
+              return status();
+            },
+            running: phaseIs('prepared'),
+          };
+        },
+      },
+    });
+    try {
+      const { hh, linkedin, added } = await seedWorkplaceExperience(fixture);
+      linkedin.jobs = [...hh.document.jobs, added];
+      const plan = await completeWorkplaceExperience(
+        fixture.store,
+        hh,
+        linkedin
+      );
+      const position = plan.plan.jobs.find(({ kind }) => kind === 'add');
+      const key = `position-${position.sourceIndex}`;
+      const comparison = {
+        requestId: plan.requestId,
+        fingerprint: plan.fingerprint,
+        hh: hh.revision,
+        linkedin: plan.options.linkedin,
+        to: 'hh',
+      };
+      const receipt = {
+        key: 'about',
+        outcome: 'saved',
+        revision: hh.revision,
+        evidence: 'verified-hh-about-export',
+        code: null,
+        notes: [],
+      };
+      const checkpoint = {
+        ...row,
+        phase: 'selecting',
+        auto,
+        comparison,
+        pending: [key],
+        history: [receipt],
+      };
+      const request = { requestId };
+      const status = () => service.status(request);
+      await fixture.store.put({
+        ...checkpoint,
+        current: {
+          key,
+          kind: 'hh-workplace',
+          input: {
+            requestId: reviewChildId(checkpoint, 'native'),
+            fingerprint: plan.fingerprint,
+          },
+          decision: 'save',
+        },
+      });
+      await assert.rejects(service.resume(request), {
+        code: 'cv-experience-review-record',
+      });
+      await fixture.store.put(checkpoint);
+      const interrupted = await status();
+      assert.equal(interrupted.phase, 'interrupted');
+      assert.equal(interrupted.lastPhase, 'selecting');
+      assert.deepEqual(await service.start(auto), interrupted);
+      assert.deepEqual(calls, []);
+
+      await service.resume(request);
+      const prepared = await until(status, phaseIs('prepared'));
+      const child = reviewChildId(checkpoint, 'native');
+      assert.equal(prepared.current.input.requestId, child);
+      assert.deepEqual(prepared.history, [receipt]);
+      assert.deepEqual(prepared.comparison, comparison);
+      await assert.rejects(service.resume(request), {
+        code: 'cv-experience-review-busy',
+      });
+      await service.decide(requestFor(prepared, 'skip'));
+      const completed = await until(status, phaseIs('completed'));
+      assert.deepEqual(
+        completed.history.map(({ outcome }) => outcome),
+        ['saved', 'skipped']
+      );
+      assert.deepEqual(calls, [
+        ['prepare', key, child, hh.revision],
+        ['open'],
+        ['skip'],
+      ]);
+    } finally {
+      await service.close();
       await fixture.close();
     }
   }

@@ -14,6 +14,8 @@ Inspect the prepared data in the provider's editor. The owning console accepts `
 
 After a provider confirms Save, the queue performs a new native export for the target identity and checks the saved fields again. It pins the new target alongside the original source before selecting another item. A stale or unavailable export interrupts the review at that checkpoint. Recover review or `cv-experience-review-resume --request-id=experience-review` can repeat the readback or comparison while preserving the original Save receipt. If native editor ownership was lost before confirmation, recovery reads the existing job. Unknown outcomes stay unconfirmed.
 
+Recover review can also continue after the queue records a verified Save or Skip and before the next editor opens. It uses the recorded comparison and opens only the remaining draft. If the last decision finished the queue, recovery completes it using the stored receipt. [Checkpoint reproduction](experience-review-checkpoint.md)
+
 The local-device UI and JSON commands use the same service as the text and binary Lino routes under `/api/cv/experience/review-*`. Status reads never launch a browser. The active decision checks the parent request, selected change and native request together. Requests and receipts remain private. No automatic model decision submits a provider form.
 
 ## Reproduction and validation

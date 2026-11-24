@@ -1,0 +1,19 @@
+{
+  "archive": "experience-review-checkpoint.tar.gz",
+  "files": {
+    "ci-logs/experience-review-checkpoint-build.log": "00d0e64864ecb923305bad75cbce052427731ed83fadfc62a4ecdc91ce7011ad",
+    "ci-logs/experience-review-checkpoint-chromium-parent.log": "80f83f7a3dcfc20c65da749fc0de2554bf78b5b2d2e0a637a95a1fe2f42b7672",
+    "ci-logs/experience-review-checkpoint-chromium.log": "1d4101f9e6aa2aa4091de8b01207f605b71d75074d53496c1f8666a30174c2fa",
+    "ci-logs/experience-review-checkpoint-deno.log": "e87a445c45478c2ad89347b0ee21e98f797b77138b30911a7c8d2833493d9c51",
+    "ci-logs/experience-review-checkpoint-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/experience-review-checkpoint-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/experience-review-checkpoint-lint.log": "d5eb074169b09165e467c822ad3e61745a900659cb5ac6c5e5e23506dafe84c0",
+    "ci-logs/experience-review-checkpoint-mcp-server-signal-race.log": "f7826d56995c751ac107c379416847411b693a40df7dbcaf833f6d0b4e47b91c",
+    "ci-logs/experience-review-checkpoint-mcp-server.log": "cf0c597dc38cff028b81cfe6de71eb302229e62b29d53ac086424df4686b22bf",
+    "ci-logs/experience-review-checkpoint-mcp.json": "36fe614d792592bd65a3b6bcf1b4bdf850908a939572cd08e0dad6d9b92186ab",
+    "ci-logs/experience-review-checkpoint-node.log": "0deda76fd2db5b4368b6cb4a36c2342c7b3b31da5fa734c9325a94929202ebe2",
+    "ci-logs/experience-review-checkpoint-parent.log": "eb79ed4289f34cd6997e76a7f509a53e50b88569f827d9c4ecdf4ba435b83b20",
+    "ci-logs/experience-review-checkpoint-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "metadata.json": "b96f7ba0f9a8bde29e0436f4326e0feef14285edf201368b8f90e04ca7c8f345"
+  }
+}

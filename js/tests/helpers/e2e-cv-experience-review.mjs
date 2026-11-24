@@ -2,12 +2,15 @@ import assert from 'node:assert/strict';
 import { mkdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { cvPrepareBrowserFixture } from '../../../experiments/issue-56/cv-prepare-browser-fixture.mjs';
+import { experienceReviewKey } from '../../src/cv/experience-review-record.js';
 
 export const verifyCvExperienceReview = async (browser) => {
   const fixture = await cvPrepareBrowserFixture(browser, { reviewQueue: true });
   const { page, provider, queue, counters } = fixture;
   page.setDefaultTimeout(10000);
   const before = process.env.EXPERIENCE_REVIEW_BEFORE_BUNDLE;
+  const checkpointBefore =
+    process.env.EXPERIENCE_REVIEW_CHECKPOINT_BEFORE_BUNDLE;
   const directory = process.env.EXPERIENCE_REVIEW_SCREENSHOTS;
   const action = (name) =>
     page.locator(`[data-experience-review-action="${name}"]`);
@@ -27,8 +30,8 @@ export const verifyCvExperienceReview = async (browser) => {
     }
   };
   try {
-    if (before) {
-      const body = await readFile(before);
+    if (before || checkpointBefore) {
+      const body = await readFile(before || checkpointBefore);
       await page.route('**/app.min.js*', (route) =>
         route.fulfill({ body, contentType: 'application/javascript' })
       );
@@ -86,6 +89,37 @@ export const verifyCvExperienceReview = async (browser) => {
     await page.locator('[data-experience-auto] summary').click();
     await phase('completed');
     assert.deepEqual(await countersInPage(), [1, 1, 0]);
+
+    const requestId = await page.evaluate(() =>
+      globalThis.localStorage.getItem('ms.cv.experience-review')
+    );
+    const completed = await fixture.store.get(experienceReviewKey(requestId));
+    assert.equal(completed.phase, 'completed');
+    assert.deepEqual(completed.pending, []);
+    assert.equal(completed.current, null);
+    // The final queue write changes only this phase from its acknowledged checkpoint.
+    await fixture.store.put({ ...completed, phase: 'selecting' });
+    await action('status').click();
+    await phase('interrupted');
+    const review = page.locator('[data-experience-review]');
+    assert.match(await saved.textContent(), /Saved and verified/u);
+    if (checkpointBefore) {
+      assert.equal(await action('resume').count(), 0);
+      await capture('checkpoint-before', review);
+    } else {
+      await action('resume').waitFor();
+      await capture('checkpoint-after', review);
+      await action('resume').click();
+      await phase('completed');
+      assert.equal(
+        await saved.getAttribute('data-experience-review-revision'),
+        completed.history[0].revision
+      );
+      assert.deepEqual(await fixture.store.get(completed.id), completed);
+      await capture('checkpoint-completed', review);
+    }
+    assert.deepEqual(await countersInPage(), [1, 1, 0]);
+    assert.equal(counters.attached, counters.detached);
     assert.deepEqual(fixture.errors, []);
   } finally {
     await fixture.close();

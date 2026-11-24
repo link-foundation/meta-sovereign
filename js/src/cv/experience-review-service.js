@@ -3,6 +3,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { PrivateCvJob } from './private-job.js';
 import {
   checkedExperienceReview,
+  experienceReviewCanResume,
   experienceReviewCode,
   experienceReviewFailure as failure,
   experienceReviewKey,
@@ -400,9 +401,7 @@ const resume = async (service, input) => {
     await service.store.get(experienceReviewKey(requestId)),
     requestId
   );
-  if (
-    !['opening', 'prepared', 'refreshing', 'replanning'].includes(row.phase)
-  ) {
+  if (!experienceReviewCanResume(row.phase)) {
     throw failure('conflict');
   }
   return service.launch(row);

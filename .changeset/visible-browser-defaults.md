@@ -19,6 +19,10 @@ Retain source-linked recruiter summary facts when an approved no-reply notice
 precedes a questionnaire. Recheck the chat and approval after Forms prefill
 before advancing the unread review (issue #56, HH10 and QA24).
 
+Resume a reviewed CV queue after an acknowledged decision and before opening
+the next editor. Keep the saved comparison and receipt across CLI, Lino and the
+shared CV view (issue #56, HH17).
+
 Watch HeadHunter chats awaiting a reply from shared automation controls, the
 foreground CLI or both Lino encodings. Include already-read chats in this mode,
 keep the current draft open, and advance after an observed owner reply or a

@@ -1,7 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { PrivateCvJobState } from './private-cv-job-state.js';
-import { experienceReviewRunning } from '../cv/experience-review-record.js';
+import {
+  experienceReviewCanResume,
+  experienceReviewRunning,
+} from '../cv/experience-review-record.js';
 import { confirmedExperiencePlan } from '../cv/experience-plan-receipt.js';
 import { PlannedFields } from './cv-experience-plan-view.js';
 
@@ -205,8 +208,7 @@ export const ExperienceReviewStatus = ({ review, api, openComparison }) => {
   const phase = state.unknown ? 'unknown' : (row?.phase ?? 'acquiring');
   const running = experienceReviewRunning(row);
   const resumable =
-    phase === 'interrupted' &&
-    ['opening', 'prepared', 'refreshing', 'replanning'].includes(row.lastPhase);
+    phase === 'interrupted' && experienceReviewCanResume(row.lastPhase);
   const open = async () => {
     const { hh, linkedin, requestId, fingerprint } = row.comparison;
     setOpening(true);

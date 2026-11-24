@@ -112,6 +112,7 @@
 - [HeadHunter About review](experience-hh-about-review.md) covers one exact profile draft, explicit Save or Skip, and a fresh export receipt.
 - [LinkedIn About review](experience-linkedin-about-review.md) covers edits and additions, per-draft decisions and a matching profile readback.
 - [Sequential native experience review](experience-review-queue.md) covers one acquisition and comparison command, explicit per-item decisions, fresh export checkpoints and recovery.
+- [CV review recovery between items](experience-review-checkpoint.md) retains verified receipts and opens the next editor once after an owner resumes the queue.
 - [CV initial loading](cv-loading.md): deterministic slow-catalogue regression, disabled controls and shared loading state, with before/after browser captures.
 
 - [Desktop native prebuild filtering](desktop-native-prebuilds.md): preserve the actual five-job packaging failure, reproduce it through the installed builder, and keep only target-compatible SQLite addons while retaining native verification. Exact-head hosted builds remain required.
