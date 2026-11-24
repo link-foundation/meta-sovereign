@@ -6,9 +6,16 @@ import {
   respondentQuestionnaire,
   sharedQuestionnaire,
 } from '../../../experiments/issue-56/unread-linked-form-fixture.mjs';
-import { unreadSummaryHistory } from '../../../experiments/issue-56/question-summary-fixture.mjs';
+import {
+  noReplyFollowupRule,
+  unreadSummaryAndNoticeHistory,
+  unreadSummaryHistory,
+} from '../../../experiments/issue-56/question-summary-fixture.mjs';
 import { questionBrowserUi } from './question-browser-ui.mjs';
-import { listAnswerRules } from '../../src/automation/question-store.js';
+import {
+  listAnswerRules,
+  saveAnswerRule,
+} from '../../src/automation/question-store.js';
 import {
   openUnread,
   verifyUnreadFocusRefusal,
@@ -16,14 +23,23 @@ import {
 
 export const verifyUnreadLinkedForms = async (
   browser,
-  { screenshots, before = false, afterSummary = false } = {}
+  {
+    screenshots,
+    before = false,
+    afterSummary = false,
+    afterApprovedNotice = false,
+  } = {}
 ) => {
   const form = linkedFormBrowser(browser);
   const scenario = await questionBrowserUi(browser, {
     screenshots,
     group: 'question-unread-forms',
     serverOptions: {
-      ...(afterSummary && { unreadHistory: unreadSummaryHistory }),
+      ...((afterSummary || afterApprovedNotice) && {
+        unreadHistory: afterApprovedNotice
+          ? unreadSummaryAndNoticeHistory
+          : unreadSummaryHistory,
+      }),
       unreadReview: true,
       unreadAnswers: true,
       unreadMessages: { 8: employerQuestionnaire },
@@ -31,6 +47,9 @@ export const verifyUnreadLinkedForms = async (
     },
   });
   try {
+    if (afterApprovedNotice) {
+      await saveAnswerRule(scenario.fixture.store, noReplyFollowupRule());
+    }
     await scenario.open();
     const unread = await openUnread(scenario.controls);
     await unread.locator('[data-browser-unread-answers]').check();
@@ -39,7 +58,8 @@ export const verifyUnreadLinkedForms = async (
       assert.deepEqual(form.visits, []);
       return { cases: 1, liveProvider: false };
     }
-    if (!before || afterSummary) {
+    const hasSummary = afterSummary || afterApprovedNotice;
+    if (!before || hasSummary) {
       await unread.locator('[data-browser-unread-forms]').check();
     }
     await unread.locator('[data-browser-unread-confirm]').check();
@@ -65,7 +85,7 @@ export const verifyUnreadLinkedForms = async (
       'completed',
       await unread.innerText()
     );
-    if (before && !afterSummary) {
+    if (before && !hasSummary) {
       const held = unread.locator('[data-browser-unread-held="8"]');
       await held.waitFor();
       assert.deepEqual(form.visits, []);
@@ -74,7 +94,7 @@ export const verifyUnreadLinkedForms = async (
       return { cases: 1, liveProvider: false };
     }
     const handedOff = unread.locator('[data-browser-unread-form="prefilled"]');
-    await handedOff.waitFor();
+    assert.equal(await handedOff.count(), 1, await unread.innerText());
     await unread
       .locator(`[data-browser-unread-held="${before ? '8' : '9'}"]`)
       .waitFor({ timeout: 5000 });
@@ -99,11 +119,19 @@ export const verifyUnreadLinkedForms = async (
     );
     assert.equal((await scenario.fixture.stats()).sends, 0);
     await handedOff.scrollIntoViewIfNeeded();
-    const name = afterSummary ? 'unread-form-handover' : 'unread-forms';
-    if (afterSummary) {
+    const name = afterApprovedNotice
+      ? 'unread-form-approved-notice'
+      : afterSummary
+        ? 'unread-form-handover'
+        : 'unread-forms';
+    if (hasSummary) {
       const answers = (await listAnswerRules(scenario.fixture.store)).flatMap(
         ({ answers }) =>
-          answers.filter(({ evidence }) => evidence.includes('msg:hh:8:806'))
+          answers.filter(({ evidence }) =>
+            evidence.includes(
+              afterApprovedNotice ? 'msg:hh:8:805' : 'msg:hh:8:806'
+            )
+          )
       );
       assert.deepEqual(
         answers.map(({ text, approved }) => [text, approved]),
@@ -151,3 +179,13 @@ export const verifyUnreadLinkedForms = async (
     await scenario.close();
   }
 };
+
+export const verifyUnreadFormAfterHandover = (browser) =>
+  browser.browserType().name() === 'chromium'
+    ? verifyUnreadLinkedForms(browser, { afterSummary: true })
+    : { cases: 0, liveProvider: false };
+
+export const verifyUnreadFormAfterApprovedNotice = (browser) =>
+  browser.browserType().name() === 'chromium'
+    ? verifyUnreadLinkedForms(browser, { afterApprovedNotice: true })
+    : { cases: 0, liveProvider: false };

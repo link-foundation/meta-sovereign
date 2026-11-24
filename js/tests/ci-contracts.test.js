@@ -410,11 +410,16 @@ const questionBrowserGroups = {
     'verifyUnreadModel',
     'verifyUnreadModelControls',
   ],
-  'question-unread-history': ['verifyUnreadHistoryLearning'],
+  'question-unread-history': [
+    'verifyUnreadHistoryLearning',
+    'verifyUnreadSummary',
+    'verifyUnreadSummaryBeforeFollowup',
+    'verifyUnreadFormAfterHandover',
+  ],
   'question-unread-forms': [
     'verifyUnreadLinkedForms',
     'verifyUnreadEmployerRating',
-    'verifyUnreadSummary',
+    'verifyUnreadFormAfterApprovedNotice',
   ],
   'question-unread-choices': ['verifyUnreadBotChoices'],
   'question-unread-reply-view': [
@@ -540,7 +545,9 @@ test('question provider and control scenarios have separate mandatory browser bu
     for (const scenario of scenarios) {
       assert.match(registered, new RegExp(`\\b${scenario}\\b`, 'u'));
       assert.equal(
-        groupSources.filter((source) => source.includes(scenario)).length,
+        groupSources.filter((source) =>
+          new RegExp(`\\b${scenario}\\b`, 'u').test(source)
+        ).length,
         1,
         `${scenario} runs in exactly one bounded group`
       );

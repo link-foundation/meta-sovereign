@@ -9,7 +9,7 @@ import {
 } from './question-browser-state.js';
 import { unreadFailure } from './question-unread-identity.js';
 import {
-  formHandoffSummaries,
+  unreadFormHandoff,
   unreadFormLink,
   visitUnreadForm,
 } from './question-unread-form.js';
@@ -245,10 +245,10 @@ export const visitUnreadAnswer = async ({
     await handle.holdReviewInactive();
     return { holdReview: true };
   }
-  const handoff = formHandoffSummaries(snapshot, link);
+  const handoff = unreadFormHandoff(snapshot, link, baseline);
   const handled = !link && alreadyHandled(snapshot, plan);
   const summaries =
-    handoff ?? (handled ? handledSummaries(snapshot, plan) : []);
+    handoff?.summaries ?? (handled ? handledSummaries(snapshot, plan) : []);
   if (
     summaries.length &&
     !(await finishSummary({
@@ -281,6 +281,14 @@ export const visitUnreadAnswer = async ({
       save,
       link,
       canAdvance: handoff !== null,
+      verifyNotices: handoff?.usesApprovedNotice
+        ? async () =>
+            unreadFormHandoff(
+              snapshot,
+              link,
+              await previewAnswer(context.store, input)
+            ) !== null
+        : undefined,
     })
   ) {
     return { holdReview: false };

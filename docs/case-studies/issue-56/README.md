@@ -873,6 +873,7 @@ Optional persistent collection with full current-run context: [collection eviden
 - [Application answer and salary budgets](application-answer-budgets.md): preserve the exact WebKit aggregate deadline, separate the salary group and retain every native scenario once with unchanged deadlines and shard limits.
 - [Runner dependency preparation](runner-launcher-preparation.md): verify cold and warm native Screen runs locally and over SSH, and retain distinct localized dependency refusals in Settings. VD01 remains unfinished.
 - [Questionnaires linked in unread HeadHunter chats](unread-linked-forms.md) use an owned Forms slot and continue after a confirmed questionnaire-only handoff. The case retains before and after browser evidence and the remaining live-provider checks.
+- [Questionnaires after approved no-reply notices](unread-form-approved-notice.md) retain summary facts and verify the live turn and approval after Forms prefill.
 - [Employer rating polls linked in HeadHunter chats](employer-rating-poll.md) prepare the verified company search and leave the ratings to the owner. The case records the current public tally and the remaining live acceptance check.
 - [Completed unread recruiter summaries](unread-summary-learning.md) save source-linked answer proposals before the next chat and hold the conversation if the source or durable write cannot be verified.
 - [Older owner replies in sequential review](unread-history-learning.md) save dated, evidence-linked proposals and extend related notice patterns after both replies are confirmed.

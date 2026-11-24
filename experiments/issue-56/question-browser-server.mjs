@@ -13,6 +13,7 @@ import {
   noReplyFollowupRule,
   summary,
   summaryFollowup,
+  unreadSummaryAndNoticeHistory,
   unreadSummaryHistory,
 } from './question-summary-fixture.mjs';
 import { hhChoiceHtml } from './hh-choice-fixture.mjs';
@@ -353,6 +354,8 @@ if (
     process.env.QUESTION_BROWSER_LINKED_FORMS === '1'
       ? linkedFormBrowser(browser)
       : null;
+  const formAfterNotice =
+    linked && process.env.QUESTION_BROWSER_FORM_AFTER_NOTICE === '1';
   const rating =
     process.env.QUESTION_BROWSER_EMPLOYER_RATING === '1'
       ? ratingReviewBrowser(browser)
@@ -384,8 +387,11 @@ if (
       unreadAnswers: true,
       unreadMessages: { 8: employerQuestionnaire },
       forms: linked.forms,
-      ...(process.env.QUESTION_BROWSER_FORM_AFTER_SUMMARY === '1' && {
-        unreadHistory: unreadSummaryHistory,
+      ...((formAfterNotice ||
+        process.env.QUESTION_BROWSER_FORM_AFTER_SUMMARY === '1') && {
+        unreadHistory: formAfterNotice
+          ? unreadSummaryAndNoticeHistory
+          : unreadSummaryHistory,
       }),
     }),
     ...(rating && {
@@ -405,7 +411,7 @@ if (
     ...(unreadChoices && { unreadAnswers: true, unreadChoices }),
     ...(unreadWaiting && { unreadAnswers: true, unreadWaiting }),
   });
-  if (followup) {
+  if (followup || formAfterNotice) {
     await saveAnswerRule(fixture.store, noReplyFollowupRule());
   }
   if (selectedNotice) {
@@ -423,7 +429,7 @@ if (
     await new Promise((resolve) => controls.close(resolve));
     await fixture.close();
     await browser.close();
-    if (unreadNotices || followup) {
+    if (unreadNotices || followup || formAfterNotice) {
       console.log(
         JSON.stringify({ resourcesClosed: true, liveProvider: false })
       );

@@ -11,7 +11,7 @@ RUN_BROWSER_E2E=1 E2E_EXECUTABLE_PATH=/opt/google/chrome/chrome \
 
 Use `E2E_UNREAD_SUMMARY_BEFORE=1` when running against the parent. Both runs reach held chat 9 and leave its draft intact. The updated pass saves two unapproved facts tied to the earlier native message ID. The chat records zero outgoing messages. Additional checks cover two independent summaries, an unapproved marker, an earlier missing or changed archive row, and a combined receipt larger than a single summary.
 
-The pass checks the fresh pending turn and rereads every expected summary from the acknowledged archive before saving any proposals. A changed turn or missing archive row holds the visit. An unanswered request or owner draft keeps the ordinary review path. [Focused tests](../../../js/tests/question-unread-summary.test.js) · [Registered native regression](../../../js/tests/e2e-question-unread-forms-browser.mjs)
+The pass checks the fresh pending turn and rereads every expected summary from the acknowledged archive before saving any proposals. A changed turn or missing archive row holds the visit. An unanswered request or owner draft keeps the ordinary review path. [Focused tests](../../../js/tests/question-unread-summary.test.js) · [Registered native regression](../../../js/tests/e2e-question-unread-history-browser.mjs)
 
 The parent fails three focused regressions. Node and Deno each passed 44 checks on the fixed turn. Chromium reproduced the desktop result on both commits. An independent Playwright run verified the fixed receipt at 390 pixels with zero sends, page exceptions or horizontal overflow. The isolated host returned a favicon 404.
 

@@ -1,15 +1,9 @@
 import { runBrowserScenarios } from './helpers/e2e-browser-scenarios.mjs';
-import { verifyUnreadLinkedForms } from './helpers/e2e-unread-linked-forms.mjs';
-import { verifyUnreadEmployerRating } from './helpers/e2e-unread-rating.mjs';
 import {
-  verifyUnreadSummary,
-  verifyUnreadSummaryBeforeFollowup,
-} from './helpers/e2e-unread-summary.mjs';
-
-const verifyUnreadFormAfterHandover = async (browser) =>
-  browser.browserType().name() === 'chromium'
-    ? verifyUnreadLinkedForms(browser, { afterSummary: true })
-    : { cases: 0, liveProvider: false };
+  verifyUnreadFormAfterApprovedNotice,
+  verifyUnreadLinkedForms,
+} from './helpers/e2e-unread-linked-forms.mjs';
+import { verifyUnreadEmployerRating } from './helpers/e2e-unread-rating.mjs';
 
 await runBrowserScenarios(
   'question-unread-forms',
@@ -17,10 +11,8 @@ await runBrowserScenarios(
     ? [verifyUnreadEmployerRating]
     : [
         verifyUnreadLinkedForms,
-        verifyUnreadFormAfterHandover,
         verifyUnreadEmployerRating,
-        verifyUnreadSummary,
-        verifyUnreadSummaryBeforeFollowup,
+        verifyUnreadFormAfterApprovedNotice,
       ],
   { nativeFocus: true }
 );

@@ -12,6 +12,8 @@ Current acceptance: **88 of 118 criteria verified; 30 remain unchecked**.
 
 [Questionnaires with completed recruiter handovers](unread-form-handover.md) save verified facts and advance after a confirmed Forms handoff. Earlier unanswered requests, other links and uncertain summaries keep the current chat held. The native regression verifies two saved facts and zero sends or submissions.
 
+[Questionnaires with an approved no-reply notice](unread-form-approved-notice.md) preserve summary facts and continue after a confirmed Forms handoff. A changed chat or revoked approval holds the current visit with the Forms receipt still available.
+
 [Completed summaries anywhere in a no-reply turn](unread-summary-turn.md) retain their own message provenance. The native fixture verifies an approved follow-up, two unapproved facts, zero sends and a preserved draft in the next held chat.
 
 The [complete VD03 review](hosted-vk-independent-20e603f1.md), together with

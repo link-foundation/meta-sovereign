@@ -24,6 +24,12 @@ export const unreadSummaryHistory = {
     },
   },
 };
+export const unreadSummaryAndNoticeHistory = {
+  8: {
+    5: unreadSummaryHistory[8][6],
+    6: { body: summaryFollowup, timestamp: '2026-11-09T11:01:00Z' },
+  },
+};
 
 export const summaryMessage = (source = 'hh') => ({
   id: `msg:${source}:handover:1`,

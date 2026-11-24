@@ -34,7 +34,9 @@ const inspect = async (page, { base, control, desktop, phone }) => {
   const form = unread.locator('[data-browser-unread-form="prefilled"]');
   await held.waitFor();
   await form.scrollIntoViewIfNeeded();
-  await page.screenshot({ path: desktop });
+  if (desktop) {
+    await page.screenshot({ path: desktop });
+  }
   await page.setViewportSize({ width: 390, height: 844 });
   const result = {
     summary: await summary.innerText(),
@@ -63,17 +65,20 @@ const inspect = async (page, { base, control, desktop, phone }) => {
   return result;
 };
 
-const raw = await readFile(
-  'ci-logs/unread-form-handover-mcp-server.log',
-  'utf8'
-);
+const afterNotice = process.argv.includes('--approved-notice');
+const prefix = afterNotice
+  ? 'unread-form-approved-notice'
+  : 'unread-form-handover';
+const raw = await readFile(`ci-logs/${prefix}-mcp-server.log`, 'utf8');
 await writeFile(
-  'ci-logs/unread-form-handover-mcp-code.js',
+  `ci-logs/${prefix}-mcp-code.js`,
   mcpInspectionCode(inspect, {
     ...JSON.parse(raw.split('\n')[0]),
-    desktop: resolve(
-      'docs/screenshots/issue-56-unread-form-handover-after.png'
-    ),
-    phone: resolve('docs/screenshots/issue-56-unread-form-handover-phone.png'),
+    ...(!afterNotice && {
+      desktop: resolve(
+        'docs/screenshots/issue-56-unread-form-handover-after.png'
+      ),
+    }),
+    phone: resolve(`docs/screenshots/issue-56-${prefix}-phone.png`),
   })
 );

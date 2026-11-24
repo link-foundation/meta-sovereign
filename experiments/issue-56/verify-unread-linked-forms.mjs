@@ -9,6 +9,7 @@ try {
   const result = await verifyUnreadLinkedForms(browser, {
     before: process.argv.includes('--before'),
     afterSummary: process.argv.includes('--after-summary'),
+    afterApprovedNotice: process.argv.includes('--after-approved-notice'),
     screenshots: 'docs/screenshots',
   });
   console.log(JSON.stringify(result));

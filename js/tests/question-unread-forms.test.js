@@ -1,8 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { unreadAnswerFixture } from '../../experiments/issue-56/unread-answer-fixture.mjs';
-import { summary } from '../../experiments/issue-56/question-summary-fixture.mjs';
-import { listAnswerRules } from '../src/automation/question-store.js';
+import {
+  noReplyFollowupRule,
+  summary,
+  summaryFollowup,
+} from '../../experiments/issue-56/question-summary-fixture.mjs';
+import {
+  listAnswerRules,
+  saveAnswerRule,
+} from '../src/automation/question-store.js';
 import { checkUnreadReview } from '../src/automation/question-unread-state.js';
 import { createMemoryStore } from '../src/storage/universal.js';
 import {
@@ -231,6 +238,103 @@ test('a questionnaire after a completed plain handover continues without learnin
       assert.deepEqual(await learnedSummaries(env.store), []);
     }
   ));
+
+test('a questionnaire after an approved no-reply notice and summary advances with both receipts', () => {
+  const rows = questionnaireTurn();
+  rows[0].pendingTurn.messages.splice(1, 0, {
+    id: '102',
+    body: summaryFollowup,
+  });
+  return withPass({ rows, history: turnHistory }, async (env, calls) => {
+    await saveAnswerRule(env.store, noReplyFollowupRule());
+    const result = await env.complete({ ...env.input, prefillForms: true });
+    assert.equal(result.entries[0].form.state, 'prefilled');
+    assert.equal(result.entries[0].answer.phase, 'form-review');
+    assert.equal(result.entries[0].answer.summaryAnswers, 2);
+    assert.equal(result.restoration.heldReview.chat, '9');
+    assert.equal(calls.length, 1);
+    assert.deepEqual(env.state.sends, []);
+    assert.equal((await learnedSummaries(env.store)).length, 2);
+  });
+});
+
+test('a proposed no-reply marker leaves a prefilled questionnaire and the current chat in review', () =>
+  withPass({ rows: questionnaireTurn(summaryFollowup) }, async (env, calls) => {
+    await saveAnswerRule(env.store, noReplyFollowupRule(false));
+    const result = await env.complete({ ...env.input, prefillForms: true });
+    assert.equal(result.entries[0].form.state, 'prefilled');
+    assert.equal(result.entries[0].answer.phase, 'review');
+    assert.equal(result.restoration.heldReview.chat, '8');
+    assert.equal(calls.length, 1);
+    assert.deepEqual(env.state.sends, []);
+  }));
+
+test('revoking a no-reply approval while Forms opens retains its receipt and holds the chat', () => {
+  let revoke;
+  return withPass(
+    {
+      rows: questionnaireTurn(summaryFollowup),
+      prefillLinkedForm: async ({ verify, ...input }) => {
+        await verify();
+        await revoke();
+        return {
+          url: input.url,
+          messageId: input.messageId,
+          state: 'closed',
+          written: 0,
+        };
+      },
+    },
+    async (env) => {
+      revoke = () => saveAnswerRule(env.store, noReplyFollowupRule(false));
+      await saveAnswerRule(env.store, noReplyFollowupRule());
+      const result = await env.complete({ ...env.input, prefillForms: true });
+      assert.equal(result.entries[0].form.state, 'closed');
+      assert.equal(result.entries[0].answer.phase, 'review');
+      assert.equal(
+        result.entries[0].answer.reason,
+        'question-watch-plan-changed'
+      );
+      assert.equal(result.restoration.heldReview.chat, '8');
+      assert.deepEqual(env.state.prefills, []);
+      assert.deepEqual(env.state.sends, []);
+      checkUnreadReview(result, env.input.id);
+    }
+  );
+});
+
+test('a new incoming question after successful Forms prefill holds the borrowed chat', () => {
+  let transferred = false;
+  return withPass(
+    {
+      readCurrent: (snapshot) =>
+        transferred && snapshot.chat === '8'
+          ? {
+              ...snapshot,
+              ...linkedRow('Please fill in the form. Can you start Monday?'),
+            }
+          : snapshot,
+      prefillLinkedForm: async ({ verify, ...input }) => {
+        await verify();
+        transferred = true;
+        return {
+          url: input.url,
+          messageId: input.messageId,
+          state: 'closed',
+          written: 0,
+        };
+      },
+    },
+    async (env) => {
+      const result = await env.complete({ ...env.input, prefillForms: true });
+      assert.equal(result.entries[0].form.state, 'closed');
+      assert.equal(result.entries[0].answer.reason, 'question-form-changed');
+      assert.equal(result.restoration.heldReview.chat, '8');
+      assert.deepEqual(env.state.prefills, []);
+      assert.deepEqual(env.state.sends, []);
+    }
+  );
+});
 
 test('a questionnaire holds before opening Forms when the preceding summary lacks a matching archive', () =>
   withPass(

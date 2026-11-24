@@ -74,12 +74,26 @@ const formOnly = ({ body, links }, link) => {
   );
 };
 
+const approvedNoReply = (message, plan) => {
+  const parts = plan?.parts?.filter((part) => part.message === message.id);
+  return (
+    parts?.length === 1 &&
+    parts[0].notice === true &&
+    parts[0].noReply === true &&
+    parts[0].noReplyProposed === true &&
+    parts[0].complete === true &&
+    !parts[0].requiresReview &&
+    !parts[0].linkReview
+  );
+};
+
 /** A separate Forms review can resolve the turn only if no chat task remains. */
-export const formHandoffSummaries = ({ pendingTurn }, link) => {
+export const unreadFormHandoff = ({ pendingTurn }, link, plan) => {
   if (!link) {
     return null;
   }
   const summaries = [];
+  let usesApprovedNotice = false;
   for (const message of pendingTurn.messages) {
     if (message.id === link.messageId) {
       if (!formOnly(message, link)) {
@@ -90,10 +104,13 @@ export const formHandoffSummaries = ({ pendingTurn }, link) => {
     } else if (completedAnswerSummary(message.body)) {
       summaries.push(message);
     } else if (!completedHandover(message.body)) {
-      return null;
+      if (!approvedNoReply(message, plan)) {
+        return null;
+      }
+      usesApprovedNotice = true;
     }
   }
-  return summaries;
+  return { summaries, usesApprovedNotice };
 };
 
 export const visitUnreadForm = async ({
@@ -106,6 +123,7 @@ export const visitUnreadForm = async ({
   save,
   link,
   canAdvance,
+  verifyNotices,
 }) => {
   if (!link) {
     return false;
@@ -148,12 +166,26 @@ export const visitUnreadForm = async ({
         : 'question-form-unconfirmed',
     };
   }
-  const transferred = canAdvance && unreadFormTransfer(entry.form.state);
-  if (transferred) {
-    entry.answer.phase = 'form-review';
+  if (canAdvance && unreadFormTransfer(entry.form.state)) {
+    try {
+      await verify();
+      if (verifyNotices && !(await verifyNotices())) {
+        throw unreadFailure(
+          'question-watch-plan-changed',
+          'The saved answer or policy changed.'
+        );
+      }
+      signal.throwIfAborted();
+      entry.answer.phase = 'form-review';
+    } catch (error) {
+      signal.throwIfAborted();
+      entry.answer.reason = boundedBrowserText(error?.code, 120)
+        ? error.code
+        : 'question-form-unconfirmed';
+    }
   }
   await save(record);
-  return transferred;
+  return entry.answer.phase === 'form-review';
 };
 
 const hasValidFormSlot = (value) =>
