@@ -2,6 +2,10 @@
 'meta-sovereign': minor
 ---
 
+Reuse same-language approved thanks for recognized HeadHunter application
+updates in the explicitly selected inactive notice policy. Verify full chat
+history and keep actionable messages in review (issue #56, QA17).
+
 Prefill supported questionnaires linked in unread HeadHunter chats in an owned
 Forms slot when explicitly enabled. Retain the form for review and continue to
 the first chat that needs a reply after a confirmed questionnaire-only handoff

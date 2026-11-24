@@ -71,14 +71,15 @@ test(
     const { server, base } = await formReviewHttp({ store }, LINO_TEXT);
     try {
       for (const media of [LINO_TEXT, LINO_BINARY]) {
+        const policy = { ...notices, acknowledgements: 'reply-recognized' };
         const saved = await postQuestion(
           base,
           'policy',
-          { policy: { notices } },
+          { policy: { notices: policy } },
           media
         );
         assert.equal(saved.status, 200);
-        assert.deepEqual(saved.body.policy.notices, notices);
+        assert.deepEqual(saved.body.policy.notices, policy);
         const invalid = await postQuestion(
           base,
           'policy',
@@ -86,7 +87,7 @@ test(
           media
         );
         assert.equal(invalid.status, 400);
-        assert.deepEqual((await readAnswerPolicy(store)).notices, notices);
+        assert.deepEqual((await readAnswerPolicy(store)).notices, policy);
       }
       assert.deepEqual(
         await store.query((row) => row.kind === 'question-browser-watch'),

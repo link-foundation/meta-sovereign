@@ -21,6 +21,12 @@ import {
   noticeText,
   noticeReply,
   noticeRule,
+  savedRussianNotice,
+  russianThanks,
+  activeReview,
+  botBinarySummary,
+  botHandover,
+  recognizedNoticeRule,
 } from '../../experiments/issue-56/notice-fixture.mjs';
 
 const planFixture = async (body = noticeText) => {
@@ -38,6 +44,211 @@ const planFixture = async (body = noticeText) => {
     history: { rows, coverage: { complete: true }, restored: true },
   };
 };
+
+const companyInfo =
+  'Вы также можете узнать больше о нас и ознакомиться с другими вакансиями по ссылке: https://hh.ru/employer/10726025';
+
+const recognizedFixture = async (body, mode = 'reply-recognized') => {
+  const input = await planFixture(body);
+  await saveAnswerRule(input.store, recognizedNoticeRule());
+  await saveAnswerPolicy(input.store, { notices: { acknowledgements: mode } });
+  return input;
+};
+
+test('recognized review and screening notices reuse same-language saved thanks only in the selected mode', async () => {
+  for (const body of [
+    activeReview,
+    'Добрый день! Спасибо за Ваш отклик! Мы рассмотрим Ваше резюме в ближайшее время и вернемся с обратной связью.',
+    'Ваше резюме находится на этапе рассмотрения.',
+    'В течение двух рабочих дней мы рассмотрим Ваш отклик и вернёмся с обратной связью.',
+    'Нам нужно немного времени, чтобы ознакомиться с вашим резюме и решить, какие этапы предложить. Постараемся вернуться с фидбеком как можно скорее. Хорошего дня!',
+    'Нам потребуется время, чтобы изучить ваше резюме. Планируем вернуться с обратной связью на следующей неделе.',
+    'Сейчас мы проводим первичный отбор по резюме. Приём входящих звонков временно приостановлен. Пожалуйста, не звоните: мы сами напишем или позвоним подходящим кандидатам.',
+    'В данный момент идёт предварительный отбор кандидатов по резюме. Мы сами свяжемся с теми, чей опыт подойдёт.',
+    'Мы ведём отбор по резюме. Когда выберем подходящих кандидатов, напишем им. Входящие звонки пока не принимаем.',
+    'Компания Волга рассмотрит Ваше резюме на вакансию Разработчик и позже сообщит Вам о своем решении.',
+    'Ваш отклик мы получили! Внимательно изучим ваше резюме. Если ваш опыт совпадёт с нашими задачами — наша команда свяжется с вами.',
+    'Спасибо за ваш отклик, ознакомимся с Вашим резюме и дадим обратную связь.',
+    'Благодарим вас за проявленный интерес к нашей компании Волга, а также за участие в процессе отбора на позицию Python разработчик. Мы ценим время и усилия, которые вы вложили в знакомство с нами. На данный момент мы продолжаем рассматривать кандидатов и анализировать результаты собеседований. Ваша кандидатура остается в числе тех, кто нас заинтересовал. Если мы примем положительное решение -- обязательно свяжемся с вами в ближайшее время.',
+  ]) {
+    const input = await recognizedFixture(body);
+    const result = await planNoticeReply(input);
+    assert.equal(result.status, 'ready', body);
+    assert.equal(result.text, russianThanks, body);
+    assert.equal(result.evidence.recognizedAcknowledgement, true, body);
+    assert.deepEqual(result.evidence.rules, ['qa-rule:older-russian-notice']);
+  }
+  for (const body of [
+    'Your application is currently under review.',
+    'Your CV is being reviewed.',
+    'Thanks for applying! Our team will review your CV and contact you if your experience is a match.',
+  ]) {
+    const result = await planNoticeReply(await recognizedFixture(body));
+    assert.equal(result.status, 'ready', body);
+    assert.equal(result.text, noticeReply, body);
+  }
+  assert.equal(
+    (await planNoticeReply(await recognizedFixture(activeReview, 'reply')))
+      .status,
+    'review'
+  );
+});
+
+test('unknown requests, invitations, negated reviews, links and competing pending messages hold recognized replies', async () => {
+  const notice = 'Мы рассмотрим Ваше резюме.';
+  for (const body of [
+    `${notice} Укажите Ваш Telegram.`,
+    `${notice} Пришлите примеры кода.`,
+    `${notice} Внесите сведения в профиль.`,
+    `${notice} Когда сможете выйти?`,
+    `${notice} Приглашаем на собеседование.`,
+    `${notice} Мы выбрали другого кандидата.`,
+    `${notice} https://example.test/next`,
+    `${notice}\nUpload Portfolio`,
+    `${notice}\nС уважением, Анна Примерова\nЗаполните анкету`,
+    'Ваше резюме не находится на рассмотрении.',
+    'Ваше резюме может быть рассмотрено.',
+    'Мы не проводим первичный отбор по резюме. Напишем вам позже.',
+    'Первичный отбор по резюме завершён. Мы свяжемся позднее.',
+  ]) {
+    const result = await planNoticeReply(await recognizedFixture(body));
+    assert.equal(result.status, 'review', body);
+    assert.equal(result.text, undefined, body);
+  }
+  const input = await recognizedFixture(activeReview);
+  input.history.rows.splice(1, 0, {
+    id: '100',
+    body: 'Когда сможете выйти на работу?',
+  });
+  input.snapshot = noticeSnapshot(input.history.rows);
+  assert.equal((await planNoticeReply(input)).status, 'review');
+});
+
+test('recognized notices allow explicitly optional HH company information with one verified destination', async () => {
+  const notice = 'Мы рассмотрим Ваше резюме в ближайшее время.';
+  const url = 'https://hh.ru/employer/10726025';
+  for (const [paragraph, links, expected] of [
+    [companyInfo, undefined, 'ready'],
+    [companyInfo, [url], 'ready'],
+    [companyInfo, ['https://forms.gle/abc'], 'review'],
+    [companyInfo, [url, 'https://forms.gle/abc'], 'review'],
+    [`${companyInfo}?to=elsewhere`, undefined, 'review'],
+    [
+      companyInfo.replace(url, 'https://hh.ru/employer/10726025/redirect'),
+      undefined,
+      'review',
+    ],
+    [
+      companyInfo.replace(
+        'Вы также можете узнать больше о нас и ознакомиться',
+        'Перейдите и ознакомьтесь'
+      ),
+      undefined,
+      'review',
+    ],
+    [`${companyInfo} . Пришлите телефон.`, undefined, 'review'],
+  ]) {
+    const input = await recognizedFixture(`${notice} ${paragraph} .`);
+    input.history.rows.at(-1).links = links;
+    input.snapshot = noticeSnapshot(input.history.rows);
+    assert.equal((await planNoticeReply(input)).status, expected, paragraph);
+  }
+  const otherSource = await recognizedFixture(`${notice} ${companyInfo}`);
+  otherSource.target.source = 'other';
+  assert.equal((await planNoticeReply(otherSource)).status, 'review');
+});
+
+test('a complete binary bot handover allows the next human acknowledgement, with live questions and owner replies held', async () => {
+  const summary = botBinarySummary;
+  const handover = botHandover;
+  for (const [prior, outcome] of [
+    [[summary, handover], 'ready'],
+    [[summary], 'review'],
+    [[summary, 'Когда сможете выйти на работу?', handover], 'review'],
+    [[summary, `${handover} Пришлите код.`], 'review'],
+    [['Куда пришлёте ответы?: ДА', handover], 'review'],
+    [['Есть ли опыт и пришлите примеры кода?: да', handover], 'review'],
+  ]) {
+    const input = await recognizedFixture(activeReview);
+    const extra = prior.map((body, index) => ({
+      id: String(index + 10),
+      outgoing: false,
+      body,
+    }));
+    input.history.rows.splice(1, 0, ...extra);
+    input.snapshot = noticeSnapshot(input.history.rows);
+    assert.equal(
+      (await planNoticeReply(input)).status,
+      outcome,
+      prior.join(' / ')
+    );
+  }
+  const answered = await recognizedFixture(activeReview);
+  answered.history.rows.push({ id: '102', outgoing: true, body: 'Благодарю.' });
+  answered.snapshot = noticeSnapshot(answered.history.rows);
+  assert.equal((await planNoticeReply(answered)).status, 'waiting');
+});
+
+test('approved dominant wording counts distinct scoped examples, holds ties and respects explicit exact decisions', async () => {
+  const input = await recognizedFixture(activeReview);
+  const make = (id, question, text, override) =>
+    recognizedNoticeRule({
+      id: `qa-rule:${id}`,
+      question,
+      answers: [{ text, approved: true }],
+      ...override,
+    });
+  await saveAnswerRule(
+    input.store,
+    make('thanks-short', 'Ваше резюме рассматривается.', 'Благодарю.')
+  );
+  await saveAnswerRule(
+    input.store,
+    make('duplicate', savedRussianNotice, russianThanks)
+  );
+  await saveAnswerRule(
+    input.store,
+    make('different-source', 'Мы получили ваше резюме.', russianThanks, {
+      sources: ['other'],
+    })
+  );
+  await saveAnswerRule(
+    input.store,
+    make('different-chat', 'Мы получили ваше резюме.', russianThanks, {
+      chats: ['hh:8'],
+    })
+  );
+  await saveAnswerRule(
+    input.store,
+    make('different-language', 'Мы получили ваше резюме.', 'Thank you.')
+  );
+  await saveAnswerRule(
+    input.store,
+    make('unapproved', 'Мы получили ваше резюме.', russianThanks, {
+      answers: [{ text: russianThanks }],
+    })
+  );
+  assert.equal((await planNoticeReply(input)).status, 'review');
+  await saveAnswerRule(
+    input.store,
+    make('compatible', 'Мы изучим ваше резюме.', russianThanks, {
+      chats: ['hh:7'],
+    })
+  );
+  const approved = await planNoticeReply(input);
+  assert.equal(approved.text, russianThanks);
+  assert.equal(approved.evidence.rules.length, 2);
+  await saveAnswerRule(
+    input.store,
+    make('explicit-review', activeReview, '[без ответа]')
+  );
+  assert.equal((await planNoticeReply(input)).status, 'review');
+  await saveAnswerRule(
+    input.store,
+    make('explicit-review', activeReview, 'Спасибо.')
+  );
+  assert.equal((await planNoticeReply(input)).text, 'Спасибо.');
+});
 
 test('each saved notice policy defaults to review and invitations cannot auto-accept', async () => {
   const store = createMemoryStore();

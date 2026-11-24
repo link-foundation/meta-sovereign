@@ -1,13 +1,14 @@
 export const zhNoticePolicy = {
   'noticePolicy.title': '通知回复策略',
   'noticePolicy.hint':
-    '保存策略不会启动任何操作。请为一个已核对的 HH 聊天启动非活动通知监控，或明确在有限次未读聊天访问中应用这些策略。申请确认只使用已批准且精确匹配的已保存通知回复；每个聊天仅询问一次拒绝原因。需要完整历史记录和已验证的开放雇主聊天。不会自动接受邀请。',
+    '保存策略不会启动任何操作。请为一个已核对的 HH 聊天启动非活动通知监控，或明确在有限次未读聊天访问中应用这些策略。识别模式也可使用已批准并保存的感谢语回复英语或俄语的申请进度更新。需要完整历史记录和已验证的开放雇主聊天。',
   'noticePolicy.acknowledgements': '申请确认',
   'noticePolicy.rejections': '拒绝通知',
   'noticePolicy.invitations': '邀请',
   'noticePolicy.review': '需要审核',
   'noticePolicy.ignore': '不回复',
   'noticePolicy.exactReply': '使用已批准的精确通知回复',
+  'noticePolicy.reply-recognized': '复用已批准的感谢语',
   'noticePolicy.reply': '每个聊天询问一次',
   'noticePolicy.rejectionReply': '询问拒绝原因的回复',
   'noticePolicy.watch': '对此聊天使用非活动通知策略',
@@ -18,6 +19,9 @@ export const zhNoticePolicy = {
   'browserWatch.phase.owner-active': '等待服务商页面停止活动。',
   'noticePolicy.historyVerified': '已为此通知决策验证完整的申请历史。',
   'noticePolicy.admitted': '已保存的通知策略授权了此精确且已批准的回复。',
+  'noticePolicy.recognizedAdmitted':
+    '已保存的通知策略授权使用此已批准的感谢语回复识别到的申请更新。',
+  'questions.match.recognizedAcknowledgement': '已识别的申请更新',
   'noticePolicy.selecting': '正在发送通知回复；请等待服务商回执。',
   'noticePolicy.unknown':
     '回复可能已经发送。请在发件箱确认状态；自动回复已暂停。',

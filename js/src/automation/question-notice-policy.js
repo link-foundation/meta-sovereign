@@ -1,15 +1,16 @@
+export const noticePolicyModes = {
+  acknowledgements: ['review', 'ignore', 'reply', 'reply-recognized'],
+  rejections: ['review', 'ignore', 'reply'],
+  invitations: ['review', 'ignore'],
+};
+
 /** Separate saved decisions; configuring them never starts a watcher. */
 export const normalizeNoticePolicy = (input = {}) => {
   if (!input || typeof input !== 'object' || Array.isArray(input)) {
     throw new Error('notice policy must be an object');
   }
-  const modes = {
-    acknowledgements: ['review', 'ignore', 'reply'],
-    rejections: ['review', 'ignore', 'reply'],
-    invitations: ['review', 'ignore'],
-  };
   const result = {};
-  for (const [kind, allowed] of Object.entries(modes)) {
+  for (const [kind, allowed] of Object.entries(noticePolicyModes)) {
     const mode = input[kind] ?? 'review';
     if (!allowed.includes(mode)) {
       throw new Error(`unsupported ${kind} notice policy`);

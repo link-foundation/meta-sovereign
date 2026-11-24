@@ -24,6 +24,8 @@ test('all four locales render independent notice policies with invitations limit
     );
     assert.equal((html.match(/<select /gu) ?? []).length, 3);
     assert.equal((html.match(/value="reply"/gu) ?? []).length, 2);
+    assert.equal((html.match(/value="reply-recognized"/gu) ?? []).length, 1);
+    assert.equal(html.includes(t('noticePolicy.reply-recognized')), true);
     assert.equal(html.includes(t('noticePolicy.invitations')), true);
     assert.equal(html.includes(t('noticePolicy.hint')), true);
     assert.equal(html.includes('noticePolicy.'), false);
@@ -57,6 +59,23 @@ test('all four locales render independent notice policies with invitations limit
     const admitted = render(AnswerEvidence, { answer, noticeAdmitted: true });
     assert.equal(admitted.includes(t('noticePolicy.admitted')), true);
     assert.equal(admitted.includes(t('questions.noticeReview')), false);
+    const recognized = render(AnswerEvidence, {
+      answer: {
+        ...answer,
+        match: 'recognizedAcknowledgement',
+        recognizedAcknowledgement: true,
+      },
+      noticeAdmitted: true,
+    });
+    assert.equal(
+      recognized.includes(t('noticePolicy.recognizedAdmitted')),
+      true
+    );
+    assert.equal(
+      recognized.includes(t('questions.match.recognizedAcknowledgement')),
+      true
+    );
+    assert.equal(recognized.includes(t('noticePolicy.admitted')), false);
     for (const [key, value] of Object.entries(dictionaries.en).filter(([key]) =>
       key.startsWith('noticePolicy.')
     )) {

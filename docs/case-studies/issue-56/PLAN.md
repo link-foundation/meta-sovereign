@@ -1,3 +1,10 @@
+### 2026-11-24 Reuse saved thanks for recognized HeadHunter application updates (QA17)
+
+- [x] Compare the pinned C4 examples and reproduce the missing mode on the published parent.
+- [x] Match complete passive application updates in Russian and English. Reuse scoped, approved saved thanks and keep ambiguous answers, conflicting links and pending requests for review.
+- [x] Verify a native completed bot handover followed by a human update, with the owner active before the guarded send. Check the explicit policy and provider receipt on a phone viewport.
+- [ ] Verify that inactive unread runs check the selected chat before the list, and that confirmed replies are revealed while preserving owner changes. Continue authenticated verification and exact-head CI.
+
 ### 2026-11-24 Keep linked recruiter notices for review (QA04 and QA17)
 
 - [x] Reproduce automatic replies or dropped pending context for linked notices against the published parent.

@@ -28,7 +28,9 @@ const AnswerParts = ({ parts }) => {
 // Shared across automation previews, Chat and Operator draft cards.
 const answerStatusKey = (answer, noticeAdmitted) => {
   if (noticeAdmitted) {
-    return 'noticePolicy.admitted';
+    return answer.recognizedAcknowledgement
+      ? 'noticePolicy.recognizedAdmitted'
+      : 'noticePolicy.admitted';
   }
   if (answer.noReply) {
     return 'questions.noReply';

@@ -1,0 +1,18 @@
+{
+  "archive": "notice-recognized.tar.gz",
+  "files": {
+    "ci-logs/notice-recognized-build.log": "7cfcc4f8d8edf2190e2134f9aabe03d10ddc709e3481380ba9474f7ddf03a182",
+    "ci-logs/notice-recognized-deno.log": "2db5d6ff3459885ef6359773a5417c1a0edc8d41d0214f7d55906dc82d772b5b",
+    "ci-logs/notice-recognized-eslint-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/notice-recognized-format-final.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/notice-recognized-mcp-initial.log": "b1640f49cc6979787126cdb844b438790ae44f94e0217aeed3c286234ec6737a",
+    "ci-logs/notice-recognized-mcp-result.json": "5496bc6fd5af5da35185efbbddd78e2d8170534abed5e9722491160b60adb8c0",
+    "ci-logs/notice-recognized-mcp-server.log": "8ba1f43a6c662f067f31aea2c6783060f4a6059868508035740a38ddb93083a7",
+    "ci-logs/notice-recognized-native-after.log": "66e2d7d083e2ddbeb194c973466fed0d811456fc8ee66d7442864d66d1a626cb",
+    "ci-logs/notice-recognized-native-before.log": "eb4e6014fd6472d46651af94086e6f1755e9e67d6cf4fd9cd7ccdda885cce874",
+    "ci-logs/notice-recognized-node.log": "02bf92187312d887cd6e1550bbd84c384b79b9b0bfaa04062bf5d006b00b4a30",
+    "ci-logs/notice-recognized-parent.log": "df08342ad054b9f543465117f348e24952f75d331732a09afeb361430a3e5712",
+    "ci-logs/notice-recognized-secretlint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "metadata.json": "8f6124797c8625d17e4a1ddd6cef55e56b44d391e1ad36311a22daa1d764778f"
+  }
+}

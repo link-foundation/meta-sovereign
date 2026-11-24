@@ -1,5 +1,6 @@
 import React from 'react';
 import { useT } from './i18n.js';
+import { noticePolicyModes } from '../automation/question-notice-policy.js';
 
 const el = React.createElement;
 
@@ -8,7 +9,7 @@ export const NoticePolicyFields = ({ value, change }) => {
   return el('fieldset', { className: 'col', 'data-notice-policies': true }, [
     el('legend', { key: 'title' }, t('noticePolicy.title')),
     el('p', { key: 'hint', className: 'meta' }, t('noticePolicy.hint')),
-    ...['acknowledgements', 'rejections', 'invitations'].map((kind) =>
+    ...Object.entries(noticePolicyModes).map(([kind, modes]) =>
       el('label', { key: kind, className: 'field' }, [
         el(
           'span',
@@ -24,10 +25,7 @@ export const NoticePolicyFields = ({ value, change }) => {
             onChange: (event) =>
               change({ ...value, [kind]: event.target.value }),
           },
-          (kind === 'invitations'
-            ? ['review', 'ignore']
-            : ['review', 'ignore', 'reply']
-          ).map((mode) =>
+          modes.map((mode) =>
             el(
               'option',
               { key: mode, value: mode },

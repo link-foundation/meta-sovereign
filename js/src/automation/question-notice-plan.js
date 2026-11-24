@@ -1,11 +1,19 @@
 import { readAnswerPolicy, rejectedAnswer } from './question-policy.js';
-import { previewAnswer } from './question-store.js';
+import { prepareAnswerPreview, previewAnswer } from './question-store.js';
 import {
+  completedHandover,
   completedNotice,
+  handoverAnswer,
   noticeAddsTask,
   noticeIntent,
   rejectionNotice,
 } from './question-notice-intent.js';
+import { recognizedAcknowledgement } from './question-acknowledgement.js';
+import {
+  exactApprovedNotice,
+  recognizedNoticeAnswer,
+} from './question-acknowledgement-answer.js';
+import { planAnswer } from './question-answers.js';
 import { browserPendingTurn } from '../sources/browser-pending-turn.js';
 import { textLinks } from '../message-links.js';
 
@@ -26,14 +34,30 @@ const rejectionAnswered = (rows) => {
   return false;
 };
 
-const pendingNotice = (snapshot) => {
-  const pending =
-    snapshot.pendingTurn?.messages?.filter(
-      (row) => noticeHasLink(row) || !completedNotice(row.body)
-    ) ?? [];
+const pendingNotice = (snapshot, source, recognize) => {
+  const rows = snapshot.pendingTurn?.messages ?? [];
+  const pendingRow = (row) => noticeHasLink(row) || !completedNotice(row.body);
+  const recent = recognize && rows.findLast(pendingRow);
+  const language = recent && recognizedAcknowledgement(recent, source);
+  const pending = rows.filter((row, index) => {
+    if (!pendingRow(row)) {
+      return false;
+    }
+    const next = rows[index + 1];
+    const completedBinary =
+      language &&
+      source === 'hh' &&
+      next &&
+      handoverAnswer(row.body) &&
+      !noticeHasLink(row) &&
+      !noticeHasLink(next) &&
+      completedHandover(next.body);
+    return !completedBinary;
+  });
   const message = pending.length === 1 ? pending[0] : null;
-  const kind = message && noticeIntent(message.body);
-  return { message, kind };
+  const kind =
+    message && (language ? 'acknowledgements' : noticeIntent(message.body));
+  return { message, kind, language: message && language };
 };
 
 const verifiedHistory = (message, snapshot, history) => {
@@ -59,17 +83,30 @@ const verifiedHistory = (message, snapshot, history) => {
   }
   return true;
 };
-const approvedNotice = (evidence) =>
-  evidence.approvedNoticeText &&
-  evidence.match === 'exact' &&
-  evidence.complete &&
-  !evidence.noReply &&
-  !evidence.learnedPattern;
 const validReply = (text, policy) =>
   typeof text === 'string' &&
   Boolean(text.trim()) &&
   text.length <= 12000 &&
   !rejectedAnswer(text, policy);
+
+const acknowledgementAnswer = async (store, input, language) => {
+  if (!language) {
+    return previewAnswer(store, input);
+  }
+  const { context } = await prepareAnswerPreview(store, input);
+  const exact = planAnswer(input.question, context);
+  return exactApprovedNotice(exact)
+    ? exact
+    : (recognizedNoticeAnswer(input.question, language, context, exact) ??
+        exact);
+};
+
+const replyEnabled = (mode, message, language) =>
+  language
+    ? mode === 'reply-recognized'
+    : ['reply', 'reply-recognized'].includes(mode) &&
+      !noticeHasLink(message) &&
+      !noticeAddsTask(message.body);
 
 /** Read-only decision. Only a complete owned conversation can authorize admission. */
 export const planNoticeReply = async ({
@@ -80,7 +117,12 @@ export const planNoticeReply = async ({
   history,
 }) => {
   const policy = await readAnswerPolicy(store);
-  const { message, kind } = pendingNotice(snapshot);
+  const recognize = policy.notices.acknowledgements === 'reply-recognized';
+  const { message, kind, language } = pendingNotice(
+    snapshot,
+    target.source,
+    recognize
+  );
   const decision = {
     kind,
     mode: kind ? policy.notices[kind] : 'review',
@@ -96,17 +138,13 @@ export const planNoticeReply = async ({
     return decision;
   }
   decision.historyVerified = true;
-  if (noticeHasLink(message)) {
+  if (!language && noticeHasLink(message)) {
     return decision;
   }
   if (decision.mode === 'ignore') {
     return { ...decision, status: 'ignored' };
   }
-  if (
-    decision.mode !== 'reply' ||
-    kind === 'invitations' ||
-    noticeAddsTask(message.body)
-  ) {
+  if (!replyEnabled(decision.mode, message, language)) {
     return decision;
   }
   let text;
@@ -117,7 +155,7 @@ export const planNoticeReply = async ({
     }
     text = policy.notices.rejectionReply;
   } else {
-    evidence = await previewAnswer(store, {
+    const input = {
       ...planning,
       source: target.source,
       chat: snapshot.chat,
@@ -126,8 +164,9 @@ export const planNoticeReply = async ({
       approximate: false,
       options: [],
       strictOptions: false,
-    });
-    if (!approvedNotice(evidence)) {
+    };
+    evidence = await acknowledgementAnswer(store, input, language);
+    if (!evidence.recognizedAcknowledgement && !exactApprovedNotice(evidence)) {
       return { ...decision, evidence };
     }
     text = evidence.text;

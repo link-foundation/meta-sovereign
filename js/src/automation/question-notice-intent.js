@@ -36,10 +36,19 @@ export const noticeAddsTask = (text) =>
   questionAction.test(text) ||
   questionInvitation.test(text.replace(DECLINED_INVITATION, ''));
 
+export const completedHandover = (text) =>
+  !noticeAddsTask(text) &&
+  /^(?:(?:спасибо за ответы[.!]\s*)?(?:мы передали (?:их|ваши ответы) работодателю|ваши ответы переданы работодателю)|работа (?:ии[- ]помощника|робота[- ]рекрутера) завершена|your answers have been forwarded to the employer|the recruiter bot has finished|आपके उत्तर नियोक्ता को भेज दिए गए हैं|您的回答已转交给雇主)[.!。！\s]*$/iu.test(
+    text.trim()
+  );
+
 /** Only explicit completed wrap-ups can disappear from pending notice context. */
 export const completedNotice = (text) =>
-  completedAnswerSummary(text) ||
-  (!noticeAddsTask(text) &&
-    /^(?:работа (?:ии[- ]помощника|робота[- ]рекрутера) завершена|ваши ответы переданы работодателю|your answers have been forwarded to the employer|the recruiter bot has finished|आपके उत्तर नियोक्ता को भेज दिए गए हैं|您的回答已转交给雇主)[.!。！\s]*$/iu.test(
-      text.trim()
-    ));
+  completedAnswerSummary(text) || completedHandover(text);
+
+export const handoverAnswer = (text) =>
+  !questionAction.test(text) &&
+  !questionInvitation.test(text) &&
+  /^(?:есть ли|есть у вас|был[аио]? ли|работали ли|можете ли|do you|are you|can you|have you)\s+[^\r\n?？]{3,480}[?？]\s*[:：]\s*(?:да|нет|yes|no)[.!。！\s]*$/iu.test(
+    text.trim()
+  );

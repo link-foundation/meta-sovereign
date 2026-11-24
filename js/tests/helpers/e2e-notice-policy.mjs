@@ -13,6 +13,11 @@ import {
   noticeRule,
   noticeReply,
   noticeText,
+  activeReview,
+  botBinarySummary,
+  botHandover,
+  recognizedNoticeRule,
+  russianThanks,
 } from '../../../experiments/issue-56/notice-fixture.mjs';
 import { rejectionText } from '../../../experiments/issue-56/notice-policy-fixture.mjs';
 
@@ -53,9 +58,12 @@ const runNoticeCase = async (
     async ({ sender, page }) => {
       const store = createMemoryStore();
       await saveAnswerRule(store, noticeRule());
+      if (fixture.savedThanks) {
+        await saveAnswerRule(store, recognizedNoticeRule());
+      }
       await saveAnswerPolicy(store, {
         notices: {
-          acknowledgements: 'reply',
+          acknowledgements: fixture.acknowledgements ?? 'reply',
           rejections: 'reply',
           rejectionReply: 'May I ask why?',
         },
@@ -195,6 +203,7 @@ export const verifyNoticePolicies = async (engine, { screenshots } = {}) => {
   }
   await verifyNoticeLink(engine, { screenshots, outcomes });
   await verifyNoticeEmployerChange(engine, { screenshots, outcomes });
+  await verifyRecognizedNotice(engine, { screenshots, outcomes });
   await run(
     'unknown-no-retry',
     {},
@@ -214,6 +223,65 @@ export const verifyNoticePolicies = async (engine, { screenshots } = {}) => {
     }
   );
   return { cases: outcomes.length, outcomes, liveProvider: false };
+};
+
+export const verifyRecognizedNotice = async (
+  engine,
+  { screenshots, outcomes = [], before = false } = {}
+) => {
+  await runNoticeCase(
+    engine,
+    screenshots,
+    outcomes,
+    'recognized-acknowledgement-after-completed-handover',
+    {
+      body: activeReview.replace(/\n/gu, '<br>'),
+      earlier: [botBinarySummary, botHandover],
+      savedThanks: true,
+      compareHandover: true,
+      acknowledgements: before ? 'reply' : 'reply-recognized',
+    },
+    async ({ browser, input, status, page, store }) => {
+      await page.bringToFront();
+      await browser.watchStart(input);
+      await until(status, (s) => s.phase === 'owner-active');
+      assert.equal((await counts(page)).sends, 0);
+      assert.deepEqual(await listOutbox(store), []);
+      const owner = await inactive(page);
+      const result = await until(status, (s) =>
+        before
+          ? s.last?.plan.status === 'review'
+          : s.outbox?.receipt?.messageId === '102'
+      );
+      if (!before) {
+        assert.equal(result.outbox.receipt.text, russianThanks);
+        assert.equal(
+          await page.getByText(russianThanks, { exact: true }).isVisible(),
+          true
+        );
+      }
+      assert.equal((await counts(page)).sends, Number(!before));
+      assert.equal((await listOutbox(store)).length, Number(!before));
+      assert.equal((await counts(page)).choices, 0);
+      assert.equal((await counts(page)).draft, '');
+      assert.equal(
+        await owner.locator('textarea').inputValue(),
+        'Owner unfinished draft'
+      );
+      await browser.watchStop(input);
+      if (screenshots) {
+        await mkdir(screenshots, { recursive: true });
+        await page.screenshot({
+          path: join(
+            screenshots,
+            before ? 'recognized-before.png' : 'recognized-after.png'
+          ),
+          fullPage: true,
+        });
+      }
+    }
+  );
+  return { sends: Number(!before), liveProvider: false };
 };
 
 /** Native anchors with an unchanged visible label stay in owner review. */

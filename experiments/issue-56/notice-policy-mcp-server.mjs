@@ -2,6 +2,7 @@
 // browser probe; this server exposes no real account or provider browser.
 import { startServer } from '../../js/src/server/index.js';
 import { listOutbox } from '../../js/src/automation/outbox.js';
+import { saveAnswerRule } from '../../js/src/automation/question-store.js';
 import {
   noticePolicyFixture,
   noticeSnapshot,
@@ -11,11 +12,20 @@ import {
   seedQuestionBrowserRead,
 } from './question-browser-fixture.mjs';
 import { createServer } from 'node:http';
+import { activeReview, recognizedNoticeRule } from './notice-fixture.mjs';
 
 const linked = process.env.NOTICE_LINK_MCP === '1';
+const recognized = process.env.NOTICE_RECOGNIZED_MCP === '1';
 const env = await noticePolicyFixture(
-  linked ? { notices: { acknowledgements: 'reply' } } : undefined
+  linked
+    ? { notices: { acknowledgements: 'reply' } }
+    : recognized
+      ? { body: activeReview }
+      : undefined
 );
+if (recognized) {
+  await saveAnswerRule(env.store, recognizedNoticeRule());
+}
 if (linked) {
   env.state.rows.at(-1).links = ['https://example.test/next'];
   env.state.snapshot = noticeSnapshot(env.state.rows);
@@ -40,7 +50,9 @@ const control = createServer(async (req, res) => {
     JSON.stringify({
       opens: env.state.opens,
       sends: env.state.sends.length,
-      ...(linked ? { outbox: (await listOutbox(env.store)).length } : {}),
+      ...(linked || recognized
+        ? { outbox: (await listOutbox(env.store)).length }
+        : {}),
     })
   );
 });
@@ -49,7 +61,7 @@ console.log(
   JSON.stringify({
     base: `http://127.0.0.1:${server.port}`,
     control: `http://127.0.0.1:${control.address().port}`,
-    ...(linked ? { pid: process.pid } : {}),
+    ...(linked || recognized ? { pid: process.pid } : {}),
     nativeProvider: false,
   })
 );
@@ -59,7 +71,7 @@ const close = () =>
     await new Promise((resolve) => control.close(resolve));
     await server.close();
     await env.browser.close();
-    if (linked) {
+    if (linked || recognized) {
       console.log(
         JSON.stringify({ resourcesClosed: true, liveProvider: false })
       );
