@@ -24,7 +24,10 @@ import { createHhExperienceAcquisition } from '../src/cv/experience-hh-acquisiti
 import { hhAcquisitionOptions } from '../src/cv/experience-hh-acquisition-options.js';
 import { createHhExperienceWorkplaceJobs } from '../src/cv/experience-hh-workplace-job.js';
 import { createExperiencePlanningService } from '../src/cv/experience-plan-service.js';
-import { newExperiencePlan } from '../src/cv/experience-plan-record.js';
+import {
+  experiencePlanKey,
+  newExperiencePlan,
+} from '../src/cv/experience-plan-record.js';
 import { createLinkedinExperienceService } from '../src/cv/linkedin-experience-service.js';
 import { linkedinExportOptions } from '../src/cv/linkedin-experience-record.js';
 import { saveExperienceDocument } from '../src/cv/experience-store.js';
@@ -364,6 +367,122 @@ test(
       }
       assert.deepEqual(calls, ['open', 'skip', 'open', 'skip']);
       assert.equal(reads, 2);
+    } finally {
+      await server.close();
+      await fixture.close();
+    }
+  }
+);
+
+test(
+  'review resumes its unfinished acquisition under both Lino encodings',
+  { timeout: 12000 },
+  async () => {
+    const fixture = await experienceReviewFixture();
+    const { store } = fixture;
+    const calls = [];
+    let reads = 0;
+    const server = await startCvFixtureServer({
+      store,
+      cv: {
+        experience: {
+          read: (...input) => {
+            reads++;
+            return fixture.read(...input);
+          },
+          hhWorkplace: { prepareJob: runNative(calls) },
+        },
+      },
+      vacancies: { artifactRoot: fixture.artifactRoot },
+    });
+    const send = cvFixtureRequest(
+      `http://127.0.0.1:${server.port}/api/cv/experience/`,
+      ['auto-status', 'review-status']
+    );
+    try {
+      for (const [index, type] of [LINO_TEXT, LINO_BINARY].entries()) {
+        const request = { requestId: `review-resume-initial-${index}` };
+        const options = experienceAutoOptions({ ...fixture.input, ...request });
+        const row = newExperienceReview(
+          request.requestId,
+          options,
+          (index + 2).toString(16).repeat(32)
+        );
+        const child = { requestId: reviewChildId(row, 'auto') };
+        const external = { requestId: `review-resume-external-${index}` };
+        await store.put(row);
+        await store.put(
+          newExperienceReview(
+            external.requestId,
+            { ...external, autoRequestId: child.requestId },
+            'a'.repeat(32)
+          )
+        );
+        const start = await send('auto-start', type, {
+          ...fixture.input,
+          ...child,
+        });
+        assert.equal(start.response.status, 200, JSON.stringify(start.row));
+        const ready = await until(
+          async () => (await send('auto-status', type, child)).row,
+          phaseIs('completed')
+        );
+        const auto = await store.get(experienceAutoKey(child.requestId));
+        const checkpoint = {
+          ...auto,
+          phase: 'acquiring-linkedin',
+          step: 'reading',
+          linkedin: null,
+          plan: null,
+        };
+        await store.put(checkpoint);
+        await store.delete(experiencePlanKey(ready.plan.requestId));
+        const review = async () =>
+          (await send('review-status', type, request)).row;
+        const interrupted = await review();
+        assert.equal(interrupted.phase, 'interrupted');
+        assert.equal(interrupted.preparationAvailable, true);
+        assert.deepEqual(
+          await storedExperienceReviewStatus(store, request),
+          interrupted
+        );
+        assert.deepEqual(
+          (await send('review-start', type, options)).row,
+          interrupted
+        );
+        assert.equal(
+          (await send('review-resume', type, external)).response.status,
+          409
+        );
+        assert.deepEqual(await store.get(checkpoint.id), checkpoint);
+        assert.deepEqual(await store.get(row.id), row);
+        assert.equal(calls.length, index * 2);
+        assert.equal(
+          (await send('review-resume', type, request)).response.status,
+          200
+        );
+        const prepared = await until(review, phaseIs('prepared'));
+        const resumed = (await send('auto-status', type, child)).row;
+        assert.equal(resumed.phase, 'completed');
+        assert.equal(resumed.plan.requestId, ready.plan.requestId);
+        assert.deepEqual(prepared.comparison, {
+          ...resumed.plan,
+          hh: ready.hh,
+          linkedin: ready.linkedin,
+          to: options.to,
+        });
+        assert.equal(
+          prepared.current.input.requestId,
+          reviewChildId(row, 'native')
+        );
+        assert.equal(reads, index + 1);
+        await send('review-decide', type, requestFor(prepared, 'skip'));
+        assert.equal(
+          (await until(review, phaseIs('completed'))).history[0].outcome,
+          'skipped'
+        );
+      }
+      assert.deepEqual(calls, ['open', 'skip', 'open', 'skip']);
     } finally {
       await server.close();
       await fixture.close();

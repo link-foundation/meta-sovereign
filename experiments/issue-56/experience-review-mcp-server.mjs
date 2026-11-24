@@ -2,6 +2,7 @@ import { chromium } from 'playwright';
 import { cvPrepareBrowserFixture } from './cv-prepare-browser-fixture.mjs';
 import { waitForCvFixtureShutdown } from './cv-fixture-server.mjs';
 import { experienceAutoKey } from '../../js/src/cv/experience-auto-record.js';
+import { interruptOwnedReviewAcquisition } from './experience-review-fixture.mjs';
 
 const browser = await chromium.launch({
   headless: true,
@@ -15,6 +16,16 @@ try {
   console.log(JSON.stringify({ input: fixture.queue.input }));
   const acquire = process.env.EXPERIENCE_REVIEW_MCP_ACQUISITION === '1';
   const checkpoint = process.env.EXPERIENCE_REVIEW_MCP_CHECKPOINT === '1';
+  const owned = process.env.EXPERIENCE_REVIEW_MCP_OWNED === '1';
+  if (owned) {
+    const { review, original } = await interruptOwnedReviewAcquisition(fixture);
+    console.log(
+      JSON.stringify({
+        requestId: review.requestId,
+        comparison: original.plan.requestId,
+      })
+    );
+  }
   if (checkpoint || acquire) {
     process.once('SIGUSR2', async () => {
       try {
@@ -72,7 +83,7 @@ try {
     async close() {
       let provider;
       try {
-        if (checkpoint || acquire) {
+        if (checkpoint || acquire || owned) {
           provider = await fixture.provider.evaluate(() => ({
             editors: globalThis.fixtureOpeners,
             saves: globalThis.fixtureSaves,
@@ -87,6 +98,7 @@ try {
           JSON.stringify({
             provider,
             ...fixture.counters,
+            ...(owned && { acquisitionReads: fixture.acquisitionReads() }),
             resourcesClosed: true,
             liveProvider: false,
           })

@@ -315,10 +315,10 @@ const acquiredComparison = async (store, auto) => {
   };
 };
 
-const startComparison = async (context, row, run, signal) => {
+const startComparison = async (context, row, run, signal, admit) => {
   const input = acquisitionInput(row);
   const auto = input
-    ? await run(context.getAuto, input, experienceAutoRunning)
+    ? await run(context.getAuto, input, experienceAutoRunning, admit)
     : await context.getAuto().status({ requestId: row.options.autoRequestId });
   signal.throwIfAborted();
   return acquiredComparison(context.store, auto);
@@ -331,7 +331,10 @@ const recoverAcquisition = async (store, row) => {
   if (input && !sameExperienceChild(auto, input)) {
     throw failure('preparation');
   }
-  return acquiredComparison(store, auto);
+  if (input && auto.recoveryAvailable === true) {
+    return { resumeChild: true };
+  }
+  return { checkpoint: await acquiredComparison(store, auto) };
 };
 
 const reviewView = async (store, row, active) => {
@@ -393,7 +396,7 @@ const snapshotAfterSave = async (context, row, plan, run, save) => {
   };
 };
 
-const workFor = (context) => async (owned, save) => {
+const workFor = (context) => async (owned, save, admitAcquisition) => {
   const { signal } = owned.controller;
   const progress = (phase, child) => {
     const waitingLogin =
@@ -402,18 +405,17 @@ const workFor = (context) => async (owned, save) => {
       return save({ waitingLogin });
     }
   };
-  const run = (getService, input, running) =>
-    workExperienceChild(
-      getService,
-      input,
-      running,
-      signal,
+  const run = (getService, input, running, admit) =>
+    workExperienceChild(getService, input, running, signal, {
       progress,
-      context.wait
-    );
+      wait: context.wait,
+      admit,
+    });
   try {
     if (owned.row.phase === 'acquiring') {
-      await save(await startComparison(context, owned.row, run, signal));
+      await save(
+        await startComparison(context, owned.row, run, signal, admitAcquisition)
+      );
     }
     while (!signal.aborted && experienceReviewRunning(owned.row)) {
       const row = owned.row;
@@ -510,8 +512,13 @@ const resume = async (service, input) => {
     if (!preparation) {
       throw failure('conflict');
     }
+    if (preparation.resumeChild) {
+      return service.launch(row, (owned, save) =>
+        service.work(owned, save, 'resume')
+      );
+    }
     const owned = { row };
-    await service.save(owned, preparation);
+    await service.save(owned, preparation.checkpoint);
     return service.launch(owned.row);
   }
   if (!experienceReviewCanResume(row.phase)) {

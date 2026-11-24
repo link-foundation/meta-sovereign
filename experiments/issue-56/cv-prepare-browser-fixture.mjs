@@ -10,6 +10,7 @@ import { vacancyBrowserFixture } from './vacancy-browser-fixture.mjs';
 import { seedHhAboutExperience } from './cv-hh-about-fixture.mjs';
 import { prepareNativeCvAbout } from '../../js/src/jobs/cv-prepare-browser.js';
 import { verifyOwnerCvSave } from '../../js/src/jobs/cv-save-cycle.js';
+import { experienceAutoOptions } from '../../js/src/cv/experience-auto-record.js';
 import { newExperienceReview } from '../../js/src/cv/experience-review-record.js';
 import {
   experienceReviewFixtureData,
@@ -43,6 +44,7 @@ export const cvPrepareBrowserFixture = async (
   let options = {};
   let app;
   let about;
+  let acquisitionReads = 0;
   const counters = { attached: 0, detached: 0, navigations: 0 };
   await native.route('**/*', async (route) => {
     const url = new URL(route.request().url());
@@ -101,7 +103,12 @@ export const cvPrepareBrowserFixture = async (
       ...((reviewAbout || queue) && {
         cv: {
           experience: {
-            ...(queue && { read: queue.read }),
+            ...(queue && {
+              read: (...args) => {
+                acquisitionReads++;
+                return queue.read(...args);
+              },
+            }),
             hhWorkplace: {
               browser: async ({ run, signal, sourceSlot, hash }) => {
                 counters.sourceSlot = sourceSlot;
@@ -185,11 +192,14 @@ export const cvPrepareBrowserFixture = async (
       about,
       queue,
       open,
+      acquisitionReads: () => acquisitionReads,
       seedReviewAcquisition: async (autoRequestId) => {
         const requestId = 'recover-cv-acquisition';
         const row = newExperienceReview(
           requestId,
-          { requestId, autoRequestId },
+          autoRequestId
+            ? { requestId, autoRequestId }
+            : experienceAutoOptions({ ...queue.input, requestId }),
           randomBytes(16).toString('hex')
         );
         await app.store.put(row);

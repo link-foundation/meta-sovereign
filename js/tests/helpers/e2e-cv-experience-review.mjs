@@ -3,6 +3,7 @@ import { randomBytes } from 'node:crypto';
 import { mkdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { cvPrepareBrowserFixture } from '../../../experiments/issue-56/cv-prepare-browser-fixture.mjs';
+import { interruptOwnedReviewAcquisition } from '../../../experiments/issue-56/experience-review-fixture.mjs';
 import { experienceAutoKey } from '../../src/cv/experience-auto-record.js';
 import {
   experienceReviewKey,
@@ -241,7 +242,63 @@ const verifyReviewOpening = async ({ page, provider, store }, prepared) => {
   assert.deepEqual(await providerCounts(provider), [2, 0, 2]);
 };
 
+const verifyReviewOwnedAcquisition = async (browser) => {
+  const fixture = await cvPrepareBrowserFixture(browser, { reviewQueue: true });
+  const { page, provider, queue, store } = fixture;
+  const before = process.env.EXPERIENCE_REVIEW_OWNED_BEFORE_BUNDLE;
+  try {
+    if (before) {
+      await routeBundle(page, before);
+    }
+    await openReview(fixture);
+    const { review, original } = await interruptOwnedReviewAcquisition(fixture);
+    let resumes = 0;
+    await page.route('**/api/cv/experience/review-resume', async (route) => {
+      resumes++;
+      await route.continue();
+    });
+    await reloadReview(page, review.requestId);
+    const card = page.locator('[data-experience-review]');
+    assert.deepEqual(await providerCounts(provider), [0, 0, 0]);
+    assert.equal(resumes, 0);
+    assert.equal(fixture.acquisitionReads(), 1);
+    await capture(before ? 'owned-before' : 'owned-after', card);
+    const resume = reviewAction(page, 'resume');
+    assert.equal(
+      await resume.count(),
+      1,
+      'recover the review-owned preparation'
+    );
+    assert.match(
+      await card.getByRole('status').textContent(),
+      /Review interrupted/u
+    );
+    await resume.click();
+    await reviewPhase(page, 'prepared');
+    const native = provider.locator('textarea[data-qa="resume-editor-about"]');
+    assert.equal(await native.inputValue(), queue.source.profile.about);
+    const restored = await store.get(review.id);
+    assert.equal(restored.comparison.requestId, original.plan.requestId);
+    assert.equal(restored.comparison.hh, original.hh);
+    assert.equal(restored.comparison.linkedin, original.linkedin);
+    await capture('owned-prepared', reviewAction(page, 'save'));
+    await reviewAction(page, 'skip').click();
+    await reviewPhase(page, 'completed');
+    assert.equal(resumes, 1);
+    assert.equal(fixture.acquisitionReads(), 1);
+    assert.deepEqual(await providerCounts(provider), [1, 0, 1]);
+    assert.equal(fixture.counters.attached, fixture.counters.detached);
+    assert.deepEqual(fixture.errors, []);
+    return { resumes, reads: fixture.acquisitionReads(), editor: 'skipped' };
+  } finally {
+    await fixture.close();
+  }
+};
+
 export const verifyCvExperienceReview = async (browser) => {
+  if (process.env.EXPERIENCE_REVIEW_OWNED_ONLY) {
+    return verifyReviewOwnedAcquisition(browser);
+  }
   if (!process.env.EXPERIENCE_REVIEW_ACQUISITION_BEFORE_BUNDLE) {
     await verifyReviewSave(browser);
   }
@@ -250,5 +307,12 @@ export const verifyCvExperienceReview = async (browser) => {
     !process.env.EXPERIENCE_REVIEW_CHECKPOINT_BEFORE_BUNDLE
   ) {
     await verifyReviewAcquisition(browser);
+  }
+  if (
+    !process.env.EXPERIENCE_REVIEW_BEFORE_BUNDLE &&
+    !process.env.EXPERIENCE_REVIEW_CHECKPOINT_BEFORE_BUNDLE &&
+    !process.env.EXPERIENCE_REVIEW_ACQUISITION_BEFORE_BUNDLE
+  ) {
+    return verifyReviewOwnedAcquisition(browser);
   }
 };

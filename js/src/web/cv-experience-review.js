@@ -250,7 +250,7 @@ export const ExperienceReviewStatus = ({ review, api, openComparison }) => {
         'p',
         { key: 'phase', role: 'status', 'data-experience-review-phase': phase },
         t(
-          `experienceReview.${row?.waitingLogin && !state.unknown ? 'login' : phase}`
+          `experienceReview.${running && !state.unknown && row?.waitingLogin ? 'login' : phase}`
         )
       ),
       phase === 'prepared'

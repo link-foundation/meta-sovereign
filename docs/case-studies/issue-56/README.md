@@ -119,6 +119,7 @@
 - [CV recovery before native editor admission](experience-review-opening.md) opens the recorded request once and preserves interrupted native outcomes.
 - [Automatic CV comparison recovery](experience-auto-comparison-recovery.md) recovers an acknowledged comparison before the acquisition writes its completion.
 - [Automatic CV preparation recovery](experience-auto-native-recovery.md) continues from acknowledged native snapshots and holds unconfirmed reads or translations.
+- [Recovery within the native CV review](experience-review-owned-acquisition.md) continues its own acknowledged acquisition before opening the original editor request.
 - [CV initial loading](cv-loading.md): deterministic slow-catalogue regression, disabled controls and shared loading state, with before/after browser captures.
 
 - [Desktop native prebuild filtering](desktop-native-prebuilds.md): preserve the actual five-job packaging failure, reproduce it through the installed builder, and keep only target-compatible SQLite addons while retaining native verification. Exact-head hosted builds remain required.

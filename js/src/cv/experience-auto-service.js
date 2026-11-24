@@ -26,6 +26,7 @@ import {
   experienceAutoFailure,
   experienceAutoKey,
   experienceAutoOptions,
+  experienceAutoRunning,
   experienceAutoView,
 } from './experience-auto-record.js';
 
@@ -52,15 +53,14 @@ export const workExperienceChild = async (
   input,
   running,
   signal,
-  progress,
-  wait
+  { progress, wait, admit = 'start' }
 ) => {
   signal.throwIfAborted();
   const service = getService();
   const request = { requestId: input.requestId };
   let current;
   try {
-    current = await service.start(input);
+    current = await service[admit](input);
     while (sameExperienceChild(current, input) && running(current)) {
       signal.throwIfAborted();
       await progress(current.phase, current);
@@ -223,7 +223,7 @@ const autoView = async (store, row, active) => {
     }
   }
   const view = experienceAutoView(row, active);
-  return view.phase === 'interrupted'
+  return experienceAutoRunning(row) && !active
     ? {
         ...view,
         recoveryAvailable: await recoverablePreparation(store, row).catch(
@@ -241,7 +241,10 @@ const workFor =
     const progress = (step) =>
       owned.row.step === step ? undefined : save({ step });
     const run = (getService, input, running) =>
-      workExperienceChild(getService, input, running, signal, progress, wait);
+      workExperienceChild(getService, input, running, signal, {
+        progress,
+        wait,
+      });
     try {
       if (owned.row.phase === 'acquiring-hh') {
         const input = hhAcquisitionOptions(inputFor('hh'));

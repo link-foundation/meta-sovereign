@@ -52,11 +52,11 @@ export class PrivateCvJob {
     await saveAcknowledgedRecord(this.store, row);
     return this.launch(row);
   }
-  launch(row) {
+  launch(row, work = this.work) {
     const owned = { controller: new AbortController(), row };
     this.current = owned;
     owned.task = Promise.resolve()
-      .then(() => this.work(owned, (patch) => this.save(owned, patch)))
+      .then(() => work.call(this, owned, (patch) => this.save(owned, patch)))
       .catch(() => {})
       .finally(() => {
         if (this.current === owned) {
