@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ApplicationSession } from './application-session.js';
+import {
+  ApplicationSession,
+  applicationOwnsBatchReview,
+} from './application-session.js';
 import { useApplicationBatch } from './application-batch-state.js';
 
 export const useApplication = ({ api, values, selected, run }) => {
@@ -41,6 +44,23 @@ export const useApplication = ({ api, values, selected, run }) => {
       .refreshQueue({ browserSlot: values.browserSlot })
       .catch(() => {});
   }, [session, values.browserSlot]);
+  const batchReviewRevision = applicationOwnsBatchReview(
+    batch.receipt,
+    state.receipt
+  )
+    ? batch.receipt.application.revision
+    : null;
+  useEffect(() => {
+    // A paced batch can observe native changes after the last individual action.
+    // Read the current receipt so an older batch poll cannot replace it.
+    if (
+      batchReviewRevision &&
+      !session.state.busy &&
+      batchReviewRevision !== session.state.receipt?.revision
+    ) {
+      void session.recover({ background: true }).catch(() => {});
+    }
+  }, [session, batchReviewRevision, state.busy]);
   const waiting =
     Boolean(state.receipt?.active && state.receipt?.page?.questions) ||
     ['waiting', 'refreshing', 'restoring'].includes(

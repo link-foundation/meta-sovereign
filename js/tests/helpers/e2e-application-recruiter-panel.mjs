@@ -11,9 +11,17 @@ const vacancy = 'https://hh.ru/vacancy/123';
 
 export const verifyNativeApplicationRecruiterPanel = async (
   browser,
-  { before = false, screenshots, webBundle } = {}
+  {
+    before = false,
+    screenshots,
+    webBundle,
+    panelDelayMs = 4000,
+    manualSend = false,
+  } = {}
 ) => {
-  const fixture = await applicationRecruiterPanelFixture(browser);
+  const fixture = await applicationRecruiterPanelFixture(browser, {
+    panelDelayMs,
+  });
   const controls = applicationPanelBrowser(fixture);
   const { page, panel } = controls;
   const { batch, button, field, phase } = controls.batch();
@@ -43,14 +51,18 @@ export const verifyNativeApplicationRecruiterPanel = async (
     await panel.locator('[data-application-state="review"]').waitFor();
     const owned = nativeApplicationForm(browser);
     assert(owned);
-    await controls.confirmed('submit');
+    if (manualSend) {
+      await owned.getByRole('button', { name: 'Send application' }).click();
+    } else {
+      await controls.confirmed('submit');
+    }
     if (before) {
       await phase('completed');
       await shot('before', batch);
       assert.equal(
         owned.isClosed(),
         false,
-        'The batch closed the owned browser before the recruiter panel was reviewed'
+        'The batch closed the returned search before the recruiter panel could be reviewed'
       );
     }
     const status = panel.locator('[data-application-recruiter-chat="open"]');
@@ -62,6 +74,7 @@ export const verifyNativeApplicationRecruiterPanel = async (
       .locator('iframe')
       .contentFrame()
       .getByRole('textbox', { name: 'Your reply' });
+    await draft.waitFor();
     await status.waitFor();
     await receipt.waitFor();
     await phase('review');
@@ -99,6 +112,7 @@ export const verifyNativeApplicationRecruiterPanel = async (
     assert.deepEqual(fixture.errors, []);
     return {
       applicationsSent: 1,
+      manualSend,
       exactSearchVisits: 2,
       draftPreserved: true,
       batchCompletedAfterOwnerDismissal: true,

@@ -18,6 +18,12 @@ const token = (input) => {
 };
 const equalTarget = (a, b) =>
   a?.url === b?.url && a?.browserSlot === b?.browserSlot;
+export const applicationOwnsBatchReview = (batch, receipt) =>
+  batch?.batch?.active === true &&
+  batch.application?.active === true &&
+  receipt?.active === true &&
+  equalTarget(batch.application, receipt) &&
+  batch.application.requestId === receipt.requestId;
 export const applicationMayRestart = (receipt) =>
   receipt?.active === false &&
   receipt.delivery === 'none' &&

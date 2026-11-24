@@ -43,5 +43,9 @@ await runBrowserScenarios('job-application-recruiter-panel', [
       before: Boolean(parent),
       screenshots: process.env.E2E_ARTIFACT_DIR,
       webBundle: process.env.APPLICATION_RECRUITER_PANEL_PARENT_WEB,
+      manualSend: process.env.E2E_RECRUITER_PANEL_MANUAL_SEND === '1',
+      ...(process.env.E2E_RECRUITER_PANEL_IMMEDIATE === '1'
+        ? { panelDelayMs: 0 }
+        : {}),
     }),
 ]);

@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ApplicationSession } from '../src/web/application-session.js';
+import {
+  ApplicationSession,
+  applicationOwnsBatchReview,
+} from '../src/web/application-session.js';
 import { applicationSessionClient as client } from './helpers/application-session-client.mjs';
 import { applicationResult } from '../src/jobs/application-result.js';
 import {
@@ -8,6 +11,31 @@ import {
   applicationInput,
 } from '../../experiments/issue-56/application-fixture.mjs';
 import { gate } from '../../experiments/issue-56/vacancy-fixture.mjs';
+
+test('only the followed active vacancy receipt can observe a batch review', () => {
+  const receipt = { ...applicationInput, active: true };
+  const batch = { batch: { active: true }, application: receipt };
+  assert.equal(applicationOwnsBatchReview(batch, receipt), true);
+  for (const [field, changed] of Object.entries({
+    url: 'https://hh.ru/vacancy/456',
+    browserSlot: 'separate',
+    requestId: 'new-request',
+    active: false,
+  })) {
+    assert.equal(
+      applicationOwnsBatchReview(batch, { ...receipt, [field]: changed }),
+      false
+    );
+  }
+  assert.equal(
+    applicationOwnsBatchReview({ ...batch, application: null }, receipt),
+    false
+  );
+  assert.equal(
+    applicationOwnsBatchReview({ ...batch, batch: { active: false } }, receipt),
+    false
+  );
+});
 
 test(
   'browser recovery never replays a lost application response or persists the letter',

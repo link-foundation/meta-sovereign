@@ -8,6 +8,8 @@ import {
   applicationFixture,
   applicationInput,
 } from '../../experiments/issue-56/application-fixture.mjs';
+import { originalApplicationSearch } from '../../experiments/issue-56/application-search-route-fixture.mjs';
+import { applicationDelay } from '../src/jobs/application-options.js';
 import { applicationResult } from '../src/jobs/application-result.js';
 import { LINO_BINARY, LINO_TEXT } from '../src/transport/lino.js';
 import { withApplicationRouteFixture } from './helpers/application-controls.mjs';
@@ -69,6 +71,102 @@ test('an unverified page cannot clear a visible recruiter panel hold', async (t)
   assert.equal(stopped.application.active, true);
   assert.equal(stopped.application.recruiterChat, 'unverified');
   assert.equal(fixture.state.closed, 0);
+});
+
+const returnedSearchFixture = async (t) => {
+  let returns = 0;
+  const fixture = applicationBatchFixture(t, {
+    application: {
+      batchWait: (_ms, signal) => applicationDelay(3, signal),
+      attachmentDocument: async (_browser, record, action, guard) => {
+        if (action === 'returnSearch') {
+          assert.equal(guard, JSON.stringify(fixture.state.page));
+          returns += 1;
+          Object.assign(fixture.state.page, {
+            url: record.options.applicationSearchUrl,
+            documentKey: 'returned-search',
+            delivered: false,
+            attachmentSearch: true,
+            recruiterPanelOpen: false,
+            returnSafe: true,
+          });
+          return { navigated: true };
+        }
+        assert.equal(action, undefined);
+        return globalThis.structuredClone(fixture.state.page);
+      },
+    },
+  });
+  await fixture.start({
+    confirmations: ['send'],
+    maxApplications: 1,
+    applicationSearchUrl: originalApplicationSearch,
+  });
+  await fixture.until((row) => row.application?.continuation?.step === 'send');
+  // The owner clicked Send in HeadHunter. Only provider proof changes shape.
+  Object.assign(fixture.state.page, {
+    delivered: true,
+    questions: false,
+    scope: false,
+    submit: null,
+  });
+  const waiting = await fixture.until(
+    (row) => row.batch.delivered === 1 && row.batch.nextAt !== null
+  );
+  assert.equal(waiting.batch.phase, 'review');
+  assert.equal(waiting.application.delivery, 'provider-confirmed');
+  assert.equal(waiting.application.page.url, originalApplicationSearch);
+  assert.equal(fixture.state.closed, 0);
+  assert.equal(fixture.state.submitted, 0);
+  assert.equal(returns, 1);
+  const deadline = Date.parse(waiting.batch.nextAt);
+  assert.equal(deadline - fixture.state.clock, 10_000);
+  return { fixture, deadline, returns: () => returns };
+};
+
+test('a manually confirmed application returns and waits for a late recruiter panel', async (t) => {
+  const { fixture, deadline, returns } = await returnedSearchFixture(t);
+  fixture.state.clock = deadline - 1;
+  fixture.state.page.recruiterPanelOpen = true;
+  const opened = await fixture.until(
+    (row) =>
+      row.application?.recruiterChat === 'open' && row.batch.nextAt === null
+  );
+  assert.equal(opened.batch.phase, 'review');
+  assert.equal(fixture.state.closed, 0);
+  fixture.state.page.recruiterPanelOpen = false;
+  const finished = await fixture.until(
+    (row) => row.batch.phase === 'completed'
+  );
+  assert.equal(finished.batch.delivered, 1);
+  assert.equal(fixture.state.closed, 1);
+  assert.equal(returns(), 1);
+});
+
+test('a search with no recruiter panel closes after the bounded wait', async (t) => {
+  const { fixture, deadline, returns } = await returnedSearchFixture(t);
+  fixture.state.clock = deadline;
+  const completed = await fixture.until(
+    (row) => row.batch.phase === 'completed'
+  );
+  assert.equal(completed.batch.delivered, 1);
+  assert.equal(completed.batch.nextAt, null);
+  assert.equal(fixture.state.closed, 1);
+  assert.equal(fixture.state.submitted, 0);
+  assert.equal(returns(), 1);
+});
+
+test('Stop ends the late-panel wait without closing the owner’s search', async (t) => {
+  const { fixture, deadline, returns } = await returnedSearchFixture(t);
+  await fixture.stop();
+  fixture.state.clock = deadline;
+  const stopped = await fixture.status();
+  assert.equal(stopped.batch.phase, 'stopped');
+  assert.equal(stopped.batch.nextAt, null);
+  assert.equal(stopped.application.delivery, 'provider-confirmed');
+  assert.equal(fixture.state.closed, 0);
+  assert.equal(fixture.state.submitted, 0);
+  assert.equal(returns(), 1);
 });
 
 for (const type of [LINO_TEXT, LINO_BINARY]) {

@@ -8,9 +8,15 @@ const panel = `<aside data-qa="chatik-root" aria-label="Recruiter chat" style="p
   <iframe title="Recruiter chat" src="${recruiterPanelChatUrl}" style="display:block;width:100%;height:200px;border:0"></iframe>
 </aside>`;
 
-export const applicationRecruiterPanelFixture = async (browser) => {
+export const applicationRecruiterPanelFixture = async (
+  browser,
+  { panelDelayMs = 0 } = {}
+) => {
   const searchVisits = [];
   const effects = [];
+  const returnedPanel = panelDelayMs
+    ? `<script>setTimeout(()=>document.body.insertAdjacentHTML('beforeend',${JSON.stringify(panel)}),${panelDelayMs});</script>`
+    : panel;
   const fixture = await applicationNativeFixture(browser, {
     ownerAnswers: {
       experience: 'Reviewed experience',
@@ -25,7 +31,7 @@ export const applicationRecruiterPanelFixture = async (browser) => {
       await route.fulfill({
         contentType: 'text/html; charset=utf-8',
         body: `<!doctype html><html><body><h1>Python vacancies</h1><label>Search <input value="Python"></label>
-          <article><a data-qa="serp-item__title" href="/vacancy/789">Another Python vacancy</a></article>${searchVisits.length > 1 ? panel : ''}</body></html>`,
+          <article><a data-qa="serp-item__title" href="/vacancy/789">Another Python vacancy</a></article>${searchVisits.length > 1 ? returnedPanel : ''}</body></html>`,
       });
       return true;
     },

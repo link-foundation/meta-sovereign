@@ -32,6 +32,7 @@ import {
 } from './application-batch-discovery.js';
 import { applicationAttachmentStatus } from './application-letters.js';
 import { applicationConfirmationPolicy } from './application-confirmations.js';
+import { returnDeliveredApplicationToSearch } from './application-search-route.js';
 
 const observedOutcome = (page) =>
   page.bound &&
@@ -49,6 +50,7 @@ const excludedVacancy = (url, pending, choices, skips, context) =>
   );
 const owners = new WeakMap();
 const latest = (slot) => `secret:jobs-application-batch-latest:${slot}`;
+const recruiterPanelWaitMs = 10_000;
 const attachmentActions = {
   search: ['letter-prepare', 'cover-letter'],
   offered: ['letter-prepare', 'cover-letter'],
@@ -317,6 +319,7 @@ export class ApplicationBatch {
         ...runtime.record,
         active: false,
         revision: globalThis.crypto.randomUUID(),
+        nextAt: null,
         phase: runtime.expired
           ? 'expired'
           : runtime.controller.signal.aborted
@@ -640,21 +643,45 @@ export class ApplicationBatch {
     }
     return this.service.close();
   }
-  async finishDelivery(runtime, current, signal) {
-    await this.recordDelivery(runtime, current);
-    const status = applicationAttachmentStatus(current);
-    if (current.recruiterChat) {
-      return this.save(runtime, { phase: 'review', nextAt: null });
+  async holdRecruiterPanel(runtime, current, signal) {
+    if (current.options.testMode) {
+      return false;
     }
-    if (!current.options.testMode) {
+    if (!current.recruiterChat && !current.returnedToSearch) {
+      // The native browser can confirm an application the owner sent there.
+      await returnDeliveredApplicationToSearch(this.service, current, signal);
+    }
+    let panelOpen = Boolean(current.recruiterChat);
+    let nextAt = null;
+    if (!panelOpen) {
       const page = await this.service.attachment.readPage(current);
       signal.throwIfAborted();
-      if (page.recruiterPanelOpen === true) {
-        // Delivery storage can yield while the provider opens the panel.
+      panelOpen = page.recruiterPanelOpen === true;
+      if (panelOpen) {
         await this.service.review.inspect(current, signal);
-        return this.save(runtime, { phase: 'review', nextAt: null });
+      } else if (current.returnedToSearch && page.attachmentSearch) {
+        const now = this.now();
+        current.recruiterPanelDeadline ??= now + recruiterPanelWaitMs;
+        if (current.recruiterPanelDeadline > now) {
+          nextAt = new Date(current.recruiterPanelDeadline).toISOString();
+        }
       }
     }
+    if (panelOpen && current.returnedToSearch) {
+      current.recruiterPanelDeadline = this.now();
+    }
+    if (panelOpen || nextAt) {
+      await this.save(runtime, { phase: 'review', nextAt });
+      return true;
+    }
+    return false;
+  }
+  async finishDelivery(runtime, current, signal) {
+    await this.recordDelivery(runtime, current);
+    if (await this.holdRecruiterPanel(runtime, current, signal)) {
+      return;
+    }
+    const status = applicationAttachmentStatus(current);
     if (!status || status === 'provider-confirmed') {
       return this.service.close();
     }

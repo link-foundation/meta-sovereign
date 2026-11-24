@@ -5,6 +5,7 @@ import { FormInspectionReport } from './forms-view.js';
 import {
   applicationMayReopen,
   applicationMayRestart,
+  applicationOwnsBatchReview,
 } from './application-session.js';
 import { ApplicationQueueView } from './application-queue-view.js';
 import { ApplicationBatchView } from './application-batch-view.js';
@@ -611,19 +612,8 @@ const RecoveryControls = ({
     ),
   ]);
 };
-const ownsBatchReview = (application) => {
-  const batch = application.batch?.receipt;
-  const current = batch?.application;
-  const receipt = application.receipt;
-  return Boolean(
-    batch?.batch?.active === true &&
-    current &&
-    receipt?.active === true &&
-    ['url', 'browserSlot', 'requestId'].every(
-      (key) => receipt[key] === current[key]
-    )
-  );
-};
+const ownsBatchReview = (application) =>
+  applicationOwnsBatchReview(application.batch?.receipt, application.receipt);
 const recoveryIdle = (application, busy) =>
   !application.busy &&
   (!busy || ['application-owned', 'application-batch'].includes(busy));

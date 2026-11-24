@@ -7,7 +7,9 @@ let fixture;
 await serveNativeMcpFixture(
   async (browser) => {
     current = browser;
-    fixture = await applicationRecruiterPanelFixture(browser);
+    fixture = await applicationRecruiterPanelFixture(browser, {
+      panelDelayMs: 4000,
+    });
     return fixture;
   },
   async (request) => {
@@ -17,6 +19,11 @@ await serveNativeMcpFixture(
       .find((page) => page.url() === originalApplicationSearch);
     const panel = searchPage?.locator('[data-qa="chatik-root"]');
     const panelOpen = Boolean(await panel?.isVisible());
+    const sends = searchPage
+      ? await searchPage.evaluate(() =>
+          globalThis.sessionStorage.getItem('fixture-application-sends')
+        )
+      : undefined;
     const draft = panelOpen
       ? await panel
           .locator('iframe')
@@ -32,6 +39,7 @@ await serveNativeMcpFixture(
     return {
       panelOpen,
       draft,
+      sends,
       searchVisits: fixture.searchVisits,
       outcomes: fixture.effects,
     };

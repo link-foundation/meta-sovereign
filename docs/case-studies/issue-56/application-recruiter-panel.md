@@ -23,7 +23,7 @@ same flow against the current implementation.
 
 ```sh
 node --test --test-concurrency=1 js/tests/job-application-recruiter-panel.test.js js/tests/job-application-batch-attachment.test.js
-RUN_BROWSER_E2E=1 node experiments/issue-56/application-recruiter-panel-browser.mjs
+RUN_BROWSER_E2E=1 E2E_RECRUITER_PANEL_IMMEDIATE=1 node experiments/issue-56/application-recruiter-panel-browser.mjs
 ```
 
 The fixture routes HeadHunter locally. It verifies one native application send,
@@ -45,7 +45,8 @@ favicon and a cache-write error. Both browser runs confirmed resource closure.
 [Source and logs](data/application-recruiter-panel.tar.gz) ·
 [SHA-256 manifest](data/application-recruiter-panel.json)
 
-The panel hold covers the manual handoff portion of RUN4 and B29. Detecting a
-panel that opens later, matching and processing recruiter replies, learning owner
-answers, terminal dismissal and authenticated acceptance remain open under HH08
-and HH10. [Pinned HeadHunter requirements](https://github.com/konard/hh-job-application-automation/blob/fa0991b8c2d0896fb3b4be6c69947f0590094b15/docs/requirements/README.md#run-the-application-run)
+The panel hold covers the manual handoff portion of RUN4 and B29. A later
+[delayed-panel check](application-recruiter-panel-delay.md) covers panels that
+appear after page load. Reply matching and processing, learning owner answers,
+terminal dismissal and authenticated acceptance remain open under HH08 and
+HH10. [Pinned HeadHunter requirements](https://github.com/konard/hh-job-application-automation/blob/fa0991b8c2d0896fb3b4be6c69947f0590094b15/docs/requirements/README.md#run-the-application-run)
