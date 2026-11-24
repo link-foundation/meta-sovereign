@@ -15,6 +15,29 @@ labels are preserved rather than inventing individual skills from prose.
 External media URLs and titles enter canonical media; original internal links
 remain in native evidence. This does not certify complete live provider metadata.
 
+## Position description line breaks
+
+On `0b9f8d19`, a LinkedIn entity description with adjacent paragraphs and list
+items joined their text without separators. The compact HTML in the Chromium
+fixture reproduced the change to the owner's narrative. The entity reader now
+uses the multiline extraction already used by the rendered-card fallback.
+
+```sh
+E2E_EXECUTABLE_PATH=/path/to/chromium node experiments/issue-56/linkedin-acquisition-native.mjs
+```
+
+Both markup paths preserve four separate description lines, including an inline
+link label and the literal names `C/C++` and `CI/CD`. A second role retains its
+explicit line break. The link inside the description stays distinct from the
+one media attachment, and the position keeps its observed `Rust` skill. Each
+path round-trips the same documents through the actual text and binary Lino
+files, with one Experience load, one About load and zero provider writes.
+
+[Regression and runtime logs](data/linkedin-experience-blocks.tar.gz) ·
+[SHA-256 manifest](data/linkedin-experience-blocks.tar.sha256.json)
+
+## Acquisition and recovery
+
 The selected full experience URL loads once in the fixed, separate, persistent
 `linkedin-experience` slot. An exclusive profile lease prevents simultaneous
 readers. Existing visible dialogs or editor controls refuse navigation.

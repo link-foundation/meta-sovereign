@@ -1,15 +1,22 @@
 import assert from 'node:assert/strict';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 import { pathToFileURL } from 'node:url';
 import { createMemoryStore } from '../../js/src/storage/index.js';
 import { openBrowserSession } from '../../js/src/cv/browser.js';
+import { experienceDocumentFromLino } from '../../js/src/cv/experience-document.js';
 import { createLinkedinExperienceReader } from '../../js/src/cv/linkedin-experience-reader.js';
+import { LINO_BINARY } from '../../js/src/transport/lino.js';
 import {
   linkedinExportInput,
   linkedinPositionFixtureUrl,
 } from './linkedin-experience-fixture.mjs';
+
+export const linkedinRoleDescription = (id) =>
+  id === '1101'
+    ? '<p>Built Rust systems.</p><p>See <a href="https://example.test/narrative">design notes</a>.</p><ul><li>Maintained C/C++ libraries.</li><li>Preserved CI/CD jobs.</li></ul>'
+    : 'Built Rust systems.<br>Kept original descriptions.';
 
 const role = (
   title,
@@ -19,7 +26,7 @@ const role = (
 <div class="t-bold"><span aria-hidden="true">${title}</span><span class="visually-hidden">duplicate</span></div>
 <span class="pvs-entity__caption-wrapper"><span aria-hidden="true">${period}</span></span>
 <span class="t-14 t-normal"><span aria-hidden="true">London</span></span>
-<div class="inline-show-more-text">Built Rust systems.<br>Kept original descriptions.</div>
+<div class="inline-show-more-text">${linkedinRoleDescription(editorId)}</div>
 <a aria-label="Edit ${title} at Fixture Company" href="${linkedinPositionFixtureUrl(editorId)}">✎</a>
 <ul><li><div class="pvs-entity"><a href="https://www.linkedin.com/skill-associations/Rust/">Skills: Rust</a></div></li>
 <li><div class="pvs-entity"><a href="https://example.test/demo">Demo</a></div></li></ul>
@@ -50,6 +57,7 @@ export const verifyLinkedinNativeExperience = async (
   html = linkedinNativeHtml
 ) => {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'linkedin-native-browser-'));
+  const artifactRoot = path.join(dir, 'artifacts');
   const context = await browser.newContext();
   let loads = 0;
   let profileLoads = 0;
@@ -80,7 +88,7 @@ export const verifyLinkedinNativeExperience = async (
     });
     const read = createLinkedinExperienceReader({
       store: createMemoryStore(),
-      artifactRoot: path.join(dir, 'artifacts'),
+      artifactRoot,
       profileDir: path.join(dir, 'profile'),
       wait: async () => {},
       openSession: (options) =>
@@ -104,7 +112,9 @@ export const verifyLinkedinNativeExperience = async (
       ]
     );
     assert.deepEqual(result.document.jobs[0].skills, ['Rust']);
-    assert.equal(result.document.jobs[0].media[0].title, 'Demo');
+    assert.deepEqual(result.document.jobs[0].media, [
+      { title: 'Demo', url: 'https://example.test/demo' },
+    ]);
     assert.deepEqual(
       result.document.jobs.map(({ native }) => native.positionEditor),
       [
@@ -123,9 +133,21 @@ export const verifyLinkedinNativeExperience = async (
     );
     assert.equal(
       result.document.jobs[0].description,
+      'Built Rust systems.\nSee design notes.\nMaintained C/C++ libraries.\nPreserved CI/CD jobs.'
+    );
+    assert.equal(
+      result.document.jobs[1].description,
       'Built Rust systems.\nKept original descriptions.'
     );
     assert.equal(result.files.length, 4);
+    const folder = path.join(artifactRoot, input.requestId);
+    const text = await readFile(path.join(folder, 'experience.lino'), 'utf8');
+    const binary = await readFile(path.join(folder, 'experience.bin'));
+    assert.deepEqual(experienceDocumentFromLino(text), result.document);
+    assert.deepEqual(
+      experienceDocumentFromLino(binary, LINO_BINARY),
+      result.document
+    );
     assert.equal(
       result.document.profile.about,
       'Original biography.\nRust and PostgreSQL.'
@@ -137,6 +159,7 @@ export const verifyLinkedinNativeExperience = async (
       loads,
       profileLoads,
       jobs: 3,
+      linoRoundTrips: 2,
       datelessFragmentsAreJobs: false,
     };
   } finally {

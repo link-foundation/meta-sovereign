@@ -105,7 +105,7 @@ export const readLinkedinExperienceDocument = () => {
         (node, index, nodes) =>
           !nodes.some((other, j) => j !== index && other.contains(node))
       )
-      .map((node) => text(node))
+      .map((node) => text(node, true))
       .filter(Boolean),
     marks: [...root.querySelectorAll('a[href]')]
       .filter(

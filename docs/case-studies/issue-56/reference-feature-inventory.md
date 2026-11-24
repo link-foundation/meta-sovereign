@@ -113,6 +113,9 @@ native exports. An unconfirmed export or translation remains interrupted.
 [Recovery within the native CV review](experience-review-owned-acquisition.md)
 continues its own acknowledged acquisition and preserves separately referenced
 preparations until their comparisons are complete.
+[Position description extraction](linkedin-experience.md#position-description-line-breaks)
+preserves native paragraph and list boundaries in canonical LinkedIn descriptions
+and in both Lino formats. This adds HH20 and HH21 fixture evidence.
 
 Partial HH10 extension: [application-owned chat review](application-chats.md) adds an explicit actual child, separate persistent chat slot, 120 minute default interval, independent held review and awaited Stop/completion/expiry/shutdown. Focused runtime, native Chromium and independent MCP evidence is retained. Exact-head hosted verification and full reference/provider parity remain required; all 60 rows stay unchecked.
 

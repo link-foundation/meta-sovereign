@@ -4,6 +4,7 @@ import { pathToFileURL } from 'node:url';
 import {
   verifyLinkedinNativeExperience,
   linkedinAboutHtml,
+  linkedinRoleDescription,
 } from './linkedin-experience-native.mjs';
 import { scanLinkedinProfileAbout } from '../../js/src/cv/linkedin-profile-dom.js';
 import { linkedinPositionFixtureUrl } from './linkedin-experience-fixture.mjs';
@@ -11,7 +12,7 @@ import { linkedinPositionFixtureUrl } from './linkedin-experience-fixture.mjs';
 const editor = (label, id) =>
   `<a aria-label="${label}" href="${linkedinPositionFixtureUrl(id)}"><svg width="18" height="18" aria-hidden="true"></svg></a>`;
 const role = (title, period, id) => `<li><div>${title}</div><div>${period}</div>
-<div>London, United Kingdom</div><div>Built Rust systems.<br>Kept original descriptions.</div>
+<div>London, United Kingdom</div><div class="inline-show-more-text">${linkedinRoleDescription(id)}</div>
 ${editor(`Edit ${title} at Fixture Company`, id)}
 <ul><li><a href="https://www.linkedin.com/skill-associations-details/Rust/">Skills: Rust</a></li>
 <li><a href="https://example.test/demo">Demo</a></li></ul></li>`;
