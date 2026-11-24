@@ -3,10 +3,10 @@ import { join } from 'node:path';
 import {
   employerQuestionnaire,
   linkedFormBrowser,
-  questionnaireHandoverHistory,
   respondentQuestionnaire,
   sharedQuestionnaire,
 } from '../../../experiments/issue-56/unread-linked-form-fixture.mjs';
+import { unreadSummaryHistory } from '../../../experiments/issue-56/question-summary-fixture.mjs';
 import { questionBrowserUi } from './question-browser-ui.mjs';
 import { listAnswerRules } from '../../src/automation/question-store.js';
 import {
@@ -23,7 +23,7 @@ export const verifyUnreadLinkedForms = async (
     screenshots,
     group: 'question-unread-forms',
     serverOptions: {
-      ...(afterSummary && { unreadHistory: questionnaireHandoverHistory }),
+      ...(afterSummary && { unreadHistory: unreadSummaryHistory }),
       unreadReview: true,
       unreadAnswers: true,
       unreadMessages: { 8: employerQuestionnaire },

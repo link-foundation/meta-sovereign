@@ -90,13 +90,23 @@ const maySelect = (snapshot, plan) =>
   approvedBrowserPlan(plan) &&
   Boolean(plan.option);
 
+const noReplyTurn = (plan) =>
+  plan?.noReply === true && !plan.linkReview && !plan.pending?.blocked;
+
 const alreadyHandled = (snapshot, plan) =>
   snapshot.question.outgoing ||
   snapshot.noticeContext?.canReply === false ||
-  (!snapshot.hasDraft &&
-    plan?.noReply &&
-    !plan.linkReview &&
-    !plan.pending?.blocked);
+  (!snapshot.hasDraft && noReplyTurn(plan));
+
+const handledSummaries = (snapshot, plan) => {
+  if (snapshot.hasDraft || snapshot.question.outgoing) {
+    return [];
+  }
+  const messages = noReplyTurn(plan)
+    ? (snapshot.pendingTurn?.messages ?? [snapshot.question])
+    : [snapshot.question];
+  return messages.filter(({ body }) => completedAnswerSummary(body));
+};
 
 const skippedQuestion = async (watch, snapshot, handle) => {
   if (!watch || snapshot.question.outgoing) {
@@ -238,13 +248,7 @@ export const visitUnreadAnswer = async ({
   const handoff = formHandoffSummaries(snapshot, link);
   const handled = !link && alreadyHandled(snapshot, plan);
   const summaries =
-    handoff ??
-    (handled &&
-    !snapshot.hasDraft &&
-    !snapshot.question.outgoing &&
-    completedAnswerSummary(snapshot.question.body)
-      ? [snapshot.question]
-      : []);
+    handoff ?? (handled ? handledSummaries(snapshot, plan) : []);
   if (
     summaries.length &&
     !(await finishSummary({

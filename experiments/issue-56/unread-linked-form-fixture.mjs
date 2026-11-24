@@ -1,19 +1,9 @@
 import { makeBrowserCommander } from 'browser-commander';
-import { summary } from './question-summary-fixture.mjs';
 
 export const sharedQuestionnaire = 'https://forms.gle/JobQuestionnaire';
 export const respondentQuestionnaire =
   'https://docs.google.com/forms/d/e/JobQuestionnaire/viewform';
 export const employerQuestionnaire = `Please fill out the <a href="${sharedQuestionnaire}">form</a>.`;
-export const questionnaireHandoverHistory = {
-  8: {
-    6: {
-      body: summary.replaceAll('\n', '<br>'),
-      timestamp: '2026-11-09T11:00:00Z',
-    },
-  },
-};
-
 const html = `<!doctype html><html lang="en"><meta charset="utf-8"><title>Employer questionnaire</title>
 <style>body{max-width:560px;margin:32px auto;padding:0 16px;font:16px system-ui}label,input,button{display:block;margin:12px 0}input{padding:8px;border:1px solid #666;border-radius:6px}</style>
 <h1>Employer questionnaire</h1><form method="post">

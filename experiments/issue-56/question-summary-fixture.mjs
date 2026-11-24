@@ -1,3 +1,5 @@
+import { NO_NOTICE_REPLY } from '../../js/src/automation/question-notices.js';
+
 export const summary = `В разговоре с кандидатом я узнал:
 - Есть ли у вас опыт использования Rust? Ответ:
 - Нет.
@@ -6,6 +8,22 @@ export const summary = `В разговоре с кандидатом я узн�
 
 Вопросы к работодателю, на которые помощник не смог ответить:
 Вопросов не было`;
+
+export const summaryFollowup = 'We have recorded the details. Thank you.';
+export const noReplyFollowupRule = (approved = true) => ({
+  id: 'recorded-details',
+  kind: 'notice',
+  question: summaryFollowup,
+  answers: [{ text: NO_NOTICE_REPLY, approved }],
+});
+export const unreadSummaryHistory = {
+  8: {
+    6: {
+      body: summary.replaceAll('\n', '<br>'),
+      timestamp: '2026-11-09T11:00:00Z',
+    },
+  },
+};
 
 export const summaryMessage = (source = 'hh') => ({
   id: `msg:${source}:handover:1`,

@@ -1,10 +1,17 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { unreadAnswerFixture } from '../../experiments/issue-56/unread-answer-fixture.mjs';
-import { summary } from '../../experiments/issue-56/question-summary-fixture.mjs';
+import {
+  noReplyFollowupRule,
+  summary,
+  summaryFollowup,
+} from '../../experiments/issue-56/question-summary-fixture.mjs';
 import { unreadInput } from '../../experiments/issue-56/question-unread-review-fixture.mjs';
 import { unreadAnswerClientReceipt } from '../../experiments/issue-56/question-browser-clients.mjs';
-import { listAnswerRules } from '../src/automation/question-store.js';
+import {
+  listAnswerRules,
+  saveAnswerRule,
+} from '../src/automation/question-store.js';
 import { listOutbox } from '../src/automation/outbox.js';
 import { LINO_BINARY, LINO_TEXT } from '../src/transport/lino.js';
 
@@ -14,13 +21,13 @@ const summaryRow = (extra = {}) => ({
   ...extra,
 });
 
-const history = ({ question }) => [
-  {
-    ...question,
+const history = ({ question, pendingTurn }) =>
+  (pendingTurn?.messages ?? [question]).map((message) => ({
+    ...message,
+    outgoing: false,
     sender: 'recruiter-bot',
     timestamp: '2026-11-09T11:00:00Z',
-  },
-];
+  }));
 
 const fixture = async (options, run) => {
   const env = await unreadAnswerFixture({
@@ -37,9 +44,9 @@ const fixture = async (options, run) => {
   }
 };
 
-const summaryAnswers = async (store) =>
+const summaryAnswers = async (store, id = '301') =>
   (await listAnswerRules(store)).flatMap((rule) =>
-    rule.answers.filter((answer) => answer.evidence.includes('msg:hh:8:301'))
+    rule.answers.filter((answer) => answer.evidence.includes(`msg:hh:8:${id}`))
   );
 
 test('a completed unread handover saves only unapproved facts before moving on', () => {
@@ -172,6 +179,126 @@ const pendingSummary = (body, preceding = []) => {
   };
   return row;
 };
+
+const earlierSummary = { id: '300', body: summary };
+const differentSummary = summary
+  .replace('Rust', 'Java')
+  .replace('Нет.', 'Да.')
+  .replace('с поиском', 'с тестированием')
+  .replace(
+    'Разрабатывал поиск по техническим документам.',
+    'Писал интеграционные тесты.'
+  );
+
+test('a no-reply turn saves all completed summaries with their own evidence', () =>
+  fixture(
+    {
+      rows: [
+        pendingSummary(differentSummary, [earlierSummary]),
+        { strictOptions: false },
+      ],
+    },
+    async (env) => {
+      const result = await env.complete();
+      assert.equal(result.restoration.heldReview.chat, '9');
+      assert.equal(result.entries[0].answer.phase, 'no-reply');
+      assert.equal(result.entries[0].answer.summaryAnswers, 4);
+      for (const id of ['300', '301']) {
+        const answers = await summaryAnswers(env.store, id);
+        assert.equal(answers.length, 2);
+        for (const answer of answers) {
+          assert.deepEqual(answer.evidence, [`msg:hh:8:${id}`]);
+          assert.equal(answer.approved, false);
+          assert.equal(answer.count, 0);
+        }
+      }
+    }
+  ));
+
+test('a bounded no-reply turn retains a summary receipt above the per-message limit', () => {
+  const batch = (start) =>
+    [
+      'Your answers:',
+      ...Array.from(
+        { length: 11 },
+        (_, i) => `Did you complete module ${start + i}?: Yes.`
+      ),
+    ].join('\n');
+  const first = { id: '300', body: batch(1) };
+  const row = pendingSummary(batch(12), [first]);
+  return fixture({ rows: [row, { strictOptions: false }] }, async (env) => {
+    const result = await env.complete();
+    assert.equal(result.restoration.heldReview.chat, '9');
+    assert.equal(result.entries[0].answer.summaryAnswers, 22);
+  });
+});
+
+test('an approved no-reply follow-up keeps the earlier summary facts', async () => {
+  for (const approved of [true, false]) {
+    await fixture(
+      {
+        rows: [
+          pendingSummary(summaryFollowup, [earlierSummary]),
+          { strictOptions: false },
+        ],
+      },
+      async (env) => {
+        await saveAnswerRule(env.store, noReplyFollowupRule(approved));
+        const result = await env.complete();
+        assert.equal(result.restoration.heldReview.chat, approved ? '9' : '8');
+        assert.equal(
+          result.entries[0].answer.phase,
+          approved ? 'no-reply' : 'review'
+        );
+        assert.equal(
+          result.entries[0].answer.summaryAnswers,
+          approved ? 2 : undefined
+        );
+        assert.equal(
+          (await summaryAnswers(env.store, '300')).length,
+          approved ? 2 : 0
+        );
+        assert.deepEqual(await summaryAnswers(env.store), []);
+      }
+    );
+  }
+});
+
+test('a second handover cannot advance over an earlier missing or edited summary', async () => {
+  const entry = pendingSummary(differentSummary, [earlierSummary]);
+  for (const options of [
+    {
+      history: (snapshot) =>
+        history(snapshot).filter((message) => message.id !== '300'),
+    },
+    {
+      readCurrent: (snapshot) => ({
+        ...snapshot,
+        pendingTurn: {
+          ...snapshot.pendingTurn,
+          messages: [
+            { ...earlierSummary, body: summary.replace('Нет.', 'Да.') },
+            snapshot.question,
+          ],
+        },
+      }),
+    },
+  ]) {
+    await fixture(
+      { rows: [entry, { strictOptions: false }], ...options },
+      async (env) => {
+        const result = await env.complete();
+        assert.equal(result.restoration.heldReview.chat, '8');
+        assert.equal(
+          result.entries[0].answer.reason,
+          'question-unread-summary-unverified'
+        );
+        assert.deepEqual(await summaryAnswers(env.store, '300'), []);
+        assert.deepEqual(await summaryAnswers(env.store), []);
+      }
+    );
+  }
+});
 
 test('a summary cannot displace an owner draft or an earlier unanswered request', async () => {
   for (const [row, phase] of [

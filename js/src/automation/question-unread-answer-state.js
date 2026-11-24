@@ -28,10 +28,7 @@ export const validUnreadAnswer = (value, source, chat) => {
       !validCount(value.historyAnswers, 100000)) ||
     (value.summaryAnswers !== undefined &&
       (!['no-reply', 'form-review', 'review'].includes(value.phase) ||
-        !validCount(
-          value.summaryAnswers,
-          value.phase === 'no-reply' ? 20 : 400
-        )))
+        !validCount(value.summaryAnswers, 400)))
   ) {
     return false;
   }

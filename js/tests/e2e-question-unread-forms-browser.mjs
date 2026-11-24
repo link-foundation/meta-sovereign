@@ -1,7 +1,10 @@
 import { runBrowserScenarios } from './helpers/e2e-browser-scenarios.mjs';
 import { verifyUnreadLinkedForms } from './helpers/e2e-unread-linked-forms.mjs';
 import { verifyUnreadEmployerRating } from './helpers/e2e-unread-rating.mjs';
-import { verifyUnreadSummary } from './helpers/e2e-unread-summary.mjs';
+import {
+  verifyUnreadSummary,
+  verifyUnreadSummaryBeforeFollowup,
+} from './helpers/e2e-unread-summary.mjs';
 
 const verifyUnreadFormAfterHandover = async (browser) =>
   browser.browserType().name() === 'chromium'
@@ -17,6 +20,7 @@ await runBrowserScenarios(
         verifyUnreadFormAfterHandover,
         verifyUnreadEmployerRating,
         verifyUnreadSummary,
+        verifyUnreadSummaryBeforeFollowup,
       ],
   { nativeFocus: true }
 );

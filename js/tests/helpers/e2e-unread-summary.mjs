@@ -1,12 +1,20 @@
 import assert from 'node:assert/strict';
-import { summary } from '../../../experiments/issue-56/question-summary-fixture.mjs';
-import { listAnswerRules } from '../../src/automation/question-store.js';
+import {
+  noReplyFollowupRule,
+  summary,
+  summaryFollowup,
+  unreadSummaryHistory,
+} from '../../../experiments/issue-56/question-summary-fixture.mjs';
+import {
+  listAnswerRules,
+  saveAnswerRule,
+} from '../../src/automation/question-store.js';
 import { openUnread } from './e2e-question-unread-controls.mjs';
 import { questionBrowserUi } from './question-browser-ui.mjs';
 
 export const verifyUnreadSummary = async (
   browser,
-  { screenshots = process.env.E2E_SCREENSHOTS } = {}
+  { followup = false, screenshots = process.env.E2E_SCREENSHOTS } = {}
 ) => {
   if (browser.browserType().name() !== 'chromium') {
     return { cases: 0, liveProvider: false };
@@ -18,10 +26,16 @@ export const verifyUnreadSummary = async (
     serverOptions: {
       unreadReview: true,
       unreadAnswers: true,
-      unreadMessages: { 8: summary.replaceAll('\n', '<br>') },
+      unreadMessages: {
+        8: followup ? summaryFollowup : summary.replaceAll('\n', '<br>'),
+      },
+      ...(followup && { unreadHistory: unreadSummaryHistory }),
     },
   });
   try {
+    if (followup) {
+      await saveAnswerRule(scenario.fixture.store, noReplyFollowupRule());
+    }
     await scenario.open();
     const unread = await openUnread(scenario.controls);
     await unread.locator('[data-browser-unread-answers]').check();
@@ -59,6 +73,10 @@ export const verifyUnreadSummary = async (
           ]
     );
     if (!before) {
+      assert.deepEqual(
+        answers.map((answer) => answer.evidence),
+        Array(2).fill([followup ? 'msg:hh:8:806' : 'msg:hh:8:807'])
+      );
       assert.match(
         await noReply.innerText(),
         /Answers saved from summary \(2\)/u
@@ -70,7 +88,7 @@ export const verifyUnreadSummary = async (
     assert.equal(stats.draft, 'At 9 a.m.');
     await noReply.scrollIntoViewIfNeeded();
     await scenario.shot(
-      `issue-56-unread-summary-${before ? 'before' : 'after'}`
+      `issue-56-unread-summary-${followup ? 'followup-' : ''}${before ? 'before' : 'after'}`
     );
     assert.deepEqual(scenario.errors, []);
     return { cases: 1, liveProvider: false };
@@ -78,3 +96,6 @@ export const verifyUnreadSummary = async (
     await scenario.close();
   }
 };
+
+export const verifyUnreadSummaryBeforeFollowup = (browser) =>
+  verifyUnreadSummary(browser, { followup: true });

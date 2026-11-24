@@ -9,7 +9,12 @@ import {
   seedQuestionBrowserRead,
 } from './question-browser-fixture.mjs';
 import { summaryChoiceMessage } from './summary-choice-fixture.mjs';
-import { summary } from './question-summary-fixture.mjs';
+import {
+  noReplyFollowupRule,
+  summary,
+  summaryFollowup,
+  unreadSummaryHistory,
+} from './question-summary-fixture.mjs';
 import { hhChoiceHtml } from './hh-choice-fixture.mjs';
 import { textReplyHtml } from './text-reply-fixture.mjs';
 import { noticePolicyHtml } from './notice-policy-browser-fixture.mjs';
@@ -26,7 +31,6 @@ import { rejectionText } from './notice-policy-fixture.mjs';
 import {
   employerQuestionnaire,
   linkedFormBrowser,
-  questionnaireHandoverHistory,
 } from './unread-linked-form-fixture.mjs';
 import {
   employerRatingInvite,
@@ -353,7 +357,9 @@ if (
     process.env.QUESTION_BROWSER_EMPLOYER_RATING === '1'
       ? ratingReviewBrowser(browser)
       : null;
-  const unreadSummary = process.env.QUESTION_BROWSER_UNREAD_SUMMARY === '1';
+  const followup = process.env.QUESTION_BROWSER_SUMMARY_FOLLOWUP === '1';
+  const unreadSummary =
+    followup || process.env.QUESTION_BROWSER_UNREAD_SUMMARY === '1';
   const unreadHistory = process.env.QUESTION_BROWSER_UNREAD_HISTORY === '1';
   const unreadChoices = process.env.QUESTION_BROWSER_UNREAD_CHOICES === '1';
   const unreadWaiting = process.env.QUESTION_BROWSER_UNREAD_WAITING === '1';
@@ -377,7 +383,7 @@ if (
       unreadMessages: { 8: employerQuestionnaire },
       forms: linked.forms,
       ...(process.env.QUESTION_BROWSER_FORM_AFTER_SUMMARY === '1' && {
-        unreadHistory: questionnaireHandoverHistory,
+        unreadHistory: unreadSummaryHistory,
       }),
     }),
     ...(rating && {
@@ -388,12 +394,18 @@ if (
     }),
     ...(unreadSummary && {
       unreadAnswers: true,
-      unreadMessages: { 8: summary.replaceAll('\n', '<br>') },
+      unreadMessages: {
+        8: followup ? summaryFollowup : summary.replaceAll('\n', '<br>'),
+      },
+      ...(followup && { unreadHistory: unreadSummaryHistory }),
     }),
     ...(unreadHistory && { unreadAnswers: true, unreadHistory }),
     ...(unreadChoices && { unreadAnswers: true, unreadChoices }),
     ...(unreadWaiting && { unreadAnswers: true, unreadWaiting }),
   });
+  if (followup) {
+    await saveAnswerRule(fixture.store, noReplyFollowupRule());
+  }
   if (selectedNotice) {
     await prepareSelectedUnreadNotice(fixture);
   }
@@ -409,7 +421,7 @@ if (
     await new Promise((resolve) => controls.close(resolve));
     await fixture.close();
     await browser.close();
-    if (selectedNotice) {
+    if (selectedNotice || followup) {
       console.log(
         JSON.stringify({ resourcesClosed: true, liveProvider: false })
       );

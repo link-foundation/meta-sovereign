@@ -1,0 +1,18 @@
+{
+  "archive": "unread-summary-turn.tar.gz",
+  "files": {
+    "ci-logs/unread-summary-turn-build.log": "0afdffd4508393da5c265d3cfe05d80a416e10cdd50c31e41a6b4b7615fe10d3",
+    "ci-logs/unread-summary-turn-chromium-parent.log": "b2b18f029bfe20e782f1260f391e3df09bc38780d4b5f2b4a17ae7fdeddd5b4f",
+    "ci-logs/unread-summary-turn-chromium.log": "cd0b58f6492723473f9dc9442d3b80ac50a001845ab04140f44c339fd1297c65",
+    "ci-logs/unread-summary-turn-deno.log": "447249b63502c5a341d5ce08cc923a201ed3abb34355484661e6d8b2f34fc268",
+    "ci-logs/unread-summary-turn-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/unread-summary-turn-lint.log": "e393570858e815bfdeecc40449d5722a0b97ed961a7192e1dc3f514907a4b1a0",
+    "ci-logs/unread-summary-turn-mcp-console.log": "b59aafcdd7f73a7d984e6fc73e1be05fce2233643095a915af13f9b559ef3272",
+    "ci-logs/unread-summary-turn-mcp-receipt.log": "54e29ee2eeb5a98268507ee972eecfbe58f5532e315d30ddad2e4cfe1461bea5",
+    "ci-logs/unread-summary-turn-mcp-server.log": "624d4d82973c42c4dc9765e5cbeda026959eca463fb1398de5714a52e133b397",
+    "ci-logs/unread-summary-turn-node.log": "0dbd9520f379b920100209b040f80af4d92282ae5ffe5e8ca3d6a3b02f865941",
+    "ci-logs/unread-summary-turn-parent.log": "fed1af01d23e480384aa7dd0c78409b6edc187cc81b86b72b0a906fb6ec37c37",
+    "ci-logs/unread-summary-turn-secretlint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "metadata.json": "9904f1ffff58cbe23d77c66f6e450f625fe4173a33a05d437cc03bfc9fb55c59"
+  }
+}
