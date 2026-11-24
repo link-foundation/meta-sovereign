@@ -212,6 +212,28 @@ export class ApplicationReview {
       url: record.url,
     };
   }
+  async observeRecruiterPanel(record, page, signal) {
+    if (record.delivery !== 'provider-confirmed' || record.options.testMode) {
+      return false;
+    }
+    let status = record.recruiterChat;
+    if (page.recruiterPanelOpen === true) {
+      signal.throwIfAborted();
+      const bound = await this.service
+        .readRecruiterPanel(record.browser, record.url)
+        .catch(() => false);
+      signal.throwIfAborted();
+      status = bound ? 'open' : 'unverified';
+    } else if (status) {
+      status = page.recruiterPanelOpen === false ? null : 'unverified';
+    }
+    if (status === record.recruiterChat) {
+      return false;
+    }
+    record.recruiterChat = status;
+    this.service.trace({ event: 'application-recruiter-panel', state: status });
+    return true;
+  }
   async inspect(record, signal) {
     const { filling, attachment } = this.service;
     signal.throwIfAborted();
@@ -242,14 +264,7 @@ export class ApplicationReview {
     observeApplicationResume(record);
     rememberApplicationLocation(record);
     this.policy(record);
-    if (record.delivery === 'provider-confirmed' && !record.options.testMode) {
-      if (record.page.recruiterPanelOpen === true) {
-        record.recruiterChat = 'open';
-      } else if (record.recruiterChat) {
-        record.recruiterChat =
-          record.page.recruiterPanelOpen === false ? null : 'unverified';
-      }
-    }
+    await this.observeRecruiterPanel(record, record.page, signal);
     if (
       !record.options.testMode &&
       ['offered', 'draft', 'ready', 'owner-conflict'].includes(

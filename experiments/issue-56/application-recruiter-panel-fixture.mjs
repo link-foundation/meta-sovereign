@@ -41,10 +41,10 @@ export const applicationRecruiterPanelFixture = async (
       }
       await route.fulfill({
         contentType: 'text/html; charset=utf-8',
-        body: `<!doctype html><html><body><h2>Recruiter chat</h2>
-          <a href="https://hh.ru/vacancy/123">Python engineer</a>
-          <p>Could you confirm your availability?</p>
-          <label>Your reply <textarea>${recruiterPanelDraft}</textarea></label></body></html>`,
+        body: `<!doctype html><html><body><h2 data-qa="participant-info-title">Recruiter chat</h2>
+          <div data-qa="chatik-header-sub-header"><a href="https://hh.ru/vacancy/123">Python engineer</a></div>
+          <article data-qa="chatik-chat-message-1"><p data-qa="chat-bubble-text">Could you confirm your availability?</p></article>
+          <label>Your reply <textarea data-qa="text-input">${recruiterPanelDraft}</textarea></label></body></html>`,
       });
       return true;
     },

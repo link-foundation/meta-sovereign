@@ -266,7 +266,7 @@ export const hiApplication = {
   'application.recruiterChat.open':
     'HeadHunter ब्राउज़र में भर्ती करने वाले से हुई बातचीत देखें, फिर उसका पैनल बंद करें।',
   'application.recruiterChat.unverified':
-    'सहेजे गए HeadHunter पृष्ठ पर लौटकर पुष्टि करें कि भर्ती चैट का पैनल बंद है।',
+    'सहेजे गए HeadHunter पृष्ठ पर भर्ती चैट का पैनल देखें। यह पुष्टि नहीं हो सकी कि चैट इसी नौकरी के लिए है।',
   'application.letter.not-requested': 'पत्र जोड़ने का अनुरोध अभी नहीं हुआ।',
   'application.letter.verified': 'मूल आवेदन में पत्र सत्यापित है।',
   'application.letter.not-attached': 'पत्र जुड़ा नहीं है।',

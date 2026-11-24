@@ -69,6 +69,7 @@ const methods = {
   releaseHistory: controlBrowserHistory,
   read: readChoicePublic,
   history: readChoiceHistory,
+  vacancyHeader: ({ spec }) => browserVacancyHeader(spec),
   prefill: prefillChoiceDraft,
   arm: armChoiceClick,
   armText: armTextReply,
@@ -157,6 +158,12 @@ export const browserChoiceSpec = (ui) => {
 
 const evaluate = (commander, input) =>
   commander.evaluate({ fn: browserChoicePage, args: [input] });
+
+export const readBrowserVacancyHeader = (commander, ui) =>
+  evaluate(commander, {
+    spec: browserChoiceSpec(ui),
+    operation: 'vacancyHeader',
+  });
 
 export const readBrowserHistory = async (commander, ui, target) => {
   const value = await evaluate(commander, {

@@ -222,7 +222,7 @@ export const zhApplication = {
   'application.recruiterChat.open':
     '请在 HeadHunter 浏览器中查看招聘方聊天，然后关闭聊天面板。',
   'application.recruiterChat.unverified':
-    '请返回已保存的 HeadHunter 页面，确认招聘方聊天面板已关闭。',
+    '请在已保存的 HeadHunter 页面查看招聘方聊天面板。无法确认该聊天属于此职位。',
   'application.letter.not-requested': '尚未请求添加求职信。',
   'application.letter.verified': '求职信已在原生申请中验证。',
   'application.letter.not-attached': '求职信未附上。',

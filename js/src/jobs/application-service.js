@@ -22,6 +22,7 @@ import {
   saveApplicationJournal,
 } from './application-journal.js';
 import { ApplicationReview } from './application-review.js';
+import { readApplicationRecruiterPanel } from './application-recruiter-panel.js';
 import { ApplicationSalary } from './application-salary.js';
 import { ApplicationContextRecovery } from './application-context-recovery.js';
 import { ApplicationDrafts } from './application-drafts.js';
@@ -85,6 +86,7 @@ class ApplicationService {
     dispatch = dispatchApplication,
     searchPage = applicationSearchPage,
     attachmentDocument = applicationAttachmentDocument,
+    readRecruiterPanel = readApplicationRecruiterPanel,
     selectResume = dispatchResumeChoice,
     watchFeedback = watchApplicationFeedback,
     now = Date.now,
@@ -123,6 +125,7 @@ class ApplicationService {
       dispatch,
       searchPage,
       attachmentDocument,
+      readRecruiterPanel,
       selectResume,
       watchFeedback,
       trace,

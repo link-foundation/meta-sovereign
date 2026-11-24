@@ -22,6 +22,8 @@ confirmed delivery. Paced batches observe the original search for late panels
 after a confirmed send from CV Sync or HeadHunter. The followed vacancy updates
 automatically. Batches wait for dismissal before continuing or starting a
 separate cover letter, including at the delivery cap (issue #56, HH08 and HH10).
+Match the chat's visible vacancy link before reporting verified recruiter
+review. Keep unmatched or ambiguous panels open for the owner.
 
 Reuse same-language approved thanks for recognized HeadHunter application
 updates in the explicitly selected inactive notice policy. Verify full chat

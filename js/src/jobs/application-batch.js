@@ -651,20 +651,25 @@ export class ApplicationBatch {
       // The native browser can confirm an application the owner sent there.
       await returnDeliveredApplicationToSearch(this.service, current, signal);
     }
-    let panelOpen = Boolean(current.recruiterChat);
-    let nextAt = null;
-    if (!panelOpen) {
-      const page = await this.service.attachment.readPage(current);
-      signal.throwIfAborted();
-      panelOpen = page.recruiterPanelOpen === true;
-      if (panelOpen) {
+    const page = await this.service.attachment.readPage(current);
+    signal.throwIfAborted();
+    if (page.recruiterPanelOpen === true || current.recruiterChat) {
+      if (applicationPageKey(page) !== current.guard?.page) {
         await this.service.review.inspect(current, signal);
-      } else if (current.returnedToSearch && page.attachmentSearch) {
-        const now = this.now();
-        current.recruiterPanelDeadline ??= now + recruiterPanelWaitMs;
-        if (current.recruiterPanelDeadline > now) {
-          nextAt = new Date(current.recruiterPanelDeadline).toISOString();
-        }
+      } else if (
+        await this.service.review.observeRecruiterPanel(current, page, signal)
+      ) {
+        await this.service.save(current);
+      }
+    }
+    const panelOpen =
+      Boolean(current.recruiterChat) || page.recruiterPanelOpen === true;
+    let nextAt = null;
+    if (!panelOpen && current.returnedToSearch && page.attachmentSearch) {
+      const now = this.now();
+      current.recruiterPanelDeadline ??= now + recruiterPanelWaitMs;
+      if (current.recruiterPanelDeadline > now) {
+        nextAt = new Date(current.recruiterPanelDeadline).toISOString();
       }
     }
     if (panelOpen && current.returnedToSearch) {

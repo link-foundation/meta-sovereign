@@ -14,8 +14,9 @@ import { applicationResult } from '../src/jobs/application-result.js';
 import { LINO_BINARY, LINO_TEXT } from '../src/transport/lino.js';
 import { withApplicationRouteFixture } from './helpers/application-controls.mjs';
 
-const recruiterPanelFixture = (t) =>
+const recruiterPanelFixture = (t, application = {}) =>
   applicationBatchFixture(t, {
+    application,
     vacancyPage: (state) => {
       Object.assign(state.page, {
         delivered: true,
@@ -71,6 +72,28 @@ test('an unverified page cannot clear a visible recruiter panel hold', async (t)
   assert.equal(stopped.application.active, true);
   assert.equal(stopped.application.recruiterChat, 'unverified');
   assert.equal(fixture.state.closed, 0);
+});
+
+test('a replaced recruiter chat is unverified until the same vacancy returns', async (t) => {
+  let sameVacancy = true;
+  const fixture = recruiterPanelFixture(t, {
+    readRecruiterPanel: async () => sameVacancy,
+  });
+  await fixture.start({ maxApplications: 1 });
+  const matched = await review(fixture, 'open');
+
+  sameVacancy = false;
+  const changed = await review(fixture, 'unverified');
+  assert.notEqual(changed.application.revision, matched.application.revision);
+  assert.equal(changed.application.delivery, 'provider-confirmed');
+  assert.equal(fixture.state.closed, 0);
+  assert.equal(fixture.state.submitted, 0);
+
+  sameVacancy = true;
+  await review(fixture, 'open');
+  fixture.state.page.recruiterPanelOpen = false;
+  await fixture.until((row) => row.batch.phase === 'completed');
+  assert.equal(fixture.state.closed, 1);
 });
 
 const returnedSearchFixture = async (t) => {

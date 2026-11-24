@@ -40,10 +40,13 @@ const { verifyNativeApplicationRecruiterPanel } =
 await runBrowserScenarios('job-application-recruiter-panel', [
   (browser) =>
     verifyNativeApplicationRecruiterPanel(browser, {
-      before: Boolean(parent),
+      before:
+        Boolean(parent) &&
+        process.env.E2E_RECRUITER_PANEL_BINDING_PARENT !== '1',
       screenshots: process.env.E2E_ARTIFACT_DIR,
       webBundle: process.env.APPLICATION_RECRUITER_PANEL_PARENT_WEB,
       manualSend: process.env.E2E_RECRUITER_PANEL_MANUAL_SEND === '1',
+      verifyBinding: process.env.E2E_RECRUITER_PANEL_SKIP_BINDING !== '1',
       ...(process.env.E2E_RECRUITER_PANEL_IMMEDIATE === '1'
         ? { panelDelayMs: 0 }
         : {}),

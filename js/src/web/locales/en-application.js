@@ -265,7 +265,7 @@ export const enApplication = {
   'application.recruiterChat.open':
     'Review the recruiter chat in the HeadHunter browser, then close its panel.',
   'application.recruiterChat.unverified':
-    'Return to the saved HeadHunter page to verify that the recruiter panel is closed.',
+    'Check the recruiter panel on the saved HeadHunter page. The chat could not be matched to this vacancy.',
   'application.letter.not-requested': 'No letter attachment requested yet.',
   'application.letter.verified': 'Letter verified in the native application.',
   'application.letter.not-attached': 'Letter is not attached.',

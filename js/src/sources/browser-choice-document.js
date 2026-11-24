@@ -51,7 +51,12 @@ const chatAt = (frame, ui) => {
     : undefined;
 };
 
-const visibleFrame = async (frame, main, ui) => {
+const browserFrameInPanel = (node, selector) => Boolean(node.closest(selector));
+
+const visibleFrame = async (frame, main, ui, panel) => {
+  if (panel && frame === main) {
+    return false;
+  }
   for (
     let current = frame;
     current && current !== main;
@@ -62,7 +67,12 @@ const visibleFrame = async (frame, main, ui) => {
     }
     const element = await current.frameElement();
     try {
-      if (!(await element.evaluate(browserFrameVisible))) {
+      if (
+        !(await element.evaluate(browserFrameVisible)) ||
+        (panel &&
+          current.parentFrame() === main &&
+          !(await element.evaluate(browserFrameInPanel, panel)))
+      ) {
         return false;
       }
     } finally {
@@ -88,8 +98,14 @@ const candidateAt = async (frame, main, ui, { list, requested, selector }) => {
   const chat = list ? undefined : chatAt(frame, ui);
   const matching = list
     ? inList(frame, ui)
-    : chat && (requested === undefined || chat === requested);
-  if (!matching || !(await visibleFrame(frame, main, ui))) {
+    : chat &&
+      (requested === undefined || chat === requested) &&
+      (!ui.documents.frameOrigins ||
+        trusted(frame.url(), ui.documents.frameOrigins));
+  if (
+    !matching ||
+    !(await visibleFrame(frame, main, ui, !list && ui.documents.ownerPanel))
+  ) {
     return null;
   }
   const identity = await frame.evaluate(browserDocumentIdentity, selector);
@@ -122,7 +138,9 @@ export const chooseBrowserChatDocument = async (
     throw failure();
   }
   const candidates = [];
-  const selector = list ? listIdentitySelector(ui) : ui.messages.item;
+  const selector = list
+    ? listIdentitySelector(ui)
+    : (ui.documents.chatIdentity ?? ui.messages.item);
   for (const frame of frames) {
     const candidate = await candidateAt(frame, main, ui, {
       list,

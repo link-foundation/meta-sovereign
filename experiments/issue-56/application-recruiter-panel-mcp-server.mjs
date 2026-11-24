@@ -19,22 +19,34 @@ await serveNativeMcpFixture(
       .find((page) => page.url() === originalApplicationSearch);
     const panel = searchPage?.locator('[data-qa="chatik-root"]');
     const panelOpen = Boolean(await panel?.isVisible());
+    const frame = panel
+      ?.locator('iframe[title="Recruiter chat"]')
+      .contentFrame();
     const sends = searchPage
       ? await searchPage.evaluate(() =>
           globalThis.sessionStorage.getItem('fixture-application-sends')
         )
       : undefined;
-    const draft = panelOpen
-      ? await panel
-          .locator('iframe')
-          .contentFrame()
-          .getByRole('textbox', { name: 'Your reply' })
-          .inputValue({ timeout: 5000 })
-      : undefined;
-    if (request.method === 'POST' && request.url === '/dismiss' && panelOpen) {
-      await panel
-        .getByRole('button', { name: 'Close recruiter panel' })
-        .click({ timeout: 5000 });
+    let draft;
+    if (panelOpen) {
+      draft = await frame
+        .getByRole('textbox', { name: 'Your reply' })
+        .inputValue({ timeout: 5000 });
+      if (request.method === 'POST') {
+        const vacancy = /^\/vacancy\/(123|789)$/u.exec(request.url)?.[1];
+        if (vacancy) {
+          await frame
+            .locator('[data-qa="chatik-header-sub-header"] a')
+            .evaluate(
+              (node, url) => node.setAttribute('href', url),
+              `https://hh.ru/vacancy/${vacancy}`
+            );
+        } else if (request.url === '/dismiss') {
+          await panel
+            .getByRole('button', { name: 'Close recruiter panel' })
+            .click({ timeout: 5000 });
+        }
+      }
     }
     return {
       panelOpen,

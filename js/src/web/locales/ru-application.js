@@ -274,7 +274,7 @@ export const ruApplication = {
   'application.recruiterChat.open':
     'Проверьте чат с работодателем в браузере HeadHunter, затем закройте панель чата.',
   'application.recruiterChat.unverified':
-    'Вернитесь на сохранённую страницу HeadHunter, чтобы проверить, закрыта ли панель чата.',
+    'Проверьте панель чата на сохранённой странице HeadHunter. Не удалось подтвердить, что чат относится к этой вакансии.',
   'application.letter.not-requested': 'Прикрепление письма ещё не запрошено.',
   'application.letter.verified': 'Письмо проверено в отклике HH.',
   'application.letter.not-attached': 'Письмо не прикреплено.',

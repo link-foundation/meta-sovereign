@@ -38,8 +38,10 @@ RUN_BROWSER_E2E=1 E2E_RECRUITER_PANEL_MANUAL_SEND=1 node experiments/issue-56/ap
 For the failing run, extract the archive below and use its `parent-modules`
 directory as `APPLICATION_RECRUITER_PANEL_PARENT`. Set
 `APPLICATION_RECRUITER_PANEL_PARENT_WEB` to the local file produced by
-`git show fa9de74b:js/src/web/app.min.js`. The automatic Send command then
-reproduces the premature closure using the published source and bundle.
+`git show fa9de74b:js/src/web/app.min.js`. Add
+`E2E_RECRUITER_PANEL_SKIP_BINDING=1` to the automatic Send command for this
+earlier reproduction. It checks premature closure using the published source
+and bundle.
 
 | Parent closes the browser before the panel appears                                                                                            | CV Sync shows the confirmed delivery and delayed panel                                                                                           |
 | --------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
