@@ -35,6 +35,9 @@ completed. Open the first native editor from the verified result (issue #56, HH1
 Recover a recorded CV editor request that had yet to reach the native job.
 Preserve any admission receipt or recorded owner decision (issue #56, HH17).
 
+Recover verified automatic CV preparation when the comparison finished before
+the acquisition recorded its final receipt (issue #56, HH17).
+
 Watch HeadHunter chats awaiting a reply from shared automation controls, the
 foreground CLI or both Lino encodings. Include already-read chats in this mode,
 keep the current draft open, and advance after an observed owner reply or a

@@ -24,6 +24,8 @@ If both acquisitions and the comparison completed before the first editor opened
 
 If recovery reaches an editor request recorded before native admission, the native service can admit the same request once. An existing native receipt keeps its outcome, and a recorded owner decision limits recovery to status. [Editor recovery](experience-review-opening.md)
 
+The original comparison also remains available if its own receipt was acknowledged before the automatic preparation recorded completion. [Comparison receipt recovery](experience-auto-comparison-recovery.md)
+
 The local-device UI and JSON commands use the same service as the text and binary Lino routes under `/api/cv/experience/review-*`. Status reads never launch a browser. The active decision checks the parent request, selected change and native request together. Requests and receipts remain private. No automatic model decision submits a provider form.
 
 ## Reproduction and validation

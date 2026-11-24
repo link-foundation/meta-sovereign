@@ -25,6 +25,10 @@ operations alone. Stop waits for its active operation to drain and keeps
 completed snapshots. A process interruption preserves the recorded phase and
 confirmed revisions, and the same request ID cannot start new reads.
 
+If both snapshots are recorded and the exact comparison has already finished,
+status can recover its receipt. The CV review can then recover from that
+preparation. [Completed comparison recovery](experience-auto-comparison-recovery.md)
+
 ## Reproduction and checks
 
 Before the change, the CV view required separate acquisitions and manual

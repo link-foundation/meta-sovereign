@@ -170,6 +170,8 @@ const verifyReviewAcquisition = async (browser) => {
     const autoRequestId = await page.evaluate(() =>
       globalThis.localStorage.getItem('ms.cv.experience-auto')
     );
+    const original = await fixture.store.get(experienceAutoKey(autoRequestId));
+    await fixture.store.put({ ...original, phase: 'planning', plan: null });
     const acquisition = await fixture.seedReviewAcquisition(autoRequestId);
     await reloadReview(page, acquisition.requestId);
     const review = page.locator('[data-experience-review]');
@@ -185,7 +187,6 @@ const verifyReviewAcquisition = async (browser) => {
     const native = provider.locator('textarea[data-qa="resume-editor-about"]');
     assert.equal(await native.inputValue(), queue.source.profile.about);
     const resumed = await fixture.store.get(acquisition.id);
-    const original = await fixture.store.get(experienceAutoKey(autoRequestId));
     assert.equal(resumed.comparison.requestId, original.plan.requestId);
     assert.equal(resumed.comparison.fingerprint, original.plan.fingerprint);
     assert.equal(resumed.comparison.hh, original.hh);

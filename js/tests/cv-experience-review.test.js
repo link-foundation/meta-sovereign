@@ -16,7 +16,10 @@ import {
   reviewChildId,
 } from '../src/cv/experience-review-record.js';
 import { createExperienceAutoService } from '../src/cv/experience-auto-service.js';
-import { experienceAutoOptions } from '../src/cv/experience-auto-record.js';
+import {
+  experienceAutoKey,
+  experienceAutoOptions,
+} from '../src/cv/experience-auto-record.js';
 import { createHhExperienceAcquisition } from '../src/cv/experience-hh-acquisition.js';
 import { hhAcquisitionOptions } from '../src/cv/experience-hh-acquisition-options.js';
 import { createHhExperienceWorkplaceJobs } from '../src/cv/experience-hh-workplace-job.js';
@@ -310,6 +313,12 @@ test(
           async () => (await send('auto-status', type, acquisition)).row,
           phaseIs('completed')
         );
+        if (index === 1) {
+          const prior = await fixture.store.get(
+            experienceAutoKey(autoRequestId)
+          );
+          await fixture.store.put({ ...prior, phase: 'planning', plan: null });
+        }
         if (index === 0) {
           await fixture.store.put({
             ...row,

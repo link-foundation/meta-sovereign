@@ -3,6 +3,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { PrivateCvJob } from './private-job.js';
 import { storedExperienceDocument } from './experience-store.js';
 import { confirmedExperiencePlan } from './experience-plan-receipt.js';
+import { readExperiencePlan } from './experience-plan-service.js';
 import { hhAcquisitionRunning } from './experience-hh-acquisition.js';
 import { hhAcquisitionOptions } from './experience-hh-acquisition-options.js';
 import {
@@ -124,15 +125,48 @@ export const checkLinkedinSnapshot = async (store, receipt, input) => {
   return revision;
 };
 
+const autoChildInput = ({ options, token }, name) => ({
+  ...options,
+  requestId: experienceAutoChildId(token, name),
+});
+const comparisonInput = (row) =>
+  experiencePlanOptions({
+    ...autoChildInput(row, 'plan'),
+    hh: row.hh,
+    linkedin: row.linkedin,
+  });
+const completedComparison = ({ requestId, fingerprint }) => ({
+  phase: 'completed',
+  step: null,
+  plan: { requestId, fingerprint },
+});
+
+const storedComparison = async (store, row) => {
+  const input = comparisonInput(row);
+  const plan = await confirmedExperiencePlan(
+    await readExperiencePlan(store, input),
+    input.requestId
+  );
+  return sameExperienceChild(plan, input) && plan.phase === 'completed'
+    ? completedComparison(plan)
+    : null;
+};
+
+const autoView = async (store, row, active) => {
+  if (!active && row.phase === 'planning') {
+    const completion = await storedComparison(store, row).catch(() => null);
+    if (completion) {
+      return experienceAutoView({ ...row, ...completion }, active);
+    }
+  }
+  return experienceAutoView(row, active);
+};
+
 const workFor =
   ({ store, getHh, getLinkedin, getPlan, wait }) =>
   async (owned, save) => {
     const { signal } = owned.controller;
-    const { options, token } = owned.row;
-    const inputFor = (name) => ({
-      ...options,
-      requestId: experienceAutoChildId(token, name),
-    });
+    const inputFor = (name) => autoChildInput(owned.row, name);
     const progress = (step) =>
       owned.row.step === step ? undefined : save({ step });
     const run = (getService, input, running) =>
@@ -156,21 +190,13 @@ const workFor =
       signal.throwIfAborted();
       await save({ linkedin, phase: 'planning', step: null });
 
-      const input = experiencePlanOptions({
-        ...inputFor('plan'),
-        hh,
-        linkedin,
-      });
+      const input = comparisonInput(owned.row);
       const plan = await confirmedExperiencePlan(
         await run(getPlan, input, experiencePlanRunning),
         input.requestId
       );
       signal.throwIfAborted();
-      await save({
-        phase: 'completed',
-        step: null,
-        plan: { requestId: plan.requestId, fingerprint: plan.fingerprint },
-      });
+      await save(completedComparison(plan));
     } catch (error) {
       await save({
         phase: signal.aborted ? 'stopped' : 'failed',
@@ -199,12 +225,13 @@ export const createExperienceAutoService = ({
     optionsFor: experienceAutoOptions,
     newRecord,
     checked: checkedExperienceAuto,
-    view: experienceAutoView,
+    view: (row, active) => autoView(store, row, active),
     work: workFor({ store, getHh, getLinkedin, getPlan, wait }),
   }).controls();
 
 export const storedExperienceAutoStatus = async (store, { requestId }) =>
-  experienceAutoView(
+  autoView(
+    store,
     checkedExperienceAuto(
       await store.get(experienceAutoKey(requestId)),
       requestId

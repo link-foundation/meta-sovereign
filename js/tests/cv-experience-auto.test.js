@@ -7,7 +7,10 @@ import {
   storedExperienceAutoStatus,
 } from '../src/cv/experience-auto-service.js';
 import { createHhExperienceAcquisition } from '../src/cv/experience-hh-acquisition.js';
-import { experienceAutoRunning } from '../src/cv/experience-auto-record.js';
+import {
+  experienceAutoKey,
+  experienceAutoRunning,
+} from '../src/cv/experience-auto-record.js';
 import { confirmedExperiencePlan } from '../src/cv/experience-plan-receipt.js';
 import { LINO_BINARY, LINO_TEXT } from '../src/transport/lino.js';
 import { experienceAutoFixture } from '../../experiments/issue-56/experience-auto-fixture.mjs';
@@ -105,6 +108,67 @@ test(
         assert.equal(fixture.calls.length, index + 1);
         assert.equal(fixture.translationCalls.length, comparisons);
       }
+    } finally {
+      await server.close();
+      await fixture.close();
+    }
+  }
+);
+
+test(
+  'automatic preparation recovers the original options after its comparison completed',
+  { timeout: 10000 },
+  async () => {
+    const fixture = await experienceAutoFixture();
+    const { store } = fixture;
+    const server = await startCvFixtureServer({
+      store,
+      vacancies: fixture.vacancies,
+      cv: fixture.cv,
+    });
+    const send = cvFixtureRequest(
+      `http://127.0.0.1:${server.port}/api/cv/experience/`,
+      ['auto-status']
+    );
+    try {
+      const request = { requestId: 'recover-automatic-comparison' };
+      const input = { ...fixture.input, ...request };
+      const status = async (type) =>
+        (await send('auto-status', type, request)).row;
+      await send('auto-start', LINO_TEXT, input);
+      const result = await settled(() => status(LINO_TEXT));
+      assert.equal(result.phase, 'completed');
+      const id = experienceAutoKey(request.requestId);
+      const row = await store.get(id);
+      const checkpoint = { ...row, phase: 'planning', plan: null };
+      const translated = fixture.translationCalls.length;
+      assert.ok(translated > 0);
+      await store.put(checkpoint);
+      assert.deepEqual(await status(LINO_TEXT), result);
+      assert.deepEqual(await status(LINO_BINARY), result);
+      assert.deepEqual(
+        await storedExperienceAutoStatus(store, request),
+        result
+      );
+      assert.deepEqual(
+        (await send('auto-start', LINO_BINARY, input)).row,
+        result
+      );
+      assert.deepEqual(await store.get(id), checkpoint);
+
+      const mismatch = {
+        ...checkpoint,
+        options: { ...row.options, asOf: '2026-10' },
+      };
+      await store.put(mismatch);
+      assert.equal((await status(LINO_TEXT)).phase, 'interrupted');
+      assert.equal(
+        (await storedExperienceAutoStatus(store, request)).phase,
+        'unknown'
+      );
+      assert.deepEqual(await store.get(id), mismatch);
+      assert.equal(fixture.calls.length, 1);
+      assert.equal(fixture.translationCalls.length, translated);
     } finally {
       await server.close();
       await fixture.close();
