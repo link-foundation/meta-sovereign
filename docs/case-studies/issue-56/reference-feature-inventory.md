@@ -8,6 +8,8 @@ Current acceptance: **88 of 118 criteria verified; 30 remain unchecked**.
 
 [Replies in the recruiter panel](application-recruiter-panel-learning.md) retain provider delivery in Chat and create an unapproved proposal with source evidence after the owner's dated reply is delivered. HH08 and HH10 still require the remaining recruiter-panel actions and authenticated verification.
 
+[Drafts in the recruiter panel](application-recruiter-panel-draft.md) prepare a reviewable saved answer in the verified vacancy’s empty composer and reveal the incoming message. The worker preserves owner edits and makes one preparation attempt per question in the active review. HH08 and HH10 remain open for automatic exact replies, terminal dismissal and authenticated verification.
+
 [Confirmed delivery returns to the original search](application-delivered-return.md) after the application or separately confirmed fallback letter. The receipt survives filters that hide the delivered vacancy. HH06 remains open.
 
 [Separate cover-letter delivery](application-letter-attachment.md) guards the vacancy-page attachment after HeadHunter confirms the application. The [original search](application-search-attachment.md) can supply the exact card's offer with a guarded vacancy-page fallback. The [paced batch](application-batch-attachment.md) applies the saved confirmations and retains one per-vacancy letter result for review. HH06 and HH08 remain open for authenticated behavior and the remaining reference routes.

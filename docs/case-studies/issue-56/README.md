@@ -1,3 +1,4 @@
+- [Recruiter-panel answer drafts](application-recruiter-panel-draft.md) reproduce the blank composer on the published parent and verify a single reviewable native draft, the revealed question, recovery and zero sends.
 - [Hosted Windows fixture failures](ci-hosted-fixtures.md) preserve five actual assertions and verify eighteen focused cases per runtime covering automated HH refusals, form document identity and availability reporting.
 
 - [Desktop browser-wait actions](desktop-owner-attention.md) verify Show browser and Later through real Electron and an isolated Linux notification service after the shell window closes. The same service reproduces failed system delivery and verifies the local fallback. QA24 and HH01 remain unfinished.

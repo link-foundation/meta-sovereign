@@ -3,6 +3,7 @@ import { writeBrowserNativeInput } from './browser-native-input.js';
 import {
   watchChoiceView,
   revealChoiceReply,
+  revealBrowserMessage,
 } from './browser-choice-visibility.js';
 import { armBrowserReply } from './browser-reply-guard.js';
 import { browserAnswerRecent } from './browser-answer-context.js';
@@ -183,9 +184,13 @@ export const prefillChoiceDraft = (input, context) => {
     return { code: 'answer-prefill-unverified' };
   }
   own(current, input.text);
-  return same(snapshot())
-    ? { prefilled: true }
-    : { code: 'answer-prefill-unverified' };
+  if (!same(snapshot())) {
+    return { code: 'answer-prefill-unverified' };
+  }
+  if (input.reveal) {
+    revealBrowserMessage(input.spec, current.question.id);
+  }
+  return { prefilled: true };
 };
 
 export const armChoiceClick = (input, context) => {

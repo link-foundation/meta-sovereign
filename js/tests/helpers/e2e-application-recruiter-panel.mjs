@@ -1,11 +1,15 @@
 import assert from 'node:assert/strict';
 import { setTimeout } from 'node:timers/promises';
-import { listAnswerRules } from '../../src/automation/question-store.js';
+import {
+  listAnswerRules,
+  previewAnswer,
+} from '../../src/automation/question-store.js';
 import {
   applicationRecruiterPanelFixture,
   recruiterPanelDraft,
   recruiterPanelQuestion,
   recruiterPanelReply,
+  recruiterPanelSavedDraft,
 } from '../../../experiments/issue-56/application-recruiter-panel-fixture.mjs';
 import { originalApplicationSearch } from '../../../experiments/issue-56/application-search-route-fixture.mjs';
 import { applicationPanelBrowser } from './application-panel-browser.mjs';
@@ -24,6 +28,60 @@ const waitForCapture = async (read, description) => {
     await setTimeout(200);
   }
   assert.fail(description);
+};
+
+const verifyApproximateAnswer = async (store) => {
+  const plan = await previewAnswer(store, { question: recruiterPanelQuestion });
+  assert.equal(plan.match, 'approximate');
+  assert.equal(plan.requiresReview, true);
+  assert.equal(plan.text, recruiterPanelSavedDraft);
+};
+
+const verifyRecruiterDraftReview = async ({
+  draft,
+  frame,
+  nativePanel,
+  panel,
+  status,
+  shot,
+}) => {
+  const link = frame.locator(recruiterLink);
+  const messages = frame.locator('#recruiter-messages');
+  const draftWrites = () =>
+    draft.evaluate(() => globalThis.fixtureRecruiterDraftWrites);
+  const setVacancy = (url) =>
+    link.evaluate((node, value) => node.setAttribute('href', value), url);
+
+  assert.equal(await draft.inputValue(), recruiterPanelDraft);
+  assert.equal(await draftWrites(), 0);
+  await setVacancy('https://hh.ru/vacancy/789');
+  await panel
+    .locator('[data-application-recruiter-chat="unverified"]')
+    .waitFor();
+  await draft.fill('');
+  await setTimeout(900);
+  assert.equal(await draft.inputValue(), '');
+  assert.equal(await draftWrites(), 0);
+  await setVacancy(vacancy);
+  await status.waitFor();
+  try {
+    await waitForCapture(
+      async () => (await draft.inputValue()) === recruiterPanelSavedDraft,
+      'the verified recruiter panel must prefill the approximate answer'
+    );
+  } catch (error) {
+    await shot('draft-before', nativePanel);
+    throw error;
+  }
+  assert.ok(await messages.evaluate((node) => node.scrollTop > 0));
+  assert.equal(await draftWrites(), 1);
+  assert.equal(await draft.evaluate(() => globalThis.fixtureRecruiterSends), 0);
+  await shot('draft-prefilled', nativePanel);
+  await draft.fill('');
+  await setTimeout(900);
+  assert.equal(await draft.inputValue(), '');
+  assert.equal(await draftWrites(), 1);
+  await draft.fill(recruiterPanelDraft);
 };
 
 const verifyRecruiterReplyLearning = async ({
@@ -174,6 +232,38 @@ const verifyRecruiterPanelBinding = async ({
   await status.waitFor();
 };
 
+const verifyRecruiterPanelRecovery = async ({
+  controls,
+  page,
+  phase,
+  button,
+  status,
+  receipt,
+  nativePanel,
+  owned,
+  draft,
+  fixture,
+  shot,
+}) => {
+  await controls.phone();
+  await page.reload();
+  await phase('review');
+  await button('follow').click();
+  await status.waitFor();
+  await receipt.waitFor();
+  assert.equal(await draft.inputValue(), recruiterPanelDraft);
+  await shot('phone', status.locator('..'));
+  await nativePanel
+    .getByRole('button', { name: 'Close recruiter panel' })
+    .click();
+  await phase('completed');
+  assert.equal(owned.isClosed(), true);
+  assert.equal(fixture.effects.length, 1);
+  assert.equal(fixture.searchVisits.length, 2);
+  assert(fixture.records.every((record) => record.closed));
+  assert.deepEqual(fixture.errors, []);
+};
+
 export const verifyNativeApplicationRecruiterPanel = async (
   browser,
   {
@@ -184,12 +274,14 @@ export const verifyNativeApplicationRecruiterPanel = async (
     manualSend = false,
     verifyBinding = true,
     ownerReply = false,
+    prepareReply = false,
     verifyPending = true,
   } = {}
 ) => {
   const fixture = await applicationRecruiterPanelFixture(browser, {
     panelDelayMs,
     ownerReply,
+    prepareReply,
   });
   const controls = applicationPanelBrowser(fixture);
   const { page, panel } = controls;
@@ -201,6 +293,9 @@ export const verifyNativeApplicationRecruiterPanel = async (
     );
   }
   try {
+    if (prepareReply) {
+      await verifyApproximateAnswer(fixture.runtimeStore);
+    }
     await controls.select();
     await panel
       .locator('[data-application-option="applyFromVacancyPage"]')
@@ -286,28 +381,38 @@ export const verifyNativeApplicationRecruiterPanel = async (
         verifyPending,
       });
     }
-    await controls.phone();
-    await page.reload();
-    await phase('review');
-    await button('follow').click();
-    await status.waitFor();
-    await receipt.waitFor();
-    assert.equal(await draft.inputValue(), recruiterPanelDraft);
-    await shot('phone', status.locator('..'));
-    await nativePanel
-      .getByRole('button', { name: 'Close recruiter panel' })
-      .click();
-    await phase('completed');
-    assert.equal(owned.isClosed(), true);
-    assert.equal(fixture.effects.length, 1);
-    assert.equal(fixture.searchVisits.length, 2);
-    assert(fixture.records.every((record) => record.closed));
-    assert.deepEqual(fixture.errors, []);
+    if (prepareReply) {
+      await verifyRecruiterDraftReview({
+        draft,
+        frame,
+        nativePanel,
+        panel,
+        status,
+        shot,
+      });
+    }
+    await verifyRecruiterPanelRecovery({
+      controls,
+      page,
+      phase,
+      button,
+      status,
+      receipt,
+      nativePanel,
+      owned,
+      draft,
+      fixture,
+      shot,
+    });
     return {
       applicationsSent: 1,
       manualSend,
       exactSearchVisits: 2,
       draftPreserved: true,
+      ...(prepareReply && {
+        approximateDraftConfirmed: true,
+        recruiterSends: 0,
+      }),
       batchCompletedAfterOwnerDismissal: true,
       resourcesClosed: true,
     };

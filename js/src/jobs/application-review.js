@@ -13,7 +13,10 @@ import { reviewSnapshotKey } from '../forms/review-targets.js';
 import { rememberApplicationLocation } from './application-location.js';
 import { rememberApplicationPopup } from './application-popup.js';
 import { observeVacancySkip } from './vacancy-skip-service.js';
-import { applyApplicationRunPolicy } from './application-run-modes.js';
+import {
+  applicationPreservationPolicy,
+  applyApplicationRunPolicy,
+} from './application-run-modes.js';
 import { observeApplicationResume } from './application-resume-preference.js';
 import {
   applicationLetterRequested,
@@ -68,6 +71,35 @@ const invalidNativeRead = (page, action, capture) =>
   captureError(page, capture) ||
   !page[action] ||
   (!capture && page[action].disabled);
+
+const recruiterDraftReview = (service, record, signal) => {
+  if (record.paused || record.noQuestionnaires || record.hold) {
+    return undefined;
+  }
+  const check = applicationPreservationPolicy(service, record, signal);
+  const { profileId, salary } = record.options;
+  const vacancy = record.vacancy;
+  return {
+    attempted: (record.recruiterDraftAttempts ??= new Set()),
+    input: {
+      profileId,
+      salary,
+      ...(vacancy &&
+        vacancy.url === record.url && {
+          vacancy: {
+            pay: vacancy.salary ?? '',
+            description: vacancy.description?.slice(0, 6000),
+          },
+        }),
+    },
+    check: () => {
+      check();
+      if (record.noQuestionnaires || record.hold || record.closing) {
+        throw fail('mode-changed');
+      }
+    },
+  };
+};
 export const exactApplicationPlan = (record) => {
   const { report, page, options } = record;
   if (
@@ -224,6 +256,7 @@ export class ApplicationReview {
           store: this.service.store,
           previous: record.recruiterCapture,
           profileId: record.options.profileId,
+          review: recruiterDraftReview(this.service, record, signal),
           signal,
           trace: this.service.trace,
         })

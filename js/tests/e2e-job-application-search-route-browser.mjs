@@ -8,4 +8,10 @@ await runBrowserScenarios('job-application-search-route', [
   verifyNativeApplicationDeliveredReturn,
   (browser) =>
     verifyNativeApplicationRecruiterPanel(browser, { ownerReply: true }),
+  (browser) =>
+    verifyNativeApplicationRecruiterPanel(browser, {
+      prepareReply: true,
+      panelDelayMs: 0,
+      verifyBinding: false,
+    }),
 ]);

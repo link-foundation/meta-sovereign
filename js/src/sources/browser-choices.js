@@ -14,6 +14,7 @@ import { writeBrowserNativeInput } from './browser-native-input.js';
 import {
   watchChoiceView,
   revealChoiceReply,
+  revealBrowserMessage,
 } from './browser-choice-visibility.js';
 import { setTimeout as sleep } from 'node:timers/promises';
 import {
@@ -88,6 +89,7 @@ const source = `(input) => {
   const writeBrowserNativeInput = (${writeBrowserNativeInput.toString()});
   const watchChoiceView = (${watchChoiceView.toString()});
   const revealChoiceReply = (${revealChoiceReply.toString()});
+  const revealBrowserMessage = (${revealBrowserMessage.toString()});
   const browserFrameVisible = (${browserFrameVisible.toString()});
   const browserReplyAdmission = (${browserReplyAdmission.toString()});
   const matchingChoiceReplies = (${matchingChoiceReplies.toString()});
@@ -156,8 +158,12 @@ export const browserChoiceSpec = (ui) => {
   };
 };
 
-const evaluate = (commander, input) =>
-  commander.evaluate({ fn: browserChoicePage, args: [input] });
+const evaluate = (commander, input, beforeEvaluate) =>
+  commander.evaluate({
+    fn: browserChoicePage,
+    args: [input],
+    ...(beforeEvaluate ? { beforeEvaluate } : {}),
+  });
 
 export const readBrowserVacancyHeader = (commander, ui) =>
   evaluate(commander, {
@@ -246,7 +252,7 @@ export const prefillBrowserAnswer = async (
   ui,
   expected,
   text,
-  { inactiveToken, verifyCurrent } = {}
+  { inactiveToken, verifyCurrent, beforeEvaluate, reveal } = {}
 ) => {
   if (
     typeof text !== 'string' ||
@@ -259,13 +265,18 @@ export const prefillBrowserAnswer = async (
     throw failure('bad-draft');
   }
   await verifyCurrent?.();
-  const result = await evaluate(commander, {
-    spec: browserChoiceSpec(ui),
-    operation: 'prefill',
-    expected,
-    text,
-    ...(inactiveToken ? { inactiveToken } : {}),
-  });
+  const result = await evaluate(
+    commander,
+    {
+      spec: browserChoiceSpec(ui),
+      operation: 'prefill',
+      expected,
+      text,
+      ...(inactiveToken ? { inactiveToken } : {}),
+      ...(reveal ? { reveal: true } : {}),
+    },
+    beforeEvaluate
+  );
   if (!result.prefilled) {
     throw failure(result.code);
   }

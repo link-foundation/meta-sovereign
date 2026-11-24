@@ -13,6 +13,7 @@ import {
 } from '../sources/browser-choices.js';
 import { archiveBrowserHistoryWindow } from '../sources/browser-history-archive.js';
 import { HH_WEB_UI } from '../sources/hh-web-ui.js';
+import { prepareRecruiterDraft } from './application-recruiter-draft.js';
 
 const recruiterUi = {
   ...HH_WEB_UI,
@@ -118,6 +119,20 @@ export const readApplicationRecruiterPanel = async (
     options.signal.throwIfAborted();
     options.trace({
       event: 'application-recruiter-history',
+      state: 'unverified',
+    });
+  }
+  try {
+    if (await prepareRecruiterDraft(document, recruiterUi, vacancy, options)) {
+      options.trace({
+        event: 'application-recruiter-draft',
+        state: 'verified',
+      });
+    }
+  } catch {
+    options.signal.throwIfAborted();
+    options.trace({
+      event: 'application-recruiter-draft',
       state: 'unverified',
     });
   }

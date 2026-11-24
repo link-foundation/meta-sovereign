@@ -219,7 +219,7 @@ const resolveBrowserDocument = async (
       await assertCurrent();
       return result;
     },
-    async evaluate({ fn, args = [] }) {
+    async evaluate({ fn, args = [], beforeEvaluate }) {
       if (args.length > 1) {
         throw failure();
       }
@@ -227,6 +227,7 @@ const resolveBrowserDocument = async (
         return selected.frame.evaluate(fn, args[0]);
       }
       await assertCurrent();
+      beforeEvaluate?.();
       const value =
         selected.frame === page.mainFrame()
           ? await commander.evaluate({ fn, args })

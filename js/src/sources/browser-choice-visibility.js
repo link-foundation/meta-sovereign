@@ -35,11 +35,15 @@ export const revealChoiceReply = (spec, attempt, current, message) => {
   if (composer && String(composer.value ?? composer.textContent ?? '')) {
     return 'owner-draft';
   }
+  return revealBrowserMessage(spec, message.id);
+};
+
+export const revealBrowserMessage = (spec, id) => {
   const pattern = new RegExp(spec.messages.idPattern);
   const nodes = [...document.querySelectorAll(spec.messages.item)].filter(
     (node) =>
       pattern.exec(node.getAttribute(spec.messages.idAttribute) ?? '')?.[1] ===
-      message.id
+      id
   );
   if (nodes.length !== 1) {
     return 'unavailable';
@@ -52,7 +56,6 @@ export const revealChoiceReply = (spec, attempt, current, message) => {
     });
     return 'revealed';
   } catch {
-    // A view failure cannot erase a positive delivery receipt or permit a retry.
     return 'unavailable';
   }
 };
