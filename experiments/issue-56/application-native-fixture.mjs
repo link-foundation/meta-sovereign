@@ -16,6 +16,7 @@ export const applicationNativeHtml = ({
   ownerAnswers,
   signedIn = false,
   instantApplication = false,
+  alreadyDelivered = false,
 } = {}) => `<!doctype html><html><body>
     ${signedIn ? '<a data-qa="mainmenu_applicantProfilePage" href="/applicant/resumes">Application fixture account</a>' : ''}
     <h1 data-qa="vacancy-title">${html(vacancy.title)}</h1>
@@ -70,7 +71,7 @@ export const applicationNativeHtml = ({
         button.insertAdjacentHTML('beforebegin', '<label>Cover letter<textarea data-qa="vacancy-response-form-letter-input"></textarea></label>');
         button.remove();
       }
-      ${response ? 'openApplication(false);' : ''}
+      ${response || alreadyDelivered ? 'openApplication(false);' : ''}
       ${
         response && ownerAnswers
           ? `document.querySelector('#experience').value=${JSON.stringify(ownerAnswers.experience)};
@@ -96,6 +97,7 @@ export const applicationNativeFixture = async (
     ownerAnswers,
     prepareContext,
     instantApplication,
+    alreadyDelivered,
   } = {}
 ) => {
   let nativeForms = 0;
@@ -127,6 +129,7 @@ export const applicationNativeFixture = async (
             description,
             signedIn: Boolean(prepareContext),
             instantApplication,
+            alreadyDelivered: instantApplication && alreadyDelivered,
             salary:
               typeof salary === 'function'
                 ? salary(

@@ -1,6 +1,7 @@
 import { runBrowserScenarios } from './helpers/e2e-browser-scenarios.mjs';
 import { verifyNativeApplicationConfirmations } from './helpers/e2e-application-confirmations.mjs';
 import { verifyNativeLetterAttachment } from './helpers/e2e-application-letter-attachment.mjs';
+import { verifyNativeBatchLetterAttachment } from './helpers/e2e-application-batch-attachment.mjs';
 await runBrowserScenarios('job-application-confirmations', [
   (browser) =>
     verifyNativeApplicationConfirmations(browser, {
@@ -8,4 +9,5 @@ await runBrowserScenarios('job-application-confirmations', [
       screenshots: process.env.APPLICATION_SCREENSHOTS,
     }),
   verifyNativeLetterAttachment,
+  verifyNativeBatchLetterAttachment,
 ]);

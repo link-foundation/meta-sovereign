@@ -890,3 +890,4 @@ Optional persistent collection with full current-run context: [collection eviden
 - [HeadHunter chats awaiting a reply](unread-waiting.md) covers already-read chat discovery, an exact Skip receipt, and protected provider drafts during supervised checking.
 - [Waiting chats after application delivery](application-chat-waiting.md) verifies the separate child, exact Skip and the delivery boundary before starting a fresh list scan.
 - [Separate cover-letter delivery](application-letter-attachment.md) stages and sends a reviewed attachment after immediate HeadHunter application delivery, with separate confirmation, receipt and recovery.
+- [Separate cover letters in a paced batch](application-batch-attachment.md) keep the current browser open at the application cap and retain confirmed, uncertain and manual-review outcomes.

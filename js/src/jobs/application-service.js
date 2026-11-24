@@ -613,10 +613,7 @@ export const createApplicationService = (options) => {
       'application-mode': (input) =>
         service.operate((signal) => service.actions.changeMode(input, signal)),
       'application-close': (input) =>
-        service.operate(() => {
-          service.owned(input);
-          return service.close();
-        }),
+        service.operate(() => service.batch.closeReview(service.owned(input))),
     },
     cancel: async () => {
       await service.batch.drain();

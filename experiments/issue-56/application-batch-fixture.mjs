@@ -116,6 +116,8 @@ export const applicationBatchFixture = (t, configuration = {}) => {
         state.admissions.push({ url: input.url, at: state.clock });
         if (input.url.includes('/applicant/vacancy_response')) {
           form(input.url);
+        } else {
+          configuration.vacancyPage?.(state, input.url);
         }
       };
       return browser;

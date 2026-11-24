@@ -454,7 +454,17 @@ const NativeControls = ({ application, idle, confirmed, t }) => {
         action('Restore', { confirm: true }),
         !canRestore(admitted, confirmed, receipt)
       ),
-      button('close', t('application.close'), action('Close'), !ready),
+      button(
+        'close',
+        t(
+          receipt.delivery === 'provider-confirmed' &&
+            ownsBatchReview(application)
+            ? 'application.batch.closeDeliveryReview'
+            : 'application.close'
+        ),
+        action('Close'),
+        !ready
+      ),
     ]),
     check(
       'paused',

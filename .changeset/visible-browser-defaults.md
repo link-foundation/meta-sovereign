@@ -4,8 +4,10 @@
 
 Prepare and separately confirm a cover letter when a delivered HeadHunter
 vacancy offers an attachment. Keep the application delivery and the
-letter's acknowledged outcome separate across CLI, Lino and CV Sync
-(issue #56, HH06).
+letter's acknowledged outcome separate across CLI, Lino and CV Sync.
+Paced batches keep the offer open at the delivery cap, observe the saved
+confirmation choices, and report letters that still need owner review
+(issue #56, HH06 and HH08).
 
 Reuse same-language approved thanks for recognized HeadHunter application
 updates in the explicitly selected inactive notice policy. Verify full chat

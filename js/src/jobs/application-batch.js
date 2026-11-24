@@ -3,6 +3,7 @@ import { acknowledgedRead } from './acknowledged-store.js';
 import {
   applicationDelay,
   applicationFailure as fail,
+  applicationPageKey,
   applicationView,
   applicationKey,
 } from './application-options.js';
@@ -29,6 +30,8 @@ import {
   discoveryBatchRequestId,
   readDiscoveryBatch,
 } from './application-batch-discovery.js';
+import { applicationAttachmentStatus } from './application-letters.js';
+import { applicationConfirmationPolicy } from './application-confirmations.js';
 
 const observedOutcome = (page) =>
   page.bound &&
@@ -46,6 +49,11 @@ const excludedVacancy = (url, pending, choices, skips, context) =>
   );
 const owners = new WeakMap();
 const latest = (slot) => `secret:jobs-application-batch-latest:${slot}`;
+const attachmentActions = {
+  offered: ['letter-prepare', 'cover-letter'],
+  draft: ['letter-prepare', 'cover-letter'],
+  ready: ['letter-send', 'send'],
+};
 
 /** Explicit finite batch. Sleeps release the writer; durable reads never arm work. */
 export class ApplicationBatch {
@@ -587,14 +595,81 @@ export class ApplicationBatch {
     }
     return null;
   }
-  async recordDelivery(runtime, url) {
-    if (!runtime.record.delivered.includes(url)) {
-      await this.save(runtime, {
-        delivered: [...runtime.record.delivered, url],
-      });
+  async recordDelivery(runtime, current) {
+    const { url } = current;
+    const delivered = runtime.record.delivered.includes(url);
+    const attachments = runtime.record.letterAttachments ?? [];
+    const status = applicationAttachmentStatus(current);
+    const state = ['provider-confirmed', 'unknown'].includes(status)
+      ? status
+      : status
+        ? 'needs-review'
+        : null;
+    const previous = attachments.find((row) => row.url === url);
+    if (delivered && (!state || previous?.state === state)) {
+      return;
+    }
+    await this.save(runtime, {
+      ...(!delivered && { delivered: [...runtime.record.delivered, url] }),
+      ...(state && previous?.state !== state
+        ? {
+            letterAttachments: previous
+              ? attachments.map((row) =>
+                  row === previous ? { url, state } : row
+                )
+              : [...attachments, { url, state }],
+          }
+        : {}),
+    });
+    if (!delivered) {
       runtime.chats?.applicationDelivered();
     }
-    await this.service.close();
+  }
+  async closeReview(current) {
+    const runtime = this.runtime;
+    if (
+      runtime?.record.active &&
+      !runtime.controller.signal.aborted &&
+      current.delivery === 'provider-confirmed' &&
+      current.url === runtime.record.currentUrl &&
+      current.requestId === runtime.record.options.requestId &&
+      current.browserSlot === runtime.record.options.browserSlot
+    ) {
+      await this.recordDelivery(runtime, current);
+    }
+    return this.service.close();
+  }
+  async finishDelivery(runtime, current, signal) {
+    await this.recordDelivery(runtime, current);
+    const status = applicationAttachmentStatus(current);
+    if (!status || status === 'provider-confirmed') {
+      return this.service.close();
+    }
+    await this.save(runtime, { phase: 'review', nextAt: null });
+    const action = attachmentActions[status];
+    if (
+      !action ||
+      current.options.testMode ||
+      applicationConfirmationPolicy(current.options).includes(action[1])
+    ) {
+      return;
+    }
+    try {
+      await this.service.attachment.advance(
+        current,
+        { action: action[0], confirm: true },
+        signal
+      );
+    } catch (error) {
+      if (signal.aborted || current.attachmentDelivery !== 'unknown') {
+        throw error;
+      }
+      this.service.trace({
+        event: 'application-batch-letter-uncertain',
+        code: error.code ?? 'unknown',
+      });
+    }
+    await this.recordDelivery(runtime, current);
   }
   async observe(runtime, signal) {
     const current = this.service.current;
@@ -610,14 +685,18 @@ export class ApplicationBatch {
     }
     const page = await this.service.readPage(current.browser, current.url);
     signal.throwIfAborted();
-    if (observedOutcome(page)) {
+    if (
+      current.delivery === 'provider-confirmed'
+        ? applicationPageKey(page) !== current.guard?.page
+        : observedOutcome(page)
+    ) {
       await this.service.review.inspect(current, signal);
     }
     if (await this.salary.preserve(runtime, current, signal)) {
       return;
     }
     if (current.delivery === 'provider-confirmed') {
-      return this.recordDelivery(runtime, current.url);
+      return this.finishDelivery(runtime, current, signal);
     }
     if (current.delivery === 'unknown' && !current.hold) {
       throw fail('unconfirmed');

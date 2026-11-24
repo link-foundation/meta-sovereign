@@ -208,6 +208,39 @@ const sourceLabel = (requestId, t, location) =>
     t('discovery.batchSource', { requestId })
   );
 
+const BatchLetters = ({ rows, t }) =>
+  el('details', { 'data-application-batch-letters': true }, [
+    el('summary', { key: 'summary' }, t('application.batch.letters')),
+    el(
+      'ul',
+      { key: 'results' },
+      rows.map(({ url, state }) =>
+        el(
+          'li',
+          {
+            key: url,
+            'data-application-batch-letter-result': state,
+            style: { overflowWrap: 'anywhere' },
+          },
+          [
+            el(
+              'a',
+              {
+                key: 'url',
+                href: url,
+                target: '_blank',
+                rel: 'noopener noreferrer',
+              },
+              url
+            ),
+            ' · ',
+            t(`application.attachment.${state}`),
+          ]
+        )
+      )
+    ),
+  ]);
+
 const BatchReceipt = ({ batch, state, t, check }) =>
   el(
     'div',
@@ -231,6 +264,9 @@ const BatchReceipt = ({ batch, state, t, check }) =>
           total: batch.total,
         })
       ),
+      batch.letterAttachments?.length
+        ? el(BatchLetters, { key: 'letters', rows: batch.letterAttachments, t })
+        : null,
       batch.salaryTier === undefined
         ? null
         : el('p', { key: 'salary', 'data-application-batch-salary': true }, [

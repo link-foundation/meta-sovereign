@@ -91,6 +91,9 @@ export const hiApplication = {
   'application.batch.status': 'बैच की स्थिति पढ़ें',
   'application.batch.stop': 'बैच रोकें; फ़ॉर्म खुला रखें',
   'application.batch.follow': 'वर्तमान रिक्ति की समीक्षा करें',
+  'application.batch.letters': 'अलग कवर लेटर',
+  'application.batch.closeDeliveryReview':
+    'यह समीक्षा बंद करें और बैच जारी रखें',
   'application.batch.progress':
     'पहुंचे: {delivered}; बाहर रखे: {skipped}; सूची में: {total}।',
   'application.batch.next': 'अगला प्रवेश: {at}।',
@@ -268,8 +271,7 @@ export const hiApplication = {
     'कवर लेटर भेजने के लिए तैयार है। उसे HH पॉपअप में देखें।',
   'application.attachment.owner-conflict':
     'HH पॉपअप में दूसरा पत्र है। आपका लिखा पाठ वहीं है।',
-  'application.attachment.needs-review':
-    'अलग कवर लेटर की स्थिति देखने के लिए रिक्ति फिर से खोलें।',
+  'application.attachment.needs-review': 'अलग कवर लेटर की स्थिति HH में देखें।',
   'application.attachment.unknown':
     'HH ने कवर लेटर की पुष्टि नहीं की है। आगे बढ़ने से पहले HH में उसकी स्थिति देखें।',
   'application.attachment.provider-confirmed':

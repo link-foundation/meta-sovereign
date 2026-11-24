@@ -56,6 +56,6 @@ browsers. The final receipt came from the isolated native fixture.
 
 The [phone view](../../screenshots/application-letter-attachment/phone.png)
 and [confirmed attachment](../../screenshots/application-letter-attachment/after.png)
-capture the same isolated workflow. Full coverage still requires the
-search-card attachment route, automatic batch handling and authenticated
-HeadHunter evidence. HH06 and HH08 remain open.
+capture the same isolated workflow. The [paced batch](application-batch-attachment.md)
+can also drive this vacancy-page offer. The search-card attachment route and
+authenticated HeadHunter evidence remain open in HH06 and HH08.

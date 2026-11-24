@@ -76,6 +76,8 @@ export const zhApplication = {
   'application.batch.status': '读取批次状态',
   'application.batch.stop': '停止批次并保留表单',
   'application.batch.follow': '查看当前职位',
+  'application.batch.letters': '单独发送的求职信',
+  'application.batch.closeDeliveryReview': '关闭此审核并继续批次',
   'application.batch.progress':
     '已送达：{delivered}；已排除：{skipped}；列表总数：{total}。',
   'application.batch.next': '下次打开时间：{at}。',
@@ -223,7 +225,7 @@ export const zhApplication = {
   'application.attachment.ready': '求职信已准备好发送。请在 HH 弹窗中查看。',
   'application.attachment.owner-conflict':
     'HH 弹窗中有另一封求职信。您输入的内容仍在弹窗中。',
-  'application.attachment.needs-review': '重新打开职位以查看单独附上的求职信。',
+  'application.attachment.needs-review': '在 HH 中查看单独发送的求职信。',
   'application.attachment.unknown': 'HH 尚未确认求职信。请先在 HH 中查看状态。',
   'application.attachment.provider-confirmed': 'HH 已确认单独发送的求职信。',
   'application.attachment.letter-prepare': '准备求职信',

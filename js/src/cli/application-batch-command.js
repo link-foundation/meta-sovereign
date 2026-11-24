@@ -15,6 +15,14 @@ const stepCommands = {
   'confirm-send': 'send',
   'confirm-popup': 'popup',
 };
+const attachmentCommands = ['letter-prepare', 'letter-send'];
+const applicationCommands = {
+  read: 'application-read',
+  'close-review': 'application-close',
+  ...Object.fromEntries(
+    attachmentCommands.map((action) => [action, 'application-advance'])
+  ),
+};
 const modeCommands = {
   pause: { paused: true },
   resume: { paused: false },
@@ -26,9 +34,7 @@ const currentCommand = async (service, action, displayed) => {
   if (!receipt) {
     throw new Error('No active batch application.');
   }
-  return service[
-    action === 'read' ? 'application-read' : 'application-continue'
-  ]({
+  return service[applicationCommands[action] ?? 'application-continue']({
     url: receipt.url,
     browserSlot: receipt.browserSlot,
     requestId: receipt.requestId,
@@ -36,6 +42,7 @@ const currentCommand = async (service, action, displayed) => {
     ...(stepCommands[action]
       ? { step: stepCommands[action], confirm: true }
       : {}),
+    ...(attachmentCommands.includes(action) ? { action, confirm: true } : {}),
   });
 };
 const batchCommand = async (service, input, action, displayed) => {
@@ -68,7 +75,11 @@ const batchCommand = async (service, input, action, displayed) => {
     const receipt = await service['application-batch-status'](input);
     return { displayed: receipt, output: receipt };
   }
-  if (action === 'read' || action === 'continue' || stepCommands[action]) {
+  if (
+    action === 'continue' ||
+    Object.hasOwn(applicationCommands, action) ||
+    Object.hasOwn(stepCommands, action)
+  ) {
     const application = await currentCommand(service, action, displayed);
     return { displayed: { ...displayed, application }, output: application };
   }
@@ -114,6 +125,8 @@ export const applicationBatchCommand = async (
           'read',
           'continue',
           ...Object.keys(stepCommands),
+          ...attachmentCommands,
+          'close-review',
           'pause',
           'resume',
           'defer-questionnaires',

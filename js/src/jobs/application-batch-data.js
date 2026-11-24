@@ -129,6 +129,18 @@ const validLists = (raw, options) =>
   members(raw.skipped, options.urls) &&
   !raw.delivered.some((url) => raw.skipped.includes(url)) &&
   (raw.currentUrl === null || options.urls.includes(raw.currentUrl));
+const validAttachments = (rows, count, allowed) =>
+  rows === undefined ||
+  (Array.isArray(rows) &&
+    rows.length <= count &&
+    new Set(rows.map((row) => row?.url)).size === rows.length &&
+    rows.every(
+      (row) =>
+        row &&
+        assignmentVacancyUrl(row.url) === row.url &&
+        (allowed === undefined || allowed.includes(row.url)) &&
+        ['needs-review', 'unknown', 'provider-confirmed'].includes(row.state)
+    ));
 
 const validChatSnapshot = (raw, options) =>
   (!options.processChats || browserUnreadId(raw.chatPassId)) &&
@@ -152,6 +164,11 @@ export const readApplicationBatch = (raw, key) => {
     raw.signature !== JSON.stringify(options) ||
     !lifecycle(raw) ||
     !validLists(raw, options) ||
+    !validAttachments(
+      raw.letterAttachments,
+      raw.delivered.length,
+      raw.delivered
+    ) ||
     !validBatchSalary(raw, options.review, options.urls.length) ||
     !validChatSnapshot(raw, options) ||
     Date.parse(raw.expiresAt) - Date.parse(raw.startedAt) !== options.durationMs
@@ -211,6 +228,9 @@ export const applicationBatchView = (
         expiresAt: record.expiresAt,
         nextAt: record.nextAt,
         code: record.code,
+        ...(record.letterAttachments === undefined
+          ? {}
+          : { letterAttachments: record.letterAttachments }),
         ...batchSalaryProgress(record),
         ...(record.salaryTier !== undefined && !active
           ? { salaryDeferred: 0 }
@@ -261,6 +281,7 @@ const validatePublicBatch = (row, input) => {
     typeof row.paused !== 'boolean' ||
     typeof row.noQuestionnaires !== 'boolean' ||
     !publicCounts(row) ||
+    !validAttachments(row.letterAttachments, row.delivered) ||
     !publicSettings(row.settings, row.browserSlot) ||
     !validBatchSalary(row, row.settings, row.total) ||
     !validApplicationChatView(row.chatWorker, row.settings, row.active) ||

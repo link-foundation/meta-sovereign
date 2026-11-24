@@ -97,6 +97,9 @@ export const ruApplication = {
   'application.batch.status': 'Прочитать статус пакета',
   'application.batch.stop': 'Остановить пакет; оставить форму',
   'application.batch.follow': 'Открыть проверку текущей вакансии',
+  'application.batch.letters': 'Отдельные сопроводительные письма',
+  'application.batch.closeDeliveryReview':
+    'Закрыть проверку и продолжить пакет',
   'application.batch.progress':
     'Доставлено: {delivered}; исключено: {skipped}; в списке: {total}.',
   'application.batch.next': 'Следующее открытие: {at}.',
@@ -276,7 +279,7 @@ export const ruApplication = {
   'application.attachment.owner-conflict':
     'В окне HH другое письмо. Ваш текст сохранён в окне.',
   'application.attachment.needs-review':
-    'Откройте вакансию снова, чтобы проверить сопроводительное письмо.',
+    'Проверьте отдельное сопроводительное письмо в HH.',
   'application.attachment.unknown':
     'HH ещё не подтвердил письмо. Прежде чем продолжить, проверьте его статус в HH.',
   'application.attachment.provider-confirmed':

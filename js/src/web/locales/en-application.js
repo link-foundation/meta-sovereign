@@ -92,6 +92,9 @@ export const enApplication = {
   'application.batch.status': 'Read batch status',
   'application.batch.stop': 'Stop batch; keep form',
   'application.batch.follow': 'Review current vacancy',
+  'application.batch.letters': 'Separate cover letters',
+  'application.batch.closeDeliveryReview':
+    'Close this review and continue the batch',
   'application.batch.progress':
     'Delivered: {delivered}; excluded: {skipped}; listed: {total}.',
   'application.batch.next': 'Next admission: {at}.',
@@ -266,7 +269,7 @@ export const enApplication = {
   'application.attachment.owner-conflict':
     'The HH popup contains a different letter. Your text is still there.',
   'application.attachment.needs-review':
-    'Reopen the vacancy to check the separate cover letter.',
+    'Check the separate cover letter in HH.',
   'application.attachment.unknown':
     'HH has not confirmed the cover letter. Check its status in HH before taking further action.',
   'application.attachment.provider-confirmed':

@@ -98,20 +98,18 @@ export const applicationAttachmentStatus = (record) => {
   if (record.delivery !== 'provider-confirmed') {
     return null;
   }
-  if (!record.active) {
-    return record.attachmentObserved ? 'needs-review' : null;
-  }
-  if (!text || !attachment) {
-    return null;
+  const seen = record.attachmentObserved ? 'needs-review' : null;
+  if (!record.active || !text || !attachment) {
+    return seen;
   }
   if (attachment.submit) {
     if (text.length > (attachment.maxLength ?? 24000)) {
-      return null;
+      return seen;
     }
     if (attachment.value === text) {
-      return attachment.submit.disabled ? null : 'ready';
+      return attachment.submit.disabled ? seen : 'ready';
     }
     return attachment.value ? 'owner-conflict' : 'draft';
   }
-  return attachment.offer && !attachment.offer.disabled ? 'offered' : null;
+  return attachment.offer && !attachment.offer.disabled ? 'offered' : seen;
 };
