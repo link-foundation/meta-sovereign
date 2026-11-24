@@ -125,6 +125,7 @@ const applyChoice = async (owned, save, reviewer, signal) => {
 };
 const finishNative = async ({ owned, save, reviewer, wait, opening }) => {
   const { signal } = owned.controller;
+  // The native service admits a request ID once and returns any existing receipt.
   let result = opening
     ? await nativeStatusAfterStart(reviewer)
     : await reviewer.status();
@@ -410,7 +411,6 @@ const workFor = (context) => async (owned, save) => {
       progress,
       context.wait
     );
-  let opening = false;
   try {
     if (owned.row.phase === 'acquiring') {
       await save(await startComparison(context, owned.row, run, signal));
@@ -441,7 +441,6 @@ const workFor = (context) => async (owned, save) => {
           phase: 'opening',
           current: { ...item, key, canSave: false, decision: null },
         });
-        opening = true;
       } else if (['opening', 'prepared'].includes(row.phase)) {
         const reviewer = context.native.reviewer(row.current);
         const result = await finishNative({
@@ -449,10 +448,9 @@ const workFor = (context) => async (owned, save) => {
           save,
           reviewer,
           wait: context.wait,
-          opening,
+          opening: row.phase === 'opening' && row.current.decision === null,
         });
         await settleNative(owned, result, save);
-        opening = false;
         owned.choice?.reject(failure('decision'));
         owned.choice = null;
       } else {

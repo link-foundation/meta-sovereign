@@ -19,6 +19,7 @@ import { createExperienceAutoService } from '../src/cv/experience-auto-service.j
 import { experienceAutoOptions } from '../src/cv/experience-auto-record.js';
 import { createHhExperienceAcquisition } from '../src/cv/experience-hh-acquisition.js';
 import { hhAcquisitionOptions } from '../src/cv/experience-hh-acquisition-options.js';
+import { createHhExperienceWorkplaceJobs } from '../src/cv/experience-hh-workplace-job.js';
 import { createExperiencePlanningService } from '../src/cv/experience-plan-service.js';
 import { newExperiencePlan } from '../src/cv/experience-plan-record.js';
 import { createLinkedinExperienceService } from '../src/cv/linkedin-experience-service.js';
@@ -483,6 +484,100 @@ test(
       ]);
     } finally {
       await service.close();
+      await fixture.close();
+    }
+  }
+);
+
+test(
+  'review recovery admits an unopened editor exactly once and retains interrupted native jobs',
+  { timeout: 10000 },
+  async () => {
+    const fixture = await experienceReviewFixture();
+    const { store, artifactRoot } = fixture;
+    const calls = [];
+    const workplace = createHhExperienceWorkplaceJobs({
+      store,
+      artifactRoot,
+      prepareJob: runNative(calls),
+    });
+    const service = createExperienceReviewService({
+      store,
+      wait,
+      native: createExperienceReviewNative({ getHhWorkplace: () => workplace }),
+    });
+    try {
+      const { hh, linkedin } = await seedWorkplaceExperience(fixture);
+      linkedin.jobs = hh.document.jobs;
+      linkedin.profile.about = 'A reviewed biography.';
+      const plan = await completeWorkplaceExperience(store, hh, linkedin);
+      for (const [index, scenario] of [
+        'missing',
+        'interrupted',
+        'decision-recorded',
+      ].entries()) {
+        const requestId = `recover-editor-${scenario}`;
+        const auto = experienceAutoOptions({ ...fixture.input, requestId });
+        const row = newExperienceReview(
+          requestId,
+          auto,
+          String(index).repeat(32)
+        );
+        const checkpoint = afterAboutSave(row, auto, plan);
+        const { input } = checkpoint.current;
+        const child = { requestId: input.requestId };
+        const decision = scenario === 'decision-recorded' ? 'save' : null;
+        await store.put({
+          ...checkpoint,
+          phase: 'opening',
+          current: { ...checkpoint.current, decision },
+        });
+        const status = () => service.status({ requestId });
+        const nativeId = `secret:cv-hh-workplace-job:${child.requestId}`;
+        if (scenario === 'interrupted') {
+          await store.put({
+            id: nativeId,
+            version: 1,
+            requestId: child.requestId,
+            options: {
+              requestId: input.requestId,
+              fingerprint: input.fingerprint,
+              planRequestId: input.planRequestId,
+            },
+            phase: 'opening',
+            code: null,
+            save: null,
+            initiator: null,
+          });
+        }
+        assert.equal((await status()).lastPhase, 'opening');
+        assert.equal(calls.length, index ? 2 : 0);
+        await service.resume({ requestId });
+        if (scenario === 'missing') {
+          const prepared = await until(status, phaseIs('prepared'));
+          assert.equal(prepared.current.input.requestId, child.requestId);
+          assert.equal((await workplace.status(child)).phase, 'prepared');
+          await service.decide(requestFor(prepared, 'skip'));
+          assert.equal(
+            (await until(status, phaseIs('completed'))).history[0].outcome,
+            'skipped'
+          );
+        } else {
+          const ended = await until(status, phaseIs('unconfirmed'));
+          assert.deepEqual(ended.history, []);
+          if (scenario === 'interrupted') {
+            assert.equal((await workplace.status(child)).phase, 'interrupted');
+          } else {
+            await assert.rejects(workplace.status(child), {
+              code: 'cv-hh-workplace-missing',
+            });
+          }
+        }
+        assert.deepEqual(calls, ['open', 'skip']);
+      }
+    } finally {
+      await service.close();
+      await workplace.close();
       await fixture.close();
     }
   }

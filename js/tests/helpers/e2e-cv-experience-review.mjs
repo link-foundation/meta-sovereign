@@ -1,9 +1,14 @@
 import assert from 'node:assert/strict';
+import { randomBytes } from 'node:crypto';
 import { mkdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { cvPrepareBrowserFixture } from '../../../experiments/issue-56/cv-prepare-browser-fixture.mjs';
 import { experienceAutoKey } from '../../src/cv/experience-auto-record.js';
-import { experienceReviewKey } from '../../src/cv/experience-review-record.js';
+import {
+  experienceReviewKey,
+  newExperienceReview,
+  reviewChildId,
+} from '../../src/cv/experience-review-record.js';
 
 const reviewAction = (page, name) =>
   page.locator(`[data-experience-review-action="${name}"]`);
@@ -26,6 +31,14 @@ const openReview = async ({ page, base, queue }) => {
   await field('hash').fill(queue.input.hash);
   await field('to').selectOption('hh');
   return auto;
+};
+const reloadReview = async (page, requestId) => {
+  await page.evaluate((id) => {
+    globalThis.localStorage.setItem('ms.cv.experience-review', id);
+  }, requestId);
+  await page.reload();
+  await reviewPanels(page);
+  await reviewPhase(page, 'interrupted');
 };
 const routeBundle = async (page, path) => {
   const body = await readFile(path);
@@ -158,12 +171,7 @@ const verifyReviewAcquisition = async (browser) => {
       globalThis.localStorage.getItem('ms.cv.experience-auto')
     );
     const acquisition = await fixture.seedReviewAcquisition(autoRequestId);
-    await page.evaluate((id) => {
-      globalThis.localStorage.setItem('ms.cv.experience-review', id);
-    }, acquisition.requestId);
-    await page.reload();
-    await reviewPanels(page);
-    await phase('interrupted');
+    await reloadReview(page, acquisition.requestId);
     const review = page.locator('[data-experience-review]');
     assert.deepEqual(await providerCounts(provider), [0, 0, 0]);
     await capture(before ? 'acquisition-before' : 'acquisition-after', review);
@@ -192,11 +200,44 @@ const verifyReviewAcquisition = async (browser) => {
       /Discarded/u
     );
     assert.deepEqual(await providerCounts(provider), [1, 0, 1]);
+    await verifyReviewOpening(fixture, resumed);
     assert.equal(counters.attached, counters.detached);
     assert.deepEqual(fixture.errors, []);
   } finally {
     await fixture.close();
   }
+};
+
+const verifyReviewOpening = async ({ page, provider, store }, prepared) => {
+  const requestId = 'recover-cv-opening';
+  const row = newExperienceReview(
+    requestId,
+    { ...prepared.options, requestId },
+    randomBytes(16).toString('hex')
+  );
+  const request = reviewChildId(row, 'native');
+  await store.put({
+    ...row,
+    phase: 'opening',
+    auto: prepared.auto,
+    comparison: prepared.comparison,
+    pending: prepared.pending,
+    current: {
+      ...prepared.current,
+      canSave: false,
+      input: { ...prepared.current.input, requestId: request },
+    },
+  });
+  await reloadReview(page, requestId);
+  assert.deepEqual(await providerCounts(provider), [1, 0, 1]);
+  await reviewAction(page, 'resume').click();
+  await reviewPhase(page, 'prepared');
+  assert.equal((await store.get(row.id)).current.input.requestId, request);
+  assert.deepEqual(await providerCounts(provider), [2, 0, 1]);
+  await reviewAction(page, 'skip').click();
+  await reviewPhase(page, 'completed');
+  assert.equal((await store.get(row.id)).history[0].outcome, 'skipped');
+  assert.deepEqual(await providerCounts(provider), [2, 0, 2]);
 };
 
 export const verifyCvExperienceReview = async (browser) => {

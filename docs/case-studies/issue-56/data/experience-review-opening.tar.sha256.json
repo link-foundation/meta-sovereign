@@ -1,0 +1,15 @@
+{
+  "archive": "experience-review-opening.tar.gz",
+  "files": {
+    "ci-logs/experience-review-opening-chromium.log": "0bab8be815e2b19dd1dba2bc1bce2531415aa5fc0233b1cc6b4ea66fa5712ed4",
+    "ci-logs/experience-review-opening-deno.log": "c6665c889001856443f8dee8a95e4471120c2cd9b7ab5c156154bbe5a9382b20",
+    "ci-logs/experience-review-opening-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/experience-review-opening-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/experience-review-opening-lint.log": "cc5ecb7584557ba923f13eb56c174345818c71457aeb0ad44916a4383302e9ea",
+    "ci-logs/experience-review-opening-node-targeted.log": "73ee3fabb8ff0d4a73a380dc8cf622074973706a530df7e0f27c3efea733e215",
+    "ci-logs/experience-review-opening-node.log": "75ab9d764796cb1c53ffc5a1fc037f514b0809c51866eee4e5d767703e870d14",
+    "ci-logs/experience-review-opening-parent.log": "1b3929401cc860649edacd99d112d2015a6c5a8199a729c6d60b55da1a1ca913",
+    "ci-logs/experience-review-opening-secretlint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "metadata.json": "e3afe4a6fa1c9e8406969626e78d4e8fc3f82507c5fe6892bb06a7c5e9a1a993"
+  }
+}
